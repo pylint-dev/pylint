@@ -9,8 +9,8 @@ A micro report is a tree of layout and content objects.
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Iterator
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable, Iterable, Iterator
+from typing import Any, TypeVar
 
 from pylint.reporters.ureports.base_writer import BaseWriter
 
@@ -28,13 +28,17 @@ class VNode:
     def __iter__(self) -> Iterator[VNode]:
         return iter(self.children)
 
-    def accept(self: _VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
+    def accept(  # noqa: PYI019
+        self: _VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any
+    ) -> None:
         func: VisitLeaveFunction[_VNodeT] = getattr(
             visitor, f"visit_{self.visitor_name}"
         )
         return func(self, *args, **kwargs)
 
-    def leave(self: _VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
+    def leave(  # noqa: PYI019
+        self: _VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any
+    ) -> None:
         func: VisitLeaveFunction[_VNodeT] = getattr(
             visitor, f"leave_{self.visitor_name}"
         )

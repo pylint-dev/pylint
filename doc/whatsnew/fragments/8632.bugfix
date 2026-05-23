@@ -1,4 +1,0 @@
-Fixed a crash when generating a configuration file: ``tomlkit.exceptions.TOMLKitError: Can't add a table to a dotted key``
-caused by tomlkit ``v0.11.8``.
-
-Closes #8632

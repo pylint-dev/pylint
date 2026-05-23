@@ -13,4 +13,5 @@ invalid-name:91:0:91:11::"Class name ""NOT_CORRECT"" doesn't conform to PascalCa
 invalid-name:110:4:110:21:FooClass.PROPERTY_NAME:"Attribute name ""PROPERTY_NAME"" doesn't conform to snake_case naming style":INFERENCE
 invalid-name:116:4:116:30:FooClass.ABSTRACT_PROPERTY_NAME:"Attribute name ""ABSTRACT_PROPERTY_NAME"" doesn't conform to snake_case naming style":INFERENCE
 invalid-name:121:4:121:28:FooClass.PROPERTY_NAME_SETTER:"Attribute name ""PROPERTY_NAME_SETTER"" doesn't conform to snake_case naming style":INFERENCE
-invalid-name:152:4:152:17:FooEnum:"Class constant name ""bad_enum_name"" doesn't conform to UPPER_CASE naming style":HIGH
+invalid-name:142:0:142:18::"Variable name ""BAD_NAME_FOR_FUNCS"" doesn't conform to snake_case naming style":HIGH
+invalid-name:154:4:154:17:FooEnum:"Class constant name ""bad_enum_name"" doesn't conform to UPPER_CASE naming style":HIGH

@@ -8,13 +8,14 @@ from __future__ import annotations
 
 import collections
 import re
+import sys
 import tokenize
 from collections import Counter
 from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Literal
 
 import astroid
-from astroid import bases, nodes, util
+from astroid import arguments, bases, nodes, util
 from astroid.typing import SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
@@ -64,136 +65,136 @@ SINGLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?'''")
 DOUBLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?\"\"\"")
 QUOTE_DELIMITER_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?(\"|')", re.DOTALL)
 
-MSGS: dict[
-    str, MessageDefinitionTuple
-] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
-    "E1300": (
-        "Unsupported format character %r (%#02x) at index %d",
-        "bad-format-character",
-        "Used when an unsupported format character is used in a format string.",
-    ),
-    "E1301": (
-        "Format string ends in middle of conversion specifier",
-        "truncated-format-string",
-        "Used when a format string terminates before the end of a "
-        "conversion specifier.",
-    ),
-    "E1302": (
-        "Mixing named and unnamed conversion specifiers in format string",
-        "mixed-format-string",
-        "Used when a format string contains both named (e.g. '%(foo)d') "
-        "and unnamed (e.g. '%d') conversion specifiers.  This is also "
-        "used when a named conversion specifier contains * for the "
-        "minimum field width and/or precision.",
-    ),
-    "E1303": (
-        "Expected mapping for format string, not %s",
-        "format-needs-mapping",
-        "Used when a format string that uses named conversion specifiers "
-        "is used with an argument that is not a mapping.",
-    ),
-    "W1300": (
-        "Format string dictionary key should be a string, not %s",
-        "bad-format-string-key",
-        "Used when a format string that uses named conversion specifiers "
-        "is used with a dictionary whose keys are not all strings.",
-    ),
-    "W1301": (
-        "Unused key %r in format string dictionary",
-        "unused-format-string-key",
-        "Used when a format string that uses named conversion specifiers "
-        "is used with a dictionary that contains keys not required by the "
-        "format string.",
-    ),
-    "E1304": (
-        "Missing key %r in format string dictionary",
-        "missing-format-string-key",
-        "Used when a format string that uses named conversion specifiers "
-        "is used with a dictionary that doesn't contain all the keys "
-        "required by the format string.",
-    ),
-    "E1305": (
-        "Too many arguments for format string",
-        "too-many-format-args",
-        "Used when a format string that uses unnamed conversion "
-        "specifiers is given too many arguments.",
-    ),
-    "E1306": (
-        "Not enough arguments for format string",
-        "too-few-format-args",
-        "Used when a format string that uses unnamed conversion "
-        "specifiers is given too few arguments",
-    ),
-    "E1307": (
-        "Argument %r does not match format type %r",
-        "bad-string-format-type",
-        "Used when a type required by format string "
-        "is not suitable for actual argument type",
-    ),
-    "E1310": (
-        "Suspicious argument in %s.%s call",
-        "bad-str-strip-call",
-        "The argument to a str.{l,r,}strip call contains a duplicate character,",
-    ),
-    "W1302": (
-        "Invalid format string",
-        "bad-format-string",
-        "Used when a PEP 3101 format string is invalid.",
-    ),
-    "W1303": (
-        "Missing keyword argument %r for format string",
-        "missing-format-argument-key",
-        "Used when a PEP 3101 format string that uses named fields "
-        "doesn't receive one or more required keywords.",
-    ),
-    "W1304": (
-        "Unused format argument %r",
-        "unused-format-string-argument",
-        "Used when a PEP 3101 format string that uses named "
-        "fields is used with an argument that "
-        "is not required by the format string.",
-    ),
-    "W1305": (
-        "Format string contains both automatic field numbering "
-        "and manual field specification",
-        "format-combined-specification",
-        "Used when a PEP 3101 format string contains both automatic "
-        "field numbering (e.g. '{}') and manual field "
-        "specification (e.g. '{0}').",
-    ),
-    "W1306": (
-        "Missing format attribute %r in format specifier %r",
-        "missing-format-attribute",
-        "Used when a PEP 3101 format string uses an "
-        "attribute specifier ({0.length}), but the argument "
-        "passed for formatting doesn't have that attribute.",
-    ),
-    "W1307": (
-        "Using invalid lookup key %r in format specifier %r",
-        "invalid-format-index",
-        "Used when a PEP 3101 format string uses a lookup specifier "
-        "({a[1]}), but the argument passed for formatting "
-        "doesn't contain or doesn't have that key as an attribute.",
-    ),
-    "W1308": (
-        "Duplicate string formatting argument %r, consider passing as named argument",
-        "duplicate-string-formatting-argument",
-        "Used when we detect that a string formatting is "
-        "repeating an argument instead of using named string arguments",
-    ),
-    "W1309": (
-        "Using an f-string that does not have any interpolated variables",
-        "f-string-without-interpolation",
-        "Used when we detect an f-string that does not use any interpolation variables, "
-        "in which case it can be either a normal string or a bug in the code.",
-    ),
-    "W1310": (
-        "Using formatting for a string that does not have any interpolated variables",
-        "format-string-without-interpolation",
-        "Used when we detect a string that does not have any interpolation variables, "
-        "in which case it can be either a normal string without formatting or a bug in the code.",
-    ),
-}
+MSGS: dict[str, MessageDefinitionTuple] = (
+    {  # pylint: disable=consider-using-namedtuple-or-dataclass
+        "E1300": (
+            "Unsupported format character %r (%#02x) at index %d",
+            "bad-format-character",
+            "Used when an unsupported format character is used in a format string.",
+        ),
+        "E1301": (
+            "Format string ends in middle of conversion specifier",
+            "truncated-format-string",
+            "Used when a format string terminates before the end of a "
+            "conversion specifier.",
+        ),
+        "E1302": (
+            "Mixing named and unnamed conversion specifiers in format string",
+            "mixed-format-string",
+            "Used when a format string contains both named (e.g. '%(foo)d') "
+            "and unnamed (e.g. '%d') conversion specifiers.  This is also "
+            "used when a named conversion specifier contains * for the "
+            "minimum field width and/or precision.",
+        ),
+        "E1303": (
+            "Expected mapping for format string, not %s",
+            "format-needs-mapping",
+            "Used when a format string that uses named conversion specifiers "
+            "is used with an argument that is not a mapping.",
+        ),
+        "W1300": (
+            "Format string dictionary key should be a string, not %s",
+            "bad-format-string-key",
+            "Used when a format string that uses named conversion specifiers "
+            "is used with a dictionary whose keys are not all strings.",
+        ),
+        "W1301": (
+            "Unused key %r in format string dictionary",
+            "unused-format-string-key",
+            "Used when a format string that uses named conversion specifiers "
+            "is used with a dictionary that contains keys not required by the "
+            "format string.",
+        ),
+        "E1304": (
+            "Missing key %r in format string dictionary",
+            "missing-format-string-key",
+            "Used when a format string that uses named conversion specifiers "
+            "is used with a dictionary that doesn't contain all the keys "
+            "required by the format string.",
+        ),
+        "E1305": (
+            "Too many arguments for format string",
+            "too-many-format-args",
+            "Used when a format string that uses unnamed conversion "
+            "specifiers is given too many arguments.",
+        ),
+        "E1306": (
+            "Not enough arguments for format string",
+            "too-few-format-args",
+            "Used when a format string that uses unnamed conversion "
+            "specifiers is given too few arguments",
+        ),
+        "E1307": (
+            "Argument %r does not match format type %r",
+            "bad-string-format-type",
+            "Used when a type required by format string "
+            "is not suitable for actual argument type",
+        ),
+        "E1310": (
+            "Suspicious argument in %s.%s call",
+            "bad-str-strip-call",
+            "The argument to a str.{l,r,}strip call contains a duplicate character,",
+        ),
+        "W1302": (
+            "Invalid format string",
+            "bad-format-string",
+            "Used when a PEP 3101 format string is invalid.",
+        ),
+        "W1303": (
+            "Missing keyword argument %r for format string",
+            "missing-format-argument-key",
+            "Used when a PEP 3101 format string that uses named fields "
+            "doesn't receive one or more required keywords.",
+        ),
+        "W1304": (
+            "Unused format argument %r",
+            "unused-format-string-argument",
+            "Used when a PEP 3101 format string that uses named "
+            "fields is used with an argument that "
+            "is not required by the format string.",
+        ),
+        "W1305": (
+            "Format string contains both automatic field numbering "
+            "and manual field specification",
+            "format-combined-specification",
+            "Used when a PEP 3101 format string contains both automatic "
+            "field numbering (e.g. '{}') and manual field "
+            "specification (e.g. '{0}').",
+        ),
+        "W1306": (
+            "Missing format attribute %r in format specifier %r",
+            "missing-format-attribute",
+            "Used when a PEP 3101 format string uses an "
+            "attribute specifier ({0.length}), but the argument "
+            "passed for formatting doesn't have that attribute.",
+        ),
+        "W1307": (
+            "Using invalid lookup key %r in format specifier %r",
+            "invalid-format-index",
+            "Used when a PEP 3101 format string uses a lookup specifier "
+            "({a[1]}), but the argument passed for formatting "
+            "doesn't contain or doesn't have that key as an attribute.",
+        ),
+        "W1308": (
+            "Duplicate string formatting argument %r, consider passing as named argument",
+            "duplicate-string-formatting-argument",
+            "Used when we detect that a string formatting is "
+            "repeating an argument instead of using named string arguments",
+        ),
+        "W1309": (
+            "Using an f-string that does not have any interpolated variables",
+            "f-string-without-interpolation",
+            "Used when we detect an f-string that does not use any interpolation variables, "
+            "in which case it can be either a normal string or a bug in the code.",
+        ),
+        "W1310": (
+            "Using formatting for a string that does not have any interpolated variables",
+            "format-string-without-interpolation",
+            "Used when we detect a string that does not have any interpolation variables, "
+            "in which case it can be either a normal string without formatting or a bug in the code.",
+        ),
+    }
+)
 
 OTHER_NODES = (
     nodes.Const,
@@ -226,14 +227,14 @@ def arg_matches_format_type(
         # All types can be printed with %s and %r
         return True
     if isinstance(arg_type, astroid.Instance):
-        arg_type = arg_type.pytype()
-        if arg_type == "builtins.str":
-            return format_type == "c"
-        if arg_type == "builtins.float":
-            return format_type in "deEfFgGn%"
-        if arg_type == "builtins.int":
-            # Integers allow all types
-            return True
+        match arg_type.pytype():
+            case "builtins.str":
+                return format_type == "c"
+            case "builtins.float":
+                return format_type in "deEfFgGn%"
+            case "builtins.int":
+                # Integers allow all types
+                return True
         return False
     return True
 
@@ -493,7 +494,7 @@ class StringFormatChecker(BaseChecker):
                     )
 
     def _check_interpolation(self, node: nodes.JoinedStr) -> None:
-        if isinstance(node.parent, nodes.FormattedValue):
+        if isinstance(node.parent, (nodes.TemplateStr, nodes.FormattedValue)):
             return
         for value in node.values:
             if isinstance(value, nodes.FormattedValue):
@@ -501,24 +502,24 @@ class StringFormatChecker(BaseChecker):
         self.add_message("f-string-without-interpolation", node=node)
 
     def visit_call(self, node: nodes.Call) -> None:
-        func = utils.safe_infer(node.func)
-        if (
-            isinstance(func, astroid.BoundMethod)
-            and isinstance(func.bound, astroid.Instance)
-            and func.bound.name in {"str", "unicode", "bytes"}
-        ):
-            if func.name in {"strip", "lstrip", "rstrip"} and node.args:
-                arg = utils.safe_infer(node.args[0])
-                if not isinstance(arg, nodes.Const) or not isinstance(arg.value, str):
-                    return
-                if len(arg.value) != len(set(arg.value)):
-                    self.add_message(
-                        "bad-str-strip-call",
-                        node=node,
-                        args=(func.bound.name, func.name),
-                    )
-            elif func.name == "format":
-                self._check_new_format(node, func)
+        match func := utils.safe_infer(node.func):
+            case astroid.BoundMethod(
+                bound=astroid.Instance(name="str" | "unicode" | "bytes" as bound_name),
+            ):
+                if func.name in {"strip", "lstrip", "rstrip"} and node.args:
+                    arg = utils.safe_infer(node.args[0])
+                    if not (
+                        isinstance(arg, nodes.Const) and isinstance(arg.value, str)
+                    ):
+                        return
+                    if len(arg.value) != len(set(arg.value)):
+                        self.add_message(
+                            "bad-str-strip-call",
+                            node=node,
+                            args=(bound_name, func.name),
+                        )
+                elif func.name == "format":
+                    self._check_new_format(node, func)
 
     def _detect_vacuous_formatting(
         self, node: nodes.Call, positional_arguments: list[SuccessfulInferenceResult]
@@ -657,7 +658,7 @@ class StringFormatChecker(BaseChecker):
         if not (isinstance(strnode, nodes.Const) and isinstance(strnode.value, str)):
             return
         try:
-            call_site = astroid.arguments.CallSite.from_call(node)
+            call_site = arguments.CallSite.from_call(node)
         except astroid.InferenceError:
             return
 
@@ -777,7 +778,7 @@ class StringFormatChecker(BaseChecker):
                 argument = utils.safe_infer(argname)
             except astroid.InferenceError:
                 continue
-            if not specifiers or not argument:
+            if not (specifiers and argument):
                 # No need to check this key if it doesn't
                 # use attribute / item access
                 continue
@@ -979,31 +980,32 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         encoding = "ascii"
         for i, (token_type, token, start, _, line) in enumerate(tokens):
-            if token_type == tokenize.ENCODING:
-                # this is always the first token processed
-                encoding = token
-            elif token_type == tokenize.STRING:
-                # 'token' is the whole un-parsed token; we can look at the start
-                # of it to see whether it's a raw or unicode string etc.
-                self.process_string_token(token, start[0], start[1])
-                # We figure the next token, ignoring comments & newlines:
-                j = i + 1
-                while j < len(tokens) and tokens[j].type in (
-                    tokenize.NEWLINE,
-                    tokenize.NL,
-                    tokenize.COMMENT,
-                ):
-                    j += 1
-                next_token = tokens[j] if j < len(tokens) else None
-                if encoding != "ascii":
-                    # We convert `tokenize` character count into a byte count,
-                    # to match with astroid `.col_offset`
-                    start = (start[0], len(line[: start[1]].encode(encoding)))
-                self.string_tokens[start] = (str_eval(token), next_token)
-                is_parenthesized = self._is_initial_string_token(
-                    i, tokens
-                ) and self._is_parenthesized(i, tokens)
-                self._parenthesized_string_tokens[start] = is_parenthesized
+            match token_type:
+                case tokenize.ENCODING:
+                    # this is always the first token processed
+                    encoding = token
+                case tokenize.STRING:
+                    # 'token' is the whole un-parsed token; we can look at the start
+                    # of it to see whether it's a raw or unicode string etc.
+                    self.process_string_token(token, start[0], start[1])
+                    # We figure the next token, ignoring comments & newlines:
+                    j = i + 1
+                    while j < len(tokens) and tokens[j].type in (
+                        tokenize.NEWLINE,
+                        tokenize.NL,
+                        tokenize.COMMENT,
+                    ):
+                        j += 1
+                    next_token = tokens[j] if j < len(tokens) else None
+                    if encoding != "ascii":
+                        # We convert `tokenize` character count into a byte count,
+                        # to match with astroid `.col_offset`
+                        start = (start[0], len(line[: start[1]].encode(encoding)))
+                    self.string_tokens[start] = (str_eval(token), next_token)
+                    is_parenthesized = self._is_initial_string_token(
+                        i, tokens
+                    ) and self._is_parenthesized(i, tokens)
+                    self._parenthesized_string_tokens[start] = is_parenthesized
 
         if self.linter.config.check_quote_consistency:
             self.check_for_consistent_string_delimiters(tokens)
@@ -1023,7 +1025,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
         prev_token = self._find_prev_token(
             index, tokens, ignore=(*_PAREN_IGNORE_TOKEN_TYPES, tokenize.STRING)
         )
-        if not prev_token or prev_token.type != tokenize.OP or prev_token[1] != "(":
+        if not (prev_token and prev_token.type == tokenize.OP and prev_token[1] == "("):
             return False
         next_token = self._find_next_token(
             index, tokens, ignore=(*_PAREN_IGNORE_TOKEN_TYPES, tokenize.STRING)
@@ -1090,8 +1092,23 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
         """
         string_delimiters: Counter[str] = collections.Counter()
 
+        inside_fstring = False  # whether token is inside f-string (since 3.12)
+        target_py312 = self.linter.config.py_version >= (3, 12)
+
         # First, figure out which quote character predominates in the module
         for tok_type, token, _, _, _ in tokens:
+            if sys.version_info[:2] >= (3, 12):
+                # pylint: disable=no-member,useless-suppression
+                match tok_type:
+                    case tokenize.FSTRING_START:
+                        inside_fstring = True
+                    case tokenize.FSTRING_END:
+                        inside_fstring = False
+
+                if inside_fstring and not target_py312:
+                    # skip analysis of f-string contents
+                    continue
+
             if tok_type == tokenize.STRING and _is_quote_delimiter_chosen_freely(token):
                 string_delimiters[_get_quote_delimiter(token)] += 1
 

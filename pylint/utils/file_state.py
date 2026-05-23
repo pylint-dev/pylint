@@ -7,13 +7,13 @@ from __future__ import annotations
 import collections
 from collections import defaultdict
 from collections.abc import Iterator
-from typing import TYPE_CHECKING, Dict, Literal
+from typing import TYPE_CHECKING, Literal
 
 from astroid import nodes
 
 from pylint.constants import (
     INCOMPATIBLE_WITH_USELESS_SUPPRESSION,
-    MSG_STATE_SCOPE_MODULE,
+    MessageDisableReason,
     WarningScope,
 )
 
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from pylint.message import MessageDefinition, MessageDefinitionStore
 
 
-MessageStateDict = Dict[str, Dict[int, bool]]
+MessageStateDict = dict[str, dict[int, bool]]
 
 
 class FileState:
@@ -38,9 +38,9 @@ class FileState:
         self.base_name = modname
         self._module_msgs_state: MessageStateDict = {}
         self._raw_module_msgs_state: MessageStateDict = {}
-        self._ignored_msgs: defaultdict[
-            tuple[str, int], set[int]
-        ] = collections.defaultdict(set)
+        self._ignored_msgs: defaultdict[tuple[str, int], set[int]] = (
+            collections.defaultdict(set)
+        )
         self._suppression_mapping: dict[tuple[str, int], int] = {}
         self._module = node
         if node:
@@ -63,8 +63,10 @@ class FileState:
         """Recursively walk (depth first) AST to collect block level options
         line numbers and set the state correctly.
         """
-        for child in node.get_children():
-            self._set_state_on_block_lines(msgs_store, child, msg, msg_state)
+        # Avoid recursing into child nodes on the same line.
+        if node.lineno != node.end_lineno:
+            for child in node.get_children():
+                self._set_state_on_block_lines(msgs_store, child, msg, msg_state)
         # first child line number used to distinguish between disable
         # which are the first child of scoped node with those defined later.
         # For instance in the code below:
@@ -205,15 +207,18 @@ class FileState:
             self._raw_module_msgs_state[msg.msgid] = {line: status}
 
     def handle_ignored_message(
-        self, state_scope: Literal[0, 1, 2] | None, msgid: str, line: int | None
+        self,
+        state_scope: MessageDisableReason | None,
+        msgid: str,
+        line: int | None,
     ) -> None:
         """Report an ignored message.
 
-        state_scope is either MSG_STATE_SCOPE_MODULE or MSG_STATE_SCOPE_CONFIG,
-        depending on whether the message was disabled locally in the module,
-        or globally.
+        ``state_scope`` indicates whether the message was disabled
+        inline in the module, globally in the configuration, or filtered
+        out by the ``--confidence`` setting.
         """
-        if state_scope == MSG_STATE_SCOPE_MODULE:
+        if state_scope == MessageDisableReason.MODULE:
             assert isinstance(line, int)  # should always be int inside module scope
 
             try:

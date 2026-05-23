@@ -4,7 +4,7 @@ Taken from https://github.com/nickboucher/trojan-source/tree/main/Python
 """
 # pylint: disable=unreachable
 
-bank = {"alice": 100}
+BANK = {"alice": 100}
 
 # +4: [bidirectional-unicode]
 
@@ -12,7 +12,7 @@ bank = {"alice": 100}
 def subtract_funds(account: str, amount: int):
     """Subtract funds from bank account then ⁧"""
     return
-    bank[account] -= amount
+    BANK[account] -= amount
     return
 
 

@@ -1,0 +1,2 @@
+non-ascii-name:9:4:9:13:okay:"Argument name ""łol"" contains a non-ASCII character, consider renaming it.":HIGH
+non-ascii-name:21:4:21:12::"Argument name ""łol"" contains a non-ASCII character, consider renaming it.":HIGH

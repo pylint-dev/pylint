@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeAlias, TypeVar
 
 from astroid import nodes
 from mccabe import PathGraph as Mccabe_PathGraph
@@ -20,28 +20,28 @@ from pylint.interfaces import HIGH
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-_StatementNodes = Union[
-    nodes.Assert,
-    nodes.Assign,
-    nodes.AugAssign,
-    nodes.Delete,
-    nodes.Raise,
-    nodes.Yield,
-    nodes.Import,
-    nodes.Call,
-    nodes.Subscript,
-    nodes.Pass,
-    nodes.Continue,
-    nodes.Break,
-    nodes.Global,
-    nodes.Return,
-    nodes.Expr,
-    nodes.Await,
-]
+_StatementNodes: TypeAlias = (
+    nodes.Assert
+    | nodes.Assign
+    | nodes.AugAssign
+    | nodes.Delete
+    | nodes.Raise
+    | nodes.Yield
+    | nodes.Import
+    | nodes.Call
+    | nodes.Subscript
+    | nodes.Pass
+    | nodes.Continue
+    | nodes.Break
+    | nodes.Global
+    | nodes.Return
+    | nodes.Expr
+    | nodes.Await
+)
 
-_SubGraphNodes = Union[nodes.If, nodes.Try, nodes.For, nodes.While]
+_SubGraphNodes: TypeAlias = nodes.If | nodes.Try | nodes.For | nodes.While | nodes.Match
 _AppendableNodeT = TypeVar(
-    "_AppendableNodeT", bound=Union[_StatementNodes, nodes.While, nodes.FunctionDef]
+    "_AppendableNodeT", bound=_StatementNodes | nodes.While | nodes.FunctionDef
 )
 
 
@@ -94,27 +94,9 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):  # type: ignore[mis
     def visitSimpleStatement(self, node: _StatementNodes) -> None:
         self._append_node(node)
 
-    visitAssert = (
-        visitAssign
-    ) = (
-        visitAugAssign
-    ) = (
-        visitDelete
-    ) = (
-        visitRaise
-    ) = (
+    visitAssert = visitAssign = visitAugAssign = visitDelete = visitRaise = (
         visitYield
-    ) = (
-        visitImport
-    ) = (
-        visitCall
-    ) = (
-        visitSubscript
-    ) = (
-        visitPass
-    ) = (
-        visitContinue
-    ) = (
+    ) = visitImport = visitCall = visitSubscript = visitPass = visitContinue = (
         visitBreak
     ) = visitGlobal = visitReturn = visitExpr = visitAwait = visitSimpleStatement
 
@@ -124,8 +106,11 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):  # type: ignore[mis
 
     visitAsyncWith = visitWith
 
+    def visitMatch(self, node: nodes.Match) -> None:
+        self._subgraph(node, f"match_{id(node)}", node.cases)
+
     def _append_node(self, node: _AppendableNodeT) -> _AppendableNodeT | None:
-        if not self.tail or not self.graph:
+        if not (self.tail and self.graph):
             return None
         self.graph.connect(self.tail, node)
         self.tail = node
@@ -135,9 +120,9 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):  # type: ignore[mis
         self,
         node: _SubGraphNodes,
         name: str,
-        extra_blocks: Sequence[nodes.ExceptHandler] = (),
+        extra_blocks: Sequence[nodes.ExceptHandler | nodes.MatchCase] = (),
     ) -> None:
-        """Create the subgraphs representing any `if` and `for` statements."""
+        """Create the subgraphs representing any `if`, `for` or `match` statements."""
         if self.graph is None:
             # global loop
             self.graph = PathGraph(node)
@@ -152,23 +137,34 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):  # type: ignore[mis
         self,
         node: _SubGraphNodes,
         pathnode: _SubGraphNodes,
-        extra_blocks: Sequence[nodes.ExceptHandler],
+        extra_blocks: Sequence[nodes.ExceptHandler | nodes.MatchCase],
     ) -> None:
-        """Parse the body and any `else` block of `if` and `for` statements."""
+        """Parse `match`/`case` blocks, or the body and `else` block of `if`/`for`
+        statements.
+        """
         loose_ends = []
-        self.tail = node
-        self.dispatch_list(node.body)
-        loose_ends.append(self.tail)
-        for extra in extra_blocks:
-            self.tail = node
-            self.dispatch_list(extra.body)
-            loose_ends.append(self.tail)
-        if node.orelse:
-            self.tail = node
-            self.dispatch_list(node.orelse)
-            loose_ends.append(self.tail)
-        else:
+        if isinstance(node, nodes.Match):
+            for case in extra_blocks:
+                if isinstance(case, nodes.MatchCase):
+                    self.tail = node
+                    self.dispatch_list(case.body)
+                    loose_ends.append(self.tail)
             loose_ends.append(node)
+        else:
+            self.tail = node
+            self.dispatch_list(node.body)
+            loose_ends.append(self.tail)
+            for extra in extra_blocks:
+                self.tail = node
+                self.dispatch_list(extra.body)
+                loose_ends.append(self.tail)
+            if node.orelse:
+                self.tail = node
+                self.dispatch_list(node.orelse)
+                loose_ends.append(self.tail)
+            else:
+                loose_ends.append(node)
+
         if node and self.graph:
             bottom = f"{self._bottom_counter}"
             self._bottom_counter += 1
@@ -206,7 +202,7 @@ class McCabeMethodChecker(checkers.BaseChecker):
 
     @only_required_for_messages("too-complex")
     def visit_module(self, node: nodes.Module) -> None:
-        """Visit an astroid.Module node to check too complex rating and
+        """Visit an nodes.Module node to check too complex rating and
         add message if is greater than max_complexity stored from options.
         """
         visitor = PathGraphingAstVisitor()

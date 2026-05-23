@@ -1,0 +1,4 @@
+contextmanager-generator-missing-cleanup:18:4:19:25:genfunc_with_cm:The context used in function 'genfunc_with_cm' will not be exited.:UNDEFINED
+contextmanager-generator-missing-cleanup:31:4:32:25:genfunc_with_name_cm:The context used in function 'genfunc_with_name_cm' will not be exited.:UNDEFINED
+contextmanager-generator-missing-cleanup:36:4:37:25:genfunc_with_cm_after:The context used in function 'genfunc_with_cm_after' will not be exited.:UNDEFINED
+contextmanager-generator-missing-cleanup:60:4:61:25:genfunc_with_cm_improper:The context used in function 'genfunc_with_cm_improper' will not be exited.:UNDEFINED

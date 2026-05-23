@@ -8,7 +8,7 @@ class DuplicateFields():
         self.example2 = 2
 
 
-# OPEN BUG: https://github.com/pylint-dev/pylint/issues/8522
+# Test for https://github.com/pylint-dev/pylint/issues/8522
 class A:
     pass
 

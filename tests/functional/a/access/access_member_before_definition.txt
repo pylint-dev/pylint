@@ -1,3 +1,4 @@
 access-member-before-definition:9:15:9:25:Aaaa.__init__:Access to member '_var2' before its definition line 10:UNDEFINED
 access-member-before-definition:28:19:28:29:Bbbb.catchme:Access to member '_repo' before its definition line 30:UNDEFINED
 access-member-before-definition:46:8:46:18:MyClass1.__init__:Access to member 'first' before its definition line 47:UNDEFINED
+access-member-before-definition:58:12:58:23:AnnotatedAssignmentIsADefinition.process:Access to member 'widget' before its definition line 59:UNDEFINED

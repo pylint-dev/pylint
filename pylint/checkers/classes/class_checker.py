@@ -11,11 +11,11 @@ from collections.abc import Callable, Sequence
 from functools import cached_property
 from itertools import chain, zip_longest
 from re import Pattern
-from typing import TYPE_CHECKING, Any, NamedTuple, Union
+from typing import TYPE_CHECKING, Any, NamedTuple, TypeAlias
 
 import astroid
-from astroid import bases, nodes, util
-from astroid.nodes import LocalsDictNodeNG
+import astroid.exceptions
+from astroid import bases, nodes, objects, util
 from astroid.typing import SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, utils
@@ -46,10 +46,9 @@ if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
 
-_AccessNodes = Union[nodes.Attribute, nodes.AssignAttr]
+_AccessNodes: TypeAlias = nodes.Attribute | nodes.AssignAttr
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
-ALLOWED_PROPERTIES = {"bultins.property", "functools.cached_property"}
 BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
 ASTROID_TYPE_COMPARATORS = {
     nodes.Const: lambda a, b: a.value == b.value,
@@ -95,14 +94,15 @@ def _signature_from_call(call: nodes.Call) -> _CallSignature:
             kws[arg] = None
 
     for arg in call.args:
-        if isinstance(arg, nodes.Starred) and isinstance(arg.value, nodes.Name):
-            # Positional variadic and a name, otherwise some transformation
-            # might have occurred.
-            starred_args.append(arg.value.name)
-        elif isinstance(arg, nodes.Name):
-            args.append(arg.name)
-        else:
-            args.append(None)
+        match arg:
+            case nodes.Starred(value=nodes.Name(name=name)):
+                # Positional variadic and a name, otherwise some transformation
+                # might have occurred.
+                starred_args.append(name)
+            case nodes.Name():
+                args.append(arg.name)
+            case _:
+                args.append(None)
 
     return _CallSignature(args, kws, starred_args, starred_kws)
 
@@ -166,16 +166,16 @@ def _is_trivial_super_delegation(function: nodes.FunctionDef) -> bool:
         return False
 
     call = statement.value
-    if (
-        not isinstance(call, nodes.Call)
-        # Not a super() attribute access.
-        or not isinstance(call.func, nodes.Attribute)
-    ):
-        return False
+    match call := statement.value:
+        case nodes.Call(func=nodes.Attribute(expr=expr)):
+            pass
+        case _:
+            # Not a super() attribute access.
+            return False
 
     # Anything other than a super call is non-trivial.
-    super_call = safe_infer(call.func.expr)
-    if not isinstance(super_call, astroid.objects.Super):
+    super_call = safe_infer(expr)
+    if not isinstance(super_call, objects.Super):
         return False
 
     # The name should be the same.
@@ -185,10 +185,10 @@ def _is_trivial_super_delegation(function: nodes.FunctionDef) -> bool:
     # Should be a super call with the MRO pointer being the
     # current class and the type being the current instance.
     current_scope = function.parent.scope()
-    if (
-        super_call.mro_pointer != current_scope
-        or not isinstance(super_call.type, astroid.Instance)
-        or super_call.type.name != current_scope.name
+    if not (
+        super_call.mro_pointer == current_scope
+        and isinstance(super_call.type, astroid.Instance)
+        and super_call.type.name == current_scope.name
     ):
         return False
 
@@ -413,7 +413,7 @@ def _has_data_descriptor(cls: nodes.ClassDef, attr: str) -> bool:
 
 
 def _called_in_methods(
-    func: LocalsDictNodeNG,
+    func: nodes.LocalsDictNodeNG,
     klass: nodes.ClassDef,
     methods: Sequence[str],
 ) -> bool:
@@ -430,6 +430,8 @@ def _called_in_methods(
         except astroid.NotFoundError:
             continue
         for infer_method in inferred:
+            if not isinstance(infer_method, nodes.NodeNG):
+                continue
             for call in infer_method.nodes_of_class(nodes.Call):
                 try:
                     bound = next(call.func.infer())
@@ -454,7 +456,6 @@ def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
     Returns ``True`` if the name is a property in the given klass,
     ``False`` otherwise.
     """
-
     try:
         attributes = klass.getattr(name)
     except astroid.NotFoundError:
@@ -471,13 +472,8 @@ def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
             inferred
         ):
             return True
-        if inferred.pytype() != property_name:
-            continue
-
-        cls = node_frame_class(inferred)
-        if cls == klass.declared_metaclass():
-            continue
-        return True
+        if inferred.pytype() == property_name:
+            return True
     return False
 
 
@@ -524,7 +520,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Access to a protected member %s of a client class",  # E0214
         "protected-access",
         "Used when a protected member (i.e. class member with a name "
-        "beginning with an underscore) is access outside the class or a "
+        "beginning with an underscore) is accessed outside the class or a "
         "descendant of the class where it's defined.",
     ),
     "W0213": (
@@ -703,6 +699,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when a class tries to extend an inherited Enum class. "
         "Doing so will raise a TypeError at runtime.",
     ),
+    "E0245": (
+        "No such name %r in __slots__",
+        "declare-non-slot",
+        "Raised when a type annotation on a class is absent from the list of names in __slots__, "
+        "and __slots__ does not contain a __dict__ entry.",
+    ),
     "R0202": (
         "Consider using a decorator instead of calling classmethod",
         "no-classmethod-decorator",
@@ -748,7 +750,6 @@ class ScopeAccessMap:
 
     def set_accessed(self, node: _AccessNodes) -> None:
         """Set the given node as accessed."""
-
         frame = node_frame_class(node)
         if frame is None:
             # The node does not live in a class.
@@ -872,6 +873,7 @@ a metaclass class method.",
         "invalid-enum-extension",
         "subclassed-final-class",
         "implicit-flag-alias",
+        "declare-non-slot",
     )
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Init visit variable _accessed."""
@@ -880,6 +882,49 @@ a metaclass class method.",
         self._check_proper_bases(node)
         self._check_typing_final(node)
         self._check_consistent_mro(node)
+        self._check_declare_non_slot(node)
+
+    def _check_declare_non_slot(self, node: nodes.ClassDef) -> None:
+        if not self._has_valid_slots(node):
+            return
+
+        slot_names = self._get_classdef_slots_names(node)
+
+        # Stop if empty __slots__ in the class body, this likely indicates that
+        # this class takes part in multiple inheritance with other slotted classes.
+        if not slot_names:
+            return
+
+        # Stop if we find __dict__, since this means attributes can be set
+        # dynamically
+        if "__dict__" in slot_names:
+            return
+
+        for base in node.bases:
+            ancestor = safe_infer(base)
+            if not isinstance(ancestor, nodes.ClassDef):
+                continue
+            # if any base doesn't have __slots__, attributes can be set dynamically, so stop
+            if not self._has_valid_slots(ancestor):
+                return
+            for slot_name in self._get_classdef_slots_names(ancestor):
+                if slot_name == "__dict__":
+                    return
+                slot_names.append(slot_name)
+
+        # Every class in bases has __slots__, our __slots__ is non-empty and there is no __dict__
+
+        for child in node.body:
+            match child:
+                case nodes.AnnAssign(
+                    target=nodes.AssignName(name=name), value=None
+                ) if (name not in slot_names):
+                    self.add_message(
+                        "declare-non-slot",
+                        args=child.target.name,
+                        node=child.target,
+                        confidence=INFERENCE,
+                    )
 
     def _check_consistent_mro(self, node: nodes.ClassDef) -> None:
         """Detect that a class has a consistent mro or duplicate bases."""
@@ -891,31 +936,30 @@ a metaclass class method.",
             self.add_message("duplicate-bases", args=node.name, node=node)
 
     def _check_enum_base(self, node: nodes.ClassDef, ancestor: nodes.ClassDef) -> None:
-        members = ancestor.getattr("__members__")
-        if members and isinstance(members[0], nodes.Dict) and members[0].items:
-            for _, name_node in members[0].items:
-                # Exempt type annotations without value assignments
-                if all(
-                    isinstance(item.parent, nodes.AnnAssign)
-                    and item.parent.value is None
-                    for item in ancestor.getattr(name_node.name)
-                ):
-                    continue
-                self.add_message(
-                    "invalid-enum-extension",
-                    args=ancestor.name,
-                    node=node,
-                    confidence=INFERENCE,
-                )
-                break
+        match ancestor.getattr("__members__"):
+            case [nodes.Dict(items=items), *_] if items:
+                for _, name_node in items:
+                    # Exempt type annotations without value assignments
+                    if all(
+                        isinstance(item.parent, nodes.AnnAssign)
+                        and item.parent.value is None
+                        for item in ancestor.getattr(name_node.name)
+                    ):
+                        continue
+                    self.add_message(
+                        "invalid-enum-extension",
+                        args=ancestor.name,
+                        node=node,
+                        confidence=INFERENCE,
+                    )
+                    break
 
         if ancestor.is_subtype_of("enum.IntFlag"):
             # Collect integer flag assignments present on the class
             assignments = defaultdict(list)
             for assign_name in node.nodes_of_class(nodes.AssignName):
-                if isinstance(assign_name.parent, nodes.Assign):
-                    value = getattr(assign_name.parent.value, "value", None)
-                    if isinstance(value, int):
+                match assign_name.parent:
+                    case nodes.Assign(value=object(value=int() as value)):
                         assignments[value].append(assign_name)
 
             # For each bit position, collect all the flags that set the bit
@@ -957,8 +1001,9 @@ a metaclass class method.",
             ancestor = safe_infer(base)
             if not ancestor:
                 continue
-            if isinstance(ancestor, astroid.Instance) and ancestor.is_subtype_of(
-                "builtins.type"
+            if isinstance(ancestor, astroid.Instance) and (
+                ancestor.is_subtype_of("builtins.type")
+                or ancestor.is_subtype_of(".Protocol")
             ):
                 continue
 
@@ -1095,8 +1140,9 @@ a metaclass class method.",
 
     def _check_unused_private_attributes(self, node: nodes.ClassDef) -> None:
         for assign_attr in node.nodes_of_class(nodes.AssignAttr):
-            if not is_attr_private(assign_attr.attrname) or not isinstance(
-                assign_attr.expr, nodes.Name
+            if not (
+                is_attr_private(assign_attr.attrname)
+                and isinstance(assign_attr.expr, nodes.Name)
             ):
                 continue
 
@@ -1217,7 +1263,7 @@ a metaclass class method.",
                                 "attribute-defined-outside-init", args=attr, node=node
                             )
 
-    # pylint: disable = too-many-branches
+    # pylint: disable = too-many-branches, too-many-return-statements
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Check method arguments, overriding."""
         # ignore actual functions
@@ -1252,26 +1298,24 @@ a metaclass class method.",
 
         if node.decorators:
             for decorator in node.decorators.nodes:
-                if isinstance(decorator, nodes.Attribute) and decorator.attrname in {
-                    "getter",
-                    "setter",
-                    "deleter",
-                }:
-                    # attribute affectation will call this method, not hiding it
-                    return
-                if isinstance(decorator, nodes.Name):
-                    if decorator.name in ALLOWED_PROPERTIES:
-                        # attribute affectation will either call a setter or raise
-                        # an attribute error, anyway not hiding the function
+                match decorator:
+                    case nodes.Attribute(attrname="getter" | "setter" | "deleter"):
+                        # attribute affectation will call this method, not hiding it
                         return
-
-                if isinstance(decorator, nodes.Attribute):
-                    if self._check_functools_or_not(decorator):
+                    case nodes.Name(name="property"):
                         return
+                    case nodes.Attribute():
+                        if self._check_functools_or_not(decorator):
+                            return
 
                 # Infer the decorator and see if it returns something useful
                 inferred = safe_infer(decorator)
                 if not inferred:
+                    return
+                if (
+                    isinstance(inferred, nodes.ClassDef)
+                    and inferred.qname() == "functools.cached_property"
+                ):
                     return
                 if isinstance(inferred, nodes.FunctionDef):
                     # Okay, it's a decorator, let's see what it can infer.
@@ -1294,11 +1338,9 @@ a metaclass class method.",
         try:
             overridden = klass.instance_attr(node.name)[0]
             overridden_frame = overridden.frame()
-            if (
-                isinstance(overridden_frame, nodes.FunctionDef)
-                and overridden_frame.type == "method"
-            ):
-                overridden_frame = overridden_frame.parent.frame()
+            match overridden_frame:
+                case nodes.FunctionDef(type="method"):
+                    overridden_frame = overridden_frame.parent.frame()
             if not (
                 isinstance(overridden_frame, nodes.ClassDef)
                 and klass.is_subtype_of(overridden_frame.qname())
@@ -1409,12 +1451,11 @@ a metaclass class method.",
 
     def _check_property_with_parameters(self, node: nodes.FunctionDef) -> None:
         if (
-            node.args.args
-            and len(node.args.args) > 1
+            len(node.args.arguments) > 1
             and decorated_with_property(node)
             and not is_property_setter(node)
         ):
-            self.add_message("property-with-parameters", node=node)
+            self.add_message("property-with-parameters", node=node, confidence=HIGH)
 
     def _check_invalid_overridden_method(
         self,
@@ -1479,16 +1520,42 @@ a metaclass class method.",
             return False
         import_node = import_nodes[0]
 
-        if not isinstance(import_node, (astroid.Import, astroid.ImportFrom)):
+        if not isinstance(import_node, (nodes.Import, nodes.ImportFrom)):
             return False
 
         return "functools" in dict(import_node.names)
+
+    def _has_valid_slots(self, node: nodes.ClassDef) -> bool:
+        if "__slots__" not in node.locals:
+            return False
+
+        try:
+            inferred_slots = tuple(node.ilookup("__slots__"))
+        except astroid.InferenceError:
+            return False
+        for slots in inferred_slots:
+            # check if __slots__ is a valid type
+            if isinstance(slots, util.UninferableBase):
+                return False
+            if not is_iterable(slots) and not is_comprehension(slots):
+                return False
+            if isinstance(slots, nodes.Const):
+                return False
+            if not hasattr(slots, "itered"):
+                # we can't obtain the values, maybe a .deque?
+                return False
+
+        return True
 
     def _check_slots(self, node: nodes.ClassDef) -> None:
         if "__slots__" not in node.locals:
             return
 
-        for slots in node.ilookup("__slots__"):
+        try:
+            inferred_slots = tuple(node.ilookup("__slots__"))
+        except astroid.InferenceError:
+            return
+        for slots in inferred_slots:
             # check if __slots__ is a valid type
             if isinstance(slots, util.UninferableBase):
                 continue
@@ -1517,13 +1584,23 @@ a metaclass class method.",
                     continue
             self._check_redefined_slots(node, slots, values)
 
-    def _check_redefined_slots(
-        self,
-        node: nodes.ClassDef,
-        slots_node: nodes.NodeNG,
-        slots_list: list[nodes.NodeNG],
-    ) -> None:
-        """Check if `node` redefines a slot which is defined in an ancestor class."""
+    def _get_classdef_slots_names(self, node: nodes.ClassDef) -> list[str]:
+
+        slots_names: list[str] = []
+        try:
+            inferred_slots = tuple(node.ilookup("__slots__"))
+        except astroid.InferenceError:  # pragma: no cover
+            return slots_names
+        for slots in inferred_slots:
+            if isinstance(slots, nodes.Dict):
+                values = [item[0] for item in slots.items]
+            else:
+                values = slots.itered()
+            slots_names.extend(self._get_slots_names(values))
+
+        return slots_names
+
+    def _get_slots_names(self, slots_list: list[nodes.NodeNG]) -> list[str]:
         slots_names: list[str] = []
         for slot in slots_list:
             if isinstance(slot, nodes.Const):
@@ -1533,6 +1610,16 @@ a metaclass class method.",
                 inferred_slot_value = getattr(inferred_slot, "value", None)
                 if isinstance(inferred_slot_value, str):
                     slots_names.append(inferred_slot_value)
+        return slots_names
+
+    def _check_redefined_slots(
+        self,
+        node: nodes.ClassDef,
+        slots_node: nodes.NodeNG,
+        slots_list: list[nodes.NodeNG],
+    ) -> None:
+        """Check if `node` redefines a slot which is defined in an ancestor class."""
+        slots_names: list[str] = self._get_slots_names(slots_list)
 
         # Slots of all parent classes
         ancestors_slots_names = {
@@ -1555,37 +1642,31 @@ a metaclass class method.",
         self, elt: SuccessfulInferenceResult, node: nodes.ClassDef
     ) -> None:
         for inferred in elt.infer():
-            if isinstance(inferred, util.UninferableBase):
-                continue
-            if not isinstance(inferred, nodes.Const) or not isinstance(
-                inferred.value, str
-            ):
-                self.add_message(
-                    "invalid-slots-object",
-                    args=elt.as_string(),
-                    node=elt,
-                    confidence=INFERENCE,
-                )
-                continue
-            if not inferred.value:
-                self.add_message(
-                    "invalid-slots-object",
-                    args=elt.as_string(),
-                    node=elt,
-                    confidence=INFERENCE,
-                )
+            match inferred:
+                case util.UninferableBase():
+                    continue
+                case nodes.Const(value=str() as value) if value:
+                    pass
+                case _:
+                    self.add_message(
+                        "invalid-slots-object",
+                        args=elt.as_string(),
+                        node=elt,
+                        confidence=INFERENCE,
+                    )
+                    continue
 
             # Check if we have a conflict with a class variable.
-            class_variable = node.locals.get(inferred.value)
-            if class_variable:
-                # Skip annotated assignments which don't conflict at all with slots.
-                if len(class_variable) == 1:
-                    parent = class_variable[0].parent
-                    if isinstance(parent, nodes.AnnAssign) and parent.value is None:
-                        return
-                self.add_message(
-                    "class-variable-slots-conflict", args=(inferred.value,), node=elt
-                )
+            match class_variable := node.locals.get(inferred.value):
+                case [nodes.NodeNG(parent=nodes.AnnAssign(value=None))]:
+                    # Skip annotated assignments which don't conflict at all with slots.
+                    return
+                case _ if class_variable:
+                    self.add_message(
+                        "class-variable-slots-conflict",
+                        args=(inferred.value,),
+                        node=elt,
+                    )
 
     def leave_functiondef(self, node: nodes.FunctionDef) -> None:
         """On method node, check if this method couldn't be a function.
@@ -1659,12 +1740,10 @@ a metaclass class method.",
             inferred = safe_infer(node.parent.parent.value.elts[class_index])
         else:
             inferred = safe_infer(node.parent.value)
-        if (
-            isinstance(inferred, (nodes.ClassDef, util.UninferableBase))
-            or inferred is None
-        ):
-            # If is uninferable, we allow it to prevent false positives
-            return
+        match inferred:
+            case nodes.ClassDef() | util.UninferableBase() | None:
+                # If uninferable, we allow it to prevent false positives
+                return
         self.add_message(
             "invalid-class-object",
             node=node,
@@ -1683,7 +1762,7 @@ a metaclass class method.",
         klass = inferred._proxied
         if not has_known_bases(klass):
             return
-        if "__slots__" not in klass.locals or not klass.newstyle:
+        if "__slots__" not in klass.locals:
             return
         # If `__setattr__` is defined on the class, then we can't reason about
         # what will happen when assigning to an attribute.
@@ -1769,20 +1848,20 @@ a metaclass class method.",
         is defined.
         `node` is an assign node.
         """
-        if not isinstance(node.value, nodes.Call):
-            return
-
         # check the function called is "classmethod" or "staticmethod"
-        func = node.value.func
-        if not isinstance(func, nodes.Name) or func.name not in (
-            "classmethod",
-            "staticmethod",
-        ):
-            return
+        # Check if the arg passed to classmethod is a class member
+        match node.value:
+            case nodes.Call(
+                func=nodes.Name(name="classmethod" | "staticmethod" as name),
+                args=[nodes.Name(name=method_name), *_],
+            ):
+                pass
+            case _:
+                return
 
         msg = (
             "no-classmethod-decorator"
-            if func.name == "classmethod"
+            if name == "classmethod"
             else "no-staticmethod-decorator"
         )
         # assignment must be at a class scope
@@ -1790,12 +1869,6 @@ a metaclass class method.",
         if not isinstance(parent_class, nodes.ClassDef):
             return
 
-        # Check if the arg passed to classmethod is a class member
-        classmeth_arg = node.value.args[0]
-        if not isinstance(classmeth_arg, nodes.Name):
-            return
-
-        method_name = classmeth_arg.name
         if any(method_name == member.name for member in parent_class.mymethods()):
             self.add_message(msg, node=node.targets[0])
 
@@ -1845,12 +1918,9 @@ a metaclass class method.",
         # through the class object or through super
 
         # If the expression begins with a call to super, that's ok.
-        if (
-            isinstance(node.expr, nodes.Call)
-            and isinstance(node.expr.func, nodes.Name)
-            and node.expr.func.name == "super"
-        ):
-            return
+        match node.expr:
+            case nodes.Call(func=nodes.Name(name="super")):
+                return
 
         # If the expression begins with a call to type(self), that's ok.
         if self._is_type_self_call(node.expr):
@@ -1861,9 +1931,8 @@ a metaclass class method.",
         outer_klass = klass
         callee = node.expr.as_string()
         parents_callee = callee.split(".")
-        parents_callee.reverse()
-        for callee in parents_callee:
-            if not outer_klass or callee != outer_klass.name:
+        for callee in reversed(parents_callee):
+            if not (outer_klass and callee == outer_klass.name):
                 inside_klass = False
                 break
 
@@ -1879,14 +1948,10 @@ a metaclass class method.",
             # class A:
             #     b = property(lambda: self._b)
 
-            stmt = node.parent.statement()
-            if (
-                isinstance(stmt, nodes.Assign)
-                and len(stmt.targets) == 1
-                and isinstance(stmt.targets[0], nodes.AssignName)
-            ):
-                name = stmt.targets[0].name
-                if _is_attribute_property(name, klass):
+            match node.parent.statement():
+                case nodes.Assign(
+                    targets=[nodes.AssignName(name=name)]
+                ) if _is_attribute_property(name, klass):
                     return
 
             if (
@@ -1913,16 +1978,13 @@ a metaclass class method.",
         return frame_name and frame_name in PYMETHODS
 
     def _is_type_self_call(self, expr: nodes.NodeNG) -> bool:
-        return (
-            isinstance(expr, nodes.Call)
-            and isinstance(expr.func, nodes.Name)
-            and expr.func.name == "type"
-            and len(expr.args) == 1
-            and self._is_mandatory_method_param(expr.args[0])
-        )
+        match expr:
+            case nodes.Call(func=nodes.Name(name="type"), args=[arg]):
+                return self._is_mandatory_method_param(arg)
+        return False
 
     @staticmethod
-    def _is_classmethod(func: LocalsDictNodeNG) -> bool:
+    def _is_classmethod(func: nodes.LocalsDictNodeNG) -> bool:
         """Check if the given *func* node is a class method."""
         return isinstance(func, nodes.FunctionDef) and (
             func.type == "classmethod" or func.name == "__class_getitem__"
@@ -1946,7 +2008,6 @@ a metaclass class method.",
         Returns ``True`` if the name is a property in the given klass,
         ``False`` otherwise.
         """
-
         if utils.is_class_attr(name, klass):
             return True
 
@@ -1984,6 +2045,15 @@ a metaclass class method.",
             else:
                 # filter out augment assignment nodes
                 defstmts = [stmt for stmt in defstmts if stmt not in nodes_lst]
+                # filter out bare annotations (self.x: Type) with no value
+                defstmts = [
+                    stmt
+                    for stmt in defstmts
+                    if not (
+                        isinstance(stmt.parent, nodes.AnnAssign)
+                        and stmt.parent.value is None
+                    )
+                ]
                 if not defstmts:
                     # only augment assignment for this node, no-member should be
                     # triggered by the typecheck checker
@@ -2158,16 +2228,12 @@ a metaclass class method.",
         parents_with_called_inits: set[bases.UnboundMethod] = set()
         for stmt in node.nodes_of_class(nodes.Call):
             expr = stmt.func
-            if not isinstance(expr, nodes.Attribute) or expr.attrname != "__init__":
+            if not (isinstance(expr, nodes.Attribute) and expr.attrname == "__init__"):
                 continue
             # skip the test if using super
-            if (
-                isinstance(expr.expr, nodes.Call)
-                and isinstance(expr.expr.func, nodes.Name)
-                and expr.expr.func.name == "super"
-            ):
-                return
-            # pylint: disable = too-many-try-statements
+            match expr.expr:
+                case nodes.Call(func=nodes.Name(name="super")):
+                    return
             try:
                 for klass in expr.expr.infer():
                     if isinstance(klass, util.UninferableBase):
@@ -2179,15 +2245,13 @@ a metaclass class method.",
                     # base = super()
                     # base.__init__(...)
 
-                    if (
-                        isinstance(klass, astroid.Instance)
-                        and isinstance(klass._proxied, nodes.ClassDef)
-                        and is_builtin_object(klass._proxied)
-                        and klass._proxied.name == "super"
-                    ):
-                        return
-                    if isinstance(klass, astroid.objects.Super):
-                        return
+                    match klass:
+                        case astroid.Instance(
+                            _proxied=nodes.ClassDef(name="super") as p
+                        ) if is_builtin_object(p):
+                            return
+                        case objects.Super():
+                            return
                     try:
                         method = not_called_yet.pop(klass)
                         # Record that the class' init has been called
@@ -2323,16 +2387,16 @@ a metaclass class method.",
             first_attr = self._first_attrs[-1]
         else:
             # It's possible the function was already unregistered.
-            closest_func = utils.get_node_first_ancestor_of_type(
+            match closest_func := utils.get_node_first_ancestor_of_type(
                 node, nodes.FunctionDef
-            )
-            if closest_func is None:
-                return False
-            if not closest_func.is_bound():
-                return False
-            if not closest_func.args.args:
-                return False
-            first_attr = closest_func.args.args[0].name
+            ):
+                case nodes.FunctionDef(
+                    args=nodes.Arguments(args=[nodes.AssignName(name=first_attr), *_])
+                ) if closest_func.is_bound():
+                    pass
+                case _:
+                    return False
+        # pylint: disable=possibly-used-before-assignment
         return isinstance(node, nodes.Name) and node.name == first_attr
 
 

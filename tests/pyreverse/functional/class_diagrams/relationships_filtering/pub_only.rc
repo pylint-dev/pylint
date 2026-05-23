@@ -1,0 +1,2 @@
+[testoptions]
+command_line_args=--filter-mode=PUB_ONLY

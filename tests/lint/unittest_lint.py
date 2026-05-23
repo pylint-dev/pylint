@@ -20,6 +20,7 @@ from pathlib import Path
 from shutil import copy, rmtree
 from unittest import mock
 
+import astroid
 import platformdirs
 import pytest
 from astroid import nodes
@@ -41,7 +42,12 @@ from pylint.reporters import text
 from pylint.testutils import create_files
 from pylint.testutils._run import _Run as Run
 from pylint.typing import MessageLocationTuple
-from pylint.utils import FileState, print_full_documentation, tokenize_module
+from pylint.utils import (
+    FileState,
+    LinterStats,
+    print_full_documentation,
+    tokenize_module,
+)
 
 if os.name == "java":
     if os.name == "nt":
@@ -268,15 +274,23 @@ def test_message_state_scope(initialized_linter: PyLinter) -> None:
 
     linter = initialized_linter
     linter.disable("C0202")
-    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope("C0202")
+    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope(
+        "C0202", None, interfaces.UNDEFINED
+    )
     linter.disable("W0101", scope="module", line=3)
-    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope("C0202")
-    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope("W0101", 3)
+    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope(
+        "C0202", None, interfaces.UNDEFINED
+    )
+    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope(
+        "W0101", 3, interfaces.UNDEFINED
+    )
     linter.enable("W0102", scope="module", line=3)
-    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope("W0102", 3)
+    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope(
+        "W0102", 3, interfaces.UNDEFINED
+    )
     linter.config = FakeConfig()
     assert MSG_STATE_CONFIDENCE == linter._get_message_state_scope(
-        "this-is-bad", confidence=interfaces.INFERENCE
+        "this-is-bad", None, confidence=interfaces.INFERENCE
     )
 
 
@@ -311,7 +325,7 @@ def test_enable_message_block(initialized_linter: PyLinter) -> None:
     # meth6
     assert not linter.is_message_enabled("E1101", 57)
     assert linter.is_message_enabled("E1101", 61)
-    assert linter.is_message_enabled("E1101", 64)
+    assert not linter.is_message_enabled("E1101", 64)
     assert not linter.is_message_enabled("E1101", 66)
 
     assert linter.is_message_enabled("E0602", 57)
@@ -439,6 +453,20 @@ def test_disable_similar(initialized_linter: PyLinter) -> None:
     assert "similarities" not in [c.name for c in linter.prepare_checkers()]
 
 
+def test_disable_similar_with_reports(initialized_linter: PyLinter) -> None:
+    """Disabling R0801 should exclude the similarities checker even with reports enabled.
+
+    Regression test for https://github.com/pylint-dev/pylint/issues/3443
+    """
+    linter = initialized_linter
+    linter.set_option("reports", True)
+    linter.set_option("disable", "R0801")
+    checker_names = [c.name for c in linter.prepare_checkers()]
+    assert "similarities" not in checker_names
+    # Report-only checkers (no messages) should still be included
+    assert "metrics" in checker_names
+
+
 def test_disable_alot(linter: PyLinter) -> None:
     """Check that we disabled a lot of checkers."""
     linter.set_option("reports", False)
@@ -493,6 +521,20 @@ def test_addmessage(linter: PyLinter) -> None:
             end_column=None,
         ),
     )
+
+
+def test_addmessage_preserves_explicit_zero_col_offset(linter: PyLinter) -> None:
+    """An explicit ``col_offset=0`` from the caller must not be overwritten
+    by the node's value (``not 0`` is True so the old falsey check was buggy).
+    """
+    linter.set_reporter(testutils.GenericTestReporter())
+    linter.open()
+    linter.set_current_module("m")
+    module_node = astroid.parse("\n\nfunc(arg)", module_name="m")
+    arg_node = module_node.body[0].value.args[0]  # ``arg`` — col_offset == 5
+    assert arg_node.col_offset != 0  # sanity-check fixture
+    linter.add_message("C0321", node=arg_node, col_offset=0)
+    assert linter.reporter.messages[0].location.column == 0
 
 
 def test_addmessage_invalid(linter: PyLinter) -> None:
@@ -853,7 +895,7 @@ def test_init_hooks_called_before_load_plugins() -> None:
 
 def test_analyze_explicit_script(linter: PyLinter) -> None:
     linter.set_reporter(testutils.GenericTestReporter())
-    linter.check([os.path.join(DATA_DIR, "ascript")])
+    linter.check([os.path.join(DATA_DIR, "a_script")])
     assert len(linter.reporter.messages) == 1
     assert linter.reporter.messages[0] == Message(
         msg_id="C0301",
@@ -864,11 +906,11 @@ def test_analyze_explicit_script(linter: PyLinter) -> None:
             description="Warning without any associated confidence level.",
         ),
         location=MessageLocationTuple(
-            abspath=os.path.join(abspath(dirname(__file__)), "ascript").replace(
-                f"lint{os.path.sep}ascript", f"data{os.path.sep}ascript"
+            abspath=os.path.join(abspath(dirname(__file__)), "a_script").replace(
+                f"lint{os.path.sep}a_script", f"data{os.path.sep}a_script"
             ),
-            path=f"tests{os.path.sep}data{os.path.sep}ascript",
-            module="data.ascript",
+            path=f"tests{os.path.sep}data{os.path.sep}a_script",
+            module="data.a_script",
             obj="",
             line=2,
             column=0,
@@ -1030,6 +1072,8 @@ def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
     by_module_stats = linter.stats.by_module
     for module, module_stats in by_module_stats.items():
         linter2 = initialized_linter
+        linter2.stats = LinterStats()
+
         if module == "data":
             linter2.check([os.path.join(os.path.dirname(__file__), "data/__init__.py")])
         else:
@@ -1038,6 +1082,48 @@ def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
         # Check that the by_module "statement" is equal to the global "statement"
         # computed for that module
         assert module_stats["statement"] == linter2.stats.statement
+
+
+def test_finds_pyi_file() -> None:
+    run = Run(
+        ["--prefer-stubs=y", join(REGRTEST_DATA_DIR, "pyi")],
+        exit=False,
+    )
+    assert run.linter.current_file is not None
+    assert run.linter.current_file.endswith(
+        "a_module_that_we_definitely_dont_use_in_the_functional_tests.pyi"
+    )
+
+
+def test_recursive_finds_pyi_file() -> None:
+    run = Run(
+        [
+            "--recursive",
+            "y",
+            "--prefer-stubs",
+            "y",
+            join(REGRTEST_DATA_DIR, "pyi"),
+        ],
+        exit=False,
+    )
+    assert run.linter.current_file is not None
+    assert run.linter.current_file.endswith(
+        "a_module_that_we_definitely_dont_use_in_the_functional_tests.pyi"
+    )
+
+
+def test_no_false_positive_from_pyi_stub() -> None:
+    run = Run(
+        [
+            "--recursive",
+            "y",
+            "--prefer-stubs",
+            "n",
+            join(REGRTEST_DATA_DIR, "uses_module_with_stub.py"),
+        ],
+        exit=False,
+    )
+    assert not run.linter.stats.by_msg
 
 
 @pytest.mark.parametrize(
@@ -1081,6 +1167,9 @@ def test_recursive_ignore(ignore_parameter: str, ignore_parameter_value: str) ->
     ):
         module = os.path.abspath(join(REGRTEST_DATA_DIR, *regrtest_data_module))
     assert module in linted_file_paths
+    # We lint the modules in `regrtest` in other tests as well. Prevent test pollution by
+    # explicitly clearing the astroid caches.
+    astroid.MANAGER.clear_cache()
 
 
 def test_source_roots_globbing() -> None:
@@ -1142,51 +1231,44 @@ def test_globbing() -> None:
 
 
 def test_relative_imports(initialized_linter: PyLinter) -> None:
-    """Regression test for https://github.com/pylint-dev/pylint/issues/3651"""
+    """Regression test for https://github.com/pylint-dev/pylint/issues/3651."""
     linter = initialized_linter
     with tempdir() as tmpdir:
         create_files(["x/y/__init__.py", "x/y/one.py", "x/y/two.py"], tmpdir)
         with open("x/y/__init__.py", "w", encoding="utf-8") as f:
-            f.write(
-                """
+            f.write("""
 \"\"\"Module x.y\"\"\"
 from .one import ONE
 from .two import TWO
-"""
-            )
+""")
         with open("x/y/one.py", "w", encoding="utf-8") as f:
-            f.write(
-                """
+            f.write("""
 \"\"\"Module x.y.one\"\"\"
 ONE = 1
-"""
-            )
+""")
         with open("x/y/two.py", "w", encoding="utf-8") as f:
-            f.write(
-                """
+            f.write("""
 \"\"\"Module x.y.two\"\"\"
 from .one import ONE
 TWO = ONE + ONE
-"""
-            )
+""")
         linter.check(["x/y"])
     assert not linter.stats.by_msg
 
 
 def test_import_sibling_module_from_namespace(initialized_linter: PyLinter) -> None:
     """If the parent directory above `namespace` is on sys.path, ensure that
-    modules under `namespace` can import each other without raising `import-error`."""
+    modules under `namespace` can import each other without raising `import-error`.
+    """
     linter = initialized_linter
     with tempdir() as tmpdir:
         create_files(["namespace/submodule1.py", "namespace/submodule2.py"])
         second_path = Path("namespace/submodule2.py")
         with open(second_path, "w", encoding="utf-8") as f:
-            f.write(
-                """\"\"\"This module imports submodule1.\"\"\"
+            f.write("""\"\"\"This module imports submodule1.\"\"\"
 import submodule1
 print(submodule1)
-"""
-            )
+""")
         os.chdir("namespace")
         extra_sys_paths = [expand_modules.discover_package_path(tmpdir, [])]
 
@@ -1197,7 +1279,7 @@ print(submodule1)
 
 
 def test_lint_namespace_package_under_dir(initialized_linter: PyLinter) -> None:
-    """Regression test for https://github.com/pylint-dev/pylint/issues/1667"""
+    """Regression test for https://github.com/pylint-dev/pylint/issues/1667."""
     linter = initialized_linter
     with tempdir():
         create_files(["outer/namespace/__init__.py", "outer/namespace/module.py"])
@@ -1207,7 +1289,8 @@ def test_lint_namespace_package_under_dir(initialized_linter: PyLinter) -> None:
 
 def test_lint_namespace_package_under_dir_on_path(initialized_linter: PyLinter) -> None:
     """If the directory above a namespace package is on sys.path,
-    the namespace module under it is linted."""
+    the namespace module under it is linted.
+    """
     linter = initialized_linter
     with tempdir() as tmpdir:
         create_files(["namespace_on_path/submodule1.py"])

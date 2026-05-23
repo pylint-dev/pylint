@@ -12,4 +12,5 @@ class "Dummy2" as attributes_annotation.Dummy2 {
   param : str
   union : Union[int, str]
 }
+attributes_annotation.Dummy2 --> attributes_annotation.Dummy : optional
 @enduml

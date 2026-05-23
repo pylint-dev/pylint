@@ -1,6 +1,8 @@
 """Miscellaneous used-before-assignment cases"""
-# pylint: disable=consider-using-f-string, missing-function-docstring
+# pylint: disable=consider-using-f-string, missing-function-docstring, bare-except, invalid-name
 import datetime
+import sys
+from typing import NoReturn
 
 MSG = "hello %s" % MSG  # [used-before-assignment]
 
@@ -60,7 +62,7 @@ elif VAR2:
     pass
 else:
     VAR4 = False
-if VAR4:  # [used-before-assignment]
+if VAR4:  # [possibly-used-before-assignment]
     pass
 
 if FALSE:
@@ -70,7 +72,7 @@ elif VAR2:
         VAR5 = True
     else:
         VAR5 = True
-if VAR5:
+if VAR5:  # [possibly-used-before-assignment]
     pass
 
 if FALSE:
@@ -116,7 +118,13 @@ for num in [0, 1]:
     VAR11 = num
     if VAR11:
         VAR12 = False
-print(VAR12)
+print(VAR12)  # [possibly-used-before-assignment]
+
+if input("This tests terminating functions: "):
+    sys.exit()
+else:
+    VAR13 = 1
+print(VAR13)
 
 def turn_on2(**kwargs):
     """https://github.com/pylint-dev/pylint/issues/7873"""
@@ -132,15 +140,23 @@ def turn_on2(**kwargs):
 # Variables guarded by the same test when used.
 
 # Always false
-if __name__ == "__main__":
+if 1 in []:
     PERCENT = 20
     SALE = True
 
-if __name__ == "__main__":
+if 1 in []:
     print(PERCENT)
 
+
+# Always true
+if always_true := True:
+    ONE = 1
+
+print(ONE if always_true else 2)
+
+
 # Different test
-if __name__ is None:
+if 1 in [1]:
     print(SALE)  # [used-before-assignment]
 
 
@@ -180,3 +196,120 @@ attr = 'test'  # pylint: disable=invalid-name
 class T:  # pylint: disable=invalid-name, too-few-public-methods, undefined-variable
     '''Issue #8754, no crash from unexpected assignment between attribute and variable'''
     T.attr = attr
+
+
+if outer():
+    NOT_ALWAYS_DEFINED = True
+print(NOT_ALWAYS_DEFINED)  # [used-before-assignment]
+
+
+def inner_if_continues_outer_if_has_no_other_statements():
+    for i in range(5):
+        if isinstance(i, int):
+            # Testing no assignment here, before the inner if
+            if i % 2 == 0:
+                order = None
+            else:
+                continue
+        else:
+            order = None
+        print(order)
+
+
+class PlatformChecks:  # pylint: disable=missing-docstring
+    """https://github.com/pylint-dev/pylint/issues/9674"""
+    def skip(self, msg) -> NoReturn:
+        raise Exception(msg)  # pylint: disable=broad-exception-raised
+
+    def print_platform_specific_command(self):
+        if sys.platform == "linux":
+            cmd = "ls"
+        elif sys.platform == "win32":
+            cmd = "dir"
+        else:
+            self.skip("only runs on Linux/Windows")
+
+        print(cmd)
+
+
+# https://github.com/pylint-dev/pylint/issues/9941
+try:
+    x = 1 / 0
+except ZeroDivisionError:
+    print(x)  # [used-before-assignment]
+
+try:
+    y = 1 / 0
+    print(y)
+except ZeroDivisionError:
+    print(y)  # FALSE NEGATIVE
+
+
+# https://github.com/pylint-dev/pylint/issues/9642
+def __():
+    for i in []:
+        if i:
+            fail1 = 42
+    print(fail1)  # [possibly-used-before-assignment]
+
+    for i in []:
+        fail2 = 42
+    print(fail2)  # FALSE NEGATIVE
+
+
+# https://github.com/pylint-dev/pylint/issues/9689
+def outer_():
+    a = 1
+
+    def inner_try():
+        try:
+            nonlocal a
+            print(a)  # [used-before-assignment] FALSE POSITIVE
+            a = 2
+            print(a)
+        except:
+            pass
+
+    def inner_while():
+        i = 0
+        while i < 2:
+            i += 1
+            nonlocal a
+            print(a)  # [used-before-assignment] FALSE POSITIVE
+            a = 2
+            print(a)
+
+    def inner_for():
+        for _ in range(2):
+            nonlocal a
+            print(a)
+            a = 2
+            print(a)
+
+    inner_try()
+    inner_while()
+    inner_for()
+
+def conditional_import():
+    if input():
+        import os.path
+    else:
+        os = None
+    if os:
+        pass
+
+
+def conditional_wildcard_import():  # pylint: disable=too-many-locals
+    if input():
+        from os.path import *  # pylint: disable=wildcard-import
+    else:
+        from os.path import *  # pylint: disable=wildcard-import
+    print(join("a", "b"))
+
+
+def conditional_wildcard_import_unresolvable():
+    if input():
+        x = 1
+    else:
+        from __nonexistent_module_xyz__ import *  # pylint: disable=wildcard-import, import-error
+    print(x)  # [possibly-used-before-assignment]

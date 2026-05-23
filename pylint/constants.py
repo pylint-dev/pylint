@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import enum
 import os
 import platform
 import sys
@@ -14,19 +15,43 @@ import platformdirs
 from pylint.__pkginfo__ import __version__
 from pylint.typing import MessageTypesFullName
 
-PY38_PLUS = sys.version_info[:2] >= (3, 8)
-PY39_PLUS = sys.version_info[:2] >= (3, 9)
-PY310_PLUS = sys.version_info[:2] >= (3, 10)
+PY311_PLUS = sys.version_info[:2] >= (3, 11)
 PY312_PLUS = sys.version_info[:2] >= (3, 12)
+PY314_PLUS = sys.version_info[:2] >= (3, 14)
 
 IS_PYPY = platform.python_implementation() == "PyPy"
 
 PY_EXTS = (".py", ".pyc", ".pyo", ".pyw", ".so", ".dll")
 
-MSG_STATE_CONFIDENCE = 2
+
+class MessageDisableReason(enum.IntEnum):
+    """Why a message was filtered out or disabled.
+
+    Returned by :meth:`_MessageStateHandler._get_message_state_scope` and
+    consumed by :meth:`FileState.handle_ignored_message`.
+
+    Backed by ``IntEnum`` so the deprecated ``MSG_STATE_*`` integer
+    constants (kept as aliases below) compare equal to the matching
+    enum member — code comparing the return of
+    ``_get_message_state_scope`` to ``0`` / ``1`` / ``2`` keeps working.
+    """
+
+    CONFIG = 0
+    """Disabled globally via configuration (.pylintrc, CLI flags)."""
+
+    MODULE = 1
+    """Disabled by an inline ``# pylint: disable=...`` pragma."""
+
+    CONFIDENCE = 2
+    """Filtered out by the ``--confidence`` setting."""
+
+
+# Old aliases. Prefer ``MessageDisableReason`` for new code.
+MSG_STATE_SCOPE_CONFIG = MessageDisableReason.CONFIG
+MSG_STATE_SCOPE_MODULE = MessageDisableReason.MODULE
+MSG_STATE_CONFIDENCE = MessageDisableReason.CONFIDENCE
+
 _MSG_ORDER = "EWRCIF"
-MSG_STATE_SCOPE_CONFIG = 0
-MSG_STATE_SCOPE_MODULE = 1
 
 # The line/node distinction does not apply to fatal errors and reports.
 _SCOPE_EXEMPT = "FR"
@@ -76,6 +101,8 @@ HUMAN_READABLE_TYPES = {
     "class_const": "class constant",
     "inlinevar": "inline iteration",
     "typevar": "type variable",
+    "paramspec": "parameter specification variable",
+    "typevartuple": "type variable tuple",
     "typealias": "type alias",
 }
 
@@ -218,26 +245,31 @@ DUNDER_METHODS: dict[tuple[int, int], dict[str, str]] = {
         "__anext__": "Use anext built-in function",
     },
 }
-
-EXTRA_DUNDER_METHODS = [
-    "__new__",
-    "__subclasses__",
-    "__init_subclass__",
-    "__set_name__",
-    "__class_getitem__",
-    "__missing__",
-    "__exit__",
-    "__await__",
-    "__aexit__",
-    "__getnewargs_ex__",
-    "__getnewargs__",
-    "__getstate__",
-    "__index__",
-    "__setstate__",
-    "__reduce__",
-    "__reduce_ex__",
-    "__post_init__",  # part of `dataclasses` module
-]
+EXTRA_DUNDER_METHODS: dict[tuple[int, int], list[str]] = {
+    (0, 0): [
+        "__new__",
+        "__subclasses__",
+        "__init_subclass__",
+        "__set_name__",
+        "__class_getitem__",
+        "__missing__",
+        "__exit__",
+        "__await__",
+        "__aexit__",
+        "__getnewargs_ex__",
+        "__getnewargs__",
+        "__getstate__",
+        "__index__",
+        "__setstate__",
+        "__reduce__",
+        "__reduce_ex__",
+        "__post_init__",  # part of `dataclasses` module
+        "_generate_next_value_",
+        "_missing_",
+        "_numeric_repr_",
+    ],
+    (3, 13): ["_add_alias_", "_add_value_alias_"],
+}
 
 DUNDER_PROPERTIES = [
     "__class__",
@@ -247,5 +279,33 @@ DUNDER_PROPERTIES = [
     "__module__",
     "__sizeof__",
     "__subclasshook__",
+    "__suppress_context__",
     "__weakref__",
 ]
+
+# C2801 rule exceptions as their corresponding function/method/operator
+# is not valid python syntax in a lambda definition
+UNNECESSARY_DUNDER_CALL_LAMBDA_EXCEPTIONS = [
+    "__init__",
+    "__del__",
+    "__delattr__",
+    "__set__",
+    "__delete__",
+    "__setitem__",
+    "__delitem__",
+    "__iadd__",
+    "__isub__",
+    "__imul__",
+    "__imatmul__",
+    "__itruediv__",
+    "__ifloordiv__",
+    "__imod__",
+    "__ipow__",
+    "__ilshift__",
+    "__irshift__",
+    "__iand__",
+    "__ixor__",
+    "__ior__",
+]
+
+MAX_NUMBER_OF_IMPORT_SHOWN = 6

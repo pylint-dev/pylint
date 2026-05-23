@@ -40,10 +40,6 @@ load-plugins=
 # number of processors available to use.
 jobs=1
 
-# When enabled, pylint would attempt to guess common misconfiguration and emit
-# user-friendly hints instead of false-positive error messages.
-suggestion-mode=yes
-
 # Allow loading of arbitrary C extensions. Extensions are imported into the
 # active Python interpreter and may run arbitrary code.
 unsafe-load-any-extension=no
@@ -54,7 +50,7 @@ unsafe-load-any-extension=no
 extension-pkg-allow-list=
 
 # Minimum supported python version
-py-version = 3.8.0
+py-version = 3.10.0
 
 # Control the amount of potential inferred values when inferring a single
 # object. This can help the performance when dealing with large functions or
@@ -341,10 +337,11 @@ property-classes=abc.abstractproperty
 # members is set to 'yes'
 mixin-class-rgx=.*MixIn
 
-# List of module names for which member attributes should not be checked
-# (useful for modules/projects where namespaces are manipulated during runtime
-# and thus existing member attributes cannot be deduced by static analysis). It
-# supports qualified module names, as well as Unix pattern matching.
+# List of module names for which member attributes should not be checked and
+# will not be imported (useful for modules/projects where namespaces are
+# manipulated during runtime and thus existing member attributes cannot be
+# deduced by static analysis). It supports qualified module names, as well
+# as Unix pattern matching.
 ignored-modules=
 
 # List of class names for which member attributes should not be checked (useful
@@ -377,7 +374,7 @@ ignore-on-opaque-inference=yes
 # of finding the hint is based on edit distance.
 missing-member-hint=yes
 
-# The minimum edit distance a name should have in order to be considered a
+# The maximum edit distance a name should have in order to be considered a
 # similar match for a missing member name.
 missing-member-hint-distance=1
 
@@ -392,14 +389,14 @@ missing-member-max-choices=1
 spelling-dict=
 
 # List of comma separated words that should not be checked.
-spelling-ignore-words=
+spelling-ignore-words=subpkg,MyClass
 
 # List of comma separated words that should be considered directives if they
 # appear and the beginning of a comment and should not be checked.
 spelling-ignore-comment-directives=fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:,pragma:,# noinspection
 
 # A path to a file that contains private dictionary; one word per line.
-spelling-private-dict-file=.pyenchant_pylint_custom_dict.txt
+spelling-private-dict-file=custom_dict.txt
 
 # Tells whether to store unknown words to indicated private dictionary in
 # --spelling-private-dict-file option instead of raising a message.
@@ -431,6 +428,9 @@ max-attributes=11
 
 # Maximum number of statements in a try-block
 max-try-statements = 7
+
+# Maximum number of positional arguments (see R0917).
+max-positional-arguments = 12
 
 [CLASSES]
 
@@ -484,7 +484,7 @@ int-import-graph=
 
 # Force import order to recognize a module as part of the standard
 # compatibility libraries.
-known-standard-library=
+known-standard-library=_string
 
 # Force import order to recognize a module as part of a third party library.
 known-third-party=enchant

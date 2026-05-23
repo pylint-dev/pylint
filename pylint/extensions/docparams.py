@@ -9,7 +9,6 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
-import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
@@ -196,6 +195,9 @@ class DocstringParameterChecker(BaseChecker):
         :param node: Node for a function or method definition in the AST
         :type node: :class:`astroid.scoped_nodes.Function`
         """
+        if checker_utils.is_overload_stub(node):
+            return
+
         node_doc = utils.docstringify(
             node.doc_node, self.linter.config.default_docstring_type
         )
@@ -206,9 +208,7 @@ class DocstringParameterChecker(BaseChecker):
             return
 
         # skip functions smaller than 'docstring-min-length'
-        lines = checker_utils.get_node_last_lineno(node) - node.lineno
-        max_lines = self.linter.config.docstring_min_length
-        if max_lines > -1 and lines < max_lines:
+        if self._is_shorter_than_min_length(node):
             return
 
         self.check_functiondef_params(node, node_doc)
@@ -256,7 +256,7 @@ class DocstringParameterChecker(BaseChecker):
         if (not node_doc.supports_yields and node.is_generator()) or node.is_abstract():
             return
 
-        return_nodes = node.nodes_of_class(astroid.Return)
+        return_nodes = node.nodes_of_class(nodes.Return)
         if (node_doc.has_returns() or node_doc.has_rtype()) and not any(
             utils.returns_something(ret_node) for ret_node in return_nodes
         ):
@@ -275,7 +275,11 @@ class DocstringParameterChecker(BaseChecker):
 
     def visit_raise(self, node: nodes.Raise) -> None:
         func_node = node.frame()
-        if not isinstance(func_node, astroid.FunctionDef):
+        if not isinstance(func_node, nodes.FunctionDef):
+            return
+
+        # skip functions smaller than 'docstring-min-length'
+        if self._is_shorter_than_min_length(node):
             return
 
         # skip functions that match the 'no-docstring-rgx' config option
@@ -318,6 +322,9 @@ class DocstringParameterChecker(BaseChecker):
             for found_exc in found_excs_class_names:
                 if found_exc == expected.name:
                     break
+                if found_exc == "error" and expected.name == "PatternError":
+                    # Python 3.13: re.error aliases re.PatternError
+                    break
                 if any(found_exc == ancestor.name for ancestor in expected.ancestors()):
                     break
             else:
@@ -332,7 +339,7 @@ class DocstringParameterChecker(BaseChecker):
         if self.linter.config.accept_no_return_doc:
             return
 
-        func_node: astroid.FunctionDef = node.frame()
+        func_node: nodes.FunctionDef = node.frame()
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
@@ -358,7 +365,11 @@ class DocstringParameterChecker(BaseChecker):
         if self.linter.config.accept_no_yields_doc:
             return
 
-        func_node: astroid.FunctionDef = node.frame()
+        # skip functions smaller than 'docstring-min-length'
+        if self._is_shorter_than_min_length(node):
+            return
+
+        func_node: nodes.FunctionDef = node.frame()
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
@@ -497,8 +508,8 @@ class DocstringParameterChecker(BaseChecker):
     def check_arguments_in_docstring(
         self,
         doc: Docstring,
-        arguments_node: astroid.Arguments,
-        warning_node: astroid.NodeNG,
+        arguments_node: nodes.Arguments,
+        warning_node: nodes.NodeNG,
         accept_no_param_doc: bool | None = None,
     ) -> None:
         """Check that all parameters are consistent with the parameters mentioned
@@ -522,10 +533,10 @@ class DocstringParameterChecker(BaseChecker):
 
         :param arguments_node: Arguments node for the function, method or
             class constructor.
-        :type arguments_node: :class:`astroid.scoped_nodes.Arguments`
+        :type arguments_node: :class:`astroid.nodes.Arguments`
 
         :param warning_node: The node to assign the warnings to
-        :type warning_node: :class:`astroid.scoped_nodes.Node`
+        :type warning_node: :class:`astroid.nodes.NodeNG`
 
         :param accept_no_param_doc: Whether to allow no parameters to be
             documented. If None then this value is read from the configuration.
@@ -650,7 +661,7 @@ class DocstringParameterChecker(BaseChecker):
         """Adds a message on :param:`node` for the missing exception type.
 
         :param missing_exceptions: A list of missing exception types.
-        :param node: The node show the message on.
+        :param node: The node to show the message on.
         """
         if node.is_abstract():
             try:
@@ -664,6 +675,22 @@ class DocstringParameterChecker(BaseChecker):
                 node=node,
                 confidence=HIGH,
             )
+
+    def _is_shorter_than_min_length(self, node: nodes.FunctionDef) -> bool:
+        """Returns true on functions smaller than 'docstring-min-length'.
+
+        :param node: Node for a function or method definition in the AST
+        :type node: :class:`astroid.nodes.FunctionDef`
+
+        :rtype: bool
+        """
+        node_line_count = checker_utils.get_node_last_lineno(node) - node.lineno
+        min_lines = self.linter.config.docstring_min_length
+        result = -1 < node_line_count < min_lines
+        assert isinstance(
+            result, bool
+        ), "Result of int comparison should have been a boolean"
+        return result
 
 
 def register(linter: PyLinter) -> None:

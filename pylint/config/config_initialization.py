@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import sys
 import warnings
+from copy import copy
 from glob import glob
 from itertools import chain
 from pathlib import Path
@@ -23,16 +24,17 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-def _config_initialization(
+def _config_initialization(  # pylint: disable=too-many-statements
     linter: PyLinter,
     args_list: list[str],
     reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,
     config_file: None | str | Path = None,
     verbose_mode: bool = False,
-) -> list[str]:
+) -> None:
     """Parse all available options, read config files and command line arguments and
     set options accordingly.
     """
+    linter.verbose = verbose_mode
     config_file = Path(config_file) if config_file else None
 
     # Set the current module to the configuration file
@@ -57,8 +59,12 @@ def _config_initialization(
         exec(utils._unquote(config_data["init-hook"]))  # pylint: disable=exec-used
 
     # Load plugins if specified in the config file
+    default_checkers = copy(linter._registered_checkers)
     if "load-plugins" in config_data:
         linter.load_plugin_modules(utils._splitstrip(config_data["load-plugins"]))
+    linter._registered_dynamic_plugin_checkers = linter._registered_checkers.difference(
+        default_checkers
+    )
 
     unrecognized_options_message = None
     # First we parse any options from a configuration file
@@ -110,13 +116,14 @@ def _config_initialization(
             "unrecognized-option", args=unrecognized_options_message, line=0
         )
 
-    # TODO 3.1: Change this to emit unknown-option-value
+    # TODO: Change this to be checked only when upgrading the configuration
     for exc_name in linter.config.overgeneral_exceptions:
         if "." not in exc_name:
             warnings.warn_explicit(
                 f"'{exc_name}' is not a proper value for the 'overgeneral-exceptions' option. "
                 f"Use fully qualified name (maybe 'builtins.{exc_name}' ?) instead. "
-                "This will cease to be checked at runtime in 3.1.0.",
+                "This will cease to be checked at runtime when the configuration "
+                "upgrader is released.",
                 category=UserWarning,
                 filename="pylint: Command line or configuration file",
                 lineno=1,
@@ -137,23 +144,29 @@ def _config_initialization(
     # enable them
     linter.enable_fail_on_messages()
 
+    # Now that fail_on messages are enabled, pass them to colorized reporter
+    linter.pass_fail_on_config_to_color_reporter()
+
     linter._parse_error_mode()
 
     # Link the base Namespace object on the current directory
-    linter._directory_namespaces[Path(".").resolve()] = (linter.config, {})
+    linter._directory_namespaces[Path().resolve()] = (linter.config, {})
 
     # parsed_args_list should now only be a list of inputs to lint.
-    # All other options have been removed from the list.
-    return list(
-        chain.from_iterable(
-            # NOTE: 'or [arg]' is needed in the case the input file or directory does
-            # not exist and 'glob(arg)' cannot find anything. Without this we would
-            # not be able to output the fatal import error for this module later on,
-            # as it would get silently ignored.
-            glob(arg, recursive=True) or [arg]
-            for arg in parsed_args_list
+    # All other options have been removed from the list. If there are any
+    # positional arguments, they override any `files` set in the configuration
+    # file.
+    if parsed_args_list:
+        linter.config.files = list(
+            chain.from_iterable(
+                # NOTE: 'or [arg]' is needed in the case the input file or directory does
+                # not exist and 'glob(arg)' cannot find anything. Without this we would
+                # not be able to output the fatal import error for this module later on,
+                # as it would get silently ignored.
+                glob(arg, recursive=True) or [arg]
+                for arg in parsed_args_list
+            )
         )
-    )
 
 
 def _order_all_first(config_args: list[str], *, joined: bool) -> list[str]:
@@ -168,7 +181,7 @@ def _order_all_first(config_args: list[str], *, joined: bool) -> list[str]:
     all_action = ""
 
     for i, arg in enumerate(config_args):
-        if joined and (arg.startswith("--enable=") or arg.startswith("--disable=")):
+        if joined and arg.startswith(("--enable=", "--disable=")):
             value = arg.split("=")[1]
         elif arg in {"--enable", "--disable"}:
             value = config_args[i + 1]

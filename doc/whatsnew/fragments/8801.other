@@ -1,0 +1,5 @@
+Document that the ``wrong-import-order`` (C0411) classification of imports as
+third-party vs first-party depends on the current working directory and
+recommend ``known-first-party`` as the deterministic workaround.
+
+Closes #8801

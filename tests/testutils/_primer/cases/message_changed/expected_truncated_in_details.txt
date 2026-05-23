@@ -1,0 +1,16 @@
+🤖 **Effect of this PR on checked open source code:** 🤖
+
+
+**Effect on [astroid](https://github.com/pylint-dev/astroid):**
+
+The following messages are now emitted:
+
+<details>
+
+1) locally-disabled:
+*Locally disabling redefined-builtin [we added some text in the...
+</details>
+
+*This comment was truncated because GitHub allows only 420 characters in a comment.*
+
+*This comment was generated for commit v2.14.2*

@@ -1,0 +1,3 @@
+Fix ``used-before-assignment`` false positive for names bound by ``from X import *`` in every branch of an ``if``/``elif``/``else`` chain.
+
+Refs #10980

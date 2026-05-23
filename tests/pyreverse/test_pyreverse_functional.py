@@ -38,14 +38,13 @@ def test_class_diagrams(testfile: FunctionalPyreverseTestfile, tmp_path: Path) -
     else:
         source_roots = ""
     for output_format in testfile.options["output_formats"]:
-        with pytest.raises(SystemExit) as sys_exit:
-            args = ["-o", f"{output_format}", "-d", str(tmp_path)]
-            if source_roots:
-                args += ["--source-roots", source_roots]
-            args.extend(testfile.options["command_line_args"])
-            args += [str(input_file)]
-            Run(args)
-        assert sys_exit.value.code == 0
+        args = ["-o", f"{output_format}", "-d", str(tmp_path)]
+        if source_roots:
+            args += ["--source-roots", source_roots]
+        args.extend(testfile.options["command_line_args"])
+        args += [str(input_file)]
+        exit_code = Run(args).run()
+        assert exit_code == 0
         assert testfile.source.with_suffix(f".{output_format}").read_text(
             encoding="utf8"
         ) == (tmp_path / f"classes.{output_format}").read_text(encoding="utf8")

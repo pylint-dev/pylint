@@ -9,12 +9,7 @@ from __future__ import annotations
 import sys
 from collections.abc import Callable
 from pathlib import Path
-from typing import Literal, TypeVar
-
-if sys.version_info >= (3, 10):
-    from typing import ParamSpec
-else:
-    from typing_extensions import ParamSpec
+from typing import Literal, ParamSpec, TypeVar
 
 _P = ParamSpec("_P")
 _ReturnValueT = TypeVar("_ReturnValueT", bool, str)
@@ -33,7 +28,7 @@ class InvalidUserInput(Exception):
 
 
 def should_retry_after_invalid_input(
-    func: Callable[_P, _ReturnValueT]
+    func: Callable[_P, _ReturnValueT],
 ) -> Callable[_P, _ReturnValueT]:
     """Decorator that handles InvalidUserInput exceptions and retries."""
 

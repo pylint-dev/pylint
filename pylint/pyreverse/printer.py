@@ -22,6 +22,7 @@ class NodeType(Enum):
 
 class EdgeType(Enum):
     INHERITS = "inherits"
+    COMPOSITION = "composition"
     ASSOCIATION = "association"
     AGGREGATION = "aggregation"
     USES = "uses"
@@ -51,10 +52,12 @@ class Printer(ABC):
         title: str,
         layout: Layout | None = None,
         use_automatic_namespace: bool | None = None,
+        show_signatures: bool = True,
     ) -> None:
         self.title: str = title
         self.layout = layout
         self.use_automatic_namespace = use_automatic_namespace
+        self.show_signatures = show_signatures
         self.lines: list[str] = []
         self._indent = ""
         self._open_graph()

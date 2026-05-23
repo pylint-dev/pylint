@@ -34,3 +34,5 @@ shouldnt_raise = var == ""
 
 shouldnt_raise = var == '\n'
 shouldnt_raise = var == '\\b'
+
+should_escape = var == "foo\nbar"  # [magic-value-comparison]

@@ -53,6 +53,7 @@ def test_new_message(message_definitions: ValuesView[MessageDefinition]) -> None
     expected = (
         "2:5:6: E1234: Duplicate keyword argument %r in %s call (duplicate-keyword-arg)"
     )
+    # pylint: disable=possibly-used-before-assignment
     e1234 = build_message(e1234_message_definition, e1234_location_values)
     w1234 = build_message(w1234_message_definition, w1234_location_values)
     assert e1234.location == e1234_location_values

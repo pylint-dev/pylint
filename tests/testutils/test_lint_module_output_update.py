@@ -12,7 +12,6 @@ from pathlib import Path
 
 import pytest
 
-from pylint.constants import IS_PYPY, PY39_PLUS
 from pylint.testutils import FunctionalTestFile, LintModuleTest
 from pylint.testutils.functional import LintModuleOutputUpdate
 
@@ -36,7 +35,7 @@ def lint_module_fixture(
 
 
 def test_lint_module_output_update_fail_before(
-    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]]
+    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]],
 ) -> None:
     """There is a fail before the output need to be updated."""
     filename, expected_output_file, lmou = lint_module_fixture("foo")
@@ -48,7 +47,7 @@ def test_lint_module_output_update_fail_before(
 
 
 def test_lint_module_output_update_effective(
-    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]]
+    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]],
 ) -> None:
     """The file is updated following a successful tests with wrong output."""
     filename, expected_output_file, lmou = lint_module_fixture("foo")
@@ -62,7 +61,7 @@ def test_lint_module_output_update_effective(
 
 
 def test_lint_module_output_update_remove_useless_txt(
-    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]]
+    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]],
 ) -> None:
     """The file is updated following a successful tests with wrong output."""
     filename, expected_output_file, lmou = lint_module_fixture("fine_name")
@@ -72,10 +71,6 @@ def test_lint_module_output_update_remove_useless_txt(
     assert not expected_output_file.exists()
 
 
-@pytest.mark.skipif(
-    IS_PYPY and not PY39_PLUS,
-    reason="Requires accurate 'end_col' value to update output",
-)
 @pytest.mark.parametrize(
     "directory_path", DIRECTORIES, ids=[str(p) for p in DIRECTORIES]
 )
@@ -111,7 +106,7 @@ def test_update_of_functional_output(directory_path: Path, tmp_path: Path) -> No
         elif "ok_test" in new_path_str:
             if any(f"{x}_output" in new_path_str for x in ("wrong", "no", "broken")):
                 with pytest.raises(
-                    AssertionError, match='Wrong output for "exec_used.txt"'
+                    AssertionError, match=r'Wrong output for "exec_used\.txt"'
                 ):
                     _lint_module.runTest()
             elif "ok_output" in new_path_str:

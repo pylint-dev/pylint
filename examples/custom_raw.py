@@ -11,8 +11,8 @@ if TYPE_CHECKING:
 
 
 class MyRawChecker(BaseRawFileChecker):
-    """Check for line continuations with '\' instead of using triple
-    quoted string or parenthesis
+    r"""Check for line continuations with '\' instead of using triple
+    quoted string or parenthesis.
     """
 
     name = "custom_raw"

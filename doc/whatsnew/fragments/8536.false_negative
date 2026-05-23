@@ -1,3 +1,0 @@
-`TypeAlias` variables defined in functions are now checked for `invalid-name` errors.
-
-Closes #8536

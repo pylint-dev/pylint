@@ -23,6 +23,18 @@ if value < value2:  # [consider-using-max-builtin]
 if value > value2:  # [consider-using-min-builtin]
     value = value2
 
+if value2 > value3:  # [consider-using-max-builtin]
+    value3 = value2
+
+if value < value2:  # [consider-using-min-builtin]
+    value2 = value
+
+if value > float(value3):  # [consider-using-min-builtin]
+    value = float(value3)
+
+offset = 1
+if offset + value < value2:  # [consider-using-min-builtin]
+    value2 = offset + value
 
 class A:
     def __init__(self):
@@ -70,6 +82,12 @@ if A2 <= A1:  # [consider-using-max-builtin]
 if value > 10:
     value = 2
 
+if 10 < value:
+    value = 2
+
+if 10 > value:
+    value = 2
+
 if value > 10:
     value = 2
     value2 = 3
@@ -95,6 +113,13 @@ if value > 10:
     value = 10
 else:
     value = 3
+
+if value > float(value3):
+    value = float(value2)
+
+offset = 1
+if offset + value < value2:
+    value2 = offset
 
 
 # https://github.com/pylint-dev/pylint/issues/4379

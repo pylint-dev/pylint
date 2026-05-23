@@ -1,0 +1,5 @@
+Fix a false positive for ``unused-variable`` where global variables matching
+``dummy-variables-rgx`` were still reported as unused when
+``allow-global-unused-variables`` was disabled.
+
+Closes #10890

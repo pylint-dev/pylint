@@ -128,3 +128,11 @@ def regression_tests():
         print(value)
 
     wrap_print(value="{}".format)
+
+
+def invalid_format_string_good():
+    """Should not raise message when `.format` is called with an invalid format string."""
+    # pylint: disable=bad-format-string
+    print("{a[0] + a[1]}".format(a=[0, 1]))
+    print("{".format(a=1))
+    print("{".format(1))

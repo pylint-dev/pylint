@@ -66,9 +66,6 @@ collections.abc.Sized
 collections.abc.Hashable[int]  # [unsubscriptable-object]
 collections.abc.Sized[int]  # [unsubscriptable-object]
 
-# subscriptable with Python 3.9
-collections.abc.ByteString[int]
-
 
 # Missing implementation for 'collections.abc' derived classes
 class DerivedHashable(collections.abc.Hashable):  # [abstract-method]  # __hash__
@@ -110,14 +107,13 @@ class CustomImplementation(CustomAbstractCls2):  # [abstract-method,abstract-met
 # Type annotations
 var_tuple: tuple[int, int]
 var_dict: dict[int, str]
-var_orderedDict: collections.OrderedDict[int, str]
+var_ordereddict: collections.OrderedDict[int, str]
 var_container: collections.abc.Container[int]
 var_sequence: collections.abc.Sequence[int]
 var_iterable: collections.abc.Iterable[int]
 var_awaitable: collections.abc.Awaitable[int]
 var_contextmanager: contextlib.AbstractContextManager[int]
 var_pattern: re.Pattern[int]
-var_bytestring: collections.abc.ByteString
 var_hashable: collections.abc.Hashable
 var_sized: collections.abc.Sized
 
@@ -125,6 +121,3 @@ var_sized: collections.abc.Sized
 var_int: int[int]  # [unsubscriptable-object]
 var_hashable2: collections.abc.Hashable[int]  # [unsubscriptable-object]
 var_sized2: collections.abc.Sized[int]  # [unsubscriptable-object]
-
-# subscriptable with Python 3.9
-var_bytestring2: collections.abc.ByteString[int]

@@ -26,7 +26,6 @@ var6: typing.Iterable[int]  # [consider-using-alias]
 var7: typing.Hashable  # [consider-using-alias]
 var8: typing.ContextManager[str]  # [consider-using-alias]
 var9: typing.Pattern[str]  # [consider-using-alias]
-var10: typing.re.Match[str]  # [consider-using-alias]
 var11: list[int]
 var12: collections.abc
 var13: Awaitable[None]

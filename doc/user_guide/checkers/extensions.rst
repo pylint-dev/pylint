@@ -70,17 +70,13 @@ See also :ref:`code_style checker's options' documentation <code_style-options>`
 
 Code Style checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:consider-using-namedtuple-or-dataclass (R6101): *Consider using namedtuple or dataclass for dictionary values*
+  Emitted when dictionary values can be replaced by namedtuples or dataclass
+  instances.
 :consider-using-tuple (R6102): *Consider using an in-place tuple instead of list*
   Only for style consistency! Emitted where an in-place defined ``list`` can be
   replaced by a ``tuple``. Due to optimizations by CPython, there is no
   performance benefit from it.
-:consider-using-namedtuple-or-dataclass (R6101): *Consider using namedtuple or dataclass for dictionary values*
-  Emitted when dictionary values can be replaced by namedtuples or dataclass
-  instances.
-:prefer-typing-namedtuple (R6105): *Prefer 'typing.NamedTuple' over 'collections.namedtuple'*
-  'typing.NamedTuple' uses the well-known 'class' keyword with type-hints for
-  readability (it's also faster as it avoids an internal exec call). Disabled
-  by default!
 :consider-using-assignment-expr (R6103): *Use '%s' instead*
   Emitted when an if assignment is directly followed by an if statement and
   both can be combined by using an assignment expression ``:=``. Requires
@@ -88,6 +84,14 @@ Code Style checker Messages
 :consider-using-augmented-assign (R6104): *Use '%s' to do an augmented assign directly*
   Emitted when an assignment is referring to the object that it is assigning
   to. This can be changed to be an augmented assign. Disabled by default!
+:prefer-typing-namedtuple (R6105): *Prefer 'typing.NamedTuple' over 'collections.namedtuple'*
+  'typing.NamedTuple' uses the well-known 'class' keyword with type-hints for
+  readability (it's also faster as it avoids an internal exec call). Disabled
+  by default!
+:consider-math-not-float (R6106): *Consider %smath.%s instead of %s*
+  Using math.inf or math.nan permits to benefit from typing and it is up to 4
+  times faster than a float call (after the initial import of math). This check
+  also catches typos in float calls as a side effect.
 
 
 .. _pylint.extensions.comparison_placement:
@@ -118,7 +122,7 @@ Confusing Elif checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :confusing-consecutive-elif (R5601): *Consecutive elif with differing indentation level, consider creating a function to separate the inner elif*
   Used when an elif statement follows right after an indented block which
-  itself ends with if or elif. It may not be ovious if the elif statement was
+  itself ends with if or elif. It may not be obvious if the elif statement was
   willingly or mistakenly unindented. Extracting the indented if statement into
   a separate function might avoid confusion and prevent errors.
 
@@ -266,7 +270,7 @@ Verbatim name of the checker is ``dict-init-mutate``.
 
 Dict-Init-Mutate checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:dict-init-mutate (C3401): *Declare all known key/values when initializing the dictionary.*
+:dict-init-mutate (C3401): *Declare all known key/values when initializing the dictionary: %s*
   Dictionaries can be initialized with a single statement using dictionary
   literal syntax.
 
@@ -594,24 +598,14 @@ See also :ref:`parameter_documentation checker's options' documentation <paramet
 
 Parameter Documentation checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:differing-param-doc (W9017): *"%s" differing in parameter documentation*
-  Please check parameter names in declarations.
-:differing-type-doc (W9018): *"%s" differing in parameter type documentation*
-  Please check parameter names in type declarations.
 :multiple-constructor-doc (W9005): *"%s" has constructor parameters documented in class and __init__*
   Please remove parameter declarations in the class or constructor.
-:missing-param-doc (W9015): *"%s" missing in parameter documentation*
-  Please add parameter declarations for all parameters.
-:missing-type-doc (W9016): *"%s" missing in parameter type documentation*
-  Please add parameter type declarations for all parameters.
 :missing-raises-doc (W9006): *"%s" not documented as being raised*
   Please document exceptions for all raised exception types.
-:useless-param-doc (W9019): *"%s" useless ignored parameter documentation*
-  Please remove the ignored parameter documentation.
-:useless-type-doc (W9020): *"%s" useless ignored parameter type documentation*
-  Please remove the ignored parameter type documentation.
-:missing-any-param-doc (W9021): *Missing any documentation in "%s"*
-  Please add parameter and/or type documentation.
+:redundant-returns-doc (W9008): *Redundant returns documentation*
+  Please remove the return/rtype documentation from this method.
+:redundant-yields-doc (W9010): *Redundant yields documentation*
+  Please remove the yields documentation from this method.
 :missing-return-doc (W9011): *Missing return documentation*
   Please add documentation about what this method returns.
 :missing-return-type-doc (W9012): *Missing return type documentation*
@@ -620,10 +614,20 @@ Parameter Documentation checker Messages
   Please add documentation about what this generator yields.
 :missing-yield-type-doc (W9014): *Missing yield type documentation*
   Please document the type yielded by this method.
-:redundant-returns-doc (W9008): *Redundant returns documentation*
-  Please remove the return/rtype documentation from this method.
-:redundant-yields-doc (W9010): *Redundant yields documentation*
-  Please remove the yields documentation from this method.
+:missing-param-doc (W9015): *"%s" missing in parameter documentation*
+  Please add parameter declarations for all parameters.
+:missing-type-doc (W9016): *"%s" missing in parameter type documentation*
+  Please add parameter type declarations for all parameters.
+:differing-param-doc (W9017): *"%s" differing in parameter documentation*
+  Please check parameter names in declarations.
+:differing-type-doc (W9018): *"%s" differing in parameter type documentation*
+  Please check parameter names in type declarations.
+:useless-param-doc (W9019): *"%s" useless ignored parameter documentation*
+  Please remove the ignored parameter documentation.
+:useless-type-doc (W9020): *"%s" useless ignored parameter type documentation*
+  Please remove the ignored parameter type documentation.
+:missing-any-param-doc (W9021): *Missing any documentation in "%s"*
+  Please add parameter and/or type documentation.
 
 
 .. _pylint.extensions.redefined_loop_name:
@@ -685,12 +689,18 @@ Typing checker Messages
 :consider-using-alias (R6002): *'%s' will be deprecated with PY39, consider using '%s' instead%s*
   Only emitted if 'runtime-typing=no' and a deprecated typing alias is used in
   a type annotation context in Python 3.7 or 3.8.
-:consider-alternative-union-syntax (R6003): *Consider using alternative Union syntax instead of '%s'%s*
-  Emitted when 'typing.Union' or 'typing.Optional' is used instead of the
-  alternative Union syntax 'int | None'.
+:consider-alternative-union-syntax (R6003): *Consider using alternative union syntax instead of '%s'%s*
+  Emitted when ``typing.Union`` or ``typing.Optional`` is used instead of the
+  shorthand union syntax. For example, ``Union[int, float]`` instead of ``int |
+  float``. Using the shorthand for unions aligns with Python typing
+  recommendations, removes the need for imports, and avoids confusion in
+  function signatures.
 :redundant-typehint-argument (R6006): *Type `%s` is used more than once in union type annotation. Remove redundant typehints.*
   Duplicated type arguments will be skipped by `mypy` tool, therefore should be
   removed to avoid confusion.
+:unnecessary-default-type-args (R6007): *Type `%s` has unnecessary default type args. Change it to `%s`.*
+  Emitted when types have default type args which can be omitted. Mainly used
+  for `typing.Generator` and `typing.AsyncGenerator`.
 
 
 .. _pylint.extensions.while_used:

@@ -12,5 +12,6 @@ The contributor guide will help you if you want to contribute to pylint itself.
    contribute
    tests/index
    profiling
+   oss_fuzz
    release
    governance

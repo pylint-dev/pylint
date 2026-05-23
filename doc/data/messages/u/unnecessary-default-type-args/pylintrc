@@ -1,0 +1,2 @@
+[main]
+load-plugins=pylint.extensions.typing

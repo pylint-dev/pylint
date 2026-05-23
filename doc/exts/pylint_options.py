@@ -10,7 +10,7 @@ import re
 from collections import defaultdict
 from inspect import getmodule
 from pathlib import Path
-from typing import Dict, List, NamedTuple
+from typing import NamedTuple
 
 import tomlkit
 from sphinx.application import Sphinx
@@ -30,7 +30,7 @@ class OptionsData(NamedTuple):
     extension: bool
 
 
-OptionsDataDict = Dict[str, List[OptionsData]]
+OptionsDataDict = dict[str, list[OptionsData]]
 
 PYLINT_BASE_PATH = Path(__file__).resolve().parent.parent.parent
 """Base path to the project folder."""
@@ -209,11 +209,12 @@ def build_options_page(app: Sphinx | None) -> None:
     _write_options_page(options, linter)
 
 
-def setup(app: Sphinx) -> None:
+def setup(app: Sphinx) -> dict[str, bool]:
     """Connects the extension to the Sphinx process."""
     # Register callback at the builder-inited Sphinx event
     # See https://www.sphinx-doc.org/en/master/extdev/appapi.html
     app.connect("builder-inited", build_options_page)
+    return {"parallel_read_safe": True}
 
 
 if __name__ == "__main__":

@@ -10,4 +10,4 @@ if TYPE_CHECKING:
 else:
     BasePathLike = os.PathLike
 
-Foo: Union[str, BasePathLike] = "bar"
+FOO: Union[str, BasePathLike] = "bar"

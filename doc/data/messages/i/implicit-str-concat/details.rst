@@ -11,7 +11,7 @@ In order to detect this case, you must enable `check-str-concat-over-line-jumps`
 .. code-block:: toml
 
     [STRING_CONSTANT]
-    check-str-concat-over-line-jumps = yes
+    check-str-concat-over-line-jumps = true
 
 However, the drawback of this setting is that it will trigger false positive
 for string parameters passed on multiple lines in function calls:

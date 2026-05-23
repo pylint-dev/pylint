@@ -1,4 +1,0 @@
-Fix false positive for ``used-before-assignment`` when usage and assignment
-are guarded by the same test in different statements.
-
-Closes #8167

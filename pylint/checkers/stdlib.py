@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Dict, Set, Tuple
+from typing import TYPE_CHECKING, Any
 
 import astroid
 from astroid import nodes, util
@@ -22,7 +22,7 @@ from pylint.typing import MessageDefinitionTuple
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-DeprecationDict = Dict[Tuple[int, int, int], Set[str]]
+DeprecationDict = dict[tuple[int, int, int], set[str]]
 
 OPEN_FILES_MODE = ("open", "file")
 OPEN_FILES_FUNCS = (*OPEN_FILES_MODE, "read_text", "write_text")
@@ -33,7 +33,8 @@ OS_ENVIRON = "os._Environ"
 ENV_GETTERS = ("os.getenv",)
 SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
-OPEN_MODULE = {"_io", "pathlib"}
+OPEN_MODULE = {"_io", "pathlib", "pathlib._local"}
+PATHLIB_MODULE = {"pathlib", "pathlib._local"}
 DEBUG_BREAKPOINTS = ("builtins.breakpoint", "sys.breakpointhook", "pdb.set_trace")
 LRU_CACHE = {
     "functools.lru_cache",  # Inferred for @lru_cache
@@ -52,6 +53,9 @@ DEPRECATED_ARGUMENTS: dict[
         "int": ((None, "x"),),
         "bool": ((None, "x"),),
         "float": ((None, "x"),),
+    },
+    (3, 5, 0): {
+        "importlib._bootstrap_external.cache_from_source": ((1, "debug_override"),),
     },
     (3, 8, 0): {
         "asyncio.tasks.sleep": ((None, "loop"),),
@@ -84,8 +88,18 @@ DEPRECATED_ARGUMENTS: dict[
     },
     (3, 9, 0): {"random.Random.shuffle": ((1, "random"),)},
     (3, 12, 0): {
+        "argparse.BooleanOptionalAction": ((3, "type"), (4, "choices"), (7, "metavar")),
         "coroutine.throw": ((1, "value"), (2, "traceback")),
+        "email.utils.localtime": ((1, "isdst"),),
         "shutil.rmtree": ((2, "onerror"),),
+        "sysconfig.is_python_build": ((0, "check_home"),),
+    },
+    (3, 13, 0): {
+        "dis.get_instructions": ((2, "show_caches"),),
+    },
+    (3, 14, 0): {
+        "argparse.ArgumentParser.add_argument_group": ((None, "prefix_chars"),),
+        "threading.RLock": ((0, "x"),),
     },
 }
 
@@ -97,6 +111,7 @@ DEPRECATED_DECORATORS: DeprecationDict = {
         "abc.abstractproperty",
     },
     (3, 4, 0): {"importlib.util.module_for_loader"},
+    (3, 13, 0): {"typing.no_type_check_decorator"},
 }
 
 
@@ -247,6 +262,7 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "cgi.log",
         },
         (3, 11, 0): {
+            "importlib.resources.contents",
             "locale.getdefaultlocale",
             "locale.resetlocale",
             "re.template",
@@ -256,12 +272,43 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "unittest.TestLoader.loadTestsFromModule",
             "unittest.TestLoader.loadTestsFromTestCase",
             "unittest.TestLoader.getTestCaseNames",
+            "unittest.TestProgram.usageExit",
         },
         (3, 12, 0): {
+            "asyncio.get_child_watcher",
+            "asyncio.set_child_watcher",
+            "asyncio.AbstractEventLoopPolicy.get_child_watcher",
+            "asyncio.AbstractEventLoopPolicy.set_child_watcher",
             "builtins.bool.__invert__",
             "datetime.datetime.utcfromtimestamp",
             "datetime.datetime.utcnow",
+            "pkgutil.find_loader",
+            "pkgutil.get_loader",
+            "pty.master_open",
+            "pty.slave_open",
             "xml.etree.ElementTree.Element.__bool__",
+        },
+        (3, 13, 0): {
+            "ctypes.SetPointerType",
+            "pathlib.PurePath.is_reserved",
+            "platform.java_ver",
+            "pydoc.is_package",
+            "sys._enablelegacywindowsfsencoding",
+            "wave.Wave_read.getmark",
+            "wave.Wave_read.getmarkers",
+            "wave.Wave_read.setmark",
+            "wave.Wave_write.getmark",
+            "wave.Wave_write.getmarkers",
+            "wave.Wave_write.setmark",
+        },
+        (3, 14, 0): {
+            "asyncio.iscoroutinefunction",
+            "asyncio.get_event_loop_policy",
+            "asyncio.set_event_loop_policy",
+            "codecs.open",
+            "symtable.Class.get_methods",
+            "sys._clear_type_cache",
+            "sysconfig.expand_makefile_vars",
         },
     },
 }
@@ -319,15 +366,88 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
         "typing": {
             "Text",
         },
+        "urllib.parse": {
+            "Quoter",
+        },
         "webbrowser": {
             "MacOSX",
         },
     },
     (3, 12, 0): {
+        "ast": {
+            "Bytes",
+            "Ellipsis",
+            "NameConstant",
+            "Num",
+            "Str",
+        },
+        "asyncio": {
+            "AbstractChildWatcher",
+            "MultiLoopChildWatcher",
+            "FastChildWatcher",
+            "SafeChildWatcher",
+        },
+        "collections.abc": {
+            "ByteString",
+        },
+        "importlib.abc": {
+            "ResourceReader",
+            "Traversable",
+            "TraversableResources",
+        },
         "typing": {
+            "ByteString",
             "Hashable",
             "Sized",
         },
+    },
+    (3, 13, 0): {
+        "glob": {
+            "glob.glob0",
+            "glob.glob1",
+        },
+        "http.server": {
+            "CGIHTTPRequestHandler",
+        },
+    },
+    (3, 14, 0): {
+        "argparse": {
+            "FileType",
+        },
+        "asyncio": {
+            "AbstractEventLoopPolicy",
+            "DefaultEventLoopPolicy",
+            "WindowsSelectorEventLoopPolicy",
+            "WindowsProactorEventLoopPolicy",
+        },
+        "shutil": {
+            "ExecError",
+        },
+        "typing": {
+            "._UnionGenericAlias",
+        },
+    },
+}
+
+
+DEPRECATED_ATTRIBUTES: DeprecationDict = {
+    (3, 2, 0): {
+        "configparser.ParsingError.filename",
+    },
+    (3, 12, 0): {
+        "calendar.January",
+        "calendar.February",
+        "sqlite3.version",
+        "sqlite3.version_info",
+        "sys.last_traceback",
+        "sys.last_type",
+        "sys.last_value",
+    },
+    (3, 13, 0): {
+        "dis.HAVE_ARGUMENT",
+        "tarfile.TarFile.tarfile",
+        "traceback.TracebackException.exc_type",
+        "typing.AnyStr",
     },
 }
 
@@ -370,6 +490,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         **DeprecatedMixin.DEPRECATED_ARGUMENT_MESSAGE,
         **DeprecatedMixin.DEPRECATED_CLASS_MESSAGE,
         **DeprecatedMixin.DEPRECATED_DECORATOR_MESSAGE,
+        **DeprecatedMixin.DEPRECATED_ATTRIBUTE_MESSAGE,
         "W1501": (
             '"%s" is not a valid mode for open.',
             "bad-open-mode",
@@ -459,6 +580,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "It is better to specify an encoding when opening documents. "
             "Using the system default implicitly can create problems on other operating systems. "
             "See https://peps.python.org/pep-0597/",
+            {"maxversion": (3, 15)},
         ),
         "W1515": (
             "Leaving functions creating breakpoints in production code is not recommended",
@@ -489,6 +611,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         self._deprecated_arguments: dict[str, tuple[tuple[int | None, str], ...]] = {}
         self._deprecated_classes: dict[str, set[str]] = {}
         self._deprecated_decorators: set[str] = set()
+        self._deprecated_attributes: set[str] = set()
 
         for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
             if since_vers <= sys.version_info:
@@ -502,6 +625,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for since_vers, decorator_list in DEPRECATED_DECORATORS.items():
             if since_vers <= sys.version_info:
                 self._deprecated_decorators.update(decorator_list)
+        for since_vers, attribute_list in DEPRECATED_ATTRIBUTES.items():
+            if since_vers <= sys.version_info:
+                self._deprecated_attributes.update(attribute_list)
         # Modules are checked by the ImportsChecker, because the list is
         # synced with the config argument deprecated-modules
 
@@ -510,7 +636,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if "target" in func_kwargs:
             return
 
-        if len(node.args) < 2 and (not node.kwargs or "target" not in func_kwargs):
+        if len(node.args) < 2 and not (node.kwargs and "target" in func_kwargs):
             self.add_message(
                 "bad-thread-instantiation", node=node, confidence=interfaces.HIGH
             )
@@ -618,8 +744,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         "singledispatchmethod-function",
     )
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        if node.decorators and isinstance(node.parent, nodes.ClassDef):
-            self._check_lru_cache_decorators(node)
+        if node.decorators:
+            if isinstance(node.parent, nodes.ClassDef):
+                self._check_lru_cache_decorators(node)
             self._check_dispatch_decorators(node)
 
     def _check_lru_cache_decorators(self, node: nodes.FunctionDef) -> None:
@@ -678,16 +805,14 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     interfaces.INFERENCE,
                 )
 
-        if "singledispatch" in decorators_map and "classmethod" in decorators_map:
-            self.add_message(
-                "singledispatch-method",
-                node=decorators_map["singledispatch"][0],
-                confidence=decorators_map["singledispatch"][1],
-            )
-        elif (
-            "singledispatchmethod" in decorators_map
-            and "staticmethod" in decorators_map
-        ):
+        if node.is_method():
+            if "singledispatch" in decorators_map:
+                self.add_message(
+                    "singledispatch-method",
+                    node=decorators_map["singledispatch"][0],
+                    confidence=decorators_map["singledispatch"][1],
+                )
+        elif "singledispatchmethod" in decorators_map:
             self.add_message(
                 "singledispatchmethod-function",
                 node=decorators_map["singledispatchmethod"][0],
@@ -730,7 +855,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 mode_arg = utils.get_argument_from_call(
                     node, position=1, keyword="mode"
                 )
-            elif open_module == "pathlib":
+            elif open_module in PATHLIB_MODULE:
                 mode_arg = utils.get_argument_from_call(
                     node, position=0, keyword="mode"
                 )
@@ -753,26 +878,26 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     confidence=confidence,
                 )
 
-        if (
-            not mode_arg
-            or isinstance(mode_arg, nodes.Const)
-            and (not mode_arg.value or "b" not in str(mode_arg.value))
+        if not mode_arg or (
+            isinstance(mode_arg, nodes.Const)
+            and not (mode_arg.value and "b" in str(mode_arg.value))
         ):
             confidence = HIGH
             try:
-                if open_module == "pathlib":
-                    if node.func.attrname == "read_text":
-                        encoding_arg = utils.get_argument_from_call(
-                            node, position=0, keyword="encoding"
-                        )
-                    elif node.func.attrname == "write_text":
-                        encoding_arg = utils.get_argument_from_call(
-                            node, position=1, keyword="encoding"
-                        )
-                    else:
-                        encoding_arg = utils.get_argument_from_call(
-                            node, position=2, keyword="encoding"
-                        )
+                if open_module in PATHLIB_MODULE:
+                    match node.func.attrname:
+                        case "read_text":
+                            encoding_arg = utils.get_argument_from_call(
+                                node, position=0, keyword="encoding"
+                            )
+                        case "write_text":
+                            encoding_arg = utils.get_argument_from_call(
+                                node, position=1, keyword="encoding"
+                            )
+                        case _:
+                            encoding_arg = utils.get_argument_from_call(
+                                node, position=2, keyword="encoding"
+                            )
                 else:
                     encoding_arg = utils.get_argument_from_call(
                         node, position=3, keyword="encoding"
@@ -847,10 +972,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         name = infer.qname()
         if isinstance(call_arg, nodes.Const):
             emit = False
-            if call_arg.value is None:
-                emit = not allow_none
-            elif not isinstance(call_arg.value, str):
-                emit = True
+            match call_arg.value:
+                case None:
+                    emit = not allow_none
+                case str():
+                    pass
+                case _:
+                    emit = True
             if emit:
                 self.add_message(message, node=node, args=(name, call_arg.pytype()))
         else:
@@ -867,6 +995,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
     def deprecated_decorators(self) -> Iterable[str]:
         return self._deprecated_decorators
+
+    def deprecated_attributes(self) -> Iterable[str]:
+        return self._deprecated_attributes
 
 
 def register(linter: PyLinter) -> None:

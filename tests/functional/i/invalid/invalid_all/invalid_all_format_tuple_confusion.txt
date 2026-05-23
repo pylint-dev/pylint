@@ -1,0 +1,7 @@
+line-too-long:1:0:None:None::Line too long (163/100):UNDEFINED
+missing-module-docstring:1:0:None:None::Missing module docstring:HIGH
+undefined-all-variable:1:0:None:None::Undefined variable name 'C' in __all__:UNDEFINED
+undefined-all-variable:1:0:None:None::Undefined variable name 'N' in __all__:UNDEFINED
+undefined-all-variable:1:0:None:None::Undefined variable name 'O' in __all__:UNDEFINED
+undefined-all-variable:1:0:None:None::Undefined variable name 'S' in __all__:UNDEFINED
+undefined-all-variable:1:0:None:None::Undefined variable name 'T' in __all__:UNDEFINED

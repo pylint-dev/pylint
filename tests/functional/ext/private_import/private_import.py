@@ -31,7 +31,7 @@ from __future__ import __print_function__
 from private_import import _private  # pylint: disable=import-self
 from private_import.other_file import _private
 from . import _private
-from astroid import _private  # [import-private-name]
+from pytest import _private  # [import-private-name]
 from sys import _private  # [import-private-name]
 
 # Ignore typecheck
@@ -79,8 +79,8 @@ def c2_func() -> _TypeContainerC.C:
 # This is allowed since all the imports are used for typing
 from _TypeContainerExtra import TypeExtraA, TypeExtraB
 from MakerContainerExtra import GetA, GetB
-extraA: TypeExtraA = GetA()
-extraB: TypeExtraB = GetB()
+extra_a: TypeExtraA = GetA()
+extra_b: TypeExtraB = GetB()
 
 # This is not allowed because there is an import not used for typing
 from _TypeContainerExtra2 import TypeExtra2, NotTypeExtra # [import-private-name]
@@ -139,4 +139,4 @@ from .other_file import _private
 from ..parent import _private
 
 from _private_module_x import some_name # [import-private-name]
-var = some_name
+VAR = some_name

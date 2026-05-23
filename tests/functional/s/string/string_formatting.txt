@@ -30,7 +30,7 @@ too-few-format-args:94:4:94:25:pprint_bad:Not enough arguments for format string
 too-few-format-args:95:4:95:26:pprint_bad:Not enough arguments for format string:UNDEFINED
 too-many-format-args:96:4:96:32:pprint_bad:Too many arguments for format string:UNDEFINED
 logging-too-few-args:97:4:97:30:pprint_bad:Not enough arguments for logging format string:UNDEFINED
-logging-too-many-args:98:4:98:31:pprint_bad:Too many arguments for logging format string:UNDEFINED
+logging-too-many-args:98:4:98:31:pprint_bad:Too many arguments for logging format string:HIGH
 format-string-without-interpolation:99:4:99:22:pprint_bad:Using formatting for a string that does not have any interpolated variables:UNDEFINED
 format-string-without-interpolation:100:4:100:23:pprint_bad:Using formatting for a string that does not have any interpolated variables:UNDEFINED
 format-string-without-interpolation:101:4:101:23:pprint_bad:Using formatting for a string that does not have any interpolated variables:UNDEFINED

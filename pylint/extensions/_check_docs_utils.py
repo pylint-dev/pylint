@@ -40,12 +40,9 @@ def get_setters_property_name(node: nodes.FunctionDef) -> str | None:
     """
     decorators = node.decorators.nodes if node.decorators else []
     for decorator in decorators:
-        if (
-            isinstance(decorator, nodes.Attribute)
-            and decorator.attrname == "setter"
-            and isinstance(decorator.expr, nodes.Name)
-        ):
-            return decorator.expr.name  # type: ignore[no-any-return]
+        match decorator:
+            case nodes.Attribute(attrname="setter", expr=nodes.Name(name=name)):
+                return name  # type: ignore[no-any-return]
     return None
 
 
@@ -77,24 +74,21 @@ def returns_something(return_node: nodes.Return) -> bool:
     """Check if a return node returns a value other than None.
 
     :param return_node: The return node to check.
-    :type return_node: astroid.Return
+    :type return_node: nodes.Return
 
     :rtype: bool
     :return: True if the return node returns a value other than None,
         False otherwise.
     """
     returns = return_node.value
-
-    if returns is None:
-        return False
-
-    return not (isinstance(returns, nodes.Const) and returns.value is None)
+    return not (
+        returns is None or (isinstance(returns, nodes.Const) and returns.value is None)
+    )
 
 
 def _get_raise_target(node: nodes.NodeNG) -> nodes.NodeNG | UninferableBase | None:
-    if isinstance(node.exc, nodes.Call):
-        func = node.exc.func
-        if isinstance(func, (nodes.Name, nodes.Attribute)):
+    match node.exc:
+        case nodes.Call(func=nodes.Name() | nodes.Attribute() as func):
             return utils.safe_infer(func)
     return None
 
@@ -133,23 +127,24 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
             except astroid.InferenceError:
                 pass
     else:
-        target = _get_raise_target(node)
-        if isinstance(target, nodes.ClassDef):
-            exceptions = [target]
-        elif isinstance(target, nodes.FunctionDef):
-            for ret in target.nodes_of_class(nodes.Return):
-                if ret.value is None:
-                    continue
-                if ret.frame() != target:
-                    # return from inner function - ignore it
-                    continue
+        match target := _get_raise_target(node):
+            case nodes.ClassDef():
+                exceptions = [target]
+            case nodes.FunctionDef():
+                for ret in target.nodes_of_class(nodes.Return):
+                    if ret.value is None:
+                        continue
+                    if ret.frame() != target:
+                        # return from inner function - ignore it
+                        continue
 
-                val = utils.safe_infer(ret.value)
-                if val and utils.inherit_from_std_ex(val):
-                    if isinstance(val, nodes.ClassDef):
-                        exceptions.append(val)
-                    elif isinstance(val, astroid.Instance):
-                        exceptions.append(val.getattr("__class__")[0])
+                    val = utils.safe_infer(ret.value)
+                    if val and utils.inherit_from_std_ex(val):
+                        match val:
+                            case nodes.ClassDef():
+                                exceptions.append(val)
+                            case astroid.Instance():
+                                exceptions.append(val.getattr("__class__")[0])
 
     try:
         return {
@@ -347,12 +342,10 @@ class SphinxDocstring(Docstring):
         [\(\[] [^\n\s]+ [\)\]]        # with the contents of the container
     """
 
-    re_multiple_simple_type = r"""
-        (?:{container_type}|{type})
-        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{container_type}|{type}))*
-    """.format(
-        type=re_type, container_type=re_simple_container_type
-    )
+    re_multiple_simple_type = rf"""
+        (?:{re_simple_container_type}|{re_type})
+        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{re_simple_container_type}|{re_type}))*
+    """
 
     re_xref = rf"""
         (?::\w+:)?                    # optional tag
@@ -549,12 +542,10 @@ class GoogleDocstring(Docstring):
         [\(\[] [^\n]+ [\)\]]          # with the contents of the container
     """
 
-    re_multiple_type = r"""
-        (?:{container_type}|{type}|{xref})
-        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{container_type}|{type}|{xref}))*
-    """.format(
-        type=re_type, xref=re_xref, container_type=re_container_type
-    )
+    re_multiple_type = rf"""
+        (?:{re_container_type}|{re_type}|{re_xref})
+        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{re_container_type}|{re_type}|{re_xref}))*
+    """
 
     _re_section_template = r"""
         ^([ ]*)   {0} \s*:   \s*$     # Google parameter header
@@ -830,24 +821,20 @@ class NumpyDocstring(GoogleDocstring):
         re.X | re.S | re.M,
     )
 
-    re_default_value = r"""((['"]\w+\s*['"])|(\d+)|(True)|(False)|(None))"""
-
     re_param_line = re.compile(
-        rf"""
-        \s*  (?P<param_name>\*{{0,2}}\w+)(\s?(:|\n)) # identifier with potential asterisks
-        \s*
-        (?P<param_type>
-         (
-          ({GoogleDocstring.re_multiple_type})      # default type declaration
-          (,\s+optional)?                           # optional 'optional' indication
-         )?
-         (
-          {{({re_default_value},?\s*)+}}            # set of default values
-         )?
-         (?:$|\n)
+        r"""
+        \s*  (?P<param_name>
+            \*{0,2}\w+                              # first identifier (with optional asterisks)
+            (?:\s*,\s*\*{0,2}\w+)*                  # additional identifiers (NumPy "a, b : type" idiom)
+        )
+        (?:
+            [ \t]* : [ \t]*                         # colon separator
+            (?P<param_type>[^\n]*?)                 # any type expression up to end of line
+            [ \t]*
         )?
-        (
-         \s* (?P<param_desc>.*)                     # optional description
+        (?:\n|$)                                    # end of the name/type line
+        (?:
+            \s* (?P<param_desc>.*)                  # optional description
         )?
     """,
         re.X | re.S,
@@ -898,33 +885,25 @@ class NumpyDocstring(GoogleDocstring):
             if not match:
                 continue
 
-            # check if parameter has description only
-            re_only_desc = re.match(r"\s*(\*{0,2}\w+)\s*:?\n\s*\w*$", entry)
-            if re_only_desc:
-                param_name = match.group("param_name")
-                param_desc = match.group("param_type")
-                param_type = None
-            else:
-                param_name = match.group("param_name")
-                param_type = match.group("param_type")
-                param_desc = match.group("param_desc")
-                # The re_param_line pattern needs to match multi-line which removes the ability
-                # to match a single line description like 'arg : a number type.'
-                # We are not trying to determine whether 'a number type' is correct typing
-                # but we do accept it as typing as it is in the place where typing
-                # should be
-                if param_type is None and re.match(r"\s*(\*{0,2}\w+)\s*:.+$", entry):
-                    param_type = param_desc
-                # If the description is "" but we have a type description
-                # we consider the description to be the type
-                if not param_desc and param_type:
-                    param_desc = param_type
+            raw_names = match.group("param_name")
+            param_type = match.group("param_type")
+            param_desc = match.group("param_desc")
+            # If a single-line entry only has typing after the colon (no
+            # description on a following line), accept the typing as the
+            # description too — we are not trying to determine whether
+            # "a number type" is correct typing but we do accept it as typing
+            # as it is in the place where typing should be.
+            if not param_desc and param_type:
+                param_desc = param_type
 
-            if param_type:
-                params_with_type.add(param_name)
+            # NumPy style permits documenting multiple identifiers per entry,
+            # e.g. ``a, b : array-like``. Apply the type/description to each.
+            for param_name in re.split(r"\s*,\s*", raw_names):
+                if param_type:
+                    params_with_type.add(param_name)
 
-            if param_desc:
-                params_with_doc.add(param_name)
+                if param_desc:
+                    params_with_doc.add(param_name)
 
         return params_with_doc, params_with_type
 

@@ -221,7 +221,7 @@ Other Changes
   ``pylint`` should be a bit faster as well.
 
   We added a new flag, ``max_inferable_values`` on ``astroid.MANAGER`` for
-  limitting the maximum amount of values that ``astroid`` can infer when inferring
+  limiting the maximum amount of values that ``astroid`` can infer when inferring
   values. This change should improve the performance when dealing with large frameworks
   such as ``django``.
   You can also control this behaviour with ``pylint --limit-inference-results``
@@ -280,7 +280,7 @@ Other Changes
 
 * Skip wildcard import check for ``__init__.py``.
 
-* Don't warn 'useless-super-delegation' if the subclass method has different type annotations.
+* Don't warn :ref:`useless-super-delegation`' if the subclass method has different type annotations.
 
 * Don't warn that a global variable is unused if it is defined by an import
 
@@ -321,10 +321,10 @@ Other Changes
 
 * Fix emitting ``useless-super-delegation`` when changing the default value of keyword arguments.
 
-* Support ``typing.TYPE_CHECKING`` for *unused-import* errors
+* Support ``typing.TYPE_CHECKING`` for *:ref:`unused-import`* errors
 
   When modules are imported under ``typing.TYPE_CHECKING`` guard, ``pylint``
-  will no longer emit *unused-import*.
+  will no longer emit *:ref:`unused-import`*.
 
 * Fix false positive ``unused-variable`` in lambda default arguments
 

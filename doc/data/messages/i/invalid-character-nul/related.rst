@@ -1,0 +1,1 @@
+- `Null terminator in python  <https://stackoverflow.com/a/24410304/2519059>`_

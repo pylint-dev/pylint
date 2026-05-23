@@ -10,7 +10,7 @@ import configparser
 import os
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Tuple
+from typing import TYPE_CHECKING
 
 from pylint.config.utils import _parse_rich_type_value
 
@@ -22,7 +22,7 @@ else:
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-PylintConfigFileData = Tuple[Dict[str, str], List[str]]
+PylintConfigFileData = tuple[dict[str, str], list[str]]
 
 
 class _RawConfParser:

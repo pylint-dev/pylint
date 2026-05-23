@@ -1,9 +1,10 @@
 """Make sure warnings about redefinitions do not trigger for dummy variables."""
+# pylint: disable=invalid-name
 
 
 _, INTERESTING = 'a=b'.split('=')
 
-value = 10  # [invalid-name]
+value = 10
 
 
 def clobbering():

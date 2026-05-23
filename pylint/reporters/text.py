@@ -15,7 +15,7 @@ import re
 import sys
 import warnings
 from dataclasses import asdict, fields
-from typing import TYPE_CHECKING, Dict, NamedTuple, TextIO
+from typing import TYPE_CHECKING, NamedTuple, TextIO
 
 from pylint.message import Message
 from pylint.reporters import BaseReporter
@@ -65,7 +65,7 @@ class MessageStyle(NamedTuple):
         return msg
 
 
-ColorMappingDict = Dict[str, MessageStyle]
+ColorMappingDict = dict[str, MessageStyle]
 
 TITLE_UNDERLINES = ["", "=", "-", "."]
 
@@ -215,6 +215,7 @@ class ColorizedTextReporter(TextReporter):
         "W": MessageStyle("magenta"),
         "E": MessageStyle("red", ("bold",)),
         "F": MessageStyle("red", ("bold", "underline")),
+        "X": MessageStyle("red", ("bold", "inverse")),
         "S": MessageStyle("yellow", ("inverse",)),  # S stands for module Separator
     }
 
@@ -225,6 +226,7 @@ class ColorizedTextReporter(TextReporter):
     ) -> None:
         super().__init__(output)
         self.color_mapping = color_mapping or ColorizedTextReporter.COLOR_MAPPING
+        self.fail_on_symbols: list[str] = []
         ansi_terms = ["xterm-16color", "xterm-256color"]
         if os.environ.get("TERM") not in ansi_terms:
             if sys.platform == "win32":
@@ -237,6 +239,10 @@ class ColorizedTextReporter(TextReporter):
         """Returns the message style as defined in self.color_mapping."""
         return self.color_mapping.get(msg_id[0]) or MessageStyle(None)
 
+    def set_fail_on_symbols(self, fail_on_symbols: list[str]) -> None:
+        """Sets the list of configured fail-on symbols."""
+        self.fail_on_symbols = fail_on_symbols
+
     def handle_message(self, msg: Message) -> None:
         """Manage message of different types, and colorize output
         using ANSI escape codes.
@@ -246,7 +252,10 @@ class ColorizedTextReporter(TextReporter):
             modsep = colorize_ansi(make_header(msg), msg_style)
             self.writeln(modsep)
             self._modules.add(msg.module)
-        msg_style = self._get_decoration(msg.C)
+        if msg.symbol in self.fail_on_symbols:
+            msg_style = self._get_decoration("X")
+        else:
+            msg_style = self._get_decoration(msg.C)
 
         msg.msg = colorize_ansi(msg.msg, msg_style)
         msg.symbol = colorize_ansi(msg.symbol, msg_style)
@@ -255,9 +264,35 @@ class ColorizedTextReporter(TextReporter):
         self.write_message(msg)
 
 
+class GithubReporter(TextReporter):
+    """Report messages in GitHub's special format to annotate code in its user
+    interface.
+    """
+
+    name = "github"
+    line_format = "::{category} file={path},line={line},endline={end_line},col={column},title={msg_id}::{msg}"
+    category_map = {
+        "F": "error",
+        "E": "error",
+        "W": "warning",
+        "C": "notice",
+        "R": "notice",
+        "I": "notice",
+    }
+
+    def write_message(self, msg: Message) -> None:
+        self_dict = asdict(msg)
+        for key in ("end_line", "end_column"):
+            self_dict[key] = self_dict[key] or ""
+
+        self_dict["category"] = self.category_map.get(msg.C) or "error"
+        self.writeln(self._fixed_template.format(**self_dict))
+
+
 def register(linter: PyLinter) -> None:
     linter.register_reporter(TextReporter)
     linter.register_reporter(NoHeaderReporter)
     linter.register_reporter(ParseableTextReporter)
     linter.register_reporter(VSTextReporter)
     linter.register_reporter(ColorizedTextReporter)
+    linter.register_reporter(GithubReporter)

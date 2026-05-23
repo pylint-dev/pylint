@@ -9,15 +9,15 @@ def strangeproblem():
 
 
 try:
-    MY_INT = 1
-    print("MY_INT = %d" % MY_INT)
+    my_int = 1
+    print("MY_INT = %d" % my_int)
 finally:
-    MY_INT = 2
+    my_int = 2
 
 try:
     pass
 except:
-    FALSE_POSITIVE = 1
-    FALSE_POSITIVE  # here pylint claims used-before-assignment
+    false_positive = 1
+    false_positive  # here pylint claims used-before-assignment
 finally:
-    FALSE_POSITIVE = 2  # this line is needed to reproduce the issue
+    false_positive = 2  # this line is needed to reproduce the issue

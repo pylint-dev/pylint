@@ -60,12 +60,11 @@ except ImportError:  # pragma: no cover
 
 
 def _get_enchant_dicts() -> list[tuple[Any, enchant.ProviderDesc]]:
-    # Broker().list_dicts() is not typed in enchant, but it does return tuples
-    return enchant.Broker().list_dicts() if PYENCHANT_AVAILABLE else []  # type: ignore[no-any-return]
+    return enchant.Broker().list_dicts() if PYENCHANT_AVAILABLE else []
 
 
 def _get_enchant_dict_choices(
-    inner_enchant_dicts: list[tuple[Any, enchant.ProviderDesc]]
+    inner_enchant_dicts: list[tuple[Any, enchant.ProviderDesc]],
 ) -> list[str]:
     return [""] + [d[0] for d in inner_enchant_dicts]
 
@@ -81,7 +80,7 @@ def _get_enchant_dict_help(
         enchant_help = "No available dictionaries : You need to install "
         if not pyenchant_available:
             enchant_help += "both the python package and "
-        enchant_help += "the system dependency for enchant to work."
+        enchant_help += "the system dependency for enchant to work"
     return f"Spelling dictionary name. {enchant_help}."
 
 
@@ -126,6 +125,7 @@ class CamelCasedWord(RegExFilter):
 
     That is, any words that are camelCasedWords.
     """
+
     _pattern = re.compile(r"^([a-z]+(\d|[A-Z])(?:\w+)?)")
 
 
@@ -137,6 +137,7 @@ class SphinxDirectives(RegExFilter):
 
     That is, for example, :class:`BaseQuery`
     """
+
     # The final ` in the pattern is optional because enchant strips it out
     _pattern = re.compile(r"^(:([a-z]+)){1,2}:`([^`]+)(`)?")
 
@@ -160,11 +161,11 @@ class ForwardSlashChunker(Chunker):  # type: ignore[misc]
             pre_text, post_text = self._text.split("/", 1)
             self._text = post_text
             self._offset = 0
-            if (
-                not pre_text
-                or not post_text
-                or not pre_text[-1].isalpha()
-                or not post_text[0].isalpha()
+            if not (
+                pre_text
+                and post_text
+                and pre_text[-1].isalpha()
+                and post_text[0].isalpha()
             ):
                 self._text = ""
                 self._offset = 0
@@ -176,9 +177,9 @@ class ForwardSlashChunker(Chunker):  # type: ignore[misc]
             if "/" not in self._text:
                 return self._text, 0
             pre_text, post_text = self._text.split("/", 1)
-            if not pre_text or not post_text:
+            if not (pre_text and post_text):
                 break
-            if not pre_text[-1].isalpha() or not post_text[0].isalpha():
+            if not (pre_text[-1].isalpha() and post_text[0].isalpha()):
                 raise StopIteration()
             self._text = pre_text + " " + post_text
         raise StopIteration()
@@ -453,10 +454,9 @@ class SpellingChecker(BaseTokenChecker):
 
     def _check_docstring(
         self,
-        node: nodes.FunctionDef
-        | nodes.AsyncFunctionDef
-        | nodes.ClassDef
-        | nodes.Module,
+        node: (
+            nodes.FunctionDef | nodes.AsyncFunctionDef | nodes.ClassDef | nodes.Module
+        ),
     ) -> None:
         """Check if the node has any spelling errors."""
         if not self.initialized:

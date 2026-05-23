@@ -1,0 +1,1 @@
+invalid-name:4:5:4:10::"Type alias name ""point"" doesn't conform to predefined naming style":HIGH

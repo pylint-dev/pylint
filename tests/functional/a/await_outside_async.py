@@ -28,3 +28,7 @@ async def func2():
 def outer_func():
     async def inner_func():
         await asyncio.sleep(1)
+
+# pylint: disable=unnecessary-lambda-assignment
+async def func3():
+    f = lambda: await nested() # [await-outside-async]

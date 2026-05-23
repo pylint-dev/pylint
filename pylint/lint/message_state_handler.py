@@ -6,19 +6,17 @@ from __future__ import annotations
 
 import tokenize
 from collections import defaultdict
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 from pylint import exceptions, interfaces
 from pylint.constants import (
-    MSG_STATE_CONFIDENCE,
-    MSG_STATE_SCOPE_CONFIG,
-    MSG_STATE_SCOPE_MODULE,
     MSG_TYPES,
     MSG_TYPES_LONG,
+    MessageDisableReason,
 )
 from pylint.interfaces import HIGH
 from pylint.message import MessageDefinition
-from pylint.typing import ManagedMessage
+from pylint.typing import ManagedMessage, MessageDefinitionTuple
 from pylint.utils.pragma_parser import (
     OPTION_PO,
     InvalidPragmaError,
@@ -37,6 +35,11 @@ class _MessageStateHandler:
 
     def __init__(self, linter: PyLinter) -> None:
         self.linter = linter
+        self.default_enabled_messages: dict[str, MessageDefinitionTuple] = {
+            k: v
+            for k, v in self.linter.msgs.items()
+            if len(v) == 3 or v[3].get("default_enabled", True)
+        }
         self._msgs_state: dict[str, bool] = {}
         self._options_methods = {
             "enable": self.enable,
@@ -83,6 +86,14 @@ class _MessageStateHandler:
             for _msgid in MSG_TYPES:
                 message_definitions.extend(
                     self._get_messages_to_set(_msgid, enable, ignore_unknown)
+                )
+            if not enable:
+                # "all" should not disable pylint's own warnings
+                message_definitions = list(
+                    filter(
+                        lambda m: m.msgid not in self.default_enabled_messages,
+                        message_definitions,
+                    )
                 )
             return message_definitions
 
@@ -248,19 +259,17 @@ class _MessageStateHandler:
     def _get_message_state_scope(
         self,
         msgid: str,
-        line: int | None = None,
-        confidence: interfaces.Confidence | None = None,
-    ) -> Literal[0, 1, 2] | None:
-        """Returns the scope at which a message was enabled/disabled."""
-        if confidence is None:
-            confidence = interfaces.UNDEFINED
+        line: int | None,
+        confidence: interfaces.Confidence,
+    ) -> MessageDisableReason | None:
+        """Return the scope at which the message was disabled / filtered."""
         if confidence.name not in self.linter.config.confidence:
-            return MSG_STATE_CONFIDENCE  # type: ignore[return-value] # mypy does not infer Literal correctly
+            return MessageDisableReason.CONFIDENCE
         try:
             if line in self.linter.file_state._module_msgs_state[msgid]:
-                return MSG_STATE_SCOPE_MODULE  # type: ignore[return-value]
+                return MessageDisableReason.MODULE
         except (KeyError, TypeError):
-            return MSG_STATE_SCOPE_CONFIG  # type: ignore[return-value]
+            return MessageDisableReason.CONFIG
         return None
 
     def _is_one_message_enabled(self, msgid: str, line: int | None) -> bool:
@@ -305,12 +314,14 @@ class _MessageStateHandler:
         line: int | None = None,
         confidence: interfaces.Confidence | None = None,
     ) -> bool:
-        """Return whether this message is enabled for the current file, line and
-        confidence level.
+        """Is this message enabled for the current file ?
 
-        This function can't be cached right now as the line is the line of
-        the currently analysed file (self.file_state), if it changes, then the
-        result for the same msg_descr/line might need to change.
+        Optionally, is it enabled for this line and confidence level ?
+
+        The current file is implicit and mandatory. As a result this function
+        can't be cached right now as the line is the line of the currently
+        analysed file (self.file_state), if it changes, then the result for
+        the same msg_descr/line might need to change.
 
         :param msg_descr: Either the msgid or the symbol for a MessageDefinition
         :param line: The line of the currently analysed file
@@ -363,7 +374,7 @@ class _MessageStateHandler:
                                 args=("disable-all", "skip-file"),
                             )
                         self.linter.add_message("file-ignored", line=start[0])
-                        self._ignore_file = True
+                        self._ignore_file: bool = True
                         return
                     try:
                         meth = self._options_methods[pragma_repr.action]

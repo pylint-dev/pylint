@@ -33,7 +33,7 @@ from pylint.lint.pylinter import PyLinter
 from pylint.message import Message
 from pylint.reporters import BaseReporter
 from pylint.reporters.json_reporter import JSON2Reporter
-from pylint.reporters.text import ColorizedTextReporter, TextReporter
+from pylint.reporters.text import ColorizedTextReporter, GithubReporter, TextReporter
 from pylint.testutils._run import _add_rcfile_default_pylintrc
 from pylint.testutils._run import _Run as Run
 from pylint.testutils.utils import (
@@ -82,9 +82,9 @@ class MultiReporter(BaseReporter):
         self._reporters = reporters
         self.path_strip_prefix = os.getcwd() + os.sep
 
-    def on_set_current_module(self, *args: str, **kwargs: Any) -> None:
+    def on_set_current_module(self, module: str, filepath: str | None) -> None:
         for rep in self._reporters:
-            rep.on_set_current_module(*args, **kwargs)
+            rep.on_set_current_module(module, filepath)
 
     def handle_message(self, msg: Message) -> None:
         for rep in self._reporters:
@@ -189,6 +189,7 @@ class TestRunTC:
             TextReporter(StringIO()),
             ColorizedTextReporter(StringIO()),
             JSON2Reporter(StringIO()),
+            GithubReporter(StringIO()),
         ]
         self._runtest(
             [join(HERE, "functional", "a", "arguments.py")],
@@ -217,6 +218,49 @@ class TestRunTC:
         out = StringIO()
         self._runtest([UNNECESSARY_LAMBDA, "--disable=all"], out=out, code=32)
         assert "No files to lint: exiting." in out.getvalue().strip()
+
+    def test_disable_all_enable_invalid(self) -> None:
+        # Reproduces issue #9403. If disable=all is used no error was raised for invalid messages unless
+        # unknown-option-value was manually enabled.
+        out = StringIO()
+        self._runtest(
+            # Enable one valid message to not run into "No files to lint: exiting."
+            [
+                UNNECESSARY_LAMBDA,
+                "--disable=all",
+                "--enable=import-error",
+                "--enable=foo",
+            ],
+            out=out,
+            code=0,
+        )
+        assert (
+            "W0012: Unknown option value for '--enable', expected a valid pylint message and got 'foo'"
+            in out.getvalue().strip()
+        )
+
+    def test_output_with_verbose(self) -> None:
+        out = StringIO()
+        self._runtest(
+            [
+                UNNECESSARY_LAMBDA,
+                join(
+                    HERE,
+                    "regrtest_data",
+                    "directory",
+                    "ignored_subdirectory",
+                    "failing.py",
+                ),
+                "--ignore-paths=.*failing.*",
+                "--verbose",
+            ],
+            out=out,
+            code=4,
+        )
+        stripped = out.getvalue().strip()
+        assert "Checked 1 files/modules" in stripped
+        assert "unnecessary_lambda.py" in stripped
+        assert "skipped 0 files/modules" in stripped
 
     def test_no_out_encoding(self) -> None:
         """Test redirection of stdout with non ascii characters."""
@@ -258,14 +302,12 @@ class TestRunTC:
 
     def test_enable_all_works(self) -> None:
         module = join(HERE, "data", "clientmodule_test.py")
-        expected = textwrap.dedent(
-            f"""
+        expected = textwrap.dedent(f"""
         ************* Module data.clientmodule_test
         {module}:9:8: W0612: Unused variable 'local_variable' (unused-variable)
         {module}:17:4: C0116: Missing function or method docstring (missing-function-docstring)
         {module}:21:0: C0115: Missing class docstring (missing-class-docstring)
-        """
-        )
+        """)
         self._test_output(
             [module, "--disable=I", "--enable=all", "-rn"], expected_output=expected
         )
@@ -273,12 +315,10 @@ class TestRunTC:
     def test_wrong_import_position_when_others_disabled(self) -> None:
         module1 = join(HERE, "regrtest_data", "import_something.py")
         module2 = join(HERE, "regrtest_data", "wrong_import_position.py")
-        expected_output = textwrap.dedent(
-            f"""
+        expected_output = textwrap.dedent(f"""
         ************* Module wrong_import_position
         {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
-        """
-        )
+        """)
         args = [
             module2,
             module1,
@@ -300,6 +340,56 @@ class TestRunTC:
             actual_output = actual_output[actual_output.find("\n") :]
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
+    def test_progress_reporting(self) -> None:
+        module1 = join(HERE, "regrtest_data", "import_something.py")
+        module2 = join(HERE, "regrtest_data", "wrong_import_position.py")
+        args = [
+            module2,
+            module1,
+            "--disable=all",
+            "--enable=wrong-import-position",
+            "--verbose",
+            "-rn",
+            "-sn",
+        ]
+        out = StringIO()
+        self._run_pylint(args, out=out)
+        actual_output = self._clean_paths(out.getvalue().strip())
+
+        expected_output = textwrap.dedent(f"""
+        Using config file pylint/testutils/testing_pylintrc
+        Get ASTs.
+        AST for {module2}
+        AST for {module1}
+        Linting 2 modules.
+        {module2} (1 of 2)
+        ************* Module wrong_import_position
+        {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
+        {module1} (2 of 2)
+        """)
+        assert self._clean_paths(expected_output.strip()) == actual_output.strip()
+
+    def test_progress_reporting_not_shown_if_not_verbose(self) -> None:
+        module1 = join(HERE, "regrtest_data", "import_something.py")
+        module2 = join(HERE, "regrtest_data", "wrong_import_position.py")
+        args = [
+            module2,
+            module1,
+            "--disable=all",
+            "--enable=wrong-import-position",
+            "-rn",
+            "-sn",
+        ]
+        out = StringIO()
+        self._run_pylint(args, out=out)
+        actual_output = self._clean_paths(out.getvalue().strip())
+
+        expected_output = textwrap.dedent(f"""
+        ************* Module wrong_import_position
+        {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
+        """)
+        assert self._clean_paths(expected_output.strip()) == actual_output.strip()
+
     def test_type_annotation_names(self) -> None:
         """Test resetting the `_type_annotation_names` list to `[]` when leaving a module.
 
@@ -314,12 +404,10 @@ class TestRunTC:
         module2 = join(
             HERE, "regrtest_data", "imported_module_in_typehint", "module_b.py"
         )
-        expected_output = textwrap.dedent(
-            f"""
+        expected_output = textwrap.dedent(f"""
         ************* Module module_b
         {module2}:1:0: W0611: Unused import uuid (unused-import)
-        """
-        )
+        """)
         args = [
             module1,
             module2,
@@ -367,7 +455,7 @@ class TestRunTC:
             assert message[key] == value
         msg = message["message"].lower()
         assert any(x in msg for x in ("expected ':'", "invalid syntax"))
-        assert "<unknown>" in msg
+        assert "syntax_error" in msg
         assert "line 1" in msg
 
     def test_json_report_when_file_is_missing(self) -> None:
@@ -421,12 +509,10 @@ class TestRunTC:
 
     def test_error_mode_shows_no_score(self) -> None:
         module = join(HERE, "regrtest_data", "application_crash.py")
-        expected_output = textwrap.dedent(
-            f"""
+        expected_output = textwrap.dedent(f"""
         ************* Module application_crash
         {module}:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
-        """
-        )
+        """)
         self._test_output([module, "-E"], expected_output=expected_output)
 
     def test_evaluation_score_shown_by_default(self) -> None:
@@ -478,14 +564,12 @@ class TestRunTC:
     def test_pylintrc_comments_in_values(self) -> None:
         path = join(HERE, "regrtest_data", "test_pylintrc_comments.py")
         config_path = join(HERE, "regrtest_data", "comments_pylintrc")
-        expected = textwrap.dedent(
-            f"""
+        expected = textwrap.dedent(f"""
         ************* Module test_pylintrc_comments
         {path}:2:0: W0311: Bad indentation. Found 1 spaces, expected 4 (bad-indentation)
         {path}:1:0: C0114: Missing module docstring (missing-module-docstring)
         {path}:1:0: C0116: Missing function or method docstring (missing-function-docstring)
-        """
-        )
+        """)
         self._test_output(
             [path, f"--rcfile={config_path}", "-rn"], expected_output=expected
         )
@@ -497,11 +581,9 @@ class TestRunTC:
 
     def test_getdefaultencoding_crashes_with_lc_ctype_utf8(self) -> None:
         module = join(HERE, "regrtest_data", "application_crash.py")
-        expected_output = textwrap.dedent(
-            f"""
+        expected_output = textwrap.dedent(f"""
         {module}:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
-        """
-        )
+        """)
         with _configure_lc_ctype("UTF-8"):
             self._test_output([module, "-E"], expected_output=expected_output)
 
@@ -554,22 +636,18 @@ class TestRunTC:
     def test_relative_imports(self, write_bpy_to_disk: bool, tmp_path: Path) -> None:
         a = tmp_path / "a"
 
-        b_code = textwrap.dedent(
-            """
+        b_code = textwrap.dedent("""
             from .c import foobar
             from .d import bla  # module does not exist
 
             foobar('hello')
             bla()
-            """
-        )
+            """)
 
-        c_code = textwrap.dedent(
-            """
+        c_code = textwrap.dedent("""
             def foobar(arg):
                 pass
-            """
-        )
+            """)
 
         a.mkdir()
         (a / "__init__.py").write_text("")
@@ -605,7 +683,7 @@ class TestRunTC:
 
     def test_stdin_syntax_error(self) -> None:
         expected_output = """************* Module a
-a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-error)"""
+a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         with mock.patch(
             "pylint.lint.pylinter._read_stdin", return_value="for\n"
         ) as mock_stdin:
@@ -768,6 +846,15 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             (["--disable=C0116", "--fail-on=C0116"], 16),
             # Ensure order does not matter
             (["--fail-on=C0116", "--disable=C0116"], 16),
+            # Message emitted by PyLinter itself
+            (
+                [
+                    "--fail-on=unknown-option-value",
+                    "--disable=all",
+                    "--enable=unknown-option-value, trigger",
+                ],
+                4,
+            ),
         ],
     )
     def test_fail_on_edge_case(self, opts: list[str], out: int) -> None:
@@ -828,7 +915,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             sys.path = copy(paths)
             with _test_environ_pythonpath("/custom_pythonpath:"):
                 modify_sys_path()
-            assert sys.path == [paths[1]] + paths[3:]
+            assert sys.path == [paths[1], *paths[3:]]
 
             paths = ["", cwd, "/custom_pythonpath", *default_paths]
             sys.path = copy(paths)
@@ -870,7 +957,8 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
     @staticmethod
     def test_plugin_that_imports_from_open() -> None:
         """Test that a plugin that imports a source file from a checker open()
-        function (ala pylint_django) does not raise an exception."""
+        function (ala pylint_django) does not raise an exception.
+        """
         with _test_sys_path():
             # Enable --load-plugins=importing_plugin
             sys.path.append(join(HERE, "regrtest_data", "importing_plugin"))
@@ -972,6 +1060,11 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             stderr=subprocess.PIPE,
         )
 
+    def test_warnings_by_module(self) -> None:
+        path = join(HERE, "regrtest_data", "unused_variable.py")
+        expected = "errors / warnings by module"
+        self._test_output([path, "-ry"], expected_output=expected)
+
     @pytest.mark.needs_two_cores
     def test_jobs_score(self) -> None:
         path = join(HERE, "regrtest_data", "unused_variable.py")
@@ -985,6 +1078,95 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             HERE, "regrtest_data", "regression_missing_init_3564", "subdirectory/"
         )
         self._test_output([path, "-j2"], expected_output="")
+
+    @pytest.mark.needs_two_cores
+    @pytest.mark.parametrize(
+        "args",
+        [
+            [
+                "--jobs",
+                "0",
+                "--disable=all",
+                "--enable=relative-beyond-top-level",
+                "--source-roots",
+                ".",
+                "--recursive=y",
+                "a/",
+            ],
+            [
+                "--jobs",
+                "1",
+                "--disable=all",
+                "--enable=relative-beyond-top-level",
+                "--source-roots",
+                ".",
+                "a/c/d.py",
+            ],
+            [
+                "--jobs",
+                "0",
+                "--disable=all",
+                "--enable=relative-beyond-top-level",
+                "--source-roots",
+                ".",
+                "a/c/d.py",
+            ],
+        ],
+        ids=["jobs-0-dir", "jobs-1-file", "jobs-0-file"],
+    )
+    def test_issue_10794_relative_beyond_top_level_parallel_specific_file(
+        self, args: list[str]
+    ) -> None:
+        """Regression test for https://github.com/pylint-dev/pylint/issues/10794."""
+        path = join(HERE, "regrtest_data", "pep420", "issue_10794")
+        with _test_cwd(path):
+            self._runtest(args, code=0)
+
+    @pytest.mark.needs_two_cores
+    @pytest.mark.parametrize(
+        "jobs,to_lint",
+        [
+            ["0", "a/"],
+            ["1", "a/"],
+            ["1", "a/c/d.py"],
+            ["0", "a/c/d.py"],
+        ],
+        ids=["jobs-0-dir", "jobs-1-dir", "jobs-1-file", "jobs-0-file"],
+    )
+    def test_issue_10794_relative_beyond_top_level_parallel_specific_file_subprocess(
+        self, jobs: int, to_lint: str
+    ) -> None:
+        """Regression test for https://github.com/pylint-dev/pylint/issues/10794 invoked in a subprocess."""
+        path = join(HERE, "regrtest_data", "pep420", "issue_10794")
+        pylint_call = [
+            sys.executable,
+            "-m",
+            "pylint",
+            *_add_rcfile_default_pylintrc(
+                [
+                    "--jobs",
+                    str(jobs),
+                    "--disable=all",
+                    "--enable=relative-beyond-top-level",
+                    "--source-roots",
+                    ".",
+                    to_lint,
+                    "--persistent=no",
+                ]
+            ),
+        ]
+        with _test_cwd(path):
+            process = subprocess.run(
+                pylint_call,
+                cwd=path,
+                capture_output=True,
+                encoding="utf-8",
+                check=False,
+            )
+
+        output = f"{process.stdout}\n{process.stderr}"
+        assert process.returncode == 0, output
+        assert "relative-beyond-top-level" not in output
 
     def test_output_file_valid_path(self, tmp_path: Path) -> None:
         path = join(HERE, "regrtest_data", "unused_variable.py")
@@ -1063,7 +1245,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             (
                 "colorized",
                 (
-                    "{path}:4:4: W0612: \x1B[35mUnused variable 'variable'\x1B[0m (\x1B[35munused-variable\x1B[0m)"
+                    "{path}:4:4: W0612: \x1b[35mUnused variable 'variable'\x1b[0m (\x1b[35munused-variable\x1b[0m)"
                 ),
             ),
             ("json", '"message": "Unused variable \'variable\'",'),
@@ -1099,12 +1281,10 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
     def test_output_file_specified_in_rcfile(self, tmp_path: Path) -> None:
         output_file = tmp_path / "output.txt"
         rcfile = tmp_path / "pylintrc"
-        rcfile_contents = textwrap.dedent(
-            f"""
+        rcfile_contents = textwrap.dedent(f"""
         [MAIN]
         output={output_file}
-        """
-        )
+        """)
         rcfile.write_text(rcfile_contents, encoding="utf-8")
         path = join(HERE, "regrtest_data", "unused_variable.py")
         expected = "Your code has been rated at 7.50/10"
@@ -1125,7 +1305,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
     def test_regex_paths_csv_validator() -> None:
         """Test to see if _regexp_paths_csv_validator works.
         Previously the validator crashed when encountering already validated values.
-        Reported in https://github.com/pylint-dev/pylint/issues/5437
+        Reported in https://github.com/pylint-dev/pylint/issues/5437.
         """
         with pytest.raises(SystemExit) as ex:
             args = _add_rcfile_default_pylintrc(
@@ -1150,14 +1330,14 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         assert not ex.value.code % 2
 
     def test_recursive(self) -> None:
-        """Tests if running linter over directory using --recursive=y"""
+        """Tests if running linter over directory using --recursive=y."""
         self._runtest(
             [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=y"],
             code=0,
         )
 
     def test_recursive_globbing(self) -> None:
-        """Tests if running linter over directory using --recursive=y and globbing"""
+        """Tests if running linter over directory using --recursive=y and globbing."""
         self._runtest(
             [join(HERE, "regrtest_data", "d?rectory", "subd*"), "--recursive=y"],
             code=0,
@@ -1171,7 +1351,10 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         test would fail due these errors.
         """
         directory = join(HERE, "regrtest_data", "directory")
-        self._runtest([directory, "--recursive=y", f"--ignore={ignore_value}"], code=0)
+        self._runtest(
+            [directory, "--verbose", "--recursive=y", f"--ignore={ignore_value}"],
+            code=0,
+        )
 
     @pytest.mark.parametrize("ignore_pattern_value", ["ignored_.*", "failing.*"])
     def test_ignore_pattern_recursive(self, ignore_pattern_value: str) -> None:
@@ -1185,6 +1368,27 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             [directory, "--recursive=y", f"--ignore-patterns={ignore_pattern_value}"],
             code=0,
         )
+
+    @pytest.mark.parametrize("ignore_pattern_value", ["^\\.", "^\\..+", "^\\..*"])
+    def test_ignore_pattern_recursive_rel_path(self, ignore_pattern_value: str) -> None:
+        """Test that ``--ignore-patterns`` strictly only ignores files
+        whose names begin with a "." when a dot is used to specify the
+        current directory.
+        """
+        expected = "module.py:1:0: W0611: Unused import os (unused-import)"
+        unexpected = ".hidden/module.py:1:0: W0611: Unused import os (unused-import)"
+
+        with _test_cwd():
+            os.chdir(join(HERE, "regrtest_data", "ignore_pattern"))
+            self._test_output(
+                [
+                    ".",
+                    "--recursive=y",
+                    f"--ignore-patterns={ignore_pattern_value}",
+                ],
+                expected_output=expected,
+                unexpected_output=unexpected,
+            )
 
     def test_ignore_pattern_from_stdin(self) -> None:
         """Test if linter ignores standard input if the filename matches the ignore pattern."""
@@ -1229,7 +1433,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
                 )
 
     def test_ignore_path_recursive_current_dir(self) -> None:
-        """Tests that path is normalized before checked that is ignored. GitHub issue #6964"""
+        """Tests that path is normalized before checked that is ignored. GitHub issue #6964."""
         with _test_sys_path():
             # pytest is including directory HERE/regrtest_data to sys.path which causes
             # astroid to believe that directory is a package.
@@ -1269,7 +1473,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         )
 
     def test_line_too_long_useless_suppression(self) -> None:
-        """A test that demonstrates a known false positive for useless-suppression
+        """A test that demonstrates a known false positive for useless-suppression.
 
         See https://github.com/pylint-dev/pylint/issues/3368
 
@@ -1277,12 +1481,10 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         warning please contact open a Pylint PR!
         """
         module = join(HERE, "regrtest_data", "line_too_long_no_code.py")
-        expected = textwrap.dedent(
-            f"""
+        expected = textwrap.dedent(f"""
         {module}:1:0: I0011: Locally disabling line-too-long (C0301) (locally-disabled)
         {module}:1:0: I0021: Useless suppression of 'line-too-long' (useless-suppression)
-        """
-        )
+        """)
 
         self._test_output([module, "--enable=all"], expected_output=expected)
 
@@ -1300,7 +1502,8 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
 
     def test_no_name_in_module(self) -> None:
         """Test that a package with both a variable name `base` and a module `base`
-        does not emit a no-name-in-module msg."""
+        does not emit a no-name-in-module msg.
+        """
         module = join(HERE, "regrtest_data", "test_no_name_in_module.py")
         unexpected = "No name 'errors' in module 'list' (no-name-in-module)"
         self._test_output(
@@ -1344,7 +1547,7 @@ class TestCallbackOptions:
         [
             [["--help-msg", "W0101"], ":unreachable (W0101)", False],
             [["--help-msg", "WX101"], "No such message id", False],
-            [["--help-msg"], "--help-msg: expected at least one argumen", True],
+            [["--help-msg"], "--help-msg: expected at least one argument", True],
             [["--help-msg", "C0102,C0103"], ":invalid-name (C0103):", False],
         ],
     )
@@ -1487,14 +1690,14 @@ class TestCallbackOptions:
     @staticmethod
     def test_errors_only() -> None:
         """Test the --errors-only flag."""
-        with pytest.raises(SystemExit):
-            run = Run(["--errors-only"])
-            assert run.linter._error_mode
+        run = Run([str(UNNECESSARY_LAMBDA), "--errors-only"], exit=False)
+        assert run.linter._error_mode
 
     @staticmethod
     def test_errors_only_functions_as_disable() -> None:
         """--errors-only functions as a shortcut for --disable=W,C,R,I;
-        it no longer enables any messages."""
+        it no longer enables any messages.
+        """
         run = Run(
             [str(UNNECESSARY_LAMBDA), "--disable=import-error", "--errors-only"],
             exit=False,
@@ -1504,13 +1707,8 @@ class TestCallbackOptions:
     @staticmethod
     def test_verbose() -> None:
         """Test the --verbose flag."""
-        with pytest.raises(SystemExit):
-            run = Run(["--verbose"])
-            assert run.verbose
-
-        with pytest.raises(SystemExit):
-            run = Run(["--verbose=True"])
-            assert run.verbose
+        run = Run([str(UNNECESSARY_LAMBDA), "--verbose"], exit=False)
+        assert run.verbose
 
     @staticmethod
     def test_enable_all_extensions() -> None:

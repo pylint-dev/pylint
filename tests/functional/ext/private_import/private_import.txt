@@ -7,7 +7,7 @@ import-private-name:12:0:12:28::Imported private object (_d):HIGH
 import-private-name:14:0:14:13::Imported private module (_house):HIGH
 import-private-name:15:0:15:29::Imported private modules (_house, _chair, _stair):HIGH
 import-private-name:16:0:16:28::Imported private modules (_chair, _stair):HIGH
-import-private-name:34:0:34:28::Imported private object (_private):HIGH
+import-private-name:34:0:34:27::Imported private object (_private):HIGH
 import-private-name:35:0:35:24::Imported private object (_private):HIGH
 import-private-name:86:0:86:57::Imported private module (_TypeContainerExtra2):HIGH
 import-private-name:91:0:91:22::Imported private module (_private_module):HIGH

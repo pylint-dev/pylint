@@ -60,7 +60,7 @@ class ComparisonChecker(_BasicChecker):
             "Used when something is compared against itself.",
         ),
         "R0133": (
-            "Comparison between constants: '%s %s %s' has a constant value",
+            'Comparison between constants: "%s %s %s" has a constant value',
             "comparison-of-constants",
             "When two literals are compared with each other the result is a constant. "
             "Using the constant directly is both easier to read and more performant. "
@@ -89,7 +89,6 @@ class ComparisonChecker(_BasicChecker):
         checking_for_absence: bool = False,
     ) -> None:
         """Check if == or != is being used to compare a singleton value."""
-
         if utils.is_singleton_const(left_value):
             singleton, other_value = left_value.value, right_value
         elif utils.is_singleton_const(right_value):
@@ -146,20 +145,19 @@ class ComparisonChecker(_BasicChecker):
     ) -> None:
         def _is_float_nan(node: nodes.NodeNG) -> bool:
             try:
-                if isinstance(node, nodes.Call) and len(node.args) == 1:
-                    if (
-                        node.args[0].value.lower() == "nan"
-                        and node.inferred()[0].pytype() == "builtins.float"
+                match node:
+                    case nodes.Call(args=[nodes.Const(value=str() as value)]) if (
+                        value.lower() == "nan"
                     ):
-                        return True
+                        return node.inferred()[0].pytype() == "builtins.float"  # type: ignore[no-any-return]
                 return False
             except AttributeError:
                 return False
 
         def _is_numpy_nan(node: nodes.NodeNG) -> bool:
-            if isinstance(node, nodes.Attribute) and node.attrname == "NaN":
-                if isinstance(node.expr, nodes.Name):
-                    return node.expr.name in {"numpy", "nmp", "np"}
+            match node:
+                case nodes.Attribute(attrname="NaN", expr=nodes.Name(name=name)):
+                    return name in {"numpy", "np"}
             return False
 
         def _is_nan(node: nodes.NodeNG) -> bool:
@@ -186,36 +184,37 @@ class ComparisonChecker(_BasicChecker):
         self, literal: nodes.NodeNG, node: nodes.Compare
     ) -> None:
         """Check if we compare to a literal, which is usually what we do not want to do."""
-        is_other_literal = isinstance(literal, (nodes.List, nodes.Dict, nodes.Set))
-        is_const = False
-        if isinstance(literal, nodes.Const):
-            if isinstance(literal.value, bool) or literal.value is None:
+        match literal:
+            case nodes.Const(value=bool() | None):
                 # Not interested in these values.
                 return
-            is_const = isinstance(literal.value, (bytes, str, int, float))
+            case nodes.Const(value=bytes() | str() | int() | float()):
+                pass
+            case nodes.List() | nodes.Dict() | nodes.Set():
+                # Inline list, dict and set nodes
+                pass
+            case _:
+                return
 
-        if is_const or is_other_literal:
-            incorrect_node_str = node.as_string()
-            if "is not" in incorrect_node_str:
-                equal_or_not_equal = "!="
-                is_or_is_not = "is not"
-            else:
-                equal_or_not_equal = "=="
-                is_or_is_not = "is"
-            fixed_node_str = incorrect_node_str.replace(
-                is_or_is_not, equal_or_not_equal
-            )
-            self.add_message(
-                "literal-comparison",
-                args=(
-                    incorrect_node_str,
-                    equal_or_not_equal,
-                    is_or_is_not,
-                    fixed_node_str,
-                ),
-                node=node,
-                confidence=HIGH,
-            )
+        incorrect_node_str = node.as_string()
+        if "is not" in incorrect_node_str:
+            equal_or_not_equal = "!="
+            is_or_is_not = "is not"
+        else:
+            equal_or_not_equal = "=="
+            is_or_is_not = "is"
+        fixed_node_str = incorrect_node_str.replace(is_or_is_not, equal_or_not_equal)
+        self.add_message(
+            "literal-comparison",
+            args=(
+                incorrect_node_str,
+                equal_or_not_equal,
+                is_or_is_not,
+                fixed_node_str,
+            ),
+            node=node,
+            confidence=HIGH,
+        )
 
     def _check_logical_tautology(self, node: nodes.Compare) -> None:
         """Check if identifier is compared against itself.
@@ -258,7 +257,7 @@ class ComparisonChecker(_BasicChecker):
         self.add_message(
             "comparison-of-constants",
             node=node,
-            args=(left_operand.value, operator, right_operand.value),
+            args=(left_operand.as_string(), operator, right_operand.as_string()),
             confidence=HIGH,
         )
 
@@ -324,14 +323,13 @@ class ComparisonChecker(_BasicChecker):
         if operator in TYPECHECK_COMPARISON_OPERATORS:
             left = node.left
             if _is_one_arg_pos_call(left):
-                self._check_type_x_is_y(node, left, operator, right)
+                self._check_type_x_is_y(node=node, left=left, right=right)
+            elif isinstance(left, nodes.Name) and _is_one_arg_pos_call(right):
+                # transforming Y == type(x) case to type(x) == Y
+                self._check_type_x_is_y(node=node, left=right, right=left)
 
     def _check_type_x_is_y(
-        self,
-        node: nodes.Compare,
-        left: nodes.NodeNG,
-        operator: str,
-        right: nodes.NodeNG,
+        self, node: nodes.Compare, left: nodes.NodeNG, right: nodes.NodeNG
     ) -> None:
         """Check for expressions like type(x) == Y."""
         left_func = utils.safe_infer(left.func)
@@ -340,7 +338,7 @@ class ComparisonChecker(_BasicChecker):
         ):
             return
 
-        if operator in {"is", "is not"} and _is_one_arg_pos_call(right):
+        if _is_one_arg_pos_call(right):
             right_func = utils.safe_infer(right.func)
             if (
                 isinstance(right_func, nodes.ClassDef)

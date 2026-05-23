@@ -6,7 +6,7 @@ from pathlib import Path
 
 from contributors_txt import create_contributors_txt
 
-CWD = Path(".").absolute()
+CWD = Path().absolute()
 BASE_DIRECTORY = Path(__file__).parent.parent.absolute()
 ALIASES_FILE = (BASE_DIRECTORY / "script/.contributors_aliases.json").relative_to(CWD)
 DEFAULT_CONTRIBUTOR_PATH = (BASE_DIRECTORY / "CONTRIBUTORS.txt").relative_to(CWD)

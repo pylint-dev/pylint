@@ -80,7 +80,7 @@ def dummy_func():
     """First dummy function"""
     pass
 
-def dummy_func():
+def dummy_func2():
     """Second dummy function, don't emit function-redefined message
     because of the dummy name"""
     pass
@@ -94,7 +94,7 @@ def math(): # [function-redefined]
     pass
 
 import math as _
-def _():
+def fun():
     pass
 
 # pylint: disable=too-few-public-methods

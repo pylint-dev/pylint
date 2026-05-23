@@ -34,6 +34,16 @@ def try_except_finally_assignment_in_final_block():
     print(res)
 
 
+def try_except_finally_assignment_in_both_try_and_except():
+    """Assignment of the name in both try and except blocks is fine."""
+    try:
+        res = 1 / 0
+    except ZeroDivisionError:
+        res = 0
+    finally:
+        print(res)
+
+
 def try_except_finally_nested_try_finally_in_try():
     """Don't confuse assignments in different finally statements where
     one is nested inside a try.

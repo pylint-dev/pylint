@@ -7,10 +7,7 @@ include =
     pylint/*
 omit =
     */test/*
-exclude_lines =
-    # Re-enable default pragma
-    pragma: no cover
-
+exclude_also =
     # Debug-only code
     def __repr__
 
@@ -20,3 +17,6 @@ exclude_lines =
 
     # Abstract methods are not executed during pytest runs
     raise NotImplementedError()
+
+    # Fallback cases which should never be executed
+    raise AssertionError

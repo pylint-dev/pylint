@@ -4,6 +4,7 @@
 import os
 import signal
 import sys
+from typing import NoReturn
 
 def func1():
     return 1
@@ -74,8 +75,33 @@ def func11():
     var = 2 + 2  # [unreachable]
     print(var)
 
-incognito_function = sys.exit
+incognito_function = sys.exit  # pylint: disable=invalid-name
 def func12():
     incognito_function()
     var = 2 + 2  # [unreachable]
     print(var)
+
+def func13():
+    def inner() -> NoReturn:
+        while True:
+            pass
+
+    inner()
+    print("unreachable")  # [unreachable]
+
+async def func14():
+    async def inner() -> NoReturn:
+        while True:
+            pass
+
+    await inner()
+    print("unreachable")  # [unreachable]
+
+async def func15():
+    async def inner() -> NoReturn:
+        while True:
+            pass
+
+    coro = inner()
+    print("reachable")
+    await coro

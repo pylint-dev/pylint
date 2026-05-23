@@ -1,4 +1,0 @@
-`Union` typed variables without assignment are no longer treated as
-`TypeAlias`.
-
-Closes #8540
