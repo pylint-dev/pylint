@@ -10,6 +10,11 @@ with ``**something``, and ``something`` is populated dynamically (forwarded
 ``**kwargs``, ``dict.update``, ``setdefault``, a loop, constant-keyed
 assignment, or an opaque external source). None of the calls below should
 emit ``no-value-for-parameter``.
+
+Each FP block is paired with a sibling call that exposes a genuinely
+missing required argument (direct kwarg or literal ``**{...}`` covering
+only a subset of the parameters). Those siblings must still emit
+``no-value-for-parameter`` so the gate is not over-suppressing.
 """
 # pylint: disable=missing-docstring,too-few-public-methods,unused-argument
 
@@ -42,6 +47,10 @@ class Forwarder:
         return needs_two(**kwargs)
 
 
+# Paired violation: a direct call missing ``y`` is still caught.
+Point(x=1)  # [no-value-for-parameter]
+
+
 # 2. Dict populated via ``dict.update`` before being unpacked
 #    (``data_kwargs.update({...})`` then ``Klass(**data_kwargs)`` --
 #    sentry slack entrypoint).
@@ -49,6 +58,10 @@ def via_update() -> Point:
     data = {"x": 1}
     data.update({"y": 2})
     return Point(**data)
+
+
+# Paired violation: a literal ``**{"x": ...}`` missing ``y`` is still caught.
+Point(**{"x": 1})  # [no-value-for-parameter]
 
 
 # 3. Dict populated via ``setdefault`` before being unpacked
@@ -61,6 +74,10 @@ def via_setdefault() -> Point:
     return Point(**data)
 
 
+# Paired violation: a literal ``**{"y": ...}`` missing ``x`` is still caught.
+Point(**{"y": 0})  # [no-value-for-parameter]
+
+
 # 4. Dict populated in a loop before being unpacked
 #    (``NextDnsData(**coordinators)`` -- home-assistant nextdns).
 PAIRS = [("x", 1), ("y", 2)]
@@ -71,6 +88,11 @@ def via_loop() -> Point:
     for name, value in PAIRS:
         data[name] = value
     return Point(**data)
+
+
+# Paired violation: a literal ``**{"x": ...}`` whose loop counterpart would
+# also stop short is still caught.
+Point(**{"x": 2})  # [no-value-for-parameter]
 
 
 # 5. Dict populated by constant-keyed assignment whose key string equals the
@@ -87,6 +109,11 @@ def via_constant_keys(value_x: int, value_y: int) -> Point:
     return Point(**data)
 
 
+# Paired violation: a literal ``**{ATTR_X: ...}`` missing ``y`` is still
+# caught (the key resolves to ``"x"`` via inference).
+Point(**{ATTR_X: 1})  # [no-value-for-parameter]
+
+
 # 6. Dict obtained from an opaque external source then unpacked, optionally
 #    after popping unrelated keys (``GalaxyAPI(self.galaxy, name,
 #    **server_options)`` where ``server_options`` comes from
@@ -100,3 +127,8 @@ def via_opaque_dict() -> Point:
     options = opaque_options()
     options.pop("ignored")
     return Point(**options)  # [unexpected-keyword-arg]
+
+
+# Paired violation: a direct call to ``needs_two`` missing ``b`` is still
+# caught.
+needs_two(a=1)  # [no-value-for-parameter]

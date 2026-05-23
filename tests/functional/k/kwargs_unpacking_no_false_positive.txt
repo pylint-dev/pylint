@@ -1,1 +1,7 @@
-unexpected-keyword-arg:102:11:102:27:via_opaque_dict:Unexpected keyword argument 'ignored' in constructor call:UNDEFINED
+no-value-for-parameter:51:0:51:10::No value for argument 'y' in constructor call:UNDEFINED
+no-value-for-parameter:64:0:64:17::No value for argument 'y' in constructor call:UNDEFINED
+no-value-for-parameter:78:0:78:17::No value for argument 'x' in constructor call:UNDEFINED
+no-value-for-parameter:95:0:95:17::No value for argument 'y' in constructor call:UNDEFINED
+no-value-for-parameter:114:0:114:20::No value for argument 'y' in constructor call:UNDEFINED
+unexpected-keyword-arg:129:11:129:27:via_opaque_dict:Unexpected keyword argument 'ignored' in constructor call:UNDEFINED
+no-value-for-parameter:134:0:134:14::No value for argument 'b' in function call:UNDEFINED
