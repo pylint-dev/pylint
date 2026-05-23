@@ -638,7 +638,7 @@ def collect_string_fields(
         raise IncompleteFormatString(format_string) from exc
 
 
-def parse_format_spec(format_spec: str, start_point: int) -> Any:
+def parse_format_spec(format_spec: str, start_point: int) -> str | None:
     """Parses a PEP 3101 format specifier, returning the format character used, if any.
 
     Where 'format_spec' is the string specifier, and 'start_point' is the
@@ -662,7 +662,7 @@ def parse_format_spec(format_spec: str, start_point: int) -> Any:
 
 def parse_format_field(
     format_field: str, start_point: int
-) -> tuple[str, tuple[str | None, Any | None]]:
+) -> tuple[str, tuple[str | None, str | None]]:
     """Parses a PEP 3101 format field, parsing it into the field name, conversion,
     and format spec.
 
@@ -725,7 +725,7 @@ def parse_format_field(
 
 def parse_all_fields_formatting(
     format_string: str, include_nested: bool = True
-) -> dict[str, tuple[str | None, Any | None]]:
+) -> dict[str, tuple[str | None, str | None]]:
     idx = 0
     open_brackets = []
     format_char_memo = {}
