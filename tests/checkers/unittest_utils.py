@@ -11,6 +11,9 @@ import pytest
 from astroid import nodes
 
 from pylint.checkers import utils
+from pylint.checkers.utils import (  # pylint: disable=no-name-in-module
+    parse_format_method_string_result,
+)
 
 
 @pytest.mark.parametrize(
@@ -135,7 +138,7 @@ def test_is_subclass_of_not_classdefs() -> None:
 
 
 def test_parse_format_method_string() -> None:
-    result_type = utils.parse_format_method_string_result
+    result_type = parse_format_method_string_result
     samples = [
         ("{}", result_type([], 1, {}, {}, [(None, None)], {})),
         ("{}:{}", result_type([], 2, {}, {}, [(None, None), (None, None)], {})),

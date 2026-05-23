@@ -12,7 +12,7 @@ import sys
 import tokenize
 from collections import Counter
 from collections.abc import Iterable, Iterator, Sequence
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import arguments, bases, nodes, util
@@ -207,7 +207,7 @@ OTHER_NODES = (
 )
 
 
-def get_access_path(key: str | Literal[0], parts: list[tuple[bool, str]]) -> str:
+def get_access_path(key: str | int, parts: list[tuple[bool, str | int]]) -> str:
     """Given a list of format specifiers, returns
     the final access path (e.g. a.b.c[0][1]).
     """
@@ -239,19 +239,23 @@ def arg_matches_format_type(
     return True
 
 
-def new_formatting_arg_matches_format_type(arg_type, format_type, conversion):
+def new_formatting_arg_matches_format_type(
+    arg_type: SuccessfulInferenceResult,
+    format_type: str | None,
+    conversion: str | None,
+) -> bool:
     if format_type is None:
         return True
 
     if isinstance(arg_type, astroid.Instance):
-        arg_type = arg_type.pytype()
+        pytype = arg_type.pytype()
         if conversion and conversion in "sr":
-            arg_type = "builtins.str"
-        if arg_type == "builtins.str":
+            pytype = "builtins.str"
+        if pytype == "builtins.str":
             return format_type == "s"
-        if arg_type == "builtins.float":
+        if pytype == "builtins.float":
             return format_type in "eEfFgGn%"
-        if arg_type == "builtins.int":
+        if pytype == "builtins.int":
             # Integers allow all types
             return format_type != "s"
         return False
@@ -262,7 +266,8 @@ def _iter_formatted_values(
     node: nodes.JoinedStr,
 ) -> Iterator[nodes.FormattedValue]:
     """Yield every ``FormattedValue`` in ``node``, including ones nested inside
-    another ``FormattedValue``'s ``format_spec`` (e.g. ``f"{x:{y:e}}"``)."""
+    another ``FormattedValue``'s ``format_spec`` (e.g. ``f"{x:{y:e}}"``).
+    """
     for value in node.values:
         if isinstance(value, nodes.FormattedValue):
             yield value
@@ -272,7 +277,7 @@ def _iter_formatted_values(
 
 def _convert_format_spec_part(part: nodes.NodeNG) -> str:
     """Render a ``format_spec`` value back to source for lookup in ``format_map``."""
-    node_str = part.as_string().strip()
+    node_str: str = part.as_string().strip()
     # ``Const.str`` round-trips as ``'value'`` (with single quotes); strip them.
     if node_str and node_str[0] == "'" == node_str[-1]:
         node_str = node_str[1:-1]
@@ -556,76 +561,25 @@ class StringFormatChecker(BaseChecker):
     def _validate_arg_types(
         self,
         node: nodes.Call,
-        fields: list[tuple[str, list]],
-        field_types: dict[str, tuple[str, str | None]],
+        parse: utils.parse_format_method_string_result,
         implicit_cnt: int,
-        implicit_types: list[str],
-        explicit_args: dict[str : tuple[str, str | None]],
-        explicit_types: dict[str : tuple[str, str | None]],
-        named_arguments: dict[str:str],
-        positional_arguments: dict[str:str],
-    ):
-        for key, specifiers in fields:
-            if len(specifiers) > 0 or key not in named_arguments:
+        named_arguments: dict[str, SuccessfulInferenceResult],
+        positional_arguments: list[SuccessfulInferenceResult],
+    ) -> None:
+        for key, specifiers in parse.keyword_arguments:
+            if specifiers or key not in named_arguments:
                 continue
-
-            argname = named_arguments[key]
-            if argname in (astroid.Uninferable, None):
-                continue
-            try:
-                arg_type = utils.safe_infer(argname)
-            except astroid.InferenceError:
-                continue
-
-            (conversion, format_type) = field_types[key]
-
-            if (
-                format_type is not None
-                and arg_type
-                and arg_type != astroid.Uninferable
-                and not new_formatting_arg_matches_format_type(
-                    arg_type, format_type, conversion
-                )
-            ):
-                actual_type = arg_type.pytype()
-                if conversion and conversion in "sr":
-                    actual_type = "builtins.str"
-                self.add_message(
-                    "bad-string-format-type",
-                    node=node,
-                    args=(actual_type, format_type),
-                )
+            self._emit_if_type_mismatch(
+                node, named_arguments[key], parse.keyword_types[key]
+            )
 
         if implicit_cnt <= len(positional_arguments):
             for i in range(implicit_cnt):
-                argname = positional_arguments[i]
-                if argname in (astroid.Uninferable, None):
-                    continue
-                try:
-                    arg_type = utils.safe_infer(argname)
-                except astroid.InferenceError:
-                    continue
+                self._emit_if_type_mismatch(
+                    node, positional_arguments[i], parse.implicit_types[i]
+                )
 
-                (conversion, format_type) = implicit_types[i]
-
-                if (
-                    format_type is not None
-                    and arg_type
-                    and arg_type != astroid.Uninferable
-                    and not new_formatting_arg_matches_format_type(
-                        arg_type, format_type, conversion
-                    )
-                ):
-                    actual_type = arg_type.pytype()
-                    if conversion and conversion in "sr":
-                        actual_type = "builtins.str"
-                    self.add_message(
-                        "bad-string-format-type",
-                        node=node,
-                        args=(actual_type, format_type),
-                    )
-
-        for s_i in explicit_args:
+        for s_i in parse.explicit_pos_args:
             i = int(s_i)
             if i >= len(positional_arguments):
                 continue
@@ -637,7 +591,7 @@ class StringFormatChecker(BaseChecker):
             except astroid.InferenceError:
                 continue
 
-            (conversion, format_type) = explicit_types[str(i)]
+            conversion, format_type = parse.explicit_types[str(i)]
             if conversion:
                 format_type = conversion
 
@@ -652,6 +606,38 @@ class StringFormatChecker(BaseChecker):
                     node=node,
                     args=(arg_type.pytype(), format_type),
                 )
+
+    def _emit_if_type_mismatch(
+        self,
+        node: nodes.Call,
+        argname: nodes.NodeNG,
+        format_types: tuple[str | None, str | None],
+    ) -> None:
+        """Emit ``bad-string-format-type`` if ``argname`` does not satisfy
+        ``format_types`` (the ``(conversion, format_type)`` for that field).
+        """
+        if argname in (astroid.Uninferable, None):
+            return
+        try:
+            arg_type = utils.safe_infer(argname)
+        except astroid.InferenceError:
+            return
+
+        conversion, format_type = format_types
+        if (
+            format_type is None
+            or not arg_type
+            or arg_type is astroid.Uninferable
+            or new_formatting_arg_matches_format_type(arg_type, format_type, conversion)
+        ):
+            return
+
+        actual_type = arg_type.pytype()
+        if conversion and conversion in "sr":
+            actual_type = "builtins.str"
+        self.add_message(
+            "bad-string-format-type", node=node, args=(actual_type, format_type)
+        )
 
     def _check_new_format(self, node: nodes.Call, func: bases.BoundMethod) -> None:
         """Check the new string formatting."""
@@ -745,15 +731,7 @@ class StringFormatChecker(BaseChecker):
                 self.add_message("too-few-format-args", node=node)
 
         self._validate_arg_types(
-            node,
-            parse.keyword_arguments,
-            parse.keyword_types,
-            implicit_cnt,
-            parse.implicit_types,
-            parse.explicit_pos_args,
-            parse.explicit_types,
-            named_arguments,
-            positional_arguments,
+            node, parse, implicit_cnt, named_arguments, positional_arguments
         )
 
         self._detect_vacuous_formatting(node, positional_arguments)
@@ -765,14 +743,14 @@ class StringFormatChecker(BaseChecker):
     def _check_new_format_specifiers(
         self,
         node: nodes.Call,
-        fields: list[tuple[str, list[tuple[bool, str]]]],
-        pos_args: dict[str : tuple[str, str | None]],
+        fields: list[tuple[str | int, list[tuple[bool, str | int]]]],
+        pos_args: dict[str, list[tuple[bool, str | int]]],
         named: dict[str, SuccessfulInferenceResult],
     ) -> None:
         """Check attribute and index access in the format
         string ("{0.a}" and "{0[a]}").
         """
-        key: Literal[0] | str
+        key: int | str
 
         for key, specifiers in fields:
             # Obtain the argument. If it can't be obtained
@@ -806,7 +784,7 @@ class StringFormatChecker(BaseChecker):
                 # because we can't infer its value properly.
                 continue
             previous = argument
-            parsed: list[tuple[bool, str]] = []
+            parsed: list[tuple[bool, str | int]] = []
             for is_attribute, specifier in specifiers:
                 if isinstance(previous, util.UninferableBase):
                     break
@@ -886,12 +864,12 @@ class StringFormatChecker(BaseChecker):
                 # because we can't infer its value properly.
                 continue
             previous = argument
-            parsed: list[tuple[bool, str]] = []
+            seen: list[tuple[bool, str | int]] = []
 
             for is_attribute, specifier in specifiers:
                 if previous is astroid.Uninferable:
                     break
-                parsed.append((is_attribute, specifier))
+                seen.append((is_attribute, specifier))
                 if is_attribute:
                     try:
                         previous = previous.getattr(specifier)[0]
@@ -902,7 +880,7 @@ class StringFormatChecker(BaseChecker):
                         ):
                             # Don't warn if the object has a custom __getattr__
                             break
-                        path = get_access_path(str(position), parsed)
+                        path = get_access_path(str(position), seen)
                         self.add_message(
                             "missing-format-attribute",
                             args=(specifier, path),

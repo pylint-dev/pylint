@@ -1,3 +1,7 @@
-Update format parsing to support f-strings and the str.format function.
+``bad-string-format-type`` and ``bad-format-character`` now apply to f-strings
+and to ``str.format()`` calls, not just to old-style ``%`` formatting. PEP 3101
+format strings that are syntactically invalid additionally trigger
+``bad-format-string``.
 
-Closes #6163, #6085
+Closes #6163
+Closes #6085

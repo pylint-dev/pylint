@@ -595,7 +595,7 @@ def parse_format_string(
 
 def split_format_field_names(
     format_string: str,
-) -> tuple[str, Iterable[tuple[bool, str]]]:
+) -> tuple[str, Iterable[tuple[bool, str | int]]]:
     try:
         return _string.formatter_field_name_split(format_string)  # type: ignore[no-any-return]
     except ValueError as e:
@@ -744,7 +744,7 @@ def parse_all_fields_formatting(
                 raise IncompleteFormatString(format_string)
             start = open_brackets.pop() + 1
             if len(open_brackets) == 0 or include_nested:
-                (spec, (conversion, format_char)) = parse_format_field(
+                spec, (conversion, format_char) = parse_format_field(
                     format_string[start:idx], start
                 )
                 format_char_memo[spec] = (conversion, format_char)
@@ -757,7 +757,11 @@ def parse_all_fields_formatting(
     return format_char_memo
 
 
-parse_format_method_string_result = namedtuple(
+# Structured result of :func:`parse_format_method_string`. Defined via
+# ``collections.namedtuple`` rather than ``typing.NamedTuple`` so that older
+# pylint/astroid releases (which special-case the former) infer field access
+# without ``no-member`` / ``no-name-in-module`` false positives.
+parse_format_method_string_result = namedtuple(  # noqa: PYI024
     "parse_format_method_string_result",
     [
         "keyword_arguments",
@@ -782,17 +786,17 @@ def parse_format_method_string(
     """
     format_char_memo = parse_all_fields_formatting(format_string, True)
 
-    keyword_arguments = []
+    keyword_arguments: list[tuple[str | int, list[tuple[bool, str | int]]]] = []
     implicit_pos_args_cnt = 0
-    explicit_pos_args = {}
-    keyword_types = {}
-    implicit_types = []
-    explicit_types = {}
+    explicit_pos_args: dict[str, list[tuple[bool, str | int]]] = {}
+    keyword_types: dict[str | int, tuple[str | None, str | None]] = {}
+    implicit_types: list[tuple[str | None, str | None]] = []
+    explicit_types: dict[str, tuple[str | None, str | None]] = {}
 
     for name, format_spec in collect_string_fields(format_string):
         try:
-            format_types = format_char_memo[format_spec]
-        except ValueError as e:
+            format_types = format_char_memo[format_spec or ""]
+        except KeyError as e:
             raise IncompleteFormatString() from e
         if name and str(name).isdigit() and str(name) not in explicit_pos_args:
             explicit_pos_args[str(name)] = []

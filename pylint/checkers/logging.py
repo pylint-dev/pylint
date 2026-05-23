@@ -326,7 +326,6 @@ class LoggingChecker(checkers.BaseChecker):
           node: AST node to be checked.
           format_arg: Index of the format string in the node arguments.
         """
-
         num_args = _count_supplied_tokens(node.args[format_arg + 1 :])
         format_string = node.args[format_arg].value
         required_num_args = 0
