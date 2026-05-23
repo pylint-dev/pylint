@@ -11,7 +11,7 @@ import re
 import sys
 import tokenize
 from collections import Counter
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from typing import TYPE_CHECKING, Literal
 
 import astroid
@@ -258,6 +258,27 @@ def new_formatting_arg_matches_format_type(arg_type, format_type, conversion):
     return True
 
 
+def _iter_formatted_values(
+    node: nodes.JoinedStr,
+) -> Iterator[nodes.FormattedValue]:
+    """Yield every ``FormattedValue`` in ``node``, including ones nested inside
+    another ``FormattedValue``'s ``format_spec`` (e.g. ``f"{x:{y:e}}"``)."""
+    for value in node.values:
+        if isinstance(value, nodes.FormattedValue):
+            yield value
+            if isinstance(value.format_spec, nodes.JoinedStr):
+                yield from _iter_formatted_values(value.format_spec)
+
+
+def _convert_format_spec_part(part: nodes.NodeNG) -> str:
+    """Render a ``format_spec`` value back to source for lookup in ``format_map``."""
+    node_str = part.as_string().strip()
+    # ``Const.str`` round-trips as ``'value'`` (with single quotes); strip them.
+    if node_str and node_str[0] == "'" == node_str[-1]:
+        node_str = node_str[1:-1]
+    return node_str
+
+
 class StringFormatChecker(BaseChecker):
     """Checks string formatting operations to ensure that the format string
     is valid and the arguments match the format string.
@@ -431,10 +452,20 @@ class StringFormatChecker(BaseChecker):
         "bad-string-format-type",
     )
     def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
+        # Nested ``JoinedStr`` instances appear as the ``format_spec`` of an
+        # enclosing ``FormattedValue``. The outer visit already parses the
+        # whole f-string, including the nested spec, so skip the inner call to
+        # avoid duplicate messages reported at the inner (less useful) position.
+        if isinstance(node.parent, nodes.FormattedValue):
+            return
+
         node_string = node.as_string()[2 : len(node.as_string()) - 1]
         format_map = {}
         try:
-            format_map = utils.parse_all_fields_formatting(node_string, False)
+            # ``include_nested=True`` lets us catch invalid format characters
+            # inside nested specs like ``f"{x:{y:p}}"`` from a single call on
+            # the outer f-string (the nested ``JoinedStr`` is skipped above).
+            format_map = utils.parse_all_fields_formatting(node_string, True)
 
         except utils.UnsupportedFormatCharacter as exc:
             formatted = node_string[exc.index]
@@ -450,48 +481,36 @@ class StringFormatChecker(BaseChecker):
 
         self._check_interpolation(node)
 
-        for value in node.values:
-            if isinstance(value, nodes.FormattedValue):
-                field = value.value
-                arg_type = None
-                if field in (astroid.Uninferable, None):
-                    continue
-                if value.format_spec is None:
-                    continue
-                try:
-                    arg_type = utils.safe_infer(field)
-                except astroid.InferenceError:
-                    continue
+        for value in _iter_formatted_values(node):
+            field = value.value
+            if field in (astroid.Uninferable, None):
+                continue
+            if value.format_spec is None or len(value.format_spec.values) == 0:
+                continue
+            try:
+                arg_type = utils.safe_infer(field)
+            except astroid.InferenceError:
+                continue
 
-                if len(value.format_spec.values) == 0:
-                    continue
+            full_spec_as_string = "".join(
+                _convert_format_spec_part(x) for x in value.format_spec.values
+            )
+            try:
+                conversion, format_type = format_map[full_spec_as_string]
+            except KeyError:
+                continue
 
-                def convert_node_to_string(x):
-                    node_str = x.as_string().strip()
-                    # astroid sometimes adds single quotes around as_string
-                    if (node_str[0], node_str[-1]) == ("'", "'"):
-                        node_str = node_str[1:-1]
-                    return node_str
-
-                full_spec_as_string = "".join(
-                    [convert_node_to_string(x) for x in value.format_spec.values]
+            if arg_type and not new_formatting_arg_matches_format_type(
+                arg_type, format_type, conversion
+            ):
+                actual_type = arg_type.pytype()
+                if conversion and conversion in "sr":
+                    actual_type = "builtins.str"
+                self.add_message(
+                    "bad-string-format-type",
+                    node=node,
+                    args=(actual_type, format_type),
                 )
-                try:
-                    (conversion, format_type) = format_map[full_spec_as_string]
-                except KeyError:
-                    continue
-
-                if arg_type and not new_formatting_arg_matches_format_type(
-                    arg_type, format_type, conversion
-                ):
-                    actual_type = arg_type.pytype()
-                    if conversion and conversion in "sr":
-                        actual_type = "builtins.str"
-                    self.add_message(
-                        "bad-string-format-type",
-                        node=node,
-                        args=(actual_type, format_type),
-                    )
 
     def _check_interpolation(self, node: nodes.JoinedStr) -> None:
         if isinstance(node.parent, (nodes.TemplateStr, nodes.FormattedValue)):

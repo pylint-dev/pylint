@@ -191,10 +191,8 @@ def test_parse_format_method_string() -> None:
             result_type([], 0, {"0": [(True, "missing")]}, {}, [], {"0": (None, None)}),
         ),
     ]
-    for fmt, count in samples:
-        keys, num_args, pos_args = utils.parse_format_method_string(fmt)
-        keyword_args = len({k for k, _ in keys if not isinstance(k, int)})
-        assert keyword_args + num_args + pos_args == count
+    for fmt, expected in samples:
+        assert utils.parse_format_method_string(fmt) == expected
 
 
 def test_inherit_from_std_ex_recursive_definition() -> None:

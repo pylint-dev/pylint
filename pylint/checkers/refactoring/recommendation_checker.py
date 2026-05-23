@@ -387,7 +387,7 @@ class RecommendationChecker(checkers.BaseChecker):
                         node.value
                     ).keyword_arguments
                 ]
-            except utils.IncompleteFormatString:
+            except (utils.IncompleteFormatString, utils.UnsupportedFormatCharacter):
                 return
 
             if node.parent.parent.args:
