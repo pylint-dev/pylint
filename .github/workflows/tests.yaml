@@ -122,11 +122,11 @@ jobs:
     needs: [tests]
     steps:
       - *checkout
-      - name: Set up Python 3.13
+      - name: Set up Python 3.14
         id: python
         uses: actions/setup-python@v6.2.0
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           check-latest: true
       - &cache-restore-python
         name: Restore Python virtual environment
@@ -160,7 +160,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.13"]
+        python-version: ["3.14"]
     steps:
       - *checkout
       - *setup-python
