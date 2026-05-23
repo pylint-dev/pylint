@@ -14,13 +14,13 @@ class P:
         self.y = y
 
 
-# dict.update — astroid can't see post-update keys
+# dict.update
 data_update = {"x": 1}
 data_update.update({"y": 2})
 P(**data_update)
 
 
-# dict.setdefault — same story
+# dict.setdefault
 data_setdefault = {}
 data_setdefault.setdefault("x", 0)
 data_setdefault.setdefault("y", 0)

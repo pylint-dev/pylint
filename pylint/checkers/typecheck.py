@@ -1686,15 +1686,14 @@ accessed. Python regular expressions are accepted.",
                 )
 
         # 3. Match the **kwargs, if any.
-        # CallSite already unpacked literal ``**{...}`` dicts in step 2, so
-        # we only assume the **kwargs covers remaining parameters when its
-        # full key set is NOT statically provable: either the enclosing
-        # scope forwards a variadic kwargs without context
-        # (``def wrapper(**kw): f(**kw)``) or any ``**operand`` is not a
-        # literal Dict node (Name, Call, subscript, comprehension, etc.).
-        # Otherwise the gate stays closed and ``no-value-for-parameter``
-        # is allowed to fire when keys don't match parameter names.
-        # See #8785 and primer follow-up on #11002.
+        # CallSite unpacks literal ``**{...}`` operands into keyword_arguments
+        # in step 2. We therefore only assume **kwargs covers the remaining
+        # named parameters when its full key set is not statically provable:
+        # the enclosing scope forwards a variadic kwarg without context
+        # (``def wrap(**kw): f(**kw)``), or at least one ``**operand`` is not
+        # a literal Dict (Name, Call, subscript, ...). A literal
+        # ``f(**{"y": ...})`` keeps the gate closed and lets
+        # ``no-value-for-parameter`` fire (see #8785).
         kwargs_might_supply_more = any(
             not isinstance(kw.value, nodes.Dict) for kw in node.kwargs
         )
