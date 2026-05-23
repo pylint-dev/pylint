@@ -105,7 +105,7 @@ def pprint_bad():
     f"{'s':x}" # [bad-string-format-type]
     f"{[]!s:x}" # [bad-string-format-type]
     "{0.missing.length}".format(ReturnYes())  # [missing-format-attribute]
-    "{1.missing.length}".format(ReturnYes())  # should be too-few-format-args
+    "{1.missing.length}".format(ReturnYes())
 
 
 def good_issue288(*args, **kwargs):
