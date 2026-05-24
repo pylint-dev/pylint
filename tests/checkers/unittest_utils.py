@@ -297,6 +297,50 @@ def test_parse_format_field_bad_conversion() -> None:
 
 
 @pytest.mark.parametrize(
+    "field",
+    [
+        # A balanced "..." inside brackets is fine; the close pops the open.
+        'a["b"]',
+        # A balanced \'...\' inside brackets is fine.
+        "a['b']",
+    ],
+)
+def test_parse_format_field_balanced_quotes(field: str) -> None:
+    # No exception: the open/close pair balances cleanly.
+    assert utils.parse_format_field(field, 0) == ("", (None, None))
+
+
+def test_parse_format_field_unbalanced_double_quote() -> None:
+    # ``a["b"c"d]`` re-opens ``"`` after a closing one inside brackets;
+    # parse_format_field detects the second ``"`` while the bracket is
+    # still open and raises.
+    with pytest.raises(utils.IncompleteFormatString):
+        utils.parse_format_field('a["b"c"d]', 0)
+
+
+def test_parse_format_field_unbalanced_single_quote() -> None:
+    with pytest.raises(utils.IncompleteFormatString):
+        utils.parse_format_field("a['b'c'd]", 0)
+
+
+def test_parse_format_field_double_quote_already_open() -> None:
+    # Field text: ``'a'"b'c"`` (note: outer single-quoted Python literal so
+    # we have ``'``...``"``...``'``...``"``). When we hit the second ``"``
+    # at the end, the open_blocks stack is [``"``, ``'``]; the ``"`` is
+    # already in the stack but not at the top -> IncompleteFormatString.
+    with pytest.raises(utils.IncompleteFormatString):
+        utils.parse_format_field("'a'\"b'c\"", 0)
+
+
+def test_parse_format_field_single_quote_already_open() -> None:
+    # Mirror of the above for the single-quote branch:
+    # ``"a"'b"'`` ends with open_blocks=[``'``, ``"``] and ``'`` is already
+    # present below the top -> IncompleteFormatString.
+    with pytest.raises(utils.IncompleteFormatString):
+        utils.parse_format_field('"a"\'b"\'', 0)
+
+
+@pytest.mark.parametrize(
     "fmt,expected_keys",
     [
         ("{}", {""}),

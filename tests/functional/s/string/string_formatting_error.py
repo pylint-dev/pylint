@@ -95,6 +95,35 @@ def fmt(x):
     and _check_formatted_value."""
     print(f"{x:invalid}")
     print(f"{x:d}")
+
+
+# Explicit positional arg in .format() with a type mismatch: covers the
+# _validate_arg_types explicit-pos branch in strings.py.
+print("{0:d}".format("abc"))  # [bad-string-format-type]
+# An implicit positional arg with a type mismatch (covers _emit_if_type_mismatch).
+print("{:d}".format("abc"))  # [bad-string-format-type]
+# Named arg with a type mismatch (covers the named branch of
+# _validate_arg_types).
+print("{name:d}".format(name="abc"))  # [bad-string-format-type]
+
+
+# A spec that uses ``%`` short-circuits parse_format_spec to None;
+# new_formatting_arg_matches_format_type then early-returns True (no format
+# char to validate). The semantically meaningful caller is ``datetime``,
+# but ``datetime.datetime.now()`` isn't statically inferable; using an int
+# with a ``%`` spec is a stand-in to exercise the ``format_type is None``
+# short-circuit path with an inferable arg.
+print(f"{1:%d}")
+
+
+# Custom __getattr__ on the explicit positional arg in .format(): the
+# missing-format-attribute warning is suppressed because the class might
+# resolve the attribute dynamically.
+class _Dynamic:
+    def __getattr__(self, name):
+        return name
+
+print("{0.missing}".format(_Dynamic()))
 # The dynamic-precision spec ``f"{x:{prec}f}"`` is partly dynamic; the
 # spec-text walker bails out and emits nothing.
 PREC = 3

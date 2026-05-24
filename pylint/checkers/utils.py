@@ -625,7 +625,7 @@ def collect_string_fields(
                 yield from collect_string_fields(nested)
     except ValueError as exc:
         # Probably the format string is invalid.
-        if exc.args[0].startswith("cannot switch from manual"):
+        if exc.args[0].startswith("cannot switch from manual"):  # pragma: no cover
             # On Jython, parsing a string with both manual
             # and automatic positions will fail with a ValueError,
             # while on CPython it will simply return the fields,
@@ -800,7 +800,13 @@ def parse_format_method_string(
     for name, format_spec in collect_string_fields(format_string):
         try:
             format_types = format_char_memo[format_spec or ""]
-        except KeyError as e:
+        except KeyError as e:  # pragma: no cover
+            # Defensive: ``parse_all_fields_formatting`` (custom walker) and
+            # ``collect_string_fields`` (CPython's ``_string`` helper) parse
+            # the format string in parallel. A real-world divergence between
+            # the two on the same input hasn't been observed, but raise the
+            # same recoverable error as other parse failures rather than
+            # propagating a ``KeyError``.
             raise IncompleteFormatString() from e
         if name and str(name).isdigit() and str(name) not in explicit_pos_args:
             explicit_pos_args[str(name)] = []

@@ -654,12 +654,7 @@ class StringFormatChecker(BaseChecker):
             if i >= len(positional_arguments):
                 continue
             argname = positional_arguments[i]
-            if argname in (astroid.Uninferable, None):
-                continue
-            try:
-                arg_type = utils.safe_infer(argname)
-            except astroid.InferenceError:
-                continue
+            arg_type = utils.safe_infer(argname)
 
             conversion, format_type = parse.explicit_types[str(i)]
             if conversion:
@@ -667,8 +662,8 @@ class StringFormatChecker(BaseChecker):
 
             if (
                 format_type is not None
-                and arg_type
-                and arg_type != astroid.Uninferable
+                and arg_type is not None
+                and not isinstance(arg_type, util.UninferableBase)
                 and not arg_matches_format_type(arg_type, format_type)
             ):
                 self.add_message(
@@ -686,18 +681,12 @@ class StringFormatChecker(BaseChecker):
         """Emit ``bad-string-format-type`` if ``argname`` does not satisfy
         ``format_types`` (the ``(conversion, format_type)`` for that field).
         """
-        if argname in (astroid.Uninferable, None):
-            return
-        try:
-            arg_type = utils.safe_infer(argname)
-        except astroid.InferenceError:
-            return
-
+        arg_type = utils.safe_infer(argname)
         conversion, format_type = format_types
         if (
             format_type is None
-            or not arg_type
-            or arg_type is astroid.Uninferable
+            or arg_type is None
+            or isinstance(arg_type, util.UninferableBase)
             or new_formatting_arg_matches_format_type(arg_type, format_type, conversion)
         ):
             return
@@ -936,15 +925,12 @@ class StringFormatChecker(BaseChecker):
             except utils.NoSuchArgumentError:
                 continue
 
-            if argname in (astroid.Uninferable, None):
-                continue
-            try:
-                argument = utils.safe_infer(argname)
-            except astroid.InferenceError:
-                continue
-            if not specifiers or not argument:
+            argument = utils.safe_infer(argname)
+            if not specifiers or argument is None or isinstance(
+                argument, util.UninferableBase
+            ):
                 # No need to check this key if it doesn't
-                # use attribute / item access
+                # use attribute / item access, or if inference failed.
                 continue
             if argument.parent and isinstance(argument.parent, nodes.Arguments):
                 # Ignore any object coming from an argument,
@@ -954,7 +940,12 @@ class StringFormatChecker(BaseChecker):
             seen: list[tuple[bool, str | int]] = []
 
             for is_attribute, specifier in specifiers:
-                if previous is astroid.Uninferable:
+                if previous is astroid.Uninferable:  # pragma: no cover
+                    # Defensive: mirrors the same check in the keyword-arg
+                    # loop above where ``next(previous.infer())`` can yield
+                    # ``Uninferable``. This loop assigns ``previous`` from
+                    # ``getattr(...)[0]`` which only returns concrete nodes
+                    # in practice, so this break is currently unreachable.
                     break
                 seen.append((is_attribute, specifier))
                 if is_attribute:
