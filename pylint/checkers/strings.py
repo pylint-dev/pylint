@@ -309,47 +309,31 @@ _KNOWN_FORMAT_TYPES = frozenset(
 )
 
 
-def _static_spec_text(
-    fv: nodes.FormattedValue, outer_col_offset: int
-) -> tuple[str, int] | None:
-    """Return ``(spec_text, offset)`` for ``fv.format_spec`` where ``offset``
-    is the index of the spec's first character relative to the outer f-string.
-
-    content (i.e. ``as_string()[2:-1]``). Returns ``None`` if there is no
-    spec or if the spec contains a dynamic ``FormattedValue`` part that we
-    can't render statically.
+def _static_spec_text(fv: nodes.FormattedValue) -> str | None:
+    """Return the static spec text for ``fv.format_spec`` (the concatenated
+    ``Const`` parts). Returns ``None`` if there is no spec or if it contains
+    a dynamic ``FormattedValue`` part (e.g. ``f"{x:{prec}f}"``) that we can't
+    render statically.
     """
     if fv.format_spec is None:
         return None
     parts: list[str] = []
-    spec_start: int | None = None
     for part in fv.format_spec.values:
         if not (isinstance(part, nodes.Const) and isinstance(part.value, str)):
-            # Dynamic part (e.g. ``f"{x:{prec}f}"``). Skip spec text checks.
             return None
-        if spec_start is None:
-            # ``col_offset`` is absolute in the source line; subtract the
-            # outer f-string start and the 2-char ``f"`` prefix.
-            spec_start = part.col_offset - outer_col_offset - 2
         parts.append(part.value)
-    if spec_start is None:
-        spec_start = 0
-    return "".join(parts), spec_start
+    return "".join(parts)
 
 
-def _node_has_custom_format(field: nodes.NodeNG | None) -> bool:
+def _node_has_custom_format(field: nodes.NodeNG) -> bool:
     """Return True if ``field``'s inferred type is anything other than a
-    well-known builtin (or if inference fails).
+    well-known builtin (or if inference is ambiguous).
 
-    Such a value may define a
-    ``__format__`` that consumes arbitrary spec text (e.g. ``Quantity:cds``).
+    Such a value may define a ``__format__`` that consumes arbitrary spec
+    text (e.g. ``Quantity:cds``), so the standard mini-format-spec parser
+    cannot validate its spec.
     """
-    if field in (None, astroid.Uninferable):
-        return True
-    try:
-        arg_type = utils.safe_infer(field)
-    except astroid.InferenceError:
-        return True
+    arg_type = utils.safe_infer(field)
     if arg_type is None or isinstance(arg_type, util.UninferableBase):
         return True
     if not isinstance(arg_type, astroid.Instance):
@@ -546,29 +530,29 @@ class StringFormatChecker(BaseChecker):
         # walker is a PEP 3101 parser that mis-handles Python expression
         # syntax inside f-string ``{...}`` (dict/set literals, comprehensions,
         # nested f-strings, PEP 701 inner quotes, ...).
-        outer_col_offset = node.col_offset or 0
         for fv in _iter_formatted_values(node):
-            self._check_formatted_value(node, fv, outer_col_offset)
+            self._check_formatted_value(node, fv)
 
     def _check_formatted_value(
         self,
         joinedstr_node: nodes.JoinedStr,
         fv: nodes.FormattedValue,
-        outer_col_offset: int,
     ) -> None:
         """Validate one ``FormattedValue``'s spec text and its value's type."""
-        spec = _static_spec_text(fv, outer_col_offset)
-        if spec is None:
-            return  # no spec, or dynamic spec we can't resolve statically
-        spec_text, spec_offset = spec
+        spec_text = _static_spec_text(fv)
         if not spec_text:
             return
 
+        # Indices in error messages are relative to the spec text. Computing
+        # an absolute position within the f-string source would need each
+        # spec part's ``col_offset``, which Python 3.10's parser doesn't
+        # populate reliably for f-string internals (it returns 0 / the outer
+        # f-string offset, yielding negative indices after subtraction).
         try:
-            format_type = utils.parse_format_spec(spec_text, spec_offset)
+            format_type = utils.parse_format_spec(spec_text, 0)
         except utils.UnsupportedFormatCharacter as exc:
             if not _node_has_custom_format(fv.value):
-                ch = spec_text[exc.index - spec_offset]
+                ch = spec_text[exc.index]
                 self.add_message(
                     "bad-format-character",
                     node=joinedstr_node,
@@ -580,13 +564,8 @@ class StringFormatChecker(BaseChecker):
                 self.add_message("bad-format-string", node=joinedstr_node)
             return
 
-        if fv.value in (None, astroid.Uninferable):
-            return
-        try:
-            arg_type = utils.safe_infer(fv.value)
-        except astroid.InferenceError:
-            return
-        if not arg_type or isinstance(arg_type, util.UninferableBase):
+        arg_type = utils.safe_infer(fv.value)
+        if arg_type is None or isinstance(arg_type, util.UninferableBase):
             return
 
         conversion = (
