@@ -734,7 +734,14 @@ scope_type : {self.scope_type}
                 only_search_else = False
                 continue
             val = inferred.value
-            only_search_if = only_search_if or (val != NotImplemented and val)
+            if val is NotImplemented:
+                # ``bool(NotImplemented)`` raises ``TypeError`` on Python 3.14+
+                # (and warned since 3.9). ``NotImplemented`` is the only value
+                # ``Const`` carries whose truthiness is undefined, so treat it
+                # like a non-``Const`` inference: we can't tell which branch runs.
+                only_search_else = False
+                continue
+            only_search_if = only_search_if or bool(val)
             only_search_else = only_search_else and not val
 
         # Only search else branch when test condition is inferred to be false
