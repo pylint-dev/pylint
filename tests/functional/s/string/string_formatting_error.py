@@ -76,61 +76,53 @@ print(f"bytes {f'{OFFSET[0]}-{OFFSET[1]}'}/{SIZE}")
 # with a custom mini-language) fires bad-format-string.
 print(f"{1:invalid}")  # [bad-format-string]
 print("{:invalid}".format(1))  # [bad-format-string]
-# A class object (not an instance) in the format field: at runtime this
-# raises TypeError, but pylint conservatively returns True (don't flag) so
-# user-defined formatters aren't tripped up.
+# A class object (not an instance) in the format field. At runtime this
+# raises TypeError, but we don't flag it: a class can have an __init__ or
+# be wrapped, so the inferred type is too uncertain to warn on.
 print(f"{int:s}")
 print(f"{int:invalid}")
-# Same conservative behaviour for the old %-style when the inferred value is
-# a class (not an Instance); the tuple form puts the class in the args list
-# and exercises arg_matches_format_type's non-Instance fallback.
+# Same for the old ``%``-style: a tuple containing a class as the only
+# argument should not be flagged.
 print("%d" % (int,))
 
 
-# Function parameters infer to Uninferable; both the spec-parse error path
-# (would emit bad-format-string) and the type-check path (would emit
-# bad-string-format-type) should bail silently.
+# A function parameter has no statically known type, so neither an invalid
+# spec on it nor a builtin spec mismatch can be confirmed; both stay silent.
 def fmt(x):
-    """Exercises the Uninferable-arg branches in _node_has_custom_format
-    and _check_formatted_value."""
+    """No warning: ``x`` is a parameter with no known type."""
     print(f"{x:invalid}")
     print(f"{x:d}")
 
 
-# Explicit positional arg in .format() with a type mismatch: covers the
-# _validate_arg_types explicit-pos branch in strings.py.
+# Every .format() argument kind (explicit positional, implicit positional,
+# named) with a type mismatch must be flagged consistently.
 print("{0:d}".format("abc"))  # [bad-string-format-type]
-# An implicit positional arg with a type mismatch (covers _emit_if_type_mismatch).
 print("{:d}".format("abc"))  # [bad-string-format-type]
-# Named arg with a type mismatch (covers the named branch of
-# _validate_arg_types).
 print("{name:d}".format(name="abc"))  # [bad-string-format-type]
 
 
-# A spec that uses ``%`` short-circuits parse_format_spec to None;
-# new_formatting_arg_matches_format_type then early-returns True (no format
-# char to validate). The semantically meaningful caller is ``datetime``,
-# but ``datetime.datetime.now()`` isn't statically inferable; using an int
-# with a ``%`` spec is a stand-in to exercise the ``format_type is None``
-# short-circuit path with an inferable arg.
+# A spec containing ``%`` is treated as a strftime-style pattern: no warning
+# is emitted, even if the value isn't a datetime. (Real datetimes work
+# identically; an int stands in here because datetime.datetime.now() isn't
+# statically inferable.)
 print(f"{1:%d}")
 
 
-# Custom __getattr__ on the explicit positional arg in .format(): the
-# missing-format-attribute warning is suppressed because the class might
-# resolve the attribute dynamically.
+# A class that defines __getattr__ may resolve any attribute name at
+# runtime, so missing-format-attribute should not fire on ``{0.missing}``
+# when the formatted value is an instance of such a class.
 class _Dynamic:
     def __getattr__(self, name):
         return name
 
 print("{0.missing}".format(_Dynamic()))
-# The dynamic-precision spec ``f"{x:{prec}f}"`` is partly dynamic; the
-# spec-text walker bails out and emits nothing.
+# A spec containing a nested ``{}`` (dynamic precision / width) is partly
+# determined at runtime; no warning.
 PREC = 3
 print(f"{1.5:{PREC}f}")
-# A bool with !r conversion is type-checked as str against the format
-# character. ``!r`` of any value is a str so :s is fine.
+# ``!r`` converts the value to its repr (a str) before the spec applies,
+# so ``:s`` on any !r-converted value is valid.
 print(f"{True!r:s}")
-# Inner FormattedValue in spec (dynamic): no spec-text check; the inner
-# value's own spec is checked when iterating nested FormattedValues.
+# Nested replacement field inside the spec: the outer spec is dynamic
+# (skipped), while the inner ``{PREC}`` is itself just an int reference.
 print(f"{1.5:.{PREC}f}")

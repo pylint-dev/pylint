@@ -22,6 +22,6 @@ bad-format-character:29:10:29:32:pprint:Unsupported format character 'q' (0x71) 
 bad-format-character:48:6:48:27::Unsupported format character 'p' (0x70) at index 0:UNDEFINED
 bad-format-string:77:6:77:20::Invalid format string:UNDEFINED
 bad-format-string:78:6:78:28::Invalid format string:UNDEFINED
-bad-string-format-type:102:6:102:27::Argument 'builtins.str' does not match format type 'd':UNDEFINED
-bad-string-format-type:104:6:104:26::Argument 'builtins.str' does not match format type 'd':UNDEFINED
-bad-string-format-type:107:6:107:35::Argument 'builtins.str' does not match format type 'd':UNDEFINED
+bad-string-format-type:99:6:99:27::Argument 'builtins.str' does not match format type 'd':UNDEFINED
+bad-string-format-type:100:6:100:26::Argument 'builtins.str' does not match format type 'd':UNDEFINED
+bad-string-format-type:101:6:101:35::Argument 'builtins.str' does not match format type 'd':UNDEFINED
