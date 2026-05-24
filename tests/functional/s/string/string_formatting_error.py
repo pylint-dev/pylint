@@ -68,6 +68,5 @@ print(f"set({ {x * 2 for x in [1, 2, 3]} })")
 OFFSET = (1, 9)
 SIZE = 100
 print(f"bytes {f'{OFFSET[0]}-{OFFSET[1]}'}/{SIZE}")
-# PEP 701 same-quote nesting (Python 3.12+).
-NAME = 'hello"world'
-print(f"tags[{NAME.replace('[', '').replace(']', '').replace('"', '')}]")
+# PEP 701 same-quote nesting requires Python 3.12+; see
+# string_formatting_error_py312.py for that case.
