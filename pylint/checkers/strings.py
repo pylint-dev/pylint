@@ -311,7 +311,9 @@ _KNOWN_FORMAT_TYPES = frozenset(
 
 def _static_spec_text(fv: nodes.FormattedValue) -> str | None:
     """Return the static spec text for ``fv.format_spec`` (the concatenated
-    ``Const`` parts). Returns ``None`` if there is no spec or if it contains
+    ``Const`` parts).
+
+    Returns ``None`` if there is no spec or if it contains
     a dynamic ``FormattedValue`` part (e.g. ``f"{x:{prec}f}"``) that we can't
     render statically.
     """
