@@ -11,9 +11,7 @@ import pytest
 from astroid import nodes
 
 from pylint.checkers import utils
-from pylint.checkers.utils import (  # pylint: disable=no-name-in-module
-    parse_format_method_string_result,
-)
+from pylint.checkers.utils import parse_format_method_string_result
 
 
 @pytest.mark.parametrize(
@@ -280,7 +278,9 @@ def test_parse_format_spec_incomplete() -> None:
         ("a['b:c']", ("", (None, None))),
     ],
 )
-def test_parse_format_field(field: str, expected: tuple) -> None:
+def test_parse_format_field(
+    field: str, expected: tuple[str, tuple[str | None, str | None]]
+) -> None:
     assert utils.parse_format_field(field, 0) == expected
 
 
@@ -355,7 +355,7 @@ def test_parse_format_field_single_quote_already_open() -> None:
         ("{x:{y}}", {"{y}", ""}),
     ],
 )
-def test_parse_all_fields_formatting(fmt: str, expected_keys: set) -> None:
+def test_parse_all_fields_formatting(fmt: str, expected_keys: set[str]) -> None:
     result = utils.parse_all_fields_formatting(fmt, include_nested=True)
     assert set(result) == expected_keys
 

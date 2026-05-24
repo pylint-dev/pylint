@@ -802,11 +802,11 @@ def parse_format_method_string(
             format_types = format_char_memo[format_spec or ""]
         except KeyError as e:  # pragma: no cover
             # Defensive: ``parse_all_fields_formatting`` (custom walker) and
-            # ``collect_string_fields`` (CPython's ``_string`` helper) parse
-            # the format string in parallel. A real-world divergence between
-            # the two on the same input hasn't been observed, but raise the
-            # same recoverable error as other parse failures rather than
-            # propagating a ``KeyError``.
+            # ``collect_string_fields`` (wrapping the CPython ``_string``
+            # helper) parse the format string in parallel. A real-world
+            # divergence between the two on the same input hasn't been
+            # observed, but raise the same recoverable error as other parse
+            # failures rather than propagating a ``KeyError``.
             raise IncompleteFormatString() from e
         if name and str(name).isdigit() and str(name) not in explicit_pos_args:
             explicit_pos_args[str(name)] = []

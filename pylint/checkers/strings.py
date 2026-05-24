@@ -229,7 +229,7 @@ def arg_matches_format_type(
     if isinstance(arg_type, astroid.Instance):
         pytype = arg_type.pytype()
         # ``bool`` is a subclass of ``int`` and accepts every integer format
-        # character at runtime; normalise so the table below stays compact.
+        # character at runtime; collapse it to the int case below.
         if pytype == "builtins.bool":
             pytype = "builtins.int"
         match pytype:
@@ -529,8 +529,8 @@ class StringFormatChecker(BaseChecker):
         # value's ``format_spec``) and validate its spec independently. This
         # bypasses the text-based ``parse_all_fields_formatting`` walker for
         # f-strings: astroid has already parsed the structure, and the text
-        # walker is a PEP 3101 parser that mis-handles Python expression
-        # syntax inside f-string ``{...}`` (dict/set literals, comprehensions,
+        # walker is a PEP 3101 parser that misreads Python expression syntax
+        # inside f-string ``{...}`` (dict/set literals, comprehensions,
         # nested f-strings, PEP 701 inner quotes, ...).
         for fv in _iter_formatted_values(node):
             self._check_formatted_value(node, fv)

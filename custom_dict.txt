@@ -317,6 +317,7 @@ stdlib
 stdout
 stmt
 str
+strftime
 stringified
 subclasses
 subcommands
