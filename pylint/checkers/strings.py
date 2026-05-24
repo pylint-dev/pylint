@@ -926,8 +926,10 @@ class StringFormatChecker(BaseChecker):
                 continue
 
             argument = utils.safe_infer(argname)
-            if not specifiers or argument is None or isinstance(
-                argument, util.UninferableBase
+            if (
+                not specifiers
+                or argument is None
+                or isinstance(argument, util.UninferableBase)
             ):
                 # No need to check this key if it doesn't
                 # use attribute / item access, or if inference failed.
