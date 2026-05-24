@@ -1,0 +1,6 @@
+Treat ``bool`` as compatible with every integer format character (``d``, ``x``,
+``o``, ``b``, ``c``, ...) in ``bad-string-format-type``. Booleans are a subclass
+of ``int`` and formatting them with ``"%d" % True`` or ``f"{True:d}"`` works at
+runtime, so they should not be flagged.
+
+Refs #11041

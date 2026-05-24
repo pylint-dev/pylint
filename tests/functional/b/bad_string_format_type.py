@@ -96,3 +96,21 @@ def test_format(my_input_value, my_other_input_value):
     print("%d %s" % (my_input_value, my_other_input_value))
     to_be_formatted = (my_input_value, my_other_input_value)
     print("%d %s" % to_be_formatted)
+
+
+# ``bool`` is a subclass of ``int`` so every integer format character works on
+# booleans at runtime; none of these should be flagged.
+FLAG = True
+"%d" % FLAG
+"%x" % FLAG
+"%o" % FLAG
+"%c" % FLAG
+"%(key)d" % {"key": FLAG}
+"{:d}".format(FLAG)
+"{:x}".format(FLAG)
+"{:b}".format(FLAG)
+f"{FLAG:d}"
+f"{FLAG:x}"
+f"{FLAG:b}"
+# But ``:s`` still doesn't work on bool/int.
+f"{FLAG:s}"  # [bad-string-format-type]

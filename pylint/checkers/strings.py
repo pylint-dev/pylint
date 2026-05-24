@@ -227,7 +227,12 @@ def arg_matches_format_type(
         # All types can be printed with %s and %r
         return True
     if isinstance(arg_type, astroid.Instance):
-        match arg_type.pytype():
+        pytype = arg_type.pytype()
+        # ``bool`` is a subclass of ``int`` and accepts every integer format
+        # character at runtime; normalise so the table below stays compact.
+        if pytype == "builtins.bool":
+            pytype = "builtins.int"
+        match pytype:
             case "builtins.str":
                 return format_type == "c"
             case "builtins.float":
@@ -251,6 +256,10 @@ def new_formatting_arg_matches_format_type(
         pytype = arg_type.pytype()
         if conversion and conversion in "sr":
             pytype = "builtins.str"
+        # ``bool`` is a subclass of ``int`` and accepts every integer format
+        # character at runtime; treat the two as equivalent for the table below.
+        if pytype == "builtins.bool":
+            pytype = "builtins.int"
         if pytype == "builtins.str":
             return format_type == "s"
         if pytype == "builtins.float":

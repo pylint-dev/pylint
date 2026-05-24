@@ -23,3 +23,4 @@ bad-string-format-type:79:0:79:18::Argument 'builtins.str' does not match format
 bad-string-format-type:83:0:83:11::Argument 'builtins.str' does not match format type 'd':UNDEFINED
 bad-string-format-type:84:0:84:22::Argument 'builtins.str' does not match format type 'd':UNDEFINED
 bad-string-format-type:88:0:88:29::Argument 'builtins.str' does not match format type 'd':UNDEFINED
+bad-string-format-type:116:0:116:11::Argument 'builtins.bool' does not match format type 's':UNDEFINED
