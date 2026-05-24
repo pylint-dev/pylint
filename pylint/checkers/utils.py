@@ -644,9 +644,13 @@ def parse_format_spec(format_spec: str, start_point: int) -> str | None:
     Where 'format_spec' is the string specifier, and 'start_point' is the
     index in the full string where this spec appears. Raises IncompleteFormatString or
     UnsupportedFormatCharacter if a parse error occurs.
+
+    Returns ``None`` if the spec is empty, dynamic, or uses ``%`` (e.g. a
+    ``datetime`` ``strftime`` pattern); callers use ``None`` to mean
+    "no standard format character to validate".
     """
     if "%" in format_spec:
-        return ""
+        return None
 
     compiled = re.compile(FORMAT_SPEC_REGEX)
     match = compiled.match(format_spec)

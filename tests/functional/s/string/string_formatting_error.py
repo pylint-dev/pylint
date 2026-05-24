@@ -43,7 +43,31 @@ print(f"prefix [{CUSTOM:latex}] suffix")
 print("{:cds}".format(CUSTOM))
 # Mixed with a builtin format spec that's valid on its own.
 print(f"{CUSTOM:cds} {1:d}")
-# Whole-f-string silencing means a sibling int-with-bogus-spec is also
-# silenced; this is a documented limitation of the coarse-grained check
-# until per-FormattedValue spec parsing lands.
-print(f"{CUSTOM:cds} {1:p}")
+# The custom-format carve-out is per-value, so a sibling int with a bogus
+# spec is still flagged independently.
+print(f"{CUSTOM:cds} {1:p}")  # [bad-format-character]
+
+
+# F-string expressions can contain arbitrary Python syntax; the spec checker
+# should not be confused by dict/set literals, comprehensions, nested
+# f-strings, or PEP 701 same-quote nesting inside ``{...}``. None of these
+# should be flagged.
+from urllib.parse import urlencode  # pylint: disable=wrong-import-position
+
+QUERY = "x"
+URL = "/x"
+# Dict literal inside an f-string expression.
+print(f"{urlencode({'q': QUERY})}")
+# Nested dict literals inside a function call.
+print(f"```\n{ {'a': [{'b': 1}]} }\n```")
+# Dict / set comprehensions inside an f-string expression.
+ITEMS = {"a": 1, "b": 2}
+print(f"approx({ ({k: v * 2 for k, v in ITEMS.items()})!r})")
+print(f"set({ {x * 2 for x in [1, 2, 3]} })")
+# Nested f-string inside an outer f-string's expression.
+OFFSET = (1, 9)
+SIZE = 100
+print(f"bytes {f'{OFFSET[0]}-{OFFSET[1]}'}/{SIZE}")
+# PEP 701 same-quote nesting (Python 3.12+).
+NAME = 'hello"world'
+print(f"tags[{NAME.replace('[', '').replace(']', '').replace('"', '')}]")

@@ -284,15 +284,6 @@ def _iter_formatted_values(
                 yield from _iter_formatted_values(value.format_spec)
 
 
-def _convert_format_spec_part(part: nodes.NodeNG) -> str:
-    """Render a ``format_spec`` value back to source for lookup in ``format_map``."""
-    node_str: str = part.as_string().strip()
-    # ``Const.str`` round-trips as ``'value'`` (with single quotes); strip them.
-    if node_str and node_str[0] == "'" == node_str[-1]:
-        node_str = node_str[1:-1]
-    return node_str
-
-
 # Builtin types whose ``__format__`` is well understood: standard
 # mini-format-spec users (``int``, ``float``, ``str``, ...) plus container
 # types that inherit ``object.__format__`` (so only ``""`` is valid). Anything
@@ -318,6 +309,33 @@ _KNOWN_FORMAT_TYPES = frozenset(
 )
 
 
+def _static_spec_text(
+    fv: nodes.FormattedValue, outer_col_offset: int
+) -> tuple[str, int] | None:
+    """Return ``(spec_text, offset)`` for ``fv.format_spec`` where ``offset``
+    is the index of the spec's first character relative to the outer f-string
+    content (i.e. ``as_string()[2:-1]``). Returns ``None`` if there is no
+    spec or if the spec contains a dynamic ``FormattedValue`` part that we
+    can't render statically.
+    """
+    if fv.format_spec is None:
+        return None
+    parts: list[str] = []
+    spec_start: int | None = None
+    for part in fv.format_spec.values:
+        if not (isinstance(part, nodes.Const) and isinstance(part.value, str)):
+            # Dynamic part (e.g. ``f"{x:{prec}f}"``). Skip spec text checks.
+            return None
+        if spec_start is None:
+            # ``col_offset`` is absolute in the source line; subtract the
+            # outer f-string start and the 2-char ``f"`` prefix.
+            spec_start = part.col_offset - outer_col_offset - 2
+        parts.append(part.value)
+    if spec_start is None:
+        spec_start = 0
+    return "".join(parts), spec_start
+
+
 def _node_has_custom_format(field: nodes.NodeNG | None) -> bool:
     """Return True if ``field``'s inferred type is anything other than a
     well-known builtin (or if inference fails). Such a value may define a
@@ -335,18 +353,6 @@ def _node_has_custom_format(field: nodes.NodeNG | None) -> bool:
         # Class/module/function with a ``__format__`` could be anything.
         return True
     return arg_type.pytype() not in _KNOWN_FORMAT_TYPES
-
-
-def _any_value_has_custom_format(node: nodes.JoinedStr) -> bool:
-    """Return True if any ``FormattedValue`` in ``node`` has a value whose
-    class is not one of the well-known builtins.
-    """
-    for fv in _iter_formatted_values(node):
-        if fv.format_spec is None or len(fv.format_spec.values) == 0:
-            continue
-        if _node_has_custom_format(fv.value):
-            return True
-    return False
 
 
 class StringFormatChecker(BaseChecker):
@@ -523,72 +529,79 @@ class StringFormatChecker(BaseChecker):
     )
     def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
         # Nested ``JoinedStr`` instances appear as the ``format_spec`` of an
-        # enclosing ``FormattedValue``. The outer visit already parses the
-        # whole f-string, including the nested spec, so skip the inner call to
-        # avoid duplicate messages reported at the inner (less useful) position.
+        # enclosing ``FormattedValue`` and are visited by ``_iter_formatted_values``
+        # from the outer call; skip the inner direct visit.
         if isinstance(node.parent, nodes.FormattedValue):
-            return
-
-        node_string = node.as_string()[2 : len(node.as_string()) - 1]
-        format_map = {}
-        try:
-            # ``include_nested=True`` lets us catch invalid format characters
-            # inside nested specs like ``f"{x:{y:p}}"`` from a single call on
-            # the outer f-string (the nested ``JoinedStr`` is skipped above).
-            format_map = utils.parse_all_fields_formatting(node_string, True)
-
-        except utils.UnsupportedFormatCharacter as exc:
-            # The standard mini-format-spec parser doesn't know about user
-            # ``__format__`` overrides (e.g. ``astropy``'s ``Quantity:cds``).
-            # If any value in the f-string has a non-builtin type, silently
-            # skip rather than emit a likely false positive.
-            if not _any_value_has_custom_format(node):
-                formatted = node_string[exc.index]
-                self.add_message(
-                    "bad-format-character",
-                    node=node,
-                    args=(formatted, ord(formatted), exc.index),
-                )
-            self._check_interpolation(node)
-            return
-        except utils.IncompleteFormatString:
-            if not _any_value_has_custom_format(node):
-                self.add_message("bad-format-string", node=node)
-            self._check_interpolation(node)
             return
 
         self._check_interpolation(node)
 
-        for value in _iter_formatted_values(node):
-            field = value.value
-            if field in (astroid.Uninferable, None):
-                continue
-            if value.format_spec is None or len(value.format_spec.values) == 0:
-                continue
-            try:
-                arg_type = utils.safe_infer(field)
-            except astroid.InferenceError:
-                continue
+        # Walk each ``FormattedValue`` (including those nested in another
+        # value's ``format_spec``) and validate its spec independently. This
+        # bypasses the text-based ``parse_all_fields_formatting`` walker for
+        # f-strings: astroid has already parsed the structure, and the text
+        # walker is a PEP 3101 parser that mis-handles Python expression
+        # syntax inside f-string ``{...}`` (dict/set literals, comprehensions,
+        # nested f-strings, PEP 701 inner quotes, ...).
+        outer_col_offset = node.col_offset or 0
+        for fv in _iter_formatted_values(node):
+            self._check_formatted_value(node, fv, outer_col_offset)
 
-            full_spec_as_string = "".join(
-                _convert_format_spec_part(x) for x in value.format_spec.values
-            )
-            try:
-                conversion, format_type = format_map[full_spec_as_string]
-            except KeyError:
-                continue
+    def _check_formatted_value(
+        self,
+        joinedstr_node: nodes.JoinedStr,
+        fv: nodes.FormattedValue,
+        outer_col_offset: int,
+    ) -> None:
+        """Validate one ``FormattedValue``'s spec text and its value's type."""
+        spec = _static_spec_text(fv, outer_col_offset)
+        if spec is None:
+            return  # no spec, or dynamic spec we can't resolve statically
+        spec_text, spec_offset = spec
+        if not spec_text:
+            return
 
-            if arg_type and not new_formatting_arg_matches_format_type(
-                arg_type, format_type, conversion
-            ):
-                actual_type = arg_type.pytype()
-                if conversion and conversion in "sr":
-                    actual_type = "builtins.str"
+        try:
+            format_type = utils.parse_format_spec(spec_text, spec_offset)
+        except utils.UnsupportedFormatCharacter as exc:
+            if not _node_has_custom_format(fv.value):
+                ch = spec_text[exc.index - spec_offset]
                 self.add_message(
-                    "bad-string-format-type",
-                    node=node,
-                    args=(actual_type, format_type),
+                    "bad-format-character",
+                    node=joinedstr_node,
+                    args=(ch, ord(ch), exc.index),
                 )
+            return
+        except utils.IncompleteFormatString:
+            if not _node_has_custom_format(fv.value):
+                self.add_message("bad-format-string", node=joinedstr_node)
+            return
+
+        if fv.value in (None, astroid.Uninferable):
+            return
+        try:
+            arg_type = utils.safe_infer(fv.value)
+        except astroid.InferenceError:
+            return
+        if not arg_type or isinstance(arg_type, util.UninferableBase):
+            return
+
+        conversion = (
+            chr(fv.conversion)
+            if isinstance(fv.conversion, int) and fv.conversion != -1
+            else None
+        )
+        if new_formatting_arg_matches_format_type(arg_type, format_type, conversion):
+            return
+
+        actual_type = arg_type.pytype()
+        if conversion and conversion in "sr":
+            actual_type = "builtins.str"
+        self.add_message(
+            "bad-string-format-type",
+            node=joinedstr_node,
+            args=(actual_type, format_type),
+        )
 
     def _check_interpolation(self, node: nodes.JoinedStr) -> None:
         if isinstance(node.parent, (nodes.TemplateStr, nodes.FormattedValue)):

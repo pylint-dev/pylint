@@ -19,3 +19,4 @@ bad-format-character:26:10:26:26:pprint:Unsupported format character 'l' (0x6c) 
 bad-format-character:27:10:27:36:pprint:Unsupported format character 'l' (0x6c) at index 9:UNDEFINED
 bad-format-character:28:10:28:22:pprint:Unsupported format character 'q' (0x71) at index 6:UNDEFINED
 bad-format-character:29:10:29:32:pprint:Unsupported format character 'q' (0x71) at index 4:UNDEFINED
+bad-format-character:48:6:48:27::Unsupported format character 'p' (0x70) at index 16:UNDEFINED
