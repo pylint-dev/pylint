@@ -1,0 +1,7 @@
+Don't emit ``bad-format-string`` / ``bad-format-character`` against f-strings
+and ``.format()`` calls when any argument has a custom ``__format__``. Custom
+``__format__`` methods (e.g. ``astropy.units.Quantity`` accepting ``"cds"`` or
+``"latex"``) consume arbitrary spec text that the standard mini-format-spec
+parser doesn't understand.
+
+Refs #11041

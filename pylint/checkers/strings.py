@@ -293,6 +293,62 @@ def _convert_format_spec_part(part: nodes.NodeNG) -> str:
     return node_str
 
 
+# Builtin types whose ``__format__`` is well understood: standard
+# mini-format-spec users (``int``, ``float``, ``str``, ...) plus container
+# types that inherit ``object.__format__`` (so only ``""`` is valid). Anything
+# else may have a custom ``__format__`` that accepts arbitrary spec text (e.g.
+# ``astropy.units.Quantity`` accepts ``"latex"``, ``"cds"``), and we cannot
+# tell what is valid for it.
+_KNOWN_FORMAT_TYPES = frozenset(
+    {
+        "builtins.str",
+        "builtins.int",
+        "builtins.float",
+        "builtins.bool",
+        "builtins.complex",
+        "builtins.bytes",
+        "builtins.bytearray",
+        "builtins.dict",
+        "builtins.list",
+        "builtins.set",
+        "builtins.tuple",
+        "builtins.frozenset",
+        "builtins.NoneType",
+    }
+)
+
+
+def _node_has_custom_format(field: nodes.NodeNG | None) -> bool:
+    """Return True if ``field``'s inferred type is anything other than a
+    well-known builtin (or if inference fails). Such a value may define a
+    ``__format__`` that consumes arbitrary spec text (e.g. ``Quantity:cds``).
+    """
+    if field in (None, astroid.Uninferable):
+        return True
+    try:
+        arg_type = utils.safe_infer(field)
+    except astroid.InferenceError:
+        return True
+    if arg_type is None or isinstance(arg_type, util.UninferableBase):
+        return True
+    if not isinstance(arg_type, astroid.Instance):
+        # Class/module/function with a ``__format__`` could be anything.
+        return True
+    return arg_type.pytype() not in _KNOWN_FORMAT_TYPES
+
+
+def _any_value_has_custom_format(node: nodes.JoinedStr) -> bool:
+    """Return True if any ``FormattedValue`` in ``node`` has a value whose
+    class is not one of the well-known builtins.
+    """
+    for fv in _iter_formatted_values(node):
+        if fv.format_spec is None or len(fv.format_spec.values) == 0:
+            continue
+        if _node_has_custom_format(fv.value):
+            return True
+    return False
+
+
 class StringFormatChecker(BaseChecker):
     """Checks string formatting operations to ensure that the format string
     is valid and the arguments match the format string.
@@ -482,15 +538,23 @@ class StringFormatChecker(BaseChecker):
             format_map = utils.parse_all_fields_formatting(node_string, True)
 
         except utils.UnsupportedFormatCharacter as exc:
-            formatted = node_string[exc.index]
-            self.add_message(
-                "bad-format-character",
-                node=node,
-                args=(formatted, ord(formatted), exc.index),
-            )
+            # The standard mini-format-spec parser doesn't know about user
+            # ``__format__`` overrides (e.g. ``astropy``'s ``Quantity:cds``).
+            # If any value in the f-string has a non-builtin type, silently
+            # skip rather than emit a likely false positive.
+            if not _any_value_has_custom_format(node):
+                formatted = node_string[exc.index]
+                self.add_message(
+                    "bad-format-character",
+                    node=node,
+                    args=(formatted, ord(formatted), exc.index),
+                )
+            self._check_interpolation(node)
             return
         except utils.IncompleteFormatString:
-            self.add_message("bad-format-string", node=node)
+            if not _any_value_has_custom_format(node):
+                self.add_message("bad-format-string", node=node)
+            self._check_interpolation(node)
             return
 
         self._check_interpolation(node)
@@ -679,15 +743,32 @@ class StringFormatChecker(BaseChecker):
         try:
             parse = utils.parse_format_method_string(strnode.value)
         except utils.UnsupportedFormatCharacter as exc:
-            formatted = strnode.value[exc.index]
-            self.add_message(
-                "bad-format-character",
-                node=node,
-                args=(formatted, ord(formatted), exc.index),
-            )
+            # Same custom-``__format__`` carve-out as ``visit_joinedstr``: if
+            # any argument's type is not a known builtin, the spec may be a
+            # valid custom one and the parse failure is a false positive.
+            if not any(
+                _node_has_custom_format(arg)
+                for arg in (
+                    *call_site.positional_arguments,
+                    *call_site.keyword_arguments.values(),
+                )
+            ):
+                formatted = strnode.value[exc.index]
+                self.add_message(
+                    "bad-format-character",
+                    node=node,
+                    args=(formatted, ord(formatted), exc.index),
+                )
             return
         except utils.IncompleteFormatString:
-            self.add_message("bad-format-string", node=node)
+            if not any(
+                _node_has_custom_format(arg)
+                for arg in (
+                    *call_site.positional_arguments,
+                    *call_site.keyword_arguments.values(),
+                )
+            ):
+                self.add_message("bad-format-string", node=node)
             return
 
         positional_arguments = call_site.positional_arguments

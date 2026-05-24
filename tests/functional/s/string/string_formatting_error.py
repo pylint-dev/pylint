@@ -1,5 +1,5 @@
 """test string format error"""
-# pylint: disable=unsupported-binary-operation,line-too-long, consider-using-f-string
+# pylint: disable=unsupported-binary-operation,line-too-long,consider-using-f-string,too-few-public-methods
 
 PARG_1 = PARG_2 = PARG_3 = 1
 
@@ -27,3 +27,23 @@ def pprint():
     print("{:e} + {:l}".format(1, 1)) # [bad-format-character]
     print(f"{1:{2:q}}") # [bad-format-character]
     print("{:{:q}}".format(1, 2)) # [bad-format-character]
+
+
+# Custom ``__format__`` accepting arbitrary spec text (cf. ``astropy.units``,
+# ``astropy.units.Quantity``). The standard mini-format-spec parser doesn't
+# recognise the spec, but the value's class consumes it, so no warning.
+class _CustomFormat:
+    def __format__(self, spec):
+        return f"<{spec}>"
+
+CUSTOM = _CustomFormat()
+print(f"{CUSTOM:latex}")
+print(f"{CUSTOM:cds}")
+print(f"prefix [{CUSTOM:latex}] suffix")
+print("{:cds}".format(CUSTOM))
+# Mixed with a builtin format spec that's valid on its own.
+print(f"{CUSTOM:cds} {1:d}")
+# Whole-f-string silencing means a sibling int-with-bogus-spec is also
+# silenced; this is a documented limitation of the coarse-grained check
+# until per-FormattedValue spec parsing lands.
+print(f"{CUSTOM:cds} {1:p}")
