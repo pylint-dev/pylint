@@ -18,7 +18,7 @@ env:
   KEY_PREFIX: venv-primer
   # If you change this, also change PRIMER_CURRENT_INTERPRETER in
   # tests/testutils/_primer/test_primer.py
-  DEFAULT_PYTHON: "3.13"
+  DEFAULT_PYTHON: "3.14"
 
 permissions:
   contents: read

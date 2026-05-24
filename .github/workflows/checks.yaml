@@ -14,7 +14,7 @@ on:
 env:
   CACHE_VERSION: 3
   KEY_PREFIX: base-venv
-  DEFAULT_PYTHON: "3.13"
+  DEFAULT_PYTHON: "3.14"
   PRE_COMMIT_CACHE: ~/.cache/pre-commit
 
 concurrency:
