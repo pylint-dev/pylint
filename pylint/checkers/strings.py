@@ -313,7 +313,8 @@ def _static_spec_text(
     fv: nodes.FormattedValue, outer_col_offset: int
 ) -> tuple[str, int] | None:
     """Return ``(spec_text, offset)`` for ``fv.format_spec`` where ``offset``
-    is the index of the spec's first character relative to the outer f-string
+    is the index of the spec's first character relative to the outer f-string.
+
     content (i.e. ``as_string()[2:-1]``). Returns ``None`` if there is no
     spec or if the spec contains a dynamic ``FormattedValue`` part that we
     can't render statically.
@@ -338,7 +339,9 @@ def _static_spec_text(
 
 def _node_has_custom_format(field: nodes.NodeNG | None) -> bool:
     """Return True if ``field``'s inferred type is anything other than a
-    well-known builtin (or if inference fails). Such a value may define a
+    well-known builtin (or if inference fails).
+
+    Such a value may define a
     ``__format__`` that consumes arbitrary spec text (e.g. ``Quantity:cds``).
     """
     if field in (None, astroid.Uninferable):
