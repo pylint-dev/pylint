@@ -736,10 +736,10 @@ class NameChecker(_BasicChecker):
 
         name_arg = None
         for kw in keywords:
-            if not isinstance(kw.value, nodes.Const):
-                continue
             if variance == TypeVarVariance.double_variant:
                 pass
+            elif not isinstance(kw.value, nodes.Const):
+                continue
             elif kw.arg == "covariant" and kw.value.value:
                 variance = (
                     TypeVarVariance.covariant
@@ -753,7 +753,7 @@ class NameChecker(_BasicChecker):
                     else TypeVarVariance.double_variant
                 )
 
-            if kw.arg == "name":
+            if kw.arg == "name" and isinstance(kw.value, nodes.Const):
                 name_arg = kw.value.value
 
         if name_arg is None and args and isinstance(args[0], nodes.Const):
