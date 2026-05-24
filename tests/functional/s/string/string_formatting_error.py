@@ -70,3 +70,38 @@ SIZE = 100
 print(f"bytes {f'{OFFSET[0]}-{OFFSET[1]}'}/{SIZE}")
 # PEP 701 same-quote nesting requires Python 3.12+; see
 # string_formatting_error_py312.py for that case.
+
+
+# A non-PEP-3101 spec on a builtin type (which doesn't override __format__
+# with a custom mini-language) fires bad-format-string.
+print(f"{1:invalid}")  # [bad-format-string]
+print("{:invalid}".format(1))  # [bad-format-string]
+# A class object (not an instance) in the format field: at runtime this
+# raises TypeError, but pylint conservatively returns True (don't flag) so
+# user-defined formatters aren't tripped up.
+print(f"{int:s}")
+print(f"{int:invalid}")
+# Same conservative behaviour for the old %-style when the inferred value is
+# a class (not an Instance); the tuple form puts the class in the args list
+# and exercises arg_matches_format_type's non-Instance fallback.
+print("%d" % (int,))
+
+
+# Function parameters infer to Uninferable; both the spec-parse error path
+# (would emit bad-format-string) and the type-check path (would emit
+# bad-string-format-type) should bail silently.
+def fmt(x):
+    """Exercises the Uninferable-arg branches in _node_has_custom_format
+    and _check_formatted_value."""
+    print(f"{x:invalid}")
+    print(f"{x:d}")
+# The dynamic-precision spec ``f"{x:{prec}f}"`` is partly dynamic; the
+# spec-text walker bails out and emits nothing.
+PREC = 3
+print(f"{1.5:{PREC}f}")
+# A bool with !r conversion is type-checked as str against the format
+# character. ``!r`` of any value is a str so :s is fine.
+print(f"{True!r:s}")
+# Inner FormattedValue in spec (dynamic): no spec-text check; the inner
+# value's own spec is checked when iterating nested FormattedValues.
+print(f"{1.5:.{PREC}f}")
