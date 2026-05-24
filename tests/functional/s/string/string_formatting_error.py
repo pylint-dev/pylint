@@ -99,6 +99,10 @@ def fmt(x):
 print("{0:d}".format("abc"))  # [bad-string-format-type]
 print("{:d}".format("abc"))  # [bad-string-format-type]
 print("{name:d}".format(name="abc"))  # [bad-string-format-type]
+# str rejects ``:c`` and float rejects ``:s`` under the new-style format
+# rules; both must fire on explicit positional too (not just implicit).
+print("{0:c}".format("a"))  # [bad-string-format-type]
+print("{0:s}".format(1.5))  # [bad-string-format-type]
 
 
 # A spec containing ``%`` is treated as a strftime-style pattern: no warning

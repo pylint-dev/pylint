@@ -25,3 +25,5 @@ bad-format-string:78:6:78:28::Invalid format string:UNDEFINED
 bad-string-format-type:99:6:99:27::Argument 'builtins.str' does not match format type 'd':UNDEFINED
 bad-string-format-type:100:6:100:26::Argument 'builtins.str' does not match format type 'd':UNDEFINED
 bad-string-format-type:101:6:101:35::Argument 'builtins.str' does not match format type 'd':UNDEFINED
+bad-string-format-type:104:6:104:25::Argument 'builtins.str' does not match format type 'c':UNDEFINED
+bad-string-format-type:105:6:105:25::Argument 'builtins.float' does not match format type 's':UNDEFINED
