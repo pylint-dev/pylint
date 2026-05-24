@@ -653,24 +653,9 @@ class StringFormatChecker(BaseChecker):
             i = int(s_i)
             if i >= len(positional_arguments):
                 continue
-            argname = positional_arguments[i]
-            arg_type = utils.safe_infer(argname)
-
-            conversion, format_type = parse.explicit_types[str(i)]
-            if conversion:
-                format_type = conversion
-
-            if (
-                format_type is not None
-                and arg_type is not None
-                and not isinstance(arg_type, util.UninferableBase)
-                and not arg_matches_format_type(arg_type, format_type)
-            ):
-                self.add_message(
-                    "bad-string-format-type",
-                    node=node,
-                    args=(arg_type.pytype(), format_type),
-                )
+            self._emit_if_type_mismatch(
+                node, positional_arguments[i], parse.explicit_types[str(i)]
+            )
 
     def _emit_if_type_mismatch(
         self,
