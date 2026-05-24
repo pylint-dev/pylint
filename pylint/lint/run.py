@@ -191,7 +191,7 @@ group are mutually exclusive.",
                 sys.exit(code)
             return
 
-        # Display help if only internal checks enabled (`--disable=all`)
+        # Exit early when every user-visible message is disabled (e.g. `--disable=all`)
         disable_all_msg_set = set(
             msg.symbol for msg in linter.msgs_store.messages
         ) - set(msg[1] for msg in linter.default_enabled_messages.values())
