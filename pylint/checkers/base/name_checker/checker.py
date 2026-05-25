@@ -700,21 +700,31 @@ class NameChecker(_BasicChecker):
     @staticmethod
     def _assigns_typealias(node: nodes.NodeNG | None) -> bool:
         """Check if a node is assigning a TypeAlias."""
-        inferred = utils.safe_infer(node)
-        if isinstance(inferred, (nodes.ClassDef, bases.UnionType)):
-            qname = inferred.qname()
-            if qname == "typing.TypeAlias":
-                return True
-            if qname in {".Union", "builtins.Union", "builtins.UnionType"}:
-                # Union is a special case because it can be used as a type alias
-                # or as a type annotation. We only want to check the former.
-                assert node is not None
-                return not isinstance(node.parent, nodes.AnnAssign)
-        elif isinstance(inferred, nodes.FunctionDef):
-            # TODO: when py3.12 is minimum, remove this condition
-            # TypeAlias became a class in python 3.12
-            if inferred.qname() == "typing.TypeAlias":
-                return True
+        if node is None:
+            return False
+        try:
+            inferred_values = list(node.infer())
+        except astroid.InferenceError:
+            return False
+        # ``typing_extensions.TypeAlias`` yields both a ClassDef (typing brain
+        # remap) and a FunctionDef (legacy typing_extensions impl), so the
+        # previous ``safe_infer`` would return None. Walk every inference result.
+        for inferred in inferred_values:
+            if isinstance(inferred, (nodes.ClassDef, bases.UnionType)):
+                qname = inferred.qname()
+                if qname == "typing.TypeAlias":
+                    return True
+                if qname in {".Union", "builtins.Union", "builtins.UnionType"}:
+                    # Union is a special case because it can be used as a type
+                    # alias or as a type annotation. We only want to check the
+                    # former.
+                    if not isinstance(node.parent, nodes.AnnAssign):
+                        return True
+            elif isinstance(inferred, nodes.FunctionDef):
+                # TODO: when py3.12 is minimum, remove this condition
+                # TypeAlias became a class in python 3.12
+                if inferred.qname() == "typing.TypeAlias":
+                    return True
         return False
 
     def _check_typevar(self, name: str, node: nodes.AssignName) -> None:

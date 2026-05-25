@@ -1,0 +1,4 @@
+Fix a false positive for ``invalid-name`` when ``TypeAlias`` is imported from
+``typing_extensions`` instead of ``typing``.
+
+Closes #11013
