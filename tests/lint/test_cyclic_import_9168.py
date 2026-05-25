@@ -22,13 +22,10 @@ def test_cyclic_import_detected_in_package(tmp_path: Path) -> None:
     pkg = tmp_path / "module1"
     pkg.mkdir()
     (pkg / "__init__.py").write_text(
-        "from module1.base import Base\n"
-        "from module1.derived import Derived\n"
+        "from module1.base import Base\n" "from module1.derived import Derived\n"
     )
     (pkg / "base.py").write_text(
-        "class Base:\n"
-        "    def __init__(self):\n"
-        "        print('hello from base')\n"
+        "class Base:\n" "    def __init__(self):\n" "        print('hello from base')\n"
     )
     (pkg / "derived.py").write_text(
         "from module1 import Base\n"
@@ -62,6 +59,5 @@ def test_cyclic_import_detected_in_package(tmp_path: Path) -> None:
     )
     output = process.stdout + process.stderr
     assert "cyclic-import" in output, (
-        f"Expected cyclic-import to be reported on {sys.platform}, "
-        f"got: {output!r}"
+        f"Expected cyclic-import to be reported on {sys.platform}, " f"got: {output!r}"
     )
