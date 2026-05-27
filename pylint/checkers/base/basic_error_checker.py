@@ -640,6 +640,9 @@ class BasicErrorChecker(_BasicChecker):
                     ):
                         return
 
+            dummy_variables_rgx = self.linter.config.dummy_variables_rgx
+            if dummy_variables_rgx and dummy_variables_rgx.match(node.name):
+                return
             self.add_message(
                 "function-redefined",
                 node=node,
