@@ -470,8 +470,8 @@ def _emit_no_member(
             # Renamed in Python 3.10 to `EnumType`
             if metaclass and metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}:
                 return not _enum_has_attribute(owner, node)
-        if owner.has_dynamic_getattr():
-            return False
+        # Note: owners with a dynamic ``__getattr__`` are handled earlier, in
+        # ``visit_attribute``, where the whole check is skipped.
         if not has_known_bases(owner):
             return False
 
@@ -1117,6 +1117,18 @@ accessed. Python regular expressions are accepted.",
                 self.linter.config.ignored_modules,
             ):
                 continue
+
+            # If any of the inferred owners defines a dynamic ``__getattr__``
+            # the attribute may exist at runtime. Since the access is
+            # considered correct as soon as a single inferred owner could have
+            # the attribute, bail out of the whole check instead of skipping
+            # only this owner (which would still emit a false positive for the
+            # other inferred owners).
+            if (
+                isinstance(owner, (astroid.Instance, nodes.ClassDef))
+                and owner.has_dynamic_getattr()
+            ):
+                return
 
             qualname = f"{owner.pytype()}.{node.attrname}"
             if any(
