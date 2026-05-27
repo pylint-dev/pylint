@@ -158,7 +158,7 @@ def _get_demo_code_for(data_path: Path, example_type: ExampleType) -> str:
                 files.append(f"""\
 ``{file.name}``:
 
-.. literalinclude:: /{file.relative_to(Path.cwd())}
+.. literalinclude:: /{file.relative_to(PYLINT_BASE_PATH / "doc")}
     :language: python
 
 """)
@@ -209,14 +209,14 @@ def _get_python_code_as_rst(code_path: Path) -> str:
     if not code_path.exists():
         return ""
     return f"""\
-.. literalinclude:: /{code_path.relative_to(Path.cwd())}
+.. literalinclude:: /{code_path.relative_to(PYLINT_BASE_PATH / "doc")}
    :language: python
 """
 
 
 def _get_ini_as_rst(code_path: Path) -> str:
     return f"""\
-.. literalinclude:: /{code_path.relative_to(Path.cwd())}
+.. literalinclude:: /{code_path.relative_to(PYLINT_BASE_PATH / "doc")}
     :language: ini
 """
 
