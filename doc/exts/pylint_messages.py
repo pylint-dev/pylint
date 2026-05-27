@@ -23,7 +23,7 @@ from pylint.lint import PyLinter
 from pylint.message import MessageDefinition
 from pylint.message._deleted_message_ids import (
     DELETED_MESSAGES_IDS,
-    DeletedMessageData,
+    DeletedMessage,
 )
 from pylint.utils import get_rst_title
 
@@ -84,7 +84,9 @@ tuples of (new name symbol, new name category).
 """
 
 
-DeletedMessagesDict = dict[str, list[DeletedMessageData]]
+# For each category, a flat list of (message, removal reason URL,
+# canonical-symbol-if-this-is-an-old-name) tuples.
+DeletedMessagesDict = dict[str, list[tuple[DeletedMessage, str, str | None]]]
 
 
 def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
@@ -286,9 +288,9 @@ def _get_all_messages(linter: PyLinter) -> tuple[MessagesDict, OldMessagesDict]:
 def _get_deleted_messages() -> DeletedMessagesDict:
     """Collect all permanently deleted messages indexed by category.
 
-    Each deleted symbol gets one entry; if it had earlier (renamed) symbols,
-    those are emitted as separate entries with ``deleted_symbol`` set so that
-    redirect pages can point readers at the canonical deleted page.
+    Each canonical deleted symbol gets one entry; pre-rename old names are
+    emitted as separate entries with ``is_old_name_of`` set to the surviving
+    symbol so that redirect pages can point readers at the canonical page.
     """
     deleted: DeletedMessagesDict = {
         "fatal": [],
@@ -306,15 +308,7 @@ def _get_deleted_messages() -> DeletedMessagesDict:
                 continue
             seen.add(key)
             category = MSG_TYPES_DOC[message.msgid[0]]
-            deleted[category].append(
-                DeletedMessageData(
-                    message.msgid,
-                    message.symbol,
-                    reason,
-                    removed_in=message.removed_in,
-                    original_message=message.original_message,
-                )
-            )
+            deleted[category].append((message, reason, None))
             for old_msgid, old_symbol in message.old_names:
                 old_key = (old_msgid, old_symbol)
                 if old_key in seen:
@@ -322,12 +316,7 @@ def _get_deleted_messages() -> DeletedMessagesDict:
                 seen.add(old_key)
                 old_category = MSG_TYPES_DOC[old_msgid[0]]
                 deleted[old_category].append(
-                    DeletedMessageData(
-                        old_msgid,
-                        old_symbol,
-                        reason,
-                        deleted_symbol=message.symbol,
-                    )
+                    (DeletedMessage(old_msgid, old_symbol), reason, message.symbol)
                 )
     return deleted
 
@@ -492,10 +481,11 @@ Pylint can emit the following messages:
                 f"   {category}/{old_message[0]}\n" for old_message in old_messages
             )
             deleted_messages = sorted(
-                deleted_messages_dict[category], key=lambda item: item.symbol
+                deleted_messages_dict[category], key=lambda item: item[0].symbol
             )
             deleted_messages_string = "".join(
-                f"   {category}/{entry.symbol}\n" for entry in deleted_messages
+                f"   {category}/{message.symbol}\n"
+                for message, _reason, _is_old_name_of in deleted_messages
             )
             # Write list per category. We need the '-category' suffix in the reference
             # because 'fatal' is also a message's symbol
@@ -536,32 +526,37 @@ def _write_deleted_message_pages(deleted_messages: DeletedMessagesDict) -> None:
         category_dir = PYLINT_MESSAGES_PATH / category
         if not category_dir.exists():
             category_dir.mkdir(parents=True, exist_ok=True)
-        for entry in entries:
-            _write_single_deleted_message_page(category_dir, entry)
+        for message, reason, is_old_name_of in entries:
+            _write_single_deleted_message_page(
+                category_dir, message, reason, is_old_name_of
+            )
 
 
 def _write_single_deleted_message_page(
-    category_dir: Path, entry: DeletedMessageData
+    category_dir: Path,
+    message: DeletedMessage,
+    reason: str,
+    is_old_name_of: str | None,
 ) -> None:
-    title = f"{entry.symbol} / {entry.msgid}"
-    sections: list[str] = [f".. _{entry.symbol}:", "", get_rst_title(title, "=")]
+    title = f"{message.symbol} / {message.msgid}"
+    sections: list[str] = [f".. _{message.symbol}:", "", get_rst_title(title, "=")]
 
-    if entry.deleted_symbol is None:
+    if is_old_name_of is None:
         sections.append(
-            f"``{entry.symbol}`` has been permanently removed from pylint. "
-            f"See {entry.reason} for the rationale."
+            f"``{message.symbol}`` has been permanently removed from pylint. "
+            f"See {reason} for the rationale."
         )
     else:
         sections.append(
-            f"``{entry.symbol}`` was an earlier name for ``{entry.deleted_symbol}``, "
+            f"``{message.symbol}`` was an earlier name for ``{is_old_name_of}``, "
             "which has since been permanently removed from pylint. "
-            f"See {entry.reason} for the rationale."
+            f"See {reason} for the rationale."
         )
 
-    if entry.removed_in is not None:
-        sections.extend(["", f"Removed in pylint {entry.removed_in}."])
+    if message.removed_in is not None:
+        sections.extend(["", f"Removed in pylint {message.removed_in}."])
 
-    if entry.original_message is not None:
+    if message.original_message is not None:
         sections.extend(
             [
                 "",
@@ -569,11 +564,11 @@ def _write_single_deleted_message_page(
                 "",
                 ".. code-block:: text",
                 "",
-                *(f"   {line}" for line in entry.original_message.splitlines()),
+                *(f"   {line}" for line in message.original_message.splitlines()),
             ]
         )
 
-    (category_dir / f"{entry.symbol}.rst").write_text(
+    (category_dir / f"{message.symbol}.rst").write_text(
         "\n".join(sections) + "\n", encoding="utf-8"
     )
 
