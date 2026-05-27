@@ -21,6 +21,7 @@ from pylint.constants import MSG_TYPES
 from pylint.extensions import initialize as initialize_extensions
 from pylint.lint import PyLinter
 from pylint.message import MessageDefinition
+from pylint.message._deleted_message_ids import DELETED_MESSAGES_IDS
 from pylint.utils import get_rst_title
 
 PYLINT_BASE_PATH = Path(__file__).resolve().parent.parent.parent
@@ -78,6 +79,21 @@ OldMessagesDict = dict[str, defaultdict[tuple[str, str], list[tuple[str, str]]]]
 """DefaultDict is indexed by tuples of (old name symbol, old name id) and values are
 tuples of (new name symbol, new name category).
 """
+
+
+class DeletedMessageData(NamedTuple):
+    """A permanently removed message, used for documentation generation only."""
+
+    msgid: str
+    symbol: str
+    reason: str
+    deleted_symbol: str | None = None
+    """If set, this entry is an old name of a deleted message; the value is the
+    most recent symbol the message had before being deleted.
+    """
+
+
+DeletedMessagesDict = dict[str, list[DeletedMessageData]]
 
 
 def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
@@ -276,6 +292,46 @@ def _get_all_messages(linter: PyLinter) -> tuple[MessagesDict, OldMessagesDict]:
     return messages_dict, old_messages
 
 
+def _get_deleted_messages() -> DeletedMessagesDict:
+    """Collect all permanently deleted messages indexed by category.
+
+    Each deleted symbol gets one entry; if it had earlier (renamed) symbols,
+    those are emitted as separate entries with ``deleted_symbol`` set so that
+    redirect pages can point readers at the canonical deleted page.
+    """
+    deleted: DeletedMessagesDict = {
+        "fatal": [],
+        "error": [],
+        "warning": [],
+        "convention": [],
+        "refactor": [],
+        "information": [],
+    }
+    seen: set[tuple[str, str]] = set()
+    for reason, messages in DELETED_MESSAGES_IDS.items():
+        for message in messages:
+            key = (message.msgid, message.symbol)
+            if key in seen:
+                continue
+            seen.add(key)
+            category = MSG_TYPES_DOC[message.msgid[0]]
+            deleted[category].append(
+                DeletedMessageData(message.msgid, message.symbol, reason)
+            )
+            for old_msgid, old_symbol in message.old_names:
+                old_key = (old_msgid, old_symbol)
+                if old_key in seen:
+                    continue
+                seen.add(old_key)
+                old_category = MSG_TYPES_DOC[old_msgid[0]]
+                deleted[old_category].append(
+                    DeletedMessageData(
+                        old_msgid, old_symbol, reason, deleted_symbol=message.symbol
+                    )
+                )
+    return deleted
+
+
 def _get_message_data_path(message: MessageDefinition) -> Path:
     return PYLINT_MESSAGES_DATA_PATH / message.symbol[0] / message.symbol
 
@@ -393,7 +449,9 @@ def _write_single_message_page(category_dir: Path, message: MessageData) -> None
 
 
 def _write_messages_list_page(
-    messages_dict: MessagesDict, old_messages_dict: OldMessagesDict
+    messages_dict: MessagesDict,
+    old_messages_dict: OldMessagesDict,
+    deleted_messages_dict: DeletedMessagesDict,
 ) -> None:
     """Create or overwrite the page with the list of all messages."""
     messages_file = os.path.join(PYLINT_MESSAGES_PATH, "messages_overview.rst")
@@ -433,6 +491,12 @@ Pylint can emit the following messages:
             old_messages_string = "".join(
                 f"   {category}/{old_message[0]}\n" for old_message in old_messages
             )
+            deleted_messages = sorted(
+                deleted_messages_dict[category], key=lambda item: item.symbol
+            )
+            deleted_messages_string = "".join(
+                f"   {category}/{entry.symbol}\n" for entry in deleted_messages
+            )
             # Write list per category. We need the '-category' suffix in the reference
             # because 'fatal' is also a message's symbol
             stream.write(f"""
@@ -453,6 +517,50 @@ All renamed messages in the {category} category:
    :titlesonly:
 
 {old_messages_string}""")
+            if deleted_messages_string:
+                stream.write(f"""
+All permanently deleted messages in the {category} category:
+
+.. toctree::
+   :maxdepth: 1
+   :titlesonly:
+
+{deleted_messages_string}""")
+
+
+def _write_deleted_message_pages(deleted_messages: DeletedMessagesDict) -> None:
+    """Create one redirect-style page per permanently deleted symbol."""
+    for category, entries in deleted_messages.items():
+        if not entries:
+            continue
+        category_dir = PYLINT_MESSAGES_PATH / category
+        if not category_dir.exists():
+            category_dir.mkdir(parents=True, exist_ok=True)
+        for entry in entries:
+            _write_single_deleted_message_page(category_dir, entry)
+
+
+def _write_single_deleted_message_page(
+    category_dir: Path, entry: DeletedMessageData
+) -> None:
+    title = f"{entry.symbol} / {entry.msgid}"
+    if entry.deleted_symbol is None:
+        body = (
+            f"'{entry.symbol}' has been permanently removed from pylint. "
+            f"See {entry.reason} for the rationale."
+        )
+    else:
+        body = (
+            f"'{entry.symbol}' was an earlier name for '{entry.deleted_symbol}', "
+            "which has since been permanently removed from pylint. "
+            f"See {entry.reason} for the rationale."
+        )
+    content = f""".. _{entry.symbol}:
+
+{get_rst_title(title, "=")}
+{body}
+"""
+    (category_dir / f"{entry.symbol}.rst").write_text(content, encoding="utf-8")
 
 
 def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
@@ -499,13 +607,15 @@ def build_messages_pages(app: Sphinx | None) -> None:
     linter = PyLinter()
     _register_all_checkers_and_extensions(linter)
     messages, old_messages = _get_all_messages(linter)
+    deleted_messages = _get_deleted_messages()
 
     # Write message and category pages
     _write_message_page(messages)
-    _write_messages_list_page(messages, old_messages)
+    _write_messages_list_page(messages, old_messages, deleted_messages)
 
     # Write redirect pages
     _write_redirect_pages(old_messages)
+    _write_deleted_message_pages(deleted_messages)
 
 
 def setup(app: Sphinx) -> dict[str, bool]:
