@@ -1,0 +1,6 @@
+Permanently removed messages (such as ``print-statement`` or ``apply-builtin``)
+now have their own page in the documentation, with a link to the change that
+removed them. They are also listed in the messages overview alongside renamed
+messages.
+
+Closes #6670
