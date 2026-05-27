@@ -21,7 +21,10 @@ from pylint.constants import MSG_TYPES
 from pylint.extensions import initialize as initialize_extensions
 from pylint.lint import PyLinter
 from pylint.message import MessageDefinition
-from pylint.message._deleted_message_ids import DELETED_MESSAGES_IDS
+from pylint.message._deleted_message_ids import (
+    DELETED_MESSAGES_IDS,
+    DeletedMessageData,
+)
 from pylint.utils import get_rst_title
 
 PYLINT_BASE_PATH = Path(__file__).resolve().parent.parent.parent
@@ -79,20 +82,6 @@ OldMessagesDict = dict[str, defaultdict[tuple[str, str], list[tuple[str, str]]]]
 """DefaultDict is indexed by tuples of (old name symbol, old name id) and values are
 tuples of (new name symbol, new name category).
 """
-
-
-class DeletedMessageData(NamedTuple):
-    """A permanently removed message, used for documentation generation only."""
-
-    msgid: str
-    symbol: str
-    reason: str
-    removed_in: str | None = None
-    original_message: str | None = None
-    deleted_symbol: str | None = None
-    """If set, this entry is an old name of a deleted message; the value is the
-    most recent symbol the message had before being deleted.
-    """
 
 
 DeletedMessagesDict = dict[str, list[DeletedMessageData]]
