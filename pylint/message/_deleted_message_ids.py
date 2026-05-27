@@ -23,25 +23,6 @@ class DeletedMessage(NamedTuple):
     """
 
 
-class DeletedMessageData(NamedTuple):
-    """A permanently removed message, used for documentation generation only.
-
-    A flattened view of ``DeletedMessage``: each entry in this form represents
-    either a canonical deleted symbol (``deleted_symbol=None``) or one of its
-    pre-rename old names (``deleted_symbol`` pointing at the canonical one).
-    """
-
-    msgid: str
-    symbol: str
-    reason: str
-    removed_in: str | None = None
-    original_message: str | None = None
-    deleted_symbol: str | None = None
-    """If set, this entry is an old name of a deleted message; the value is the
-    most recent symbol the message had before being deleted.
-    """
-
-
 DELETED_MSGID_PREFIXES: list[int] = []
 
 # The ``removed_in`` field is the first release tag containing the removal commit
