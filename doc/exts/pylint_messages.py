@@ -87,6 +87,8 @@ class DeletedMessageData(NamedTuple):
     msgid: str
     symbol: str
     reason: str
+    removed_in: str | None = None
+    original_message: str | None = None
     deleted_symbol: str | None = None
     """If set, this entry is an old name of a deleted message; the value is the
     most recent symbol the message had before being deleted.
@@ -316,7 +318,13 @@ def _get_deleted_messages() -> DeletedMessagesDict:
             seen.add(key)
             category = MSG_TYPES_DOC[message.msgid[0]]
             deleted[category].append(
-                DeletedMessageData(message.msgid, message.symbol, reason)
+                DeletedMessageData(
+                    message.msgid,
+                    message.symbol,
+                    reason,
+                    removed_in=message.removed_in,
+                    original_message=message.original_message,
+                )
             )
             for old_msgid, old_symbol in message.old_names:
                 old_key = (old_msgid, old_symbol)
@@ -326,7 +334,10 @@ def _get_deleted_messages() -> DeletedMessagesDict:
                 old_category = MSG_TYPES_DOC[old_msgid[0]]
                 deleted[old_category].append(
                     DeletedMessageData(
-                        old_msgid, old_symbol, reason, deleted_symbol=message.symbol
+                        old_msgid,
+                        old_symbol,
+                        reason,
+                        deleted_symbol=message.symbol,
                     )
                 )
     return deleted
@@ -544,23 +555,38 @@ def _write_single_deleted_message_page(
     category_dir: Path, entry: DeletedMessageData
 ) -> None:
     title = f"{entry.symbol} / {entry.msgid}"
+    sections: list[str] = [f".. _{entry.symbol}:", "", get_rst_title(title, "=")]
+
     if entry.deleted_symbol is None:
-        body = (
-            f"'{entry.symbol}' has been permanently removed from pylint. "
+        sections.append(
+            f"``{entry.symbol}`` has been permanently removed from pylint. "
             f"See {entry.reason} for the rationale."
         )
     else:
-        body = (
-            f"'{entry.symbol}' was an earlier name for '{entry.deleted_symbol}', "
+        sections.append(
+            f"``{entry.symbol}`` was an earlier name for ``{entry.deleted_symbol}``, "
             "which has since been permanently removed from pylint. "
             f"See {entry.reason} for the rationale."
         )
-    content = f""".. _{entry.symbol}:
 
-{get_rst_title(title, "=")}
-{body}
-"""
-    (category_dir / f"{entry.symbol}.rst").write_text(content, encoding="utf-8")
+    if entry.removed_in is not None:
+        sections.extend(["", f"Removed in pylint {entry.removed_in}."])
+
+    if entry.original_message is not None:
+        sections.extend(
+            [
+                "",
+                "Original message text:",
+                "",
+                ".. code-block:: text",
+                "",
+                *(f"   {line}" for line in entry.original_message.splitlines()),
+            ]
+        )
+
+    (category_dir / f"{entry.symbol}.rst").write_text(
+        "\n".join(sections) + "\n", encoding="utf-8"
+    )
 
 
 def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
