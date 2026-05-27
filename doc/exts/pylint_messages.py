@@ -241,23 +241,23 @@ DELETED_MESSAGE_METADATA: dict[str, tuple[str, str | None]] = {
         "Using a variable that was bound inside a comprehension",
     ),
     # PR #3577 / #3578 — whitespace and indentation message cleanup
-    "bad-whitespace": ("2.6.0", "%s space %s %s %s\n%s"),
-    "mixed-indentation": ("2.6.0", "Found indentation with %ss instead of %ss"),
+    "bad-whitespace": ("2.6.0", "No space allowed before bracket"),
+    "mixed-indentation": ("2.6.0", "Found indentation with tabs instead of spaces"),
     # PR #3571 — bad-continuation removal
-    "bad-continuation": ("2.6.0", "Wrong %s indentation%s%s.\n%s%s"),
+    "bad-continuation": ("2.6.0", "Wrong continued indentation (add 4 spaces)."),
     # pylint 1.4.3 — direct commits, no merging PR
     "star-args": ("1.4.3", "Used * or ** magic"),
     "abstract-class-not-used": ("1.4.3", "Abstract class not referenced"),
     "abstract-class-little-used": (
         "1.4.3",
-        "Abstract class is only referenced %s times",
+        "Abstract class is only referenced 1 times",
     ),
     # Issue #2409 — no-init removed because it was never emitted
     "no-init": ("2.14.0", "Class has no __init__ method"),
     # PR #6421 — assign-to-new-keyword
     "assign-to-new-keyword": (
         "2.14.0",
-        "Name %s will become a keyword in Python %s",
+        "Name 'async' will become a keyword in Python 3.7",
     ),
 }
 
@@ -714,23 +714,23 @@ def _write_single_deleted_message_page(
     title = f"{message.symbol} / {message.msgid}"
     sections: list[str] = [f".. _{message.symbol}:", "", get_rst_title(title, "=")]
 
+    canonical = is_old_name_of if is_old_name_of is not None else message.symbol
+    removed_in, original_message = DELETED_MESSAGE_METADATA.get(canonical, (None, None))
+    removal = (
+        f"has been removed in pylint {removed_in}"
+        if removed_in is not None
+        else "has been removed from pylint"
+    )
+
     if is_old_name_of is None:
         sections.append(
-            f"``{message.symbol}`` has been permanently removed from pylint. "
-            f"See {reason} for the rationale."
+            f"``{message.symbol}`` {removal}. See {reason} for the rationale."
         )
     else:
         sections.append(
             f"``{message.symbol}`` was an earlier name for ``{is_old_name_of}``, "
-            "which has since been permanently removed from pylint. "
-            f"See {reason} for the rationale."
+            f"which {removal}. See {reason} for the rationale."
         )
-
-    removed_in, original_message = DELETED_MESSAGE_METADATA.get(
-        message.symbol, (None, None)
-    )
-    if removed_in is not None:
-        sections.extend(["", f"Removed in pylint {removed_in}."])
 
     if original_message is not None:
         sections.extend(
