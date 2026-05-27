@@ -89,6 +89,179 @@ tuples of (new name symbol, new name category).
 DeletedMessagesDict = dict[str, list[tuple[DeletedMessage, str, str | None]]]
 
 
+# Documentation-only metadata for permanently removed messages, keyed by symbol.
+# Values are ``(removed_in, original_message)``:
+# * ``removed_in`` is the first release tag containing the removal commit
+#   (``git tag --contains <commit> | sort -V | head -1``);
+# * ``original_message`` is the short message text the symbol last emitted,
+#   recovered from ``git show <removal-commit>~1:<source>``.
+# Old-name entries (renames that happened before deletion) do not appear here:
+# their page only points readers at the surviving symbol's page.
+DELETED_MESSAGE_METADATA: dict[str, tuple[str, str | None]] = {
+    # PR #4942 — Python 3 porting checker removal, first absent in pylint 2.11.0
+    "print-statement": ("2.11.0", "print statement used"),
+    "parameter-unpacking": ("2.11.0", "Parameter unpacking specified"),
+    "unpacking-in-except": (
+        "2.11.0",
+        "Implicit unpacking of exceptions is not supported in Python 3",
+    ),
+    "old-raise-syntax": (
+        "2.11.0",
+        "Use raise ErrorClass(args) instead of raise ErrorClass, args.",
+    ),
+    "backtick": ("2.11.0", "Use of the `` operator"),
+    "import-star-module-level": (
+        "2.11.0",
+        "Import * only allowed at module level",
+    ),
+    "apply-builtin": ("2.11.0", "apply built-in referenced"),
+    "basestring-builtin": ("2.11.0", "basestring built-in referenced"),
+    "buffer-builtin": ("2.11.0", "buffer built-in referenced"),
+    "cmp-builtin": ("2.11.0", "cmp built-in referenced"),
+    "coerce-builtin": ("2.11.0", "coerce built-in referenced"),
+    "execfile-builtin": ("2.11.0", "execfile built-in referenced"),
+    "file-builtin": ("2.11.0", "file built-in referenced"),
+    "long-builtin": ("2.11.0", "long built-in referenced"),
+    "raw_input-builtin": ("2.11.0", None),
+    "reduce-builtin": ("2.11.0", "reduce built-in referenced"),
+    "standarderror-builtin": ("2.11.0", "StandardError built-in referenced"),
+    "unicode-builtin": ("2.11.0", "unicode built-in referenced"),
+    "xrange-builtin": ("2.11.0", "xrange built-in referenced"),
+    "coerce-method": ("2.11.0", "__coerce__ method defined"),
+    "delslice-method": ("2.11.0", "__delslice__ method defined"),
+    "getslice-method": ("2.11.0", "__getslice__ method defined"),
+    "setslice-method": ("2.11.0", "__setslice__ method defined"),
+    "no-absolute-import": (
+        "2.11.0",
+        "import missing `from __future__ import absolute_import`",
+    ),
+    "old-division": ("2.11.0", "division w/o __future__ statement"),
+    "dict-iter-method": ("2.11.0", "Calling a dict.iter*() method"),
+    "dict-view-method": ("2.11.0", "Calling a dict.view*() method"),
+    "next-method-called": ("2.11.0", "Called a next() method on an object"),
+    "metaclass-assignment": (
+        "2.11.0",
+        "Assigning to a class's __metaclass__ attribute",
+    ),
+    "indexing-exception": (
+        "2.11.0",
+        "Indexing exceptions will not work on Python 3",
+    ),
+    "raising-string": ("2.11.0", "Raising a string exception"),
+    "reload-builtin": ("2.11.0", "reload built-in referenced"),
+    "oct-method": ("2.11.0", "__oct__ method defined"),
+    "hex-method": ("2.11.0", "__hex__ method defined"),
+    "nonzero-method": ("2.11.0", "__nonzero__ method defined"),
+    "cmp-method": ("2.11.0", "__cmp__ method defined"),
+    "input-builtin": ("2.11.0", "input built-in referenced"),
+    "round-builtin": ("2.11.0", "round built-in referenced"),
+    "intern-builtin": ("2.11.0", "intern built-in referenced"),
+    "unichr-builtin": ("2.11.0", "unichr built-in referenced"),
+    "map-builtin-not-iterating": (
+        "2.11.0",
+        "map built-in referenced when not iterating",
+    ),
+    "zip-builtin-not-iterating": (
+        "2.11.0",
+        "zip built-in referenced when not iterating",
+    ),
+    "range-builtin-not-iterating": (
+        "2.11.0",
+        "range built-in referenced when not iterating",
+    ),
+    "filter-builtin-not-iterating": (
+        "2.11.0",
+        "filter built-in referenced when not iterating",
+    ),
+    "using-cmp-argument": (
+        "2.11.0",
+        "Using the cmp argument for list.sort / sorted",
+    ),
+    "div-method": ("2.11.0", "__div__ method defined"),
+    "idiv-method": ("2.11.0", "__idiv__ method defined"),
+    "rdiv-method": ("2.11.0", "__rdiv__ method defined"),
+    "exception-message-attribute": (
+        "2.11.0",
+        "Exception.message removed in Python 3",
+    ),
+    "invalid-str-codec": ("2.11.0", "non-text encoding used in str.decode"),
+    "sys-max-int": ("2.11.0", "sys.maxint removed in Python 3"),
+    "bad-python3-import": ("2.11.0", "Module moved in Python 3"),
+    "deprecated-string-function": (
+        "2.11.0",
+        "Accessing a deprecated function on the string module",
+    ),
+    "deprecated-str-translate-call": (
+        "2.11.0",
+        "Using str.translate with deprecated deletechars parameters",
+    ),
+    "deprecated-itertools-function": (
+        "2.11.0",
+        "Accessing a deprecated function on the itertools module",
+    ),
+    "deprecated-types-field": (
+        "2.11.0",
+        "Accessing a deprecated fields on the types module",
+    ),
+    "next-method-defined": ("2.11.0", "next method defined"),
+    "dict-items-not-iterating": (
+        "2.11.0",
+        "dict.items referenced when not iterating",
+    ),
+    "dict-keys-not-iterating": (
+        "2.11.0",
+        "dict.keys referenced when not iterating",
+    ),
+    "dict-values-not-iterating": (
+        "2.11.0",
+        "dict.values referenced when not iterating",
+    ),
+    "deprecated-operator-function": (
+        "2.11.0",
+        "Accessing a removed attribute on the operator module",
+    ),
+    "deprecated-urllib-function": (
+        "2.11.0",
+        "Accessing a removed attribute on the urllib module",
+    ),
+    "xreadlines-attribute": (
+        "2.11.0",
+        "Accessing a removed xreadlines attribute",
+    ),
+    "deprecated-sys-function": (
+        "2.11.0",
+        "Accessing a removed attribute on the sys module",
+    ),
+    "exception-escape": (
+        "2.11.0",
+        "Using an exception object that was bound by an except handler",
+    ),
+    "comprehension-escape": (
+        "2.11.0",
+        "Using a variable that was bound inside a comprehension",
+    ),
+    # PR #3577 / #3578 — whitespace and indentation message cleanup
+    "bad-whitespace": ("2.6.0", "%s space %s %s %s\n%s"),
+    "mixed-indentation": ("2.6.0", "Found indentation with %ss instead of %ss"),
+    # PR #3571 — bad-continuation removal
+    "bad-continuation": ("2.6.0", "Wrong %s indentation%s%s.\n%s%s"),
+    # pylint 1.4.3 — direct commits, no merging PR
+    "star-args": ("1.4.3", "Used * or ** magic"),
+    "abstract-class-not-used": ("1.4.3", "Abstract class not referenced"),
+    "abstract-class-little-used": (
+        "1.4.3",
+        "Abstract class is only referenced %s times",
+    ),
+    # Issue #2409 — no-init removed because it was never emitted
+    "no-init": ("2.14.0", "Class has no __init__ method"),
+    # PR #6421 — assign-to-new-keyword
+    "assign-to-new-keyword": (
+        "2.14.0",
+        "Name %s will become a keyword in Python %s",
+    ),
+}
+
+
 def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
     """Registers all checkers and extensions found in the default folders."""
     initialize_checkers(linter)
@@ -553,10 +726,13 @@ def _write_single_deleted_message_page(
             f"See {reason} for the rationale."
         )
 
-    if message.removed_in is not None:
-        sections.extend(["", f"Removed in pylint {message.removed_in}."])
+    removed_in, original_message = DELETED_MESSAGE_METADATA.get(
+        message.symbol, (None, None)
+    )
+    if removed_in is not None:
+        sections.extend(["", f"Removed in pylint {removed_in}."])
 
-    if message.original_message is not None:
+    if original_message is not None:
         sections.extend(
             [
                 "",
@@ -564,7 +740,7 @@ def _write_single_deleted_message_page(
                 "",
                 ".. code-block:: text",
                 "",
-                *(f"   {line}" for line in message.original_message.splitlines()),
+                *(f"   {line}" for line in original_message.splitlines()),
             ]
         )
 
