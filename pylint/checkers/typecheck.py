@@ -604,6 +604,23 @@ def _enum_has_attribute(
     return node.attrname in enum_attributes
 
 
+def _get_local_callable(
+    node: nodes.NodeNG, attr: str
+) -> tuple[CallableObjects | None, bool, bool]:
+    try:
+        c = node.local_attr(attr)[-1]
+    except astroid.NotFoundError:
+        c = None
+    is_from_object = bool(c and c.parent.scope().name == "object")
+    is_from_builtins = bool(c and c.root().name in sys.builtin_module_names)
+    return c, is_from_object, is_from_builtins
+
+
+def _check_is_function_def(obj: Any) -> None:
+    if not isinstance(obj, nodes.FunctionDef):
+        raise ValueError
+
+
 def _determine_callable(
     callable_obj: nodes.NodeNG,
 ) -> tuple[CallableObjects, int, str]:
@@ -628,20 +645,25 @@ def _determine_callable(
         case nodes.Lambda():
             return callable_obj, parameters, "lambda"
         case nodes.ClassDef():
-            # Class instantiation, lookup __new__ instead.
-            # If we only find object.__new__, we can safely check __init__
-            # instead. If __new__ belongs to builtins, then we look
+            # Class instantiation, Check first for a metaclass __call__ definition.
+            # Then lookup __new__. If we only find object.__new__,
+            # we can safely check __init__ instead.
+            # If __new__ belongs to builtins, then we look
             # again for __init__ in the locals, since we won't have
             # argument information for the builtin __new__ function.
-            try:
-                # Use the last definition of __new__.
-                new = callable_obj.local_attr("__new__")[-1]
-            except astroid.NotFoundError:
-                new = None
 
-            from_object = new and new.parent.scope().name == "object"
-            from_builtins = new and new.root().name in sys.builtin_module_names
+            # Try to use the metaclass' __call__ if any.
+            meta = callable_obj.metaclass()
+            if meta and isinstance(meta, nodes.NodeNG):
+                meta_call, _, from_builtins = _get_local_callable(meta, "__call__")
+                if meta_call and not from_builtins:
+                    _check_is_function_def(meta_call)
+                    return meta_call, parameters, "class"
 
+            # Use the last definition of __new__.
+            new, from_object, from_builtins = _get_local_callable(
+                callable_obj, "__new__"
+            )
             if not new or from_object or from_builtins:
                 try:
                     # Use the last definition of __init__.
@@ -651,9 +673,7 @@ def _determine_callable(
             else:
                 callable_obj = new
 
-            if not isinstance(callable_obj, nodes.FunctionDef):
-                raise ValueError
-            # both have an extra implicit 'cls'/'self' argument.
+            _check_is_function_def(callable_obj)
             return callable_obj, parameters, "constructor"
 
     raise ValueError
