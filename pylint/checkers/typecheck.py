@@ -1154,6 +1154,12 @@ accessed. Python regular expressions are accepted.",
             ):
                 continue
 
+            if isinstance(owner, (nodes.TypeVar, nodes.TypeVarTuple, nodes.ParamSpec)):
+                # PEP 695 type parameters have no concrete type at
+                # static-analysis time, so we can't reason about their
+                # attributes.
+                continue
+
             # If any of the inferred owners defines a dynamic ``__getattr__``
             # the attribute may exist at runtime. Since the access is
             # considered correct as soon as a single inferred owner could have
