@@ -60,7 +60,7 @@ class JUnitReporter(BaseReporter):
             return
         suite_name = module or filepath
         # Pylint reports an ``__init__.py`` here as ``pkg.__init__``, but the
-        # messages raised in that file carry ``pkg`` as their module. Normalise
+        # messages raised in that file carry ``pkg`` as their module. Normalize
         # so the module and its messages are routed to the same testsuite.
         suite_name = suite_name.removesuffix(".__init__")
         self._linted_modules[suite_name] = filepath
