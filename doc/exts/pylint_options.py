@@ -45,10 +45,13 @@ DYNAMICALLY_DEFINED_OPTIONS: dict[str, dict[str, str]] = {
         # reStructuredText collapses consecutive regular spaces, hiding the
         # actual default. Wrap it in quotes and use en spaces (U+2002) in the
         # help so the four spaces stay visible in the rendered docs without
-        # altering the real default value or the CLI '--help' output.
+        # altering the real default value or the CLI '--help' output. The
+        # backslash in "\t" is doubled because reStructuredText treats a lone
+        # backslash as an escape character, which would otherwise render as a
+        # bare "t".
         "default": '"    "',
         "help": "String used as indentation unit. This is usually "
-        '"    " (4 spaces) or "\\t" (1 tab).',  # noqa: RUF001
+        '"    " (4 spaces) or "\\\\t" (1 tab).',  # noqa: RUF001
     },
     "py-version": {"default": "sys.version_info[:2]"},
     "spelling-dict": {
