@@ -106,7 +106,7 @@ class DeprecatedMixin(BaseChecker):
             # Calling entry point for deprecation check logic.
             self.check_deprecated_method(node, inferred)
 
-            if (
+            if (  # pylint: disable=too-many-boolean-expressions
                 isinstance(inferred, nodes.FunctionDef)
                 and inferred.qname() == "builtins.__import__"
                 and len(node.args) == 1
