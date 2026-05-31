@@ -426,6 +426,28 @@ SEQUENCE_TYPES = {
 }
 
 
+def _is_enum_owner(owner: astroid.Instance | nodes.ClassDef) -> bool:
+    """Return whether ``owner`` is an enum class or one of its members.
+
+    Enums expose a dynamic ``__getattr__`` through their metaclass, but it is
+    not invoked for attribute access on members, so -- unlike other owners with
+    a dynamic ``__getattr__`` -- they must still be checked for ``no-member``
+    (see https://github.com/pylint-dev/pylint/issues/2565).
+
+    Callers are expected to have already narrowed ``owner`` to
+    ``Instance | ClassDef``.
+    """
+    try:
+        metaclass = owner.metaclass()
+    except astroid.MroError:
+        return False
+    # ``EnumMeta`` was renamed to ``EnumType`` in Python 3.10.
+    return metaclass is not None and metaclass.qname() in {
+        "enum.EnumMeta",
+        "enum.EnumType",
+    }
+
+
 def _emit_no_member(
     node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr,
     owner: InferenceResult,
@@ -446,7 +468,7 @@ def _emit_no_member(
           AttributeError, Exception or bare except.
         * The node is guarded behind and `IF` or `IFExp` node
     """
-    # pylint: disable = too-many-return-statements, too-many-branches
+    # pylint: disable = too-many-return-statements
     if node_ignores_exception(node, AttributeError):
         return False
     if ignored_none and isinstance(owner, nodes.Const) and owner.value is None:
@@ -462,16 +484,10 @@ def _emit_no_member(
     if isinstance(owner, (astroid.Instance, nodes.ClassDef)):
         # Issue #2565: Don't ignore enums, as they have a `__getattr__` but it's not
         # invoked at this point.
-        try:
-            metaclass = owner.metaclass()
-        except astroid.MroError:
-            pass
-        else:
-            # Renamed in Python 3.10 to `EnumType`
-            if metaclass and metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}:
-                return not _enum_has_attribute(owner, node)
-        if owner.has_dynamic_getattr():
-            return False
+        if _is_enum_owner(owner):
+            return not _enum_has_attribute(owner, node)
+        # Note: non-enum owners with a dynamic ``__getattr__`` are handled
+        # earlier, in ``visit_attribute``, where the whole check is skipped.
         if not has_known_bases(owner):
             return False
 
@@ -1117,6 +1133,21 @@ accessed. Python regular expressions are accepted.",
                 self.linter.config.ignored_modules,
             ):
                 continue
+
+            # If any of the inferred owners defines a dynamic ``__getattr__``
+            # the attribute may exist at runtime. Since the access is
+            # considered correct as soon as a single inferred owner could have
+            # the attribute, bail out of the whole check instead of skipping
+            # only this owner (which would still emit a false positive for the
+            # other inferred owners). Enums are excluded: their ``__getattr__``
+            # lives on the metaclass and isn't invoked for member access, so
+            # they must still be checked (see issue #2565).
+            if (
+                isinstance(owner, (astroid.Instance, nodes.ClassDef))
+                and owner.has_dynamic_getattr()
+                and not _is_enum_owner(owner)
+            ):
+                return
 
             qualname = f"{owner.pytype()}.{node.attrname}"
             if any(
