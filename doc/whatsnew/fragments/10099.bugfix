@@ -1,0 +1,3 @@
+Fix a crash in ``consider-using-enumerate`` when the ``for`` loop target is an attribute (e.g. ``for self.idx in range(len(x))``) rather than a simple variable name.
+
+Closes #10099

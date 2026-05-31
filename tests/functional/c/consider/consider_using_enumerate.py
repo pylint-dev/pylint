@@ -83,3 +83,13 @@ def my_function(instance: MyClass):
     for i in range(len(instance.my_list)):  # [consider-using-enumerate]
         var = instance.my_list[i]
         print(var)
+
+
+# Crash regression: a non-name loop target (here an attribute on a parameter)
+# must not crash the checker. https://github.com/pylint-dev/pylint/issues/10099
+# The ``other[index]`` subscript in the body is required to reach the code path
+# that crashed (the checker only inspects bodies that subscript a name); do not
+# remove it or this stops covering the bug.
+def loop_into_attribute(obj, items, other, index):
+    for obj.idx in range(len(items)):  # no crash, no message
+        print(other[index])
