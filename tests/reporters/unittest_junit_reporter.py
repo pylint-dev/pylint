@@ -90,26 +90,80 @@ class TestJUnitReporterOutput:
         self, junit_linter: JUnitLinter
     ) -> None:
         output, reporter, linter = junit_linter
-        linter.set_current_module("package.clean_a", "package/clean_a.py")
-        linter.set_current_module("package.clean_b", "package/clean_b.py")
+        linter.set_current_module("clean_a", "clean_a.py")
+        linter.set_current_module("clean_b", "clean_b.py")
 
         reporter.display_messages(None)
 
         assert output.getvalue() == dedent("""\
             <?xml version='1.0' encoding='utf-8'?>
-            <testsuites tests="2" errors="0" failures="0">
-              <testsuite name="package.clean_a" tests="1" errors="0" failures="0">
-                <testcase name="package.clean_a:0:0" classname="pylint" file="package/clean_a.py" line="0">
-                  <system-out>All checks passed for: package/clean_a.py</system-out>
+            <testsuites tests="2" errors="0" failures="0" disabled="0" time="0">
+              <testsuite name="clean_a" tests="1" errors="0" failures="0" skipped="0" disabled="0" time="0">
+                <testcase name="clean_a:0:0" classname="pylint" file="clean_a.py">
+                  <system-out>All checks passed for: clean_a.py</system-out>
                 </testcase>
               </testsuite>
-              <testsuite name="package.clean_b" tests="1" errors="0" failures="0">
-                <testcase name="package.clean_b:0:0" classname="pylint" file="package/clean_b.py" line="0">
-                  <system-out>All checks passed for: package/clean_b.py</system-out>
+              <testsuite name="clean_b" tests="1" errors="0" failures="0" skipped="0" disabled="0" time="0">
+                <testcase name="clean_b:0:0" classname="pylint" file="clean_b.py">
+                  <system-out>All checks passed for: clean_b.py</system-out>
                 </testcase>
               </testsuite>
             </testsuites>
             """)
+
+    def test_failing_module_seen_twice_has_no_success_testcase(
+        self, junit_linter: JUnitLinter
+    ) -> None:
+        """A module with messages must not also report a passing testcase.
+
+        Pylint visits each module twice (collection then checking), so the
+        reporter sees ``set_current_module`` for a module before any of its
+        messages are handled. The clean-module detection must survive that.
+        """
+        output, reporter, linter = junit_linter
+        linter.set_current_module("package.bad", "bad.py")
+        linter.set_current_module("package.clean", "clean.py")
+        # Second pass over the same modules, still before any message arrives.
+        linter.set_current_module("package.bad", "bad.py")
+        linter.set_current_module("package.clean", "clean.py")
+        reporter.handle_message(_message(module="package.bad", line=1))
+
+        reporter.display_messages(None)
+
+        root = ET.fromstring(output.getvalue())
+        suites = {suite.get("name"): suite for suite in root.findall("testsuite")}
+        bad_cases = suites["package.bad"].findall("testcase")
+        assert [case.find("failure") is not None for case in bad_cases] == [True]
+        assert suites["package.bad"].get("tests") == "1"
+        assert suites["package.bad"].get("failures") == "1"
+        clean_cases = suites["package.clean"].findall("testcase")
+        assert len(clean_cases) == 1
+        assert clean_cases[0].find("failure") is None
+
+    def test_package_init_messages_share_one_testsuite(
+        self, junit_linter: JUnitLinter
+    ) -> None:
+        """An ``__init__.py`` must produce a single, correctly named testsuite.
+
+        Pylint announces a package init as ``pkg.__init__`` but the messages it
+        raises carry ``pkg`` as their module. Both must land in one ``pkg``
+        testsuite, without a spurious passing testcase for ``pkg.__init__``.
+        """
+        output, reporter, linter = junit_linter
+        linter.set_current_module("package.sub.__init__", "package/sub/__init__.py")
+        reporter.handle_message(
+            _message(module="package.sub", path="package/sub/__init__.py", line=3)
+        )
+
+        reporter.display_messages(None)
+
+        root = ET.fromstring(output.getvalue())
+        suite_names = [suite.get("name") for suite in root.findall("testsuite")]
+        assert suite_names == ["package.sub"]
+        suite = root.find("testsuite")
+        assert suite is not None
+        assert suite.get("failures") == "1"
+        assert "All checks passed" not in output.getvalue()
 
     def test_message_output_matches_golden_master(
         self, junit_linter: JUnitLinter, tmp_path: Path
@@ -132,9 +186,9 @@ class TestJUnitReporterOutput:
 
         assert output.getvalue() == dedent("""\
             <?xml version='1.0' encoding='utf-8'?>
-            <testsuites tests="1" errors="0" failures="1">
-              <testsuite name="package.bad" tests="1" errors="0" failures="1">
-                <testcase name="package.bad:2:4" classname="pylint" file="bad.py" line="2" category="convention">
+            <testsuites tests="1" errors="0" failures="1" disabled="0" time="0">
+              <testsuite name="package.bad" tests="1" errors="0" failures="1" skipped="0" disabled="0" time="0">
+                <testcase name="package.bad:2:4" classname="pylint" file="bad.py" line="2" class="convention">
                   <failure type="convention" message="line-too-long">C0301:Line too long (100/80)
             bad.py:2:4:print('hello')</failure>
                   <system-out>bad.py:2:4:print('hello')</system-out>

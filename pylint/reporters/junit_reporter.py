@@ -43,26 +43,33 @@ class JUnitReporter(BaseReporter):
     def __init__(self, output: TextIO | None = None) -> None:
         super().__init__(output)
         self._testsuites: dict[str, ET.Element] = {}
-        self._test_counts: defaultdict[str, int] = defaultdict(int)
         self._failure_counts: defaultdict[str, int] = defaultdict(int)
-        self._current_module: str | None = None
-        self._current_filepath: str | None = None
+        # Maps each linted module to its file path, in lint order. Used to emit
+        # a passing testcase for modules that turn out to have no messages.
+        self._linted_modules: dict[str, str] = {}
 
     def on_set_current_module(self, module: str, filepath: str | None) -> None:
-        """Track module boundaries so clean modules get passing testcases."""
-        self._add_success_testcase_for_current_module()
-        suite_name = module or filepath or "pylint"
-        self._current_module = suite_name
-        self._current_filepath = filepath
-        if filepath is not None:
-            self._get_testsuite(suite_name)
+        """Record each linted module so clean ones get a passing testcase.
+
+        Pylint walks modules in two passes (collection then checking), so the
+        decision of whether a module is "clean" cannot be made here: its
+        messages have not been handled yet. We only record the module and defer
+        the passing-testcase logic to ``display_messages``.
+        """
+        if filepath is None:
+            return
+        suite_name = module or filepath
+        # Pylint reports an ``__init__.py`` here as ``pkg.__init__``, but the
+        # messages raised in that file carry ``pkg`` as their module. Normalise
+        # so the module and its messages are routed to the same testsuite.
+        suite_name = suite_name.removesuffix(".__init__")
+        self._linted_modules[suite_name] = filepath
+        self._get_testsuite(suite_name)
 
     def handle_message(self, msg: Message) -> None:
         """Add a failing testcase for a Pylint message."""
         super().handle_message(msg)
-        suite_name = (
-            msg.module or msg.path or msg.abspath or self._current_module or "pylint"
-        )
+        suite_name = msg.module or msg.path or msg.abspath or "pylint"
         testsuite_el = self._get_testsuite(suite_name)
         file_path = msg.path or msg.abspath
         source_line = getline(msg.abspath or msg.path, msg.line).strip()
@@ -75,8 +82,10 @@ class JUnitReporter(BaseReporter):
             classname="pylint",
             file=file_path,
             line=str(msg.line),
-            category=msg.category,
         )
+        # ``class`` is a Python keyword, so it cannot be passed as a kwarg.
+        # pylint-junit exposes the message category under this attribute.
+        testcase_el.set("class", msg.category)
         failure_el = ET.SubElement(
             testcase_el,
             "failure",
@@ -86,27 +95,37 @@ class JUnitReporter(BaseReporter):
         failure_el.text = stderr_line
         ET.SubElement(testcase_el, "system-out").text = stdout_line
         ET.SubElement(testcase_el, "system-err").text = stderr_line
-        self._test_counts[suite_name] += 1
         self._failure_counts[suite_name] += 1
 
     def display_messages(self, layout: Section | None) -> None:
         """Build and write JUnit XML from collected messages."""
-        self._add_success_testcase_for_current_module()
+        for suite_name, filepath in self._linted_modules.items():
+            if not self._failure_counts[suite_name]:
+                self._add_success_testcase(suite_name, filepath)
         testsuites_el = ET.Element("testsuites")
         total_tests = 0
         total_failures = 0
         for suite_name, testsuite_el in self._testsuites.items():
-            tests = self._test_counts[suite_name]
+            tests = len(testsuite_el.findall("testcase"))
+            if tests == 0:
+                # No testcase was routed here (e.g. a module-name mismatch sent
+                # its messages elsewhere); skip rather than emit an empty suite.
+                continue
             failures = self._failure_counts[suite_name]
             total_tests += tests
             total_failures += failures
             testsuite_el.set("tests", str(tests))
             testsuite_el.set("errors", "0")
             testsuite_el.set("failures", str(failures))
+            testsuite_el.set("skipped", "0")
+            testsuite_el.set("disabled", "0")
+            testsuite_el.set("time", "0")
             testsuites_el.append(testsuite_el)
         testsuites_el.set("tests", str(total_tests))
         testsuites_el.set("errors", "0")
         testsuites_el.set("failures", str(total_failures))
+        testsuites_el.set("disabled", "0")
+        testsuites_el.set("time", "0")
         tree = ET.ElementTree(testsuites_el)
         ET.indent(tree, space="  ")
         tree.write(self.out, encoding="unicode", xml_declaration=True)
@@ -117,26 +136,17 @@ class JUnitReporter(BaseReporter):
             self._testsuites[name] = ET.Element("testsuite", name=name)
         return self._testsuites[name]
 
-    def _add_success_testcase_for_current_module(self) -> None:
-        if (
-            self._current_module is None
-            or self._current_filepath is None
-            or self._test_counts[self._current_module]
-        ):
-            return
-        testsuite_el = self._get_testsuite(self._current_module)
-        file_path = self._current_filepath
-        stdout_line = f"All checks passed for: {file_path}"
+    def _add_success_testcase(self, suite_name: str, filepath: str) -> None:
+        testsuite_el = self._get_testsuite(suite_name)
+        stdout_line = f"All checks passed for: {filepath}"
         testcase_el = ET.SubElement(
             testsuite_el,
             "testcase",
-            name=f"{self._current_module}:0:0",
+            name=f"{suite_name}:0:0",
             classname="pylint",
-            file=file_path,
-            line="0",
+            file=filepath,
         )
         ET.SubElement(testcase_el, "system-out").text = stdout_line
-        self._test_counts[self._current_module] += 1
 
     def display_reports(self, layout: Section) -> None:
         """Don't do anything in this reporter."""
