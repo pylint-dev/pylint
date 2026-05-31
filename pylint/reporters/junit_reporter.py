@@ -106,11 +106,11 @@ class JUnitReporter(BaseReporter):
         total_tests = 0
         total_failures = 0
         for suite_name, testsuite_el in self._testsuites.items():
+            # Every suite is created either by ``on_set_current_module`` (which
+            # records the module so it gets a passing testcase above) or by
+            # ``handle_message`` (which appends a failing testcase), so a suite
+            # always has at least one testcase here.
             tests = len(testsuite_el.findall("testcase"))
-            if tests == 0:
-                # No testcase was routed here (e.g. a module-name mismatch sent
-                # its messages elsewhere); skip rather than emit an empty suite.
-                continue
             failures = self._failure_counts[suite_name]
             total_tests += tests
             total_failures += failures
