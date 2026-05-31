@@ -230,6 +230,13 @@ class RecommendationChecker(checkers.BaseChecker):
             case nodes.Name(name="self") if scope.name == "__iter__":
                 return
 
+        # ``consider-using-enumerate`` only applies to a simple loop variable.
+        # A tuple or attribute target (e.g. ``for self.idx in range(len(x))``)
+        # cannot be rewritten with ``enumerate``, and accessing
+        # ``node.target.name`` on such a target raises AttributeError (#10099).
+        if not isinstance(node.target, nodes.AssignName):
+            return
+
         # Verify that the body of the for loop uses a subscript
         # with the object that was iterated. This uses some heuristics
         # in order to make sure that the same object is used in the
