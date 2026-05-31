@@ -450,7 +450,9 @@ class NameChecker(_BasicChecker):
                 )
 
                 # Check TypeVar's and TypeAliases assigned alone or in tuple assignment
-                if isinstance(node.parent, nodes.Assign):
+                if isinstance(node.parent, nodes.Assign) and isinstance(
+                    assign_type.targets[0], nodes.AssignName
+                ):
                     if typevar_node_type := self._assigns_typevar(assign_type.value):
                         self._check_name(
                             typevar_node_type, assign_type.targets[0].name, node
