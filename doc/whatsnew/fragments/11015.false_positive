@@ -1,0 +1,4 @@
+Fix ``access-member-before-definition`` false positive for bare type annotations
+(``self.x: Type``) that don't assign a value.
+
+Refs #11015

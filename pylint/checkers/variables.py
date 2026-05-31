@@ -159,6 +159,10 @@ def _detect_global_scope(
                 class B(C): ...
         class C: ...
     """
+    if defframe.lineno is None:
+        # ``defframe`` is a synthetic node, such as a dataclass-generated
+        # ``__init__``, so it has no source position to order against.
+        return False
     def_scope = scope = None
     if frame and frame.parent:
         scope = frame.parent.scope()
@@ -730,7 +734,14 @@ scope_type : {self.scope_type}
                 only_search_else = False
                 continue
             val = inferred.value
-            only_search_if = only_search_if or (val != NotImplemented and val)
+            if val is NotImplemented:
+                # ``bool(NotImplemented)`` raises ``TypeError`` on Python 3.14+
+                # (and warned since 3.9). ``NotImplemented`` is the only value
+                # ``Const`` carries whose truthiness is undefined, so treat it
+                # like a non-``Const`` inference: we can't tell which branch runs.
+                only_search_else = False
+                continue
+            only_search_if = only_search_if or bool(val)
             only_search_else = only_search_else and not val
 
         # Only search else branch when test condition is inferred to be false
@@ -3428,9 +3439,10 @@ class VariablesChecker(BaseChecker):
                 # bind name
                 pass
             case nodes.Attribute(expr=attr):
-                while not isinstance(attr, nodes.Name):
+                while isinstance(attr, nodes.Attribute):
                     attr = attr.expr
-                name = attr.name
+                if isinstance(attr, nodes.Name):
+                    name = attr.name
             case nodes.Call(func=nodes.Name(name=name)):
                 # bind name
                 pass
@@ -3456,7 +3468,8 @@ class VariablesChecker(BaseChecker):
                     found = True
                     break
         if (
-            not found
+            name
+            and not found
             and not metaclass
             and not (
                 name in nodes.Module.scope_attrs

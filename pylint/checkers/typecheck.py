@@ -426,6 +426,28 @@ SEQUENCE_TYPES = {
 }
 
 
+def _is_enum_owner(owner: astroid.Instance | nodes.ClassDef) -> bool:
+    """Return whether ``owner`` is an enum class or one of its members.
+
+    Enums expose a dynamic ``__getattr__`` through their metaclass, but it is
+    not invoked for attribute access on members, so -- unlike other owners with
+    a dynamic ``__getattr__`` -- they must still be checked for ``no-member``
+    (see https://github.com/pylint-dev/pylint/issues/2565).
+
+    Callers are expected to have already narrowed ``owner`` to
+    ``Instance | ClassDef``.
+    """
+    try:
+        metaclass = owner.metaclass()
+    except astroid.MroError:
+        return False
+    # ``EnumMeta`` was renamed to ``EnumType`` in Python 3.10.
+    return metaclass is not None and metaclass.qname() in {
+        "enum.EnumMeta",
+        "enum.EnumType",
+    }
+
+
 def _emit_no_member(
     node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr,
     owner: InferenceResult,
@@ -446,7 +468,7 @@ def _emit_no_member(
           AttributeError, Exception or bare except.
         * The node is guarded behind and `IF` or `IFExp` node
     """
-    # pylint: disable = too-many-return-statements, too-many-branches
+    # pylint: disable = too-many-return-statements
     if node_ignores_exception(node, AttributeError):
         return False
     if ignored_none and isinstance(owner, nodes.Const) and owner.value is None:
@@ -462,16 +484,10 @@ def _emit_no_member(
     if isinstance(owner, (astroid.Instance, nodes.ClassDef)):
         # Issue #2565: Don't ignore enums, as they have a `__getattr__` but it's not
         # invoked at this point.
-        try:
-            metaclass = owner.metaclass()
-        except astroid.MroError:
-            pass
-        else:
-            # Renamed in Python 3.10 to `EnumType`
-            if metaclass and metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}:
-                return not _enum_has_attribute(owner, node)
-        if owner.has_dynamic_getattr():
-            return False
+        if _is_enum_owner(owner):
+            return not _enum_has_attribute(owner, node)
+        # Note: non-enum owners with a dynamic ``__getattr__`` are handled
+        # earlier, in ``visit_attribute``, where the whole check is skipped.
         if not has_known_bases(owner):
             return False
 
@@ -604,6 +620,23 @@ def _enum_has_attribute(
     return node.attrname in enum_attributes
 
 
+def _get_local_callable(
+    node: nodes.NodeNG, attr: str
+) -> tuple[CallableObjects | None, bool, bool]:
+    try:
+        c = node.local_attr(attr)[-1]
+    except astroid.NotFoundError:
+        c = None
+    is_from_object = bool(c and c.parent.scope().name == "object")
+    is_from_builtins = bool(c and c.root().name in sys.builtin_module_names)
+    return c, is_from_object, is_from_builtins
+
+
+def _check_is_function_def(obj: Any) -> None:
+    if not isinstance(obj, nodes.FunctionDef):
+        raise ValueError
+
+
 def _determine_callable(
     callable_obj: nodes.NodeNG,
 ) -> tuple[CallableObjects, int, str]:
@@ -628,20 +661,25 @@ def _determine_callable(
         case nodes.Lambda():
             return callable_obj, parameters, "lambda"
         case nodes.ClassDef():
-            # Class instantiation, lookup __new__ instead.
-            # If we only find object.__new__, we can safely check __init__
-            # instead. If __new__ belongs to builtins, then we look
+            # Class instantiation, Check first for a metaclass __call__ definition.
+            # Then lookup __new__. If we only find object.__new__,
+            # we can safely check __init__ instead.
+            # If __new__ belongs to builtins, then we look
             # again for __init__ in the locals, since we won't have
             # argument information for the builtin __new__ function.
-            try:
-                # Use the last definition of __new__.
-                new = callable_obj.local_attr("__new__")[-1]
-            except astroid.NotFoundError:
-                new = None
 
-            from_object = new and new.parent.scope().name == "object"
-            from_builtins = new and new.root().name in sys.builtin_module_names
+            # Try to use the metaclass' __call__ if any.
+            meta = callable_obj.metaclass()
+            if meta and isinstance(meta, nodes.NodeNG):
+                meta_call, _, from_builtins = _get_local_callable(meta, "__call__")
+                if meta_call and not from_builtins:
+                    _check_is_function_def(meta_call)
+                    return meta_call, parameters, "class"
 
+            # Use the last definition of __new__.
+            new, from_object, from_builtins = _get_local_callable(
+                callable_obj, "__new__"
+            )
             if not new or from_object or from_builtins:
                 try:
                     # Use the last definition of __init__.
@@ -651,9 +689,7 @@ def _determine_callable(
             else:
                 callable_obj = new
 
-            if not isinstance(callable_obj, nodes.FunctionDef):
-                raise ValueError
-            # both have an extra implicit 'cls'/'self' argument.
+            _check_is_function_def(callable_obj)
             return callable_obj, parameters, "constructor"
 
     raise ValueError
@@ -1117,6 +1153,21 @@ accessed. Python regular expressions are accepted.",
                 self.linter.config.ignored_modules,
             ):
                 continue
+
+            # If any of the inferred owners defines a dynamic ``__getattr__``
+            # the attribute may exist at runtime. Since the access is
+            # considered correct as soon as a single inferred owner could have
+            # the attribute, bail out of the whole check instead of skipping
+            # only this owner (which would still emit a false positive for the
+            # other inferred owners). Enums are excluded: their ``__getattr__``
+            # lives on the metaclass and isn't invoked for member access, so
+            # they must still be checked (see issue #2565).
+            if (
+                isinstance(owner, (astroid.Instance, nodes.ClassDef))
+                and owner.has_dynamic_getattr()
+                and not _is_enum_owner(owner)
+            ):
+                return
 
             qualname = f"{owner.pytype()}.{node.attrname}"
             if any(

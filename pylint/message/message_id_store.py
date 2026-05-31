@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import NoReturn
 
 from pylint.exceptions import (
@@ -56,7 +57,7 @@ class MessageIdStore:
             raise UnknownMessageError(msg) from e
 
     def register_message_definition(
-        self, msgid: str, symbol: str, old_names: list[tuple[str, str]]
+        self, msgid: str, symbol: str, old_names: Sequence[tuple[str, str]]
     ) -> None:
         self.check_msgid_and_symbol(msgid, symbol)
         self.add_msgid_and_symbol(msgid, symbol)

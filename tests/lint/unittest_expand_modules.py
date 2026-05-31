@@ -70,6 +70,15 @@ this_file_from_init_deduplicated = {
     "isignored": False,
 }
 
+unittest_discover_files = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": False,
+    "name": "lint.unittest_discover_files",
+    "path": str(TEST_DIRECTORY / "lint/unittest_discover_files.py"),
+    "isignored": False,
+}
+
 unittest_lint = {
     "basename": "lint",
     "basepath": INIT_PATH,
@@ -173,6 +182,7 @@ def _list_expected_package_modules(
         test_run_pylint,
         test_utils,
         this_file_from_init_deduplicated if deduplicating else this_file_from_init,
+        unittest_discover_files,
         unittest_lint,
     )
 

@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import enum
 import os
 import platform
 import sys
@@ -22,10 +23,35 @@ IS_PYPY = platform.python_implementation() == "PyPy"
 
 PY_EXTS = (".py", ".pyc", ".pyo", ".pyw", ".so", ".dll")
 
-MSG_STATE_CONFIDENCE = 2
+
+class MessageDisableReason(enum.IntEnum):
+    """Why a message was filtered out or disabled.
+
+    Returned by :meth:`_MessageStateHandler._get_message_state_scope` and
+    consumed by :meth:`FileState.handle_ignored_message`.
+
+    Backed by ``IntEnum`` so the deprecated ``MSG_STATE_*`` integer
+    constants (kept as aliases below) compare equal to the matching
+    enum member — code comparing the return of
+    ``_get_message_state_scope`` to ``0`` / ``1`` / ``2`` keeps working.
+    """
+
+    CONFIG = 0
+    """Disabled globally via configuration (.pylintrc, CLI flags)."""
+
+    MODULE = 1
+    """Disabled by an inline ``# pylint: disable=...`` pragma."""
+
+    CONFIDENCE = 2
+    """Filtered out by the ``--confidence`` setting."""
+
+
+# Old aliases. Prefer ``MessageDisableReason`` for new code.
+MSG_STATE_SCOPE_CONFIG = MessageDisableReason.CONFIG
+MSG_STATE_SCOPE_MODULE = MessageDisableReason.MODULE
+MSG_STATE_CONFIDENCE = MessageDisableReason.CONFIDENCE
+
 _MSG_ORDER = "EWRCIF"
-MSG_STATE_SCOPE_CONFIG = 0
-MSG_STATE_SCOPE_MODULE = 1
 
 # The line/node distinction does not apply to fatal errors and reports.
 _SCOPE_EXEMPT = "FR"

@@ -46,12 +46,11 @@ def _gen_file_data(idx: int = 0) -> FileItem:
     filepath = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "input", "similar1")
     )
-    file_data = FileItem(
+    return FileItem(
         f"--test-file_data-name-{idx}--",
         filepath,
         f"--test-file_data-modname-{idx}--",
     )
-    return file_data
 
 
 def _gen_file_datas(count: int = 1) -> list[FileItem]:
@@ -779,3 +778,39 @@ class TestCheckParallel:
             )
 
         assert "cyclic-import" not in linter.stats.by_msg
+
+    @pytest.mark.needs_two_cores
+    def test_parallel_message_stats_are_not_inflated(self) -> None:
+        """The final message report stats must match emitted diagnostics.
+
+        Each worker can process more than one file. The stats returned for a
+        worker invocation must therefore be per-file stats, not cumulative
+        worker-process stats, otherwise merge_stats() counts messages repeatedly.
+        """
+        num_files = 10
+        linter = PyLinter(reporter=Reporter())
+        linter.register_checker(MessageEmittingSequentialTestChecker(linter))
+
+        check_parallel(linter, jobs=2, files=_gen_file_datas(num_files))
+
+        assert len(linter.reporter.messages) == num_files
+        assert linter.stats.by_msg == {
+            "message-emitting-sequential-test-check": num_files
+        }
+
+
+class MessageEmittingSequentialTestChecker(BaseRawFileChecker):
+    """A sequential checker that emits one message per processed module."""
+
+    name = "message-emitting-sequential-checker"
+    msgs = {
+        "R9998": (
+            "Test",
+            "message-emitting-sequential-test-check",
+            "Some helpful text.",
+        )
+    }
+
+    def process_module(self, node: nodes.Module) -> None:
+        """Emit exactly one message per checked module."""
+        self.add_message("R9998")

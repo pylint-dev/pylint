@@ -49,7 +49,6 @@ if TYPE_CHECKING:
 _AccessNodes: TypeAlias = nodes.Attribute | nodes.AssignAttr
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
-ALLOWED_PROPERTIES = {"bultins.property", "functools.cached_property"}
 BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
 ASTROID_TYPE_COMPARATORS = {
     nodes.Const: lambda a, b: a.value == b.value,
@@ -1264,7 +1263,7 @@ a metaclass class method.",
                                 "attribute-defined-outside-init", args=attr, node=node
                             )
 
-    # pylint: disable = too-many-branches
+    # pylint: disable = too-many-branches, too-many-return-statements
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Check method arguments, overriding."""
         # ignore actual functions
@@ -1303,11 +1302,8 @@ a metaclass class method.",
                     case nodes.Attribute(attrname="getter" | "setter" | "deleter"):
                         # attribute affectation will call this method, not hiding it
                         return
-                    case nodes.Name():
-                        if decorator.name in ALLOWED_PROPERTIES:
-                            # attribute affectation will either call a setter or raise
-                            # an attribute error, anyway not hiding the function
-                            return
+                    case nodes.Name(name="property"):
+                        return
                     case nodes.Attribute():
                         if self._check_functools_or_not(decorator):
                             return
@@ -1315,6 +1311,11 @@ a metaclass class method.",
                 # Infer the decorator and see if it returns something useful
                 inferred = safe_infer(decorator)
                 if not inferred:
+                    return
+                if (
+                    isinstance(inferred, nodes.ClassDef)
+                    and inferred.qname() == "functools.cached_property"
+                ):
                     return
                 if isinstance(inferred, nodes.FunctionDef):
                     # Okay, it's a decorator, let's see what it can infer.
@@ -2044,6 +2045,15 @@ a metaclass class method.",
             else:
                 # filter out augment assignment nodes
                 defstmts = [stmt for stmt in defstmts if stmt not in nodes_lst]
+                # filter out bare annotations (self.x: Type) with no value
+                defstmts = [
+                    stmt
+                    for stmt in defstmts
+                    if not (
+                        isinstance(stmt.parent, nodes.AnnAssign)
+                        and stmt.parent.value is None
+                    )
+                ]
                 if not defstmts:
                     # only augment assignment for this node, no-member should be
                     # triggered by the typecheck checker

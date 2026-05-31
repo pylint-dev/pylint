@@ -185,14 +185,13 @@ class DiagramWriter:
 
     def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
         """Get label and shape for classes."""
-        properties = NodeProperties(
+        return NodeProperties(
             label=obj.title,
             attrs=obj.attrs if not self.config.only_classnames else None,
             methods=obj.methods if not self.config.only_classnames else None,
             fontcolor="red" if is_exception(obj.node) else "black",
             color=self.get_shape_color(obj) if self.config.colorized else "black",
         )
-        return properties
 
     def get_shape_color(self, obj: DiagramEntity) -> str:
         """Get shape color."""

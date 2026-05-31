@@ -151,5 +151,4 @@ def run_using_a_configuration_file(
     # in `_msg_states`, used by `is_message_enabled`.
     check = "pylint.lint.pylinter.check_parallel"
     with unittest.mock.patch(check):
-        runner = Run(args, exit=False)
-    return runner
+        return Run(args, exit=False)

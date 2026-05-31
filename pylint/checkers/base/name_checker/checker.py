@@ -450,7 +450,9 @@ class NameChecker(_BasicChecker):
                 )
 
                 # Check TypeVar's and TypeAliases assigned alone or in tuple assignment
-                if isinstance(node.parent, nodes.Assign):
+                if isinstance(node.parent, nodes.Assign) and isinstance(
+                    assign_type.targets[0], nodes.AssignName
+                ):
                     if typevar_node_type := self._assigns_typevar(assign_type.value):
                         self._check_name(
                             typevar_node_type, assign_type.targets[0].name, node
@@ -736,6 +738,8 @@ class NameChecker(_BasicChecker):
 
         name_arg = None
         for kw in keywords:
+            if not isinstance(kw.value, nodes.Const):
+                continue
             if variance == TypeVarVariance.double_variant:
                 pass
             elif kw.arg == "covariant" and kw.value.value:
@@ -750,8 +754,7 @@ class NameChecker(_BasicChecker):
                     if variance != TypeVarVariance.covariant
                     else TypeVarVariance.double_variant
                 )
-
-            if kw.arg == "name" and isinstance(kw.value, nodes.Const):
+            if kw.arg == "name":
                 name_arg = kw.value.value
 
         if name_arg is None and args and isinstance(args[0], nodes.Const):

@@ -681,11 +681,11 @@ class PyLinter(
                         self.config.ignore_patterns,
                         self.config.ignore_paths,
                     ):
-                        skip_subtrees.append(root)
+                        skip_subtrees.append(root + os.sep)
                         continue
 
                     if "__init__.py" in files:
-                        skip_subtrees.append(root)
+                        skip_subtrees.append(root + os.sep)
                         yield root
                     else:
                         yield from (
@@ -1222,7 +1222,7 @@ class PyLinter(
         line: int | None,
         node: nodes.NodeNG | None,
         args: Any | None,
-        confidence: interfaces.Confidence | None,
+        confidence: interfaces.Confidence,
         col_offset: int | None,
         end_lineno: int | None,
         end_col_offset: int | None,
@@ -1235,22 +1235,22 @@ class PyLinter(
         # Look up "location" data of node if not yet supplied
         if node:
             if node.position:
-                if not line:
+                if line is None:
                     line = node.position.lineno
-                if not col_offset:
+                if col_offset is None:
                     col_offset = node.position.col_offset
-                if not end_lineno:
+                if end_lineno is None:
                     end_lineno = node.position.end_lineno
-                if not end_col_offset:
+                if end_col_offset is None:
                     end_col_offset = node.position.end_col_offset
             else:
-                if not line:
+                if line is None:
                     line = node.fromlineno
-                if not col_offset:
+                if col_offset is None:
                     col_offset = node.col_offset
-                if not end_lineno:
+                if end_lineno is None:
                     end_lineno = node.end_lineno
-                if not end_col_offset:
+                if end_col_offset is None:
                     end_col_offset = node.end_col_offset
 
         # should this message be displayed
@@ -1314,7 +1314,7 @@ class PyLinter(
         line: int | None = None,
         node: nodes.NodeNG | None = None,
         args: Any | None = None,
-        confidence: interfaces.Confidence | None = None,
+        confidence: interfaces.Confidence = interfaces.UNDEFINED,
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
@@ -1327,8 +1327,6 @@ class PyLinter(
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
         """
-        if confidence is None:
-            confidence = interfaces.UNDEFINED
         message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
             self._add_one_message(
@@ -1347,7 +1345,7 @@ class PyLinter(
         msgid: str,
         line: int,
         node: nodes.NodeNG | None = None,
-        confidence: interfaces.Confidence | None = interfaces.UNDEFINED,
+        confidence: interfaces.Confidence = interfaces.UNDEFINED,
     ) -> None:
         """Prepares a message to be added to the ignored message storage.
 
