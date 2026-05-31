@@ -112,6 +112,7 @@ class DeprecatedMixin(BaseChecker):
                 and len(node.args) == 1
                 and (mod_path_node := utils.safe_infer(node.args[0]))
                 and isinstance(mod_path_node, nodes.Const)
+                and isinstance(mod_path_node.value, str)
             ):
                 self.check_deprecated_module(node, mod_path_node.value)
 
