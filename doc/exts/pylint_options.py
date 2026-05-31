@@ -21,6 +21,7 @@ from pylint.extensions import initialize as initialize_extensions
 from pylint.lint import PyLinter
 from pylint.typing import OptionDict
 from pylint.utils import get_rst_title
+from pylint.utils.utils import _unquote
 
 
 class OptionsData(NamedTuple):
@@ -40,6 +41,15 @@ PYLINT_USERGUIDE_PATH = PYLINT_BASE_PATH / "doc" / "user_guide"
 
 DYNAMICALLY_DEFINED_OPTIONS: dict[str, dict[str, str]] = {
     # Option name, key / values we want to modify
+    "indent-string": {
+        # reStructuredText collapses consecutive regular spaces, hiding the
+        # actual default. Wrap it in quotes and use en spaces (U+2002) in the
+        # help so the four spaces stay visible in the rendered docs without
+        # altering the real default value or the CLI '--help' output.
+        "default": '"    "',
+        "help": "String used as indentation unit. This is usually "
+        '"    " (4 spaces) or "\\t" (1 tab).',  # noqa: RUF001
+    },
     "py-version": {"default": "sys.version_info[:2]"},
     "spelling-dict": {
         "choices": "Values from 'enchant.Broker().list_dicts()' depending on your local enchant installation",
@@ -107,7 +117,10 @@ def _create_checker_section(
 
         # Get current value of option
         try:
-            value = DYNAMICALLY_DEFINED_OPTIONS[option.name]["default"]
+            # The dynamic default is a display string for the rendered docs
+            # (e.g. indent-string is quoted so spaces stay visible). Unquote it
+            # so the TOML example shows the real value it would be parsed back to.
+            value = _unquote(DYNAMICALLY_DEFINED_OPTIONS[option.name]["default"])
         except KeyError:
             value = getattr(linter.config, option.name.replace("-", "_"))
 
