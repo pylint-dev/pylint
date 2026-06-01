@@ -100,14 +100,14 @@ test-min = [
 ]
 
 [tool.setuptools]
-dynamic.version = { attr = "pylint.__pkginfo__.__version__" }
-package-data.pylint = [ "testutils/testing_pylintrc", "py.typed" ]
+packages.find.include = [ "pylint*" ]
 # Simulate editable_mode=compat, described at:
 # https://github.com/pypa/setuptools/issues/3767
 # TODO: remove after solving root cause described at:
 # https://github.com/pylint-dev/astroid/pull/2267#issuecomment-1666642781
 package-dir."" = "."
-packages.find.include = [ "pylint*" ]
+package-data.pylint = [ "py.typed", "testutils/testing_pylintrc" ]
+dynamic.version = { attr = "pylint.__pkginfo__.__version__" }
 
 [tool.ruff]
 # ruff is less lenient than pylint and does not make any exceptions
@@ -168,18 +168,18 @@ lint.pydocstyle.convention = "pep257"
 
 [tool.isort]
 profile = "black"
-known_third_party = [ "platformdirs", "astroid", "sphinx", "isort", "pytest", "mccabe", "six", "toml" ]
 extra_standard_library = [ "_string" ]
+known_third_party = [ "astroid", "isort", "mccabe", "platformdirs", "pytest", "six", "sphinx", "toml" ]
+src_paths = [ "pylint" ]
 skip_glob = [
+  "astroid/**",
+  "tests/data/**",
+  "tests/extensions/data/**",
   "tests/functional/**",
   "tests/input/**",
-  "tests/extensions/data/**",
   "tests/regrtest_data/**",
-  "tests/data/**",
-  "astroid/**",
   "venv/**",
 ]
-src_paths = [ "pylint" ]
 
 [tool.codespell]
 ignore-words = [ "custom_dict.txt" ]
@@ -205,16 +205,15 @@ skip = """\
 max_supported_python = "3.14"
 
 [tool.mypy]
-scripts_are_modules = true
-warn_unused_ignores = true
-show_error_codes = true
-enable_error_code = "ignore-without-code"
-strict = true
 # TODO: Remove this once pytest has annotations
 disallow_untyped_decorators = false
+warn_unused_ignores = true
+enable_error_code = "ignore-without-code"
+strict = true
+scripts_are_modules = true
+show_error_codes = true
 
 [[tool.mypy.overrides]]
-ignore_missing_imports = true
 module = [
   "_pytest.*",
   "_string",
@@ -227,48 +226,49 @@ module = [
   "enchant.*",
   "git.*",
   "mccabe",
-  "pytest_benchmark.*",
   "pytest",
+  "pytest_benchmark.*",
   "sphinx.*",
 ]
+ignore_missing_imports = true
 
 # For local tests: Enable follow_untyped_imports overwrite for astroid
 # [[tool.mypy.overrides]]
 # module = ["astroid.*"]
 # follow_untyped_imports = true
 [tool.pyright]
+pythonVersion = "3.10"
+typeCheckingMode = "basic"
 include = [
   "pylint",
   # not checking the tests yet, but we could
 ]
-pythonVersion = "3.10"
-typeCheckingMode = "basic"
-reportMissingImports = "none"  # pytest / astroid are not detected
-reportOptionalMemberAccess = "none"  # 150 issues
 reportArgumentType = "none"  # 12 issues
 reportAttributeAccessIssue = "none"  # 11 issues
-reportInvalidTypeForm = "none"  # 6 issues
-reportOptionalCall = "none"  # 2 issues
-reportGeneralTypeIssues = "none"  # 1 issue
 reportCallIssue = "none"  # 1 issue
+reportGeneralTypeIssues = "none"  # 1 issue
+reportInvalidTypeForm = "none"  # 6 issues
 reportInvalidTypeVarUse = "none"  # 2 warnings
+reportMissingImports = "none"  # pytest / astroid are not detected
+reportOptionalCall = "none"  # 2 issues
+reportOptionalMemberAccess = "none"  # 150 issues
 
 [tool.pytest]
 ini_options.testpaths = [ "tests" ]
 ini_options.python_files = [ "*test_*.py" ]
 ini_options.addopts = "--strict-markers"
+ini_options.markers = [
+  "benchmark: Baseline of pylint performance, if this regress something serious happened",
+  "needs_two_cores: Checks that need 2 or more cores to be meaningful",
+  "primer_stdlib: Checks for crashes and errors when running pylint on stdlib",
+  "timeout: Marks from pytest-timeout.",
+]
 ini_options.filterwarnings = [
   "error",
   # Added in Python 3.14
   "ignore:'break' in a 'finally' block:SyntaxWarning",
-  "ignore:'return' in a 'finally' block:SyntaxWarning",
   "ignore:'continue' in a 'finally' block:SyntaxWarning",
-]
-ini_options.markers = [
-  "primer_stdlib: Checks for crashes and errors when running pylint on stdlib",
-  "benchmark: Baseline of pylint performance, if this regress something serious happened",
-  "timeout: Marks from pytest-timeout.",
-  "needs_two_cores: Checks that need 2 or more cores to be meaningful",
+  "ignore:'return' in a 'finally' block:SyntaxWarning",
 ]
 
 [tool.aliases]
