@@ -1,0 +1,4 @@
+Fix a crash in the typecheck checker when a class uses a non-class object
+(for example a function) as its ``metaclass=`` argument.
+
+Closes #11071

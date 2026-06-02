@@ -670,7 +670,7 @@ def _determine_callable(
 
             # Try to use the metaclass' __call__ if any.
             meta = callable_obj.metaclass()
-            if meta and isinstance(meta, nodes.NodeNG):
+            if isinstance(meta, nodes.ClassDef):
                 meta_call, _, from_builtins = _get_local_callable(meta, "__call__")
                 if meta_call and not from_builtins:
                     _check_is_function_def(meta_call)
