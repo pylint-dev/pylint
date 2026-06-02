@@ -196,5 +196,4 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
 
 
 def register(linter: PyLinter) -> None:
-    """This required function is called by Pylint to register the checker."""
     linter.register_checker(RepeatedIteratorLoopChecker(linter))
