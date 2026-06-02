@@ -54,7 +54,7 @@ jobs:
     steps:
       - &checkout
         name: Check out code from GitHub
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6.0.3
         with:
           repository: ${{ inputs.repository || github.repository }}
       - &setup-python
