@@ -164,8 +164,8 @@ repos:
         args: ["--toml=pyproject.toml"]
         additional_dependencies:
           - tomli
-  - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.23.0"
+  - repo: https://github.com/pytest-dev/pyproject-fmt
+    rev: "v2.12.1"
     hooks:
       - id: pyproject-fmt
   - repo: https://github.com/abravalheri/validate-pyproject
