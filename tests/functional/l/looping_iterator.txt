@@ -13,3 +13,5 @@ looping-through-iterator:333:20:333:27:warns_for_if_else_with_only_one_branch_ex
 no-else-break:335:8:340:43:warns_for_if_else_with_only_one_branch_exiting:"Unnecessary ""else"" after ""break"", remove the ""else"" and de-indent the code inside it":HIGH
 looping-through-iterator:417:20:417:26:warning_inner_for_else:Iterator 'gen_ex' from an outer scope is reused or consumed in a nested loop.:HIGH
 useless-else-on-loop:419:8:420:29:warning_inner_for_else:Else clause on loop without a break statement, remove the else and de-indent all the code inside it:UNDEFINED
+looping-through-iterator:429:24:429:30:three_level_nesting_warns:Iterator 'gen_ex' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:440:24:440:30:three_level_nesting_exit_in_grandparent_still_warns:Iterator 'gen_ex' from an outer scope is reused or consumed in a nested loop.:HIGH

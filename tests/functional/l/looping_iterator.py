@@ -418,3 +418,47 @@ def warning_inner_for_else():
             print(item)
         else:                # [useless-else-on-loop]
             print("continue")
+
+
+def three_level_nesting_warns():
+    # The iterator is consumed in the innermost loop and reused across the two
+    # enclosing loops. The immediate enclosing loop is enough to trigger the bug.
+    gen_ex = (x for x in range(3))
+    for _i in range(2):
+        for _j in range(2):
+            for item in gen_ex:  # [looping-through-iterator]
+                print(item)
+
+
+def three_level_nesting_exit_in_grandparent_still_warns():
+    # The unconditional exit lives in the *grandparent* loop, after the middle
+    # loop. It does not stop the middle loop from re-running the inner loop with
+    # an exhausted iterator, so the warning must still fire.
+    gen_ex = (x for x in range(3))
+    for _i in range(2):
+        for _j in range(2):
+            for item in gen_ex:  # [looping-through-iterator]
+                print(item)
+        return
+
+
+def three_level_nesting_exit_in_parent_is_safe():
+    # The unconditional exit is in the immediate enclosing loop, right after the
+    # inner loop, so that loop runs only once. No warning.
+    gen_ex = (x for x in range(3))
+    for _i in range(2):
+        for _j in range(2):
+            for item in gen_ex:
+                print(item)
+            return
+
+
+def three_level_nesting_redefined_in_grandparent_is_safe():
+    # The iterator is redefined on every grandparent iteration. Conservatively
+    # treated as safe (the ``definition_loop`` lookup walks every ancestor loop,
+    # not just the closest two).
+    for _i in range(2):
+        gen_ex = (x for x in range(3))
+        for _j in range(2):
+            for item in gen_ex:
+                print(item)

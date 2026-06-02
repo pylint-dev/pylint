@@ -72,6 +72,7 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
         if isinstance(node.iter, nodes.Name):
             self._check_variable_usage(node.iter)
 
+    @utils.only_required_for_messages("looping-through-iterator")
     def leave_for(self, _node: nodes.For) -> None:
         self._scope_stack.pop()
 
@@ -139,39 +140,41 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
         if not definition or definition == "SAFE":
             return
 
-        # 2. Get all ancestor loops of the USAGE node.
-        ancestor_loops_of_usage = []
-        current: nodes.NodeNG | None = usage_node
-        while loop := self._find_ancestor_loop(current):
-            ancestor_loops_of_usage.append(loop)
-            current = loop.parent
+        # 2. Get all ancestor loops of the USAGE node, innermost first.
+        ancestor_loops_of_usage = self._enclosing_for_loops(usage_node)
 
         if len(ancestor_loops_of_usage) < 2:
             # Usage is not in a nested loop, so it's safe.
             return
 
         # 3. Get the loop that directly contains the DEFINITION.
-        definition_loop = self._find_ancestor_loop(definition)
+        definition_loops = self._enclosing_for_loops(definition)
+        definition_loop = definition_loops[0] if definition_loops else None
 
         if definition_loop in ancestor_loops_of_usage:
             return
 
+        # The iterator is consumed in ``inner_loop`` and that loop repeats only
+        # because ``enclosing_loop`` (its immediate parent loop) re-runs it. Any
+        # further ancestor loops are irrelevant here: a redefinition in one of
+        # them is already handled by the ``definition_loop`` check above.
         inner_loop = ancestor_loops_of_usage[0]
-        outer_loop = ancestor_loops_of_usage[1]
+        enclosing_loop = ancestor_loops_of_usage[1]
 
-        if isinstance(inner_loop, nodes.For) and inner_loop.orelse:
-            if self._has_direct_unconditional_exit(inner_loop.orelse):
-                return
+        if inner_loop.orelse and self._has_direct_unconditional_exit(inner_loop.orelse):
+            # ``for ... else: raise`` is a deliberate fail-fast cursor.
+            return
 
-        try:
-            # For a 'for' loop, the inner loop must be in its body.
-            inner_loop_index = outer_loop.body.index(inner_loop)
-            statements_after_inner_loop = outer_loop.body[inner_loop_index + 1 :]
-            if self._has_direct_unconditional_exit(statements_after_inner_loop):
-                return
-        except (AttributeError, ValueError):
-            # When inner loop is not direct child of outer loop, we may not have it in outer loop body list.
-            # Optional - We can check the whole body for an exit. A bit less precise but safe.  `
+        if inner_loop not in enclosing_loop.body:
+            # The inner loop is nested under some other statement (e.g. an
+            # ``if``) rather than directly in the enclosing loop's body. Stay
+            # conservative and emit no message.
+            return
+        inner_loop_index = enclosing_loop.body.index(inner_loop)
+        statements_after_inner_loop = enclosing_loop.body[inner_loop_index + 1 :]
+        if self._has_direct_unconditional_exit(statements_after_inner_loop):
+            # The enclosing loop exits unconditionally after consuming the
+            # iterator, so it never re-enters with an exhausted iterator.
             return
 
         self.add_message(
@@ -183,16 +186,20 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
 
     # --- Helper Method ---
 
-    def _find_ancestor_loop(self, node: nodes.NodeNG) -> nodes.For | None:
-        """Walks up the AST from a node to find the first containing loop."""
-        current: nodes.NodeNG | None = node
-        while current:
-            if isinstance(current, nodes.For):
-                return current
-            if isinstance(current, (nodes.FunctionDef, nodes.ClassDef, nodes.Module)):
-                return None
-            current = current.parent
-        return None  # pragma: no cover — AST always rooted at Module
+    def _enclosing_for_loops(self, node: nodes.NodeNG) -> list[nodes.For]:
+        """Return the ``for`` loops enclosing ``node``, innermost first.
+
+        Modelled on astroid's ``_get_if_statement_ancestor`` walk, but collects
+        every enclosing loop and stops at the first scope boundary so a loop
+        from an outer scope is never mistaken for one nesting the node.
+        """
+        loops: list[nodes.For] = []
+        for parent in node.node_ancestors():
+            if isinstance(parent, nodes.For):
+                loops.append(parent)
+            elif isinstance(parent, (nodes.FunctionDef, nodes.ClassDef, nodes.Module)):
+                break
+        return loops
 
 
 def register(linter: PyLinter) -> None:
