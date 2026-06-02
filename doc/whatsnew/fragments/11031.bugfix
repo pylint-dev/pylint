@@ -1,0 +1,6 @@
+Fix a crash in the variables checker when a class declares a metaclass whose
+attribute-access chain does not bottom out at a name (e.g.
+``class C(metaclass=None._)``).
+Originally reported as ``pylint-dev/astroid#3066``.
+
+Refs #11031

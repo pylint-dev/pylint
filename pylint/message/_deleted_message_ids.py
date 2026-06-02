@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from functools import cache
 from typing import NamedTuple
 
@@ -11,7 +12,7 @@ from typing import NamedTuple
 class DeletedMessage(NamedTuple):
     msgid: str
     symbol: str
-    old_names: list[tuple[str, str]] = []
+    old_names: Sequence[tuple[str, str]] = ()
 
 
 DELETED_MSGID_PREFIXES: list[int] = []

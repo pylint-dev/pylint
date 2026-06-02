@@ -47,7 +47,7 @@ jobs:
           - os: ubuntu-latest
             python-version: "pypy-3.10"
           - os: ubuntu-latest
-            python-version: "pypy-3.11"
+            python-version: "pypy-3.11-v7.3.20"
     runs-on: ${{ matrix.os }}
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
@@ -76,7 +76,7 @@ jobs:
       - &cache-python
         name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v5.0.4
+        uses: actions/cache@v5.0.5
         with:
           path: venv
           key: >-
@@ -108,7 +108,7 @@ jobs:
           python -m pytest -vv --minimal-messages-config tests/test_functional.py --benchmark-disable
       - name: Upload coverage artifact
         if: runner.os == 'Linux' && inputs.astroid_sha == ''
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: coverage-${{ matrix.python-version }}
           include-hidden-files: true
@@ -122,16 +122,16 @@ jobs:
     needs: [tests]
     steps:
       - *checkout
-      - name: Set up Python 3.13
+      - name: Set up Python 3.14
         id: python
         uses: actions/setup-python@v6.2.0
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           check-latest: true
       - &cache-restore-python
         name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache/restore@v5.0.4
+        uses: actions/cache/restore@v5.0.5
         with:
           path: venv
           fail-on-cache-miss: true
@@ -160,7 +160,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.13"]
+        python-version: ["3.14"]
     steps:
       - *checkout
       - *setup-python
@@ -181,7 +181,7 @@ jobs:
         run: >-
           echo "datetime="$(date "+%Y%m%d_%H%M") >> $GITHUB_OUTPUT
       - name: Upload benchmark artifact
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         with:
           name:
             benchmark-${{ runner.os }}-${{ matrix.python-version }}_${{

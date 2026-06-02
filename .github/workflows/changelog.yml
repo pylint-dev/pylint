@@ -8,7 +8,7 @@ on:
 env:
   CACHE_VERSION: 1
   KEY_PREFIX: base-venv
-  DEFAULT_PYTHON: "3.13"
+  DEFAULT_PYTHON: "3.14"
 
 permissions:
   contents: read
@@ -41,7 +41,7 @@ jobs:
           $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v5.0.4
+        uses: actions/cache@v5.0.5
         with:
           path: venv
           key: >-

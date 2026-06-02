@@ -1,0 +1,5 @@
+Fix a crash in the name checker when a chained assignment of a ``TypeAlias``
+value has a non-name target such as a ``Subscript`` (for example
+``a[0] = b = TypeAlias``).
+
+Closes #11056

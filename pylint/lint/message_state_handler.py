@@ -6,15 +6,13 @@ from __future__ import annotations
 
 import tokenize
 from collections import defaultdict
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 from pylint import exceptions, interfaces
 from pylint.constants import (
-    MSG_STATE_CONFIDENCE,
-    MSG_STATE_SCOPE_CONFIG,
-    MSG_STATE_SCOPE_MODULE,
     MSG_TYPES,
     MSG_TYPES_LONG,
+    MessageDisableReason,
 )
 from pylint.interfaces import HIGH
 from pylint.message import MessageDefinition
@@ -261,19 +259,17 @@ class _MessageStateHandler:
     def _get_message_state_scope(
         self,
         msgid: str,
-        line: int | None = None,
-        confidence: interfaces.Confidence | None = None,
-    ) -> Literal[0, 1, 2] | None:
-        """Returns the scope at which a message was enabled/disabled."""
-        if confidence is None:
-            confidence = interfaces.UNDEFINED
+        line: int | None,
+        confidence: interfaces.Confidence,
+    ) -> MessageDisableReason | None:
+        """Return the scope at which the message was disabled / filtered."""
         if confidence.name not in self.linter.config.confidence:
-            return MSG_STATE_CONFIDENCE  # type: ignore[return-value] # mypy does not infer Literal correctly
+            return MessageDisableReason.CONFIDENCE
         try:
             if line in self.linter.file_state._module_msgs_state[msgid]:
-                return MSG_STATE_SCOPE_MODULE  # type: ignore[return-value]
+                return MessageDisableReason.MODULE
         except (KeyError, TypeError):
-            return MSG_STATE_SCOPE_CONFIG  # type: ignore[return-value]
+            return MessageDisableReason.CONFIG
         return None
 
     def _is_one_message_enabled(self, msgid: str, line: int | None) -> bool:

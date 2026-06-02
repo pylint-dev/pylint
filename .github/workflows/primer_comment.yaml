@@ -18,7 +18,7 @@ env:
   KEY_PREFIX: venv-primer
   # If you change this, also change PRIMER_CURRENT_INTERPRETER in
   # tests/testutils/_primer/test_primer.py
-  DEFAULT_PYTHON: "3.13"
+  DEFAULT_PYTHON: "3.14"
 
 permissions:
   contents: read
@@ -43,7 +43,7 @@ jobs:
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v5.0.4
+        uses: actions/cache@v5.0.5
         with:
           path: venv
           key:
@@ -53,7 +53,7 @@ jobs:
             'requirements_test_pre_commit.txt') }}
 
       - name: Download outputs
-        uses: actions/github-script@v8.0.0
+        uses: actions/github-script@v9.0.0
         with:
           script: |
             // Download workflow pylint output
@@ -101,7 +101,7 @@ jobs:
           --batches=4
       - name: Post comment
         id: post-comment
-        uses: actions/github-script@v8.0.0
+        uses: actions/github-script@v9.0.0
         with:
           script: |
             const fs = require('fs')

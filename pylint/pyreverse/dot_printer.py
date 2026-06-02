@@ -143,9 +143,7 @@ class DotPrinter(Printer):
     def _escape_annotation_label(self, annotation_label: str) -> str:
         # Escape vertical bar characters to make them appear as a literal characters
         # otherwise it gets treated as field separator of record-based nodes
-        annotation_label = annotation_label.replace("|", r"\|")
-
-        return annotation_label
+        return annotation_label.replace("|", r"\|")
 
     def emit_edge(
         self,

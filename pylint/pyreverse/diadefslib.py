@@ -64,7 +64,7 @@ class DiaDefGenerator:
 
         A leaf node is one that is not a prefix (with an extra dot) of any other node.
         """
-        leaf_nodes = [
+        return [
             module
             for module in self.args
             if not any(
@@ -72,7 +72,6 @@ class DiaDefGenerator:
                 for other in self.args
             )
         ]
-        return leaf_nodes
 
     def _set_option(self, option: bool | None) -> bool:
         """Activate some options if not explicitly deactivated."""

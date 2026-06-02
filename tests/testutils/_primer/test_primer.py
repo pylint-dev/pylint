@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import argparse
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -15,6 +16,7 @@ from _pytest.capture import CaptureFixture
 
 from pylint.constants import IS_PYPY
 from pylint.testutils._primer.primer import Primer
+from pylint.testutils._primer.primer_compare_command import CompareCommand
 
 HERE = Path(__file__).parent
 TEST_DIR_ROOT = HERE.parent.parent
@@ -86,6 +88,23 @@ class TestPrimer:
             )
         assert len(content) < max_comment_length
 
+    def test_truncated_compare_stops_iterating_packages(self) -> None:
+        """Once the comment exceeds MAX, further packages should be skipped."""
+        max_comment_length = 500
+        directory = CASES_PATH / "multi_package"
+        with patch(
+            "pylint.testutils._primer.primer_compare_command.MAX_GITHUB_COMMENT_LENGTH",
+            max_comment_length,
+        ):
+            content = self.__assert_expected(
+                directory,
+                expected_file=directory / "expected_truncated_break.txt",
+            )
+        # Only the first package made it in; the second was skipped by the break.
+        assert "astroid" in content
+        assert "astropy" not in content
+        assert len(content) < max_comment_length
+
     def test_truncated_compare_in_details(self) -> None:
         """Test for the truncation of comments that are too long inside details."""
         max_comment_length = 420
@@ -98,6 +117,20 @@ class TestPrimer:
                 directory, expected_file=directory / "expected_truncated_in_details.txt"
             )
         assert len(content) < max_comment_length
+
+    def test_truncate_falls_back_when_no_space(self) -> None:
+        """When the pre-limit prefix has no space, cut at ``max_len - 10`` directly."""
+        max_comment_length = 200
+        config = argparse.Namespace(commit="v2.14.2")
+        command = CompareCommand(PRIMER_DIRECTORY, {}, config)
+        spaceless = "x" * 500
+        with patch(
+            "pylint.testutils._primer.primer_compare_command.MAX_GITHUB_COMMENT_LENGTH",
+            max_comment_length,
+        ):
+            truncated = command._truncate_comment(spaceless)
+        assert "..." in truncated
+        assert len(truncated) < max_comment_length
 
     @staticmethod
     def __assert_expected(

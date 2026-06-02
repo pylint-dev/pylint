@@ -3,15 +3,19 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from contextlib import redirect_stdout
-from io import StringIO
+from io import BytesIO, StringIO
 from pathlib import Path
 
+import astroid
 import pytest
 from _pytest.capture import CaptureFixture
 
 from pylint.checkers import symilar
+from pylint.checkers.symilar import LineSet, LineSetStartCouple, Symilar
 from pylint.lint import PyLinter
+from pylint.reporters.ureports.nodes import Section, Table
 from pylint.testutils import GenericTestReporter as Reporter
+from pylint.utils import LinterStats
 
 INPUT = Path(__file__).parent / ".." / "input"
 SIMILAR1 = str(INPUT / "similar1")
@@ -470,3 +474,103 @@ def test_bad_short_form_option(capsys: CaptureFixture) -> None:
     assert ex.value.code == 2
     assert not out
     assert "unrecognized arguments: -j=0" in err
+
+
+def test_line_set_start_couple_eq_non_couple() -> None:
+    """``LineSetStartCouple.__eq__`` returns ``NotImplemented`` against an
+    object that isn't a ``LineSetStartCouple`` so Python falls back to
+    reflected comparison.
+    """
+    couple = LineSetStartCouple(symilar.Index(0), symilar.Index(1))
+    assert couple != object()
+    # pylint: disable-next=unnecessary-dunder-call
+    assert couple.__eq__(object()) is NotImplemented
+
+
+def test_line_set_dunder_methods() -> None:
+    """Cover LineSet ``__str__``, ``__getitem__`` and non-LineSet ``__eq__``."""
+    lines = ["a = 1\n", "b = 2\n", "c = 3\n"]
+    lineset = LineSet("fake.py", lines)
+    assert str(lineset) == "<Lineset for fake.py>"
+    assert lineset[0].text == "a = 1"
+    assert (lineset == "not a lineset") is False
+
+
+def test_append_stream_binary_requires_encoding() -> None:
+    """``append_stream`` raises ValueError when a binary stream is passed
+    without an encoding.
+    """
+    runner = Symilar()
+    with pytest.raises(ValueError):
+        runner.append_stream("bin.py", BytesIO(b"a = 1\n"))
+
+
+def test_report_similarities_builds_table() -> None:
+    """``report_similarities`` appends a stats table to the given section."""
+    stats = LinterStats()
+    stats.reset_duplicated_lines()
+    section = Section()
+    symilar.report_similarities(section, stats, None)
+    assert len(section.children) == 1
+    assert isinstance(section.children[0], Table)
+
+
+def test_process_module_warns_when_current_name_is_none(tmp_path: Path) -> None:
+    """``SimilaritiesChecker.process_module`` warns when
+    ``linter.current_name`` is None (the deprecated state).
+    """
+    linter = PyLinter(reporter=Reporter())
+    linter.register_checker(symilar.SimilaritiesChecker(linter))
+    checker = symilar.SimilaritiesChecker(linter)
+    linter.current_name = None  # type: ignore[assignment]
+    module_file = tmp_path / "m.py"
+    module_file.write_text("a = 1\n")
+
+    module = astroid.parse(module_file.read_text(), module_name="m")
+    module.file = str(module_file)
+    module.file_bytes = module_file.read_bytes()
+    with pytest.warns(DeprecationWarning, match="current_name attribute"):
+        checker.process_module(module)
+
+
+def test_append_stream_unicode_error_yields_empty_lineset(tmp_path: Path) -> None:
+    """``append_stream`` swallows ``UnicodeDecodeError`` and treats the file
+    as empty rather than crashing.
+    """
+    bad_file = tmp_path / "bad.py"
+    bad_file.write_bytes(b"\xff\xfe\xfa not valid utf-8\n")
+    runner = Symilar()
+    with bad_file.open("rb") as stream:
+        runner.append_stream(str(bad_file), stream, encoding="utf-8")
+    assert len(runner.linesets) == 1
+    assert runner.linesets[0].stripped_lines == []
+
+
+def test_hash_bucket_product_limit_fallback(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """When a hash bucket's Cartesian product exceeds
+    ``_HASH_BUCKET_PRODUCT_LIMIT``, ``_find_common`` falls back to aligned-zip
+    pairing. Mock the limit to zero so the fallback path is always taken over
+    a file with repeated blocks and verify duplicate detection still reports
+    the expected similar lines.
+
+    Regression test for https://github.com/pylint-dev/pylint/pull/10881.
+    """
+    monkeypatch.setattr(symilar, "_HASH_BUCKET_PRODUCT_LIMIT", 0)
+    # Three copies of the same 5-line block produce hash buckets with more
+    # than one index, exercising the aligned-zip fallback meaningfully.
+    block = "a = 1\nb = 2\nc = 3\nd = 4\ne = 5\n"
+    file_a = tmp_path / "a.py"
+    file_b = tmp_path / "b.py"
+    file_a.write_text(block * 3)
+    file_b.write_text(block * 3)
+
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+        symilar.Run([str(file_a), str(file_b)])
+    assert ex.value.code == 0
+    out = output.getvalue()
+    assert "15 similar lines in 2 files" in out
+    assert f"=={file_a}:[0:15]" in out
+    assert f"=={file_b}:[0:15]" in out

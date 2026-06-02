@@ -413,11 +413,21 @@ class BasicChecker(_BasicChecker):
         """Check module name, docstring and required arguments."""
         self.linter.stats.node_count["module"] += 1
 
-    def visit_classdef(self, _: nodes.ClassDef) -> None:
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Check module name, docstring and redefinition
         increment branch counter.
         """
         self.linter.stats.node_count["klass"] += 1
+        try:
+            if not any(
+                ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()
+            ):
+                return
+        except astroid.InferenceError:  # pragma: no cover
+            return
+        for child in node.body:
+            if isinstance(child, nodes.AnnAssign) and child.value is not None:
+                self._check_dangerous_default(child.value, child)
 
     @utils.only_required_for_messages(
         "pointless-statement",
@@ -585,49 +595,51 @@ class BasicChecker(_BasicChecker):
             self.linter.stats.node_count["method"] += 1
         else:
             self.linter.stats.node_count["function"] += 1
-        self._check_dangerous_default(node)
+        for default in (node.args.defaults or []) + (node.args.kw_defaults or []):
+            if default:
+                self._check_dangerous_default(default, node)
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def _check_dangerous_default(self, node: nodes.FunctionDef) -> None:
-        """Check for dangerous default values as arguments."""
-
-        def is_iterable(internal_node: nodes.NodeNG) -> bool:
-            return isinstance(internal_node, (nodes.List, nodes.Set, nodes.Dict))
-
-        defaults = (node.args.defaults or []) + (node.args.kw_defaults or [])
-        for default in defaults:
-            if not default:
-                continue
+    def _check_dangerous_default(
+        self, default: nodes.NodeNG, msg_node: nodes.NodeNG
+    ) -> None:
+        """Emit dangerous-default-value if the inferred default is mutable."""
+        value = utils.safe_infer(default)
+        if not isinstance(value, astroid.Instance):
+            return
+        qname = value.qname()
+        if qname not in DEFAULT_ARGUMENT_SYMBOLS:
+            # The inferred type itself isn't a known mutable, but it might
+            # be a subclass of one (e.g. ``class MyDict(dict): ...``).
             try:
-                value = next(default.infer())
-            except astroid.InferenceError:
-                continue
-
-            if (
-                isinstance(value, astroid.Instance)
-                and value.qname() in DEFAULT_ARGUMENT_SYMBOLS
-            ):
-                if value is default:
-                    msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
-                elif isinstance(value, astroid.Instance) or is_iterable(value):
-                    # We are here in the following situation(s):
-                    #   * a dict/set/list/tuple call which wasn't inferred
-                    #     to a syntax node ({}, () etc.). This can happen
-                    #     when the arguments are invalid or unknown to
-                    #     the inference.
-                    #   * a variable from somewhere else, which turns out to be a list
-                    #     or a dict.
-                    if is_iterable(default):
-                        msg = value.pytype()
-                    elif isinstance(default, nodes.Call):
-                        msg = f"{value.name}() ({value.qname()})"
-                    else:
-                        msg = f"{default.as_string()} ({value.qname()})"
-                else:
-                    # this argument is a name
-                    msg = f"{default.as_string()} ({DEFAULT_ARGUMENT_SYMBOLS[value.qname()]})"
-                self.add_message("dangerous-default-value", node=node, args=(msg,))
+                qname = next(
+                    (
+                        cls.qname()
+                        for cls in value._proxied.ancestors()
+                        if cls.qname() in DEFAULT_ARGUMENT_SYMBOLS
+                    ),
+                    "",
+                )
+            except astroid.InferenceError:  # pragma: no cover
+                return
+            if not qname:
+                return
+        if value is default:
+            # Literal: [], {}, {1, 2}
+            msg = DEFAULT_ARGUMENT_SYMBOLS[qname]
+        elif isinstance(default, nodes.Call):
+            msg = f"{value.name}()"
+        else:
+            # Variable name referring to a mutable from somewhere else; the
+            # name alone is uninformative, so include the qname.
+            msg = f"{default.as_string()} ({qname})"
+        self.add_message(
+            "dangerous-default-value",
+            node=msg_node,
+            args=(msg,),
+            confidence=INFERENCE,
+        )
 
     @utils.only_required_for_messages("unreachable", "lost-exception")
     def visit_return(self, node: nodes.Return) -> None:
