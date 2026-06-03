@@ -1,0 +1,5 @@
+Prevent a crash in ``unexpected-keyword-arg`` analysis when
+``infer_call_result()`` raises ``InferenceError`` while inspecting
+decorator return signatures.
+
+Closes #11070

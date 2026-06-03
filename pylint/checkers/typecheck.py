@@ -24,6 +24,7 @@ import astroid.helpers
 import astroid.interpreter
 import astroid.modutils
 from astroid import arguments, bases, nodes, objects, util
+from astroid.exceptions import InferenceError
 from astroid.nodes import _base_nodes
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
@@ -1744,21 +1745,23 @@ accessed. Python regular expressions are accepted.",
             # We only check arguments of function decorators
             if not isinstance(inferred, nodes.FunctionDef):
                 return False
+            try: 
+                for return_value in inferred.infer_call_result(caller=None):
+                    # infer_call_result() returns nodes.Const.None for None return values
+                    # so this also catches non-returning decorators
+                    if not isinstance(return_value, nodes.FunctionDef):
+                        return False
 
-            for return_value in inferred.infer_call_result(caller=None):
-                # infer_call_result() returns nodes.Const.None for None return values
-                # so this also catches non-returning decorators
-                if not isinstance(return_value, nodes.FunctionDef):
+                    # If the return value uses a kwarg the keyword will be consumed
+                    if return_value.args.kwarg:
+                        continue
+
+                    # Check if the keyword is another type of argument
+                    if return_value.args.is_argument(keyword):
+                        continue
+
                     return False
-
-                # If the return value uses a kwarg the keyword will be consumed
-                if return_value.args.kwarg:
-                    continue
-
-                # Check if the keyword is another type of argument
-                if return_value.args.is_argument(keyword):
-                    continue
-
+            except InferenceError:
                 return False
 
         return True
