@@ -1745,7 +1745,7 @@ accessed. Python regular expressions are accepted.",
             # We only check arguments of function decorators
             if not isinstance(inferred, nodes.FunctionDef):
                 return False
-            
+
             try:
                 return_values = list(inferred.infer_call_result(caller=None))
             except InferenceError:
