@@ -34,6 +34,11 @@ HVACModeT = TypeVar("HVACModeT")
 TodoT = TypeVar("TodoT")
 TypeT = TypeVar("TypeT")
 _IPAddress = TypeVar("_IPAddress")
+
+# Names containing digits
+Ec2T = TypeVar("Ec2T")
+S3BucketT = TypeVar("S3BucketT")
+Utf8T = TypeVar("Utf8T")
 CALLABLE_T = TypeVar("CALLABLE_T")  # [invalid-name]
 DeviceType = TypeVar("DeviceType")  # [invalid-name]
 IPAddressU = TypeVar("IPAddressU")  # [invalid-name]
