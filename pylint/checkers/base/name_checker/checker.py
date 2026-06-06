@@ -112,6 +112,42 @@ def _redefines_import(node: nodes.AssignName) -> bool:
     return False
 
 
+def _is_dunder_main_test(test: nodes.NodeNG) -> bool:
+    """Detect a ``__name__ == "__main__"`` comparison (in either order)."""
+    if not isinstance(test, nodes.Compare) or [op for op, _ in test.ops] != ["=="]:
+        return False
+    operands = [test.left, test.ops[0][1]]
+    has_name = any(
+        isinstance(operand, nodes.Name) and operand.name == "__name__"
+        for operand in operands
+    )
+    has_main = any(
+        isinstance(operand, nodes.Const) and operand.value == "__main__"
+        for operand in operands
+    )
+    return has_name and has_main
+
+
+def _in_dunder_main_block(node: nodes.AssignName) -> bool:
+    """Detect that the given node is assigned in an
+    ``if __name__ == "__main__":`` block.
+
+    Returns True if the node is in the body of such a block, False otherwise.
+    """
+    child = node
+    parent = node.parent
+    while parent is not None and not isinstance(parent, nodes.Module):
+        if (
+            isinstance(parent, nodes.If)
+            and _is_dunder_main_test(parent.test)
+            and child in parent.body
+        ):
+            return True
+        child = parent
+        parent = parent.parent
+    return False
+
+
 def _determine_function_name_type(
     node: nodes.FunctionDef, config: argparse.Namespace
 ) -> str:
@@ -511,7 +547,10 @@ class NameChecker(_BasicChecker):
                     if not self._meets_exception_for_non_consts(
                         inferred_assign_type, node.name
                     ):
-                        self._check_name("const", node.name, node)
+                        if _in_dunder_main_block(node):
+                            self._check_name_in_main_block(node)
+                        else:
+                            self._check_name("const", node.name, node)
                 else:
                     node_type = "variable"
                     iattrs = tuple(node.frame().igetattr(node.name))
@@ -531,6 +570,11 @@ class NameChecker(_BasicChecker):
                     if not self._meets_exception_for_non_consts(
                         inferred_assign_type, node.name
                     ):
+                        if node_type == "const" and _in_dunder_main_block(node):
+                            self._check_name_in_main_block(
+                                node, disallowed_check_only=redefines_import
+                            )
+                            return
                         self._check_name(
                             node_type,
                             node.name,
@@ -565,6 +609,24 @@ class NameChecker(_BasicChecker):
                 self._check_name("class_const", node.name, node)
             else:
                 self._check_name("class_attribute", node.name, node)
+
+    def _check_name_in_main_block(
+        self, node: nodes.AssignName, disallowed_check_only: bool = False
+    ) -> None:
+        """Check a module-level name assigned in an ``if __name__ == "__main__":``
+        block.
+
+        Such a block reads like a script body, so a name there may legitimately
+        follow either the constant or the variable naming style.
+        """
+        node_type = (
+            "const"
+            if self._name_regexps["const"].match(node.name) is not None
+            else "variable"
+        )
+        self._check_name(
+            node_type, node.name, node, disallowed_check_only=disallowed_check_only
+        )
 
     def _meets_exception_for_non_consts(
         self, inferred_assign_type: InferenceResult | None, name: str
