@@ -1856,36 +1856,40 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             case _:
                 return
         if expr_list == target_list and expr_list:
-            args: tuple[str] | None = None
-            inferred = utils.safe_infer(node.iter)
-            match (node.parent, inferred):
-                case [nodes.DictComp(), objects.DictItems()]:
-                    args = (f"dict({node.iter.func.expr.as_string()})",)
-                case [nodes.ListComp(), nodes.List()]:
-                    args = (f"list({node.iter.as_string()})",)
-                case [nodes.SetComp(), nodes.Set()]:
-                    args = (f"set({node.iter.as_string()})",)
-            if args:
-                self.add_message(
-                    "unnecessary-comprehension", node=node.parent, args=args
-                )
-                return
-
-            match node.parent:
-                case nodes.DictComp():
-                    func = "dict"
-                case nodes.ListComp():
-                    func = "list"
-                case nodes.SetComp():
-                    func = "set"
-                case _:  # pragma: no cover
-                    raise AssertionError
-
             self.add_message(
                 "unnecessary-comprehension",
                 node=node.parent,
-                args=(f"{func}({node.iter.as_string()})",),
+                args=self._unnecessary_comprehension_suggestion(node),
             )
+
+    @staticmethod
+    def _unnecessary_comprehension_suggestion(
+        node: nodes.Comprehension,
+    ) -> tuple[str]:
+        """Build the replacement suggested by ``unnecessary-comprehension``."""
+        inferred = utils.safe_infer(node.iter)
+        match (node.parent, inferred):
+            case [nodes.DictComp(), objects.DictItems()]:
+                return (f"dict({node.iter.func.expr.as_string()})",)
+            case [nodes.DictComp(), nodes.Dict()]:
+                # Iterating a dict yields its keys, so the comprehension
+                # rebuilds a dict from them; ``dict(d)`` would just copy ``d``
+                # and is the wrong suggestion (see #8256).
+                return (f"dict({node.iter.as_string()}.keys())",)
+            case [nodes.ListComp(), nodes.List()]:
+                return (f"list({node.iter.as_string()})",)
+            case [nodes.SetComp(), nodes.Set()]:
+                return (f"set({node.iter.as_string()})",)
+        match node.parent:
+            case nodes.DictComp():
+                func = "dict"
+            case nodes.ListComp():
+                func = "list"
+            case nodes.SetComp():
+                func = "set"
+            case _:  # pragma: no cover
+                raise AssertionError
+        return (f"{func}({node.iter.as_string()})",)
 
     @staticmethod
     def _is_and_or_ternary(node: nodes.NodeNG | None) -> bool:
