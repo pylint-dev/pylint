@@ -1,0 +1,7 @@
+``superfluous-parens`` (``C0325``) no longer false-negatives on a single
+parenthesised literal after the ``in`` keyword, e.g. ``x in ("foo")``. The
+parentheses around a single string or number literal are now reported as
+superfluous, while a tuple (``x in ("foo",)``) or a larger expression
+(``x in ("foo" + bar)``) is still left untouched.
+
+Closes #9878
