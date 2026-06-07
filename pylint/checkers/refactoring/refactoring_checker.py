@@ -1865,6 +1865,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     args = (f"list({node.iter.as_string()})",)
                 case [nodes.SetComp(), nodes.Set()]:
                     args = (f"set({node.iter.as_string()})",)
+                case [nodes.DictComp(), nodes.Dict()]:
+                    # Iterating over a dict yields its keys, so
+                    # ``{key: value for key, value in some_dict}`` builds a new,
+                    # different mapping instead of reproducing ``some_dict``.
+                    # ``dict(some_dict)`` would merely copy it, so the
+                    # comprehension is not unnecessary here.
+                    return
             if args:
                 self.add_message(
                     "unnecessary-comprehension", node=node.parent, args=args

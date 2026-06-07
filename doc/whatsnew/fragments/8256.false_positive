@@ -1,0 +1,7 @@
+Fix a false positive for ``unnecessary-comprehension`` (R1721) when a dict
+comprehension iterates directly over a dict, e.g.
+``{key: value for key, value in some_dict}``. Iterating over a dict yields its
+keys rather than key/value pairs, so ``dict(some_dict)`` would merely copy it
+and is not an equivalent replacement.
+
+Closes #8256

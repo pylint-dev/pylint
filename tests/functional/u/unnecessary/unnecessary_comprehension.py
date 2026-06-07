@@ -49,3 +49,9 @@ my_set = set()
 ITEMS = {k: v for k, v in my_dict.items()} # [unnecessary-comprehension]
 {k: my_dict[k] for k in my_dict} # [consider-using-dict-items]
 {elem for elem in my_set}  # [unnecessary-comprehension]
+
+# Iterating over a dict yields its keys, not key/value pairs, so the dict
+# comprehension below builds a different mapping; dict(tuple_keys) would only
+# copy it and is not equivalent. Regression test for #8256.
+tuple_keys = {(1, 2): 3}
+{key: value for key, value in tuple_keys}  # not equivalent to dict(tuple_keys)
