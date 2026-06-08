@@ -792,7 +792,8 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         expected_output = "-- below fail-under threshold (8.0)"
         self._test_output(
             [
-                "--fail-under", "8.0",
+                "--fail-under",
+                "8.0",
                 join(HERE, "regrtest_data", "fail_under_plus7_5.py"),
             ],
             expected_output=expected_output,
