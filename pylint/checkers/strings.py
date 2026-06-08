@@ -713,9 +713,9 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
         self.string_tokens: dict[
-            tuple[int, int], tuple[str, tokenize.TokenInfo | None]
+            tuple[int, int], tuple[str, str, tokenize.TokenInfo | None]
         ] = {}
-        """Token position -> (token value, next token)."""
+        """Token position -> (token value, raw token text, next token)."""
         self._parenthesized_string_tokens: dict[tuple[int, int], bool] = {}
 
     def process_module(self, node: nodes.Module) -> None:
@@ -745,7 +745,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                         # We convert `tokenize` character count into a byte count,
                         # to match with astroid `.col_offset`
                         start = (start[0], len(line[: start[1]].encode(encoding)))
-                    self.string_tokens[start] = (str_eval(token), next_token)
+                    self.string_tokens[start] = (str_eval(token), token, next_token)
                     is_parenthesized = self._is_initial_string_token(
                         i, tokens
                     ) and self._is_parenthesized(i, tokens)
@@ -887,7 +887,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                 # This may happen with Latin1 encoding
                 # cf. https://github.com/pylint-dev/pylint/issues/2610
                 continue
-            matching_token, next_token = self.string_tokens[token_index]
+            matching_token, token_string, next_token = self.string_tokens[token_index]
             # We detect string concatenation: the AST Const is the
             # combination of 2 string tokens
             if (
@@ -895,6 +895,13 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                 and next_token is not None
                 and next_token.type == tokenize.STRING
             ):
+                # A raw string concatenated with a non-raw one (or vice versa)
+                # cannot be merged into a single literal, so the concatenation
+                # is deliberate rather than a forgotten comma.
+                if _is_raw_string_token(token_string) != _is_raw_string_token(
+                    next_token.string
+                ):
+                    continue
                 if next_token.start[0] == elt.lineno or (
                     self.linter.config.check_str_concat_over_line_jumps
                     # Allow implicitly concatenated strings in parens.
@@ -1034,6 +1041,20 @@ def str_eval(token: str) -> str:
     if token[0:3] in {'"""', "'''"}:
         return token[3:-3]
     return token[1:-1]
+
+
+def _is_raw_string_token(token: str) -> bool:
+    """Return whether a string token is a raw string (has an ``r``/``R`` prefix).
+
+    Only the prefix markers that precede the opening quote are inspected, e.g.
+    ``r"foo"`` and ``Rb"foo"`` are raw while ``"foo"`` and ``f"foo"`` are not.
+    """
+    for char in token:
+        if char in "'\"":
+            break
+        if char in "rR":
+            return True
+    return False
 
 
 def _is_long_string(string_token: str) -> bool:
