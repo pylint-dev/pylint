@@ -936,7 +936,12 @@ a metaclass class method.",
             self.add_message("duplicate-bases", args=node.name, node=node)
 
     def _check_enum_base(self, node: nodes.ClassDef, ancestor: nodes.ClassDef) -> None:
-        match ancestor.getattr("__members__"):
+        try:
+            members = ancestor.getattr("__members__")
+        except (astroid.AttributeInferenceError, astroid.NotFoundError):
+            members = []
+
+        match members:
             case [nodes.Dict(items=items), *_] if items:
                 for _, name_node in items:
                     # Exempt type annotations without value assignments
