@@ -1,89 +1,47 @@
-# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
+# pylint: disable=redefined-outer-name
+"""Base reporter classes for pylint."""
 
-from __future__ import annotations
-
-import os
 import sys
-from typing import TYPE_CHECKING, TextIO
+from typing import IO, Optional, TextIO
 
 from pylint.message import Message
-from pylint.reporters.ureports.nodes import Text
-from pylint.utils import LinterStats
-
-if TYPE_CHECKING:
-    from pylint.lint.pylinter import PyLinter
-    from pylint.reporters.ureports.nodes import Section
+from pylint.reporters.ureports.text import TextReporter
 
 
 class BaseReporter:
-    """Base class for reporters.
+    """Base class for reporters."""
 
-    symbols: show short symbolic names for messages.
-    """
-
-    extension = ""
-
-    name = "base"
-    """Name of the reporter."""
-
-    def __init__(self, output: TextIO | None = None) -> None:
-        self.linter: PyLinter
-        self.section = 0
-        self.out: TextIO = output or sys.stdout
+    def __init__(self, output: Optional[TextIO] = None):
+        self.output = output or sys.stdout
         self.messages: list[Message] = []
-        # Build the path prefix to strip to get relative paths
-        self.path_strip_prefix = os.getcwd() + os.sep
+        self.path_stones: list[str] = []
 
     def handle_message(self, msg: Message) -> None:
-        """Handle a new message triggered on the current file."""
+        """Handle a message."""
         self.messages.append(msg)
 
-    def writeln(self, string: str = "") -> None:
-        """Write a line in the output buffer."""
-        try:
-            print(string, file=self.out)
-        except UnicodeEncodeError:
-            print(self.reencode_output_after_unicode_error(string), file=self.out)
+    def writeln(self, text: str = "") -> None:
+        """Write a line to the output."""
+        self.output.write(text + "\n")
 
-    @staticmethod
-    def reencode_output_after_unicode_error(string: str) -> str:
-        return string.encode(encoding="utf-8", errors="replace").decode("utf8")
+    def display_messages(self) -> None:
+        """Display all messages."""
+        for msg in self.messages:
+            self.writeln(str(msg))
 
-    def display_reports(self, layout: Section) -> None:
-        """Display results encapsulated in the layout tree."""
-        self.section = 0
-        if layout.report_id:
-            if isinstance(layout.children[0].children[0], Text):
-                layout.children[0].children[0].data += f" ({layout.report_id})"
-            else:
-                raise ValueError(f"Incorrect child for {layout.children[0].children}")
-        self._display(layout)
+    def on_set_current_module(self, module: str, filepath: str) -> None:
+        """Called when a module is set as current."""
 
-    def _display(self, layout: Section) -> None:
-        """Display the layout."""
-        raise NotImplementedError()
+    def on_close(self, stats, previous_stats) -> None:
+        """Called when the analysis is finished."""
 
-    def display_messages(self, layout: Section | None) -> None:
-        """Hook for displaying the messages of the reporter.
+    def display_results(self, layout) -> None:
+        """Display the results."""
 
-        This will be called whenever the underlying messages
-        needs to be displayed. For some reporters, it probably
-        doesn't make sense to display messages as soon as they
-        are available, so some mechanism of storing them could be used.
-        This method can be implemented to display them after they've
-        been aggregated.
-        """
-
-    # Event callbacks
-
-    def on_set_current_module(self, module: str, filepath: str | None) -> None:
-        """Hook called when a module starts to be analysed."""
-
-    def on_close(
-        self,
-        stats: LinterStats,
-        previous_stats: LinterStats | None,
-    ) -> None:
-        """Hook called when a module finished analyzing."""
+    def _display_fail_under(self, score: float, fail_under: float) -> None:
+        """Display a message when score is below fail-under threshold."""
+        if score < fail_under:
+            self.writeln(
+                f"Your code has been rated at {score:.2f}/10 "
+                f"(previous run: {fail_under:.2f}/10, fail-under: {fail_under:.2f})"
+            )
