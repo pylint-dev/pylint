@@ -1201,6 +1201,14 @@ class PyLinter(
                 pnote = previous_stats.global_note
                 if pnote is not None:
                     msg += f" (previous run: {pnote:.2f}/10, {note - pnote:+.2f})"
+            if note < self.config.fail_under:
+                msg += (
+                    f"\nFailed to reach the required score of "
+                    f"{self.config.fail_under:.2f}/10"
+                )
+                pnote = previous_stats.global_note
+                if pnote is not None:
+                    msg += f" (previous run: {pnote:.2f}/10, {note - pnote:+.2f})"
 
             if verbose:
                 checked_files_count = self.stats.node_count["module"]
