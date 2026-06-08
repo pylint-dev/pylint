@@ -42,8 +42,8 @@ DEFAULT_PATTERNS = {
     "typevar": re.compile(
         r"^_{0,2}(?!T[A-Z])(?:[A-Z]+|(?:[A-Z]+[a-z0-9]+)+(?:T)?(?<!Type))(?:_co(?:ntra)?)?$"
     ),
-    "paramspec": re.compile(r"^_{0,2}(?:[A-Z]+|(?:[A-Z]+[a-z]+)+(?:P)?(?<!Type))$"),
-    "typevartuple": re.compile(r"^_{0,2}(?:[A-Z]+|(?:[A-Z]+[a-z]+)+(?:Ts)?(?<!Type))$"),
+    "paramspec": re.compile(r"^_{0,2}(?:[A-Z]+|(?:[A-Z]+[a-z0-9]+)+(?:P)?(?<!Type))$"),
+    "typevartuple": re.compile(r"^_{0,2}(?:[A-Z]+|(?:[A-Z]+[a-z0-9]+)+(?:Ts)?(?<!Type))$"),
     "typealias": re.compile(
         r"^_{0,2}(?!T[A-Z]|Type)[A-Z]+[a-z0-9]+(?:[A-Z][a-z0-9]+)*$"
     ),
