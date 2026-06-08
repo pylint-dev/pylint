@@ -2,16 +2,15 @@
 """Base reporter classes for pylint."""
 
 import sys
-from typing import IO, Optional, TextIO
+from typing import TextIO
 
 from pylint.message import Message
-from pylint.reporters.ureports.text import TextReporter
 
 
 class BaseReporter:
     """Base class for reporters."""
 
-    def __init__(self, output: Optional[TextIO] = None):
+    def __init__(self, output: TextIO | None = None):
         self.output = output or sys.stdout
         self.messages: list[Message] = []
         self.path_stones: list[str] = []

@@ -1,48 +1,10 @@
 # pylint: disable=too-many-lines
 """Pylinter class."""
 
-import argparse
-import collections
-import contextlib
-import copy
-import functools
-import os
 import sys
-import tokenize
-import traceback
-from io import TextIOWrapper
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any
 
-from pylint import checkers, config, exceptions, interfaces, reporters
-from pylint.config import find_pylintrc
-from pylint.constants import (
-    MAIN_CHECKER_NAME,
-    MSG_STATE_CONFIDENCE,
-    MSG_STATE_SCOPE_CONFIG,
-    MSG_STATE_SCOPE_MODULE,
-    MSG_TYPES,
-    MSG_TYPES_LONG,
-    OPTION_RGX,
-    SCOPE,
-    WarningScope,
-)
-from pylint.lint import expand_modules, get_fatal_error_message
-from pylint.message import Message
 from pylint.reporters import BaseReporter
-from pylint.reporters.ureports.text import TextReporter
-from pylint.utils import (
-    FileState,
-    _splitstrip,
-    do_exit,
-    get_module_and_frameid,
-    get_rst_title,
-    tokenize_module,
-)
-from pylint.utils.pragma_parser import (
-    OPTION_PO,
-    PragmaParserError,
-    parse_pragma,
-)
 
 
 class PyLinter:
@@ -50,18 +12,18 @@ class PyLinter:
 
     def __init__(
         self,
-        options: Optional[Dict[str, Any]] = None,
-        reporter: Optional[BaseReporter] = None,
+        options: dict[str, Any] | None = None,
+        reporter: BaseReporter | None = None,
         file_input: bool = False,
     ):
         self.options = options or {}
         self.reporter = reporter or BaseReporter()
         self.file_input = file_input
         self._ignore = False
-        self._fail_under: Optional[float] = None
-        self._score: Optional[float] = None
+        self._fail_under: float | None = None
+        self._score: float | None = None
 
-    def set_option(self, optname: str, value: Any, group: Optional[str] = None) -> None:
+    def set_option(self, optname: str, value: Any, group: str | None = None) -> None:
         """Set an option."""
         if optname == "fail-under":
             self._fail_under = float(value)
