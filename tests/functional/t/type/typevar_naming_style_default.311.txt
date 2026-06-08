@@ -20,5 +20,5 @@ invalid-name:68:0:68:7::"Type variable name ""badName"" doesn't conform to prede
 typevar-double-variance:69:0:69:4::TypeVar cannot be both covariant and contravariant:INFERENCE
 typevar-name-incorrect-variance:69:0:69:4::Type variable name does not reflect variance:INFERENCE
 invalid-name:76:0:76:7::"Parameter specification variable name ""badName"" doesn't conform to predefined naming style":HIGH
-invalid-name:82:0:82:7::"Parameter specification variable name ""badName"" doesn't conform to predefined naming style":HIGH
-invalid-name:96:0:96:7::"Type variable tuple name ""badName"" doesn't conform to predefined naming style":HIGH
+invalid-name:83:0:83:7::"Parameter specification variable name ""badName"" doesn't conform to predefined naming style":HIGH
+invalid-name:98:0:98:7::"Type variable tuple name ""badName"" doesn't conform to predefined naming style":HIGH
