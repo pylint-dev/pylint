@@ -1,0 +1,4 @@
+[testoptions]
+# os.getgroups is Unix-only; the sys.platform guard means this snippet only
+# exercises the original bug on Linux.
+exclude_platforms=win32
