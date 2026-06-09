@@ -1,0 +1,1 @@
+inherit-non-class:7:0:7:22:TypeVarTupleBase:Inheriting 'P', which is not a class.:UNDEFINED

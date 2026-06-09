@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import is_enum, only_required_for_messages
+from pylint.checkers.utils import is_enum, only_required_for_messages, safe_class_type
 from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
 
@@ -502,7 +502,8 @@ class MisdesignChecker(BaseChecker):
             )
 
         # Stop here if the class is excluded via configuration.
-        if node.type == "class" and self._exclude_too_few_public_methods:
+        node_type = safe_class_type(node)
+        if node_type == "class" and self._exclude_too_few_public_methods:
             for ancestor in node.ancestors():
                 if any(
                     pattern.match(ancestor.qname())
@@ -512,7 +513,7 @@ class MisdesignChecker(BaseChecker):
 
         # Stop here for exception, metaclass, interface classes and other
         # classes for which we don't need to count the methods.
-        if node.type != "class" or _is_exempt_from_public_methods(node):
+        if node_type != "class" or _is_exempt_from_public_methods(node):
             return
 
         # Does the class contain more than n public methods ?
