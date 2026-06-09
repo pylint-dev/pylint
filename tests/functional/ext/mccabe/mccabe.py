@@ -306,7 +306,7 @@ def try_finally_with_nested_ifs():  # [too-complex]
 
 
 def match_case(avg):  # [too-complex]
-    """McCabe rating: 4
+    """McCabe rating: 3
     See https://github.com/astral-sh/ruff/issues/11421
     """
     # pylint: disable=bare-name-capture-pattern
@@ -321,7 +321,7 @@ def match_case(avg):  # [too-complex]
 
 
 def nested_match_case(data):  # [too-complex]
-    """McCabe rating: 8
+    """McCabe rating: 6
 
     Nested match statements."""
     match data:
@@ -350,3 +350,26 @@ def yield_in_for_loop(a=None, b=None, c=None):  # [too-complex]
             yield elt
     if c is not None:
         yield c
+
+
+try:  # [too-complex]
+    # McCabe rating: 5
+    if True:
+        pass
+    else:
+        pass
+except TypeA:
+    pass
+except TypeB:
+    pass
+
+
+match avg:  # [too-complex]
+    # McCabe rating: 3
+    # pylint: disable=bare-name-capture-pattern
+    case avg if avg < 0.3:
+        avg_grade = "F"
+    case avg if avg < 0.7:
+        avg_grade = "E+"
+    case _:
+        avg_grade = "A"
