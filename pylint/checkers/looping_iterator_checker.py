@@ -147,17 +147,26 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
             # Usage is not in a nested loop, so it's safe.
             return
 
-        # 3. Get the loop that directly contains the DEFINITION.
+        # 3. Find where the iterator gets redefined, if at all. The definition is
+        # refreshed on every iteration of the loop that directly contains it, so
+        # that loop (and anything outside it) cannot expose a stale iterator.
         definition_loops = self._enclosing_for_loops(definition)
         definition_loop = definition_loops[0] if definition_loops else None
-
         if definition_loop in ancestor_loops_of_usage:
+            redefinition_boundary = ancestor_loops_of_usage.index(definition_loop)
+        else:
+            # Defined outside every loop enclosing the usage (module/function
+            # scope, or an unrelated sibling loop): never refreshed.
+            redefinition_boundary = len(ancestor_loops_of_usage)
+
+        # The consuming loop is ``ancestor_loops_of_usage[0]``. Any loop *between*
+        # it and the redefinition re-runs the consumption without refreshing the
+        # iterator -- that is the bug, at any nesting depth. If there is no such
+        # loop, the iterator is refreshed on every repetition and we are safe.
+        repeating_loops = ancestor_loops_of_usage[1:redefinition_boundary]
+        if not repeating_loops:
             return
 
-        # The iterator is consumed in ``inner_loop`` and that loop repeats only
-        # because ``enclosing_loop`` (its immediate parent loop) re-runs it. Any
-        # further ancestor loops are irrelevant here: a redefinition in one of
-        # them is already handled by the ``definition_loop`` check above.
         inner_loop = ancestor_loops_of_usage[0]
         enclosing_loop = ancestor_loops_of_usage[1]
 
@@ -189,7 +198,7 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
     def _enclosing_for_loops(self, node: nodes.NodeNG) -> list[nodes.For]:
         """Return the ``for`` loops enclosing ``node``, innermost first.
 
-        Modelled on astroid's ``_get_if_statement_ancestor`` walk, but collects
+        Modeled on the astroid ``_get_if_statement_ancestor`` walk, but collects
         every enclosing loop and stops at the first scope boundary so a loop
         from an outer scope is never mistaken for one nesting the node.
         """

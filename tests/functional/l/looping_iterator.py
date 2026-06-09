@@ -258,12 +258,15 @@ def iterator_reinitialized_in_outer_loop_is_safe():
             print(i, j, next(my_iter))
 
 
-def iterator_in_deeply_nested_loop_is_safe():
+def iterator_in_deeply_nested_loop_warns():
+    # ``my_iter`` is refreshed only on each ``i`` iteration, but the ``j`` loop
+    # in between re-runs the consumption without a refresh: the second ``j`` pass
+    # always sees an exhausted iterator.
     for i in range(2):
         my_iter = iter([10, 20])
         for j in range(2):
             print(f"j={j}")
-            for item in my_iter:
+            for item in my_iter:  # [looping-through-iterator]
                 print(f"  i={i}, item={item}")
 
 
@@ -453,12 +456,13 @@ def three_level_nesting_exit_in_parent_is_safe():
             return
 
 
-def three_level_nesting_redefined_in_grandparent_is_safe():
-    # The iterator is redefined on every grandparent iteration. Conservatively
-    # treated as safe (the ``definition_loop`` lookup walks every ancestor loop,
-    # not just the closest two).
+def three_level_nesting_redefined_in_grandparent_warns():
+    # The iterator is redefined on every *grandparent* iteration, but the middle
+    # loop re-runs the consumption without a refresh, so the second ``_j`` pass
+    # always sees an exhausted iterator. The redefinition only helps when it
+    # happens in the loop immediately enclosing the consumption.
     for _i in range(2):
         gen_ex = (x for x in range(3))
         for _j in range(2):
-            for item in gen_ex:
+            for item in gen_ex:  # [looping-through-iterator]
                 print(item)
