@@ -17,3 +17,6 @@ useless-else-on-loop:422:8:423:29:warning_inner_for_else:Else clause on loop wit
 looping-through-iterator:432:24:432:30:three_level_nesting_warns:Iterator 'gen_ex' from an outer scope is reused or consumed in a nested loop.:HIGH
 looping-through-iterator:443:24:443:30:three_level_nesting_exit_in_grandparent_still_warns:Iterator 'gen_ex' from an outer scope is reused or consumed in a nested loop.:HIGH
 looping-through-iterator:467:24:467:30:three_level_nesting_redefined_in_grandparent_warns:Iterator 'gen_ex' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:479:20:479:23:user_generator_function_warns:Iterator 'gen' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:497:25:497:33:enumerate_object_global_scope:Iterator 'enum_obj' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:506:20:506:29:itertools_chain_object_global_scope:Iterator 'chain_obj' from an outer scope is reused or consumed in a nested loop.:HIGH

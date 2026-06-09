@@ -32,12 +32,35 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
 
     options = ()
 
+    # Callables that return a single, finite, one-shot iterator. Generator
+    # functions defined with ``yield`` are detected structurally with
+    # ``is_generator()`` instead. Deliberately excluded: ``itertools.tee``
+    # (returns a tuple of iterators), ``itertools.count``/``cycle`` (infinite,
+    # so the "exhausted on the second pass" pattern does not apply) and the
+    # re-iterable ``dict`` views.
     KNOWN_ITERATOR_PRODUCING_FUNCTION_QNAMES: set[str] = {
         "builtins.map",
         "builtins.filter",
         "builtins.zip",
         "builtins.iter",
         "builtins.reversed",
+        "builtins.enumerate",
+        "itertools.chain",
+        "itertools.islice",
+        "itertools.groupby",
+        "itertools.starmap",
+        "itertools.accumulate",
+        "itertools.product",
+        "itertools.permutations",
+        "itertools.combinations",
+        "itertools.combinations_with_replacement",
+        "itertools.compress",
+        "itertools.dropwhile",
+        "itertools.takewhile",
+        "itertools.filterfalse",
+        "itertools.zip_longest",
+        "itertools.pairwise",
+        "itertools.batched",
     }
 
     def __init__(self, linter: PyLinter) -> None:
@@ -87,9 +110,17 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
         elif isinstance(value_node, nodes.Call):
             # Use `safe_infer` for a robust check of the function being called
             inferred_func = utils.safe_infer(value_node.func)
-            if inferred_func and hasattr(inferred_func, "qname"):
+            if inferred_func is not None:
+                # A call to a user-defined generator function returns a one-shot
+                # generator, just like the known builtins below.
                 if (
-                    inferred_func.qname()
+                    isinstance(inferred_func, nodes.FunctionDef)
+                    and inferred_func.is_generator()
+                ):
+                    is_iterator_definition = True
+                elif (
+                    hasattr(inferred_func, "qname")
+                    and inferred_func.qname()
                     in self.KNOWN_ITERATOR_PRODUCING_FUNCTION_QNAMES
                 ):
                     is_iterator_definition = True

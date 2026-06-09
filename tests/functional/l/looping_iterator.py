@@ -466,3 +466,42 @@ def three_level_nesting_redefined_in_grandparent_warns():
         for _j in range(2):
             for item in gen_ex:  # [looping-through-iterator]
                 print(item)
+
+
+def user_generator_function_warns():
+    # A call to a user-defined generator function returns a one-shot generator,
+    # so reusing it in a nested loop exhausts it just like the builtins.
+    def my_gen():
+        yield from range(3)
+
+    gen = my_gen()
+    for _i in range(2):
+        for item in gen:  # [looping-through-iterator]
+            print(item)
+
+
+def regular_function_returning_list_no_warn():
+    # A regular function (no ``yield``) returning a fresh list is re-iterable.
+    def make_list():
+        return [1, 2, 3]
+
+    data = make_list()
+    for _i in range(2):
+        for item in data:
+            print(item)
+
+
+def enumerate_object_global_scope():
+    enum_obj = enumerate(range(3))
+    for _i in range(2):
+        for idx, item in enum_obj:  # [looping-through-iterator]
+            print(idx, item)
+
+
+def itertools_chain_object_global_scope():
+    import itertools
+
+    chain_obj = itertools.chain([1, 2], [3, 4])
+    for _i in range(2):
+        for item in chain_obj:  # [looping-through-iterator]
+            print(item)
