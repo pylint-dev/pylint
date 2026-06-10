@@ -1,0 +1,9 @@
+Optimize performance of ``PyLinter``.``_discover_files()`` traversal
+of a directory tree during startup. This is done by telling
+``os.walk()`` to do things in a top-down fashion, and properly
+removing ignored directories from the dirnames list so that those
+subtrees are not traversed. In Pylint, this reduced by ~= 81% the
+number of directories of what would otherwise be traversed. Bigger
+projects could see even greater reductions.
+
+Closes #11005
