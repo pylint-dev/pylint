@@ -11,6 +11,7 @@ import pytest
 from astroid import nodes
 
 from pylint.checkers import utils
+from pylint.checkers.utils import parse_format_method_string_result
 
 
 @pytest.mark.parametrize(
@@ -135,26 +136,237 @@ def test_is_subclass_of_not_classdefs() -> None:
 
 
 def test_parse_format_method_string() -> None:
+    result_type = parse_format_method_string_result
     samples = [
-        ("{}", 1),
-        ("{}:{}", 2),
-        ("{field}", 1),
-        ("{:5}", 1),
-        ("{:10}", 1),
-        ("{field:10}", 1),
-        ("{field:10}{{}}", 1),
-        ("{:5}{!r:10}", 2),
-        ("{:5}{}{{}}{}", 3),
-        ("{0}{1}{0}", 2),
-        ("Coordinates: {latitude}, {longitude}", 2),
-        ("X: {0[0]};  Y: {0[1]}", 1),
-        ("{:*^30}", 1),
-        ("{!r:}", 1),
+        ("{}", result_type([], 1, {}, {}, [(None, None)], {})),
+        ("{}:{}", result_type([], 2, {}, {}, [(None, None), (None, None)], {})),
+        (
+            "{field}",
+            result_type([("field", [])], 0, {}, {"field": (None, None)}, [], {}),
+        ),
+        ("{:5}", result_type([], 1, {}, {}, [(None, None)], {})),
+        ("{:10}", result_type([], 1, {}, {}, [(None, None)], {})),
+        (
+            "{field:10}",
+            result_type([("field", [])], 0, {}, {"field": (None, None)}, [], {}),
+        ),
+        (
+            "{field:10}{{}}",
+            result_type([("field", [])], 0, {}, {"field": (None, None)}, [], {}),
+        ),
+        ("{:5}{!r:10}", result_type([], 2, {}, {}, [(None, None), ("r", None)], {})),
+        (
+            "{:5}{}{{}}{}",
+            result_type([], 3, {}, {}, [(None, None), (None, None), (None, None)], {}),
+        ),
+        (
+            "{0}{1}{0}",
+            result_type(
+                [],
+                0,
+                {"0": [], "1": []},
+                {},
+                [],
+                {"0": (None, None), "1": (None, None)},
+            ),
+        ),
+        (
+            "Coordinates: {latitude}, {longitude}",
+            result_type(
+                [("latitude", []), ("longitude", [])],
+                0,
+                {},
+                {"latitude": (None, None), "longitude": (None, None)},
+                [],
+                {},
+            ),
+        ),
+        (
+            "X: {0[0]};  Y: {0[1]}",
+            result_type([], 0, {"0": [(False, 1)]}, {}, [], {"0": (None, None)}),
+        ),
+        ("{:*^30}", result_type([], 1, {}, {}, [(None, None)], {})),
+        ("{!r:}", result_type([], 1, {}, {}, [("r", None)], {})),
+        (
+            "{0.missing}",
+            result_type([], 0, {"0": [(True, "missing")]}, {}, [], {"0": (None, None)}),
+        ),
     ]
-    for fmt, count in samples:
-        keys, num_args, pos_args = utils.parse_format_method_string(fmt)
-        keyword_args = len({k for k, _ in keys if not isinstance(k, int)})
-        assert keyword_args + num_args + pos_args == count
+    for fmt, expected in samples:
+        assert utils.parse_format_method_string(fmt) == expected
+
+
+@pytest.mark.parametrize(
+    "spec,expected",
+    [
+        ("", None),
+        ("d", "d"),
+        ("x", "x"),
+        ("X", "X"),
+        ("o", "o"),
+        ("b", "b"),
+        ("f", "f"),
+        ("F", "F"),
+        ("e", "e"),
+        ("E", "E"),
+        ("g", "g"),
+        ("G", "G"),
+        ("n", "n"),
+        ("s", "s"),
+        ("c", "c"),
+        # Any spec containing ``%`` is treated as a strftime-style pattern
+        # and short-circuits to ``None`` (no format char to validate);
+        # ``"%"`` alone is in that class even though it's also a valid
+        # builtin format character on its own.
+        ("%", None),
+        # Common variants: width, precision, alignment, sign, padding.
+        (".2f", "f"),
+        ("02d", "d"),
+        (">10s", "s"),
+        ("+d", "d"),
+        ("#x", "x"),
+        ("_d", "d"),
+        (",.2f", "f"),
+        # A spec containing ``%`` is treated as a strftime-style pattern; no
+        # format char to validate.
+        ("%Y-%m-%d", None),
+        # A nested replacement field ``{...}`` may appear in the spec for
+        # dynamic precision / width; the regex allows it.
+        ("{}d", "d"),
+        ("{0}d", "d"),
+    ],
+)
+def test_parse_format_spec_valid(spec: str, expected: str | None) -> None:
+    assert utils.parse_format_spec(spec, 0) == expected
+
+
+def test_parse_format_spec_unsupported_char() -> None:
+    with pytest.raises(utils.UnsupportedFormatCharacter) as exc:
+        utils.parse_format_spec("p", 0)
+    assert exc.value.index == 0
+    with pytest.raises(utils.UnsupportedFormatCharacter) as exc:
+        utils.parse_format_spec(".2v", 5)
+    # 5 (start) + position of "v" within ".2v" (i.e. 2)
+    assert exc.value.index == 7
+
+
+def test_parse_format_spec_incomplete() -> None:
+    # "foo" doesn't match the mini-format-spec grammar at all.
+    with pytest.raises(utils.IncompleteFormatString):
+        utils.parse_format_spec("foo", 0)
+    with pytest.raises(utils.IncompleteFormatString):
+        utils.parse_format_spec("latex", 0)
+
+
+@pytest.mark.parametrize(
+    "field,expected",
+    [
+        # name, no spec, no conversion
+        ("x", ("", (None, None))),
+        # name + spec
+        ("x:d", ("d", (None, "d"))),
+        ("x:.2f", (".2f", (None, "f"))),
+        # name + conversion
+        ("x!r", ("", ("r", None))),
+        ("x!s:d", ("d", ("s", "d"))),
+        # indexed / attribute access
+        ("0", ("", (None, None))),
+        ("0[1]:d", ("d", (None, "d"))),
+        # bracket-aware: ``:`` inside brackets is not the spec separator
+        ("a[b:c]", ("", (None, None))),
+        # quoted bracket key
+        ("a['b:c']", ("", (None, None))),
+    ],
+)
+def test_parse_format_field(
+    field: str, expected: tuple[str, tuple[str | None, str | None]]
+) -> None:
+    assert utils.parse_format_field(field, 0) == expected
+
+
+def test_parse_format_field_unbalanced_bracket() -> None:
+    with pytest.raises(utils.IncompleteFormatString):
+        utils.parse_format_field("a]", 0)
+
+
+def test_parse_format_field_bad_conversion() -> None:
+    # Only ``r``, ``s``, ``a`` (in callers; here ``r``/``s``) are valid;
+    # ``z`` is bogus.
+    with pytest.raises(utils.UnsupportedFormatCharacter):
+        utils.parse_format_field("x!z", 0)
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        # A balanced "..." inside brackets is fine; the close pops the open.
+        'a["b"]',
+        # A balanced \'...\' inside brackets is fine.
+        "a['b']",
+    ],
+)
+def test_parse_format_field_balanced_quotes(field: str) -> None:
+    # No exception: the open/close pair balances cleanly.
+    assert utils.parse_format_field(field, 0) == ("", (None, None))
+
+
+def test_parse_format_field_unbalanced_double_quote() -> None:
+    # ``a["b"c"d]`` re-opens ``"`` after a closing one inside brackets;
+    # parse_format_field detects the second ``"`` while the bracket is
+    # still open and raises.
+    with pytest.raises(utils.IncompleteFormatString):
+        utils.parse_format_field('a["b"c"d]', 0)
+
+
+def test_parse_format_field_unbalanced_single_quote() -> None:
+    with pytest.raises(utils.IncompleteFormatString):
+        utils.parse_format_field("a['b'c'd]", 0)
+
+
+def test_parse_format_field_double_quote_already_open() -> None:
+    # Field text: ``'a'"b'c"`` (note: outer single-quoted Python literal so
+    # we have ``'``...``"``...``'``...``"``). When we hit the second ``"``
+    # at the end, the open_blocks stack is [``"``, ``'``]; the ``"`` is
+    # already in the stack but not at the top -> IncompleteFormatString.
+    with pytest.raises(utils.IncompleteFormatString):
+        utils.parse_format_field("'a'\"b'c\"", 0)
+
+
+def test_parse_format_field_single_quote_already_open() -> None:
+    # Mirror of the above for the single-quote branch:
+    # ``"a"'b"'`` ends with open_blocks=[``'``, ``"``] and ``'`` is already
+    # present below the top -> IncompleteFormatString.
+    with pytest.raises(utils.IncompleteFormatString):
+        utils.parse_format_field('"a"\'b"\'', 0)
+
+
+@pytest.mark.parametrize(
+    "fmt,expected_keys",
+    [
+        ("{}", {""}),
+        ("{:d}", {"d"}),
+        ("{x:d}", {"d"}),
+        ("{} {}", {""}),
+        ("{:d} {:s}", {"d", "s"}),
+        # {{ and }} are literal braces, not field delimiters
+        ("{{}}", set()),
+        ("hello {x}", {""}),
+        # Nested replacement fields in the spec
+        ("{x:{y}}", {"{y}", ""}),
+    ],
+)
+def test_parse_all_fields_formatting(fmt: str, expected_keys: set[str]) -> None:
+    result = utils.parse_all_fields_formatting(fmt, include_nested=True)
+    assert set(result) == expected_keys
+
+
+def test_parse_all_fields_formatting_unbalanced() -> None:
+    # Stray ``}`` with no opener.
+    with pytest.raises(utils.IncompleteFormatString):
+        utils.parse_all_fields_formatting("}", include_nested=True)
+    # Unclosed ``{``.
+    with pytest.raises(utils.IncompleteFormatString):
+        utils.parse_all_fields_formatting("{x", include_nested=True)
 
 
 def test_inherit_from_std_ex_recursive_definition() -> None:

@@ -389,9 +389,12 @@ class RecommendationChecker(checkers.BaseChecker):
             # Don't raise message on bad format string
             try:
                 keyword_args = [
-                    i[0] for i in utils.parse_format_method_string(node.value)[0]
+                    i[0]
+                    for i in utils.parse_format_method_string(
+                        node.value
+                    ).keyword_arguments
                 ]
-            except utils.IncompleteFormatString:
+            except (utils.IncompleteFormatString, utils.UnsupportedFormatCharacter):
                 return
 
             if node.parent.parent.args:
