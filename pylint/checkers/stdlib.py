@@ -874,13 +874,14 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 self.add_message(
                     "bad-open-mode",
                     node=node,
-                    args=mode_arg.value or str(mode_arg.value),
+                    # avoid a boolean context on the constant: bool(NotImplemented)
+                    # raises a TypeError on Python >= 3.14
+                    args=str(mode_arg.value),
                     confidence=confidence,
                 )
 
         if not mode_arg or (
-            isinstance(mode_arg, nodes.Const)
-            and not (mode_arg.value and "b" in str(mode_arg.value))
+            isinstance(mode_arg, nodes.Const) and "b" not in str(mode_arg.value)
         ):
             confidence = HIGH
             try:
