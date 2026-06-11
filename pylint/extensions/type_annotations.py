@@ -129,7 +129,7 @@ class TypeAnnotationChecker(checkers.BaseChecker):
                         node=node,
                         args=(arg.name, node.name),
                     )
-            # The implicit first parameter, if any, lives in posonlyargs.
+            # The implicit first parameter, if any, was a positional-only one.
             skip_first = False
 
         # Check regular args (skip self/cls for methods)
