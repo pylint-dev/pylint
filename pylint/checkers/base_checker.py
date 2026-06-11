@@ -154,6 +154,53 @@ class BaseChecker(_ArgumentsProvider):
             msgid, line, node, args, confidence, col_offset, end_lineno, end_col_offset
         )
 
+    def add_message_at_node(
+        self,
+        msgid: str,
+        node: nodes.NodeNG,
+        args: Any = None,
+        confidence: Confidence = UNDEFINED,
+    ) -> None:
+        """Fast path for the common case: emit a message located at ``node``.
+
+        Use :meth:`add_message` if you need to override
+        ``line``/``col_offset``, or :meth:`add_message_at_location` for
+        cross-module messages.
+        """
+        self.linter.add_message_at_node(msgid, node, args, confidence)
+
+    def add_message_at_location(
+        self,
+        msgid: str,
+        *,
+        module: str,
+        filepath: str | None = None,
+        line: int | None = None,
+        col_offset: int | None = None,
+        end_lineno: int | None = None,
+        end_col_offset: int | None = None,
+        args: Any = None,
+        confidence: Confidence = UNDEFINED,
+    ) -> None:
+        """Add a message at an explicit location, instead of deriving the
+        location from an AST node.
+
+        Use this when the message logically belongs to a module/position
+        other than the one currently being processed (e.g. cross-module
+        findings like duplicate-code).
+        """
+        self.linter.add_message_at_location(
+            msgid,
+            module=module,
+            filepath=filepath,
+            line=line,
+            col_offset=col_offset,
+            end_lineno=end_lineno,
+            end_col_offset=end_col_offset,
+            args=args,
+            confidence=confidence,
+        )
+
     def check_consistency(self) -> None:
         """Check the consistency of msgid.
 
