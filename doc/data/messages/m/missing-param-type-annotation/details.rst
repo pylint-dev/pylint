@@ -7,9 +7,10 @@ with ``--enable=missing-param-type-annotation``.
 
 The check automatically skips:
 
-- ``self`` and ``cls`` parameters in methods
+- The implicit ``self``/``cls`` parameter of bound methods
 - Parameters in abstract methods (``@abstractmethod``, ``@abstractproperty``)
 - Parameters in overload stub definitions (``@typing.overload``)
+- Parameters in methods overriding a parent (``@typing.override``)
 
 All parameter types are checked, including:
 

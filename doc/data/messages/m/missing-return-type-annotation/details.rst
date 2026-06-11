@@ -11,3 +11,4 @@ The check automatically skips:
 - Abstract methods (``@abstractmethod``, ``@abstractproperty``)
 - Properties and their setters/deleters
 - Overload stub definitions (``@typing.overload``)
+- Methods overriding a parent (``@typing.override``)

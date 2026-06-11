@@ -50,6 +50,29 @@ class TypeAnnotationChecker(checkers.BaseChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
+    @staticmethod
+    def _is_exempted(node: nodes.FunctionDef | nodes.AsyncFunctionDef) -> bool:
+        """Return whether annotation checks should be skipped for ``node``.
+
+        These exemptions are shared by the return-type and parameter checks:
+        the signature is either inherited, generated, or intentionally
+        annotation-free, so flagging it would only add noise.
+        """
+        if utils.decorated_with(node, ["abc.abstractmethod", "abc.abstractproperty"]):
+            return True
+
+        if utils.is_overload_stub(node):
+            return True
+
+        # ``@typing.override`` methods reuse the parent's signature; requiring
+        # annotations on them would be redundant and noisy.
+        if utils.decorated_with(
+            node, ["typing.override", "typing_extensions.override"]
+        ):
+            return True
+
+        return utils.is_property_setter_or_deleter(node)
+
     def _check_return_type_annotation(
         self, node: nodes.FunctionDef | nodes.AsyncFunctionDef
     ) -> None:
@@ -67,18 +90,10 @@ class TypeAnnotationChecker(checkers.BaseChecker):
         if node.name == "__init__":
             return
 
-        if utils.decorated_with(node, ["abc.abstractmethod", "abc.abstractproperty"]):
+        if utils.decorated_with_property(node):
             return
 
-        if utils.decorated_with(
-            node, ["typing.overload", "typing_extensions.overload"]
-        ):
-            return
-
-        if utils.decorated_with(node, ["property", "builtins.property"]):
-            return
-
-        if utils.is_property_setter_or_deleter(node):
+        if self._is_exempted(node):
             return
 
         self.add_message("missing-return-type-annotation", node=node, args=(node.name,))
@@ -91,24 +106,22 @@ class TypeAnnotationChecker(checkers.BaseChecker):
         Args:
             node: The function definition node to check
         """
-        if utils.decorated_with(node, ["abc.abstractmethod", "abc.abstractproperty"]):
-            return
-
-        if utils.decorated_with(
-            node, ["typing.overload", "typing_extensions.overload"]
-        ):
-            return
-
-        if utils.is_property_setter_or_deleter(node):
+        if self._is_exempted(node):
             return
 
         arguments = node.args
+
+        # In bound methods (instance and class methods) the first positional
+        # parameter is the implicit ``self``/``cls`` and never needs an
+        # annotation. Static methods and plain functions have no such parameter,
+        # even when the first parameter happens to be named ``self``.
+        skip_first = node.is_method() and node.type != "staticmethod"
 
         # Check positional-only args
         if arguments.posonlyargs:
             annotations = arguments.posonlyargs_annotations or []
             for idx, arg in enumerate(arguments.posonlyargs):
-                if arg.name in {"self", "cls"}:
+                if idx == 0 and skip_first:
                     continue
                 if idx >= len(annotations) or annotations[idx] is None:
                     self.add_message(
@@ -116,19 +129,15 @@ class TypeAnnotationChecker(checkers.BaseChecker):
                         node=node,
                         args=(arg.name, node.name),
                     )
+            # The implicit first parameter, if any, lives in posonlyargs.
+            skip_first = False
 
         # Check regular args (skip self/cls for methods)
         if arguments.args:
             annotations = arguments.annotations or []
-            start_idx = 0
-            if (
-                arguments.args
-                and arguments.args[0].name in {"self", "cls"}
-                and isinstance(node.parent, nodes.ClassDef)
-            ):
-                start_idx = 1
-
-            for idx, arg in enumerate(arguments.args[start_idx:], start=start_idx):
+            for idx, arg in enumerate(arguments.args):
+                if idx == 0 and skip_first:
+                    continue
                 if idx >= len(annotations) or annotations[idx] is None:
                     self.add_message(
                         "missing-param-type-annotation",
