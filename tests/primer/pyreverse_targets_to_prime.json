@@ -1,0 +1,17 @@
+{
+  "classdef": {
+    "package": "astroid",
+    "class_name": "astroid.nodes.scoped_nodes.scoped_nodes.ClassDef",
+    "path": "astroid"
+  },
+  "functiondef": {
+    "package": "astroid",
+    "class_name": "astroid.nodes.scoped_nodes.scoped_nodes.FunctionDef",
+    "path": "astroid"
+  },
+  "assignname": {
+    "package": "astroid",
+    "class_name": "astroid.nodes.node_classes.AssignName",
+    "path": "astroid"
+  }
+}
