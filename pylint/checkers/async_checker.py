@@ -88,8 +88,13 @@ class AsyncChecker(checkers.BaseChecker):
                                 continue
                     else:
                         continue
+            # ``inferred`` is not guaranteed to have a ``name`` (e.g. a ``Slice``
+            # inferred from ``slice(...)``); fall back to its inferred type name.
+            inferred_name = (
+                getattr(inferred, "name", None) or inferred.pytype().rsplit(".", 1)[-1]
+            )
             self.add_message(
-                "not-async-context-manager", node=node, args=(inferred.name,)
+                "not-async-context-manager", node=node, args=(inferred_name,)
             )
 
 
