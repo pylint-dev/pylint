@@ -97,6 +97,7 @@ class AsyncChecker(checkers.BaseChecker):
                 (
                     nodes.ClassDef,
                     nodes.FunctionDef,
+                    nodes.Lambda,
                     nodes.Module,
                     astroid.bases.BaseInstance,
                 ),
