@@ -2010,15 +2010,23 @@ accessed. Python regular expressions are accepted.",
                                 if inferred.name[-5:].lower() == "mixin":
                                     continue
 
-                        # A ``Slice`` inferred from ``slice(...)`` has no ``name``;
-                        # use its builtin type name instead.  Every other inferred
-                        # result reaching here is name-bearing (a class/function or
-                        # an instance such as the ``int`` from ``42``).
-                        inferred_name = (
-                            inferred.pytype().rsplit(".", 1)[-1]
-                            if isinstance(inferred, nodes.Slice)
-                            else inferred.name
-                        )
+                        # Only read ``name`` from nodes known to define it; any
+                        # other inferred result (e.g. a ``Slice`` from
+                        # ``slice(...)``) has no ``name``, so fall back to the
+                        # inferred type's name to keep the message informative
+                        # without risking an ``AttributeError``.
+                        if isinstance(
+                            inferred,
+                            (
+                                nodes.ClassDef,
+                                nodes.FunctionDef,
+                                nodes.Module,
+                                bases.BaseInstance,
+                            ),
+                        ):
+                            inferred_name = inferred.name
+                        else:
+                            inferred_name = inferred.pytype().rsplit(".", 1)[-1]
                         self.add_message(
                             "not-context-manager", node=node, args=(inferred_name,)
                         )
