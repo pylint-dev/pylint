@@ -696,15 +696,15 @@ Other Changes
   For instance, you can now use the **#** sign for having comments inside
   comma separated values, as seen below::
 
-      disable=no-member, # Don't care about it for now
-              bad-indentation, # No need for this
-              import-error
+      disable=:ref:`no-member`, # Don't care about it for now
+              :ref:`bad-indentation`, # No need for this
+              :ref:`import-error`
 
   Of course, interweaving comments with values is also working::
 
-      disable=no-member,
+      disable=:ref:`no-member`,
               # Don't care about it for now
-              bad-indentation # No need for this
+              :ref:`bad-indentation` # No need for this
 
 
   This works by setting the `inline comment prefixes`_ accordingly.
