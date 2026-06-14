@@ -256,6 +256,7 @@ contributors:
 - Aurelien Campeas <aurelien.campeas@logilab.fr>
 - Alexander Pervakov <frost.nzcr4@jagmort.com>
 - Alain Leufroy <alain.leufroy@logilab.fr>
+- Akshay Choudhary <153769403+Akshay9715@users.noreply.github.com>
 - Akhil Kamat <akhil.kamat@gmail.com>
 - Adam Williamson <awilliam@redhat.com>
 - Aaron Liu <aaronliu0130@gmail.com>
@@ -337,7 +338,6 @@ contributors:
 - Batuhan Taskaya <batuhanosmantaskaya@gmail.com>
 - Artem Yurchenko <artemyurchenko@zoho.com>
 - Alexander Kapshuna <kapsh@kap.sh>
-- Akshay Choudhary <153769403+Akshay9715@users.noreply.github.com>
 - Adam Parkin <pzelnip@users.noreply.github.com>
 - 谭九鼎 <109224573@qq.com>
 - Łukasz Sznuk <ls@rdprojekt.pl>
@@ -365,6 +365,7 @@ contributors:
 - kdestin <101366538+kdestin@users.noreply.github.com>
 - jaydesl <35102795+jaydesl@users.noreply.github.com>
 - jab <jab@users.noreply.github.com>
+- h1whelan <h1whelan@users.noreply.github.com>
 - gracejiang16 <70730457+gracejiang16@users.noreply.github.com>
 - glmdgrielson <32415403+glmdgrielson@users.noreply.github.com>
 - glegoux <gilles.legoux@gmail.com>
@@ -455,6 +456,7 @@ contributors:
 - R. N. West <98110034+rnwst@users.noreply.github.com>
 - Qwiddle13 <32040075+Qwiddle13@users.noreply.github.com>
 - Quentin Young <qlyoung@users.noreply.github.com>
+- Puneet Dixit <puneetdixit4321@gmail.com>
 - Prajwal Borkar <sunnyborkar7777@gmail.com>
 - Petr Pulc <petrpulc@gmail.com>: require whitespace around annotations
 - Peter Dawyndt <Peter.Dawyndt@UGent.be>
@@ -499,6 +501,7 @@ contributors:
 - Mehdi Drissi <mdrissi@hmc.edu>
 - Matěj Grabovský <mgrabovs@redhat.com>
 - Matthijs Blom <19817960+MatthijsBlom@users.noreply.github.com>
+- Matt Van Horn <455140+mvanhorn@users.noreply.github.com>
 - Matej Spiller Muys <matej.spiller-muys@bitstamp.net>
 - Matej Marušák <marusak.matej@gmail.com>
 - Marzuk Rashid <mail@marzuk.io>
@@ -567,6 +570,7 @@ contributors:
 - Grant Welch <gwelch925+github@gmail.com>
 - Giuseppe Valente <gvalente@arista.com>
 - Gary Tyler McLeod <mail@garytyler.com>
+- Fridayai700 <aifriday700@gmail.com>
 - Felix von Drigalski <FvDrigalski@gmail.com>
 - Fabrice Douchant <Fabrice.Douchant@logilab.fr>
 - Fabio Natali <me@fabionatali.com>

@@ -1,4 +1,0 @@
-Fix a false positive for ``no-member`` when a value is inferred to several
-possible types and at least one of them defines a dynamic ``__getattr__``.
-
-Closes #9833
