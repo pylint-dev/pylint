@@ -2020,6 +2020,7 @@ accessed. Python regular expressions are accepted.",
                             (
                                 nodes.ClassDef,
                                 nodes.FunctionDef,
+                                nodes.Lambda,
                                 nodes.Module,
                                 bases.BaseInstance,
                             ),
