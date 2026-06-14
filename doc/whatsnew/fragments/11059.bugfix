@@ -1,4 +1,0 @@
-Fix a crash in the deprecated checker when ``__import__`` is called with a
-non-string constant argument (for example ``__import__(1)``).
-
-Closes #11059
