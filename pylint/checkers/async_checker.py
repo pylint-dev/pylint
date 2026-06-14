@@ -88,10 +88,14 @@ class AsyncChecker(checkers.BaseChecker):
                                 continue
                     else:
                         continue
-            # ``inferred`` is not guaranteed to have a ``name`` (e.g. a ``Slice``
-            # inferred from ``slice(...)``); fall back to its inferred type name.
+            # A ``Slice`` inferred from ``slice(...)`` has no ``name``; use its
+            # builtin type name instead.  Every other inferred result reaching
+            # here is name-bearing (a class/function or an instance such as the
+            # ``int`` from ``42``, which astroid models as a named ``Const``).
             inferred_name = (
-                getattr(inferred, "name", None) or inferred.pytype().rsplit(".", 1)[-1]
+                inferred.pytype().rsplit(".", 1)[-1]
+                if isinstance(inferred, nodes.Slice)
+                else inferred.name
             )
             self.add_message(
                 "not-async-context-manager", node=node, args=(inferred_name,)
