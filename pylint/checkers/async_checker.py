@@ -88,8 +88,25 @@ class AsyncChecker(checkers.BaseChecker):
                                 continue
                     else:
                         continue
+            # Only read ``name`` from nodes known to define it; any other
+            # inferred result (e.g. a ``Slice`` from ``slice(...)``) has no
+            # ``name``, so fall back to the inferred type's name to keep the
+            # message informative without risking an ``AttributeError``.
+            if isinstance(
+                inferred,
+                (
+                    nodes.ClassDef,
+                    nodes.FunctionDef,
+                    nodes.Lambda,
+                    nodes.Module,
+                    astroid.bases.BaseInstance,
+                ),
+            ):
+                inferred_name = inferred.name
+            else:
+                inferred_name = inferred.pytype().rsplit(".", 1)[-1]
             self.add_message(
-                "not-async-context-manager", node=node, args=(inferred.name,)
+                "not-async-context-manager", node=node, args=(inferred_name,)
             )
 
 
