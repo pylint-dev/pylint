@@ -2010,8 +2010,26 @@ accessed. Python regular expressions are accepted.",
                                 if inferred.name[-5:].lower() == "mixin":
                                     continue
 
+                        # Only read ``name`` from nodes known to define it; any
+                        # other inferred result (e.g. a ``Slice`` from
+                        # ``slice(...)``) has no ``name``, so fall back to the
+                        # inferred type's name to keep the message informative
+                        # without risking an ``AttributeError``.
+                        if isinstance(
+                            inferred,
+                            (
+                                nodes.ClassDef,
+                                nodes.FunctionDef,
+                                nodes.Lambda,
+                                nodes.Module,
+                                bases.BaseInstance,
+                            ),
+                        ):
+                            inferred_name = inferred.name
+                        else:
+                            inferred_name = inferred.pytype().rsplit(".", 1)[-1]
                         self.add_message(
-                            "not-context-manager", node=node, args=(inferred.name,)
+                            "not-context-manager", node=node, args=(inferred_name,)
                         )
 
     @only_required_for_messages("invalid-unary-operand-type")

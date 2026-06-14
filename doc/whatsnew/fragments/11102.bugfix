@@ -1,0 +1,5 @@
+Fix a crash in the ``not-context-manager`` and ``not-async-context-manager``
+checks when the context manager infers to a value without a name, such as the
+``slice`` returned by ``with slice(...)`` / ``async with slice(...)``.
+
+Closes #11102
