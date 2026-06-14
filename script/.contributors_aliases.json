@@ -53,8 +53,8 @@
   "31987769+sushobhit27@users.noreply.github.com": {
     "comment": " (sushobhit27)\n  * Added new check 'comparison-with-itself'.\n  * Added new check 'useless-import-alias'.\n  * Added support of annotations in missing-type-doc and missing-return-type-doc.\n  * Added new check 'comparison-with-callable'.\n  * Removed six package dependency.\n  * Added new check 'chained-comparison'.\n  * Added new check 'useless-object-inheritance'.",
     "mails": [
-      "sushobhitsolanki@gmail.com",
-      "31987769+sushobhit27@users.noreply.github.com"
+      "31987769+sushobhit27@users.noreply.github.com",
+      "sushobhitsolanki@gmail.com"
     ],
     "name": "Sushobhit"
   },
@@ -72,7 +72,7 @@
     "name": "Harshil"
   },
   "3929834+DudeNr33@users.noreply.github.com": {
-    "mails": ["andi.finkler@gmail.com", "3929834+DudeNr33@users.noreply.github.com"],
+    "mails": ["3929834+DudeNr33@users.noreply.github.com", "andi.finkler@gmail.com"],
     "name": "Andreas Finkler",
     "team": "Maintainers"
   },
@@ -101,13 +101,13 @@
     "name": "Daniel Brookman"
   },
   "55152140+jayaddison@users.noreply.github.com": {
-    "mails": ["jay@jp-hosting.net", "55152140+jayaddison@users.noreply.github.com"],
+    "mails": ["55152140+jayaddison@users.noreply.github.com", "jay@jp-hosting.net"],
     "name": "James Addison"
   },
   "61059243+tiagohonorato@users.noreply.github.com": {
     "mails": [
-      "tiagohonorato1@gmail.com",
-      "61059243+tiagohonorato@users.noreply.github.com"
+      "61059243+tiagohonorato@users.noreply.github.com",
+      "tiagohonorato1@gmail.com"
     ],
     "name": "Tiago Honorato"
   },
@@ -172,7 +172,7 @@
     "name": "Pablo Galindo Salgado"
   },
   "PaulRenvoise@users.noreply.github.com": {
-    "mails": ["renvoisepaul@gmail.com", "PaulRenvoise@users.noreply.github.com"],
+    "mails": ["PaulRenvoise@users.noreply.github.com", "renvoisepaul@gmail.com"],
     "name": "Paul Renvoisé"
   },
   "adityagupta1089@users.noreply.github.com": {
@@ -192,7 +192,7 @@
   },
   "alexandre.fayolle@logilab.fr": {
     "comment": " (Logilab): TkInter gui, documentation, debian support",
-    "mails": ["alexandre.fayolle@logilab.fr", "afayolle.ml@free.fr"],
+    "mails": ["afayolle.ml@free.fr", "alexandre.fayolle@logilab.fr"],
     "name": "Alexandre Fayolle"
   },
   "alvarofriasgaray@gmail.com": {
@@ -205,7 +205,7 @@
     "name": "Andreas Freimuth"
   },
   "anjsimmo@gmail.com": {
-    "mails": ["anjsimmo@gmail.com", "a.simmons@deakin.edu.au"],
+    "mails": ["a.simmons@deakin.edu.au", "anjsimmo@gmail.com"],
     "name": "Andrew J. Simmons"
   },
   "antonio@zoftko.com": {
@@ -214,25 +214,25 @@
   },
   "areveny@protonmail.com": {
     "mails": [
+      "92831762+areveny@users.noreply.github.com",
       "areveny@protonmail.com",
-      "self@areveny.com",
-      "92831762+areveny@users.noreply.github.com"
+      "self@areveny.com"
     ],
     "name": "Arianna Yang",
     "team": "Maintainers"
   },
   "arusahni@gmail.com": {
     "comment": ": Git ignoring, regex-based ignores",
-    "mails": ["arusahni@gmail.com", "aru@thehumangeo.com"],
+    "mails": ["aru@thehumangeo.com", "arusahni@gmail.com"],
     "name": "Aru Sahni"
   },
   "ashley@awhetter.co.uk": {
     "mails": [
-      "ashleyw@activestate.com",
+      "AWhetter@users.noreply.github.com",
       "ashley@awhetter.co.uk",
-      "awhetter.2011@my.bristol.ac.uk",
+      "ashleyw@activestate.com",
       "asw@dneg.com",
-      "AWhetter@users.noreply.github.com"
+      "awhetter.2011@my.bristol.ac.uk"
     ],
     "name": "Ashley Whetter",
     "team": "Maintainers"
@@ -248,7 +248,7 @@
     "name": "Alexander Todorov"
   },
   "awilliam@redhat.com": {
-    "mails": ["awilliam@redhat.com", "adam@blueradius.ca"],
+    "mails": ["adam@blueradius.ca", "awilliam@redhat.com"],
     "name": "Adam Williamson"
   },
   "balint.mihai@gmail.com": {
@@ -286,12 +286,12 @@
   },
   "bot@noreply.github.com": {
     "mails": [
-      "66853113+pre-commit-ci[bot]@users.noreply.github.com",
-      "49699333+dependabot[bot]@users.noreply.github.com",
+      "198982749+Copilot@users.noreply.github.com",
       "212256041+pylint-backport-bot[bot]@users.noreply.github.com",
-      "41898282+github-actions[bot]@users.noreply.github.com",
       "212256041+pylint-backport[bot]@users.noreply.github.com",
-      "198982749+Copilot@users.noreply.github.com"
+      "41898282+github-actions[bot]@users.noreply.github.com",
+      "49699333+dependabot[bot]@users.noreply.github.com",
+      "66853113+pre-commit-ci[bot]@users.noreply.github.com"
     ],
     "name": "bot"
   },
@@ -311,7 +311,7 @@
     "name": "Bruno Daniel"
   },
   "bryce.paul.guinta@gmail.com": {
-    "mails": ["bryce.paul.guinta@gmail.com", "bryce.guinta@protonmail.com"],
+    "mails": ["bryce.guinta@protonmail.com", "bryce.paul.guinta@gmail.com"],
     "name": "Bryce Guinta",
     "team": "Maintainers"
   },
@@ -319,8 +319,8 @@
     "mails": [
       "buck.2019@gmail.com",
       "buck@yelp.com",
-      "workitharder@gmail.com",
-      "bukzor@google.com"
+      "bukzor@google.com",
+      "workitharder@gmail.com"
     ],
     "name": "Buck Evan"
   },
@@ -376,7 +376,7 @@
     "name": "Dave Bunten"
   },
   "david.douard@sdfa3.org": {
-    "mails": ["david.douard@sdfa3.org", "david.douard@logilab.fr"],
+    "mails": ["david.douard@logilab.fr", "david.douard@sdfa3.org"],
     "name": "David Douard"
   },
   "david.pursehouse@gmail.com": {
@@ -429,9 +429,9 @@
   "ejfine@gmail.com": {
     "comment": " (eli88fine): Fixed false positive duplicate code warning for lines with symbols only",
     "mails": [
-      "ubuntu@ip-172-31-89-59.ec2.internal",
+      "ejfine@gmail.com",
       "eli88fine@gmail.com",
-      "ejfine@gmail.com"
+      "ubuntu@ip-172-31-89-59.ec2.internal"
     ],
     "name": "Eli Fine"
   },
@@ -446,7 +446,7 @@
   },
   "emile.anclin@logilab.fr": {
     "comment": " (Logilab): python 3 support",
-    "mails": ["emile.anclin@logilab.fr", ""],
+    "mails": ["", "emile.anclin@logilab.fr"],
     "name": "Emile Anclin"
   },
   "emile@crater.logilab.fr": {
@@ -473,7 +473,7 @@
   },
   "frank@doublethefish.com": {
     "comment": " (doublethefish)",
-    "mails": ["frank@doublethefish.com", "doublethefish@gmail.com"],
+    "mails": ["doublethefish@gmail.com", "frank@doublethefish.com"],
     "name": "Frank Harrison"
   },
   "frost.nzcr4@jagmort.com": {
@@ -522,7 +522,7 @@
     "name": "Grizzly Nyo"
   },
   "guillaume.peillex@gmail.com": {
-    "mails": ["guillaume.peillex@gmail.com", "guillaume.peillex@gmail.col"],
+    "mails": ["guillaume.peillex@gmail.col", "guillaume.peillex@gmail.com"],
     "name": "Hippo91",
     "team": "Maintainers"
   },
@@ -532,17 +532,17 @@
   },
   "hg@stevenmyint.com": {
     "comment": ": duplicate-except.",
-    "mails": ["hg@stevenmyint.com", "git@stevenmyint.com"],
+    "mails": ["git@stevenmyint.com", "hg@stevenmyint.com"],
     "name": "Steven Myint"
   },
   "hofrob@protonmail.com": {
-    "mails": ["hofrob@protonmail.com", "1058012+hofrob@users.noreply.github.com"],
+    "mails": ["1058012+hofrob@users.noreply.github.com", "hofrob@protonmail.com"],
     "name": "Robert Hofer"
   },
   "hugovk@users.noreply.github.com": {
     "mails": [
-      "hugovk@users.noreply.github.com",
-      "1324225+hugovk@users.noreply.github.com"
+      "1324225+hugovk@users.noreply.github.com",
+      "hugovk@users.noreply.github.com"
     ],
     "name": "Hugo van Kemenade"
   },
@@ -668,12 +668,12 @@
     "name": "Boris Feld"
   },
   "lucas.cimon@gmail.com": {
-    "mails": ["lucas.cimon@gmail.com", "925560+Lucas-C@users.noreply.github.com"],
+    "mails": ["925560+Lucas-C@users.noreply.github.com", "lucas.cimon@gmail.com"],
     "name": "Lucas Cimon"
   },
   "lucristofolini@gmail.com": {
     "comment": " (luigibertaco)",
-    "mails": ["luigi.cristofolini@q-ctrl.com", "lucristofolini@gmail.com"],
+    "mails": ["lucristofolini@gmail.com", "luigi.cristofolini@q-ctrl.com"],
     "name": "Luigi Bertaco Cristofolini"
   },
   "ludal@logilab.fr": {
@@ -690,19 +690,19 @@
     "name": "Marco Edward Gorelli"
   },
   "mariocj89@gmail.com": {
-    "mails": ["mcorcherojim@bloomberg.net", "mariocj89@gmail.com"],
+    "mails": ["mariocj89@gmail.com", "mcorcherojim@bloomberg.net"],
     "name": "Mario Corchero"
   },
   "mark00bell@googlemail.com": {
-    "mails": ["mark00bell@googlemail.com", "MarkCBell@users.noreply.github.com"],
+    "mails": ["MarkCBell@users.noreply.github.com", "mark00bell@googlemail.com"],
     "name": "Mark Bell"
   },
   "martin@vielsmaier.net": {
-    "mails": ["martin@vielsmaier.net", "martin.vielsmaier@gmail.com"],
+    "mails": ["martin.vielsmaier@gmail.com", "martin@vielsmaier.net"],
     "name": "Martin Vielsmaier"
   },
   "matusvalo@users.noreply.github.com": {
-    "mails": ["matusvalo@users.noreply.github.com", "matusvalo@gmail.com"],
+    "mails": ["matusvalo@gmail.com", "matusvalo@users.noreply.github.com"],
     "name": "Matus Valo",
     "team": "Maintainers"
   },
@@ -712,14 +712,14 @@
     "name": "Martin Pool"
   },
   "me@daogilvie.com": {
-    "mails": ["me@daogilvie.com", "drum.ogilvie@ovo.com"],
+    "mails": ["drum.ogilvie@ovo.com", "me@daogilvie.com"],
     "name": "Drum Ogilvie"
   },
   "me@the-compiler.org": {
     "mails": [
-      "me@the-compiler.org",
+      "bitbucket.org@the-compiler.org",
       "git@the-compiler.org",
-      "bitbucket.org@the-compiler.org"
+      "me@the-compiler.org"
     ],
     "name": "Florian Bruhin",
     "team": "Maintainers"
@@ -736,7 +736,7 @@
   },
   "molobrakos@users.noreply.github.com": {
     "comment": ": Added overlapping-except error check.",
-    "mails": ["molobrakos@users.noreply.github.com", "erik.eriksson@yahoo.com"],
+    "mails": ["erik.eriksson@yahoo.com", "molobrakos@users.noreply.github.com"],
     "name": "Erik Eriksson"
   },
   "moylop260@vauxoo.com": {
@@ -766,7 +766,7 @@
   },
   "nelfin@gmail.com": {
     "comment": " (nelfin)",
-    "mails": ["nelfin@gmail.com", "hello@nelf.in"],
+    "mails": ["hello@nelf.in", "nelfin@gmail.com"],
     "name": "Andrew Haigh"
   },
   "nicholasdrozd@gmail.com": {
@@ -803,7 +803,7 @@
   },
   "peter.kolbus@gmail.com": {
     "comment": " (Garmin)",
-    "mails": ["peter.kolbus@gmail.com", "peter.kolbus@garmin.com"],
+    "mails": ["peter.kolbus@garmin.com", "peter.kolbus@gmail.com"],
     "name": "Peter Kolbus"
   },
   "petrpulc@gmail.com": {
@@ -812,13 +812,13 @@
     "name": "Petr Pulc"
   },
   "pierre-yves.david@logilab.fr": {
-    "mails": ["pyves@crater.logilab.fr", "pierre-yves.david@logilab.fr"],
+    "mails": ["pierre-yves.david@logilab.fr", "pyves@crater.logilab.fr"],
     "name": "Pierre-Yves David"
   },
   "pierre.sassoulas@gmail.com": {
     "mails": [
-      "pierre.sassoulas@gmail.com",
       "pierre.sassoulas@cea.fr",
+      "pierre.sassoulas@gmail.com",
       "pierre.sassoulas@wisebim.fr"
     ],
     "name": "Pierre Sassoulas",
@@ -844,7 +844,7 @@
     "name": "Ramiro Leal-Cavazos"
   },
   "raphael@makeleaps.com": {
-    "mails": ["raphael@rtpg.co", "raphael@makeleaps.com"],
+    "mails": ["raphael@makeleaps.com", "raphael@rtpg.co"],
     "name": "Raphael Gaschignard"
   },
   "rbt@sent.as": {
@@ -857,11 +857,11 @@
     "name": "Reverb Chu"
   },
   "rhys.fureigh@gsa.gov": {
-    "mails": ["rhys.fureigh@gsa.gov", "fureigh@users.noreply.github.com"],
+    "mails": ["fureigh@users.noreply.github.com", "rhys.fureigh@gsa.gov"],
     "name": "Fureigh"
   },
   "rogalski.91@gmail.com": {
-    "mails": ["rogalski.91@gmail.com", "lukasz.rogalski@intel.com"],
+    "mails": ["lukasz.rogalski@intel.com", "rogalski.91@gmail.com"],
     "name": "Łukasz Rogalski",
     "team": "Maintainers"
   },
@@ -935,7 +935,7 @@
   },
   "thenault@gmail.com": {
     "comment": " : main author / maintainer",
-    "mails": ["thenault@gmail.com", "sylvain.thenault@logilab.fr"],
+    "mails": ["sylvain.thenault@logilab.fr", "thenault@gmail.com"],
     "name": "Sylvain Thénault",
     "team": "Ex-maintainers"
   },
@@ -947,14 +947,14 @@
   "tushar.sadhwani000@gmail.com": {
     "comment": " (tusharsadhwani)",
     "mails": [
+      "86737547+tushar-deepsource@users.noreply.github.com",
       "tushar.sadhwani000@gmail.com",
-      "tushar@deepsource.io",
-      "86737547+tushar-deepsource@users.noreply.github.com"
+      "tushar@deepsource.io"
     ],
     "name": "Tushar Sadhwani"
   },
   "vapier@gmail.com": {
-    "mails": ["vapier@gmail.com", "vapier@gentoo.org"],
+    "mails": ["vapier@gentoo.org", "vapier@gmail.com"],
     "name": "Mike Frysinger"
   },
   "ville.skytta@iki.fi": {
