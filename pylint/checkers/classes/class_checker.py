@@ -35,6 +35,7 @@ from pylint.checkers.utils import (
     is_property_setter_or_deleter,
     node_frame_class,
     only_required_for_messages,
+    safe_class_type,
     safe_infer,
     unimplemented_abstract_methods,
     uninferable_final_decorators,
@@ -1203,7 +1204,7 @@ a metaclass class method.",
             return
 
         accessed = self._accessed.accessed(cnode)
-        if cnode.type != "metaclass":
+        if safe_class_type(cnode) != "metaclass":
             self._check_accessed_members(cnode, accessed)
         # checks attributes are defined in an allowed method such as __init__
         if not self.linter.is_message_enabled("attribute-defined-outside-init"):
@@ -1276,7 +1277,7 @@ a metaclass class method.",
         # 'is_method()' is called and makes sure that this is a 'nodes.ClassDef'
         klass: nodes.ClassDef = node.parent.frame()
         # check first argument is self if this is actually a method
-        self._check_first_arg_for_type(node, klass.type == "metaclass")
+        self._check_first_arg_for_type(node, safe_class_type(klass) == "metaclass")
         if node.name == "__init__":
             self._check_init(node, klass)
             return

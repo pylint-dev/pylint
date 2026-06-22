@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+import sys
+
 import astroid
 import pytest
 from astroid import nodes
@@ -132,6 +134,146 @@ def test_is_subclass_of_not_classdefs() -> None:
     assert not utils.is_subclass_of(None, node)
     assert not utils.is_subclass_of(node, None)
     assert not utils.is_subclass_of(None, None)
+
+
+def test_safe_class_type_preserves_common_class_kinds() -> None:
+    (
+        plain,
+        custom_exception,
+        custom_error,
+        meta,
+        sub_meta,
+        derived_error,
+    ) = astroid.extract_node(
+        """
+    class Plain: #@
+        pass
+
+    class CustomException: #@
+        pass
+
+    class CustomError(Exception): #@
+        pass
+
+    class Meta(type): #@
+        pass
+
+    class SubMeta(Meta): #@
+        pass
+
+    class DerivedError(Plain, CustomError): #@
+        pass
+    """
+    )
+
+    assert utils.safe_class_type(plain) == "class"
+    assert utils.safe_class_type(custom_exception) == "exception"
+    assert utils.safe_class_type(custom_error) == "exception"
+    assert utils.safe_class_type(meta) == "metaclass"
+    assert utils.safe_class_type(sub_meta) == "metaclass"
+    assert utils.safe_class_type(derived_error) == "exception"
+
+    assert utils.safe_class_type(plain) == "class"
+    assert utils.safe_class_type(custom_exception) == "exception"
+    assert utils.safe_class_type(meta) == "metaclass"
+
+
+def test_safe_class_type_ignores_instance_and_function_bases() -> None:
+    instance_base, function_base = astroid.extract_node("""
+    class Base:
+        pass
+
+    base = Base()
+
+    class Child(base): #@
+        pass
+
+    def factory():
+        pass
+
+    class FunctionBase(factory): #@
+        pass
+    """)
+
+    assert utils.safe_class_type(instance_base) == "class"
+    assert utils.safe_class_type(function_base) == "class"
+
+
+def test_safe_class_type_handles_ancestor_cycles() -> None:
+    first, second, third = astroid.extract_node("""
+    class First(Second): #@
+        pass
+
+    class Second(First): #@
+        pass
+
+    class Third(First): #@
+        pass
+    """)
+
+    assert utils.safe_class_type(first) == "class"
+    assert utils.safe_class_type(second) == "class"
+    assert utils.safe_class_type(third) == "class"
+
+    guarded = astroid.extract_node("""
+    class Guarded: #@
+        pass
+    """)
+    assert utils.safe_class_type(guarded, {guarded.qname()}) == "class"
+
+
+def test_safe_class_type_handles_shared_non_metaclass_base() -> None:
+    child = astroid.extract_node("""
+    class Root:
+        pass
+
+    class Left(Root):
+        pass
+
+    class Right(Root):
+        pass
+
+    class Child(Left, Right): #@
+        pass
+    """)
+
+    assert utils.safe_class_type(child) == "class"
+
+
+def test_safe_class_type_ignores_non_class_and_metaclass_ancestors(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    klass, meta = astroid.extract_node("""
+    class Klass: #@
+        pass
+
+    class Meta(type): #@
+        pass
+    """)
+    non_class = astroid.extract_node("value = 1")
+
+    assert utils.safe_class_type(meta) == "metaclass"
+
+    def ancestors(recurs: bool = True) -> list[nodes.NodeNG]:
+        assert recurs is False
+        return [non_class, meta]
+
+    monkeypatch.setattr(klass, "ancestors", ancestors)
+
+    assert utils.safe_class_type(klass) == "class"
+
+
+@pytest.mark.skipif(sys.version_info < (3, 12), reason="PEP 695 requires Python 3.12")
+def test_safe_class_type_ignores_typevartuple_base() -> None:
+    klass = astroid.extract_node("""
+    type T[*P] = None
+
+    class TypeVarTupleBase(P): #@
+        pass
+    """)
+
+    assert utils.safe_class_type(klass) == "class"
+    assert not utils.is_protocol_class(klass)
 
 
 def test_parse_format_method_string() -> None:

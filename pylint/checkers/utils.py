@@ -16,7 +16,7 @@ import string
 from collections.abc import Callable, Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, Literal, TypeVar
 
 import astroid
 import astroid.exceptions
@@ -1689,11 +1689,87 @@ def is_protocol_class(cls: nodes.NodeNG) -> bool:
     for base in cls.bases:
         try:
             for inf_base in base.infer():
-                if inf_base.qname() in TYPING_PROTOCOLS:
+                if (
+                    isinstance(inf_base, nodes.ClassDef)
+                    and inf_base.qname() in TYPING_PROTOCOLS
+                ):
                     return True
         except astroid.InferenceError:
             continue
     return False
+
+
+def _is_metaclass(cls: nodes.ClassDef, seen: set[str] | None = None) -> bool:
+    """Return whether a class node can be used as a metaclass."""
+    if cls.name == "type":
+        return True
+    if seen is None:
+        seen = set()
+
+    for base in cls.bases:
+        try:
+            inferred_bases = tuple(base.infer())
+        except astroid.InferenceError:
+            continue
+        for base_obj in inferred_bases:
+            if isinstance(base_obj, bases.Instance):
+                return False
+            if base_obj is cls or not isinstance(base_obj, nodes.ClassDef):
+                continue
+
+            base_obj_name = base_obj.qname()
+            if base_obj_name in seen:
+                continue
+            seen.add(base_obj_name)
+
+            if base_obj._type == "metaclass" or _is_metaclass(base_obj, seen):
+                return True
+    return False
+
+
+_ClassType = Literal["class", "exception", "metaclass"]
+
+
+def _class_type_literal(value: object) -> _ClassType:
+    if value == "exception":
+        return "exception"
+    if value == "metaclass":
+        return "metaclass"
+    return "class"
+
+
+def safe_class_type(
+    cls: nodes.ClassDef, ancestors: set[str] | None = None
+) -> _ClassType:
+    """Return a class node type while ignoring non-class inferred bases."""
+    if cls._type is not None:
+        return _class_type_literal(cls._type)
+    if _is_metaclass(cls):
+        cls._type = "metaclass"
+    elif cls.name.endswith("Exception"):
+        cls._type = "exception"
+    else:
+        if ancestors is None:
+            ancestors = set()
+        cls_name = cls.qname()
+        if cls_name in ancestors:
+            cls._type = "class"
+            return "class"
+        ancestors.add(cls_name)
+        for ancestor in cls.ancestors(recurs=False):
+            if not isinstance(ancestor, nodes.ClassDef):
+                continue
+            ancestor_type = safe_class_type(ancestor, ancestors)
+            if ancestor_type == "class":
+                continue
+            if ancestor_type == "metaclass" and cls._type != "metaclass":
+                continue
+            cls._type = ancestor_type
+            break
+
+    if cls._type is None:
+        cls._type = "class"
+    return _class_type_literal(cls._type)
 
 
 def is_call_of_name(node: nodes.NodeNG, name: str) -> bool:
