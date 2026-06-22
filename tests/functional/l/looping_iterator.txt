@@ -1,0 +1,22 @@
+looping-through-iterator:10:20:10:26:generator_expression_global_scope:Iterator 'gen_ex' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:17:20:17:27:map_object_global_scope:Iterator 'map_obj' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:24:20:24:30:filter_object_global_scope:Iterator 'filter_obj' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:31:20:31:27:zip_object_global_scope:Iterator 'zip_obj' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:39:20:39:28:iter_object_global_scope:Iterator 'iter_obj' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:53:20:53:33:iter_callable_sentinel_global_scope:Iterator 'iter_call_obj' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:63:31:63:36:nested_consuming_producing_calls:Iterator 'iter1' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:72:20:72:27:reversed_object_global_scope:Iterator 'rev_obj' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:80:24:80:30:iterator_defined_in_func_before_outer_loop.func:Iterator 'gen_ex' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:90:24:90:30:multiple_levels_of_nesting:Iterator 'gen_ex' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:97:24:97:29:nested_consumer_producer_calls:Iterator 'iter1' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:269:24:269:31:iterator_in_deeply_nested_loop_warns:Iterator 'my_iter' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:336:20:336:27:warns_for_if_else_with_only_one_branch_exiting:Iterator 'my_iter' from an outer scope is reused or consumed in a nested loop.:HIGH
+no-else-break:338:8:343:43:warns_for_if_else_with_only_one_branch_exiting:"Unnecessary ""else"" after ""break"", remove the ""else"" and de-indent the code inside it":HIGH
+looping-through-iterator:420:20:420:26:warning_inner_for_else:Iterator 'gen_ex' from an outer scope is reused or consumed in a nested loop.:HIGH
+useless-else-on-loop:422:8:423:29:warning_inner_for_else:Else clause on loop without a break statement, remove the else and de-indent all the code inside it:UNDEFINED
+looping-through-iterator:432:24:432:30:three_level_nesting_warns:Iterator 'gen_ex' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:443:24:443:30:three_level_nesting_exit_in_grandparent_still_warns:Iterator 'gen_ex' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:467:24:467:30:three_level_nesting_redefined_in_grandparent_warns:Iterator 'gen_ex' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:479:20:479:23:user_generator_function_warns:Iterator 'gen' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:497:25:497:33:enumerate_object_global_scope:Iterator 'enum_obj' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:506:20:506:29:itertools_chain_object_global_scope:Iterator 'chain_obj' from an outer scope is reused or consumed in a nested loop.:HIGH
