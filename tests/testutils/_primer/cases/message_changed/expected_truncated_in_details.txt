@@ -3,14 +3,13 @@
 
 **Effect on [astroid](https://github.com/pylint-dev/astroid):**
 
-The following messages are now emitted:
+Changed messages:
 
 <details>
 
-1) locally-disabled:
-*Locally disabling redefined-builtin [we added some text in the...
+1)...
 </details>
 
-*This comment was truncated because GitHub allows only 420 characters in a comment.*
+*This comment was truncated because GitHub allows only 400 characters in a comment.*
 
 *This comment was generated for commit v2.14.2*
