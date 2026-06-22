@@ -1,0 +1,6 @@
+Add ``consider-rewriting-conditional`` check to the Code Style extension to suggest
+``not (x and y)`` instead of ``not x or not y`` in order to facilitate the detection
+of match case refactors. The code style extension must be enabled and
+``consider-rewriting-conditional`` itself needs to be explicitly enabled.
+
+Refs #10600
