@@ -1,0 +1,6 @@
+``pylint`` invoked without any positional argument now lints the current
+working directory instead of exiting with code 32 and printing
+``No files to lint: exiting.``. The help message is still available via
+``pylint --help`` or ``pylint --long-help``.
+
+Closes #5701
