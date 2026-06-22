@@ -1,0 +1,7 @@
+The dependency to ``mccabe`` has been removed. The complexity visitor was
+reimplemented from scratch and is ~7x faster in isolation, though the
+end-to-end impact on a full pylint run is negligible since astroid parsing
+dominates wall time. ``mccabe`` was originally a code-to-dot-graph generator;
+ pylint only needs the complexity score, not the graph.
+
+Refs #10551
