@@ -1,18 +1,40 @@
-chained-comparison:10:11:10:26:test_simplify_chained_comparison_1:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:15:11:15:27:test_simplify_chained_comparison_2:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:23:7:23:23:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:25:9:25:25:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:27:9:27:26:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:29:9:29:36:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:31:9:31:36:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:33:9:33:38:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:37:9:37:24:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:39:9:39:24:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:41:9:41:35:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:43:9:43:37:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:45:9:45:37:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:47:9:47:37:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:49:9:49:37:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:51:9:51:28:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:53:9:53:28:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:55:9:55:38:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
+chained-comparison:10:11:10:26:test_simplify_chained_comparison_1:"Simplify chained comparison between the operands: a < b < c":HIGH
+chained-comparison:15:11:15:27:test_simplify_chained_comparison_2:"Simplify chained comparison between the operands: 1 < a < 10":HIGH
+chained-comparison:23:7:23:23:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 1 < a < 10":HIGH
+chained-comparison:25:9:25:25:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 1 < a < 10":HIGH
+chained-comparison:27:9:27:26:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 1 < a <= 10":HIGH
+chained-comparison:29:9:29:26:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a == 10":HIGH
+chained-comparison:31:9:31:25:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 10 < a":HIGH
+chained-comparison:33:9:33:27:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < 10":HIGH
+chained-comparison:35:9:35:35:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 1 == a < c and a < b":HIGH
+chained-comparison:37:9:37:36:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 1 < a < 10 and b == 2":HIGH
+chained-comparison:39:9:39:36:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 1 < a < 10 and c == b":HIGH
+chained-comparison:41:9:41:24:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < c":HIGH
+chained-comparison:43:9:43:24:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: c < b < a":HIGH
+chained-comparison:45:9:45:35:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 1 == a < b < c":HIGH
+chained-comparison:47:9:47:37:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < c and c == 786":HIGH
+chained-comparison:49:9:49:37:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < 0 < 786 == c":HIGH
+chained-comparison:51:9:51:37:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < 0 < 786 == c":HIGH
+chained-comparison:53:9:53:37:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < 0 < 786 == c":HIGH
+chained-comparison:55:9:55:28:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < c < d":HIGH
+chained-comparison:57:9:57:28:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < c < d":HIGH
+chained-comparison:59:9:59:38:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < c":HIGH
+chained-comparison:61:9:61:28:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < c":HIGH
+chained-comparison:63:9:63:28:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 0.5 < a < 1.5":HIGH
+impossible-comparison:101:7:101:22:test_impossible_comparison:This comparison always evaluates to False:HIGH
+impossible-comparison:103:9:103:37:test_impossible_comparison:This comparison always evaluates to False:HIGH
+impossible-comparison:105:9:105:34:test_impossible_comparison:This comparison always evaluates to False:HIGH
+impossible-comparison:107:9:107:45:test_impossible_comparison:This comparison always evaluates to False:HIGH
+impossible-comparison:109:9:109:38:test_impossible_comparison:This comparison always evaluates to False:HIGH
+impossible-comparison:111:9:111:25:test_impossible_comparison:This comparison always evaluates to False:HIGH
+impossible-comparison:113:9:113:25:test_impossible_comparison:This comparison always evaluates to False:HIGH
+impossible-comparison:115:9:115:24:test_impossible_comparison:This comparison always evaluates to False:HIGH
+chained-comparison-all-equal:124:7:124:24:test_all_equal:"Simplify chained comparison cycle to equality between the operands: a == b":HIGH
+chained-comparison-all-equal:126:9:126:37:test_all_equal:"Simplify chained comparison cycle to equality between the operands: a == b == c":HIGH
+chained-comparison-all-equal:128:9:128:48:test_all_equal:"Simplify chained comparison cycle to equality between the operands: a == d == c == b":HIGH
+chained-comparison:138:7:138:40:test_chained_comparison_with_unprocessable_operands:"Simplify chained comparison between the operands: is_int(v) and 0 <= v <= 999":HIGH
+chained-comparison:140:7:140:38:test_chained_comparison_with_unprocessable_operands:"Simplify chained comparison between the operands: 0 <= v <= 999 and v != 42":HIGH
+chained-comparison:148:7:148:40:test_chained_comparison_with_unprocessable_operands:"Simplify chained comparison between the operands: items[0] < 5 and 1 < v < 10":HIGH
+chained-comparison:150:7:150:40:test_chained_comparison_with_unprocessable_operands:"Simplify chained comparison between the operands: 5 > items[0] and 1 < v < 10":HIGH
+impossible-comparison:170:7:170:36:test_cycles_do_not_cross_unprocessable_boundaries:This comparison always evaluates to False:HIGH
+chained-comparison-all-equal:172:7:172:38:test_cycles_do_not_cross_unprocessable_boundaries:"Simplify chained comparison cycle to equality between the operands: a == b":HIGH
