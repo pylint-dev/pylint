@@ -8,6 +8,10 @@ from __future__ import annotations
 
 import json
 import sys
+from argparse import Namespace
+from collections.abc import Iterator
+from contextlib import contextmanager
+from functools import partial
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -15,13 +19,12 @@ import pytest
 from _pytest.capture import CaptureFixture
 
 from pylint.testutils._primer.pyreverse_primer import PyreversePrimer
+from pylint.testutils._primer.pyreverse_primer_run_command import RunCommand
+from pylint.testutils._primer.pyreverse_primer_target import PyreversePrimerTarget
 
 HERE = Path(__file__).parent
 TEST_DIR_ROOT = HERE.parent.parent
 PACKAGES_TO_PRIME_PATH = TEST_DIR_ROOT / "primer/packages_to_prime.json"
-PYREVERSE_TARGETS_TO_PRIME_PATH = (
-    TEST_DIR_ROOT / "primer/pyreverse_targets_to_prime.json"
-)
 CASES_PATH = HERE / "pyreverse_cases"
 
 DEFAULT_ARGS = [
@@ -49,6 +52,11 @@ def _load_fixture(directory: Path, filename: str) -> dict[str, dict[str, str]]:
     return data
 
 
+@contextmanager
+def _temporary_directory(path: Path) -> Iterator[str]:
+    yield str(path)
+
+
 @pytest.mark.parametrize("args", [[], ["wrong_command"]])
 def test_pyreverse_primer_launch_bad_args(
     args: list[str], capsys: CaptureFixture[str], tmp_path: Path
@@ -58,7 +66,6 @@ def test_pyreverse_primer_launch_bad_args(
             PyreversePrimer(
                 tmp_path,
                 PACKAGES_TO_PRIME_PATH,
-                PYREVERSE_TARGETS_TO_PRIME_PATH,
             ).run()
     out, err = capsys.readouterr()
     assert not out
@@ -91,7 +98,6 @@ def test_compare(directory: Path, tmp_path: Path) -> None:
         PyreversePrimer(
             tmp_path,
             PACKAGES_TO_PRIME_PATH,
-            PYREVERSE_TARGETS_TO_PRIME_PATH,
         ).run()
     content = (tmp_path / "comment.txt").read_text(encoding="utf-8")
     expected = (directory / "expected_comment.md").read_text(encoding="utf-8")
@@ -107,7 +113,8 @@ def test_truncated_compare(tmp_path: Path) -> None:
     base_file.write_text(json.dumps(base_data), encoding="utf-8")
     new_file.write_text(json.dumps(new_data), encoding="utf-8")
     with patch(
-        "pylint.testutils._primer.pyreverse_primer_compare_command.MAX_GITHUB_COMMENT_LENGTH",
+        "pylint.testutils._primer.pyreverse_primer_compare_command."
+        "MAX_GITHUB_COMMENT_LENGTH",
         525,
     ):
         with patch(
@@ -121,7 +128,6 @@ def test_truncated_compare(tmp_path: Path) -> None:
             PyreversePrimer(
                 tmp_path,
                 PACKAGES_TO_PRIME_PATH,
-                PYREVERSE_TARGETS_TO_PRIME_PATH,
             ).run()
     content = (tmp_path / "comment.txt").read_text(encoding="utf-8")
     expected = (directory / "expected_comment_truncated.md").read_text(encoding="utf-8")
@@ -141,7 +147,8 @@ def test_run_writes_output(tmp_path: Path) -> None:
         return_value=fake_repo,
     ):
         with patch(
-            "pylint.testutils._primer.pyreverse_primer_run_command.RunCommand._render_target",
+            "pylint.testutils._primer.pyreverse_primer_run_command."
+            "RunCommand._render_target",
             autospec=True,
             side_effect=lambda _self, _package_directory, target_name: _render_diagram(
                 target_name=target_name
@@ -158,7 +165,6 @@ def test_run_writes_output(tmp_path: Path) -> None:
                 PyreversePrimer(
                     tmp_path,
                     PACKAGES_TO_PRIME_PATH,
-                    PYREVERSE_TARGETS_TO_PRIME_PATH,
                 ).run()
 
     output_path = (
@@ -172,3 +178,64 @@ def test_run_writes_output(tmp_path: Path) -> None:
         "commit": COMMIT,
         "diagram": "classDiagram\n  class classdef {\n  }\n",
     }
+
+
+def test_render_target_reads_diagram_and_restores_cwd(tmp_path: Path) -> None:
+    package_dir = tmp_path / "package"
+    package_dir.mkdir()
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    target = PyreversePrimerTarget(
+        package="astroid",
+        class_name="astroid.nodes.scoped_nodes.scoped_nodes.ClassDef",
+        path="astroid",
+    )
+    (output_dir / f"{target.output_name}.mmd").write_text(
+        "classDiagram\n", encoding="utf-8"
+    )
+    cwd = Path.cwd()
+
+    with (
+        patch(
+            "pylint.testutils._primer.pyreverse_primer_run_command.tempfile."
+            "TemporaryDirectory",
+            partial(_temporary_directory, output_dir),
+        ),
+        patch("pylint.testutils._primer.pyreverse_primer_run_command.Run") as run,
+    ):
+        run.return_value.run.return_value = 0
+        command = RunCommand(tmp_path, {}, {"classdef": target}, Namespace(type="main"))
+        assert command._render_target(package_dir, "classdef") == "classDiagram\n"
+
+    assert Path.cwd() == cwd
+    assert run.call_args.args[0] == target.pyreverse_args(str(output_dir))
+
+
+def test_render_target_raises_on_pyreverse_failure(tmp_path: Path) -> None:
+    package_dir = tmp_path / "package"
+    package_dir.mkdir()
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    target = PyreversePrimerTarget(
+        package="astroid",
+        class_name="astroid.nodes.scoped_nodes.scoped_nodes.ClassDef",
+        path="astroid",
+    )
+    cwd = Path.cwd()
+
+    with (
+        patch(
+            "pylint.testutils._primer.pyreverse_primer_run_command.tempfile."
+            "TemporaryDirectory",
+            partial(_temporary_directory, output_dir),
+        ),
+        patch("pylint.testutils._primer.pyreverse_primer_run_command.Run") as run,
+    ):
+        run.return_value.run.return_value = 2
+        command = RunCommand(tmp_path, {}, {"classdef": target}, Namespace(type="main"))
+        with pytest.raises(
+            RuntimeError, match="Pyreverse failed for target 'classdef'"
+        ):
+            command._render_target(package_dir, "classdef")
+
+    assert Path.cwd() == cwd
