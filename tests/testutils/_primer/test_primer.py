@@ -41,6 +41,25 @@ def test_primer_launch_bad_args(args: list[str], capsys: CaptureFixture) -> None
     assert "usage: Pylint Primer" in err
 
 
+@pytest.mark.parametrize(
+    ("args", "command_path"),
+    [
+        (
+            ["prepare", "--read-commit-string"],
+            "pylint.testutils._primer.primer.PrepareCommand",
+        ),
+        (["run", "--type=main"], "pylint.testutils._primer.primer.RunCommand"),
+    ],
+)
+def test_primer_selects_command(args: list[str], command_path: str) -> None:
+    with patch(command_path) as command:
+        with patch("sys.argv", ["python tests/primer/__main__.py", *args]):
+            Primer(PRIMER_DIRECTORY, PACKAGES_TO_PRIME_PATH).run()
+
+    command.assert_called_once()
+    command.return_value.run.assert_called_once()
+
+
 @pytest.mark.skipif(
     sys.platform != "linux"
     or sys.version_info[:2] != PRIMER_CURRENT_INTERPRETER
