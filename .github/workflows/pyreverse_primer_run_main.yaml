@@ -9,7 +9,6 @@ on:
       - "pylint/testutils/_primer/**"
       - "tests/primer/packages_to_prime.json"
       - "tests/primer/pyreverse_primer.py"
-      - "tests/primer/pyreverse_targets_to_prime.json"
       - "tests/primer/test_primer_stdlib.py"
       - "tests/pyreverse/**"
       - "requirements*"
