@@ -30,7 +30,7 @@ class MermaidJSPrinter(Printer):
 
     def _open_graph(self) -> None:
         """Emit the header lines."""
-        self.emit("classDiagram")
+        self.emit("classDiagram\n    direction LR")
         self._inc_indent()
 
     def _escape_mermaid_text(self, text: str) -> str:
