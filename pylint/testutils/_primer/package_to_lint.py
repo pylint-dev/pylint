@@ -7,7 +7,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from git import GitCommandError
 from git.repo import Repo
@@ -47,6 +47,9 @@ class PackageToLint:
 
     pylint_additional_args: list[str] = field(default_factory=list)
     """Arguments to give to pylint."""
+
+    pyreverse_targets: dict[str, dict[str, Any]] = field(default_factory=dict)
+    """Pyreverse diagrams to snapshot for this package."""
 
     pylintrc_relpath: str | None = None
     """Path relative to project's main directory to the pylintrc if it exists."""
