@@ -10,15 +10,11 @@ from pylint.testutils._primer.pyreverse_primer import PyreversePrimer
 
 PRIMER_DIRECTORY = Path(__file__).parent.parent / ".pyreverse_primer_tests/"
 PACKAGES_TO_PRIME_PATH = Path(__file__).parent / "packages_to_prime.json"
-PYREVERSE_TARGETS_TO_PRIME_PATH = (
-    Path(__file__).parent / "pyreverse_targets_to_prime.json"
-)
 
 
 if __name__ == "__main__":
     primer = PyreversePrimer(
         PRIMER_DIRECTORY,
         PACKAGES_TO_PRIME_PATH,
-        PYREVERSE_TARGETS_TO_PRIME_PATH,
     )
     primer.run()
