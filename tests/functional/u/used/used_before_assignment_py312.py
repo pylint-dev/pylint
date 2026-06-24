@@ -21,3 +21,16 @@ type OtherAlias[T: Y] = T | None
 # https://github.com/pylint-dev/pylint/issues/9884
 def func[T: Y](x: T) -> None:  # [redefined-outer-name]  FALSE POSITIVE
     ...
+
+
+# https://github.com/pylint-dev/pylint/issues/11115
+class ForwardClass[T: ForwardBound]:
+    value: T
+
+def forward_func[U: ForwardBound](x: U) -> None:
+    ...
+
+type ForwardAlias[V: ForwardBound] = V | None
+
+class ForwardBound:
+    pass
