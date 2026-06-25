@@ -136,7 +136,6 @@ def test_does_not_ignore_similarly_named_package(
     Test to see if we return the expected package/file list even if a shorter
     named package is processed first and does not match an ignore config value.
     """
-
     # Variables used by debug_walk.
     os_walk_visited: list[str] = []
     orig_walk = os.walk
