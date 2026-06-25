@@ -93,7 +93,7 @@ def _setup_test_file_tree(tmp_path: Path) -> Generator[Path]:
         "test/node_modules/node-package-b/file.py",
         "test/src/a/path/ignored/path/subdir-a/file-a.py",
         "test/src/a/path/ignored/not/path/subdir-b/file-b.py",
-        "test/src/another/path/skip/this/pattern/subdir-c/file-c.py",
+        "test/src/another/path/.#skip/this/pattern/subdir-c/file-c.py",
         "test/src/path/another/path/skip/don't/this/subdir-d/file-d.py",
         "test/src/path/another/path/skip/don't/this/subdir-d/.#some-skipped-emacs.py",
     ]
@@ -172,7 +172,7 @@ def test_does_not_ignore_similarly_named_package(
 
     # Assert that we got the correct results. Do these first, so that if we
     # pass these and get to the next assert, we are looking at a false pass.
-    assert len(results) == 10
+    assert len(results) == 8
     assert f".{os.sep}manage.py" in results
     assert applications_path in results
     assert applications_api_path in results
@@ -187,8 +187,8 @@ def test_does_not_ignore_similarly_named_package(
         in results
     )
     assert (
-        f".{os.sep}src{os.sep}another{os.sep}path{os.sep}skip{os.sep}this{os.sep}pattern{os.sep}subdir-c{os.sep}file-c.py"
-        in results
+        f".{os.sep}src{os.sep}another{os.sep}path{os.sep}.#skip{os.sep}this{os.sep}pattern{os.sep}subdir-c{os.sep}file-c.py"
+        not in results
     )
     assert (
         f".{os.sep}src{os.sep}path{os.sep}another{os.sep}path{os.sep}skip{os.sep}don't{os.sep}this{os.sep}subdir-d{os.sep}file-d.py"
@@ -196,7 +196,7 @@ def test_does_not_ignore_similarly_named_package(
     )
     assert (
         f".{os.sep}src{os.sep}path{os.sep}another{os.sep}path{os.sep}skip{os.sep}don't{os.sep}this{os.sep}subdir-d{os.sep}.#some-skipped-emacs.py"
-        in results
+        not in results
     )
 
     # This is essentially a "test the test" scenario, where we make sure of the
@@ -285,11 +285,13 @@ def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
         mock_walk.assert_called_with(".", topdown=True)
 
     # Create our OS specific paths for applications and applications_api directories
+    applications_path = f".{os.sep}applications"
     applications_api_path = f".{os.sep}applications_api"
 
     # Assert that we got the correct results.
-    assert len(results) == 7
-    assert f".{os.sep}manage.py" in results
+    assert len(results) == 4
+    assert f".{os.sep}manage.py" not in results
+    assert applications_path not in results
     assert applications_api_path in results
     assert (
         f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}path{os.sep}subdir-a{os.sep}file-a.py"
@@ -300,8 +302,8 @@ def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
         in results
     )
     assert (
-        f".{os.sep}src{os.sep}another{os.sep}path{os.sep}skip{os.sep}this{os.sep}pattern{os.sep}subdir-c{os.sep}file-c.py"
-        in results
+        f".{os.sep}src{os.sep}another{os.sep}path{os.sep}.#skip{os.sep}this{os.sep}pattern{os.sep}subdir-c{os.sep}file-c.py"
+        not in results
     )
     assert (
         f".{os.sep}src{os.sep}path{os.sep}another{os.sep}path{os.sep}skip{os.sep}don't{os.sep}this{os.sep}subdir-d{os.sep}file-d.py"
@@ -309,7 +311,7 @@ def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
     )
     assert (
         f".{os.sep}src{os.sep}path{os.sep}another{os.sep}path{os.sep}skip{os.sep}don't{os.sep}this{os.sep}subdir-d{os.sep}.#some-skipped-emacs.py"
-        in results
+        not in results
     )
 
 
@@ -368,14 +370,14 @@ def test_does_not_traverse_into_ignored_directories(
         results = tuple(initialized_linter._discover_files(["."]))
         mock_walk.assert_called_with(".", topdown=True)
 
-    # Create our OS specific paths for applications and applications_api directories
-    applications_path = f".{os.sep}applications"
-    applications_api_path = f".{os.sep}applications_api"
-
-    # Assert that we got the correct results.
-    assert len(results) == 7
-    assert f".{os.sep}manage.py" in results
-    assert applications_api_path in results
+    # Assert that we got the correct results, including items specified in
+    # ignore_paths, which will still need to be scanned because they may contain
+    # info we need for checks of code elsewhere, but not items in ignore or
+    # ignore_patterns.
+    assert len(results) == 4
+    assert f".{os.sep}manage.py" not in results
+    assert f".{os.sep}applications" not in results
+    assert f".{os.sep}applications_api" in results
     assert (
         f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}path{os.sep}subdir-a{os.sep}file-a.py"
         in results
@@ -385,8 +387,8 @@ def test_does_not_traverse_into_ignored_directories(
         in results
     )
     assert (
-        f".{os.sep}src{os.sep}another{os.sep}path{os.sep}skip{os.sep}this{os.sep}pattern{os.sep}subdir-c{os.sep}file-c.py"
-        in results
+        f".{os.sep}src{os.sep}another{os.sep}path{os.sep}.#skip{os.sep}this{os.sep}pattern{os.sep}subdir-c{os.sep}file-c.py"
+        not in results
     )
     assert (
         f".{os.sep}src{os.sep}path{os.sep}another{os.sep}path{os.sep}skip{os.sep}don't{os.sep}this{os.sep}subdir-d{os.sep}file-d.py"
@@ -394,31 +396,46 @@ def test_does_not_traverse_into_ignored_directories(
     )
     assert (
         f".{os.sep}src{os.sep}path{os.sep}another{os.sep}path{os.sep}skip{os.sep}don't{os.sep}this{os.sep}subdir-d{os.sep}.#some-skipped-emacs.py"
-        in results
+        not in results
     )
 
-    # Assert that we did not traverse into ignored directories
-    assert applications_path not in os_walk_visited
+    # Assert that we did not traverse into directories which match entries in
+    # ignore or ignored_patterns, but still traversed into directories
+    # specified by ignore_paths.
+    assert f".{os.sep}applications" not in os_walk_visited
     assert f".{os.sep}.venv" not in os_walk_visited
     assert f".{os.sep}.venv{os.sep}bin" not in os_walk_visited
     assert f".{os.sep}node_modules" not in os_walk_visited
     assert f".{os.sep}node_modules{os.sep}node-package-a" not in os_walk_visited
     assert f".{os.sep}node_modules{os.sep}node-package-b" not in os_walk_visited
-    # assert f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}path" not in os_walk_visited
-    # assert (
-    #    f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}path{os.sep}subdir-a"
-    #    not in os_walk_visited
-    # )
-
-    # assert (
-    #    f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}not{os.sep}path{os.sep}subdir-b{os.sep}file"
-    #    in os_walk_visited
-    # )
     assert (
-        f".{os.sep}src{os.sep}another{os.sep}path{os.sep}skip{os.sep}this{os.sep}pattern{os.sep}subdir-c{os.sep}file"
+        f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}path"
+        in os_walk_visited
+    )
+    assert (
+        f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}path{os.sep}subdir-a"
+        in os_walk_visited
+    )
+    assert (
+        f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}not{os.sep}path{os.sep}subdir-b"
+        in os_walk_visited
+    )
+    assert (
+        f".{os.sep}src{os.sep}another{os.sep}path{os.sep}.#skip" not in os_walk_visited
+    )
+    assert (
+        f".{os.sep}src{os.sep}another{os.sep}path{os.sep}.#skip{os.sep}this"
         not in os_walk_visited
     )
-    # assert (
-    #    f".{os.sep}path{os.sep}another{os.sep}path{os.sep}skip{os.sep}don't{os.sep}this{os.sep}subdir-d{os.sep}file"
-    #    in os_walk_visited
-    # )
+    assert (
+        f".{os.sep}src{os.sep}another{os.sep}path{os.sep}.#skip{os.sep}this{os.sep}pattern"
+        not in os_walk_visited
+    )
+    assert (
+        f".{os.sep}src{os.sep}another{os.sep}path{os.sep}.#skip{os.sep}this{os.sep}pattern{os.sep}subdir-c"
+        not in os_walk_visited
+    )
+    assert (
+        f".{os.sep}src{os.sep}path{os.sep}another{os.sep}path{os.sep}skip{os.sep}don't{os.sep}this{os.sep}subdir-d"
+        in os_walk_visited
+    )
