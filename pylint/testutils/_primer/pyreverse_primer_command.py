@@ -38,4 +38,4 @@ class PyreversePrimerCommand:
 
     @abc.abstractmethod
     def run(self) -> None:
-        pass
+        raise NotImplementedError()
