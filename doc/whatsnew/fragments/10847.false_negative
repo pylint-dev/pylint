@@ -1,0 +1,4 @@
+Fix ``used-before-assignment`` false negative when a variable has a bare type
+annotation (without a value) and is only assigned inside ``except`` blocks.
+
+Closes #10847
