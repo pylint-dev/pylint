@@ -226,7 +226,7 @@ def test_prepare_selects_prepare_command(tmp_path: Path) -> None:
 
 
 def test_truncate_comment_without_spaces(tmp_path: Path) -> None:
-    # A comment without any space forces the rfind fallback in _truncate_comment.
+    # A comment without any space forces the no-space fallback in _truncate_comment.
     with patch(
         "pylint.testutils._primer.pyreverse_primer_compare_command."
         "MAX_GITHUB_COMMENT_LENGTH",
