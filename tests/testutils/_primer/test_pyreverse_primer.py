@@ -19,6 +19,7 @@ import pytest
 from _pytest.capture import CaptureFixture
 
 from pylint.testutils._primer.pyreverse_primer import PyreversePrimer
+from pylint.testutils._primer.pyreverse_primer_compare_command import CompareCommand
 from pylint.testutils._primer.pyreverse_primer_run_command import RunCommand
 from pylint.testutils._primer.pyreverse_primer_target import PyreversePrimerTarget
 
@@ -209,6 +210,34 @@ def test_render_target_reads_diagram_and_restores_cwd(tmp_path: Path) -> None:
 
     assert Path.cwd() == cwd
     assert run.call_args.args[0] == target.pyreverse_args(str(output_dir))
+
+
+def test_prepare_selects_prepare_command(tmp_path: Path) -> None:
+    with (
+        patch(
+            "pylint.testutils._primer.pyreverse_primer.PrepareCommand"
+        ) as mock_prepare,
+        patch("sys.argv", ["python tests/primer/pyreverse_primer.py", "prepare"]),
+    ):
+        primer = PyreversePrimer(tmp_path, PACKAGES_TO_PRIME_PATH)
+
+    mock_prepare.assert_called_once()
+    assert primer.command is mock_prepare.return_value
+
+
+def test_truncate_comment_without_spaces(tmp_path: Path) -> None:
+    # A comment without any space forces the rfind fallback in _truncate_comment.
+    with patch(
+        "pylint.testutils._primer.pyreverse_primer_compare_command."
+        "MAX_GITHUB_COMMENT_LENGTH",
+        525,
+    ):
+        command = CompareCommand(tmp_path, {}, {}, Namespace(commit="deadbeef"))
+        truncated = command._truncate_comment("x" * 600)
+
+    assert len(truncated) < 525
+    assert truncated.startswith("xxx")
+    assert "..." in truncated
 
 
 def test_render_target_raises_on_pyreverse_failure(tmp_path: Path) -> None:
