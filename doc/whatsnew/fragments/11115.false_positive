@@ -1,0 +1,5 @@
+Fix a false positive for ``used-before-assignment`` (E0601) when a PEP 695
+type-parameter bound on a class or function forward-references a name defined
+later in the module. Such bounds are lazily evaluated, so the reference is valid.
+
+Closes #11115

@@ -1983,6 +1983,7 @@ class VariablesChecker(BaseChecker):
                     or isinstance(stmt, nodes.AnnAssign)  # noqa: RUF021
                     and utils.get_node_first_ancestor_of_type(stmt, nodes.FunctionDef)
                     or isinstance(stmt, nodes.TypeAlias)
+                    or utils.is_node_in_pep695_type_context(node)
                 ):
                     self.add_message(
                         "used-before-assignment",
