@@ -191,6 +191,7 @@ lineset's
 linesets
 linkers
 linter
+linter's
 linux
 listcomp
 Logilab
@@ -228,6 +229,7 @@ mymodule
 mypy
 namedtuple
 namespace
+natively
 newsfile
 newstyle
 nl
