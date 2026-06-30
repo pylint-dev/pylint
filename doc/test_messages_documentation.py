@@ -173,7 +173,9 @@ class LintModuleTest:
             assert len(actual_messages_raw) >= len(bad_files), self.assert_message_bad(
                 bad_files, actual_messages_raw
             )
-        assert expected_messages == self._get_actual(actual_messages_raw)
+        actual = self._get_actual(actual_messages_raw)
+        assert_msg = f"Expected {expected_messages!r} and got {actual!r} in {self._test_file[1]}."
+        assert expected_messages == actual, assert_msg
 
     def assert_message_good(self, messages: list[Message]) -> str:
         good = self._test_file[1]
