@@ -277,6 +277,7 @@ pyproject
 pypy
 pyreverse
 pytest
+pytest's
 qname
 rawcheckers
 rc
@@ -374,6 +375,7 @@ unicode
 uninferable
 Uninferable
 unittest
+unittest's
 unraisablehook
 untriggered
 # prefix for string
