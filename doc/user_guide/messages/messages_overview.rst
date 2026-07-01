@@ -276,6 +276,7 @@ All messages in the warning category:
    warning/logging-format-interpolation
    warning/logging-fstring-interpolation
    warning/logging-not-lazy
+   warning/looping-through-iterator
    warning/lost-exception
    warning/method-cache-max-size-none
    warning/misplaced-future
