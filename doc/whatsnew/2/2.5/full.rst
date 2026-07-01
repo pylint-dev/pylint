@@ -24,8 +24,8 @@ Release date: 2020-06-8
 * In a TOML configuration file, it's now possible to use rich (non-string) types, such as list, integer or boolean instead of strings. For example, one can now define a *list* of message identifiers to enable like this::
 
     enable = [
-        "use-symbolic-message-instead",
-        "useless-suppression",
+        ":ref:`use-symbolic-message-instead`",
+        ":ref:`useless-suppression`",
     ]
 
   Closes #3538
