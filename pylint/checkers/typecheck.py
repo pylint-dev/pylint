@@ -1170,7 +1170,9 @@ accessed. Python regular expressions are accepted.",
             ):
                 return
 
-            qualname = f"{owner.pytype()}.{node.attrname}"
+            if not hasattr(owner, "pytype"):
+                continue
+            qualname = f"{owner.pytype()}.{node.attrname}
             if any(
                 pattern.match(qualname) for pattern in self._compiled_generated_members
             ):
