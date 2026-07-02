@@ -201,6 +201,7 @@ class DocstringParameterChecker(BaseChecker):
         node_doc = utils.docstringify(
             node.doc_node, self.linter.config.default_docstring_type
         )
+        self.check_constructor_params_are_not_documented_twice(node, node_doc)
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
@@ -227,7 +228,6 @@ class DocstringParameterChecker(BaseChecker):
                 class_doc = utils.docstringify(
                     class_node.doc_node, self.linter.config.default_docstring_type
                 )
-                self.check_single_constructor_params(class_doc, node_doc, class_node)
 
                 # __init__ or class docstrings can have no parameters documented
                 # as long as the other documents them.
@@ -249,6 +249,21 @@ class DocstringParameterChecker(BaseChecker):
         self.check_arguments_in_docstring(
             node_doc, node.args, node, node_allow_no_param
         )
+
+    def check_constructor_params_are_not_documented_twice(
+        self, node: nodes.FunctionDef, node_doc: Docstring
+    ) -> None:
+        if node.name not in self.constructor_names:
+            return
+
+        class_node = checker_utils.node_frame_class(node)
+        if class_node is None:
+            return
+
+        class_doc = utils.docstringify(
+            class_node.doc_node, self.linter.config.default_docstring_type
+        )
+        self.check_single_constructor_params(class_doc, node_doc, class_node)
 
     def check_functiondef_returns(
         self, node: nodes.FunctionDef, node_doc: Docstring

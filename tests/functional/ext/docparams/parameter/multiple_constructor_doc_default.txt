@@ -1,0 +1,1 @@
+multiple-constructor-doc:4:0:4:35:ConstructorDocsInClassAndInit:"""ConstructorDocsInClassAndInit"" has constructor parameters documented in class and __init__":HIGH
