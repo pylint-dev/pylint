@@ -1,0 +1,6 @@
+[MAIN]
+load-plugins = pylint.extensions.docparams
+
+[BASIC]
+accept-no-param-doc=no
+docstring-min-length=-1

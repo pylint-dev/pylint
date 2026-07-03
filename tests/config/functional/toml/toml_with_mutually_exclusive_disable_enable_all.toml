@@ -1,0 +1,3 @@
+[tool.pylint."messages control"]
+disable = "all"
+enable = "all"

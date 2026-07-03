@@ -1,0 +1,95 @@
+name: Primer
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - "pylint/**"
+      - "tests/primer/**"
+      - "requirements*"
+      - ".github/workflows/primer-test.yaml"
+    branches:
+      - main
+env:
+  CACHE_VERSION: 4
+  KEY_PREFIX: venv
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  prepare-tests-linux:
+    name: prepare / ${{ matrix.python-version }} / Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        python-version: &matrix-python-version ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    outputs:
+      python-key: ${{ steps.generate-python-key.outputs.key }}
+    steps:
+      - &checkout
+        name: Check out code from GitHub
+        uses: actions/checkout@v7.0.0
+      - &setup-python
+        name: Set up Python ${{ matrix.python-version }}
+        id: python
+        uses: actions/setup-python@v6.3.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
+          check-latest: true
+      - name: Generate partial Python venv restore key
+        id: generate-python-key
+        run: >-
+          echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{
+            hashFiles('pyproject.toml', 'requirements_test.txt',
+          'requirements_test_min.txt', 'requirements_test_pre_commit.txt') }}" >>
+          $GITHUB_OUTPUT
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@v6.1.0
+        with:
+          path: venv
+          key: >-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            steps.generate-python-key.outputs.key }}
+      - name: Create Python virtual environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install --upgrade --requirement requirements_test.txt
+
+  pytest-primer-stdlib:
+    name: run on stdlib / ${{ matrix.python-version }} / Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: prepare-tests-linux
+    strategy:
+      matrix:
+        python-version: *matrix-python-version
+    steps:
+      - *checkout
+      - *setup-python
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: venv
+          fail-on-cache-miss: true
+          key:
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            needs.prepare-tests-linux.outputs.python-key }}
+      - name: Run pytest
+        run: |
+          . venv/bin/activate
+          pip install . --no-deps
+          pytest -m primer_stdlib --primer-stdlib -n auto -vv --benchmark-disable

@@ -1,0 +1,3 @@
+[Messages Control]
+disable=all
+enable=cell-var-from-loop

@@ -1,0 +1,2 @@
+consider-swap-variables:5:0:5:8::Consider using tuple unpacking for swapping variables:UNDEFINED
+consider-swap-variables:22:0:22:8::Consider using tuple unpacking for swapping variables:UNDEFINED

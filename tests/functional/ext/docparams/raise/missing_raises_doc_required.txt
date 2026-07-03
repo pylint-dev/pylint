@@ -1,0 +1,1 @@
+missing-raises-doc:6:0:6:28:test_warns_unknown_style:"""RuntimeError"" not documented as being raised":HIGH

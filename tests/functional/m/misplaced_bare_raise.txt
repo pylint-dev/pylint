@@ -1,0 +1,7 @@
+misplaced-bare-raise:6:4:6:9::The raise statement is not inside an except clause:HIGH
+misplaced-bare-raise:36:16:36:21:test1.best:The raise statement is not inside an except clause:HIGH
+misplaced-bare-raise:39:4:39:9:test1:The raise statement is not inside an except clause:HIGH
+misplaced-bare-raise:40:0:40:5::The raise statement is not inside an except clause:HIGH
+misplaced-bare-raise:49:4:49:9::The raise statement is not inside an except clause:HIGH
+misplaced-bare-raise:57:4:57:9:A:The raise statement is not inside an except clause:HIGH
+misplaced-bare-raise:68:4:68:9::The raise statement is not inside an except clause:HIGH

@@ -1,0 +1,6 @@
+import-error:3:0:3:22::Unable to import 'totally_missing':UNDEFINED
+import-error:21:4:21:26::Unable to import 'maybe_missing_2':UNDEFINED
+no-name-in-module:33:0:33:49::No name 'syntax_error' in module 'functional.s.syntax':UNDEFINED
+syntax-error:33:0:None:None::Cannot import 'functional.s.syntax.syntax_error' due to 'invalid syntax (functional.s.syntax.syntax_error, line 1)':HIGH
+multiple-imports:78:0:78:15::Multiple imports on one line (foo, bar):UNDEFINED
+import-error:96:4:96:15::Unable to import 'foo2':UNDEFINED

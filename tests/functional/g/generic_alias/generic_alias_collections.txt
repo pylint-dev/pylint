@@ -1,0 +1,16 @@
+unsubscriptable-object:66:0:66:24::Value 'collections.abc.Hashable' is unsubscriptable:UNDEFINED
+unsubscriptable-object:67:0:67:21::Value 'collections.abc.Sized' is unsubscriptable:UNDEFINED
+abstract-method:71:0:71:21:DerivedHashable:Method '__hash__' is abstract in class 'Hashable' but is not overridden in child class 'DerivedHashable':INFERENCE
+abstract-method:74:0:74:21:DerivedIterable:Method '__iter__' is abstract in class 'Iterable' but is not overridden in child class 'DerivedIterable':INFERENCE
+abstract-method:77:0:77:23:DerivedCollection:Method '__contains__' is abstract in class 'Container' but is not overridden in child class 'DerivedCollection':INFERENCE
+abstract-method:77:0:77:23:DerivedCollection:Method '__iter__' is abstract in class 'Iterable' but is not overridden in child class 'DerivedCollection':INFERENCE
+abstract-method:77:0:77:23:DerivedCollection:Method '__len__' is abstract in class 'Sized' but is not overridden in child class 'DerivedCollection':INFERENCE
+abstract-method:96:0:96:21:DerivedMultiple:Method '__hash__' is abstract in class 'Hashable' but is not overridden in child class 'DerivedMultiple':INFERENCE
+abstract-method:96:0:96:21:DerivedMultiple:Method '__len__' is abstract in class 'Sized' but is not overridden in child class 'DerivedMultiple':INFERENCE
+abstract-method:101:0:101:24:CustomAbstractCls2:Method '__iter__' is abstract in class 'Iterable' but is not overridden in child class 'CustomAbstractCls2':INFERENCE
+abstract-method:101:0:101:24:CustomAbstractCls2:Method '__len__' is abstract in class 'Sized' but is not overridden in child class 'CustomAbstractCls2':INFERENCE
+abstract-method:103:0:103:26:CustomImplementation:Method '__iter__' is abstract in class 'Iterable' but is not overridden in child class 'CustomImplementation':INFERENCE
+abstract-method:103:0:103:26:CustomImplementation:Method '__len__' is abstract in class 'Sized' but is not overridden in child class 'CustomImplementation':INFERENCE
+unsubscriptable-object:121:9:121:12::Value 'int' is unsubscriptable:UNDEFINED
+unsubscriptable-object:122:15:122:39::Value 'collections.abc.Hashable' is unsubscriptable:UNDEFINED
+unsubscriptable-object:123:12:123:33::Value 'collections.abc.Sized' is unsubscriptable:UNDEFINED

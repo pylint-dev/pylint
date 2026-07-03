@@ -1,0 +1,17 @@
+consider-using-dict-items:10:4:11:24:bad:Consider iterating with .items():UNDEFINED
+consider-using-dict-items:13:4:14:30:bad:Consider iterating with .items():UNDEFINED
+consider-using-dict-items:27:4:28:35:another_bad:Consider iterating with .items():UNDEFINED
+consider-using-dict-items:47:0:49:18::Consider iterating with .items():UNDEFINED
+consider-using-dict-items:51:0:52:20::Consider iterating with .items():UNDEFINED
+consider-iterating-dictionary:54:10:54:23::Consider iterating the dictionary directly instead of calling .keys():INFERENCE
+consider-using-dict-items:54:0:55:20::Consider iterating with .items():UNDEFINED
+consider-using-dict-items:63:0:64:24::Consider iterating with .items():UNDEFINED
+consider-using-dict-items:76:0:None:None::Consider iterating with .items():UNDEFINED
+consider-using-dict-items:77:0:None:None::Consider iterating with .items():UNDEFINED
+consider-using-dict-items:80:0:None:None::Consider iterating with .items():UNDEFINED
+consider-using-dict-items:81:0:None:None::Consider iterating with .items():UNDEFINED
+consider-using-dict-items:84:0:None:None::Consider iterating with .items():UNDEFINED
+consider-iterating-dictionary:95:25:95:42::Consider iterating the dictionary directly instead of calling .keys():INFERENCE
+consider-using-dict-items:95:0:None:None::Consider iterating with .items():UNDEFINED
+consider-using-dict-items:112:0:114:24::Consider iterating with .items():UNDEFINED
+consider-iterating-dictionary:119:11:119:28::Consider iterating the dictionary directly instead of calling .keys():INFERENCE

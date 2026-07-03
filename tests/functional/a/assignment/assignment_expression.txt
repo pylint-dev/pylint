@@ -1,0 +1,3 @@
+used-before-assignment:23:7:23:12::Using variable 'err_a' before assignment:HIGH
+used-before-assignment:24:6:24:11::Using variable 'err_b' before assignment:HIGH
+used-before-assignment:26:13:26:18::Using variable 'err_d' before assignment:HIGH

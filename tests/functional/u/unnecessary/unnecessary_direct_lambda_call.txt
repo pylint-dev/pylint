@@ -1,0 +1,3 @@
+unnecessary-direct-lambda-call:4:4:4:33::Lambda expression called directly. Execute the expression inline instead.:HIGH
+unnecessary-direct-lambda-call:5:8:5:27::Lambda expression called directly. Execute the expression inline instead.:HIGH
+unnecessary-direct-lambda-call:5:29:5:47::Lambda expression called directly. Execute the expression inline instead.:HIGH

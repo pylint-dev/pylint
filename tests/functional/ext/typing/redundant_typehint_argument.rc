@@ -1,0 +1,5 @@
+[main]
+load-plugins=pylint.extensions.typing
+
+[TYPING]
+runtime-typing=no

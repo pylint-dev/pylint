@@ -1,0 +1,2 @@
+- `Python 3 docs 'finally' clause <https://docs.python.org/3/reference/compound_stmts.html#finally-clause>`_
+- `PEP 765 - Disallow return/break/continue that exit a finally block <https://peps.python.org/pep-0765/>`_

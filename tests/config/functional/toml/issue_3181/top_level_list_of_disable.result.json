@@ -1,0 +1,6 @@
+{
+  "functional_append": {
+    "disable": ["singleton-comparison"]
+  },
+  "max_line_length": 120
+}

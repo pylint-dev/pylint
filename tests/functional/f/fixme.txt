@@ -1,0 +1,12 @@
+fixme:5:1:None:None::"FIXME: beep":UNDEFINED
+fixme:7:5:None:None::"TODO: don't forget indented ones should trigger":UNDEFINED
+fixme:9:1:None:None::"TODO: that precedes another TODO: is treated as one and the message starts after the first":UNDEFINED
+fixme:11:1:None:None::"TODO: large indentations after hash are okay":UNDEFINED
+fixme:18:20:None:None::"FIXME: Valid test":UNDEFINED
+fixme:21:5:None:None::"TODO: Do something with the variables":UNDEFINED
+fixme:23:18:None:None::"XXX: Fix this later":UNDEFINED
+fixme:25:5:None:None::"FIXME: no space after hash":UNDEFINED
+fixme:27:5:None:None::"todo: no space after hash":UNDEFINED
+fixme:30:2:None:None::"FIXME: this is broken":UNDEFINED
+fixme:32:5:None:None::"./TODO: find with notes":UNDEFINED
+fixme:34:5:None:None::"TO make something DO: find with regex":UNDEFINED

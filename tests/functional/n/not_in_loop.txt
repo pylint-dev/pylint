@@ -1,0 +1,8 @@
+not-in-loop:8:8:8:16:ala:'continue' not properly in loop:UNDEFINED
+not-in-loop:13:4:13:12::'continue' not properly in loop:UNDEFINED
+not-in-loop:16:4:16:12:lala:'continue' not properly in loop:UNDEFINED
+not-in-loop:20:8:20:16:A:'continue' not properly in loop:UNDEFINED
+not-in-loop:25:4:25:12::'continue' not properly in loop:UNDEFINED
+not-in-loop:30:4:30:9::'break' not properly in loop:UNDEFINED
+not-in-loop:33:4:33:12::'continue' not properly in loop:UNDEFINED
+not-in-loop:35:4:35:9::'break' not properly in loop:UNDEFINED

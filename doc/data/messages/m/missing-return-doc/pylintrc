@@ -1,0 +1,5 @@
+[main]
+load-plugins=pylint.extensions.docparams
+
+[Parameter_documentation]
+accept-no-return-doc=no

@@ -1,0 +1,9 @@
+raising-non-exception:32:4:32:25:bad_case1:Raising a class which doesn't inherit from BaseException:INFERENCE
+raising-non-exception:36:4:36:23:bad_case3:Raising a class which doesn't inherit from BaseException:INFERENCE
+notimplemented-raised:40:4:40:31:bad_case4:NotImplemented raised - should raise NotImplementedError:HIGH
+raising-bad-type:44:4:44:11:bad_case5:Raising int while only classes or instances are allowed:INFERENCE
+raising-bad-type:48:4:48:14:bad_case6:Raising NoneType while only classes or instances are allowed:INFERENCE
+raising-non-exception:52:4:52:14:bad_case7:Raising a class which doesn't inherit from BaseException:INFERENCE
+raising-non-exception:56:4:56:15:bad_case8:Raising a class which doesn't inherit from BaseException:INFERENCE
+raising-non-exception:60:4:60:14:bad_case9:Raising a class which doesn't inherit from BaseException:INFERENCE
+raising-bad-type:94:4:94:18:bad_case10:Raising str while only classes or instances are allowed:INFERENCE

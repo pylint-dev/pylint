@@ -1,0 +1,1 @@
+non-ascii-name:13:0:13:12:sayНello:"Function name ""sayНello"" contains a non-ASCII character, consider renaming it.":HIGH

@@ -1,0 +1,4 @@
+[MESSAGES CONTROL]
+
+disable=
+    C0111,W0703,R1732

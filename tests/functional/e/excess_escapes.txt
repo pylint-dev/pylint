@@ -1,0 +1,9 @@
+anomalous-backslash-in-string:7:5:None:None::"Anomalous backslash in string: '\['. String constant might be missing an r prefix.":UNDEFINED
+anomalous-backslash-in-string:7:7:None:None::"Anomalous backslash in string: '\]'. String constant might be missing an r prefix.":UNDEFINED
+anomalous-backslash-in-string:8:8:None:None::"Anomalous backslash in string: '\/'. String constant might be missing an r prefix.":UNDEFINED
+anomalous-backslash-in-string:9:20:None:None::"Anomalous backslash in string: '\`'. String constant might be missing an r prefix.":UNDEFINED
+anomalous-backslash-in-string:16:15:None:None::"Anomalous backslash in string: '\o'. String constant might be missing an r prefix.":UNDEFINED
+anomalous-backslash-in-string:16:20:None:None::"Anomalous backslash in string: '\o'. String constant might be missing an r prefix.":UNDEFINED
+anomalous-backslash-in-string:18:13:None:None::"Anomalous backslash in string: '\8'. String constant might be missing an r prefix.":UNDEFINED
+anomalous-backslash-in-string:18:17:None:None::"Anomalous backslash in string: '\9'. String constant might be missing an r prefix.":UNDEFINED
+anomalous-backslash-in-string:31:42:None:None::"Anomalous backslash in string: '\P'. String constant might be missing an r prefix.":UNDEFINED

@@ -1,0 +1,2 @@
+too-many-star-expressions:3:0:3:27::More than one starred expression in assignment:UNDEFINED
+too-many-star-expressions:6:0:6:32::More than one starred expression in assignment:UNDEFINED

@@ -1,0 +1,8 @@
+consider-using-ternary:8:0:8:53::Consider using ternary (TRUE_VALUE if condition else FALSE_VALUE):INFERENCE
+consider-using-ternary:20:4:20:50:func2:Consider using ternary (TRUE_VALUE if condition else FALSE_VALUE):INFERENCE
+consider-using-ternary:23:0:23:63::Consider using ternary ('ERROR' if some_callable(condition) else 'SUCCESS'):INFERENCE
+consider-using-ternary:24:0:24:60::Consider using ternary ('greater' if SOME_VALUE1 > 3 else 'not greater'):INFERENCE
+consider-using-ternary:25:0:25:67::Consider using ternary ('both' if SOME_VALUE2 > 4 and SOME_VALUE3 else 'not'):INFERENCE
+simplify-boolean-expression:28:0:28:50::Boolean expression may be simplified to SOME_VALUE2:INFERENCE
+consider-using-ternary:38:4:38:51:func4:Consider using ternary (truth_value if condition else FALSE_VALUE):INFERENCE
+simplify-boolean-expression:44:4:44:51:func5:Boolean expression may be simplified to FALSE_VALUE:INFERENCE

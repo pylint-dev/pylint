@@ -1,0 +1,1 @@
+broken-noreturn:40:23:40:31::'NoReturn' inside compound types is broken in 3.7.0 / 3.7.1:INFERENCE

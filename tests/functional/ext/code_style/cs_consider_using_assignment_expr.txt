@@ -1,0 +1,18 @@
+consider-using-assignment-expr:4:3:4:5::"Use 'if (a1 := 2):' instead":UNDEFINED
+consider-using-assignment-expr:16:3:16:5::"Use 'if (a3 := 2) == a3_a:' instead":UNDEFINED
+consider-using-assignment-expr:26:7:26:9:func_a:"Use 'if (a5 := some___object.function_name_is_just_long_enough_to_fit_in_line()) is None:' instead":UNDEFINED
+consider-using-assignment-expr:41:3:41:5::"Use 'if (b1 := 2):' instead":UNDEFINED
+consider-using-assignment-expr:45:3:45:5::"Use 'if (b2 := some_function(2, 3)):' instead":UNDEFINED
+consider-using-assignment-expr:49:3:49:5::"Use 'if (b3 := some_object.variable):' instead":UNDEFINED
+consider-using-assignment-expr:55:7:55:9::"Use 'if not (c1 := 2):' instead":UNDEFINED
+consider-using-assignment-expr:61:3:61:5::"Use 'if (d1 := 2) is True:' instead":UNDEFINED
+consider-using-assignment-expr:65:3:65:5::"Use 'if (d2 := 2) is not None:' instead":UNDEFINED
+consider-using-assignment-expr:69:3:69:5::"Use 'if (d3 := 2) == 2:' instead":UNDEFINED
+consider-using-assignment-expr:90:3:90:5::"Use 'if (o3 := 2) == 1:' instead":UNDEFINED
+consider-using-assignment-expr:96:3:96:5::"Use 'if (o4 := 2) == 1:' instead":UNDEFINED
+consider-using-assignment-expr:102:3:102:5::"Use 'if (o5 := 2) == 1:' instead":UNDEFINED
+consider-using-assignment-expr:108:3:108:5::"Use 'if (o6 := 2) == 1:' instead":UNDEFINED
+consider-using-assignment-expr:127:7:127:9:func_p:"Use 'if (p3 := 2) == 1:' instead":UNDEFINED
+consider-using-assignment-expr:133:7:133:9:func_p:"Use 'if (p4 := 2) == 1:' instead":UNDEFINED
+consider-using-assignment-expr:139:7:139:9:func_p:"Use 'if (p5 := 2) == 1:' instead":UNDEFINED
+consider-using-assignment-expr:145:7:145:9:func_p:"Use 'if (p6 := 2) == 1:' instead":UNDEFINED

@@ -1,0 +1,2 @@
+preferred-module:4:0:4:11::Prefer importing 'ujson' instead of 'json':UNDEFINED
+preferred-module:5:0:5:21::Prefer importing 'regex' instead of 're':UNDEFINED

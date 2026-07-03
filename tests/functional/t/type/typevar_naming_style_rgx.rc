@@ -1,0 +1,4 @@
+[BASIC]
+typevar-rgx=TypeVarsShouldBeLikeThis(_co(ntra)?)?$
+paramspec-rgx=ParamSpecShouldBeLikeThis$
+typevartuple-rgx=TypeVarTupleShouldBeLikeThis$

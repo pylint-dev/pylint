@@ -1,0 +1,5 @@
+unsubscriptable-object:34:0:34:20::Value 'ClsUnsubscriptable()' is unsubscriptable:UNDEFINED
+unsubscriptable-object:35:0:35:18::Value 'ClsUnsubscriptable' is unsubscriptable:UNDEFINED
+unsubscriptable-object:38:0:38:10::Value 'ClsGetItem' is unsubscriptable:UNDEFINED
+unsubscriptable-object:40:0:40:17::Value 'ClsClassGetItem()' is unsubscriptable:UNDEFINED
+abstract-method:53:0:53:13:Derived:Method 'abstract_method' is abstract in class 'ClsAbstract' but is not overridden in child class 'Derived':INFERENCE

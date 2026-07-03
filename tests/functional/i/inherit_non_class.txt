@@ -1,0 +1,11 @@
+inherit-non-class:22:0:22:9:Bad:Inheriting '1', which is not a class.:UNDEFINED
+inherit-non-class:25:0:25:10:Bad1:"Inheriting 'lambda abc: 42', which is not a class.":UNDEFINED
+inherit-non-class:28:0:28:10:Bad2:Inheriting 'object()', which is not a class.:UNDEFINED
+inherit-non-class:31:0:31:10:Bad3:Inheriting 'return_class', which is not a class.:UNDEFINED
+inherit-non-class:34:0:34:10:Bad4:Inheriting 'Empty()', which is not a class.:UNDEFINED
+inherit-non-class:69:0:69:24:NotInheritableBool:Inheriting 'bool', which is not a class.:UNDEFINED
+inherit-non-class:73:0:73:25:NotInheritableRange:Inheriting 'range', which is not a class.:UNDEFINED
+inherit-non-class:77:0:77:25:NotInheritableSlice:Inheriting 'slice', which is not a class.:UNDEFINED
+inherit-non-class:81:0:81:30:NotInheritableMemoryView:Inheriting 'memoryview', which is not a class.:UNDEFINED
+inherit-non-class:99:0:99:12:Child2:Inheriting 'ParentBad[int]', which is not a class.:UNDEFINED
+unsubscriptable-object:103:13:103:18:Child3:Value 'Empty' is unsubscriptable:UNDEFINED

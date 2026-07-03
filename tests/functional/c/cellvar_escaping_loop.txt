@@ -1,0 +1,13 @@
+cell-var-from-loop:117:27:117:28:bad_case.<lambda>:Cell variable i defined in loop:UNDEFINED
+cell-var-from-loop:122:20:122:21:bad_case2.<lambda>:Cell variable i defined in loop:UNDEFINED
+cell-var-from-loop:130:27:130:28:bad_case3.<lambda>:Cell variable j defined in loop:UNDEFINED
+cell-var-from-loop:140:19:140:20:bad_case4.nested:Cell variable i defined in loop:UNDEFINED
+cell-var-from-loop:161:20:161:21:bad_case5.<lambda>:Cell variable i defined in loop:UNDEFINED
+cell-var-from-loop:169:27:169:28:bad_case6.<lambda>:Cell variable i defined in loop:UNDEFINED
+cell-var-from-loop:177:12:177:13:bad_case7.<lambda>:Cell variable x defined in loop:UNDEFINED
+cell-var-from-loop:178:14:178:15:bad_case7.<lambda>:Cell variable y defined in loop:UNDEFINED
+cell-var-from-loop:187:27:187:28:bad_case8.<lambda>:Cell variable j defined in loop:UNDEFINED
+cell-var-from-loop:197:27:197:28:bad_case9.<lambda>:Cell variable i defined in loop:UNDEFINED
+cell-var-from-loop:206:26:206:27:bad_case10.func.func2:Cell variable i defined in loop:UNDEFINED
+cell-var-from-loop:218:17:218:18:bad_case_issue2846.<lambda>:Cell variable n defined in loop:UNDEFINED
+cell-var-from-loop:223:18:223:19:bad_case_issue2846.<lambda>:Cell variable n defined in loop:UNDEFINED

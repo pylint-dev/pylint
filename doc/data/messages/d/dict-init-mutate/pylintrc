@@ -1,0 +1,2 @@
+[MAIN]
+load-plugins=pylint.extensions.dict_init_mutate,

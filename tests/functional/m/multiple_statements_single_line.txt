@@ -1,0 +1,4 @@
+multiple-statements:11:9:11:38::More than one statement on a single line:HIGH
+multiple-statements:15:9:15:13::More than one statement on a single line:HIGH
+multiple-statements:19:9:19:12::More than one statement on a single line:HIGH
+multiple-statements:30:26:30:31:MyError:More than one statement on a single line:HIGH

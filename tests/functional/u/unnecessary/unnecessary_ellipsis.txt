@@ -1,0 +1,4 @@
+unnecessary-ellipsis:12:4:12:7::Unnecessary ellipsis constant:UNDEFINED
+unnecessary-ellipsis:15:4:15:7:ellipsis_and_subsequent_statement:Unnecessary ellipsis constant:UNDEFINED
+unnecessary-ellipsis:50:4:50:7:docstring_and_ellipsis:Unnecessary ellipsis constant:UNDEFINED
+unnecessary-ellipsis:66:4:66:7:DocstringAndEllipsis:Unnecessary ellipsis constant:UNDEFINED

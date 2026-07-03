@@ -1,0 +1,4 @@
+[tool.pylint]
+# Both disable and load-plugins do not belong in the top level section
+load-plugins = []
+disable = "logging-not-lazy,logging-format-interpolation"

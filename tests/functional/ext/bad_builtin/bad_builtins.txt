@@ -1,0 +1,4 @@
+bad-builtin:2:0:2:31::Used builtin function 'input':UNDEFINED
+bad-builtin:3:15:3:35::Used builtin function 'filter'. Using a list comprehension can be clearer.:UNDEFINED
+bad-builtin:3:6:3:36::Used builtin function 'map'. Using a list comprehension can be clearer.:UNDEFINED
+bad-builtin:3:0:3:37::Used builtin function 'print':UNDEFINED

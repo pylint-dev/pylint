@@ -1,0 +1,24 @@
+🤖 **Effect of this PR on checked open source code:** 🤖
+
+
+**Effect on [astroid](https://github.com/pylint-dev/astroid):**
+
+The following messages are now emitted:
+
+<details>
+
+1) dangerous-default-value:
+*Dangerous default value [] as argument*
+https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/inference.py#L42
+</details>
+
+The following messages are no longer emitted:
+
+<details>
+
+1) dangerous-default-value:
+*Dangerous default value [] as argument*
+https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/inference.py#L42
+</details>
+
+*This comment was generated for commit v2.14.2*

@@ -1,0 +1,9 @@
+unsupported-binary-operation:22:8:22:30::unsupported operand type(s) for |:INFERENCE
+unsupported-binary-operation:23:7:23:35::unsupported operand type(s) for |:INFERENCE
+unsupported-binary-operation:31:23:31:32::unsupported operand type(s) for |:INFERENCE
+unsupported-binary-operation:33:24:33:33::unsupported operand type(s) for |:INFERENCE
+unsupported-binary-operation:35:14:35:23::unsupported operand type(s) for |:INFERENCE
+unsupported-binary-operation:48:9:48:25::unsupported operand type(s) for |:INFERENCE
+unsupported-binary-operation:55:36:55:45::unsupported operand type(s) for |:INFERENCE
+unsupported-binary-operation:65:54:65:63::unsupported operand type(s) for |:INFERENCE
+unsupported-binary-operation:67:60:67:69::unsupported operand type(s) for |:INFERENCE

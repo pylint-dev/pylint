@@ -1,0 +1,5 @@
+unused-variable:5:4:6:12:main1:Unused variable 'e':UNDEFINED
+used-before-assignment:8:10:8:11:main1:Using variable 'e' before assignment:HIGH
+unused-variable:21:4:22:12:main3:Unused variable 'e':UNDEFINED
+unused-variable:31:4:32:12:main4:Unused variable 'e':UNDEFINED
+used-before-assignment:44:10:44:11:main4:Using variable 'e' before assignment:HIGH

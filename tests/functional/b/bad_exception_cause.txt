@@ -1,0 +1,6 @@
+bad-exception-cause:13:4:13:27:test:Exception cause set to something which is not an exception, nor None:INFERENCE
+bad-exception-cause:16:4:16:34:test:Exception cause set to something which is not an exception, nor None:INFERENCE
+bad-exception-cause:22:4:22:36:test:Exception cause set to something which is not an exception, nor None:INFERENCE
+catching-non-exception:30:7:30:15::"Catching an exception which doesn't inherit from Exception: function":UNDEFINED
+bad-exception-cause:31:4:31:28::Exception cause set to something which is not an exception, nor None:INFERENCE
+broad-exception-raised:31:4:31:28::"Raising too general exception: Exception":INFERENCE

@@ -1,0 +1,8 @@
+-r requirements_test_min.txt
+coverage~=7.10
+tbump~=6.11.0
+contributors-txt>=1.0.0
+pytest-cov>=6.2,<8.0
+pytest-xdist~=3.8
+six
+tox>=3

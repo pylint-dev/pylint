@@ -1,0 +1,2 @@
+bad-plugin-value:1:0:None:None::Plugin 'pylint.extensions.check_does_not_exists_in_venv' is impossible to load, is it installed ? ('No module named 'pylint.extensions.check_does_not_exists_in_venv''):UNDEFINED
+import-error:3:0:3:32::Unable to import 'shadok':UNDEFINED

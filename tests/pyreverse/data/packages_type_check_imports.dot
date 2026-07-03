@@ -1,0 +1,13 @@
+digraph "packages_type_check_imports" {
+rankdir=BT
+charset="utf-8"
+"package_diagrams" [color="black", label=<package_diagrams>, shape="box", style="solid"];
+"package_diagrams.type_check_imports" [color="black", label=<package_diagrams.type_check_imports>, shape="box", style="solid"];
+"package_diagrams.type_check_imports.mod_a" [color="black", label=<package_diagrams.type_check_imports.mod_a>, shape="box", style="solid"];
+"package_diagrams.type_check_imports.mod_b" [color="black", label=<package_diagrams.type_check_imports.mod_b>, shape="box", style="solid"];
+"package_diagrams.type_check_imports.mod_c" [color="black", label=<package_diagrams.type_check_imports.mod_c>, shape="box", style="solid"];
+"package_diagrams.type_check_imports.mod_d" [color="black", label=<package_diagrams.type_check_imports.mod_d>, shape="box", style="solid"];
+"package_diagrams.type_check_imports.mod_b" -> "package_diagrams.type_check_imports.mod_a" [arrowhead="open", arrowtail="none"];
+"package_diagrams.type_check_imports.mod_d" -> "package_diagrams.type_check_imports.mod_a" [arrowhead="open", arrowtail="none"];
+"package_diagrams.type_check_imports.mod_c" -> "package_diagrams.type_check_imports.mod_a" [arrowhead="open", arrowtail="none", style="dashed"];
+}

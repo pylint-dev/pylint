@@ -1,0 +1,2 @@
+too-many-format-args:11:10:11:36:issue_957_bad1:Too many arguments for format string:UNDEFINED
+too-few-format-args:16:10:16:36:issue_957_bad2:Not enough arguments for format string:UNDEFINED

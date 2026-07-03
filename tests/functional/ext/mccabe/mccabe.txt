@@ -1,0 +1,29 @@
+too-complex:9:0:9:15:just_a_pass:'just_a_pass' is too complex. The McCabe rating is 1:HIGH
+too-complex:14:0:14:16:just_a_yield:'just_a_yield' is too complex. The McCabe rating is 1:HIGH
+too-complex:19:0:19:17:just_a_return:'just_a_return' is too complex. The McCabe rating is 1:HIGH
+too-complex:24:0:24:16:just_a_raise:'just_a_raise' is too complex. The McCabe rating is 1:HIGH
+too-complex:29:0:29:32:one_edge_multiple_operations:'one_edge_multiple_operations' is too complex. The McCabe rating is 1:HIGH
+too-complex:36:0:36:16:if_elif_else:'if_elif_else' is too complex. The McCabe rating is 3:HIGH
+too-complex:46:0:46:24:if_with_conditionals:'if_with_conditionals' is too complex. The McCabe rating is 2:HIGH
+too-complex:61:0:61:12:for_loop:'for_loop' is too complex. The McCabe rating is 2:HIGH
+too-complex:67:0:67:22:for_loop_with_else:'for_loop_with_else' is too complex. The McCabe rating is 2:HIGH
+too-complex:75:0:75:21:recursive_if_else:'recursive_if_else' is too complex. The McCabe rating is 2:HIGH
+too-complex:83:0:83:23:for_loop_with_break:'for_loop_with_break' is too complex. The McCabe rating is 3:HIGH
+too-complex:90:0:90:26:for_loop_with_continue:'for_loop_with_continue' is too complex. The McCabe rating is 3:HIGH
+too-complex:98:0:98:36:for_loop_with_continue_and_break:'for_loop_with_continue_and_break' is too complex. The McCabe rating is 4:HIGH
+too-complex:107:0:107:19:inner_functions:'inner_functions' is too complex. The McCabe rating is 3:HIGH
+too-complex:122:0:122:37:try_with_multiple_except_and_else:'try_with_multiple_except_and_else' is too complex. The McCabe rating is 4:HIGH
+too-complex:134:0:134:9:with_:'with_' is too complex. The McCabe rating is 1:HIGH
+too-complex:141:0:141:18:lambda_with_if:'lambda_with_if' is too complex. The McCabe rating is 1:HIGH
+too-complex:149:0:149:25:comprehension_with_if:'comprehension_with_if' is too complex. The McCabe rating is 1:HIGH
+too-complex:156:0:156:36:comprehension_with_if_equivalent:'comprehension_with_if_equivalent' is too complex. The McCabe rating is 4:HIGH
+too-complex:171:0:171:26:nested_ifs_elifs_elses:'nested_ifs_elifs_elses' is too complex. The McCabe rating is 9:HIGH
+too-complex:197:0:197:34:big_elif_chain_with_nested_ifs:'big_elif_chain_with_nested_ifs' is too complex. The McCabe rating is 11:HIGH
+too-complex:229:4:229:19:ExampleComplexityClass.just_a_pass:'just_a_pass' is too complex. The McCabe rating is 1:HIGH
+too-complex:233:4:233:22:ExampleComplexityClass.highly_complex:'highly_complex' is too complex. The McCabe rating is 15:HIGH
+too-many-branches:233:4:233:22:ExampleComplexityClass.highly_complex:Too many branches (19/12):UNDEFINED
+too-complex:286:0:293:15::This 'for' is too complex. The McCabe rating is 4:HIGH
+too-complex:296:0:296:31:try_finally_with_nested_ifs:'try_finally_with_nested_ifs' is too complex. The McCabe rating is 3:HIGH
+too-complex:308:0:308:14:match_case:'match_case' is too complex. The McCabe rating is 4:HIGH
+too-complex:323:0:323:21:nested_match_case:'nested_match_case' is too complex. The McCabe rating is 8:HIGH
+too-complex:345:0:345:21:yield_in_for_loop:'yield_in_for_loop' is too complex. The McCabe rating is 4:HIGH

@@ -1,0 +1,6 @@
+redundant-unittest-assert:22:8:22:71:Tests.test_something:Redundant use of assertTrue with constant value 'I meant assertEqual not assertTrue':UNDEFINED
+redundant-unittest-assert:24:8:24:73:Tests.test_something:Redundant use of assertFalse with constant value 'I meant assertEqual not assertFalse':UNDEFINED
+redundant-unittest-assert:26:8:26:39:Tests.test_something:Redundant use of assertTrue with constant value True:UNDEFINED
+redundant-unittest-assert:28:8:28:41:Tests.test_something:Redundant use of assertFalse with constant value False:UNDEFINED
+redundant-unittest-assert:30:8:30:40:Tests.test_something:Redundant use of assertFalse with constant value None:UNDEFINED
+redundant-unittest-assert:32:8:32:36:Tests.test_something:Redundant use of assertTrue with constant value 0:UNDEFINED

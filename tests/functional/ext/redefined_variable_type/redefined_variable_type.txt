@@ -1,0 +1,10 @@
+redefined-variable-type:17:8:17:22:MyClass.__init__:Redefinition of self.var1 type from int to float:UNDEFINED
+redefined-variable-type:21:8:21:40:MyClass.__init__:Redefinition of a_str type from bool to float:UNDEFINED
+redefined-variable-type:33:12:33:23:MyClass.some_method.func:Redefinition of var type from int to str:UNDEFINED
+redefined-variable-type:37:8:37:21:MyClass.some_method:Redefinition of myint type from int to bool:UNDEFINED
+redefined-variable-type:39:0:39:18::Redefinition of _OK type from bool to str:UNDEFINED
+redefined-variable-type:49:4:49:19:other_function:Redefinition of instance type from redefined_variable_type.MyClass to bool:UNDEFINED
+redefined-variable-type:51:0:51:29::Redefinition of SOME_FLOAT type from float to int:UNDEFINED
+redefined-variable-type:71:8:71:16:func2:Redefinition of var3 type from str to int:UNDEFINED
+redefined-variable-type:75:4:75:11:func2:Redefinition of var type from bool to int:UNDEFINED
+redefined-variable-type:85:8:85:20:func2:Redefinition of var4 type from float to str:UNDEFINED

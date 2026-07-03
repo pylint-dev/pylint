@@ -1,0 +1,1 @@
+missing-param-doc:25:4:25:16:MyClass.__init__:"""my_param"" missing in parameter documentation":HIGH

@@ -1,0 +1,6 @@
+{
+  "functional_append": {
+    "disable": ["logging-not-lazy", "logging-format-interpolation"]
+  },
+  "load_plugins": []
+}

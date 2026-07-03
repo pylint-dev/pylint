@@ -1,0 +1,2 @@
+invalid-name:17:4:17:14:Color:"Class constant name ""aquamarine"" doesn't conform to UPPER_CASE naming style":HIGH
+invalid-name:39:4:None:None:Something:"Attribute name ""ASD"" doesn't conform to snake_case naming style":HIGH

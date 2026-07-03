@@ -1,0 +1,7 @@
+invalid-enum-extension:19:0:19:24:SubclassUnionFlags:"Extending inherited Enum class ""ExplicitUnionFlags""":INFERENCE
+implicit-flag-alias:28:4:28:5:ImplicitUnionFlags:"Flag member <ImplicitUnionFlags.C: 3> shares bit positions with <ImplicitUnionFlags.A: 1> (3 & 1 = 1), <ImplicitUnionFlags.B: 2> (3 & 2 = 2)":INFERENCE
+implicit-flag-alias:29:4:29:5:ImplicitUnionFlags:"Flag member <ImplicitUnionFlags.D: 5> shares bit positions with <ImplicitUnionFlags.A: 1> (5 & 1 = 1)":INFERENCE
+implicit-flag-alias:31:4:31:5:ImplicitUnionFlags:"Flag member <ImplicitUnionFlags.F: 17> shares bit positions with <ImplicitUnionFlags.A: 1> (17 & 1 = 1)":INFERENCE
+implicit-flag-alias:32:4:32:5:ImplicitUnionFlags:"Flag member <ImplicitUnionFlags.G: 17> shares bit positions with <ImplicitUnionFlags.A: 1> (17 & 1 = 1)":INFERENCE
+implicit-flag-alias:41:4:41:5:ReverseOrderFlags:"Flag member <ReverseOrderFlags.A: 5> shares bit positions with <ReverseOrderFlags.B: 1> (5 & 1 = 1)":INFERENCE
+implicit-flag-alias:47:4:47:5:SharedBitsWithoutDeclaration:"Flag member <SharedBitsWithoutDeclaration.B: 5> shares bit positions with <SharedBitsWithoutDeclaration.A: 3> (5 & 3 = 1)":INFERENCE

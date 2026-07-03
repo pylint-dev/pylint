@@ -1,0 +1,2 @@
+mixed-line-endings:3:0:None:None::Mixed line endings LF and CRLF:UNDEFINED
+unexpected-line-ending-format:3:0:None:None::Unexpected line ending format. There is 'CRLF' while it should be 'LF'.:UNDEFINED

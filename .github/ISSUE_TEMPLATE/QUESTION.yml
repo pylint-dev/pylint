@@ -1,0 +1,49 @@
+name: 🤔 Support question
+description: Questions about pylint that are not covered in the documentation
+labels: ["Needs triage :inbox_tray:", "Question", "Documentation :green_book:"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        **Thank you for wanting to report a problem with pylint documentation!**
+
+
+        Please fill out your suggestions below. If the problem seems straightforward,
+        feel free to go ahead and submit a pull request instead!
+
+
+        ⚠ Verify first that your issue is not [already reported on GitHub][issue
+        search].
+
+        💬 If you are seeking community support, please consider [starting a discussion
+        on Discord][Discussions].
+
+
+        [issue search]:
+        https://github.com/pylint-dev/pylint/issues?q=is%3Aissue+is%3Aopen+
+
+        [Discussions]: https://discord.com/invite/Egy6P8AMB5
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+    validations:
+      required: true
+  - type: textarea
+    id: documentation
+    attributes:
+      label: Documentation for future user
+      description:
+        Where did you expect this information to be? What do we need to add or what do
+        we need to reorganize?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: >
+        Add any other context, links, etc. about the question here.
+      placeholder: >-
+        I asked on https://stackoverflow.com/... and the community advised me to do X, Y
+        and Z.

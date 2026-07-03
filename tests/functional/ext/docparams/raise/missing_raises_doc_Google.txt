@@ -1,0 +1,14 @@
+missing-raises-doc:6:0:6:35:test_find_missing_google_raises:"""RuntimeError"" not documented as being raised":HIGH
+unreachable:13:4:13:25:test_find_missing_google_raises:Unreachable code:HIGH
+missing-raises-doc:38:0:38:46:test_find_valid_missing_google_attr_raises:"""IllegalMonthError"" not documented as being raised":HIGH
+unreachable:83:4:83:25:test_find_all_google_raises:Unreachable code:HIGH
+unreachable:94:4:94:25:test_find_multiple_google_raises:Unreachable code:HIGH
+unreachable:95:4:95:30:test_find_multiple_google_raises:Unreachable code:HIGH
+unreachable:96:4:96:27:test_find_multiple_google_raises:Unreachable code:HIGH
+missing-raises-doc:99:0:99:36:test_find_rethrown_google_raises:"""RuntimeError"" not documented as being raised":HIGH
+missing-raises-doc:113:0:113:45:test_find_rethrown_google_multiple_raises:"""RuntimeError, ValueError"" not documented as being raised":HIGH
+missing-raises-doc:148:4:148:18:Foo.foo_method:"""AttributeError"" not documented as being raised":HIGH
+unreachable:158:8:158:17:Foo.foo_method:Unreachable code:HIGH
+unreachable:180:8:180:17:Foo.foo_method:Unreachable code:HIGH
+missing-raises-doc:183:4:183:18:Foo.foo_method:"""AttributeError"" not documented as being raised":HIGH
+using-constant-test:190:11:190:15:Foo.foo_method:Using a conditional statement with a constant value:INFERENCE

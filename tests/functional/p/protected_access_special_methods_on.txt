@@ -1,0 +1,5 @@
+unused-private-member:15:8:15:22:Protected.__init__:Unused private member `Protected.__private`:UNDEFINED
+protected-access:18:26:18:42:Protected.__eq__:Access to a protected member _protected of a client class:UNDEFINED
+protected-access:22:22:22:38:Protected._fake_special_:Access to a protected member _protected of a client class:UNDEFINED
+protected-access:23:25:23:40:Protected._fake_special_:Access to a protected member __private of a client class:UNDEFINED
+unused-private-member:23:8:23:22:Protected._fake_special_:Unused private member `Protected.__private`:UNDEFINED

@@ -1,0 +1,11 @@
+missing-return-doc:7:0:7:11:my_func:Missing return documentation:HIGH
+missing-return-doc:22:0:22:11:my_func:Missing return documentation:HIGH
+missing-return-type-doc:22:0:22:11:my_func:Missing return type documentation:HIGH
+missing-return-doc:33:0:33:11:my_func:Missing return documentation:HIGH
+missing-return-type-doc:50:4:50:16:Foo.foo_prop:Missing return type documentation:HIGH
+unreachable:59:8:59:17:Foo.foo_prop:Unreachable code:HIGH
+missing-return-doc:68:4:68:18:Foo.foo_method:Missing return documentation:HIGH
+missing-return-type-doc:68:4:68:18:Foo.foo_method:Missing return type documentation:HIGH
+unreachable:78:8:78:17:Foo.foo_method:Unreachable code:HIGH
+missing-return-doc:87:4:87:18:Foo.foo_method:Missing return documentation:HIGH
+unreachable:97:8:97:17:Foo.foo_method:Unreachable code:HIGH

@@ -1,0 +1,9 @@
+unbalanced-tuple-unpacking:13:4:13:27:do_stuff:"Possible unbalanced tuple unpacking with sequence '(1, 2, 3)': left side has 2 labels, right side has 3 values":INFERENCE
+unbalanced-tuple-unpacking:19:4:19:29:do_stuff1:"Possible unbalanced tuple unpacking with sequence '[1, 2, 3]': left side has 2 labels, right side has 3 values":INFERENCE
+unbalanced-tuple-unpacking:25:4:25:29:do_stuff2:"Possible unbalanced tuple unpacking with sequence '(1, 2, 3)': left side has 2 labels, right side has 3 values":INFERENCE
+unbalanced-tuple-unpacking:84:4:84:28:do_stuff9:"Possible unbalanced tuple unpacking with sequence defined at line 7 of functional.u.unpacking.unpacking: left side has 2 labels, right side has 3 values":INFERENCE
+unbalanced-tuple-unpacking:98:8:98:33:UnbalancedUnpacking.test:"Possible unbalanced tuple unpacking with sequence defined at line 7 of functional.u.unpacking.unpacking: left side has 2 labels, right side has 3 values":INFERENCE
+unbalanced-tuple-unpacking:142:8:142:43:MyClass.sum_unpack_3_into_4:"Possible unbalanced tuple unpacking with sequence defined at line 130: left side has 4 labels, right side has 3 values":INFERENCE
+unbalanced-tuple-unpacking:147:8:147:28:MyClass.sum_unpack_3_into_2:"Possible unbalanced tuple unpacking with sequence defined at line 130: left side has 2 labels, right side has 3 values":INFERENCE
+unbalanced-tuple-unpacking:159:0:159:24::"Possible unbalanced tuple unpacking with sequence defined at line 153: left side has 2 labels, right side has 0 values":INFERENCE
+unbalanced-tuple-unpacking:164:0:164:16::"Possible unbalanced tuple unpacking with sequence '(1, 2)': left side has 3 labels, right side has 2 values":INFERENCE

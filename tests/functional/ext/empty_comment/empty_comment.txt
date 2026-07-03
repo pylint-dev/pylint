@@ -1,0 +1,4 @@
+empty-comment:3:0:None:None::Line with empty comment:UNDEFINED
+empty-comment:5:0:None:None::Line with empty comment:UNDEFINED
+empty-comment:8:0:None:None::Line with empty comment:UNDEFINED
+empty-comment:11:0:None:None::Line with empty comment:UNDEFINED

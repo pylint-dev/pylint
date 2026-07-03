@@ -1,0 +1,4 @@
+undefined-variable:19:23:19:40:UninferableChild:Undefined variable 'UninferableParent':UNDEFINED
+super-init-not-called:50:4:50:16:ChildThree.__init__:__init__ method from base class 'ParentWithoutInit' is not called:INFERENCE
+super-init-not-called:84:4:84:16:DerivedFromAbstract.__init__:__init__ method from base class 'AbstractBase' is not called:INFERENCE
+undefined-variable:91:18:91:31:DerivedFrom:Undefined variable 'UnknownParent':UNDEFINED

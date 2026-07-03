@@ -1,0 +1,2 @@
+redefined-slots-in-subclass:15:16:15:47:Subclass1:Redefined slots ['a', 'deque'] in subclass:UNDEFINED
+redefined-slots-in-subclass:33:16:33:61:Subclass3:Redefined slots ['a', 'b', 'i', 'j', 'k'] in subclass:UNDEFINED

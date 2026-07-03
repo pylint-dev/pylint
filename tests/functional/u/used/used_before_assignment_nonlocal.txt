@@ -1,0 +1,11 @@
+used-before-assignment:17:14:17:17:test_fail.wrap:Using variable 'cnt' before assignment:HIGH
+used-before-assignment:26:14:26:17:test_fail2.wrap:Using variable 'cnt' before assignment:HIGH
+used-before-assignment:29:20:29:30:test_fail3:Using variable 'test_fail4' before assignment:HIGH
+used-before-assignment:33:22:33:32:test_fail4:Using variable 'test_fail5' before assignment:HIGH
+used-before-assignment:33:44:33:53:test_fail4:Using variable 'undefined' before assignment:HIGH
+used-before-assignment:39:18:39:28:test_fail5:Using variable 'undefined1' before assignment:HIGH
+used-before-assignment:90:10:90:18:type_annotation_never_gets_value_despite_nonlocal:Using variable 'some_num' before assignment:HIGH
+used-before-assignment:96:14:96:18:inner_function_lacks_access_to_outer_args.inner:Using variable 'args' before assignment:HIGH
+used-before-assignment:117:18:117:21:nonlocal_in_outer_frame_fail.outer.inner:Using variable 'num' before assignment:HIGH
+possibly-used-before-assignment:149:20:149:28:nonlocal_in_distant_outer_frame_fail.outer.intermediate.inner:Possibly using variable 'callback' before assignment:CONTROL_FLOW
+used-before-assignment:163:14:163:17:nonlocal_after_bad_usage_fail.inner:Using variable 'num' before assignment:HIGH

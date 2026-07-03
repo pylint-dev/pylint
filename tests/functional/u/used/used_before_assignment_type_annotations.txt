@@ -1,0 +1,5 @@
+used-before-assignment:15:10:15:18:only_type_assignment:Using variable 'variable' before assignment:HIGH
+used-before-assignment:28:10:28:18:value_assignment_after_access:Using variable 'variable' before assignment:HIGH
+undefined-variable:62:14:62:17:decorator_returning_incorrect_function.wrapper_with_type_and_no_value:Undefined variable 'var':HIGH
+possibly-used-before-assignment:97:17:97:21:conditional_annotated_assignment:Possibly using variable 'data' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:108:17:108:21:loop_conditional_annotated_assignment:Possibly using variable 'data' before assignment:CONTROL_FLOW

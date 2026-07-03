@@ -1,0 +1,1 @@
+yield-outside-function:4:0:4:7::Yield outside function:UNDEFINED

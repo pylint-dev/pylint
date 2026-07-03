@@ -1,0 +1,26 @@
+no-value-for-parameter:35:0:35:11::No value for argument 'first_argument' in constructor call:UNDEFINED
+too-many-function-args:36:0:36:20::Too many positional arguments for constructor call:UNDEFINED
+no-value-for-parameter:38:0:38:19::No value for argument 'third_argument' in constructor call:UNDEFINED
+no-value-for-parameter:40:0:40:11::No value for argument 'first_argument' in constructor call:UNDEFINED
+no-value-for-parameter:40:0:40:11::No value for argument 'second_argument' in constructor call:UNDEFINED
+no-value-for-parameter:40:0:40:11::No value for argument 'third_argument' in constructor call:UNDEFINED
+too-many-function-args:42:0:42:35::Too many positional arguments for constructor call:UNDEFINED
+no-value-for-parameter:47:0:47:16::No value for argument 'first_argument' in constructor call:UNDEFINED
+unexpected-keyword-arg:47:0:47:16::Unexpected keyword argument 'bob' in constructor call:UNDEFINED
+unexpected-keyword-arg:48:0:48:35::Unexpected keyword argument 'coin' in constructor call:UNDEFINED
+redundant-keyword-arg:50:0:50:25::Argument 'one' passed by position and keyword in constructor call:UNDEFINED
+no-value-for-parameter:53:0:53:14::No value for argument 'first_argument' in constructor call:UNDEFINED
+too-many-function-args:54:0:54:23::Too many positional arguments for constructor call:UNDEFINED
+too-many-function-args:60:0:60:30::Too many positional arguments for constructor call:UNDEFINED
+too-many-function-args:63:0:63:17::Too many positional arguments for constructor call:UNDEFINED
+no-value-for-parameter:64:0:64:15::No value for argument 'first_argument' in constructor call:UNDEFINED
+unexpected-keyword-arg:64:0:64:15::Unexpected keyword argument 'one' in constructor call:UNDEFINED
+line-too-long:85:0:None:None::Line too long (122/100):UNDEFINED
+pointless-exception-statement:85:0:85:28::Exception statement has no effect:INFERENCE
+too-many-function-args:85:0:85:28::Too many positional arguments for constructor call:UNDEFINED
+unexpected-keyword-arg:85:0:85:28::Unexpected keyword argument 'badarg' in constructor call:UNDEFINED
+too-many-function-args:95:15:95:30:Clsmethod.from_nothing:Too many positional arguments for constructor call:UNDEFINED
+no-value-for-parameter:99:15:99:20:Clsmethod.from_nothing1:No value for argument 'first' in constructor call:UNDEFINED
+no-value-for-parameter:99:15:99:20:Clsmethod.from_nothing1:No value for argument 'second' in constructor call:UNDEFINED
+no-value-for-parameter:104:15:104:37:Clsmethod.from_nothing2:No value for argument 'second' in constructor call:UNDEFINED
+unexpected-keyword-arg:104:15:104:37:Clsmethod.from_nothing2:Unexpected keyword argument 'not_argument' in constructor call:UNDEFINED

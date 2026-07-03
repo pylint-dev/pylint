@@ -1,0 +1,3 @@
+redefined-builtin:8:4:8:8:function:Redefining built-in 'type':UNDEFINED
+redefined-builtin:13:0:13:3::Redefining built-in 'map':UNDEFINED
+redefined-builtin:18:0:18:22::Redefining built-in 'open':UNDEFINED

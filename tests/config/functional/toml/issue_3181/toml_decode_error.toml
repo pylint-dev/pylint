@@ -1,0 +1,3 @@
+# TOML decode error crash pylint
+[tool.pylint]
+***

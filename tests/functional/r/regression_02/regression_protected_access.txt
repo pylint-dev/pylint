@@ -1,0 +1,1 @@
+protected-access:13:15:13:54:MyClass._a_private_method:Access to a protected member _a_private_method of a client class:UNDEFINED

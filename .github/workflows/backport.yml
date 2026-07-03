@@ -1,0 +1,41 @@
+name: Backport
+on:
+  pull_request_target:
+    types:
+      - closed
+      - labeled
+
+permissions:
+  contents: read
+
+jobs:
+  backport:
+    name: Backport
+    runs-on: ubuntu-latest
+    environment:
+      name: Backport
+      deployment: false
+    # Only react to merged PRs for security reasons.
+    # See https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request_target.
+    if: >
+      github.event.pull_request.merged && (
+        github.event.action == 'closed'
+        || (
+          github.event.action == 'labeled'
+          && contains(github.event.label.name, 'backport')
+        )
+      )
+    steps:
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          client-id: ${{ vars.BACKPORT_CLIENT_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          permission-contents: write # push branch to Github
+          permission-pull-requests: write # create PR / add comment for manual backport
+          permission-workflows: write # modify files in .github/workflows
+      - uses: pylint-dev/backport@3adad52e5a8ba2ea731c32037442d507eed68b4c # v2.1.8
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+          user_name: ${{ vars.BACKPORT_USER_NAME }}
+          user_email: ${{ vars.BACKPORT_USER_EMAIL }}

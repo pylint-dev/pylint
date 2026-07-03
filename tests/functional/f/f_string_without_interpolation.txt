@@ -1,0 +1,1 @@
+f-string-without-interpolation:9:6:9:14::Using an f-string that does not have any interpolated variables:UNDEFINED

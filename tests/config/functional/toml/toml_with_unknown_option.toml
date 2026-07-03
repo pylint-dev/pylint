@@ -1,0 +1,6 @@
+# Check that we handle unknown options correctly
+
+[tool.pylint]
+unknown-option = "yes"
+jobs = "10"
+another-unknown-option = "yes"

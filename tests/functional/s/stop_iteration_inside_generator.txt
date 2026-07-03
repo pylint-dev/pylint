@@ -1,0 +1,7 @@
+stop-iteration-return:27:4:27:23:gen_stopiter:Do not raise StopIteration in generator, use return statement instead:INFERENCE
+stop-iteration-return:36:4:36:29:gen_stopiterchild:Do not raise StopIteration in generator, use return statement instead:INFERENCE
+stop-iteration-return:44:14:44:21:gen_next_raises_stopiter:Do not raise StopIteration in generator, use return statement instead:INFERENCE
+stop-iteration-return:66:18:66:25:gen_next_inside_wrong_try_except:Do not raise StopIteration in generator, use return statement instead:INFERENCE
+stop-iteration-return:80:12:80:31:gen_next_inside_wrong_try_except2:Do not raise StopIteration in generator, use return statement instead:INFERENCE
+stop-iteration-return:97:18:97:25:gen_dont_crash_on_no_exception:Do not raise StopIteration in generator, use return statement instead:INFERENCE
+stop-iteration-return:146:10:146:35:invalid_object_passed_to_next:Do not raise StopIteration in generator, use return statement instead:INFERENCE

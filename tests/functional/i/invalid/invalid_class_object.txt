@@ -1,0 +1,5 @@
+invalid-class-object:20:0:20:11::Invalid assignment to '__class__'. Should be a class definition but got a 'Instance':INFERENCE
+invalid-class-object:21:0:21:11::Invalid assignment to '__class__'. Should be a class definition but got a 'Const':INFERENCE
+invalid-class-object:50:8:50:22:Pylint7429Good.class_defining_function_bad:Invalid assignment to '__class__'. Should be a class definition but got a 'Const':INFERENCE
+invalid-class-object:58:15:58:29:Pylint7429Good.class_defining_function_bad_inverted:Invalid assignment to '__class__'. Should be a class definition but got a 'Const':INFERENCE
+invalid-class-object:62:15:62:29:Pylint7429Good.class_defining_function_complex_bad:Invalid assignment to '__class__'. Should be a class definition but got a 'Const':INFERENCE

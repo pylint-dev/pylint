@@ -1,0 +1,3 @@
+used-before-assignment:6:14:6:15:invalid:Using variable 'a' before assignment:HIGH
+used-before-assignment:8:14:8:15:invalid:Using variable 'b' before assignment:HIGH
+used-before-assignment:9:10:9:11:invalid:Using variable 'c' before assignment:HIGH

@@ -1,0 +1,3 @@
+invalid-str-returned:36:4:36:15:FirstBadStr.__str__:__str__ does not return str:UNDEFINED
+invalid-str-returned:43:4:43:15:SecondBadStr.__str__:__str__ does not return str:UNDEFINED
+invalid-str-returned:50:4:50:15:ThirdBadStr.__str__:__str__ does not return str:UNDEFINED

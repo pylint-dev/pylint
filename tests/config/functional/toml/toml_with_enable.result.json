@@ -1,0 +1,9 @@
+{
+  "functional_append": {
+    "disable": ["logging-not-lazy", "logging-format-interpolation"],
+    "enable": ["suppressed-message", "locally-disabled"]
+  },
+  "functional_remove": {
+    "disable": ["suppressed-message", "locally-disabled"]
+  }
+}

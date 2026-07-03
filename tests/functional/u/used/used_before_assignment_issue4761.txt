@@ -1,0 +1,10 @@
+used-before-assignment:9:11:9:23:function:Using variable 'some_message' before assignment:CONTROL_FLOW
+used-before-assignment:35:18:35:23:uses_unrelated_nonlocal.inner:Using variable 'count' before assignment:CONTROL_FLOW
+used-before-assignment:74:10:74:15:invalid_no_outer_else:Using variable 'error' before assignment:CONTROL_FLOW
+used-before-assignment:86:14:86:19:invalid_no_outer_else_2:Using variable 'error' before assignment:CONTROL_FLOW
+used-before-assignment:100:14:100:19:invalid_no_inner_else:Using variable 'error' before assignment:CONTROL_FLOW
+used-before-assignment:113:14:113:19:invalid_wrong_break_location:Using variable 'error' before assignment:CONTROL_FLOW
+used-before-assignment:126:14:126:19:invalid_no_break:Using variable 'error' before assignment:CONTROL_FLOW
+used-before-assignment:141:14:141:19:invalid_other_non_break_exit_from_loop_besides_except_handler:Using variable 'error' before assignment:CONTROL_FLOW
+used-before-assignment:173:14:173:19:invalid_conditional_continue_after_break:Using variable 'error' before assignment:CONTROL_FLOW
+used-before-assignment:189:14:189:19:invalid_unrelated_loops:Using variable 'error' before assignment:CONTROL_FLOW

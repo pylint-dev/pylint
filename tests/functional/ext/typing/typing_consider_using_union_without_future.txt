@@ -1,0 +1,10 @@
+consider-alternative-union-syntax:17:6:17:11::Consider using alternative union syntax instead of 'Union'. Add 'from __future__ import annotations' as well:INFERENCE
+consider-alternative-union-syntax:18:11:18:16::Consider using alternative union syntax instead of 'Union'. Add 'from __future__ import annotations' as well:INFERENCE
+consider-alternative-union-syntax:19:16:19:28::Consider using alternative union syntax instead of 'Union'. Add 'from __future__ import annotations' as well:INFERENCE
+consider-alternative-union-syntax:20:6:20:14::Consider using alternative union syntax instead of 'Optional'. Add 'from __future__ import annotations' as well:INFERENCE
+consider-alternative-union-syntax:28:10:28:18:func1:Consider using alternative union syntax instead of 'Optional'. Add 'from __future__ import annotations' as well:INFERENCE
+consider-alternative-union-syntax:29:24:29:29:func1:Consider using alternative union syntax instead of 'Union'. Add 'from __future__ import annotations' as well:INFERENCE
+consider-alternative-union-syntax:30:5:30:10:func1:Consider using alternative union syntax instead of 'Union'. Add 'from __future__ import annotations' as well:INFERENCE
+consider-alternative-union-syntax:42:12:42:17:CustomNamedTuple:Consider using alternative union syntax instead of 'Union'. Add 'from __future__ import annotations' as well:INFERENCE
+consider-alternative-union-syntax:47:27:47:32:CustomTypedDict2:Consider using alternative union syntax instead of 'Union'. Add 'from __future__ import annotations' as well:INFERENCE
+consider-alternative-union-syntax:51:12:51:20:CustomDataClass:Consider using alternative union syntax instead of 'Optional'. Add 'from __future__ import annotations' as well:INFERENCE

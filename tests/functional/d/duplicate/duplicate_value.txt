@@ -1,0 +1,10 @@
+duplicate-value:5:7:5:16::Duplicate value 1 in set:HIGH
+duplicate-value:6:7:6:16::Duplicate value 2 in set:HIGH
+duplicate-value:9:7:9:28::Duplicate value 'one' in set:HIGH
+duplicate-value:10:7:10:28::Duplicate value 'two' in set:HIGH
+duplicate-value:12:12:12:42::Duplicate value 12 in set:HIGH
+duplicate-value:12:12:12:42::Duplicate value True in set:HIGH
+duplicate-value:15:18:15:36::Duplicate value 1 in set:HIGH
+duplicate-value:16:12:16:49::Duplicate value 'arg1' in set:HIGH
+duplicate-value:18:20:18:61::Duplicate value 'arg1' in set:HIGH
+duplicate-value:18:20:18:61::Duplicate value True in set:HIGH

@@ -1,0 +1,8 @@
+bad-thread-instantiation:5:0:5:30::threading.Thread needs the target function:HIGH
+bad-thread-instantiation:7:0:7:42::threading.Thread needs the target function:HIGH
+bad-thread-instantiation:8:0:8:18::threading.Thread needs the target function:HIGH
+bad-thread-instantiation:18:9:18:52::threading.Thread needs the target function:HIGH
+bad-thread-instantiation:22:0:22:28::threading.Thread needs the target function:HIGH
+unexpected-keyword-arg:22:0:22:28::Unexpected keyword argument 'target_typo' in constructor call:UNDEFINED
+bad-thread-instantiation:24:0:24:47::threading.Thread needs the target function:HIGH
+unexpected-keyword-arg:24:0:24:47::Unexpected keyword argument 'target_typo' in constructor call:UNDEFINED

@@ -1,0 +1,2 @@
+missing-return-doc:6:0:6:22:warns_no_docstring:Missing return documentation:HIGH
+missing-return-type-doc:6:0:6:22:warns_no_docstring:Missing return type documentation:HIGH

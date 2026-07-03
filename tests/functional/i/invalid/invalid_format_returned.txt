@@ -1,0 +1,3 @@
+invalid-format-returned:36:4:36:18:FirstBadFormat.__format__:__format__ does not return str:UNDEFINED
+invalid-format-returned:43:4:43:18:SecondBadFormat.__format__:__format__ does not return str:UNDEFINED
+invalid-format-returned:50:4:50:18:ThirdBadFormat.__format__:__format__ does not return str:UNDEFINED

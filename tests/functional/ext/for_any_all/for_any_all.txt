@@ -1,0 +1,14 @@
+consider-using-any-or-all:6:4:8:23:any_even:`for` loop could be `any(item % 2 == 0 for item in items)`:HIGH
+consider-using-any-or-all:13:4:15:24:all_even:`for` loop could be `all(item % 2 == 0 for item in items)`:HIGH
+consider-using-any-or-all:20:4:22:23:any_uneven:`for` loop could be `not all(item % 2 == 0 for item in items)`:HIGH
+consider-using-any-or-all:27:4:29:24:all_uneven:`for` loop could be `not any(item % 2 == 0 for item in items)`:HIGH
+consider-using-any-or-all:34:4:36:23:is_from_string:`for` loop could be `any(isinstance(parent, str) for parent in item.parents())`:HIGH
+consider-using-any-or-all:41:4:43:23:is_not_from_string:`for` loop could be `not all(isinstance(parent, str) for parent in item.parents())`:HIGH
+consider-using-any-or-all:50:8:52:28:nested_check:`for` loop could be `not any(item in (1, 2, 3) for item in items)`:HIGH
+consider-using-any-or-all:59:4:61:23:words_contains_word:`for` loop could be `any(word == 'word' for word in words)`:HIGH
+consider-using-any-or-all:66:4:68:24:complicated_condition_check:`for` loop could be `not any(item % 2 == 0 and (item % 3 == 0 or item > 15) for item in items)`:HIGH
+consider-using-any-or-all:73:4:78:23:is_from_decorator1:`for` loop could be `any(ancestor.name in ('Exception', 'BaseException') and ancestor.root().name == 'Exception' for ancestor in node)`:HIGH
+consider-using-any-or-all:83:4:85:24:is_from_decorator2:`for` loop could be `all(item % 2 == 0 and (item % 3 == 0 or item > 15) for item in items)`:HIGH
+consider-using-any-or-all:90:4:95:23:is_from_decorator3:`for` loop could be `not all(ancestor.name in ('Exception', 'BaseException') and ancestor.root().name == 'Exception' for ancestor in node)`:HIGH
+consider-using-any-or-all:152:4:155:17:optimized_any_with_break:`for` loop could be `not any(len(line) > max_chars for line in split_lines)`:HIGH
+consider-using-any-or-all:160:4:162:48:optimized_any_without_break:`for` loop could be `not any(len(line) > max_chars for line in split_lines)`:HIGH

@@ -1,0 +1,132 @@
+# Most of this is inspired by the mypy primer
+# See: https://github.com/hauntsaninja/mypy_primer
+# This is the primer job that runs on the default 'main' branch
+# It is also responsible for caching the packages to prime on
+
+name: Primer / Main
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # This needs to be the SAME as in the PR and comment job
+  CACHE_VERSION: 4
+  KEY_PREFIX: venv-primer
+
+permissions:
+  contents: read
+
+jobs:
+  run-primer:
+    name: Run / ${{ matrix.python-version }} / batch index ${{ matrix.batchIdx }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.14"]
+        batches: [4]
+        batchIdx: [0, 1, 2, 3]
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@v7.0.0
+      - name: Set up Python ${{ matrix.python-version }}
+        id: python
+        uses: actions/setup-python@v6.3.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          check-latest: true
+
+      # Create a re-usable virtual environment
+      - name: Restore Python virtual environment cache
+        id: cache-venv
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: venv
+          key:
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
+            'requirements_test.txt', 'requirements_test_min.txt',
+            'requirements_test_pre_commit.txt') }}
+      - name: Create Python virtual environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install --upgrade --requirement requirements_test.txt
+      # Save cached Python environment (explicit because cancel-in-progress: true)
+      - name: Save Python virtual environment to cache
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: venv
+          key:
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
+            'requirements_test.txt', 'requirements_test_min.txt',
+            'requirements_test_pre_commit.txt') }}
+
+      # Cache primer packages
+      - name: Get commit string
+        id: commitstring
+        run: |
+          . venv/bin/activate
+          python tests/primer/__main__.py prepare --make-commit-string
+          output=$(python tests/primer/__main__.py prepare --read-commit-string)
+          echo "commitstring=$output" >> $GITHUB_OUTPUT
+      - name: Restore projects cache
+        id: cache-projects
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: tests/.pylint_primer_tests/
+          key: >-
+            ${{ runner.os }}-${{ matrix.python-version }}-${{
+            steps.commitstring.outputs.commitstring }}-primer
+      - name: Regenerate cache
+        if: steps.cache-projects.outputs.cache-hit != 'true'
+        run: |
+          . venv/bin/activate
+          python tests/primer/__main__.py prepare --clone
+      - name: Save projects cache
+        if: steps.cache-projects.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: tests/.pylint_primer_tests/
+          key: >-
+            ${{ runner.os }}-${{ matrix.python-version }}-${{
+            steps.commitstring.outputs.commitstring }}-primer
+      - name: Upload commit string
+        uses: actions/upload-artifact@v7.0.1
+        if: matrix.batchIdx == 0
+        with:
+          name: primer_commitstring_${{ matrix.python-version }}
+          path:
+            tests/.pylint_primer_tests/commit_string_${{ matrix.python-version }}.txt
+
+      # Run primer
+      - name: Run pylint primer
+        run: |
+          . venv/bin/activate
+          pip install . --no-deps
+          python tests/primer/__main__.py run --type=main --batches=${{ matrix.batches }} --batchIdx=${{ matrix.batchIdx }} 2>warnings.txt
+      - name: Echo warnings
+        if: success() || failure()
+        run: |
+          WARNINGS=$(head -c 65000 < warnings.txt)
+          if [[ $WARNINGS ]]
+          then echo "::warning ::$WARNINGS"
+          fi
+      - name: Upload output
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name:
+            primer_output_main_${{ matrix.python-version }}_batch${{ matrix.batchIdx }}
+          path: >-
+            tests/.pylint_primer_tests/output_${{ matrix.python-version }}_main_batch${{
+            matrix.batchIdx }}.txt

@@ -1,0 +1,3 @@
+[BASIC]
+class-const-naming-style=snake_case
+const-naming-style=snake_case

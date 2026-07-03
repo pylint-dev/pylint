@@ -1,0 +1,24 @@
+🤖 **Effect of this PR on checked open source code:** 🤖
+
+
+**Effect on [astroid](https://github.com/pylint-dev/astroid):**
+
+The following messages are now emitted:
+
+<details>
+
+1) line-too-long:
+*Line too long (120/100)*
+https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L50
+</details>
+
+The following messages are no longer emitted:
+
+<details>
+
+1) line-too-long:
+*Line too long (120/100)*
+https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L50
+</details>
+
+*This comment was generated for commit v2.14.2*

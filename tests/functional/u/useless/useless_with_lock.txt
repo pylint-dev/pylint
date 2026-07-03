@@ -1,0 +1,11 @@
+useless-with-lock:7:0:8:7::'threading.Lock()' directly created in 'with' has no effect:UNDEFINED
+useless-with-lock:10:0:11:7::'threading.Lock()' directly created in 'with' has no effect:UNDEFINED
+useless-with-lock:13:0:14:7::'threading.Lock()' directly created in 'with' has no effect:UNDEFINED
+useless-with-lock:16:0:17:7::'threading.RLock()' directly created in 'with' has no effect:UNDEFINED
+useless-with-lock:19:0:20:7::'threading.RLock()' directly created in 'with' has no effect:UNDEFINED
+useless-with-lock:22:0:23:7::'threading.Condition()' directly created in 'with' has no effect:UNDEFINED
+useless-with-lock:25:0:26:7::'threading.Condition()' directly created in 'with' has no effect:UNDEFINED
+useless-with-lock:28:0:29:7::'threading.Semaphore()' directly created in 'with' has no effect:UNDEFINED
+useless-with-lock:31:0:32:7::'threading.Semaphore()' directly created in 'with' has no effect:UNDEFINED
+useless-with-lock:34:0:35:7::'threading.BoundedSemaphore()' directly created in 'with' has no effect:UNDEFINED
+useless-with-lock:37:0:38:7::'threading.BoundedSemaphore()' directly created in 'with' has no effect:UNDEFINED

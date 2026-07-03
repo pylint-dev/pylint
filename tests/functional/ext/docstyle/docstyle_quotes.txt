@@ -1,0 +1,4 @@
+bad-docstring-quotes:6:4:6:15:FFFF.method1:"Bad docstring quotes in method, expected """""", given '''":HIGH
+bad-docstring-quotes:11:4:11:15:FFFF.method2:"Bad docstring quotes in method, expected """""", given """:HIGH
+bad-docstring-quotes:14:4:14:15:FFFF.method3:"Bad docstring quotes in method, expected """""", given '":HIGH
+bad-docstring-quotes:17:4:17:15:FFFF.method4:"Bad docstring quotes in method, expected """""", given '":HIGH

@@ -1,0 +1,1 @@
+too-few-public-methods:7:0:7:10:Aaaa:Too few public methods (0/2):UNDEFINED

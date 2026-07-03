@@ -1,0 +1,10 @@
+invalid-name:12:0:12:3::"Constant name ""aaa"" doesn't conform to UPPER_CASE naming style":HIGH
+invalid-name:16:4:16:8::"Constant name ""time"" doesn't conform to UPPER_CASE naming style":HIGH
+invalid-name:18:0:18:3::"Constant name ""bbb"" doesn't conform to UPPER_CASE naming style":HIGH
+invalid-name:38:0:38:5:A:"Function name ""A"" doesn't conform to snake_case naming style":HIGH
+invalid-name:52:4:52:13::"Variable name ""Foocapfor"" doesn't conform to snake_case naming style":HIGH
+invalid-name:74:0:74:68:a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad:"Function name ""a_very_very_very_long_function_name_WithCamelCase_to_make_it_sad"" doesn't conform to snake_case naming style":HIGH
+invalid-name:82:23:82:29:FooBar.__init__:"Argument name ""fooBar"" doesn't conform to snake_case naming style":HIGH
+invalid-name:88:8:88:14:FooBar.func1:"Argument name ""fooBar"" doesn't conform to snake_case naming style":HIGH
+invalid-name:108:8:108:15:FooBar.test_disable_mixed:"Argument name ""fooBar2"" doesn't conform to snake_case naming style":HIGH
+invalid-name:119:4:119:25:FooBarSubclass:"Class attribute name ""tearDownNotInAncestor"" doesn't conform to snake_case naming style":HIGH

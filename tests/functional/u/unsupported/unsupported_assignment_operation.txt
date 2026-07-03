@@ -1,0 +1,17 @@
+unsupported-assignment-operation:15:0:15:9::'(1, 2, 3)' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:30:0:30:18::'NonSubscriptable()' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:31:0:31:16::'NonSubscriptable' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:33:0:33:13::'Subscriptable' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:42:0:42:15::'powers_of_two()' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:43:0:43:13::'powers_of_two' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:47:0:47:4::'True' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:48:0:48:4::'None' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:49:0:49:3::'8.5' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:50:0:50:2::'10' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:53:0:53:27::'{x**2 for x in range(10)}' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:54:0:54:12::'set(numbers)' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:55:0:55:18::'frozenset(numbers)' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:75:0:75:20::'SubscriptableClass()' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:81:0:81:6::'test()' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:82:0:82:4::'test' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:93:12:93:32::'SubscriptableClass()' does not support item assignment:UNDEFINED

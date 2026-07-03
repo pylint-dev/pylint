@@ -1,0 +1,5 @@
+redefined-loop-name:6:4:7:16::Redefining 'i' from loop (line 5):HIGH
+redefined-loop-name:11:4:12:25::Redefining 'i' from loop (line 10):HIGH
+redefined-loop-name:16:4:17:25::Redefining 'i' from loop (line 15):HIGH
+redefined-loop-name:21:4:22:25::Redefining 'a' from loop (line 20):HIGH
+redefined-loop-name:40:4:41:16::Redefining 'j' from loop (line 39):HIGH

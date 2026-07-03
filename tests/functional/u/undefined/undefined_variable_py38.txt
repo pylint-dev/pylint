@@ -1,0 +1,10 @@
+used-before-assignment:18:15:18:18:typing_and_self_referencing_assignment_expression:Using variable 'var' before assignment:HIGH
+used-before-assignment:24:15:24:18:self_referencing_assignment_expression:Using variable 'var' before assignment:HIGH
+undefined-variable:49:6:49:16::Undefined variable 'no_default':UNDEFINED
+undefined-variable:57:6:57:22::Undefined variable 'again_no_default':UNDEFINED
+undefined-variable:83:6:83:19::Undefined variable 'else_assign_1':INFERENCE
+undefined-variable:106:6:106:19::Undefined variable 'else_assign_2':INFERENCE
+used-before-assignment:141:10:141:16:type_annotation_used_improperly_after_comprehension:Using variable 'my_int' before assignment:HIGH
+used-before-assignment:148:10:148:16:type_annotation_used_improperly_after_comprehension_2:Using variable 'my_int' before assignment:HIGH
+used-before-assignment:186:9:186:10::Using variable 'z' before assignment:HIGH
+used-before-assignment:193:6:193:19::Using variable 'NEVER_DEFINED' before assignment:INFERENCE

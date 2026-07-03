@@ -1,0 +1,7 @@
+digraph "packages_no_standalone" {
+rankdir=BT
+charset="utf-8"
+"data.clientmodule_test" [color="black", label=<data.clientmodule_test>, shape="box", style="solid"];
+"data.suppliermodule_test" [color="black", label=<data.suppliermodule_test>, shape="box", style="solid"];
+"data.clientmodule_test" -> "data.suppliermodule_test" [arrowhead="open", arrowtail="none"];
+}

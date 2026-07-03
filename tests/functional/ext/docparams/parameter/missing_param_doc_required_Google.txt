@@ -1,0 +1,26 @@
+missing-param-doc:27:0:27:48:test_missing_func_params_in_google_docstring:"""y"" missing in parameter documentation":HIGH
+missing-type-doc:27:0:27:48:test_missing_func_params_in_google_docstring:"""x, y"" missing in parameter type documentation":HIGH
+missing-type-doc:83:0:83:73:test_missing_func_params_with_partial_annotations_in_google_docstring:"""x"" missing in parameter type documentation":HIGH
+differing-param-doc:134:0:134:65:test_func_params_and_wrong_keyword_params_in_google_docstring:"""these"" differing in parameter documentation":HIGH
+differing-type-doc:134:0:134:65:test_func_params_and_wrong_keyword_params_in_google_docstring:"""these"" differing in parameter type documentation":HIGH
+missing-param-doc:134:0:134:65:test_func_params_and_wrong_keyword_params_in_google_docstring:"""that"" missing in parameter documentation":HIGH
+missing-type-doc:134:0:134:65:test_func_params_and_wrong_keyword_params_in_google_docstring:"""that"" missing in parameter type documentation":HIGH
+missing-param-doc:151:4:151:54:Foo.test_missing_method_params_in_google_docstring:"""y"" missing in parameter documentation":HIGH
+missing-type-doc:151:4:151:54:Foo.test_missing_method_params_in_google_docstring:"""x, y"" missing in parameter type documentation":HIGH
+differing-param-doc:182:0:182:58:test_wrong_name_of_func_params_in_google_docstring_one:"""xarg1, zarg1"" differing in parameter documentation":HIGH
+differing-type-doc:182:0:182:58:test_wrong_name_of_func_params_in_google_docstring_one:"""xarg1, zarg1"" differing in parameter type documentation":HIGH
+missing-param-doc:182:0:182:58:test_wrong_name_of_func_params_in_google_docstring_one:"""xarg, zarg"" missing in parameter documentation":HIGH
+missing-type-doc:182:0:182:58:test_wrong_name_of_func_params_in_google_docstring_one:"""xarg, zarg"" missing in parameter type documentation":HIGH
+differing-param-doc:197:0:197:58:test_wrong_name_of_func_params_in_google_docstring_two:"""yarg1"" differing in parameter documentation":HIGH
+differing-type-doc:197:0:197:58:test_wrong_name_of_func_params_in_google_docstring_two:"""yarg1"" differing in parameter type documentation":HIGH
+missing-param-doc:224:0:224:14:ClassFoo:"""x"" missing in parameter documentation":HIGH
+missing-type-doc:224:0:224:14:ClassFoo:"""x, y"" missing in parameter type documentation":HIGH
+missing-param-doc:242:4:242:16:ClassFoo.__init__:"""x"" missing in parameter documentation":HIGH
+missing-type-doc:242:4:242:16:ClassFoo.__init__:"""x, y"" missing in parameter type documentation":HIGH
+missing-param-doc:254:0:254:14:ClassFoo:"""x"" missing in parameter documentation":HIGH
+missing-type-doc:254:0:254:14:ClassFoo:"""x, y"" missing in parameter type documentation":HIGH
+multiple-constructor-doc:254:0:254:14:ClassFoo:"""ClassFoo"" has constructor parameters documented in class and __init__":HIGH
+missing-param-doc:268:4:268:16:ClassFoo.__init__:"""x"" missing in parameter documentation":HIGH
+missing-type-doc:268:4:268:16:ClassFoo.__init__:"""x, y"" missing in parameter type documentation":HIGH
+missing-param-doc:278:0:278:34:test_warns_missing_args_google:"""*args"" missing in parameter documentation":HIGH
+missing-param-doc:291:0:291:36:test_warns_missing_kwargs_google:"""**kwargs"" missing in parameter documentation":HIGH

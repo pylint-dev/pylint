@@ -1,0 +1,10 @@
+consider-alternative-union-syntax:19:6:19:11::Consider using alternative union syntax instead of 'Union':INFERENCE
+consider-alternative-union-syntax:20:11:20:16::Consider using alternative union syntax instead of 'Union':INFERENCE
+consider-alternative-union-syntax:21:16:21:28::Consider using alternative union syntax instead of 'Union':INFERENCE
+consider-alternative-union-syntax:22:6:22:14::Consider using alternative union syntax instead of 'Optional':INFERENCE
+consider-alternative-union-syntax:30:10:30:18:func1:Consider using alternative union syntax instead of 'Optional':INFERENCE
+consider-alternative-union-syntax:31:24:31:29:func1:Consider using alternative union syntax instead of 'Union':INFERENCE
+consider-alternative-union-syntax:32:5:32:10:func1:Consider using alternative union syntax instead of 'Union':INFERENCE
+consider-alternative-union-syntax:44:12:44:17:CustomNamedTuple:Consider using alternative union syntax instead of 'Union':INFERENCE
+consider-alternative-union-syntax:49:27:49:32:CustomTypedDict2:Consider using alternative union syntax instead of 'Union':INFERENCE
+consider-alternative-union-syntax:53:12:53:20:CustomDataClass:Consider using alternative union syntax instead of 'Optional':INFERENCE

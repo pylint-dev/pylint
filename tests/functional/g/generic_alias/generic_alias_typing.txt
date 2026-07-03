@@ -1,0 +1,19 @@
+unsubscriptable-object:63:0:63:15::Value 'typing.Hashable' is unsubscriptable:UNDEFINED
+unsubscriptable-object:64:0:64:12::Value 'typing.Sized' is unsubscriptable:UNDEFINED
+abstract-method:68:0:68:21:DerivedHashable:Method '__hash__' is abstract in class 'Hashable' but is not overridden in child class 'DerivedHashable':INFERENCE
+abstract-method:71:0:71:21:DerivedIterable:Method '__iter__' is abstract in class 'Iterable' but is not overridden in child class 'DerivedIterable':INFERENCE
+abstract-method:74:0:74:23:DerivedCollection:Method '__contains__' is abstract in class 'Container' but is not overridden in child class 'DerivedCollection':INFERENCE
+abstract-method:74:0:74:23:DerivedCollection:Method '__iter__' is abstract in class 'Iterable' but is not overridden in child class 'DerivedCollection':INFERENCE
+abstract-method:74:0:74:23:DerivedCollection:Method '__len__' is abstract in class 'Sized' but is not overridden in child class 'DerivedCollection':INFERENCE
+abstract-method:96:0:96:21:DerivedMultiple:Method '__hash__' is abstract in class 'Hashable' but is not overridden in child class 'DerivedMultiple':INFERENCE
+abstract-method:96:0:96:21:DerivedMultiple:Method '__len__' is abstract in class 'Sized' but is not overridden in child class 'DerivedMultiple':INFERENCE
+abstract-method:101:0:101:24:CustomAbstractCls2:Method '__iter__' is abstract in class 'Iterable' but is not overridden in child class 'CustomAbstractCls2':INFERENCE
+abstract-method:101:0:101:24:CustomAbstractCls2:Method '__len__' is abstract in class 'Sized' but is not overridden in child class 'CustomAbstractCls2':INFERENCE
+abstract-method:103:0:103:26:CustomImplementation:Method '__iter__' is abstract in class 'Iterable' but is not overridden in child class 'CustomImplementation':INFERENCE
+abstract-method:103:0:103:26:CustomImplementation:Method '__len__' is abstract in class 'Sized' but is not overridden in child class 'CustomImplementation':INFERENCE
+abstract-method:114:0:114:22:DerivedIterable2:Method '__iter__' is abstract in class 'Iterable' but is not overridden in child class 'DerivedIterable2':INFERENCE
+unsubscriptable-object:132:9:132:12::Value 'int' is unsubscriptable:UNDEFINED
+unsubscriptable-object:133:15:133:30::Value 'typing.Hashable' is unsubscriptable:UNDEFINED
+unsubscriptable-object:134:12:134:24::Value 'typing.Sized' is unsubscriptable:UNDEFINED
+unsubscriptable-object:141:8:141:9::Value 'A' is unsubscriptable:UNDEFINED
+unsubscriptable-object:143:8:143:9:B:Value 'A' is unsubscriptable:UNDEFINED

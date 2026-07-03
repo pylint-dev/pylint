@@ -1,0 +1,1 @@
+raising-non-exception:13:0:13:22::Raising a class which doesn't inherit from BaseException:INFERENCE

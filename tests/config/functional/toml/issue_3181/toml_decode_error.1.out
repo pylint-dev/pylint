@@ -1,0 +1,2 @@
+************* Module {abspath}
+{relpath}:1:0: F0011: error while parsing the configuration: Invalid statement (at line 3, column 1) (config-parse-error)

@@ -1,0 +1,4 @@
+unreachable:25:4:25:25:test_ignores_raise_uninferable:Unreachable code:HIGH
+missing-raises-doc:28:0:28:45:test_ignores_returns_from_inner_functions:"""RuntimeError"" not documented as being raised":HIGH
+unreachable:42:4:42:25:test_ignores_returns_from_inner_functions:Unreachable code:HIGH
+raising-bad-type:54:4:54:22:test_ignores_returns_use_only_names:Raising int while only classes or instances are allowed:INFERENCE

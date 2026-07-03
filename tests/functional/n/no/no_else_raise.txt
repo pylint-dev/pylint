@@ -1,0 +1,7 @@
+no-else-raise:6:4:11:26:foo1:"Unnecessary ""else"" after ""raise"", remove the ""else"" and de-indent the code inside it":HIGH
+no-else-raise:15:4:23:26:foo2:"Unnecessary ""elif"" after ""raise"", remove the leading ""el"" from ""elif""":HIGH
+no-else-raise:29:8:34:30:foo3:"Unnecessary ""else"" after ""raise"", remove the ""else"" and de-indent the code inside it":HIGH
+no-else-raise:41:4:48:13:foo4:"Unnecessary ""else"" after ""raise"", remove the ""else"" and de-indent the code inside it":HIGH
+no-else-raise:53:4:62:13:foo5:"Unnecessary ""elif"" after ""raise"", remove the leading ""el"" from ""elif""":HIGH
+no-else-raise:68:8:72:17:foo6:"Unnecessary ""else"" after ""raise"", remove the ""else"" and de-indent the code inside it":HIGH
+no-else-raise:104:4:110:33:bar4:"Unnecessary ""else"" after ""raise"", remove the ""else"" and de-indent the code inside it":HIGH

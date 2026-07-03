@@ -1,0 +1,28 @@
+protected-access:18:14:18:31:MyClass.test:Access to a protected member _haha of a client class:UNDEFINED
+protected-access:40:0:40:15::Access to a protected member _protected of a client class:UNDEFINED
+protected-access:41:6:41:21::Access to a protected member _protected of a client class:UNDEFINED
+protected-access:42:0:42:19::Access to a protected member _cls_protected of a client class:UNDEFINED
+protected-access:43:6:43:25::Access to a protected member _cls_protected of a client class:UNDEFINED
+protected-access:57:19:57:40:Issue1031.incorrect_access:Access to a protected member _protected of a client class:UNDEFINED
+protected-access:71:48:71:63:Issue1802.__eq__:Access to a protected member __private of a client class:UNDEFINED
+protected-access:79:32:79:42:Issue1802.not_in_special:Access to a protected member _foo of a client class:UNDEFINED
+protected-access:99:32:99:42:Issue1802.__fake_special__:Access to a protected member _foo of a client class:UNDEFINED
+protected-access:161:8:161:21:Issue1159.access_other_attr:Access to a protected member _bar of a client class:UNDEFINED
+protected-access:162:12:162:25:Issue1159.access_other_attr:Access to a protected member _foo of a client class:UNDEFINED
+no-member:193:12:193:25:Issue1159Subclass.access_missing_member:Instance of 'Issue1159Subclass' has no '_baz' member; maybe '_bar'?:INFERENCE
+protected-access:193:12:193:25:Issue1159Subclass.access_missing_member:Access to a protected member _baz of a client class:UNDEFINED
+attribute-defined-outside-init:202:8:202:21:Issue1159Subclass.assign_missing_member:Attribute '_qux' defined outside __init__:UNDEFINED
+protected-access:211:8:211:21:Issue1159Subclass.access_other_attr:Access to a protected member _bar of a client class:UNDEFINED
+protected-access:212:12:212:25:Issue1159Subclass.access_other_attr:Access to a protected member _foo of a client class:UNDEFINED
+protected-access:231:8:231:30:Issue3066.foobar:Access to a protected member _attr of a client class:UNDEFINED
+protected-access:232:8:232:37:Issue3066.foobar:Access to a protected member _attr of a client class:UNDEFINED
+protected-access:235:8:235:29:Issue3066.foobar:Access to a protected member _bar of a client class:UNDEFINED
+protected-access:236:8:236:36:Issue3066.foobar:Access to a protected member _bar of a client class:UNDEFINED
+protected-access:246:12:246:27:Issue3066.Aclass.foobar:Access to a protected member _attr of a client class:UNDEFINED
+protected-access:248:12:248:41:Issue3066.Aclass.foobar:Access to a protected member _attr of a client class:UNDEFINED
+protected-access:250:12:250:26:Issue3066.Aclass.foobar:Access to a protected member _bar of a client class:UNDEFINED
+protected-access:252:12:252:40:Issue3066.Aclass.foobar:Access to a protected member _bar of a client class:UNDEFINED
+protected-access:266:16:266:31:Issue3066.Aclass.Bclass.foobar:Access to a protected member _attr of a client class:UNDEFINED
+protected-access:267:16:267:38:Issue3066.Aclass.Bclass.foobar:Access to a protected member _attr of a client class:UNDEFINED
+protected-access:270:16:270:30:Issue3066.Aclass.Bclass.foobar:Access to a protected member _bar of a client class:UNDEFINED
+protected-access:271:16:271:37:Issue3066.Aclass.Bclass.foobar:Access to a protected member _bar of a client class:UNDEFINED

@@ -1,0 +1,5 @@
+used-before-assignment:10:6:10:9::Using variable 'var' before assignment:INFERENCE
+used-before-assignment:20:11:20:19:f:Using variable 'datetime' before assignment:INFERENCE
+used-before-assignment:23:11:23:19:g:Using variable 'datetime' before assignment:INFERENCE
+used-before-assignment:30:11:30:12:h:Using variable 'X' before assignment:INFERENCE
+used-before-assignment:33:11:33:12:i:Using variable 'X' before assignment:INFERENCE

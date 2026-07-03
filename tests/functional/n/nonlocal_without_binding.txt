@@ -1,0 +1,5 @@
+nonlocal-without-binding:29:8:29:18:func.other_func:nonlocal name b found without binding:HIGH
+nonlocal-without-binding:35:8:35:18:func.other_func2:nonlocal name c found without binding:HIGH
+nonlocal-without-binding:40:4:40:14:SomeClass:nonlocal name x found without binding:HIGH
+nonlocal-without-binding:43:8:43:26:SomeClass.func:nonlocal name some_attr found without binding:HIGH
+nonlocal-without-binding:74:0:74:14::nonlocal name APPLE found without binding:HIGH

@@ -1,0 +1,4 @@
+[BASIC]
+bad-names=
+attr-rgx=[A-Z]+
+property-classes=abc.abstractproperty,invalid_name_property.custom_prop

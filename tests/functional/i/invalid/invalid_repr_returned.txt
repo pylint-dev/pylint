@@ -1,0 +1,3 @@
+invalid-repr-returned:36:4:36:16:FirstBadRepr.__repr__:__repr__ does not return str:UNDEFINED
+invalid-repr-returned:43:4:43:16:SecondBadRepr.__repr__:__repr__ does not return str:UNDEFINED
+invalid-repr-returned:50:4:50:16:ThirdBadRepr.__repr__:__repr__ does not return str:UNDEFINED

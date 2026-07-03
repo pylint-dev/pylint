@@ -1,0 +1,20 @@
+nested-min-max:5:0:5:17::Do not use nested call of 'min'; it's possible to do 'min(1, 2, 3)' instead:INFERENCE
+nested-min-max:6:0:6:17::Do not use nested call of 'max'; it's possible to do 'max(1, 2, 3)' instead:INFERENCE
+nested-min-max:7:0:7:17::Do not use nested call of 'min'; it's possible to do 'min(1, 2, 3)' instead:INFERENCE
+nested-min-max:8:4:8:21::Do not use nested call of 'min'; it's possible to do 'min(1, 2, 3)' instead:INFERENCE
+nested-min-max:8:0:8:25::Do not use nested call of 'min'; it's possible to do 'min(1, 2, 3, 4)' instead:INFERENCE
+nested-min-max:11:0:11:25::Do not use nested call of 'min'; it's possible to do 'min(1, 2, 3, 4)' instead:INFERENCE
+nested-min-max:12:0:12:40::Do not use nested call of 'min'; it's possible to do 'min(len([]), len([1]), len([1, 2]))' instead:INFERENCE
+nested-min-max:17:0:17:27::Do not use nested call of 'orig_min'; it's possible to do 'orig_min(1, 2, 3)' instead:INFERENCE
+nested-min-max:25:0:25:17::Do not use nested call of 'max'; it's possible to do 'max(3, *LIST)' instead:INFERENCE
+nested-min-max:29:0:29:17::Do not use nested call of 'max'; it's possible to do 'max(3, *nums)' instead:INFERENCE
+nested-min-max:33:0:33:17::Do not use nested call of 'max'; it's possible to do 'max(3, *nums)' instead:INFERENCE
+nested-min-max:37:0:37:17::Do not use nested call of 'max'; it's possible to do 'max(3, *nums)' instead:INFERENCE
+nested-min-max:40:0:40:26::Do not use nested call of 'max'; it's possible to do 'max(3, *nums.values())' instead:INFERENCE
+nested-min-max:44:0:44:29::Do not use nested call of 'max'; it's possible to do 'max(3, *nums, *LIST2)' instead:INFERENCE
+nested-min-max:46:0:46:25::Do not use nested call of 'max'; it's possible to do 'max(3, *[5] + [6, 7])' instead:INFERENCE
+nested-min-max:49:0:49:45::Do not use nested call of 'max'; it's possible to do 'max(3, *[5] + [i for i in range(4) if i])' instead:INFERENCE
+nested-min-max:52:0:52:33::Do not use nested call of 'max'; it's possible to do 'max(3, *[5] + list(range(4)))' instead:INFERENCE
+nested-min-max:55:0:55:27::Do not use nested call of 'max'; it's possible to do 'max(3, *list(range(4)))' instead:INFERENCE
+nested-min-max:63:0:63:24::Do not use nested call of 'max'; it's possible to do 'max(3, max(MATRIX))' instead:INFERENCE
+nested-min-max:64:4:64:23::Do not use nested call of 'max'; it's possible to do 'max(3, *MATRIX)' instead:INFERENCE

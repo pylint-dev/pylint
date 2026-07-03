@@ -1,0 +1,18 @@
+invalid-slots:48:0:48:9:Bad:Invalid __slots__ object:UNDEFINED
+invalid-slots:51:0:51:15:SecondBad:Invalid __slots__ object:UNDEFINED
+invalid-slots-object:55:22:55:23:ThirdBad:Invalid object '2' in __slots__, must contain only non empty strings:INFERENCE
+invalid-slots:57:0:57:15:FourthBad:Invalid __slots__ object:UNDEFINED
+invalid-slots-object:61:27:61:29:FifthBad:"Invalid object ""''"" in __slots__, must contain only non empty strings":INFERENCE
+single-string-used-for-slots:63:0:63:14:SixthBad:Class __slots__ should be a non-string iterable:UNDEFINED
+single-string-used-for-slots:66:0:66:16:SeventhBad:Class __slots__ should be a non-string iterable:UNDEFINED
+superfluous-parens:67:0:None:None::Unnecessary parens after '=' keyword:UNDEFINED
+single-string-used-for-slots:69:0:69:15:EighthBad:Class __slots__ should be a non-string iterable:UNDEFINED
+invalid-slots-object:73:17:73:20:NinthBad:Invalid object 'str' in __slots__, must contain only non empty strings:INFERENCE
+invalid-slots-object:76:17:76:26:TenthBad:Invalid object '1 + 2 + 3' in __slots__, must contain only non empty strings:INFERENCE
+invalid-slots:78:0:78:17:EleventhBad:Invalid __slots__ object:UNDEFINED
+invalid-slots:81:0:81:16:TwelfthBad:Invalid __slots__ object:UNDEFINED
+class-variable-slots-conflict:114:17:114:24:ValueInSlotConflict:Value 'first' in slots conflicts with class variable:UNDEFINED
+class-variable-slots-conflict:114:45:114:53:ValueInSlotConflict:Value 'fourth' in slots conflicts with class variable:UNDEFINED
+class-variable-slots-conflict:114:36:114:43:ValueInSlotConflict:Value 'third' in slots conflicts with class variable:UNDEFINED
+declare-non-slot:138:4:138:5:ClassTypeHintNotInSlotsWithoutDict:No such name 'c' in __slots__:INFERENCE
+declare-non-slot:170:4:170:5:DerivedWithMoreSlots:No such name 'd' in __slots__:INFERENCE

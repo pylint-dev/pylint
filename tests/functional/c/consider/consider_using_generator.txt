@@ -1,0 +1,6 @@
+consider-using-generator:10:0:10:34::Consider using a generator instead 'list(0 for y in list(range(10)))':UNDEFINED
+consider-using-generator:11:0:11:35::Consider using a generator instead 'tuple(0 for y in list(range(10)))':UNDEFINED
+consider-using-generator:12:0:12:29::Consider using a generator instead 'sum(x * x for x in range(10))':UNDEFINED
+consider-using-generator:13:0:13:29::Consider using a generator instead 'min(x * x for x in range(10))':UNDEFINED
+consider-using-generator:14:0:14:29::Consider using a generator instead 'max(x * x for x in range(10))':UNDEFINED
+consider-using-generator:24:0:24:41::Consider using a generator instead 'min((x * x for x in range(10)), default=42)':UNDEFINED

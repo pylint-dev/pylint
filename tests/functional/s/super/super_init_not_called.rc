@@ -1,0 +1,4 @@
+[testoptions]
+# ctypes has a different implementation in PyPy and does have an inferable
+# __init__ method for ctypes.Union.
+except_implementations=PyPy

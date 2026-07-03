@@ -1,0 +1,2 @@
+broken-collections-callable:14:18:14:26::'collections.abc.Callable' inside Optional and Union is broken in 3.9.0 / 3.9.1 (use 'typing.Callable' instead):INFERENCE
+broken-collections-callable:15:15:15:23::'collections.abc.Callable' inside Optional and Union is broken in 3.9.0 / 3.9.1 (use 'typing.Callable' instead):INFERENCE

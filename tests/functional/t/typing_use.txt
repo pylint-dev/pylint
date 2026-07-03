@@ -1,0 +1,1 @@
+function-redefined:21:0:21:25:double_with_docstring:function already defined line 16:UNDEFINED

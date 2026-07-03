@@ -1,0 +1,5 @@
+trailing-whitespace:5:33:None:None::Trailing whitespace:HIGH
+trailing-whitespace:7:73:None:None::Trailing whitespace:HIGH
+trailing-whitespace:10:46:None:None::Trailing whitespace:HIGH
+trailing-whitespace:15:3:None:None::Trailing whitespace:HIGH
+trailing-whitespace:20:3:None:None::Trailing whitespace:HIGH

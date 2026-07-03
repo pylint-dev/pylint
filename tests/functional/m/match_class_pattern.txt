@@ -1,0 +1,13 @@
+invalid-match-args-definition:14:21:14:31:C:`__match_args__` must be a tuple of strings.:HIGH
+invalid-match-args-definition:17:21:17:29:D:`__match_args__` must be a tuple of strings.:HIGH
+too-many-positional-sub-patterns:34:13:34:20:f1:A expects 1 positional sub-patterns (given 2):INFERENCE
+too-many-positional-sub-patterns:36:13:36:23:f1:B expects 2 positional sub-patterns (given 3):INFERENCE
+too-many-positional-sub-patterns:38:13:38:22:f1:int expects 1 positional sub-patterns (given 2):INFERENCE
+too-many-positional-sub-patterns:40:13:40:24:f1:tuple expects 1 positional sub-patterns (given 2):INFERENCE
+multiple-class-sub-patterns:47:13:47:22:f2:Multiple sub-patterns for attribute x:INFERENCE
+multiple-class-sub-patterns:49:13:49:29:f2:Multiple sub-patterns for attribute x:INFERENCE
+undefined-variable:55:13:55:23:f2:Undefined variable 'NotDefined':UNDEFINED
+match-class-bind-self:60:17:60:18:f3:Use 'int() as y' instead:HIGH
+match-class-bind-self:63:17:63:18:f3:Use 'str() as y' instead:HIGH
+match-class-positional-attributes:75:13:75:17:f4:Use keyword attributes instead of positional ones ('x'):INFERENCE
+match-class-positional-attributes:77:13:77:20:f4:Use keyword attributes instead of positional ones ('x', 'y'):INFERENCE

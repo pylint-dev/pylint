@@ -1,0 +1,6 @@
+[Messages Control]
+disable=C,R,W
+enable=multiple-imports
+
+[TYPECHECK]
+ignored-modules=external_module,fake_module.submodule,foo,bar,*_ignored

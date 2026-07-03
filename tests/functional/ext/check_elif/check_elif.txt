@@ -1,0 +1,4 @@
+else-if-used:13:8:30:25:my_function:"Consider using ""elif"" instead of ""else"" then ""if"" to remove one indentation level":HIGH
+else-if-used:25:20:26:28:my_function:"Consider using ""elif"" instead of ""else"" then ""if"" to remove one indentation level":HIGH
+else-if-used:44:8:48:26:_if_in_fstring_comprehension_with_elif:"Consider using ""elif"" instead of ""else"" then ""if"" to remove one indentation level":HIGH
+else-if-used:47:12:48:26:_if_in_fstring_comprehension_with_elif:"Consider using ""elif"" instead of ""else"" then ""if"" to remove one indentation level":HIGH

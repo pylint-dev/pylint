@@ -1,0 +1,10 @@
+consider-merging-isinstance:15:7:15:96:isinstances:Consider merging these isinstance calls to isinstance(var[3], (float, int)):UNDEFINED
+consider-merging-isinstance:17:13:17:103:isinstances:Consider merging these isinstance calls to isinstance(var[4], (float, int)):UNDEFINED
+consider-merging-isinstance:19:13:19:73:isinstances:Consider merging these isinstance calls to isinstance(var[5], (float, int)):UNDEFINED
+consider-merging-isinstance:22:13:22:127:isinstances:Consider merging these isinstance calls to isinstance(var[6], (float, int)):UNDEFINED
+consider-merging-isinstance:23:13:23:158:isinstances:Consider merging these isinstance calls to isinstance(var[10], (list, str)):UNDEFINED
+consider-merging-isinstance:24:13:24:95:isinstances:Consider merging these isinstance calls to isinstance(var[11], (float, int)):UNDEFINED
+no-value-for-parameter:26:13:26:32:isinstances:No value for argument '__class_or_tuple' in function call:HIGH
+no-value-for-parameter:27:13:27:25:isinstances:No value for argument '__class_or_tuple' in function call:HIGH
+no-value-for-parameter:27:13:27:25:isinstances:No value for argument '_obj' in function call:HIGH
+consider-merging-isinstance:30:13:30:75:isinstances:Consider merging these isinstance calls to isinstance(var[12], (float, int, list)):UNDEFINED

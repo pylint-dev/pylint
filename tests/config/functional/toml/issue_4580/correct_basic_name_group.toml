@@ -1,0 +1,2 @@
+[tool.pylint.basic]
+name-group = { "a"="b" }

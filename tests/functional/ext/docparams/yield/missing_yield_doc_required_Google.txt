@@ -1,0 +1,5 @@
+missing-yield-doc:34:0:34:11:my_func:Missing yield documentation:HIGH
+missing-yield-type-doc:43:0:43:11:my_func:Missing yield type documentation:HIGH
+missing-yield-doc:52:0:52:11:my_func:Missing yield documentation:HIGH
+missing-yield-doc:61:0:61:11:my_func:Missing yield documentation:HIGH
+missing-yield-type-doc:61:0:61:11:my_func:Missing yield type documentation:HIGH

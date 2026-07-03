@@ -1,0 +1,7 @@
+redundant-returns-doc:43:0:43:11:my_func:Redundant returns documentation:HIGH
+redundant-returns-doc:52:0:52:11:my_func:Redundant returns documentation:HIGH
+redundant-returns-doc:61:0:61:11:my_func:Redundant returns documentation:HIGH
+unreachable:95:8:95:17:Foo.foo_method:Unreachable code:HIGH
+unreachable:112:8:112:17:Foo.foo_method:Unreachable code:HIGH
+useless-param-doc:167:4:167:18:Foo.foo_method:"""_, _ignored"" useless ignored parameter documentation":HIGH
+useless-type-doc:167:4:167:18:Foo.foo_method:"""_"" useless ignored parameter type documentation":HIGH

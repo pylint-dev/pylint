@@ -1,0 +1,2 @@
+overridden-final-method:15:4:15:17:Subclass.my_method:Method 'my_method' overrides a method decorated with typing.final which is defined in class 'Base':UNDEFINED
+overridden-final-method:30:4:30:17:Subclass2.my_method:Method 'my_method' overrides a method decorated with typing.final which is defined in class 'BaseConditional':UNDEFINED

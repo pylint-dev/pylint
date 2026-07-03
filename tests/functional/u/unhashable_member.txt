@@ -1,0 +1,7 @@
+unhashable-member:8:0:8:2::'[1, 2, 3]' is unhashable and can't be used as a key in a dict:INFERENCE
+unhashable-member:9:0:9:2::'{}' is unhashable and can't be used as a key in a dict:INFERENCE
+unhashable-member:10:0:10:2::'Unhashable()' is unhashable and can't be used as a key in a dict:INFERENCE
+unhashable-member:15:1:15:10::'[1, 2, 3]' is unhashable and can't be used as a key in a dict:INFERENCE
+unhashable-member:17:4:17:13::'[1, 2, 3]' is unhashable and can't be used as a key in a dict:INFERENCE
+unhashable-member:18:4:18:13::'[4, 5, 6]' is unhashable and can't be used as a key in a dict:INFERENCE
+unhashable-member:20:1:20:10::'[1, 2, 3]' is unhashable and can't be used as a member in a set:INFERENCE

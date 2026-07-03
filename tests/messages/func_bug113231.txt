@@ -1,0 +1,2 @@
+W: 20: Use lazy % formatting in logging functions
+W: 21: Use lazy % formatting in logging functions

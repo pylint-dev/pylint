@@ -1,0 +1,2 @@
+[TYPECHECK]
+signature-mutators=functional.a.arguments.mutation_decorator,other_mutation_decorator

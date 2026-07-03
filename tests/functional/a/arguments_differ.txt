@@ -1,0 +1,13 @@
+arguments-differ:12:4:12:12:Child.test:Number of parameters was 1 in 'Parent.test' and is now 2 in overriding 'Child.test' method:UNDEFINED
+arguments-differ:23:4:23:12:ChildDefaults.test:Number of parameters was 3 in 'ParentDefaults.test' and is now 2 in overriding 'ChildDefaults.test' method:UNDEFINED
+arguments-differ:41:4:41:12:ClassmethodChild.func:Number of parameters was 2 in 'Classmethod.func' and is now 0 in overriding 'ClassmethodChild.func' method:UNDEFINED
+arguments-differ:68:4:68:18:VarargsChild.has_kwargs:Variadics removed in overriding 'VarargsChild.has_kwargs' method:UNDEFINED
+arguments-renamed:71:4:71:17:VarargsChild.no_kwargs:Parameter 'args' has been renamed to 'arg' in overriding 'VarargsChild.no_kwargs' method:UNDEFINED
+arguments-differ:144:4:144:12:StaticmethodChild2.func:Number of parameters was 1 in 'Staticmethod.func' and is now 2 in overriding 'StaticmethodChild2.func' method:UNDEFINED
+arguments-differ:180:4:180:12:SecondChangesArgs.test:Number of parameters was 2 in 'FirstHasArgs.test' and is now 4 in overriding 'SecondChangesArgs.test' method:UNDEFINED
+arguments-differ:307:4:307:16:Foo.kwonly_1:Number of parameters was 4 in 'AbstractFoo.kwonly_1' and is now 3 in overriding 'Foo.kwonly_1' method:UNDEFINED
+arguments-differ:310:4:310:16:Foo.kwonly_2:Number of parameters was 3 in 'AbstractFoo.kwonly_2' and is now 2 in overriding 'Foo.kwonly_2' method:UNDEFINED
+arguments-differ:313:4:313:16:Foo.kwonly_3:Number of parameters was 3 in 'AbstractFoo.kwonly_3' and is now 3 in overriding 'Foo.kwonly_3' method:UNDEFINED
+arguments-differ:316:4:316:16:Foo.kwonly_4:Number of parameters was 3 in 'AbstractFoo.kwonly_4' and is now 3 in overriding 'Foo.kwonly_4' method:UNDEFINED
+arguments-differ:319:4:319:16:Foo.kwonly_5:Variadics removed in overriding 'Foo.kwonly_5' method:UNDEFINED
+arguments-differ:359:4:359:14:ClassWithNewNonDefaultKeywordOnly.method:Number of parameters was 2 in 'AClass.method' and is now 3 in overriding 'ClassWithNewNonDefaultKeywordOnly.method' method:UNDEFINED

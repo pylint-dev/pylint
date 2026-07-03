@@ -1,0 +1,134 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
+
+import logging
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Literal
+
+from git import GitCommandError
+from git.repo import Repo
+
+PRIMER_DIRECTORY_PATH = Path("tests") / ".pylint_primer_tests"
+
+
+class DirtyPrimerDirectoryException(Exception):
+    """We can't pull if there's local changes."""
+
+    def __init__(self, path: Path | str) -> None:
+        super().__init__(rf"""
+
+/!\ Can't pull /!\
+
+In order for the prepare command to be able to pull please cleanup your local repo:
+cd {path}
+git diff
+""")
+
+
+@dataclass(frozen=True)
+class PackageToLint:
+    """Represents data about a package to be tested during primer tests."""
+
+    url: str
+    """URL of the repository to clone."""
+
+    branch: str
+    """Branch of the repository to clone."""
+
+    directories: list[str]
+    """Directories within the repository to run pylint over."""
+
+    commit: str
+    """Commit hash to pin the repository on."""
+
+    pylint_additional_args: list[str] = field(default_factory=list)
+    """Arguments to give to pylint."""
+
+    pylintrc_relpath: str | None = None
+    """Path relative to project's main directory to the pylintrc if it exists."""
+
+    minimum_python: str | None = None
+    """Minimum python version supported by the package."""
+
+    @property
+    def pylintrc(self) -> Path | Literal[""]:
+        if self.pylintrc_relpath is None:
+            # Fall back to "" to ensure pylint's own pylintrc is not discovered
+            return ""
+        return self.clone_directory / self.pylintrc_relpath
+
+    @property
+    def clone_name(self) -> str:
+        """Extract repository name from URL."""
+        return "/".join(self.url.split("/")[-2:]).replace(".git", "")
+
+    @property
+    def clone_directory(self) -> Path:
+        """Directory to clone repository into."""
+        return PRIMER_DIRECTORY_PATH / self.clone_name
+
+    @property
+    def paths_to_lint(self) -> list[str]:
+        """The paths we need to lint."""
+        return [str(self.clone_directory / path) for path in self.directories]
+
+    @property
+    def pylint_args(self) -> list[str]:
+        options: list[str] = []
+        # There is an error if rcfile is given but does not exist
+        options += [f"--rcfile={self.pylintrc}"]
+        return self.paths_to_lint + options + self.pylint_additional_args
+
+    def lazy_clone(self) -> str:  # pragma: no cover
+        """Concatenates the target directory and clones the file.
+
+        Not expected to be tested as the primer won't work if it doesn't.
+        It's tested in the continuous integration primers, only the coverage
+        is not calculated on everything. If lazy clone breaks for local use
+        we'll probably notice because we'll have a fatal when launching the
+        primer locally.
+        """
+        logging.info("Lazy cloning %s", self.url)
+        if not self.clone_directory.exists():
+            return self._clone_repository()
+        return self._pull_repository()
+
+    def _clone_repository(self) -> str:
+        logging.info(
+            "Directory does not exist, cloning %s at commit %s",
+            self.url,
+            self.commit,
+        )
+        repo = Repo.init(self.clone_directory)
+        repo.create_remote("origin", self.url)
+        repo.git.fetch("origin", self.commit, depth=1)
+        repo.git.checkout(self.commit)
+        return str(repo.head.object.hexsha)
+
+    def _pull_repository(self) -> str:
+        repo = Repo(self.clone_directory)
+        local_sha1_commit: str = repo.head.object.hexsha
+
+        if local_sha1_commit.startswith(self.commit):
+            logging.info("Repository already at pinned commit %s.", self.commit)
+            return local_sha1_commit
+
+        logging.info(
+            "Pinned commit is '%s' while local is '%s': fetching",
+            self.commit,
+            local_sha1_commit,
+        )
+        try:
+            if repo.is_dirty():
+                raise DirtyPrimerDirectoryException(self.clone_directory)
+            repo.git.fetch("origin", self.commit, depth=1)
+            repo.git.checkout(self.commit)
+        except GitCommandError as e:
+            raise SystemError(
+                f"Failed to fetch pinned commit for {self.clone_directory}"
+            ) from e
+        return str(repo.head.object.hexsha)

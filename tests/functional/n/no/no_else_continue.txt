@@ -1,0 +1,7 @@
+no-else-continue:8:8:11:17:foo1:"Unnecessary ""else"" after ""continue"", remove the ""else"" and de-indent the code inside it":HIGH
+no-else-continue:16:8:21:17:foo2:"Unnecessary ""elif"" after ""continue"", remove the leading ""el"" from ""elif""":HIGH
+no-else-continue:28:12:33:24:foo3:"Unnecessary ""else"" after ""continue"", remove the ""else"" and de-indent the code inside it":HIGH
+no-else-continue:41:8:48:17:foo4:"Unnecessary ""else"" after ""continue"", remove the ""else"" and de-indent the code inside it":HIGH
+no-else-continue:54:8:63:17:foo5:"Unnecessary ""elif"" after ""continue"", remove the leading ""el"" from ""elif""":HIGH
+no-else-continue:70:12:74:21:foo6:"Unnecessary ""else"" after ""continue"", remove the ""else"" and de-indent the code inside it":HIGH
+no-else-continue:110:8:116:24:bar4:"Unnecessary ""else"" after ""continue"", remove the ""else"" and de-indent the code inside it":HIGH

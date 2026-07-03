@@ -1,0 +1,2 @@
+- `Be careful with exec and eval in Python <https://lucumr.pocoo.org/2011/2/1/exec-in-python/>`_
+- `Python documentation <https://docs.python.org/3/library/functions.html#exec>`_

@@ -1,0 +1,28 @@
+use-implicit-booleaness-not-comparison-to-string:6:3:6:10::"""X is ''"" can be simplified to ""not X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:9:3:9:14::"""Y is not ''"" can be simplified to ""Y"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:12:3:12:10::"""X == ''"" can be simplified to ""not X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:15:3:15:10::"""Y != ''"" can be simplified to ""Y"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:18:3:18:10::"""'' == Y"" can be simplified to ""not Y"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:21:3:21:10::"""'' != X"" can be simplified to ""X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:42:7:42:14:test_in_boolean_context:"""X != ''"" can be simplified to ""X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:44:10:44:17:test_in_boolean_context:"""X != ''"" can be simplified to ""X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:46:11:46:18:test_in_boolean_context:"""X != ''"" can be simplified to ""X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:49:13:49:20:test_in_boolean_context:"""X != ''"" can be simplified to ""X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:52:12:52:19:test_in_boolean_context:"""X != ''"" can be simplified to ""X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:56:22:56:29:test_in_boolean_context:"""X != ''"" can be simplified to ""X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:57:22:57:29:test_in_boolean_context:"""X != ''"" can be simplified to ""X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:58:22:58:29:test_in_boolean_context:"""X != ''"" can be simplified to ""X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:61:8:61:15:test_in_boolean_context:"""X != ''"" can be simplified to ""X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:62:8:62:15:test_in_boolean_context:"""X != ''"" can be simplified to ""X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:65:19:65:26:test_in_boolean_context.<lambda>:"""X != ''"" can be simplified to ""X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:68:9:68:16:test_in_boolean_context:"""X != ''"" can be simplified to ""X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:71:7:71:14:test_in_boolean_context:"""X != ''"" can be simplified to ""X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:73:21:73:28:test_in_boolean_context:"""X != ''"" can be simplified to ""X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:75:8:75:15:test_in_boolean_context:"""X != ''"" can be simplified to ""X"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:86:8:86:15:test_not_in_boolean_context:"""X != ''"" can be simplified to ""bool(X)"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:88:8:88:15:test_not_in_boolean_context:"""X != ''"" can be simplified to ""bool(X)"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:90:10:90:17:test_not_in_boolean_context:"""X != ''"" can be simplified to ""bool(X)"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:92:5:92:12:test_not_in_boolean_context:"""X != ''"" can be simplified to ""bool(X)"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:94:12:94:19:test_not_in_boolean_context.<lambda>:"""X != ''"" can be simplified to ""bool(X)"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:96:25:96:32:test_not_in_boolean_context:"""X != ''"" can be simplified to ""bool(X)"", if it is strictly a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:98:11:98:18:test_not_in_boolean_context:"""X != ''"" can be simplified to ""bool(X)"", if it is strictly a string, as an empty string is falsey":HIGH

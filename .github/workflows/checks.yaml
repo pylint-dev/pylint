@@ -1,0 +1,166 @@
+name: Checks
+
+on:
+  push:
+    branches:
+      - main
+      - "maintenance/**"
+  pull_request:
+    branches:
+      - main
+      - "maintenance/**"
+  workflow_dispatch:
+
+env:
+  CACHE_VERSION: 3
+  KEY_PREFIX: base-venv
+  DEFAULT_PYTHON: "3.14"
+  PRE_COMMIT_CACHE: ~/.cache/pre-commit
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  prepare-base:
+    name: Prepare base dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      python-key: ${{ steps.generate-python-key.outputs.key }}
+      pre-commit-key: ${{ steps.generate-pre-commit-key.outputs.key }}
+    steps:
+      - &checkout
+        name: Check out code from GitHub
+        uses: actions/checkout@v7.0.0
+      - &setup-python
+        name: Set up Python ${{ env.DEFAULT_PYTHON }}
+        id: python
+        uses: actions/setup-python@v6.3.0
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
+      - name: Generate partial Python venv restore key
+        id: generate-python-key
+        run: >-
+          echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{
+            hashFiles('pyproject.toml', 'requirements_test.txt',
+          'requirements_test_min.txt', 'requirements_test_pre_commit.txt') }}" >>
+          $GITHUB_OUTPUT
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@v6.1.0
+        with:
+          path: venv
+          key: >-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            steps.generate-python-key.outputs.key }}
+      - name: Create Python virtual environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install --upgrade --requirement requirements_test.txt --requirement doc/requirements.txt
+          pip install pre-commit
+      - name: Generate pre-commit restore key
+        id: generate-pre-commit-key
+        run: >-
+          echo "key=pre-commit-${{ env.CACHE_VERSION }}-${{
+            hashFiles('.pre-commit-config.yaml') }}" >> $GITHUB_OUTPUT
+      - name: Restore pre-commit environment
+        id: cache-precommit
+        uses: actions/cache@v6.1.0
+        with:
+          path: ${{ env.PRE_COMMIT_CACHE }}
+          key: >-
+            ${{ runner.os }}-${{ steps.generate-pre-commit-key.outputs.key }}
+      - name: Install pre-commit dependencies
+        if: steps.cache-precommit.outputs.cache-hit != 'true'
+        run: |
+          . venv/bin/activate
+          pre-commit install --install-hooks
+
+  pylint:
+    name: pylint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [prepare-base]
+    steps:
+      - *checkout
+      - *setup-python
+      - &cache-restore-python
+        name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: venv
+          fail-on-cache-miss: true
+          key:
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            needs.prepare-base.outputs.python-key }}
+      - name: Restore pre-commit environment
+        id: cache-precommit
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: ${{ env.PRE_COMMIT_CACHE }}
+          fail-on-cache-miss: true
+          key: ${{ runner.os }}-${{ needs.prepare-base.outputs.pre-commit-key }}
+      - name: Install enchant and aspell
+        run: |
+          sudo apt-get update
+          sudo apt-get install enchant-2 aspell-en
+      - name: Run pylint checks
+        run: |
+          . venv/bin/activate
+          pip install . --no-deps
+          pip list | grep 'astroid\|pylint'
+          pre-commit run --hook-stage manual pylint-with-spelling --all-files
+
+  spelling:
+    name: spelling tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [prepare-base]
+    steps:
+      - *checkout
+      - *setup-python
+      - *cache-restore-python
+      - name: Run spelling checks
+        run: |
+          . venv/bin/activate
+          pip install . --no-deps
+          pytest tests/ -k unittest_spelling --benchmark-disable
+
+  documentation:
+    name: documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [prepare-base]
+    steps:
+      - *checkout
+      - *setup-python
+      - *cache-restore-python
+      - name: Run checks on documentation code examples
+        run: |
+          . venv/bin/activate
+          tox -e test_doc
+      - name: Check documentation build and links
+        run: |
+          . venv/bin/activate
+          tox -e docs || {
+            echo "git diff:" ; \
+            git diff ; \
+            echo "End of 'git diff'" ; \
+            echo "Make sure that 'tox -e docs' succeed without any modifications locally." ; \
+            exit 1; \
+          }
+      - name: Check that generated documentation is up to date
+        run: |
+          if ! git diff --exit-code; then
+            echo "::error::Generated documentation is out of date. Run 'tox -e docs' locally and commit the changes."
+            exit 1
+          fi

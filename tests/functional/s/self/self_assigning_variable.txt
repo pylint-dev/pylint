@@ -1,0 +1,2 @@
+self-assigning-variable:19:0:19:5::Assigning the same variable 'FIRST' to itself:UNDEFINED
+self-assigning-variable:20:0:20:5::Assigning the same variable 'FIRST' to itself:UNDEFINED

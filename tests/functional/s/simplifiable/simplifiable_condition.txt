@@ -1,0 +1,13 @@
+simplifiable-condition:13:5:13:22::"Boolean condition ""CONSTANT or False"" may be simplified to ""CONSTANT""":UNDEFINED
+simplifiable-condition:14:7:14:24::"Boolean condition ""CONSTANT or False"" may be simplified to ""CONSTANT""":UNDEFINED
+simplifiable-condition:15:3:15:20::"Boolean condition ""CONSTANT and True"" may be simplified to ""CONSTANT""":UNDEFINED
+simplifiable-condition:17:5:17:22::"Boolean condition ""CONSTANT and True"" may be simplified to ""CONSTANT""":UNDEFINED
+simplifiable-condition:19:6:19:23::"Boolean condition ""CONSTANT and True"" may be simplified to ""CONSTANT""":UNDEFINED
+simplifiable-condition:21:5:21:22::"Boolean condition ""CONSTANT or False"" may be simplified to ""CONSTANT""":UNDEFINED
+simplifiable-condition:22:29:22:39::"Boolean condition ""x or False"" may be simplified to ""x""":UNDEFINED
+simplifiable-condition:25:7:25:35::"Boolean condition ""CONSTANT or True and False"" may be simplified to ""CONSTANT""":UNDEFINED
+simplifiable-condition:26:7:26:34::"Boolean condition ""True and CONSTANT and OTHER"" may be simplified to ""CONSTANT and OTHER""":UNDEFINED
+simplifiable-condition:27:7:27:46::"Boolean condition ""(CONSTANT or False) and (OTHER or True)"" may be simplified to ""CONSTANT""":UNDEFINED
+simplifiable-condition:30:7:30:21::"Boolean condition ""[] or CONSTANT"" may be simplified to ""CONSTANT""":UNDEFINED
+simplifiable-condition:31:7:31:21::"Boolean condition ""{} or CONSTANT"" may be simplified to ""CONSTANT""":UNDEFINED
+simplifiable-condition:40:3:40:40::"Boolean condition ""'wking' and 'bking' in BOARD.values()"" may be simplified to ""'bking' in BOARD.values()""":UNDEFINED

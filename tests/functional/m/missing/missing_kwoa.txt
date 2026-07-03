@@ -1,0 +1,4 @@
+missing-kwoa:23:4:23:17:not_forwarding_kwargs:Missing mandatory keyword argument 'keyword' in function call:INFERENCE
+missing-kwoa:29:0:29:16::Missing mandatory keyword argument 'keyword' in function call:INFERENCE
+too-many-function-args:29:0:29:16::Too many positional arguments for function call:UNDEFINED
+missing-kwoa:88:20:88:25:test_context_managers:Missing mandatory keyword argument 'a' in function call:INFERENCE

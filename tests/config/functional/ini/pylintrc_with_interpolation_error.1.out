@@ -1,0 +1,2 @@
+************* Module {abspath}
+{relpath}:1:0: F0011: error while parsing the configuration: '%' must be followed by '%' or '(', found: "%A'" (config-parse-error)

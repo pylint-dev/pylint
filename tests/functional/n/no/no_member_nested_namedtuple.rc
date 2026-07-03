@@ -1,0 +1,7 @@
+[MESSAGES CONTROL]
+disable=fixme,
+    logging-too-many-args,
+    logging-fstring-interpolation,
+    missing-docstring,
+    no-else-return,
+    too-few-public-methods,

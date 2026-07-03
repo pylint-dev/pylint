@@ -1,0 +1,17 @@
+unknown-option-value:4:0:None:None::Unknown option value for 'disable', expected a valid pylint message and got 'C05048':HIGH
+useless-option-value:6:0:None:None::"Useless option value for 'disable', 'execfile-builtin' was removed from pylint, see https://github.com/pylint-dev/pylint/pull/4942.":HIGH
+useless-option-value:8:0:None:None::"Useless option value for 'disable', 'no-self-use' was moved to an optional extension, see https://pylint.readthedocs.io/en/latest/whatsnew/2/2.14/summary.html#removed-checkers.":HIGH
+useless-option-value:10:0:None:None::"Useless option value for 'disable', 'W1656' was removed from pylint, see https://github.com/pylint-dev/pylint/pull/4942.":HIGH
+useless-option-value:12:0:None:None::"Useless option value for 'disable', 'R0201' was moved to an optional extension, see https://pylint.readthedocs.io/en/latest/whatsnew/2/2.14/summary.html#removed-checkers.":HIGH
+unknown-option-value:14:0:None:None::Unknown option value for 'disable-next', expected a valid pylint message and got 'R78948':HIGH
+useless-option-value:16:0:None:None::"Useless option value for 'disable-next', 'deprecated-types-field' was removed from pylint, see https://github.com/pylint-dev/pylint/pull/4942.":HIGH
+useless-option-value:18:0:None:None::"Useless option value for 'disable-next', 'W1634' was removed from pylint, see https://github.com/pylint-dev/pylint/pull/4942.":HIGH
+useless-option-value:20:0:None:None::"Useless option value for 'disable-next', 'no-self-use' was moved to an optional extension, see https://pylint.readthedocs.io/en/latest/whatsnew/2/2.14/summary.html#removed-checkers.":HIGH
+useless-option-value:22:0:None:None::"Useless option value for 'disable-next', 'R0201' was moved to an optional extension, see https://pylint.readthedocs.io/en/latest/whatsnew/2/2.14/summary.html#removed-checkers.":HIGH
+unknown-option-value:25:0:None:None::Unknown option value for 'enable', expected a valid pylint message and got 'W04044':HIGH
+useless-option-value:27:0:None:None::"Useless option value for 'enable', 'dict-values-not-iterating' was removed from pylint, see https://github.com/pylint-dev/pylint/pull/4942.":HIGH
+useless-option-value:29:0:None:None::"Useless option value for 'enable', 'no-self-use' was moved to an optional extension, see https://pylint.readthedocs.io/en/latest/whatsnew/2/2.14/summary.html#removed-checkers.":HIGH
+useless-option-value:31:0:None:None::"Useless option value for 'enable', 'W1622' was removed from pylint, see https://github.com/pylint-dev/pylint/pull/4942.":HIGH
+useless-option-value:33:0:None:None::"Useless option value for 'enable', 'R0201' was moved to an optional extension, see https://pylint.readthedocs.io/en/latest/whatsnew/2/2.14/summary.html#removed-checkers.":HIGH
+useless-option-value:36:0:None:None::"Useless option value for 'disable', 'no-space-after-operator' was removed from pylint, see https://github.com/pylint-dev/pylint/pull/3577.":HIGH
+useless-option-value:38:0:None:None::"Useless option value for 'disable', 'C0323' was removed from pylint, see https://github.com/pylint-dev/pylint/pull/3577.":HIGH
