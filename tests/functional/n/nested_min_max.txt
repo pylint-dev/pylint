@@ -18,3 +18,4 @@ nested-min-max:52:0:52:33::Do not use nested call of 'max'; it's possible to do 
 nested-min-max:55:0:55:27::Do not use nested call of 'max'; it's possible to do 'max(3, *list(range(4)))' instead:INFERENCE
 nested-min-max:63:0:63:24::Do not use nested call of 'max'; it's possible to do 'max(3, max(MATRIX))' instead:INFERENCE
 nested-min-max:64:4:64:23::Do not use nested call of 'max'; it's possible to do 'max(3, *MATRIX)' instead:INFERENCE
+nested-min-max:72:0:72:26::Do not use nested call of 'max'; it's possible to do 'max(1, 5, 3, key=abs)' instead:INFERENCE
