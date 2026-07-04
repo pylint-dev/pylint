@@ -1,0 +1,24 @@
+🤖 **Effect of this PR on checked open source code:** 🤖
+
+
+**Effect on [astroid](https://github.com/pylint-dev/astroid):**
+
+The following messages are now emitted:
+
+<details>
+
+1) unused-import:
+*Unused import os*
+https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/helpers.py#L12
+</details>
+
+The following messages are no longer emitted:
+
+<details>
+
+1) unused-variable:
+*Unused variable 'result'*
+https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/helpers.py#L12
+</details>
+
+*This comment was generated for commit v2.14.2*

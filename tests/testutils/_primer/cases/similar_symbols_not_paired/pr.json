@@ -1,0 +1,22 @@
+{
+  "astroid": {
+    "commit": "123456789abcdef",
+    "messages": [
+      {
+        "type": "warning",
+        "module": "astroid.helpers",
+        "obj": "",
+        "line": 12,
+        "column": 0,
+        "endLine": 12,
+        "endColumn": 18,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/helpers.py",
+        "symbol": "unused-import",
+        "message": "Unused import os",
+        "messageId": "W0611",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/helpers.py"
+      }
+    ]
+  }
+}
