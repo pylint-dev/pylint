@@ -217,7 +217,7 @@ def _detect_global_scope(
 def _infer_name_module(node: nodes.Import, name: str) -> Generator[InferenceResult]:
     context = astroid.context.InferenceContext()
     context.lookupname = name
-    return node.infer(context)
+    return node.infer(context)  # type: ignore[no-any-return]
 
 
 def _fix_dot_imports(
