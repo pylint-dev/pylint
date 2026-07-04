@@ -3,32 +3,23 @@
 
 **Effect on [astroid](https://github.com/pylint-dev/astroid):**
 
-The following messages are now emitted:
+Changed messages:
 
 <details>
 
-1) duplicate-code:
-*Similar lines in 2 files
-==astroid.arguments:[10:15]
-==astroid.bases:[20:25]
-    result = []
-    for arg in args:
-        result.append(arg)*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/arguments.py#L1
-</details>
-
-The following messages are no longer emitted:
-
-<details>
-
-1) duplicate-code:
-*Similar lines in 2 files
-==astroid.arguments:[10:14]
-==astroid.bases:[20:24]
-    result = []
-    for arg in args:
-        result.append(arg)*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/arguments.py#L1
+1) [duplicate-code](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/arguments.py#L1):
+```diff
+  Similar lines in 2 files
+- ==astroid.arguments:[10:14]
+- ==astroid.bases:[20:24]
++ ==astroid.arguments:[10:15]
+                           ^
++ ==astroid.bases:[20:25]
+                       ^
+      result = []
+      for arg in args:
+          result.append(arg)
+```
 </details>
 
 *This comment was generated for commit v2.14.2*

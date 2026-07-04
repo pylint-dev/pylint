@@ -5,7 +5,7 @@
 
 1 "astroid error(s)" were found. Please open the GitHub Actions log to see what failed or crashed.
 
-The following messages are no longer emitted:
+Removed messages:
 
 <details>
 

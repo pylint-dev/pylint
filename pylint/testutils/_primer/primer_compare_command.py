@@ -3,12 +3,36 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import PurePosixPath
 
-from pylint.testutils._primer.comparator import Comparator
-from pylint.testutils._primer.primer_command import PackageData, PrimerCommand
+from pylint.reporters.json_reporter import JSONMessage
+from pylint.testutils._primer.comparator import (
+    ChangedMessage,
+    Comparator,
+    message_diff,
+)
+from pylint.testutils._primer.primer_command import PrimerCommand
 
 MAX_GITHUB_COMMENT_LENGTH = 65536
+
+
+def _format_messages(
+    messages: list[JSONMessage],
+    source_link: Callable[[JSONMessage], str],
+) -> str:
+    """Format a list of messages as a numbered body for a ``<details>`` block."""
+    body = ""
+    for count, msg in enumerate(messages, 1):
+        body += (
+            f"{count}) {msg['symbol']}:\n*{msg['message']}*\n" f"{source_link(msg)}\n"
+        )
+    return body
+
+
+def _details_section(title: str, body: str) -> str:
+    # Blank line after <details> required for GitHub markdown rendering.
+    return f"{title}\n\n<details>\n\n{body}</details>\n\n"
 
 
 class CompareCommand(PrimerCommand):
@@ -26,9 +50,17 @@ class CompareCommand(PrimerCommand):
             if len(comment) >= MAX_GITHUB_COMMENT_LENGTH:
                 break
             package = diff.package
-            comment += f"\n**Effect on [{package}]({self.packages[package].url}):**\n\n"
-            comment += self._format_new_messages(package, diff.new)
-            comment += self._format_missing_messages(package, diff.missing)
+            url = self.packages[package].url
+            assert not url.endswith(
+                ".git"
+            ), "You don't need the .git at the end of the github url."
+            source_link = self._source_link_for(package, diff.new["commit"])
+            comment += f"\n**Effect on [{package}]({url}):**\n\n"
+            comment += self._format_changed_messages(diff.changed, source_link)
+            comment += self._format_new_messages(diff.new["messages"], source_link)
+            comment += self._format_missing_messages(
+                diff.missing["messages"], source_link
+            )
         comment = (
             f"🤖 **Effect of this PR on checked open source code:** 🤖\n\n{comment}"
             if comment
@@ -39,71 +71,84 @@ class CompareCommand(PrimerCommand):
         )
         return self._truncate_comment(comment)
 
-    def _format_new_messages(self, package: str, new_messages: PackageData) -> str:
-        comment = ""
-        count = 1
-        astroid_errors = 0
-        new_non_astroid_messages = ""
-        if new_messages["messages"]:
-            print("Now emitted:")
-        for message in new_messages["messages"]:
-            filepath = str(
-                PurePosixPath(message["path"]).relative_to(
-                    self.packages[package].clone_directory
-                )
+    def _source_link_for(
+        self, package: str, commit: str
+    ) -> Callable[[JSONMessage], str]:
+        clone_dir = self.packages[package].clone_directory
+        url = self.packages[package].url
+
+        def _link(msg: JSONMessage) -> str:
+            filepath = str(PurePosixPath(msg["path"]).relative_to(clone_dir))
+            return f"{url}/blob/{commit}/{filepath}#L{msg['line']}"
+
+        return _link
+
+    def _format_changed_messages(
+        self,
+        changed: list[ChangedMessage],
+        source_link: Callable[[JSONMessage], str],
+    ) -> str:
+        if not changed:
+            return ""
+        print("Changed:")
+        body = ""
+        for count, change in enumerate(changed, 1):
+            print(change.new)
+            body += (
+                f"{count}) [{change.new['symbol']}]({source_link(change.new)}):\n"
+                f"{message_diff(change)}\n"
             )
-            # Existing astroid errors may still show up as "new" because the timestamp
-            # in the message is slightly different.
+        return _details_section("Changed messages:", body)
+
+    def _format_new_messages(
+        self,
+        messages: list[JSONMessage],
+        source_link: Callable[[JSONMessage], str],
+    ) -> str:
+        if not messages:
+            return ""
+        print("Now emitted:")
+        astroid_errors = 0
+        fixed_fp: list[JSONMessage] = []
+        other_new: list[JSONMessage] = []
+        for message in messages:
+            print(message)
             if message["symbol"] == "astroid-error":
                 astroid_errors += 1
+            elif message["symbol"] == "useless-suppression":
+                fixed_fp.append(message)
             else:
-                new_non_astroid_messages += (
-                    f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-                    f"{self.packages[package].url}/blob/{new_messages['commit']}/{filepath}#L{message['line']}\n"
-                )
-                print(message)
-                count += 1
+                other_new.append(message)
 
+        out = ""
         if astroid_errors:
-            comment += (
+            out += (
                 f'{astroid_errors} "astroid error(s)" were found. '
                 "Please open the GitHub Actions log to see what failed or crashed.\n\n"
             )
-        if new_non_astroid_messages:
-            comment += (
-                "The following messages are now emitted:\n\n<details>\n\n"
-                + new_non_astroid_messages
-                + "</details>\n\n"
+        if fixed_fp:
+            out += _details_section(
+                "🎉 Fixed false positives:", _format_messages(fixed_fp, source_link)
             )
-        return comment
+        if other_new:
+            out += _details_section(
+                "New messages:", _format_messages(other_new, source_link)
+            )
+        return out
 
     def _format_missing_messages(
-        self, package: str, missing_messages: PackageData
+        self,
+        messages: list[JSONMessage],
+        source_link: Callable[[JSONMessage], str],
     ) -> str:
-        comment = ""
-        count = 1
-        if missing_messages["messages"]:
-            comment += "The following messages are no longer emitted:\n\n<details>\n\n"
-            print("No longer emitted:")
-        for message in missing_messages["messages"]:
-            comment += f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-            filepath = str(
-                PurePosixPath(message["path"]).relative_to(
-                    self.packages[package].clone_directory
-                )
-            )
-            assert not self.packages[package].url.endswith(
-                ".git"
-            ), "You don't need the .git at the end of the github url."
-            comment += (
-                f"{self.packages[package].url}"
-                f"/blob/{missing_messages['commit']}/{filepath}#L{message['line']}\n"
-            )
-            count += 1
+        if not messages:
+            return ""
+        print("No longer emitted:")
+        for message in messages:
             print(message)
-        if missing_messages["messages"]:
-            comment += "</details>\n\n"
-        return comment
+        return _details_section(
+            "Removed messages:", _format_messages(messages, source_link)
+        )
 
     def _truncate_comment(self, comment: str) -> str:
         """GitHub allows only a set number of characters in a comment."""
@@ -115,22 +160,30 @@ class CompareCommand(PrimerCommand):
                 f"*This comment was truncated because GitHub allows only"
                 f" {MAX_GITHUB_COMMENT_LENGTH} characters in a comment.*"
             )
-            # Reserve space for the suffix and a potential </details> closing tag.
+            # Reserve space for the ellipsis, the suffix and the potential
+            # closing tags for a code fence and a <details> block.
             suffix = f"\n{truncation_information}\n\n"
+            ellipsis = "\n...\n"
+            code_fence = "```\n"
             closing_tag = "</details>\n"
             max_len = (
                 MAX_GITHUB_COMMENT_LENGTH
                 - len(hash_information)
                 - len(suffix)
+                - len(ellipsis)
+                - len(code_fence)
                 - len(closing_tag)
             )
-            # Cut at the last space before the limit to avoid mid-word truncation.
-            cut_point = comment.rfind(" ", 0, max_len - 10)
-            if cut_point > 0:
-                comment = comment[:cut_point] + "...\n"
-            else:
-                comment = comment[: max_len - 10] + "...\n"
-            # Close any <details> tag left open by the truncation.
+            # Cut at the last line break before the limit so the comment ends
+            # with complete lines (links and diff lines contain no space to
+            # cut at); fall back to a hard cut inside a very long line.
+            cut_point = comment.rfind("\n", 0, max_len)
+            if cut_point <= 0:
+                cut_point = max_len
+            comment = comment[:cut_point] + ellipsis
+            # Close any code fence or <details> tag left open by the cut.
+            if comment.count("```") % 2:
+                comment += code_fence
             if comment.count("<details>") > comment.count("</details>"):
                 comment += closing_tag
             comment += suffix
