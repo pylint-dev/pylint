@@ -62,3 +62,11 @@ max(max(MATRIX))
 max(max(max(MATRIX)))
 max(3, max(max(MATRIX)))  # [nested-min-max]
 max(max(3, max(MATRIX)))  # [nested-min-max]
+
+# An inner call carrying a keyword argument (e.g. ``key=``) must not be
+# flattened: the keyword would be silently dropped and the flattened call
+# would change the result, e.g. ``max(1, max(5, 3, key=abs))`` != ``max(1, 5, 3)``.
+max(1, max(5, 3, key=abs))
+max(1, max([5, 3], key=len))
+# Regression guard: a keyword on the *outer* call (inner has none) is still flagged.
+max(1, max(5, 3), key=abs)  # [nested-min-max]
