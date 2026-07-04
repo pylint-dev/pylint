@@ -1783,7 +1783,21 @@ class VariablesChecker(BaseChecker):
                 )
             )
         ) and not utils.node_ignores_exception(node, NameError):
+            if self._is_pep695_type_parameter(node):
+                return
             self.add_message("undefined-variable", args=node.name, node=node)
+
+    @staticmethod
+    def _is_pep695_type_parameter(node: nodes.Name) -> bool:
+        """Check if the name resolves to a PEP 695 type parameter.
+
+        Type parameters live in an implicit ``TypeParamScope`` (astroid >= 4.2)
+        that the consumer stack does not track; delegate to astroid's lookup.
+        """
+        return any(
+            isinstance(definition.scope(), nodes.TypeParamScope)
+            for definition in node.lookup(node.name)[1]
+        )
 
     def _should_node_be_skipped(
         self,
@@ -1983,6 +1997,7 @@ class VariablesChecker(BaseChecker):
                     or isinstance(stmt, nodes.AnnAssign)  # noqa: RUF021
                     and utils.get_node_first_ancestor_of_type(stmt, nodes.FunctionDef)
                     or isinstance(stmt, nodes.TypeAlias)
+                    or utils.is_node_in_pep695_type_context(node)
                 ):
                     self.add_message(
                         "used-before-assignment",

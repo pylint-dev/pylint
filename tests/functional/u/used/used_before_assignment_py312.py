@@ -19,5 +19,5 @@ class Good[T: Y]: ...
 type OtherAlias[T: Y] = T | None
 
 # https://github.com/pylint-dev/pylint/issues/9884
-def func[T: Y](x: T) -> None:  # [redefined-outer-name]  FALSE POSITIVE
+def func[T: Y](x: T) -> None:
     ...
