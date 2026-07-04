@@ -1,0 +1,5 @@
+Fix a false positive for `useless-parent-delegation` (`W0246`) when an override changes
+the default value of a positional-only parameter. ``_has_different_parameters_default_value``
+now also considers ``posonlyargs``.
+
+Closes #11148
