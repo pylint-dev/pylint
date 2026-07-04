@@ -1,0 +1,7 @@
+``too-complex`` now reports every function or method sharing a name in the
+same scope. The previous ``mccabe``-based checker stored results by name, so
+for instance for a property only the last accessor definition was rated: a
+complex getter or setter was silently ignored whenever a deleter (or any
+later same-named function) followed it.
+
+Refs #10551

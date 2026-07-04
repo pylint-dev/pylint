@@ -16,6 +16,20 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
+def _is_irrefutable(pattern: nodes.Pattern) -> bool:
+    """Return True if the pattern always matches (wildcard or capture name).
+
+    Mirrors the grammar: an as-pattern is irrefutable if it has no
+    sub-pattern (wildcard ``_`` or bare capture name) or its sub-pattern is
+    irrefutable; an or-pattern is irrefutable if its last alternative is.
+    """
+    if isinstance(pattern, nodes.MatchAs):
+        return pattern.pattern is None or _is_irrefutable(pattern.pattern)
+    if isinstance(pattern, nodes.MatchOr):
+        return _is_irrefutable(pattern.patterns[-1])
+    return False
+
+
 class PathGraphingAstVisitor:
     """Compute McCabe cyclomatic complexity via control flow graph on astroid AST.
 
@@ -26,6 +40,20 @@ class PathGraphingAstVisitor:
     Reproduces the same complexity scores as the ``mccabe`` library, but
     operates directly on astroid trees (no re-parsing) and uses a dict-based
     dispatch table instead of getattr, skipping expression sub-trees entirely.
+
+    Intentional divergences from the previous ``mccabe``-based checker:
+
+    - Results are keyed by node instead of by name, so same-named siblings
+      (e.g. property getter/setter/deleter) no longer overwrite each other
+      and are all reported (the old checker only kept the last one).
+    - An exhaustive ``match`` (last case is an unguarded wildcard or capture
+      name) no longer counts a fall-through path, mirroring how ``else``
+      is counted for ``if``/``elif`` chains.
+    - Straight-line functions are always rated 1: the old checker rated
+      functions whose body holds no statement it tracked (docstring only,
+      annotated assignments only, ...) at 2 because their graph stayed empty.
+    - ``try``/``except*`` counts like ``try``/``except``; the ``mccabe``
+      library predates ``except*`` and ignored it.
 
     Edge and node counts are kept as visitor instance variables to avoid
     per-increment method-call overhead (~1 M calls eliminated on
@@ -194,14 +222,19 @@ class PathGraphingAstVisitor:
 
         self._tail = pathnode
         walk = self._walk_body
-        num_cases = 0
+        num_loose_ends = 0
         for case in node.cases:
             self._tail = pathnode
             walk(case.body)
-            num_cases += 1
+            num_loose_ends += 1
+        last_case = node.cases[-1]
+        if last_case.guard is not None or not _is_irrefutable(last_case.pattern):
+            # Non-exhaustive match: no case may apply, count the
+            # fall-through path (equivalent to an if/elif without else).
+            num_loose_ends += 1
         merge = self._num_nodes
         self._num_nodes = merge + 1
-        self._num_edges += num_cases
+        self._num_edges += num_loose_ends
         self._tail = merge
 
         if is_toplevel:

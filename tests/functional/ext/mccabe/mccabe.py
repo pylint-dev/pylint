@@ -376,9 +376,9 @@ match avg:  # [too-complex]
 
 
 def non_exhaustive_match(value):  # [too-complex]
-    """McCabe rating: should be 3 but is 2 (known false negative ?)
+    """McCabe rating: 3
 
-    No case may apply, but the fall-through path is not counted."""
+    No case may apply: the fall-through path counts, as an if/elif would."""
     match value:
         case 1:
             result = "one"
@@ -390,7 +390,7 @@ def non_exhaustive_match(value):  # [too-complex]
 def match_capture_name(value):  # [too-complex]
     """McCabe rating: 2
 
-    An unguarded capture name always matches, no other case is tried."""
+    An unguarded capture name is irrefutable, like a wildcard or an else."""
     # pylint: disable=bare-name-capture-pattern
     match value:
         case 1:
@@ -401,10 +401,9 @@ def match_capture_name(value):  # [too-complex]
 
 
 def match_guarded_wildcard(value):  # [too-complex]
-    """McCabe rating: should be 3 but is 2 (known false negative ?)
+    """McCabe rating: 3
 
-    A guarded wildcard can fail to match, but the fall-through path is
-    not counted."""
+    A guarded wildcard can fail to match: the fall-through path counts."""
     match value:
         case 1:
             result = "one"
@@ -414,9 +413,8 @@ def match_guarded_wildcard(value):  # [too-complex]
 
 
 class PropertyAccessors:  # pylint: disable=too-few-public-methods
-    """Same-named accessors each get their own score (the mccabe library
-    only kept the last definition of a given name, hiding the getter and
-    setter behind the deleter)."""
+    """Same-named accessors each get their own score (old checker only kept
+    the last definition of a given name, hiding the getter and setter)."""
 
     @property
     def attribute(self):  # [too-complex]
