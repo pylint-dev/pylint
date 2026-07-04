@@ -7,11 +7,17 @@ The following messages are now emitted:
 
 <details>
 
-1) locally-disabled:
-*Locally disabling looping-through-iterator (W4801)*
-https://github.com/astropy/astropy/blob/1fb40bc1f22f176254ef583065aa155f53f3b414/astropy/coordinates/angles/angle_parsetab.py#L14
-2) useless-suppression:
+1) useless-suppression:
 *Useless suppression of 'looping-through-iterator'*
+https://github.com/astropy/astropy/blob/1fb40bc1f22f176254ef583065aa155f53f3b414/astropy/coordinates/angles/angle_parsetab.py#L14
+</details>
+
+The following messages are no longer emitted:
+
+<details>
+
+1) suppressed-message:
+*Suppressed 'looping-through-iterator' (from line 14)*
 https://github.com/astropy/astropy/blob/1fb40bc1f22f176254ef583065aa155f53f3b414/astropy/coordinates/angles/angle_parsetab.py#L14
 </details>
 
