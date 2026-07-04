@@ -45,7 +45,7 @@ class DocstringParameterChecker(BaseChecker):
     name = "parameter_documentation"
     msgs = {
         "W9005": (
-            '"%s" has constructor parameters documented in class and __init__',
+            '"%s" has constructor parameters documented in class and %s',
             "multiple-constructor-doc",
             "Please remove parameter declarations in the class or constructor.",
         ),
@@ -263,7 +263,7 @@ class DocstringParameterChecker(BaseChecker):
         class_doc = utils.docstringify(
             class_node.doc_node, self.linter.config.default_docstring_type
         )
-        self.check_single_constructor_params(class_doc, node_doc, class_node)
+        self.check_single_constructor_params(class_doc, node_doc, class_node, node.name)
 
     def check_functiondef_returns(
         self, node: nodes.FunctionDef, node_doc: Docstring
@@ -660,12 +660,16 @@ class DocstringParameterChecker(BaseChecker):
         )
 
     def check_single_constructor_params(
-        self, class_doc: Docstring, init_doc: Docstring, class_node: nodes.ClassDef
+        self,
+        class_doc: Docstring,
+        init_doc: Docstring,
+        class_node: nodes.ClassDef,
+        constructor_name: str,
     ) -> None:
         if class_doc.has_params() and init_doc.has_params():
             self.add_message(
                 "multiple-constructor-doc",
-                args=(class_node.name,),
+                args=(class_node.name, constructor_name),
                 node=class_node,
                 confidence=HIGH,
             )
