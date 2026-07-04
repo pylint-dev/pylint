@@ -1,0 +1,3 @@
+Fix a false positive for ``too-many-locals`` (``R0914``): PEP 695 type parameters (e.g. ``def f[T1, T2](...)``) were counted as local variables. They are type-system constructs, not runtime locals, and are now excluded from the local-variable count.
+
+Closes #11136
