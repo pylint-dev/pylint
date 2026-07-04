@@ -3,28 +3,14 @@
 
 **Effect on [astroid](https://github.com/pylint-dev/astroid):**
 
-The following messages are now emitted:
+Changed messages:
 
 <details>
 
-1) unused-variable:
-*Unused variable 'node'*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/rebuilder.py#L21
-2) unused-variable:
-*Unused variable 'node'*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/rebuilder.py#L11
-</details>
-
-The following messages are no longer emitted:
-
-<details>
-
-1) unused-variable:
-*Unused variable 'node'*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/rebuilder.py#L10
-2) unused-variable:
-*Unused variable 'node'*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/rebuilder.py#L20
+1) [unused-variable](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/rebuilder.py#L11):
+Moved from `10:4`-`10:16` to `11:4`-`11:16`.
+2) [unused-variable](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/rebuilder.py#L21):
+Moved from `20:4`-`20:16` to `21:4`-`21:16`.
 </details>
 
 *This comment was generated for commit v2.14.2*

@@ -3,7 +3,7 @@
 
 **Effect on [astroid](https://github.com/pylint-dev/astroid):**
 
-The following messages are now emitted:
+New messages:
 
 <details>
 
@@ -12,7 +12,7 @@ The following messages are now emitted:
 https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/helpers.py#L12
 </details>
 
-The following messages are no longer emitted:
+Removed messages:
 
 <details>
 

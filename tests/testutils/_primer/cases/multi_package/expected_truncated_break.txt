@@ -3,12 +3,16 @@
 
 **Effect on [astroid](https://github.com/pylint-dev/astroid):**
 
-The following messages are now emitted:
+Changed messages:
 
 <details>
 
-1) too-complex:
-*'my_function' is too complex. The McCabe rating is...
+1) [too-complex](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L105):
+Moved from `100:0`-`100:15` to `105:0`-`105:15`.
+
+```diff
+...
+```
 </details>
 
 *This comment was truncated because GitHub allows only 500 characters in a comment.*
