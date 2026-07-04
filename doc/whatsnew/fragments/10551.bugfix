@@ -1,0 +1,7 @@
+The McCabe rating of ``match`` statements used by ``too-complex`` is now
+branch-accurate: an exhaustive ``match`` (ending with an unguarded wildcard
+or capture name) no longer counts a nonexistent fall-through path, mirroring
+how ``else`` is counted for ``if``/``elif`` chains, while a non-exhaustive
+``match`` still does.
+
+Refs #10551

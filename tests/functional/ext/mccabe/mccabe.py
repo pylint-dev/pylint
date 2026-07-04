@@ -306,7 +306,7 @@ def try_finally_with_nested_ifs():  # [too-complex]
 
 
 def match_case(avg):  # [too-complex]
-    """McCabe rating: 4
+    """McCabe rating: 3
     See https://github.com/astral-sh/ruff/issues/11421
     """
     # pylint: disable=bare-name-capture-pattern
@@ -321,7 +321,7 @@ def match_case(avg):  # [too-complex]
 
 
 def nested_match_case(data):  # [too-complex]
-    """McCabe rating: 8
+    """McCabe rating: 6
 
     Nested match statements."""
     match data:
@@ -350,3 +350,89 @@ def yield_in_for_loop(a=None, b=None, c=None):  # [too-complex]
             yield elt
     if c is not None:
         yield c
+
+
+try:  # [too-complex]
+    # McCabe rating: 5
+    if True:
+        pass
+    else:
+        pass
+except TypeA:
+    pass
+except TypeB:
+    pass
+
+
+match avg:  # [too-complex]
+    # McCabe rating: 3
+    # pylint: disable=bare-name-capture-pattern
+    case avg if avg < 0.3:
+        avg_grade = "F"
+    case avg if avg < 0.7:
+        avg_grade = "E+"
+    case _:
+        avg_grade = "A"
+
+
+def non_exhaustive_match(value):  # [too-complex]
+    """McCabe rating: 3
+
+    No case may apply: the fall-through path counts, as an if/elif would."""
+    match value:
+        case 1:
+            result = "one"
+        case 2:
+            result = "two"
+    return result
+
+
+def match_capture_name(value):  # [too-complex]
+    """McCabe rating: 2
+
+    An unguarded capture name is irrefutable, like a wildcard or an else."""
+    # pylint: disable=bare-name-capture-pattern
+    match value:
+        case 1:
+            result = "one"
+        case something_else:
+            result = str(something_else)
+    return result
+
+
+def match_guarded_wildcard(value):  # [too-complex]
+    """McCabe rating: 3
+
+    A guarded wildcard can fail to match: the fall-through path counts."""
+    match value:
+        case 1:
+            result = "one"
+        case _ if value > 0:
+            result = "positive"
+    return result
+
+
+class PropertyAccessors:  # pylint: disable=too-few-public-methods
+    """Same-named accessors each get their own score (old checker only kept
+    the last definition of a given name, hiding the getter and setter)."""
+
+    @property
+    def attribute(self):  # [too-complex]
+        """McCabe rating: 2"""
+        if self._attribute is None:
+            raise ValueError("not set")
+        return self._attribute
+
+    @attribute.setter
+    def attribute(self, value):  # [too-complex]
+        """McCabe rating: 3"""
+        if value is None:
+            raise ValueError("cannot unset")
+        if not isinstance(value, int):
+            value = int(value)
+        self._attribute = value
+
+    @attribute.deleter
+    def attribute(self):  # [too-complex]
+        """McCabe rating: 1"""
+        self._attribute = None
