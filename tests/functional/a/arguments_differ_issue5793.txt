@@ -1,0 +1,2 @@
+arguments-differ:18:4:18:11:Child.fun:Kinds of parameters changed from (2 positional-or-keyword) in 'Base.fun' to (1 positional-or-keyword, 1 keyword-only) in overriding 'Child.fun' method:UNDEFINED
+arguments-differ:21:4:21:23:Child.positional_only:Kinds of parameters changed from (3 positional-only) in 'Base.positional_only' to (3 positional-or-keyword) in overriding 'Child.positional_only' method:UNDEFINED
