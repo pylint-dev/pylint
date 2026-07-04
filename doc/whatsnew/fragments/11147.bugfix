@@ -1,0 +1,5 @@
+Fix false positives in `bad-string-format-type` (`E1307`) for valid ``%`` formatting:
+``%i``/``%u`` applied to a float (both truncate like ``%d``) and ``%a`` applied to any
+non-int type (``%a`` is type-agnostic like ``%s``/``%r``).
+
+Closes #11147
