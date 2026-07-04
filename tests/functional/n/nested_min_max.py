@@ -70,3 +70,8 @@ max(1, max(5, 3, key=abs))
 max(1, max([5, 3], key=len))
 # Regression guard: a keyword on the *outer* call (inner has none) is still flagged.
 max(1, max(5, 3), key=abs)  # [nested-min-max]
+
+# Regression guard: arguments after the splatted inner call must be preserved.
+LIST3 = [1, 2, 3]
+max(max(LIST3), 5, 7)  # [nested-min-max]
+max(4, max(LIST3), 7)  # [nested-min-max]
