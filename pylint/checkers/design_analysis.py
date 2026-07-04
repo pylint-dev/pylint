@@ -577,7 +577,10 @@ class MisdesignChecker(BaseChecker):
                 )
 
         # check number of local variables
-        locnum = len(node.locals) - ignored_args_num
+        # PEP 695 type parameters live in the function's ``locals`` but are
+        # type-system constructs, not runtime local variables, so exclude them.
+        type_param_names = {param.name.name for param in node.type_params}
+        locnum = len(set(node.locals) - type_param_names) - ignored_args_num
 
         # decrement number of local variables if '_' is one of them
         if "_" in node.locals:
