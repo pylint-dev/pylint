@@ -1,0 +1,3 @@
+Fix a false negative in ``unnecessary-negation`` (``C0117``): ``not (a is not b)`` and ``not (a not in b)`` are now flagged (they simplify to ``a is b`` and ``a in b``), consistent with the existing handling of ``is`` / ``in``.
+
+Closes #11140

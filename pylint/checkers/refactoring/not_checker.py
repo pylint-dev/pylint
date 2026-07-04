@@ -34,7 +34,9 @@ class NotChecker(checkers.BaseChecker):
         "==": "!=",
         "!=": "==",
         "in": "not in",
+        "not in": "in",
         "is": "is not",
+        "is not": "is",
     }
     # sets are not ordered, so for example "not set(LEFT_VALS) <= set(RIGHT_VALS)" is
     # not equivalent to "set(LEFT_VALS) > set(RIGHT_VALS)"
