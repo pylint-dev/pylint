@@ -1818,11 +1818,6 @@ class VariablesChecker(BaseChecker):
             if utils.is_ancestor_name(consumer.node, node) or (
                 not is_start_index and self._ignore_class_scope(node)
             ):
-                if any(
-                    node.name == param.name.name for param in consumer.node.type_params
-                ):
-                    return False
-
                 return True
 
             match node.parent:
@@ -1833,9 +1828,6 @@ class VariablesChecker(BaseChecker):
         elif consumer.scope_type == "function" and self._defined_in_function_definition(
             node, consumer.node
         ):
-            if any(node.name == param.name.name for param in consumer.node.type_params):
-                return False
-
             # If the name node is used as a function default argument's value or as
             # a decorator, then start from the parent frame of the function instead
             # of the function frame - and thus open an inner class scope
