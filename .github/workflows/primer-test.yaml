@@ -38,6 +38,8 @@ jobs:
       - &checkout
         name: Check out code from GitHub
         uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
       - &setup-python
         name: Set up Python ${{ matrix.python-version }}
         id: python
