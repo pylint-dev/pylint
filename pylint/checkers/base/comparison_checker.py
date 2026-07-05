@@ -203,7 +203,14 @@ class ComparisonChecker(_BasicChecker):
         else:
             equal_or_not_equal = "=="
             is_or_is_not = "is"
-        fixed_node_str = incorrect_node_str.replace(is_or_is_not, equal_or_not_equal)
+        # Rebuild the suggestion from the operands and operator instead of a
+        # blind ``str.replace``, which corrupts identifiers that contain ``is``
+        # (e.g. ``axis is 5`` produced ``ax== == 5``). ``visit_compare`` only
+        # reaches this method for single-operator comparisons.
+        fixed_node_str = (
+            f"{node.left.as_string()} {equal_or_not_equal} "
+            f"{node.ops[0][1].as_string()}"
+        )
         self.add_message(
             "literal-comparison",
             args=(
