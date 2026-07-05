@@ -1,0 +1,5 @@
+Fix `literal-comparison` (`R0123`) emitting a corrupted suggestion for identifiers
+that contain ``is`` (e.g. ``axis is 5`` was rendered ``ax== == 5``). The suggestion
+is now rebuilt from the operands and operator.
+
+Closes #11146
