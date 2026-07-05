@@ -9,13 +9,16 @@ from collections.abc import Iterator
 from difflib import unified_diff
 from pathlib import Path
 
+from pylint.testutils._primer.primer_comment import (
+    MAX_GITHUB_COMMENT_LENGTH,
+    truncate_comment,
+)
 from pylint.testutils._primer.pyreverse_primer_command import (
     PyreversePrimerCommand,
     PyreversePrimerOutput,
     PyreverseTargetData,
 )
 
-MAX_GITHUB_COMMENT_LENGTH = 65536
 COMMENT_MARKER = "<!-- pyreverse-primer-comment -->\n"
 
 
@@ -68,8 +71,12 @@ class CompareCommand(PyreversePrimerCommand):
             base_target_data["diagram"],
             new_target_data["diagram"],
         )
+        output_file_change = self._format_output_file_change(
+            base_target_data, new_target_data
+        )
         return (
             f"**Effect on `{target.display_name}` in [{target.package}]({package.url}):**\n\n"
+            f"{output_file_change}"
             "<details>\n<summary>Diagram diff</summary>\n\n"
             f"```diff\n{diff}```\n"
             "</details>\n\n"
@@ -79,32 +86,20 @@ class CompareCommand(PyreversePrimerCommand):
         )
 
     def _truncate_comment(self, comment: str) -> str:
-        hash_information = (
-            f"*This comment was generated for commit {self.config.commit}*"
+        return truncate_comment(comment, self.config.commit, MAX_GITHUB_COMMENT_LENGTH)
+
+    @staticmethod
+    def _format_output_file_change(
+        base_target_data: PyreverseTargetData,
+        new_target_data: PyreverseTargetData,
+    ) -> str:
+        if base_target_data["output_file"] == new_target_data["output_file"]:
+            return ""
+        return (
+            "Output file changed: "
+            f"`{base_target_data['output_file']}` → "
+            f"`{new_target_data['output_file']}`\n\n"
         )
-        if len(comment) + len(hash_information) >= MAX_GITHUB_COMMENT_LENGTH:
-            truncation_information = (
-                "*This comment was truncated because GitHub allows only"
-                f" {MAX_GITHUB_COMMENT_LENGTH} characters in a comment.*"
-            )
-            suffix = f"\n{truncation_information}\n\n"
-            closing_tag = "</details>\n"
-            max_len = (
-                MAX_GITHUB_COMMENT_LENGTH
-                - len(hash_information)
-                - len(suffix)
-                - len(closing_tag)
-            )
-            cut_point = comment.rfind(" ", 0, max_len - 10)
-            if cut_point > 0:
-                comment = comment[:cut_point] + "...\n"
-            else:
-                comment = comment[: max_len - 10] + "...\n"
-            if comment.count("<details>") > comment.count("</details>"):
-                comment += closing_tag
-            comment += suffix
-        comment += hash_information
-        return comment
 
     @staticmethod
     def _diagram_diff(base_diagram: str, new_diagram: str) -> str:
@@ -129,7 +124,7 @@ class CompareCommand(PyreversePrimerCommand):
         for target_name in sorted(base_data):
             base_target_data = base_data[target_name]
             new_target_data = new_data[target_name]
-            if base_target_data["diagram"] == new_target_data["diagram"]:
+            if base_target_data == new_target_data:
                 continue
             yield target_name, base_target_data, new_target_data
 

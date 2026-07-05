@@ -15,6 +15,7 @@ from pylint.testutils._primer.pyreverse_primer_target import PyreversePrimerTarg
 
 class PyreverseTargetData(TypedDict):
     commit: str
+    output_file: str
     diagram: str
 
 

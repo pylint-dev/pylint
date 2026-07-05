@@ -45,10 +45,11 @@ def _load_fixture(directory: Path, filename: str) -> dict[str, dict[str, str]]:
         data = json.loads(raw) if raw.strip() else {}
     prefix = filename.removesuffix(".json")
     for mmd_file in directory.glob(f"{prefix}_*.mmd"):
-        target_name = mmd_file.stem.removeprefix(f"{prefix}_")
+        target_name = f"astroid/{mmd_file.stem.removeprefix(f'{prefix}_')}"
         if target_name not in data:
             data[target_name] = {}
         data[target_name]["commit"] = COMMIT
+        data[target_name]["output_file"] = mmd_file.name.removeprefix(f"{prefix}_")
         data[target_name]["diagram"] = mmd_file.read_text(encoding="utf-8")
     return data
 
@@ -140,8 +141,12 @@ def test_run_writes_output(tmp_path: Path) -> None:
     fake_repo = Mock()
     fake_repo.head.object.hexsha = COMMIT
 
-    def _render_diagram(*_: object, target_name: str) -> str:
-        return f"classDiagram\n  class {target_name} {{\n  }}\n"
+    def _render_diagram(*_: object, target_name: str) -> dict[str, str]:
+        class_name = target_name.rsplit("/", maxsplit=1)[-1]
+        return {
+            "output_file": f"{class_name}.mmd",
+            "diagram": f"classDiagram\n  class {class_name} {{\n  }}\n",
+        }
 
     with patch(
         "pylint.testutils._primer.pyreverse_primer_run_command.Repo",
@@ -174,9 +179,14 @@ def test_run_writes_output(tmp_path: Path) -> None:
     )
     content = json.loads(output_path.read_text(encoding="utf-8"))
     assert mock_render_target.call_count == 3
-    assert list(content) == ["classdef", "functiondef", "assignname"]
-    assert content["classdef"] == {
+    assert list(content) == [
+        "astroid/classdef",
+        "astroid/functiondef",
+        "astroid/assignname",
+    ]
+    assert content["astroid/classdef"] == {
         "commit": COMMIT,
+        "output_file": "classdef.mmd",
         "diagram": "classDiagram\n  class classdef {\n  }\n",
     }
 
@@ -191,9 +201,7 @@ def test_render_target_reads_diagram_and_restores_cwd(tmp_path: Path) -> None:
         class_name="astroid.nodes.scoped_nodes.scoped_nodes.ClassDef",
         path="astroid",
     )
-    (output_dir / f"{target.output_name}.mmd").write_text(
-        "classDiagram\n", encoding="utf-8"
-    )
+    (output_dir / "ClassDef.mmd").write_text("classDiagram\n", encoding="utf-8")
     cwd = Path.cwd()
 
     with (
@@ -206,7 +214,10 @@ def test_render_target_reads_diagram_and_restores_cwd(tmp_path: Path) -> None:
     ):
         run.return_value.run.return_value = 0
         command = RunCommand(tmp_path, {}, {"classdef": target}, Namespace(type="main"))
-        assert command._render_target(package_dir, "classdef") == "classDiagram\n"
+        assert command._render_target(package_dir, "classdef") == {
+            "output_file": "ClassDef.mmd",
+            "diagram": "classDiagram\n",
+        }
 
     assert Path.cwd() == cwd
     assert run.call_args.args[0] == target.pyreverse_args(str(output_dir))
@@ -238,6 +249,36 @@ def test_truncate_comment_without_spaces(tmp_path: Path) -> None:
     assert len(truncated) < 525
     assert truncated.startswith("xxx")
     assert "..." in truncated
+
+
+def test_compare_reports_output_file_change(tmp_path: Path) -> None:
+    command = CompareCommand(
+        tmp_path,
+        {},
+        {
+            "astroid/classdef": PyreversePrimerTarget(
+                package="astroid",
+                class_name="astroid.nodes.scoped_nodes.scoped_nodes.ClassDef",
+                path="astroid",
+            )
+        },
+        Namespace(commit="deadbeef"),
+    )
+
+    message = command._format_output_file_change(
+        {
+            "commit": COMMIT,
+            "output_file": "ClassDef.mmd",
+            "diagram": "classDiagram\n",
+        },
+        {
+            "commit": COMMIT,
+            "output_file": "class_diagram.mmd",
+            "diagram": "classDiagram\n",
+        },
+    )
+
+    assert message == "Output file changed: `ClassDef.mmd` → `class_diagram.mmd`\n\n"
 
 
 def test_render_target_raises_on_pyreverse_failure(tmp_path: Path) -> None:

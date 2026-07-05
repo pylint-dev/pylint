@@ -9,6 +9,7 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+from typing import TypedDict
 
 from git.repo import Repo
 
@@ -18,6 +19,11 @@ from pylint.testutils._primer.pyreverse_primer_command import (
     PyreversePrimerOutput,
     PyreverseTargetData,
 )
+
+
+class RenderedTargetData(TypedDict):
+    output_file: str
+    diagram: str
 
 
 class RunCommand(PyreversePrimerCommand):
@@ -30,7 +36,7 @@ class RunCommand(PyreversePrimerCommand):
             local_commit = Repo(package.clone_directory).head.object.hexsha
             output[target_name] = PyreverseTargetData(
                 commit=local_commit,
-                diagram=self._render_target(package.clone_directory, target_name),
+                **self._render_target(package.clone_directory, target_name),
             )
 
         path = self.primer_directory / (
@@ -40,7 +46,9 @@ class RunCommand(PyreversePrimerCommand):
         with open(path, "w", encoding="utf-8") as stream:
             json.dump(output, stream)
 
-    def _render_target(self, package_directory: Path, target_name: str) -> str:
+    def _render_target(
+        self, package_directory: Path, target_name: str
+    ) -> RenderedTargetData:
         target = self.targets[target_name]
         current_directory = Path.cwd()
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -54,6 +62,19 @@ class RunCommand(PyreversePrimerCommand):
                     f"Pyreverse failed for target '{target_name}' with exit code {exit_code}."
                 )
 
-            diagram_path = Path(tmpdir) / f"{target.output_name}.mmd"
+            diagram_path = self._get_diagram_path(Path(tmpdir), target_name)
             with open(diagram_path, encoding="utf-8") as stream:
-                return stream.read()
+                return RenderedTargetData(
+                    output_file=diagram_path.name,
+                    diagram=stream.read(),
+                )
+
+    @staticmethod
+    def _get_diagram_path(output_directory: Path, target_name: str) -> Path:
+        diagram_paths = sorted(output_directory.glob("*.mmd"))
+        if len(diagram_paths) != 1:
+            raise RuntimeError(
+                f"Expected exactly one pyreverse diagram for target '{target_name}', "
+                f"got {len(diagram_paths)}."
+            )
+        return diagram_paths[0]

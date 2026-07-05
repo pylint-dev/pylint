@@ -57,7 +57,9 @@ class PyreversePrimer:
         packages: dict[str, PackageToLint],
     ) -> dict[str, PyreversePrimerTarget]:
         return {
-            target_name: PyreversePrimerTarget(package=package_name, **target_data)
+            f"{package_name}/{target_name}": PyreversePrimerTarget(
+                package=package_name, **target_data
+            )
             for package_name, package in packages.items()
             for target_name, target_data in package.pyreverse_targets.items()
         }
