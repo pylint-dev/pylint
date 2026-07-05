@@ -52,7 +52,7 @@ Release date: 2013-08-06
 * New warning :ref:`trailing-whitespace` that warns about
   trailing whitespace.
 
-* Added a new warning unpacking-in-except (W0712) about unpacking
+* Added a new warning :ref:`unpacking-in-except` (W0712) about unpacking
   exceptions in handlers, which is unsupported in Python 3.
 
 * Add a configuration option for :ref:`missing-docstring` to
@@ -78,7 +78,7 @@ Release date: 2013-08-06
 
 * Do not flag names in nested with statements as undefined.
 
-* Added a new warning 'old-raise-syntax' for the deprecated syntax
+* Added a new warning ':ref:`old-raise-syntax`' for the deprecated syntax
   raise Exception, args
 
 * Support for PEP 3102 and new :ref:`missing-kwoa` message for missing

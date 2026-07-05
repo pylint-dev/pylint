@@ -226,7 +226,7 @@ Other Bug Fixes
 Performance Improvements
 ------------------------
 
-- The duplicate-code checker no longer runs when its message (R0801) is disabled, even if ``reports=yes`` is set. Previously, the checker's report (RP0801) would cause the expensive similarity computation to run regardless.
+- The :ref:`duplicate-code` checker no longer runs when its message (R0801) is disabled, even if ``reports=yes`` is set. Previously, the checker's report (RP0801) would cause the expensive similarity computation to run regardless.
 
   Closes #3443 (`#3443 <https://github.com/pylint-dev/pylint/issues/3443>`_)
 
@@ -240,7 +240,7 @@ Release date: 2026-02-20
 False Positives Fixed
 ---------------------
 
-- Fix possibly-used-before-assignment false positive when using self.fail() in tests.
+- Fix :ref:`possibly-used-before-assignment` false positive when using self.fail() in tests.
 
   Closes #10743 (`#10743 <https://github.com/pylint-dev/pylint/issues/10743>`_)
 
@@ -605,7 +605,7 @@ False Negatives Fixed
 
   Closes #9770 (`#9770 <https://github.com/pylint-dev/pylint/issues/9770>`_)
 
-- Fix false negative where function-redefined (E0102) was not reported for functions with a leading underscore.
+- Fix false negative where :ref:`function-redefined` (E0102) was not reported for functions with a leading underscore.
 
   Closes #9894 (`#9894 <https://github.com/pylint-dev/pylint/issues/9894>`_)
 
@@ -647,7 +647,7 @@ Other Bug Fixes
 
   Closes #8736. (`#8736 <https://github.com/pylint-dev/pylint/issues/8736>`_)
 
-- Fixed unidiomatic-typecheck only checking left-hand side.
+- Fixed :ref:`unidiomatic-typecheck` only checking left-hand side.
 
   Closes #10217 (`#10217 <https://github.com/pylint-dev/pylint/issues/10217>`_)
 

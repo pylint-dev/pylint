@@ -12,7 +12,7 @@
 Summary -- Release highlights
 =============================
 
-The duplicate-code checker and ``symilar`` received optimizations that
+The :ref:`duplicate-code` checker and ``symilar`` received optimizations that
 result in considerable performance improvements and memory use reduction
 on larger codebases. For example, pandas analysis went from 20 min to
 55 s and pylint does not get OOM-killed when analyzing cpython anymore.
