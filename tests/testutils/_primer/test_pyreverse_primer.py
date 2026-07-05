@@ -309,3 +309,19 @@ def test_render_target_raises_on_pyreverse_failure(tmp_path: Path) -> None:
             command._render_target(package_dir, "classdef")
 
     assert Path.cwd() == cwd
+
+
+@pytest.mark.parametrize("diagram_count", [0, 2])
+def test_get_diagram_path_raises_for_unexpected_output_count(
+    tmp_path: Path, diagram_count: int
+) -> None:
+    for index in range(diagram_count):
+        (tmp_path / f"diagram-{index}.mmd").write_text(
+            "classDiagram\n", encoding="utf-8"
+        )
+
+    with pytest.raises(
+        RuntimeError,
+        match=f"Expected exactly one pyreverse diagram for target 'classdef', got {diagram_count}.",
+    ):
+        RunCommand._get_diagram_path(tmp_path, "classdef")
