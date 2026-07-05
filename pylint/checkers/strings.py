@@ -223,15 +223,16 @@ def get_access_path(key: str | Literal[0], parts: list[tuple[bool, str]]) -> str
 def arg_matches_format_type(
     arg_type: SuccessfulInferenceResult, format_type: str
 ) -> bool:
-    if format_type in "sr":
-        # All types can be printed with %s and %r
+    if format_type in "sra":
+        # All types can be printed with %s, %r and %a
         return True
     if isinstance(arg_type, astroid.Instance):
         match arg_type.pytype():
             case "builtins.str":
                 return format_type == "c"
             case "builtins.float":
-                return format_type in "deEfFgGn%"
+                # ``i`` and ``u`` accept a float at runtime (truncated like ``d``)
+                return format_type in "diueEfFgGn%"
             case "builtins.int":
                 # Integers allow all types
                 return True
