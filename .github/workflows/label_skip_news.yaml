@@ -11,7 +11,7 @@ jobs:
   label-skip-news:
     name: Label pre-commit.ci PRs with 'skip news'
     runs-on: ubuntu-latest
-    if: github.actor == 'pre-commit-ci[bot]'
+    if: github.event.pull_request.user.login == 'pre-commit-ci[bot]'
     permissions:
       pull-requests: write
     steps:
