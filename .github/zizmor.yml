@@ -14,9 +14,6 @@ rules:
   # TODO: the ignores below are pre-existing findings that should be fixed,
   # they are ignored temporarily so zizmor can be introduced without fixing
   # everything at once.
-  bot-conditions:
-    ignore:
-      - label_skip_news.yaml
   artipacked:
     ignore:
       - changelog.yml
