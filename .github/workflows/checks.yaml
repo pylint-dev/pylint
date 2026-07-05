@@ -36,6 +36,8 @@ jobs:
       - &checkout
         name: Check out code from GitHub
         uses: actions/checkout@v7.0.0
+        with:
+          persist-credentials: false
       - &setup-python
         name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python

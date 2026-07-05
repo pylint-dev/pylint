@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Check out code from Github
         uses: actions/checkout@v7.0.0
+        with:
+          persist-credentials: false
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v6.3.0

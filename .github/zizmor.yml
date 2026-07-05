@@ -14,17 +14,6 @@ rules:
   # TODO: the ignores below are pre-existing findings that should be fixed,
   # they are ignored temporarily so zizmor can be introduced without fixing
   # everything at once.
-  artipacked:
-    ignore:
-      - changelog.yml
-      - checks.yaml
-      - codeql-analysis.yml
-      - primer-test.yaml
-      - primer_comment.yaml
-      - primer_run_main.yaml
-      - primer_run_pr.yaml
-      - release.yml
-      - tests.yaml
   template-injection:
     ignore:
       - changelog.yml
