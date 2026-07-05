@@ -13,8 +13,10 @@ from pylint.testutils._primer.comparator import (
     message_diff,
 )
 from pylint.testutils._primer.primer_command import PrimerCommand
-
-MAX_GITHUB_COMMENT_LENGTH = 65536
+from pylint.testutils._primer.primer_comment import (
+    MAX_GITHUB_COMMENT_LENGTH,
+    truncate_comment,
+)
 
 
 def _format_messages(
@@ -152,40 +154,4 @@ class CompareCommand(PrimerCommand):
 
     def _truncate_comment(self, comment: str) -> str:
         """GitHub allows only a set number of characters in a comment."""
-        hash_information = (
-            f"*This comment was generated for commit {self.config.commit}*"
-        )
-        if len(comment) + len(hash_information) >= MAX_GITHUB_COMMENT_LENGTH:
-            truncation_information = (
-                f"*This comment was truncated because GitHub allows only"
-                f" {MAX_GITHUB_COMMENT_LENGTH} characters in a comment.*"
-            )
-            # Reserve space for the ellipsis, the suffix and the potential
-            # closing tags for a code fence and a <details> block.
-            suffix = f"\n{truncation_information}\n\n"
-            ellipsis = "\n...\n"
-            code_fence = "```\n"
-            closing_tag = "</details>\n"
-            max_len = (
-                MAX_GITHUB_COMMENT_LENGTH
-                - len(hash_information)
-                - len(suffix)
-                - len(ellipsis)
-                - len(code_fence)
-                - len(closing_tag)
-            )
-            # Cut at the last line break before the limit so the comment ends
-            # with complete lines (links and diff lines contain no space to
-            # cut at); fall back to a hard cut inside a very long line.
-            cut_point = comment.rfind("\n", 0, max_len)
-            if cut_point <= 0:
-                cut_point = max_len
-            comment = comment[:cut_point] + ellipsis
-            # Close any code fence or <details> tag left open by the cut.
-            if comment.count("```") % 2:
-                comment += code_fence
-            if comment.count("<details>") > comment.count("</details>"):
-                comment += closing_tag
-            comment += suffix
-        comment += hash_information
-        return comment
+        return truncate_comment(comment, self.config.commit, MAX_GITHUB_COMMENT_LENGTH)
