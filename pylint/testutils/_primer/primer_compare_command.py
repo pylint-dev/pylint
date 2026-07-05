@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from pathlib import PurePosixPath
+from pathlib import Path
 
 from pylint.reporters.json_reporter import JSONMessage
 from pylint.testutils._primer.comparator import (
@@ -80,7 +80,7 @@ class CompareCommand(PrimerCommand):
         url = self.packages[package].url
 
         def _link(msg: JSONMessage) -> str:
-            filepath = str(PurePosixPath(msg["path"]).relative_to(clone_dir))
+            filepath = Path(msg["path"]).relative_to(clone_dir).as_posix()
             return f"{url}/blob/{commit}/{filepath}#L{msg['line']}"
 
         return _link

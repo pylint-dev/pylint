@@ -109,10 +109,7 @@ def test_truncated_compare_stops_iterating_packages() -> None:
             new={
                 "commit": "pr",
                 "messages": [
-                    _message(
-                        "should be skipped",
-                        packages["second"].clone_directory,
-                    )
+                    _message("should be skipped", packages["second"].clone_directory)
                 ],
             },
             changed=[],
