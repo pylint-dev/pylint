@@ -1,0 +1,53 @@
+rules:
+  dangerous-triggers:
+    # These workflows need privileged context by design. They never check out
+    # or execute untrusted PR code:
+    # - backport.yml: pull_request_target to open backport PRs when a
+    #   maintainer applies a label
+    # - label_skip_news.yaml: pull_request_target to label pre-commit.ci PRs
+    # - primer_comment.yaml: workflow_run is the recommended pattern to
+    #   comment on PRs from an unprivileged primer run (artifacts only)
+    ignore:
+      - backport.yml
+      - label_skip_news.yaml
+      - primer_comment.yaml
+  # TODO: the ignores below are pre-existing findings that should be fixed,
+  # they are ignored temporarily so zizmor can be introduced without fixing
+  # everything at once.
+  dependabot-cooldown:
+    ignore:
+      - dependabot.yml
+  bot-conditions:
+    ignore:
+      - label_skip_news.yaml
+  artipacked:
+    ignore:
+      - changelog.yml
+      - checks.yaml
+      - codeql-analysis.yml
+      - primer-test.yaml
+      - primer_comment.yaml
+      - primer_run_main.yaml
+      - primer_run_pr.yaml
+      - release.yml
+      - tests.yaml
+  template-injection:
+    ignore:
+      - changelog.yml
+      - primer_comment.yaml
+      - primer_run_pr.yaml
+      - tests.yaml
+  unpinned-uses:
+    ignore:
+      - backport.yml
+      - changelog.yml
+      - checks.yaml
+      - codeql-analysis.yml
+      - label_skip_news.yaml
+      - primer-test.yaml
+      - primer_comment.yaml
+      - primer_run_main.yaml
+      - primer_run_pr.yaml
+      - release.yml
+      - stale.yml
+      - tests.yaml
