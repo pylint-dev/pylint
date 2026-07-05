@@ -14,7 +14,7 @@ on:
 
 env:
   # This needs to be the SAME as in the Main and PR job
-  CACHE_VERSION: 5
+  CACHE_VERSION: 4
   KEY_PREFIX: venv-primer
   # If you change this, also change PRIMER_CURRENT_INTERPRETER in
   # tests/testutils/_primer/test_primer.py
