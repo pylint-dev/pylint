@@ -225,7 +225,7 @@ def _has_different_parameters_default_value(
     if original.args is None or overridden.args is None:
         return False
 
-    for param in chain(original.args, original.kwonlyargs):
+    for param in chain(original.posonlyargs, original.args, original.kwonlyargs):
         try:
             original_default = original.default_value(param.name)
         except astroid.exceptions.NoDefault:
