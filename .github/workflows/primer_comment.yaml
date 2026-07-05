@@ -51,6 +51,13 @@ jobs:
             env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
             'requirements_test.txt', 'requirements_test_min.txt',
             'requirements_test_pre_commit.txt') }}
+      # The cached venv contains the pylint that was installed when the cache was
+      # created, which can be stale. Reinstall from the current checkout so the
+      # comparison and comment rendering use the right code (see #11153).
+      - name: Install pylint from the current checkout
+        run: |
+          . venv/bin/activate
+          pip install . --no-deps
 
       - name: Download outputs
         uses: actions/github-script@v9.0.0
