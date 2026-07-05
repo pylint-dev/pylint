@@ -15,6 +15,9 @@ import pytest
 from _pytest.capture import CaptureFixture
 
 from pylint.constants import IS_PYPY
+from pylint.reporters.json_reporter import JSONMessage
+from pylint.testutils._primer import PackageToLint
+from pylint.testutils._primer.comparator import PackageDiff
 from pylint.testutils._primer.primer import Primer
 from pylint.testutils._primer.primer_compare_command import CompareCommand
 
@@ -29,6 +32,24 @@ CASES_PATH = HERE / "cases"
 PRIMER_CURRENT_INTERPRETER = (3, 13)
 
 DEFAULT_ARGS = ["python tests/primer/__main__.py", "compare", "--commit=v2.14.2"]
+
+
+def _message(package: str, message: str) -> JSONMessage:
+    return JSONMessage(
+        confidence="HIGH",
+        type="convention",
+        module="example",
+        obj="",
+        line=1,
+        column=0,
+        endLine=None,
+        endColumn=None,
+        path=f"tests/.pylint_primer_tests/example/{package}/example.py",
+        absolutePath=f"tests/.pylint_primer_tests/example/{package}/example.py",
+        symbol="missing-docstring",
+        message=message,
+        messageId="C0114",
+    )
 
 
 @pytest.mark.parametrize("args", [[], ["wrong_command"]])
@@ -58,6 +79,47 @@ def test_primer_selects_command(args: list[str], command_path: str) -> None:
 
     command.assert_called_once()
     command.return_value.run.assert_called_once()
+
+
+def test_truncated_compare_stops_iterating_packages() -> None:
+    max_comment_length = 500
+    packages = {
+        name: PackageToLint(
+            url=f"https://github.com/example/{name}",
+            branch="main",
+            directories=["."],
+            commit="main",
+        )
+        for name in ("first", "second")
+    }
+    comparator = [
+        PackageDiff(
+            package="first",
+            missing={"commit": "main", "messages": []},
+            new={"commit": "pr", "messages": [_message("first", "x" * 300)]},
+            changed=[],
+        ),
+        PackageDiff(
+            package="second",
+            missing={"commit": "main", "messages": []},
+            new={"commit": "pr", "messages": [_message("second", "should be skipped")]},
+            changed=[],
+        ),
+    ]
+    command = CompareCommand(
+        PRIMER_DIRECTORY, packages, argparse.Namespace(commit="deadbeef")
+    )
+
+    with patch(
+        "pylint.testutils._primer.primer_compare_command.MAX_GITHUB_COMMENT_LENGTH",
+        max_comment_length,
+    ):
+        comment = command._create_comment(comparator)  # type: ignore[arg-type]
+
+    assert "first" in comment
+    assert "second" not in comment
+    assert "This comment was truncated" in comment
+    assert len(comment) < max_comment_length
 
 
 @pytest.mark.skipif(
