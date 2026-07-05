@@ -1,0 +1,4 @@
+:ref:`attribute-defined-outside-init` now reports attributes assigned with
+``setattr(self, "name", value)`` outside defining methods.
+
+Closes #9798

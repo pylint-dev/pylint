@@ -1,2 +1,3 @@
 attribute-defined-outside-init:16:8:16:14:A.set_z:Attribute 'z' defined outside __init__:UNDEFINED
 attribute-defined-outside-init:26:8:26:14:B.test:Attribute 'z' defined outside __init__:UNDEFINED
+attribute-defined-outside-init:94:8:94:42:SetattrAttributeDefinitions.later:Attribute 'set_by_setattr' defined outside __init__:UNDEFINED
