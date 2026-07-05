@@ -63,4 +63,4 @@ jobs:
           # compare the current branch with the base branch.
           git fetch --no-tags origin +refs/heads/${BASE_BRANCH}:refs/remotes/origin/${BASE_BRANCH}
           . venv/bin/activate
-          towncrier check --compare-with origin/${{ github.base_ref }}
+          towncrier check --compare-with origin/${GITHUB_BASE_REF}

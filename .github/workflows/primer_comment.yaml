@@ -104,10 +104,12 @@ jobs:
         run: |
           . venv/bin/activate
           python tests/primer/__main__.py compare \
-          --commit=${{ github.event.workflow_run.head_sha }} \
+          --commit=${GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA} \
           --base-file=output_${{ env.DEFAULT_PYTHON }}_main_BATCHIDX.txt \
           --new-file=output_${{ env.DEFAULT_PYTHON }}_pr_BATCHIDX.txt \
           --batches=4
+        env:
+          GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
       - name: Post comment
         id: post-comment
         uses: actions/github-script@v9.0.0
@@ -127,7 +129,7 @@ jobs:
             return prNumber
       - name: Hide old comments
         # Taken from mypy primer
-        uses: kanga333/comment-hider@c12bb20b48aeb8fc098e35967de8d4f8018fffdf # v0.4.0
+        uses: kanga333/comment-hider@v0.4.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           leave_visible: 1

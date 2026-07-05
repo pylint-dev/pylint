@@ -190,7 +190,9 @@ jobs:
         run: |
           git config --global user.email "primer@example.com"
           git config --global user.name "Pylint Primer"
-          git pull origin ${{ steps.download-main-run.outputs.result }} --no-edit --no-commit --no-rebase
+          git pull origin ${MAIN_RUN_REF} --no-edit --no-commit --no-rebase
+        env:
+          MAIN_RUN_REF: ${{ steps.download-main-run.outputs.result }}
 
       # Run primer
       - name: Run pylint primer

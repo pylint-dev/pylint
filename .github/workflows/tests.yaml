@@ -69,11 +69,12 @@ jobs:
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{
-            inputs.astroid_sha }}-${{
+          echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${ASTROID_SHA}-${{
             hashFiles('pyproject.toml', 'requirements_test.txt',
           'requirements_test_min.txt', 'requirements_test_pre_commit.txt') }}" >>
           $GITHUB_OUTPUT
+        env:
+          ASTROID_SHA: ${{ inputs.astroid_sha }}
       - &cache-python
         name: Restore Python virtual environment
         id: cache-venv
@@ -94,7 +95,9 @@ jobs:
         if: inputs.astroid_sha != ''
         run: |
           . venv/bin/activate
-          pip install --force-reinstall --no-deps git+https://github.com/${{ github.repository_owner }}/astroid@${{ inputs.astroid_sha }}
+          pip install --force-reinstall --no-deps git+https://github.com/${{ github.repository_owner }}/astroid@${ASTROID_SHA}
+        env:
+          ASTROID_SHA: ${{ inputs.astroid_sha }}
       - name: Run pytest
         run: |
           . venv/bin/activate
@@ -209,10 +212,11 @@ jobs:
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "key=venv-${{ env.CACHE_VERSION }}-${{
-            inputs.astroid_sha }}-${{
+          echo "key=venv-${{ env.CACHE_VERSION }}-$env:ASTROID_SHA-${{
             hashFiles('pyproject.toml', 'requirements_test_min.txt')
           }}" >> $env:GITHUB_OUTPUT
+        env:
+          ASTROID_SHA: ${{ inputs.astroid_sha }}
       - *cache-python
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
@@ -225,7 +229,9 @@ jobs:
         if: inputs.astroid_sha != ''
         run: |
           . venv\\Scripts\\activate
-          pip install --force-reinstall --no-deps git+https://github.com/${{ github.repository_owner }}/astroid@${{ inputs.astroid_sha }}
+          pip install --force-reinstall --no-deps git+https://github.com/${{ github.repository_owner }}/astroid@$env:ASTROID_SHA
+        env:
+          ASTROID_SHA: ${{ inputs.astroid_sha }}
       - name: Run pytest
         run: |
           . venv\\Scripts\\activate
