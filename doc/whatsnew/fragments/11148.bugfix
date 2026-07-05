@@ -1,0 +1,4 @@
+Fix a false positive for :ref:`useless-parent-delegation` when an override changes
+the default value of a positional-only parameter.
+
+Closes #11148
