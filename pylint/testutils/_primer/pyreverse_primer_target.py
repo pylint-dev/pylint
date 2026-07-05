@@ -20,10 +20,6 @@ class PyreversePrimerTarget:
     def display_name(self) -> str:
         return self.class_name.rsplit(".", maxsplit=1)[-1]
 
-    @property
-    def output_name(self) -> str:
-        return self.class_name
-
     def pyreverse_args(self, output_directory: str) -> list[str]:
         return [
             "-o",
