@@ -6,3 +6,4 @@ pytest-cov>=6.2,<8.0
 pytest-xdist~=3.8
 six
 tox>=3
+# Do not merge: byte change to invalidate the venv-primer cache key (test for #11154)
