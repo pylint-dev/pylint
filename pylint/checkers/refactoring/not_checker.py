@@ -29,13 +29,13 @@ class NotChecker(checkers.BaseChecker):
     reverse_op = {
         "<": ">=",
         "<=": ">",
-        ">": "<=",
-        ">=": "<",
         "==": "!=",
-        "!=": "==",
         "in": "not in",
         "is": "is not",
     }
+    # Build the reverse direction by flipping the table instead of listing
+    # every operator pair twice.
+    reverse_op |= {value: key for key, value in reverse_op.items()}
     # sets are not ordered, so for example "not set(LEFT_VALS) <= set(RIGHT_VALS)" is
     # not equivalent to "set(LEFT_VALS) > set(RIGHT_VALS)"
     skipped_nodes = (nodes.Set,)
