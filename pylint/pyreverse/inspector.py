@@ -481,7 +481,7 @@ def extract_element_types(inferred_types: set[InferenceResult]) -> set[nodes.Nod
     element_types = set()
 
     for inferred_type in inferred_types:
-        if isinstance(inferred_type, nodes.Subscript):
+        if not isinstance(inferred_type, nodes.Subscript):
             slice_node = inferred_type.slice
 
             # Handle both Tuple (dict[K,V]) and single element (list[T])
