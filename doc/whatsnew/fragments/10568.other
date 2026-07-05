@@ -1,0 +1,6 @@
+Bare message symbols in the documentation and in the changelog fragments (like
+``no-member``) are now automatically turned into links to the message's
+documentation page by a new pre-commit hook. Current, renamed and permanently
+deleted messages are all handled.
+
+Refs #10568
