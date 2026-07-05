@@ -34,7 +34,8 @@ PRIMER_CURRENT_INTERPRETER = (3, 13)
 DEFAULT_ARGS = ["python tests/primer/__main__.py", "compare", "--commit=v2.14.2"]
 
 
-def _message(package: str, message: str) -> JSONMessage:
+def _message(message: str, clone_directory: Path) -> JSONMessage:
+    path = clone_directory / "example.py"
     return JSONMessage(
         confidence="HIGH",
         type="convention",
@@ -44,8 +45,8 @@ def _message(package: str, message: str) -> JSONMessage:
         column=0,
         endLine=None,
         endColumn=None,
-        path=f"tests/.pylint_primer_tests/example/{package}/example.py",
-        absolutePath=f"tests/.pylint_primer_tests/example/{package}/example.py",
+        path=str(path),
+        absolutePath=str(path),
         symbol="missing-docstring",
         message=message,
         messageId="C0114",
@@ -96,13 +97,24 @@ def test_truncated_compare_stops_iterating_packages() -> None:
         PackageDiff(
             package="first",
             missing={"commit": "main", "messages": []},
-            new={"commit": "pr", "messages": [_message("first", "x" * 300)]},
+            new={
+                "commit": "pr",
+                "messages": [_message("x" * 300, packages["first"].clone_directory)],
+            },
             changed=[],
         ),
         PackageDiff(
             package="second",
             missing={"commit": "main", "messages": []},
-            new={"commit": "pr", "messages": [_message("second", "should be skipped")]},
+            new={
+                "commit": "pr",
+                "messages": [
+                    _message(
+                        "should be skipped",
+                        packages["second"].clone_directory,
+                    )
+                ],
+            },
             changed=[],
         ),
     ]
