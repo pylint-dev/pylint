@@ -1926,6 +1926,11 @@ a metaclass class method.",
         if self._is_type_self_call(node.expr):
             return
 
+        # If the expression is self.__class__ (or the class of any other
+        # mandatory first method parameter), that's equivalent to type(self).
+        if self._is_self_class_access(node.expr):
+            return
+
         # Check if we are inside the scope of a class or nested inner class
         inside_klass = True
         outer_klass = klass
@@ -1980,6 +1985,12 @@ a metaclass class method.",
     def _is_type_self_call(self, expr: nodes.NodeNG) -> bool:
         match expr:
             case nodes.Call(func=nodes.Name(name="type"), args=[arg]):
+                return self._is_mandatory_method_param(arg)
+        return False
+
+    def _is_self_class_access(self, expr: nodes.NodeNG) -> bool:
+        match expr:
+            case nodes.Attribute(attrname="__class__", expr=arg):
                 return self._is_mandatory_method_param(arg)
         return False
 
