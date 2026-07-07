@@ -91,9 +91,9 @@ class SetattrAttributeDefinitions:
         setattr(self, "defined_in_init", 1)
 
     def later(self, name):
-        setattr(self, "set_by_setattr", 1)  # [attribute-defined-outside-init]  # noqa: B010
-        setattr(self, "defined_in_init", 2)  # noqa: B010
-        setattr(self, "class_attr", 1)  # noqa: B010
+        setattr(self, "set_by_setattr", 1)  # [attribute-defined-outside-init]
+        setattr(self, "defined_in_init", 2)
+        setattr(self, "class_attr", 1)
         setattr(self, name, 1)
 
     def shadowed(self):
