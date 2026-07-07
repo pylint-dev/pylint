@@ -110,7 +110,7 @@ class SetattrAttributeDefinitions:
 class ParentAttrInInit:
     def __init__(self):
         self.parent_attr = 1
-        setattr(self, "defined_by_parent", 1)  # noqa: B010
+        setattr(self, "defined_by_parent", 1)
 
 
 class ChildSetattrForParentAttr(ParentAttrInInit):

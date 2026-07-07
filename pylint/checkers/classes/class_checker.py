@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from functools import cached_property
 from itertools import chain, zip_longest
 from re import Pattern
@@ -855,6 +855,7 @@ a metaclass class method.",
         self._mixin_class_rgx = self.linter.config.mixin_class_rgx
         py_version = self.linter.config.py_version
         self._py38_plus = py_version >= (3, 8)
+        self._setattr_attrs = {}
 
     @cached_property
     def _dummy_rgx(self) -> Pattern[str]:
@@ -1215,11 +1216,11 @@ a metaclass class method.",
         instance_attrs: Mapping[str, Sequence[nodes.NodeNG]]
         if setattr_attrs:
             merged: dict[str, list[nodes.NodeNG]] = {
-                attr: list(nodes_lst)
-                for attr, nodes_lst in cnode.instance_attrs.items()
+                attr: list(attr_nodes)
+                for attr, attr_nodes in cnode.instance_attrs.items()
             }
-            for attr, nodes_lst in setattr_attrs.items():
-                merged.setdefault(attr, []).extend(nodes_lst)
+            for attr, setattr_nodes in setattr_attrs.items():
+                merged.setdefault(attr, []).extend(setattr_nodes)
             instance_attrs = merged
         else:
             instance_attrs = cnode.instance_attrs
@@ -1230,18 +1231,18 @@ a metaclass class method.",
 
             # Skip nodes which are not in the current module and it may screw up
             # the output, while it's not worth it
-            nodes_lst = [
+            filtered_nodes = [
                 n
                 for n in nodes_lst
                 if not isinstance(n.statement(), (nodes.Delete, nodes.AugAssign))
                 and n.root() is current_module
             ]
-            if not nodes_lst:
+            if not filtered_nodes:
                 continue  # error detected by typechecking
 
             # Check if any method attr is defined in is a defining method
             # or if we have the attribute defined in a setter.
-            frames = (node.frame() for node in nodes_lst)
+            frames = (node.frame() for node in filtered_nodes)
             if any(
                 frame.name in defining_methods or is_property_setter(frame)
                 for frame in frames
@@ -1258,7 +1259,7 @@ a metaclass class method.",
             if self._defined_in_parent_init(cnode, attr, defining_methods):
                 continue
 
-            for node in nodes_lst:
+            for node in filtered_nodes:
                 if node.frame().name not in defining_methods:
                     # If the attribute was set by a call in any
                     # of the defining methods, then don't emit
@@ -1294,13 +1295,13 @@ a metaclass class method.",
     def visit_call(self, node: nodes.Call) -> None:
         match node.func, node.args:
             case (
-                nodes.Name(name="setattr") as func,
+                nodes.Name(name="setattr"),
                 [
                     nodes.Name(name=instance_name),
-                    nodes.Const(value=str() as attr),
+                    nodes.Const(value=attr),
                     *_,
                 ],
-            ):
+            ) if isinstance(attr, str):
                 pass
             case _:
                 return
@@ -1315,7 +1316,7 @@ a metaclass class method.",
         ):
             return
 
-        inferred = safe_infer(func)
+        inferred = safe_infer(node.func)
         if not (
             isinstance(inferred, nodes.FunctionDef)
             and is_builtin_object(inferred)
