@@ -88,7 +88,7 @@ class SetattrAttributeDefinitions:
     class_attr = None
 
     def __init__(self):
-        setattr(self, "defined_in_init", 1)  # noqa: B010
+        setattr(self, "defined_in_init", 1)
 
     def later(self, name):
         setattr(self, "set_by_setattr", 1)  # [attribute-defined-outside-init]  # noqa: B010
