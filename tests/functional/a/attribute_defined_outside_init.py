@@ -104,7 +104,7 @@ class SetattrAttributeDefinitions:
 
     @classmethod
     def class_later(cls):
-        setattr(cls, "class_attr", 1)  # noqa: B010
+        setattr(cls, "class_attr", 1)
 
 
 class ParentAttrInInit:
