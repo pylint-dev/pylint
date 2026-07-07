@@ -1211,11 +1211,17 @@ a metaclass class method.",
             return
         defining_methods = self.linter.config.defining_attr_methods
         current_module = cnode.root()
-        instance_attrs: dict[str, list[nodes.AssignAttr | nodes.Call]] = {
-            attr: list(nodes_lst) for attr, nodes_lst in cnode.instance_attrs.items()
-        }
-        for attr, nodes_lst in self._setattr_attrs.get(cnode, {}).items():
-            instance_attrs.setdefault(attr, []).extend(nodes_lst)
+        setattr_attrs = self._setattr_attrs.get(cnode)
+        instance_attrs: Mapping[str, Sequence[nodes.NodeNG]]
+        if setattr_attrs:
+            merged: dict[str, list[nodes.NodeNG]] = {
+                attr: list(nodes_lst) for attr, nodes_lst in cnode.instance_attrs.items()
+            }
+            for attr, nodes_lst in setattr_attrs.items():
+                merged.setdefault(attr, []).extend(nodes_lst)
+            instance_attrs = merged
+        else:
+            instance_attrs = cnode.instance_attrs
         for attr, nodes_lst in instance_attrs.items():
             # Exclude `__dict__` as it is already defined.
             if attr == "__dict__":
