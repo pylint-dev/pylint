@@ -1079,6 +1079,33 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         )
         self._test_output([path, "-j2"], expected_output="")
 
+    @pytest.mark.parametrize(
+        "jobs,modules",
+        [
+            ("1", ["child.py", "parent.py"]),
+            pytest.param(
+                "2",
+                ["parent.py", "child.py"],
+                marks=pytest.mark.needs_two_cores,
+            ),
+        ],
+        ids=["child-first", "parallel"],
+    )
+    def test_setattr_defined_in_parent_is_order_independent(
+        self, jobs: str, modules: list[str]
+    ) -> None:
+        path = join(HERE, "regrtest_data", "attribute_defined_setattr_parent")
+        with _test_cwd(path):
+            self._runtest(
+                [
+                    f"--jobs={jobs}",
+                    "--disable=all",
+                    "--enable=attribute-defined-outside-init",
+                    *modules,
+                ],
+                code=0,
+            )
+
     @pytest.mark.needs_two_cores
     @pytest.mark.parametrize(
         "args",

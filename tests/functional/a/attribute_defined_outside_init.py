@@ -110,10 +110,39 @@ class SetattrAttributeDefinitions:
 class ParentAttrInInit:
     def __init__(self):
         self.parent_attr = 1
-        setattr(self, "defined_by_parent", 1)  # noqa: B010
+        setattr(self, "defined_by_parent", 1)
 
 
 class ChildSetattrForParentAttr(ParentAttrInInit):
     def later(self):
         setattr(self, "parent_attr", 2)
         setattr(self, "defined_by_parent", 2)
+
+
+class AttributeMeta(type):
+    def add_attribute(cls):
+        setattr(cls, "class_attr", 1)
+
+
+class StarArgs:
+    def star(*args):  # pylint: disable=no-self-argument
+        setattr(args, "grape", 4)
+
+
+class PositionalOnlySetattr:
+    def later(self, /):
+        setattr(self, "positional_only", 1)  # [attribute-defined-outside-init]
+
+
+class OtherInstanceSetattr:
+    def later(self, other):
+        setattr(other, "not_self", 1)
+
+
+class NonMethodDefiningParent:
+    __init__ = None
+
+
+class ChildOfNonMethodDefiningParent(NonMethodDefiningParent):
+    def later(self):
+        setattr(self, "not_defined_by_parent", 1)  # [attribute-defined-outside-init]
