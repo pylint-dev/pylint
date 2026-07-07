@@ -115,5 +115,5 @@ class ParentAttrInInit:
 
 class ChildSetattrForParentAttr(ParentAttrInInit):
     def later(self):
-        setattr(self, "parent_attr", 2)  # noqa: B010
-        setattr(self, "defined_by_parent", 2)  # noqa: B010
+        setattr(self, "parent_attr", 2)
+        setattr(self, "defined_by_parent", 2)
