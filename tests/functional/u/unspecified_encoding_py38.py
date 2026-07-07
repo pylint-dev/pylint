@@ -194,3 +194,10 @@ Path(FILENAME).read_text(**KWARGS)  # [unspecified-encoding]
 
 KWARGS = {"encoding": "utf-8"}
 Path(FILENAME).read_text(**KWARGS)
+
+
+def open_with_unknown_mode(mode):
+    """Don't emit unspecified-encoding when the mode might be binary."""
+    open(FILENAME, mode)
+    open(FILENAME, mode=mode)
+    Path(FILENAME).open(mode)

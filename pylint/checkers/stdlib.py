@@ -849,6 +849,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     ) -> None:
         """Various checks for an open call."""
         mode_arg = None
+        mode_arg_is_unknown = False
         confidence = HIGH
         try:
             if open_module == "_io":
@@ -866,6 +867,10 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
         if mode_arg:
             mode_arg = utils.safe_infer(mode_arg)
+            if func_name in OPEN_FILES_MODE and (
+                mode_arg is None or isinstance(mode_arg, util.UninferableBase)
+            ):
+                mode_arg_is_unknown = True
             if (
                 func_name in OPEN_FILES_MODE
                 and isinstance(mode_arg, nodes.Const)
@@ -880,8 +885,12 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     confidence=confidence,
                 )
 
-        if not mode_arg or (
-            isinstance(mode_arg, nodes.Const) and "b" not in str(mode_arg.value)
+        if not mode_arg_is_unknown and (
+            not mode_arg
+            or (
+                isinstance(mode_arg, nodes.Const)
+                and "b" not in str(mode_arg.value)
+            )
         ):
             confidence = HIGH
             try:
