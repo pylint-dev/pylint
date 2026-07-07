@@ -887,10 +887,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
         if not mode_arg_is_unknown and (
             not mode_arg
-            or (
-                isinstance(mode_arg, nodes.Const)
-                and "b" not in str(mode_arg.value)
-            )
+            or (isinstance(mode_arg, nodes.Const) and "b" not in str(mode_arg.value))
         ):
             confidence = HIGH
             try:
