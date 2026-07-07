@@ -1215,7 +1215,8 @@ a metaclass class method.",
         instance_attrs: Mapping[str, Sequence[nodes.NodeNG]]
         if setattr_attrs:
             merged: dict[str, list[nodes.NodeNG]] = {
-                attr: list(nodes_lst) for attr, nodes_lst in cnode.instance_attrs.items()
+                attr: list(nodes_lst)
+                for attr, nodes_lst in cnode.instance_attrs.items()
             }
             for attr, nodes_lst in setattr_attrs.items():
                 merged.setdefault(attr, []).extend(nodes_lst)
