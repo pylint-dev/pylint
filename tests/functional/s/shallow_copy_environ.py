@@ -33,5 +33,5 @@ copy.copy()  # [no-value-for-parameter]
 copy.copy(x=TEST_DICT)
 copy.copy(x=os.environ)  # [shallow-copy-environ]
 copy.copy(**{"x": os.environ})  # [shallow-copy-environ]
-copy.copy(**{"y": os.environ})  # [unexpected-keyword-arg]
+copy.copy(**{"y": os.environ})  # [no-value-for-parameter, unexpected-keyword-arg]
 copy.copy(y=os.environ)  # [no-value-for-parameter, unexpected-keyword-arg]
