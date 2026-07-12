@@ -1987,9 +1987,7 @@ a metaclass class method.",
                 return self._is_mandatory_method_param(arg)
         return False
 
-    def _is_self_class_access(
-        self, expr: nodes.NodeNG, klass: nodes.ClassDef
-    ) -> bool:
+    def _is_self_class_access(self, expr: nodes.NodeNG, klass: nodes.ClassDef) -> bool:
         """Check if the expression is self.__class__ or self.__class__.attr."""
         # Match self.__class__
         if (
