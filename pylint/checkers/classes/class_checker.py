@@ -1926,6 +1926,10 @@ a metaclass class method.",
         if self._is_type_self_call(node.expr):
             return
 
+        # If the expression is self.__class__._attr, that's ok.
+        if self._is_self_class_access(node.expr, klass):
+            return
+
         # Check if we are inside the scope of a class or nested inner class
         inside_klass = True
         outer_klass = klass
@@ -1981,6 +1985,27 @@ a metaclass class method.",
         match expr:
             case nodes.Call(func=nodes.Name(name="type"), args=[arg]):
                 return self._is_mandatory_method_param(arg)
+        return False
+
+    def _is_self_class_access(
+        self, expr: nodes.NodeNG, klass: nodes.ClassDef
+    ) -> bool:
+        """Check if the expression is self.__class__ or self.__class__.attr."""
+        # Match self.__class__
+        if (
+            isinstance(expr, nodes.Attribute)
+            and expr.attrname == "__class__"
+            and self._is_mandatory_method_param(expr.expr)
+        ):
+            return True
+        # Match self.__class__.something (for chained access)
+        if (
+            isinstance(expr, nodes.Attribute)
+            and isinstance(expr.expr, nodes.Attribute)
+            and expr.expr.attrname == "__class__"
+            and self._is_mandatory_method_param(expr.expr.expr)
+        ):
+            return True
         return False
 
     @staticmethod
