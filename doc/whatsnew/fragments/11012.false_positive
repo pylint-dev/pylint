@@ -1,0 +1,1 @@
+Fixed false positive ``invalid-name`` (C0103) for module-level all-caps names assigned from function calls (e.g. ``VERSION = os.path.basename``).

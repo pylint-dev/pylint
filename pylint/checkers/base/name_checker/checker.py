@@ -516,6 +516,12 @@ class NameChecker(_BasicChecker):
                         self._check_name("const", node.name, node)
                 else:
                     node_type = "variable"
+                    # If the name matches the constant naming style (ALL_CAPS),
+                    # treat it as a constant regardless of the inferred type.
+                    # This handles cases like VERSION = os.path.basename at
+                    # module level. (Issue #11012)
+                    if self._name_regexps["const"].match(node.name) is not None:
+                        node_type = "const"
                     iattrs = tuple(node.frame().igetattr(node.name))
                     if (
                         util.Uninferable in iattrs
