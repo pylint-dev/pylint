@@ -486,6 +486,7 @@ All messages in the refactor category:
    :titlesonly:
 
    refactor/chained-comparison
+   refactor/chained-comparison-all-equal
    refactor/comparison-of-constants
    refactor/comparison-with-itself
    refactor/condition-evals-to-constant
@@ -516,6 +517,7 @@ All messages in the refactor category:
    refactor/duplicate-code
    refactor/else-if-used
    refactor/empty-comment
+   refactor/impossible-comparison
    refactor/inconsistent-return-statements
    refactor/literal-comparison
    refactor/magic-value-comparison
