@@ -1248,7 +1248,7 @@ accessed. Python regular expressions are accepted.",
 
     def _get_none_return_error_type(self, call_node: nodes.Call) -> str | None:
         """Analyze a function call node and determine if its return value is None.
-        
+
         Returns:
             "assignment-from-no-return", "assignment-from-none", or None.
         """
@@ -1284,7 +1284,7 @@ accessed. Python regular expressions are accepted.",
         )
         if not return_nodes:
             return "assignment-from-no-return"
-        
+
         for ret_node in return_nodes:
             match ret_node.value:
                 case nodes.Const(value=None) | None:
@@ -1316,7 +1316,7 @@ accessed. Python regular expressions are accepted.",
                     and attr in BUILTINS_IMPLICIT_RETURN_NONE.get(inferred.pytype(), ())
                 )
         return False
-    
+
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:
         """Check a string is assigned to self.__name__."""
         # Check the left-hand side of the assignment is <something>.__name__
@@ -1982,7 +1982,7 @@ accessed. Python regular expressions are accepted.",
         # Catch 'if not f1()' where f1() returns None
         if node.op == "not" and isinstance(node.operand, nodes.Call):
             error_msg = self._get_none_return_error_type(node.operand)
-            if error_msg: 
+            if error_msg:
                 self.add_message(error_msg, node=node)
 
     @only_required_for_messages("unsupported-binary-operation")
