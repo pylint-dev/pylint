@@ -32,10 +32,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v6.3.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
@@ -43,7 +45,7 @@ jobs:
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v6.1.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: venv
           key:
@@ -60,7 +62,7 @@ jobs:
           pip install . --no-deps
 
       - name: Download outputs
-        uses: actions/github-script@v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             // Download workflow pylint output
@@ -102,13 +104,15 @@ jobs:
         run: |
           . venv/bin/activate
           python tests/primer/__main__.py compare \
-          --commit=${{ github.event.workflow_run.head_sha }} \
+          --commit=${GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA} \
           --base-file=output_${{ env.DEFAULT_PYTHON }}_main_BATCHIDX.txt \
           --new-file=output_${{ env.DEFAULT_PYTHON }}_pr_BATCHIDX.txt \
           --batches=4
+        env:
+          GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
       - name: Post comment
         id: post-comment
-        uses: actions/github-script@v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require('fs')

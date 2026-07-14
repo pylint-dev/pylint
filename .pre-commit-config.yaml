@@ -19,6 +19,10 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/lf.py|
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: v1.26.1
+    hooks:
+      - id: zizmor
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: "v0.15.21"
     hooks:

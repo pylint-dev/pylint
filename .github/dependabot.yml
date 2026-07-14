@@ -9,6 +9,8 @@ updates:
       - "Skip news :mute:"
     open-pull-requests-limit: 10
     rebase-strategy: "disabled"
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -19,3 +21,5 @@ updates:
       - "Skip news :mute:"
     open-pull-requests-limit: 10
     rebase-strategy: "disabled"
+    cooldown:
+      default-days: 7

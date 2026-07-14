@@ -11,12 +11,12 @@ jobs:
   label-skip-news:
     name: Label pre-commit.ci PRs with 'skip news'
     runs-on: ubuntu-latest
-    if: github.actor == 'pre-commit-ci[bot]'
+    if: github.event.pull_request.user.login == 'pre-commit-ci[bot]'
     permissions:
       pull-requests: write
     steps:
       - name: Add 'skip news :mute:' label
-        uses: actions/github-script@v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             await github.rest.issues.addLabels({
