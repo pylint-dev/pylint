@@ -1240,10 +1240,22 @@ accessed. Python regular expressions are accepted.",
         if not isinstance(node.value, nodes.Call):
             return
 
-        function_node = safe_infer(node.value.func)
+        error_msg = self._get_none_return_error_type(node.value)
+        if error_msg:
+            # If our helper returned an error message type, we raise it!
+            confidence = INFERENCE if self._is_builtin_no_return(node.value) else None
+            self.add_message(error_msg, node=node, confidence=confidence)
+
+    def _get_none_return_error_type(self, call_node: nodes.Call) -> str | None:
+        """Analyze a function call node and determine if its return value is None.
+        
+        Returns:
+            "assignment-from-no-return", "assignment-from-none", or None.
+        """
+        function_node = safe_infer(call_node.func)
         funcs = (nodes.FunctionDef, astroid.UnboundMethod, astroid.BoundMethod)
         if not isinstance(function_node, funcs):
-            return
+            return None
 
         # Unwrap to get the actual function node object
         match function_node:
@@ -1251,38 +1263,38 @@ accessed. Python regular expressions are accepted.",
                 function_node = p
 
         # Make sure that it's a valid function that we can analyze.
-        # Ordered from less expensive to more expensive checks.
         if (
             not function_node.is_function
             or function_node.decorators
             or self._is_ignored_function(function_node)
         ):
-            return
+            return None
 
         # Handle builtins such as list.sort() or dict.update()
-        if self._is_builtin_no_return(node):
-            self.add_message(
-                "assignment-from-no-return", node=node, confidence=INFERENCE
-            )
-            return
+        # We will need to adapt _is_builtin_no_return helper slightly
+        # since it originally expected an Assign node.
+        if self._is_builtin_no_return(call_node):
+            return "assignment-from-no-return"
 
         if not function_node.root().fully_defined():
-            return
+            return None
 
         return_nodes = list(
             function_node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
         )
         if not return_nodes:
-            self.add_message("assignment-from-no-return", node=node)
+            return "assignment-from-no-return"
+        
+        for ret_node in return_nodes:
+            match ret_node.value:
+                case nodes.Const(value=None) | None:
+                    pass
+                case _:
+                    break
         else:
-            for ret_node in return_nodes:
-                match ret_node.value:
-                    case nodes.Const(value=None) | None:
-                        pass
-                    case _:
-                        break
-            else:
-                self.add_message("assignment-from-none", node=node)
+            return "assignment-from-none"
+
+        return None
 
     @staticmethod
     def _is_ignored_function(
@@ -1295,9 +1307,8 @@ accessed. Python regular expressions are accepted.",
             or function_node.is_abstract(pass_is_abstract=False)
         )
 
-    @staticmethod
-    def _is_builtin_no_return(node: nodes.Assign) -> bool:
-        match node.value:
+    def _is_builtin_no_return(self, call_node: nodes.Call) -> bool:
+        match call_node:
             case nodes.Call(func=nodes.Attribute(expr=expr, attrname=attr)):
                 return (
                     bool(inferred := utils.safe_infer(expr))
@@ -1305,7 +1316,7 @@ accessed. Python regular expressions are accepted.",
                     and attr in BUILTINS_IMPLICIT_RETURN_NONE.get(inferred.pytype(), ())
                 )
         return False
-
+    
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:
         """Check a string is assigned to self.__name__."""
         # Check the left-hand side of the assignment is <something>.__name__
@@ -1957,12 +1968,22 @@ accessed. Python regular expressions are accepted.",
                             "not-context-manager", node=node, args=(inferred.name,)
                         )
 
-    @only_required_for_messages("invalid-unary-operand-type")
+    @only_required_for_messages(
+        "invalid-unary-operand-type",
+        "assignment-from-no-return",
+        "assignment-from-none",
+    )
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
-        """Detect TypeErrors for unary operands."""
+        """Detect TypeErrors for unary operands and check for None returns in not tests."""
         for error in node.type_errors():
             # Let the error customize its output.
             self.add_message("invalid-unary-operand-type", args=str(error), node=node)
+
+        # Catch 'if not f1()' where f1() returns None
+        if node.op == "not" and isinstance(node.operand, nodes.Call):
+            error_msg = self._get_none_return_error_type(node.operand)
+            if error_msg: 
+                self.add_message(error_msg, node=node)
 
     @only_required_for_messages("unsupported-binary-operation")
     def visit_binop(self, node: nodes.BinOp) -> None:
