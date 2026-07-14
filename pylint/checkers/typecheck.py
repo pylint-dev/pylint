@@ -52,7 +52,7 @@ from pylint.checkers.utils import (
     supports_membership_test,
     supports_setitem,
 )
-from pylint.interfaces import HIGH, INFERENCE
+from pylint.interfaces import HIGH, INFERENCE, UNDEFINED
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
@@ -1013,13 +1013,15 @@ accessed. Python regular expressions are accepted.",
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         # check for keyword arg before varargs.
 
+        error_msg = "assignment-from-no-return"
         if node.args.vararg and node.args.defaults:
             # When `positional-only` parameters are present then only
             # `positional-or-keyword` parameters are checked. I.e:
             # >>> def name(pos_only_params, /, pos_or_keyword_params, *args): ...
             if node.args.posonlyargs and not node.args.args:
                 return
-            self.add_message("keyword-arg-before-vararg", node=node, args=(node.name))
+            confidence = INFERENCE if self._is_builtin_no_return(node.value) else None
+            self.add_message(error_msg, node=node, confidence=confidence or UNDEFINED)
 
     visit_asyncfunctiondef = visit_functiondef
 
@@ -1244,7 +1246,7 @@ accessed. Python regular expressions are accepted.",
         if error_msg:
             # If our helper returned an error message type, we raise it!
             confidence = INFERENCE if self._is_builtin_no_return(node.value) else None
-            self.add_message(error_msg, node=node, confidence=confidence)
+            self.add_message(error_msg, node=node, confidence=confidence or UNDEFINED)
 
     def _get_none_return_error_type(self, call_node: nodes.Call) -> str | None:
         """Analyze a function call node and determine if its return value is None.
