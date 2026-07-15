@@ -1,0 +1,3 @@
+no-member:27:6:27:34::Instance of 'CustomTD' has no '__required_keys__' member:INFERENCE
+no-member:28:6:28:34::Instance of 'CustomTD' has no '__optional_keys__' member:INFERENCE
+no-member:34:6:34:31::Class 'Regular' has no '__required_keys__' member:INFERENCE

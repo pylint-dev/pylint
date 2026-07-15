@@ -449,6 +449,19 @@ def _is_enum_owner(owner: astroid.Instance | nodes.ClassDef) -> bool:
     }
 
 
+TYPING_TYPEDDICT = frozenset({"typing.TypedDict", "typing_extensions.TypedDict"})
+
+
+def _is_typeddict_owner(owner: astroid.Instance | nodes.ClassDef) -> bool:
+    """Return whether ``owner`` is a class that inherits from ``TypedDict``."""
+    if not isinstance(owner, nodes.ClassDef):
+        return False
+    for ancestor in owner.ancestors():
+        if ancestor.qname() in TYPING_TYPEDDICT:
+            return True
+    return False
+
+
 def _emit_no_member(
     node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr,
     owner: InferenceResult,
@@ -495,6 +508,14 @@ def _emit_no_member(
         # Exclude typed annotations, since these might actually exist
         # at some point during the runtime of the program.
         if utils.is_attribute_typed_annotation(owner, node.attrname):
+            return False
+
+        # TypedDict classes expose __required_keys__ and __optional_keys__.
+        if (
+            isinstance(owner, nodes.ClassDef)
+            and node.attrname in {"__required_keys__", "__optional_keys__"}
+            and _is_typeddict_owner(owner)
+        ):
             return False
     if isinstance(owner, objects.Super):
         # Verify if we are dealing with an invalid Super object.

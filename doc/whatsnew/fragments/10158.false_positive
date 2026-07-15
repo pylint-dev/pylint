@@ -1,0 +1,3 @@
+Fix ``no-member`` false positive for ``__required_keys__`` and ``__optional_keys__`` on ``TypedDict`` classes.
+
+Closes #10158
