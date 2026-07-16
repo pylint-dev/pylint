@@ -70,6 +70,13 @@ CallableObjects: TypeAlias = (
 STR_FORMAT = {"builtins.str.format"}
 ASYNCIO_COROUTINE = "asyncio.coroutines.coroutine"
 BUILTIN_TUPLE = "builtins.tuple"
+TYPING_NAMEDTUPLE_MEMBERS = {
+    "_asdict",
+    "_field_defaults",
+    "_fields",
+    "_make",
+    "_replace",
+}
 TYPE_ANNOTATION_NODES_TYPES = (
     nodes.AnnAssign,
     nodes.Arguments,
@@ -447,6 +454,19 @@ def _is_enum_owner(owner: astroid.Instance | nodes.ClassDef) -> bool:
         "enum.EnumMeta",
         "enum.EnumType",
     }
+
+
+def _is_typing_namedtuple_member(owner: astroid.Instance, attrname: str) -> bool:
+    """Return whether an instance gets ``attrname`` from ``typing.NamedTuple``."""
+    if attrname not in TYPING_NAMEDTUPLE_MEMBERS:
+        return False
+    try:
+        return any(
+            ancestor.qname() == "typing.NamedTuple"
+            for ancestor in owner._proxied.ancestors()
+        )
+    except astroid.InferenceError:  # pragma: no cover
+        return False
 
 
 def _emit_no_member(
@@ -1187,6 +1207,10 @@ accessed. Python regular expressions are accepted.",
                 if (
                     isinstance(owner, (nodes.FunctionDef, astroid.BoundMethod))
                     and owner.decorators
+                ):
+                    continue
+                if isinstance(owner, astroid.Instance) and _is_typing_namedtuple_member(
+                    owner, node.attrname
                 ):
                     continue
                 # This can't be moved before the actual .getattr call,
