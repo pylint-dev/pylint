@@ -15,3 +15,4 @@ consider-iterating-dictionary:95:25:95:42::Consider iterating the dictionary dir
 consider-using-dict-items:95:0:None:None::Consider iterating with .items():UNDEFINED
 consider-using-dict-items:112:0:114:24::Consider iterating with .items():UNDEFINED
 consider-iterating-dictionary:119:11:119:28::Consider iterating the dictionary directly instead of calling .keys():INFERENCE
+consider-iterating-dictionary:138:28:138:36:Walker.loop_into_attribute_keys:Consider iterating the dictionary directly instead of calling .keys():INFERENCE
