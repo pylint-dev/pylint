@@ -1,0 +1,3 @@
+Fix a crash in :ref:`comparison-with-callable` when comparing a lambda assigned as a class attribute.
+
+Closes #11175

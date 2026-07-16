@@ -273,17 +273,18 @@ class ComparisonChecker(_BasicChecker):
         if operator not in COMPARISON_OPERATORS:
             return
 
-        bare_callables = (nodes.FunctionDef, astroid.BoundMethod)
         left_operand, right_operand = node.left, node.ops[0][1]
         # this message should be emitted only when there is comparison of bare callable
         # with non bare callable.
         number_of_bare_callables = 0
         for operand in left_operand, right_operand:
             inferred = utils.safe_infer(operand)
+            if isinstance(inferred, astroid.BoundMethod):
+                inferred = inferred._proxied
             # Ignore callables that raise, as well as typing constants
             # implemented as functions (that raise via their decorator)
             if (
-                isinstance(inferred, bare_callables)
+                isinstance(inferred, nodes.FunctionDef)
                 and "typing._SpecialForm" not in inferred.decoratornames()
                 and not any(isinstance(x, nodes.Raise) for x in inferred.body)
             ):
