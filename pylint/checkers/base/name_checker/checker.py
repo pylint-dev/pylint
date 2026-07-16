@@ -497,6 +497,15 @@ class NameChecker(_BasicChecker):
                 elif self._should_check_class_regex(inferred_assign_type):
                     self._check_name("class", node.name, node)
 
+                # Preserve the constant naming style when aliasing an external
+                # callable whose own name is all caps (for example XML = ElementTree.XML).
+                elif (
+                    isinstance(inferred_assign_type, nodes.FunctionDef)
+                    and inferred_assign_type.name == node.name
+                    and self._name_regexps["const"].match(node.name) is not None
+                ):
+                    self._check_name("const", node.name, node)
+
                 # Don't emit if the name redefines an import in an ImportError except handler
                 # nor any other reassignment.
                 elif (
