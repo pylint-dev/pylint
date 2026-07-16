@@ -1,0 +1,3 @@
+Fix ``store_true`` boolean config options (like ``exit-zero``) in TOML files not respecting ``false`` values. Setting ``exit-zero = false`` in a TOML config previously behaved the same as ``exit-zero = true``.
+
+Closes #8460
