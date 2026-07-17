@@ -510,10 +510,11 @@ def _emit_no_member(
         if utils.is_attribute_typed_annotation(owner, node.attrname):
             return False
 
-        # TypedDict classes expose __required_keys__ and __optional_keys__.
+        # TypedDict classes expose __required_keys__, __optional_keys__
+        # and __total__.
         if (
             isinstance(owner, nodes.ClassDef)
-            and node.attrname in {"__required_keys__", "__optional_keys__"}
+            and node.attrname in {"__required_keys__", "__optional_keys__", "__total__"}
             and _is_typeddict_owner(owner)
         ):
             return False
