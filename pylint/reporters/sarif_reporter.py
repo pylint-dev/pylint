@@ -28,9 +28,7 @@ _CATEGORY_TO_LEVEL = {
     "info": "note",
 }
 
-_MESSAGE_DOC_BASE = (
-    "https://pylint.readthedocs.io/en/latest/user_guide/messages"
-)
+_MESSAGE_DOC_BASE = "https://pylint.readthedocs.io/en/latest/user_guide/messages"
 
 
 def _path_to_uri(path: str) -> str:
@@ -102,9 +100,7 @@ class SARIFReporter(BaseReporter):
     def _rule_from_message(self, message: Message) -> dict[str, Any]:
         description = message.symbol
         try:
-            definitions = self.linter.msgs_store.get_message_definitions(
-                message.msg_id
-            )
+            definitions = self.linter.msgs_store.get_message_definitions(message.msg_id)
             if definitions and definitions[0].description:
                 description = definitions[0].description
         except Exception:  # pylint: disable=broad-except
