@@ -13,6 +13,7 @@ from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.collecting_reporter import CollectingReporter
 from pylint.reporters.json_reporter import JSON2Reporter, JSONReporter
 from pylint.reporters.multi_reporter import MultiReporter
+from pylint.reporters.sarif_reporter import SARIFReporter
 from pylint.reporters.reports_handler_mix_in import ReportsHandlerMixIn
 
 if TYPE_CHECKING:
@@ -31,4 +32,5 @@ __all__ = [
     "JSONReporter",
     "MultiReporter",
     "ReportsHandlerMixIn",
+    "SARIFReporter",
 ]

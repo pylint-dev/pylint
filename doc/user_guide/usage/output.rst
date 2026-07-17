@@ -15,6 +15,7 @@ pylint the ``--output-format=<value>`` option. Possible values are:
 * ``colorized``
 * ``json2``: improved json format
 * ``json``: old json format
+* ``sarif``: `SARIF 2.1.0 <https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html>`_
 * ``msvs``: visual studio
 * ``github``: `GitHub action messages <https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions>`_
 
