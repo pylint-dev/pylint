@@ -159,6 +159,8 @@ class DeprecatedMixin(BaseChecker):
         basename = get_import_name(node, node.modname)
         assert basename is not None, "Module name should not be None"
         self.check_deprecated_module(node, basename)
+        if isinstance(node.parent, nodes.If) and utils.is_sys_guard(node.parent):
+            return
         class_names = (name for name, _ in node.names)
         self.check_deprecated_class(node, basename, class_names)
 

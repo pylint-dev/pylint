@@ -1,0 +1,4 @@
+Avoid emitting ``deprecated-class`` for imports inside a recognized
+``sys.version_info`` guard.
+
+Closes #9533
