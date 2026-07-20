@@ -1,0 +1,5 @@
+Fix a crash in ``consider-using-with`` when assigning the result of calling a
+PEP 695 type parameter (inferred as ``astroid.nodes.TypeVar``, which has no
+``qname``).
+
+Closes #11058

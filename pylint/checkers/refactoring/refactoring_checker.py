@@ -1645,8 +1645,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if not isinstance(value, nodes.Call):
                 continue
             inferred = utils.safe_infer(value.func)
+            # Only callables with a ``qname`` can be context-manager factories.
+            # Inferring a PEP 695 type parameter yields ``nodes.TypeVar``, which
+            # has no ``qname`` and previously crashed here (#11058).
             if not (
                 inferred
+                and isinstance(
+                    inferred, (nodes.FunctionDef, nodes.ClassDef, bases.BoundMethod)
+                )
                 and inferred.qname() in CALLS_RETURNING_CONTEXT_MANAGERS
                 and isinstance(assignee, (nodes.AssignName, nodes.AssignAttr))
             ):
