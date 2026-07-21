@@ -1001,6 +1001,7 @@ accessed. Python regular expressions are accepted.",
         # (surrounded by quote `"` and followed by a comma `,`)
         # REQUEST,aq_parent,"[a-zA-Z]+_set{1,2}"' =>
         # ('REQUEST', 'aq_parent', '[a-zA-Z]+_set{1,2}')
+        
         generated_members = self.linter.config.generated_members
         if isinstance(generated_members, str):
             gen = shlex.shlex(generated_members)
@@ -1012,16 +1013,13 @@ accessed. Python regular expressions are accepted.",
     @only_required_for_messages("keyword-arg-before-vararg")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         # check for keyword arg before varargs.
-
-        error_msg = "assignment-from-no-return"
         if node.args.vararg and node.args.defaults:
             # When `positional-only` parameters are present then only
             # `positional-or-keyword` parameters are checked. I.e:
             # >>> def name(pos_only_params, /, pos_or_keyword_params, *args): ...
             if node.args.posonlyargs and not node.args.args:
                 return
-            confidence = INFERENCE if self._is_builtin_no_return(node.value) else None
-            self.add_message(error_msg, node=node, confidence=confidence or UNDEFINED)
+            self.add_message("keyword-arg-before-vararg", node=node, args=(node.name,))
 
     visit_asyncfunctiondef = visit_functiondef
 
