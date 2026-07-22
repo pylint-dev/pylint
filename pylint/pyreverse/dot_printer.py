@@ -74,9 +74,7 @@ class DotPrinter(Printer):
         layout = layout or Layout.BOTTOM_TO_TOP
         self.charset = "utf-8"
         self._theme_colors = self.THEME_COLORS.get(theme, self.THEME_COLORS["light"])
-        super().__init__(
-            title, layout, use_automatic_namespace, show_signatures, theme
-        )
+        super().__init__(title, layout, use_automatic_namespace, show_signatures, theme)
 
     def _open_graph(self) -> None:
         """Emit the header lines."""
