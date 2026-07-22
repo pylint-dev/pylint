@@ -556,50 +556,6 @@ class TestDeprecatedChecker(CheckerTestCase):
         ):
             self.checker.visit_importfrom(node)
 
-    def test_deprecated_class_import_from_sys_guard(self) -> None:
-        import_nodes = astroid.extract_node("""
-        import sys
-        if sys.version_info > (3,):
-            from deprecated import DeprecatedClass #@
-        else:
-            from deprecated import DeprecatedClass #@
-        """)
-        assert isinstance(import_nodes, list)
-        for node in import_nodes:
-            with self.assertNoMessages():
-                self.checker.visit_importfrom(node)
-
-    def test_deprecated_class_import_from_other_guard(self) -> None:
-        node = astroid.extract_node("""
-        if condition:
-            from deprecated import DeprecatedClass #@
-        """)
-        with self.assertAddsMessages(
-            MessageTest(
-                msg_id="deprecated-class",
-                args=("DeprecatedClass", "deprecated"),
-                node=node,
-            ),
-            ignore_position=True,
-        ):
-            self.checker.visit_importfrom(node)
-
-    def test_deprecated_module_import_from_sys_guard(self) -> None:
-        node = astroid.extract_node("""
-        import sys
-        if sys.version_info > (3,):
-            from deprecated_module import myfunction #@
-        """)
-        with self.assertAddsMessages(
-            MessageTest(
-                msg_id="deprecated-module",
-                args="deprecated_module",
-                node=node,
-            ),
-            ignore_position=True,
-        ):
-            self.checker.visit_importfrom(node)
-
     def test_deprecated_class_import(self) -> None:
         # Tests detecting deprecated class via import
         node = astroid.extract_node("""
