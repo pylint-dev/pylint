@@ -1,0 +1,3 @@
+Fixed a crash when linting a class that inherits from a PEP 695 ``TypeVarTuple`` from a type alias.
+
+Closes #11057
