@@ -173,14 +173,16 @@ class DiagramWriter:
     def set_printer(self, file_name: str, basename: str) -> None:
         """Set printer."""
         show_signatures = not self.config.no_signatures
-        self.printer = self.printer_class(basename, show_signatures=show_signatures)
+        self.printer = self.printer_class(
+            basename, show_signatures=show_signatures, theme=self.config.theme
+        )
         self.file_name = file_name
 
     def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
         """Get label and shape for packages."""
         return NodeProperties(
             label=obj.title,
-            color=self.get_shape_color(obj) if self.config.colorized else "black",
+            color=self.get_shape_color(obj) if self.config.colorized else None,
         )
 
     def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
@@ -189,8 +191,8 @@ class DiagramWriter:
             label=obj.title,
             attrs=obj.attrs if not self.config.only_classnames else None,
             methods=obj.methods if not self.config.only_classnames else None,
-            fontcolor="red" if is_exception(obj.node) else "black",
-            color=self.get_shape_color(obj) if self.config.colorized else "black",
+            fontcolor="red" if is_exception(obj.node) else None,
+            color=self.get_shape_color(obj) if self.config.colorized else None,
         )
 
     def get_shape_color(self, obj: DiagramEntity) -> str:
