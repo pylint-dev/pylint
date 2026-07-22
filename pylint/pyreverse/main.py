@@ -253,6 +253,7 @@ OPTIONS: Options = (
             "default": "light",
             "choices": ["light", "dark"],
             "metavar": "<light|dark>",
+            "type": "string",
             "group": OPTIONS_GROUPS["DISPLAY"],
             "help": "Color theme to use for the generated diagrams.",
         },

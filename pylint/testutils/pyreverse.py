@@ -44,6 +44,7 @@ class PyreverseConfig(
         max_color_depth: int = 2,
         max_depth: int | None = None,
         color_palette: tuple[str, ...] = DEFAULT_COLOR_PALETTE,
+        theme: str = "light",
         ignore_list: tuple[str, ...] = (),
         project: str = "",
         output_directory: str = "",
@@ -69,6 +70,7 @@ class PyreverseConfig(
         self.max_depth = max_depth
         self.max_color_depth = max_color_depth
         self.color_palette = color_palette
+        self.theme = theme
         self.ignore_list = ignore_list
         self.project = project
         self.output_directory = output_directory

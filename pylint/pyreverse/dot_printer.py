@@ -58,7 +58,10 @@ ARROWS: dict[EdgeType, dict[str, str]] = {
 
 
 class DotPrinter(Printer):
-    DEFAULT_COLOR = "black"
+    THEME_COLORS: dict[str, dict[str, str]] = {
+        "light": {"color": "black", "fontcolor": "black", "bgcolor": ""},
+        "dark": {"color": "#e0e0e0", "fontcolor": "#e0e0e0", "bgcolor": "#1e1e1e"},
+    }
 
     def __init__(
         self,
@@ -66,10 +69,14 @@ class DotPrinter(Printer):
         layout: Layout | None = None,
         use_automatic_namespace: bool | None = None,
         show_signatures: bool = True,
+        theme: str = "light",
     ):
         layout = layout or Layout.BOTTOM_TO_TOP
         self.charset = "utf-8"
-        super().__init__(title, layout, use_automatic_namespace, show_signatures)
+        self._theme_colors = self.THEME_COLORS.get(theme, self.THEME_COLORS["light"])
+        super().__init__(
+            title, layout, use_automatic_namespace, show_signatures, theme
+        )
 
     def _open_graph(self) -> None:
         """Emit the header lines."""
@@ -81,6 +88,8 @@ class DotPrinter(Printer):
                 self.charset.lower() in ALLOWED_CHARSETS
             ), f"unsupported charset {self.charset}"
             self.emit(f'charset="{self.charset}"')
+        if self._theme_colors["bgcolor"]:
+            self.emit(f'bgcolor="{self._theme_colors["bgcolor"]}"')
 
     def emit_node(
         self,
@@ -95,13 +104,17 @@ class DotPrinter(Printer):
         if properties is None:
             properties = NodeProperties(label=name)
         shape = SHAPES[type_]
-        color = properties.color if properties.color is not None else self.DEFAULT_COLOR
-        style = "filled" if color != self.DEFAULT_COLOR else "solid"
+        default_color = self._theme_colors["color"]
+        color = properties.color if properties.color is not None else default_color
+        style = "filled" if color != default_color else "solid"
+        fontcolor = (
+            properties.fontcolor
+            if properties.fontcolor is not None
+            else self._theme_colors["fontcolor"]
+        )
         label = self._build_label_for_node(properties)
         label_part = f", label=<{label}>" if label else ""
-        fontcolor_part = (
-            f', fontcolor="{properties.fontcolor}"' if properties.fontcolor else ""
-        )
+        fontcolor_part = f', fontcolor="{fontcolor}"' if fontcolor else ""
         self.emit(
             f'"{name}" [color="{color}"{fontcolor_part}{label_part}, shape="{shape}", style="{style}"];'
         )
