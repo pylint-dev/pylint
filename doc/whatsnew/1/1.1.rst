@@ -12,8 +12,8 @@ Release date: 2013-12-22
 
   Closes #111
 
-* Combine 'no-space-after-operator', 'no-space-after-comma' and
-  'no-space-before-operator' into a new warning 'bad-whitespace'.
+* Combine ':ref:`no-space-after-operator`', ':ref:`no-space-after-comma`' and
+  ':ref:`no-space-before-operator`' into a new warning ':ref:`bad-whitespace`'.
 
 * Add a new warning :ref:`superfluous-parens` for unnecessary
   parentheses after certain keywords.

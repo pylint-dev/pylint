@@ -272,7 +272,7 @@ Release date: 2020-04-27
 
   Closes #617
 
-* Fix exception-escape false positive with generators
+* Fix :ref:`exception-escape` false positive with generators
 
   Closes #3128
 

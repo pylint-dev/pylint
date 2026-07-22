@@ -119,6 +119,7 @@ jobs:
           pip install . --no-deps
           pip list | grep 'astroid\|pylint'
           pre-commit run --hook-stage manual pylint-with-spelling --all-files
+          pre-commit run check-message-references --all-files
 
   spelling:
     name: spelling tests
