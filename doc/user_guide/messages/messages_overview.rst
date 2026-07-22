@@ -426,6 +426,8 @@ All messages in the convention category:
    convention/missing-final-newline
    convention/missing-function-docstring
    convention/missing-module-docstring
+   convention/missing-param-type-annotation
+   convention/missing-return-type-annotation
    convention/mixed-line-endings
    convention/multiple-imports
    convention/multiple-statements
