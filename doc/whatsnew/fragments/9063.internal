@@ -1,0 +1,6 @@
+Add ``pytest-random-order`` to the test dependencies and run the suite once
+on CI with ``--random-order`` (dedicated job) so test isolation issues can be
+caught without making the default matrix non-deterministic. Local contributors
+can also use ``tox -e random`` or ``pytest --random-order``.
+
+Closes #9063

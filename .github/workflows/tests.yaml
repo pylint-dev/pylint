@@ -189,6 +189,29 @@ jobs:
           include-hidden-files: true
           path: .benchmarks/
 
+  tests-random-order:
+    name: run random-order / ${{ matrix.python-version }} / Linux
+    runs-on: ubuntu-latest
+    if: inputs.astroid_sha == ''
+    timeout-minutes: 25
+    needs: [tests]
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.14"]
+    steps:
+      - *checkout
+      - *setup-python
+      - *cache-restore-python
+      - name: Run pytest in random order
+        run: |
+          . venv/bin/activate
+          pip install . --no-deps
+          pip list | grep 'astroid\|pylint\|random-order'
+          # Keep the default matrix deterministic; this job surfaces isolation
+          # issues. pytest-random-order prints the seed used for reproduction.
+          python -m pytest --durations=10 --benchmark-disable --random-order tests/
+
   tests-windows:
     name: run / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
