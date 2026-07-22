@@ -95,7 +95,9 @@ class PlantUmlPrinter(Printer):
         label = properties.label if properties.label is not None else name
         default_fontcolor = theme_colors["fontcolor"]
         fontcolor = (
-            properties.fontcolor if properties.fontcolor is not None else default_fontcolor
+            properties.fontcolor
+            if properties.fontcolor is not None
+            else default_fontcolor
         )
         if fontcolor != default_fontcolor:
             label = f"<color:{fontcolor}>{label}</color>"
