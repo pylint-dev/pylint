@@ -82,3 +82,38 @@ class Mine:
 class DataClass:
     def __post_init__(self):
         self.a = 42
+
+
+class SetattrAttributeDefinitions:
+    class_attr = None
+
+    def __init__(self):
+        setattr(self, "defined_in_init", 1)
+
+    def later(self, name):
+        setattr(self, "set_by_setattr", 1)  # [attribute-defined-outside-init]
+        setattr(self, "defined_in_init", 2)
+        setattr(self, "class_attr", 1)
+        setattr(self, name, 1)
+
+    def shadowed(self):
+        def setattr(obj, name, value):  # pylint: disable=redefined-builtin,unused-argument
+            return None
+
+        setattr(self, "shadowed", 1)
+
+    @classmethod
+    def class_later(cls):
+        setattr(cls, "class_attr", 1)
+
+
+class ParentAttrInInit:
+    def __init__(self):
+        self.parent_attr = 1
+        setattr(self, "defined_by_parent", 1)
+
+
+class ChildSetattrForParentAttr(ParentAttrInInit):
+    def later(self):
+        setattr(self, "parent_attr", 2)
+        setattr(self, "defined_by_parent", 2)
