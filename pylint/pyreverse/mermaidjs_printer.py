@@ -22,7 +22,7 @@ class MermaidJSPrinter(Printer):
     ARROWS: dict[EdgeType, str] = {
         EdgeType.INHERITS: "--|>",
         EdgeType.COMPOSITION: "--*",
-        EdgeType.ASSOCIATION: "-->",
+        EdgeType.ASSOCIATION: "--<",
         EdgeType.AGGREGATION: "--o",
         EdgeType.USES: "-->",
         EdgeType.TYPE_DEPENDENCY: "..>",

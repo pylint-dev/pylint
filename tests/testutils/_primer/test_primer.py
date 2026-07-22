@@ -15,6 +15,9 @@ import pytest
 from _pytest.capture import CaptureFixture
 
 from pylint.constants import IS_PYPY
+from pylint.reporters.json_reporter import JSONMessage
+from pylint.testutils._primer import PackageToLint
+from pylint.testutils._primer.comparator import PackageDiff
 from pylint.testutils._primer.primer import Primer
 from pylint.testutils._primer.primer_compare_command import CompareCommand
 
@@ -31,6 +34,25 @@ PRIMER_CURRENT_INTERPRETER = (3, 13)
 DEFAULT_ARGS = ["python tests/primer/__main__.py", "compare", "--commit=v2.14.2"]
 
 
+def _message(message: str, clone_directory: Path) -> JSONMessage:
+    path = clone_directory / "example.py"
+    return JSONMessage(
+        confidence="HIGH",
+        type="convention",
+        module="example",
+        obj="",
+        line=1,
+        column=0,
+        endLine=None,
+        endColumn=None,
+        path=str(path),
+        absolutePath=str(path),
+        symbol="missing-docstring",
+        message=message,
+        messageId="C0114",
+    )
+
+
 @pytest.mark.parametrize("args", [[], ["wrong_command"]])
 def test_primer_launch_bad_args(args: list[str], capsys: CaptureFixture) -> None:
     with pytest.raises(SystemExit):
@@ -39,6 +61,74 @@ def test_primer_launch_bad_args(args: list[str], capsys: CaptureFixture) -> None
     out, err = capsys.readouterr()
     assert not out
     assert "usage: Pylint Primer" in err
+
+
+@pytest.mark.parametrize(
+    ("args", "command_path"),
+    [
+        (
+            ["prepare", "--read-commit-string"],
+            "pylint.testutils._primer.primer.PrepareCommand",
+        ),
+        (["run", "--type=main"], "pylint.testutils._primer.primer.RunCommand"),
+    ],
+)
+def test_primer_selects_command(args: list[str], command_path: str) -> None:
+    with patch(command_path) as command:
+        with patch("sys.argv", ["python tests/primer/__main__.py", *args]):
+            Primer(PRIMER_DIRECTORY, PACKAGES_TO_PRIME_PATH).run()
+
+    command.assert_called_once()
+    command.return_value.run.assert_called_once()
+
+
+def test_truncated_compare_stops_iterating_packages() -> None:
+    max_comment_length = 500
+    packages = {
+        name: PackageToLint(
+            url=f"https://github.com/example/{name}",
+            branch="main",
+            directories=["."],
+            commit="main",
+        )
+        for name in ("first", "second")
+    }
+    comparator = [
+        PackageDiff(
+            package="first",
+            missing={"commit": "main", "messages": []},
+            new={
+                "commit": "pr",
+                "messages": [_message("x" * 300, packages["first"].clone_directory)],
+            },
+            changed=[],
+        ),
+        PackageDiff(
+            package="second",
+            missing={"commit": "main", "messages": []},
+            new={
+                "commit": "pr",
+                "messages": [
+                    _message("should be skipped", packages["second"].clone_directory)
+                ],
+            },
+            changed=[],
+        ),
+    ]
+    command = CompareCommand(
+        PRIMER_DIRECTORY, packages, argparse.Namespace(commit="deadbeef")
+    )
+
+    with patch(
+        "pylint.testutils._primer.primer_compare_command.MAX_GITHUB_COMMENT_LENGTH",
+        max_comment_length,
+    ):
+        comment = command._create_comment(comparator)  # type: ignore[arg-type]
+
+    assert "first" in comment
+    assert "second" not in comment
+    assert "This comment was truncated" in comment
+    assert len(comment) < max_comment_length
 
 
 @pytest.mark.skipif(
