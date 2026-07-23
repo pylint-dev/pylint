@@ -24,6 +24,32 @@ Only the functional test "missing_kwoa_py3"::
 
     python3 -m pytest "tests/test_functional.py::test_functional[missing_kwoa_py3]"
 
+Shuffling tests
+---------------
+
+To help catch test isolation problems, run the suite in random order with
+``pytest-random-order`` (installed via the ``test`` dependency group /
+``requirements_test.txt``)::
+
+    python3 -m pytest --random-order
+
+Pin a seed when you need a reproducible shuffle::
+
+    python3 -m pytest --random-order-seed=1234
+
+There is also a dedicated tox environment that is **not** part of the default
+``envlist`` (so a normal ``tox`` run stays deterministic)::
+
+    python -m tox -e random
+    python -m tox -e random -- -k test_functional
+
+On CI, the default matrix stays in fixed order; a separate Linux job runs the
+suite once with ``--random-order`` (the plugin prints the seed on failure so
+you can reproduce with ``--random-order-seed=...``).
+
+See the `pytest-random-order`_ documentation for bucket / module / class
+shuffling options.
+
 tox
 ---
 
@@ -86,3 +112,5 @@ directory.
 
 .. _pytest-cov: https://pypi.org/project/pytest-cov/
 .. _astroid: https://github.com/pylint-dev/astroid
+
+.. _pytest-random-order: https://pypi.org/project/pytest-random-order/
