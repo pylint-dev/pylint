@@ -69,3 +69,11 @@ if a == eventually_raise:
     # Does not emit comparison-with-callable because the
     # function (eventually) raises
     pass
+
+
+class LambdaAttribute:
+    lambda_attribute = lambda self: 1
+
+
+if LambdaAttribute().lambda_attribute == 1:
+    pass
