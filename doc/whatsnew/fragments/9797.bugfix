@@ -1,0 +1,1 @@
+Fix a crash in :program:`pyreverse` when a requested class cannot be inferred.
