@@ -64,3 +64,11 @@ class Abstract:
         """should not issue E1111"""
         var = self.abstract_method()
         print(var)
+
+def test_unary_not() -> None:
+    """Test that if not f1() is caught when f1 has no return."""
+    if not func_no_return():  # [assignment-from-no-return]
+        pass
+
+    if not func_return_none():  # [assignment-from-none]
+        pass
