@@ -258,6 +258,35 @@ def _has_different_parameters_default_value(
     return False
 
 
+def _total_parameters(args: nodes.Arguments) -> int:
+    """Count all parameters of a function, including variadics."""
+    total = len(args.posonlyargs) + len(args.args) + len(args.kwonlyargs)
+    if args.vararg:
+        total += 1
+    if args.kwarg:
+        total += 1
+    return total
+
+
+def _parameter_kinds_summary(args: nodes.Arguments) -> str:
+    """Describe the parameters of a function by kind.
+
+    For example "1 positional-or-keyword, 1 keyword-only".
+    """
+    parts = []
+    if args.posonlyargs:
+        parts.append(f"{len(args.posonlyargs)} positional-only")
+    if args.args:
+        parts.append(f"{len(args.args)} positional-or-keyword")
+    if args.vararg:
+        parts.append("*args")
+    if args.kwonlyargs:
+        parts.append(f"{len(args.kwonlyargs)} keyword-only")
+    if args.kwarg:
+        parts.append("**kwargs")
+    return ", ".join(parts)
+
+
 def _has_different_parameters(
     original: list[nodes.AssignName],
     overridden: list[nodes.AssignName],
@@ -2333,25 +2362,33 @@ a metaclass class method.",
         if len(arg_differ_output) > 0:
             for msg in arg_differ_output:
                 if "Number" in msg:
-                    total_args_method1 = len(method1.args.args)
-                    if method1.args.vararg:
-                        total_args_method1 += 1
-                    if method1.args.kwarg:
-                        total_args_method1 += 1
-                    if method1.args.kwonlyargs:
-                        total_args_method1 += len(method1.args.kwonlyargs)
-                    total_args_refmethod = len(refmethod.args.args)
-                    if refmethod.args.vararg:
-                        total_args_refmethod += 1
-                    if refmethod.args.kwarg:
-                        total_args_refmethod += 1
-                    if refmethod.args.kwonlyargs:
-                        total_args_refmethod += len(refmethod.args.kwonlyargs)
+                    total_args_method1 = _total_parameters(method1.args)
+                    total_args_refmethod = _total_parameters(refmethod.args)
                     error_type = "arguments-differ"
+                    refmethod_name = f"{refmethod.parent.frame().name}.{refmethod.name}"
+                    if total_args_refmethod != total_args_method1:
+                        first_arg = (
+                            msg
+                            + f"was {total_args_refmethod} in '{refmethod_name}' and "
+                            f"is now {total_args_method1} in"
+                        )
+                    elif (ref_kinds := _parameter_kinds_summary(refmethod.args)) != (
+                        new_kinds := _parameter_kinds_summary(method1.args)
+                    ):
+                        # The total number of parameters is the same: report how
+                        # the kinds of parameters differ instead.
+                        first_arg = (
+                            f"Kinds of parameters changed from ({ref_kinds}) in "
+                            f"'{refmethod_name}' to ({new_kinds}) in"
+                        )
+                    else:
+                        # Same total and same kinds: keyword-only parameter
+                        # names differ.
+                        first_arg = (
+                            f"Keyword-only parameters differ from '{refmethod_name}' in"
+                        )
                     msg_args = (
-                        msg
-                        + f"was {total_args_refmethod} in '{refmethod.parent.frame().name}.{refmethod.name}' and "
-                        f"is now {total_args_method1} in",
+                        first_arg,
                         class_type,
                         f"{method1.parent.frame().name}.{method1.name}",
                     )
