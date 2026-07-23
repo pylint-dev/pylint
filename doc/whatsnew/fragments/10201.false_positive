@@ -1,0 +1,4 @@
+Fix ``unspecified-encoding`` false positive when an ``open`` call uses a mode
+argument that cannot be inferred.
+
+Closes #10201
