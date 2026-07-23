@@ -10,6 +10,7 @@ import re
 from typing import TYPE_CHECKING
 
 from astroid import nodes
+from astroid.exceptions import AstroidError
 
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils as checker_utils
@@ -19,6 +20,65 @@ from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+# ---------------------------------------------------------------------------
+# Helpers for mismatched-type-doc (W9022)
+# ---------------------------------------------------------------------------
+
+_NORMALISE_WS = re.compile(r"\s+")
+
+# Map old-style typing aliases to modern lowercase builtins
+_TYPING_ALIAS: dict[str, str] = {
+    "List": "list",
+    "Dict": "dict",
+    "Tuple": "tuple",
+    "Set": "set",
+    "FrozenSet": "frozenset",
+    "Type": "type",
+}
+
+
+def _normalise_type_str(type_str: str) -> str:
+    """Normalise a type string for comparison.
+
+    - Strips surrounding whitespace and collapses internal whitespace.
+    - Removes the ``typing.`` prefix.
+    - Maps capitalised aliases (``List``, ``Dict`` …) to lowercase.
+    - Lowercases the result.
+    """
+    s = _NORMALISE_WS.sub("", type_str.strip())
+    s = re.sub(r"\btyping\.", "", s)
+    for old, new in _TYPING_ALIAS.items():
+        s = re.sub(rf"\b{old}\b", new, s)
+    return s.lower()
+
+
+def _annotation_node_to_str(annotation: nodes.NodeNG | None) -> str | None:
+    """Render an astroid annotation node to a normalised string, or None."""
+    if annotation is None:
+        return None
+    try:
+        return _normalise_type_str(annotation.as_string())
+    except AstroidError:  # pragma: no cover
+        return None
+
+
+_BAIL_TOKENS = re.compile(r"\b(any|none|union|optional)\b|\.\.\.|[|]")
+
+
+def _types_differ(annotation_str: str, docstring_type_str: str) -> bool:
+    """Return True only when we are confident the two types are different.
+
+    Conservative: skip when either side contains Any, Union, Optional,
+    None, or ``...`` to avoid false positives from intentional widening.
+    """
+    norm_ann = _normalise_type_str(annotation_str)
+    norm_doc = _normalise_type_str(docstring_type_str)
+    if norm_ann == norm_doc:
+        return False
+    if _BAIL_TOKENS.search(norm_ann) or _BAIL_TOKENS.search(norm_doc):
+        return False
+    return True
 
 
 class DocstringParameterChecker(BaseChecker):
@@ -127,6 +187,13 @@ class DocstringParameterChecker(BaseChecker):
             "missing-any-param-doc",
             "Please add parameter and/or type documentation.",
         ),
+        "W9022": (
+            '"%s" type documented as "%s" but annotated as "%s"',
+            "mismatched-type-doc",
+            "The type declared in the docstring does not match the PEP 484 "
+            "annotation in the function signature. "
+            "Please update either the annotation or the docstring.",
+        ),
     }
 
     options = (
@@ -184,6 +251,21 @@ class DocstringParameterChecker(BaseChecker):
                 "the specified docstring type will be used.",
             },
         ),
+        (
+            "check-type-doc-match",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": (
+                    "Whether to check that the type string in the docstring "
+                    "matches the PEP 484 annotation in the function signature. "
+                    "Emits mismatched-type-doc (W9022) when they differ. "
+                    "Disabled by default because type aliases and imported names "
+                    "can legitimately differ in spelling from their annotations."
+                ),
+            },
+        ),
     )
 
     constructor_names = {"__init__", "__new__"}
@@ -215,6 +297,7 @@ class DocstringParameterChecker(BaseChecker):
         self.check_functiondef_params(node, node_doc)
         self.check_functiondef_returns(node, node_doc)
         self.check_functiondef_yields(node, node_doc)
+        self.check_functiondef_type_annotations(node, node_doc)
 
     visit_asyncfunctiondef = visit_functiondef
 
@@ -250,6 +333,7 @@ class DocstringParameterChecker(BaseChecker):
             node_doc, node.args, node, node_allow_no_param
         )
 
+<<<<<<< HEAD
     def check_constructor_params_are_not_documented_twice(
         self, node: nodes.FunctionDef, node_doc: Docstring
     ) -> None:
@@ -264,6 +348,53 @@ class DocstringParameterChecker(BaseChecker):
             class_node.doc_node, self.linter.config.default_docstring_type
         )
         self.check_single_constructor_params(class_doc, node_doc, class_node, node.name)
+=======
+    def check_functiondef_type_annotations(
+        self,
+        node: nodes.FunctionDef,
+        node_doc: Docstring,
+    ) -> None:
+        """Check that docstring type strings match PEP 484 annotations.
+
+        Emits ``mismatched-type-doc`` (W9022) for each parameter that has
+        both an annotation in the signature and a type in the docstring
+        which differ in a non-trivial way.
+
+        Gated on ``check-type-doc-match`` (default: False).
+        """
+        if not self.linter.config.check_type_doc_match:
+            return
+
+        annotations_map: dict[str, str] = {}
+        for args, arg_annotations in (
+            (node.args.args, node.args.annotations),
+            (node.args.posonlyargs, node.args.posonlyargs_annotations),
+            (node.args.kwonlyargs, node.args.kwonlyargs_annotations),
+        ):
+            for arg, annotation in zip(args, arg_annotations):
+                ann_str = _annotation_node_to_str(annotation)
+                if ann_str is not None:
+                    annotations_map[arg.name] = ann_str
+
+        if not annotations_map:
+            return
+
+        doc_types: dict[str, str] = node_doc.match_param_types()
+        if not doc_types:
+            return
+
+        for param_name, ann_str in annotations_map.items():
+            if param_name not in doc_types:
+                continue
+            doc_type_str = doc_types[param_name]
+            if _types_differ(ann_str, doc_type_str):
+                self.add_message(
+                    "mismatched-type-doc",
+                    args=(param_name, doc_type_str, ann_str),
+                    node=node,
+                    confidence=HIGH,
+                )
+>>>>>>> a16888749 (feat(docparams): add mismatched-type-doc (W9022) checker for annotation vs docstring type mismatch)
 
     def check_functiondef_returns(
         self, node: nodes.FunctionDef, node_doc: Docstring
