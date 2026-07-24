@@ -21,6 +21,10 @@ from pylint.constants import MSG_TYPES
 from pylint.extensions import initialize as initialize_extensions
 from pylint.lint import PyLinter
 from pylint.message import MessageDefinition
+from pylint.message._deleted_message_ids import (
+    DELETED_MESSAGES_IDS,
+    DeletedMessage,
+)
 from pylint.utils import get_rst_title
 
 PYLINT_BASE_PATH = Path(__file__).resolve().parent.parent.parent
@@ -78,6 +82,184 @@ OldMessagesDict = dict[str, defaultdict[tuple[str, str], list[tuple[str, str]]]]
 """DefaultDict is indexed by tuples of (old name symbol, old name id) and values are
 tuples of (new name symbol, new name category).
 """
+
+
+# For each category, a flat list of (message, removal reason URL,
+# canonical-symbol-if-this-is-an-old-name) tuples.
+DeletedMessagesDict = dict[str, list[tuple[DeletedMessage, str, str | None]]]
+
+
+# Documentation-only metadata for permanently removed messages, keyed by symbol.
+# Values are ``(removed_in, original_message)``:
+# * ``removed_in`` is the first release tag containing the removal commit
+#   (``git tag --contains <commit> | sort -V | head -1``);
+# * ``original_message`` is the short message text the symbol last emitted,
+#   recovered from ``git show <removal-commit>~1:<source>``.
+# Old-name entries (renames that happened before deletion) do not appear here:
+# their page only points readers at the surviving symbol's page.
+DELETED_MESSAGE_METADATA: dict[str, tuple[str, str | None]] = {
+    # PR #4942 — Python 3 porting checker removal, first absent in pylint 2.11.0
+    "print-statement": ("2.11.0", "print statement used"),
+    "parameter-unpacking": ("2.11.0", "Parameter unpacking specified"),
+    "unpacking-in-except": (
+        "2.11.0",
+        "Implicit unpacking of exceptions is not supported in Python 3",
+    ),
+    "old-raise-syntax": (
+        "2.11.0",
+        "Use raise ErrorClass(args) instead of raise ErrorClass, args.",
+    ),
+    "backtick": ("2.11.0", "Use of the `` operator"),
+    "import-star-module-level": (
+        "2.11.0",
+        "Import * only allowed at module level",
+    ),
+    "apply-builtin": ("2.11.0", "apply built-in referenced"),
+    "basestring-builtin": ("2.11.0", "basestring built-in referenced"),
+    "buffer-builtin": ("2.11.0", "buffer built-in referenced"),
+    "cmp-builtin": ("2.11.0", "cmp built-in referenced"),
+    "coerce-builtin": ("2.11.0", "coerce built-in referenced"),
+    "execfile-builtin": ("2.11.0", "execfile built-in referenced"),
+    "file-builtin": ("2.11.0", "file built-in referenced"),
+    "long-builtin": ("2.11.0", "long built-in referenced"),
+    "raw_input-builtin": ("2.11.0", None),
+    "reduce-builtin": ("2.11.0", "reduce built-in referenced"),
+    "standarderror-builtin": ("2.11.0", "StandardError built-in referenced"),
+    "unicode-builtin": ("2.11.0", "unicode built-in referenced"),
+    "xrange-builtin": ("2.11.0", "xrange built-in referenced"),
+    "coerce-method": ("2.11.0", "__coerce__ method defined"),
+    "delslice-method": ("2.11.0", "__delslice__ method defined"),
+    "getslice-method": ("2.11.0", "__getslice__ method defined"),
+    "setslice-method": ("2.11.0", "__setslice__ method defined"),
+    "no-absolute-import": (
+        "2.11.0",
+        "import missing `from __future__ import absolute_import`",
+    ),
+    "old-division": ("2.11.0", "division w/o __future__ statement"),
+    "dict-iter-method": ("2.11.0", "Calling a dict.iter*() method"),
+    "dict-view-method": ("2.11.0", "Calling a dict.view*() method"),
+    "next-method-called": ("2.11.0", "Called a next() method on an object"),
+    "metaclass-assignment": (
+        "2.11.0",
+        "Assigning to a class's __metaclass__ attribute",
+    ),
+    "indexing-exception": (
+        "2.11.0",
+        "Indexing exceptions will not work on Python 3",
+    ),
+    "raising-string": ("2.11.0", "Raising a string exception"),
+    "reload-builtin": ("2.11.0", "reload built-in referenced"),
+    "oct-method": ("2.11.0", "__oct__ method defined"),
+    "hex-method": ("2.11.0", "__hex__ method defined"),
+    "nonzero-method": ("2.11.0", "__nonzero__ method defined"),
+    "cmp-method": ("2.11.0", "__cmp__ method defined"),
+    "input-builtin": ("2.11.0", "input built-in referenced"),
+    "round-builtin": ("2.11.0", "round built-in referenced"),
+    "intern-builtin": ("2.11.0", "intern built-in referenced"),
+    "unichr-builtin": ("2.11.0", "unichr built-in referenced"),
+    "map-builtin-not-iterating": (
+        "2.11.0",
+        "map built-in referenced when not iterating",
+    ),
+    "zip-builtin-not-iterating": (
+        "2.11.0",
+        "zip built-in referenced when not iterating",
+    ),
+    "range-builtin-not-iterating": (
+        "2.11.0",
+        "range built-in referenced when not iterating",
+    ),
+    "filter-builtin-not-iterating": (
+        "2.11.0",
+        "filter built-in referenced when not iterating",
+    ),
+    "using-cmp-argument": (
+        "2.11.0",
+        "Using the cmp argument for list.sort / sorted",
+    ),
+    "div-method": ("2.11.0", "__div__ method defined"),
+    "idiv-method": ("2.11.0", "__idiv__ method defined"),
+    "rdiv-method": ("2.11.0", "__rdiv__ method defined"),
+    "exception-message-attribute": (
+        "2.11.0",
+        "Exception.message removed in Python 3",
+    ),
+    "invalid-str-codec": ("2.11.0", "non-text encoding used in str.decode"),
+    "sys-max-int": ("2.11.0", "sys.maxint removed in Python 3"),
+    "bad-python3-import": ("2.11.0", "Module moved in Python 3"),
+    "deprecated-string-function": (
+        "2.11.0",
+        "Accessing a deprecated function on the string module",
+    ),
+    "deprecated-str-translate-call": (
+        "2.11.0",
+        "Using str.translate with deprecated deletechars parameters",
+    ),
+    "deprecated-itertools-function": (
+        "2.11.0",
+        "Accessing a deprecated function on the itertools module",
+    ),
+    "deprecated-types-field": (
+        "2.11.0",
+        "Accessing a deprecated fields on the types module",
+    ),
+    "next-method-defined": ("2.11.0", "next method defined"),
+    "dict-items-not-iterating": (
+        "2.11.0",
+        "dict.items referenced when not iterating",
+    ),
+    "dict-keys-not-iterating": (
+        "2.11.0",
+        "dict.keys referenced when not iterating",
+    ),
+    "dict-values-not-iterating": (
+        "2.11.0",
+        "dict.values referenced when not iterating",
+    ),
+    "deprecated-operator-function": (
+        "2.11.0",
+        "Accessing a removed attribute on the operator module",
+    ),
+    "deprecated-urllib-function": (
+        "2.11.0",
+        "Accessing a removed attribute on the urllib module",
+    ),
+    "xreadlines-attribute": (
+        "2.11.0",
+        "Accessing a removed xreadlines attribute",
+    ),
+    "deprecated-sys-function": (
+        "2.11.0",
+        "Accessing a removed attribute on the sys module",
+    ),
+    "exception-escape": (
+        "2.11.0",
+        "Using an exception object that was bound by an except handler",
+    ),
+    "comprehension-escape": (
+        "2.11.0",
+        "Using a variable that was bound inside a comprehension",
+    ),
+    # PR #3577 / #3578 — whitespace and indentation message cleanup
+    "bad-whitespace": ("2.6.0", "No space allowed before bracket"),
+    "mixed-indentation": ("2.6.0", "Found indentation with tabs instead of spaces"),
+    # PR #3571 — bad-continuation removal
+    "bad-continuation": ("2.6.0", "Wrong continued indentation (add 4 spaces)."),
+    # pylint 1.4.3 — direct commits, no merging PR
+    "star-args": ("1.4.3", "Used * or ** magic"),
+    "abstract-class-not-used": ("1.4.3", "Abstract class not referenced"),
+    "abstract-class-little-used": (
+        "1.4.3",
+        "Abstract class is only referenced 1 times",
+    ),
+    # Issue #2409 — no-init removed because it was never emitted
+    "no-init": ("2.14.0", "Class has no __init__ method"),
+    # PR #6421 — assign-to-new-keyword
+    "assign-to-new-keyword": (
+        "2.14.0",
+        "Name 'async' will become a keyword in Python 3.7",
+    ),
+}
 
 
 def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
@@ -149,7 +331,7 @@ def _get_demo_code_for(data_path: Path, example_type: ExampleType) -> str:
                 files.append(f"""\
 ``{file.name}``:
 
-.. literalinclude:: /{file.relative_to(Path.cwd())}
+.. literalinclude:: /{file.relative_to(PYLINT_BASE_PATH / "doc")}
     :language: python
 
 """)
@@ -200,14 +382,14 @@ def _get_python_code_as_rst(code_path: Path) -> str:
     if not code_path.exists():
         return ""
     return f"""\
-.. literalinclude:: /{code_path.relative_to(Path.cwd())}
+.. literalinclude:: /{code_path.relative_to(PYLINT_BASE_PATH / "doc")}
    :language: python
 """
 
 
 def _get_ini_as_rst(code_path: Path) -> str:
     return f"""\
-.. literalinclude:: /{code_path.relative_to(Path.cwd())}
+.. literalinclude:: /{code_path.relative_to(PYLINT_BASE_PATH / "doc")}
     :language: ini
 """
 
@@ -274,6 +456,42 @@ def _get_all_messages(linter: PyLinter) -> tuple[MessagesDict, OldMessagesDict]:
                     )
 
     return messages_dict, old_messages
+
+
+def _get_deleted_messages() -> DeletedMessagesDict:
+    """Collect all permanently deleted messages indexed by category.
+
+    Each canonical deleted symbol gets one entry; pre-rename old names are
+    emitted as separate entries with ``is_old_name_of`` set to the surviving
+    symbol so that redirect pages can point readers at the canonical page.
+    """
+    deleted: DeletedMessagesDict = {
+        "fatal": [],
+        "error": [],
+        "warning": [],
+        "convention": [],
+        "refactor": [],
+        "information": [],
+    }
+    seen: set[tuple[str, str]] = set()
+    for reason, messages in DELETED_MESSAGES_IDS.items():
+        for message in messages:
+            key = (message.msgid, message.symbol)
+            if key in seen:
+                continue
+            seen.add(key)
+            category = MSG_TYPES_DOC[message.msgid[0]]
+            deleted[category].append((message, reason, None))
+            for old_msgid, old_symbol in message.old_names:
+                old_key = (old_msgid, old_symbol)
+                if old_key in seen:
+                    continue
+                seen.add(old_key)
+                old_category = MSG_TYPES_DOC[old_msgid[0]]
+                deleted[old_category].append(
+                    (DeletedMessage(old_msgid, old_symbol), reason, message.symbol)
+                )
+    return deleted
 
 
 def _get_message_data_path(message: MessageDefinition) -> Path:
@@ -393,7 +611,9 @@ def _write_single_message_page(category_dir: Path, message: MessageData) -> None
 
 
 def _write_messages_list_page(
-    messages_dict: MessagesDict, old_messages_dict: OldMessagesDict
+    messages_dict: MessagesDict,
+    old_messages_dict: OldMessagesDict,
+    deleted_messages_dict: DeletedMessagesDict,
 ) -> None:
     """Create or overwrite the page with the list of all messages."""
     messages_file = os.path.join(PYLINT_MESSAGES_PATH, "messages_overview.rst")
@@ -433,6 +653,13 @@ Pylint can emit the following messages:
             old_messages_string = "".join(
                 f"   {category}/{old_message[0]}\n" for old_message in old_messages
             )
+            deleted_messages = sorted(
+                deleted_messages_dict[category], key=lambda item: item[0].symbol
+            )
+            deleted_messages_string = "".join(
+                f"   {category}/{message.symbol}\n"
+                for message, _reason, _is_old_name_of in deleted_messages
+            )
             # Write list per category. We need the '-category' suffix in the reference
             # because 'fatal' is also a message's symbol
             stream.write(f"""
@@ -453,6 +680,73 @@ All renamed messages in the {category} category:
    :titlesonly:
 
 {old_messages_string}""")
+            if deleted_messages_string:
+                stream.write(f"""
+All permanently deleted messages in the {category} category:
+
+.. toctree::
+   :maxdepth: 1
+   :titlesonly:
+
+{deleted_messages_string}""")
+
+
+def _write_deleted_message_pages(deleted_messages: DeletedMessagesDict) -> None:
+    """Create one redirect-style page per permanently deleted symbol."""
+    for category, entries in deleted_messages.items():
+        if not entries:
+            continue
+        category_dir = PYLINT_MESSAGES_PATH / category
+        if not category_dir.exists():
+            category_dir.mkdir(parents=True, exist_ok=True)
+        for message, reason, is_old_name_of in entries:
+            _write_single_deleted_message_page(
+                category_dir, message, reason, is_old_name_of
+            )
+
+
+def _write_single_deleted_message_page(
+    category_dir: Path,
+    message: DeletedMessage,
+    reason: str,
+    is_old_name_of: str | None,
+) -> None:
+    title = f"{message.symbol} / {message.msgid}"
+    sections: list[str] = [f".. _{message.symbol}:", "", get_rst_title(title, "=")]
+
+    canonical = is_old_name_of if is_old_name_of is not None else message.symbol
+    removed_in, original_message = DELETED_MESSAGE_METADATA.get(canonical, (None, None))
+    removal = (
+        f"has been removed in pylint {removed_in}"
+        if removed_in is not None
+        else "has been removed from pylint"
+    )
+
+    if is_old_name_of is None:
+        sections.append(
+            f"``{message.symbol}`` {removal}. See {reason} for the rationale."
+        )
+    else:
+        sections.append(
+            f"``{message.symbol}`` was an earlier name for ``{is_old_name_of}``, "
+            f"which {removal}. See {reason} for the rationale."
+        )
+
+    if original_message is not None:
+        sections.extend(
+            [
+                "",
+                "Original message text:",
+                "",
+                ".. code-block:: text",
+                "",
+                *(f"   {line}" for line in original_message.splitlines()),
+            ]
+        )
+
+    (category_dir / f"{message.symbol}.rst").write_text(
+        "\n".join(sections) + "\n", encoding="utf-8"
+    )
 
 
 def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
@@ -499,13 +793,15 @@ def build_messages_pages(app: Sphinx | None) -> None:
     linter = PyLinter()
     _register_all_checkers_and_extensions(linter)
     messages, old_messages = _get_all_messages(linter)
+    deleted_messages = _get_deleted_messages()
 
     # Write message and category pages
     _write_message_page(messages)
-    _write_messages_list_page(messages, old_messages)
+    _write_messages_list_page(messages, old_messages, deleted_messages)
 
     # Write redirect pages
     _write_redirect_pages(old_messages)
+    _write_deleted_message_pages(deleted_messages)
 
 
 def setup(app: Sphinx) -> dict[str, bool]:
