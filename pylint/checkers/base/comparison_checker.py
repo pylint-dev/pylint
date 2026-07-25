@@ -280,12 +280,19 @@ class ComparisonChecker(_BasicChecker):
         number_of_bare_callables = 0
         for operand in left_operand, right_operand:
             inferred = utils.safe_infer(operand)
+            if not isinstance(inferred, bare_callables):
+                continue
+            # A ``BoundMethod`` can proxy a ``Lambda`` (a lambda assigned as a
+            # class attribute). A ``Lambda`` has no ``decoratornames()`` and its
+            # ``body`` is a single expression instead of a list of statements,
+            # so neither check below applies to it. Lambdas are not reported by
+            # this message today, so skip them rather than crashing.
+            if not hasattr(inferred, "decoratornames"):
+                continue
             # Ignore callables that raise, as well as typing constants
             # implemented as functions (that raise via their decorator)
-            if (
-                isinstance(inferred, bare_callables)
-                and "typing._SpecialForm" not in inferred.decoratornames()
-                and not any(isinstance(x, nodes.Raise) for x in inferred.body)
+            if "typing._SpecialForm" not in inferred.decoratornames() and not any(
+                isinstance(x, nodes.Raise) for x in inferred.body
             ):
                 number_of_bare_callables += 1
         if number_of_bare_callables == 1:
