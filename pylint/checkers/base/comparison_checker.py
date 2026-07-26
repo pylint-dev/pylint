@@ -279,7 +279,7 @@ class ComparisonChecker(_BasicChecker):
         number_of_bare_callables = 0
         for operand in left_operand, right_operand:
             inferred = utils.safe_infer(operand)
-            if isinstance(inferred, astroid.BoundMethod):
+            while isinstance(inferred, (astroid.BoundMethod, astroid.UnboundMethod)):
                 inferred = inferred._proxied
             # Ignore callables that raise, as well as typing constants
             # implemented as functions (that raise via their decorator)

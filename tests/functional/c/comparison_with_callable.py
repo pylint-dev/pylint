@@ -71,7 +71,9 @@ if a == eventually_raise:
     pass
 
 
-class LambdaAttribute:
+class LambdaAttribute:  # pylint: disable=too-few-public-methods
+    # Regression case: class attributes backed by lambdas infer as bound methods.
+    # pylint: disable-next=unnecessary-lambda-assignment
     lambda_attribute = lambda self: 1
 
 
