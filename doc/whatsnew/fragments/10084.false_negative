@@ -1,0 +1,7 @@
+``superfluous-parens`` (``C0325``) no longer false-negatives on parentheses
+wrapping an entire ``and``/``or`` condition, e.g. ``if (a and b):`` or
+``while (a or b):``. Parentheses are still accepted after ``not`` (where they
+are required, e.g. ``not (a and b)``) and when the parenthesised expression is
+an operand of a following binary operator (e.g. ``(a or b) in c``).
+
+Closes #10084
