@@ -1304,9 +1304,7 @@ def test_lint_namespace_package_under_dir_on_path(initialized_linter: PyLinter) 
 def test_pragma_line_number_is_reset_between_modules(tmp_path: Path) -> None:
     """A pragma in one module must not change message locations in the next.
 
-    ``too-many-lines`` is reported at the line of the pragma controlling it,
-    defaulting to line 1 when the module has none. The recorded pragma
-    position used to leak between modules of the same run.
+    Regression test for https://github.com/pylint-dev/pylint/pull/11176#issuecomment-5084749143
     """
     pragma_module = tmp_path / "with_pragma.py"
     pragma_module.write_text(

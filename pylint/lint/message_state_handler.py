@@ -349,9 +349,6 @@ class _MessageStateHandler:
 
         See func_block_disable_msg.py test case for expected behaviour.
         """
-        # Pragma positions are only valid for the current module: without this
-        # reset, a pragma from a previously linted module would give its line
-        # number to module-scoped messages (e.g. too-many-lines) of this one.
         self._pragma_lineno = {}
         prev_line = None
         saw_newline = True

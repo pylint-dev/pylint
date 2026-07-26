@@ -3,4 +3,4 @@ pragma found in a previously linted module. Pragma positions are now reset betwe
 modules, so the message is reported at line 1 (or at the current module's own pragma)
 regardless of which files were linted before.
 
-Closes #11191
+Refs #11191
