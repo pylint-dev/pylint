@@ -29,6 +29,7 @@ jobs:
     timeout-minutes: 45
     strategy:
       matrix:
+        # TODO: Bump upper bound to 3.15 after final release of 3.15
         python-version: ["3.10", "3.14"]
         batches: [4]
         batchIdx: [0, 1, 2, 3]
