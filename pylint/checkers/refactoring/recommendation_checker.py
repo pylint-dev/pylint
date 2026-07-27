@@ -274,6 +274,13 @@ class RecommendationChecker(checkers.BaseChecker):
         # that the object which is iterated is used as a subscript in the
         # body of the for.
 
+        # ``consider-using-dict-items`` only applies to a simple loop variable.
+        # A tuple or attribute target (e.g. ``for self.idx in my_dict``) cannot
+        # be rewritten with ``.items()``, and accessing
+        # ``node.target.name`` on such a target raises AttributeError (#11173).
+        if not isinstance(node.target, nodes.AssignName):
+            return
+
         iterating_object_name = utils.get_iterating_dictionary_name(node)
         if iterating_object_name is None:
             return
