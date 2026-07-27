@@ -93,6 +93,51 @@ def _is_symbol_rename(old: JSONMessage, new: JSONMessage) -> bool:
     return ratio >= SYMBOL_RENAME_SIMILARITY_THRESHOLD
 
 
+def _mirrored_suppressed_message(useless_suppression: JSONMessage) -> tuple[str, str]:
+    """The (path, message) of the ``suppressed-message`` mirroring this pragma.
+
+    ``Useless suppression of 'no-member'`` emitted on line 321 mirrors the
+    message reported as ``Suppressed 'no-member' (from line 321)``.
+    """
+    symbol = useless_suppression["message"].removeprefix("Useless suppression of ")
+    return (
+        useless_suppression["path"],
+        f"Suppressed {symbol} (from line {useless_suppression['line']})",
+    )
+
+
+def _drop_useless_suppression_echoes(
+    old_residuals: list[JSONMessage], new_residuals: list[JSONMessage]
+) -> tuple[list[JSONMessage], list[JSONMessage]]:
+    """Drop a ``useless-suppression`` coupled with a ``suppressed-message``.
+
+    Both describe the same pragma: when a false positive under a disable is
+    fixed, the run loses the ``suppressed-message`` and gains a
+    ``useless-suppression``; when one is reintroduced, the reverse happens.
+    The ``suppressed-message`` side carries all the information (suppressed
+    symbol, pragma line, emission location), so it is kept — whichever side it
+    is on — and the ``useless-suppression`` echo about the same pragma is
+    dropped.
+    """
+
+    def keep(
+        messages: list[JSONMessage], opposite: list[JSONMessage]
+    ) -> list[JSONMessage]:
+        suppressed = {
+            (m["path"], m["message"])
+            for m in opposite
+            if m["symbol"] == "suppressed-message"
+        }
+        return [
+            m
+            for m in messages
+            if m["symbol"] != "useless-suppression"
+            or _mirrored_suppressed_message(m) not in suppressed
+        ]
+
+    return keep(old_residuals, new_residuals), keep(new_residuals, old_residuals)
+
+
 def _pair_residuals(
     old_residuals: list[JSONMessage], new_residuals: list[JSONMessage]
 ) -> tuple[list[ChangedMessage], list[JSONMessage], list[JSONMessage]]:
@@ -118,6 +163,14 @@ def _pair_residuals(
         old_residuals,
         new_residuals,
         key=lambda m: (m["symbol"], m["path"], m["obj"]),
+        # Suppression bookkeeping is tied to a pragma whose line can't change
+        # between the two runs (the package commit is pinned): two
+        # useless-suppression at different lines are different pragmas, and a
+        # suppressed-message can only "move" (a checker anchored the message
+        # to another node) while keeping the exact same text, pragma line
+        # included.
+        accept=lambda old, new: old["symbol"] != "useless-suppression"
+        and (old["symbol"] != "suppressed-message" or old["message"] == new["message"]),
     )
     paired_by_location, missing, new = _pair_by_key(
         missing,
@@ -267,6 +320,15 @@ class Comparator:
                     pr_messages.remove(message)
                 except ValueError:
                     residual_old.append(message)
+
+            # A suppression state change of one pragma is reported on both
+            # sides at once: drop the useless-suppression side so the event is
+            # only reported once, through the suppressed-message (which
+            # carries the suppressed symbol, the pragma line and the emission
+            # location).
+            residual_old, pr_messages = _drop_useless_suppression_echoes(
+                residual_old, pr_messages
+            )
 
             # Second pass: pair residuals by symbol then by location to
             # detect *changed* messages (same warning, different line/text,
