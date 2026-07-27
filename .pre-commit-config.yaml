@@ -164,11 +164,10 @@ repos:
         args: ["--toml=pyproject.toml"]
         additional_dependencies:
           - tomli
-  # Disabled as it breaks the dependency specification of dill for Python 3.15.
-  # - repo: https://github.com/pytest-dev/pyproject-fmt
-  #   rev: "v2.12.1"
-  #   hooks:
-  #     - id: pyproject-fmt
+  - repo: https://github.com/pytest-dev/pyproject-fmt
+    rev: "2.25.4"
+    hooks:
+      - id: pyproject-fmt
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.25
     hooks:
