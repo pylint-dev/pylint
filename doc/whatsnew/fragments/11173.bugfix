@@ -1,0 +1,4 @@
+Fix a crash in ``consider-using-dict-items`` when a ``for`` loop target is
+an attribute, subscript, or another non-name target.
+
+Refs #11173
