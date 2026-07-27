@@ -136,19 +136,18 @@ def test_minimal_messages_config_enabled(pytest_config: MagicMock) -> None:
         str(DATA_DIRECTORY / "m"), "minimal_messages_config.py"
     )
     mod_test = testutils.LintModuleTest(test_file, pytest_config)
-    expected_messages = (
-            "consider-using-with",
-            "consider-using-f-string",
-            # Always enable fatal errors: important not to have false negatives
-            "astroid-error",
-            "fatal",
-            "syntax-error",
-        )
+    expected_messages: tuple[str, ...] = (
+        "consider-using-with",
+        "consider-using-f-string",
+        # Always enable fatal errors: important not to have false negatives
+        "astroid-error",
+        "fatal",
+        "syntax-error",
+    )
     if not PY315_PLUS:
         expected_messages += ("unspecified-encoding",)
     assert all(
-        mod_test._linter.is_message_enabled(msgid)
-        for msgid in expected_messages
+        mod_test._linter.is_message_enabled(msgid) for msgid in expected_messages
     )
     assert not mod_test._linter.is_message_enabled("unused-import")
 

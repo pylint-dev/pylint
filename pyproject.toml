@@ -42,11 +42,11 @@ dependencies = [
   # see https://github.com/pylint-dev/astroid/issues/1341
   "astroid>=4.2.0b5,<=4.3",
   "colorama>=0.4.5; sys_platform=='win32'",
+  # Python 3.15 support has not been released yet, so we pin to a specific commit that supports it.
+  "dill @ git+https://github.com/uqfoundation/dill@2308ffb0d0c605b9c050fa4c9fd5793d65c67022; python_version>='3.15'",
   "dill>=0.2; python_version<'3.11'",
   "dill>=0.3.6; python_version>='3.11'",
   "dill>=0.3.7; python_version>='3.12'",
-  # Python 3.15 support has not been released yet, so we pin to a specific commit that supports it.
-  "dill @ git+https://github.com/uqfoundation/dill@2308ffb0d0c605b9c050fa4c9fd5793d65c67022 ; python_version>='3.15'",
   "isort>=5,!=5.13,<9",
   "mccabe>=0.6,<0.8",
   "platformdirs>=2.2",
