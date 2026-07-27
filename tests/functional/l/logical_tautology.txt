@@ -1,6 +1,6 @@
 comparison-with-itself:6:7:6:17:foo:Redundant comparison - arg == arg:UNDEFINED
-comparison-with-itself:8:9:8:19:foo:Redundant comparison - arg != arg:UNDEFINED
-comparison-with-itself:10:9:10:18:foo:Redundant comparison - arg > arg:UNDEFINED
+comparison-with-itself:8:9:8:43:foo:Redundant comparison - obj.child.value != obj.child.value:UNDEFINED
+comparison-with-itself:10:9:10:28:foo:Redundant comparison - arg.real > arg.real:UNDEFINED
 comparison-with-itself:12:9:12:19:foo:Redundant comparison - arg <= arg:UNDEFINED
 comparison-of-constants:14:9:14:21:foo:"Comparison between constants: ""None == None"" has a constant value":HIGH
 comparison-with-itself:14:9:14:21:foo:Redundant comparison - None == None:UNDEFINED
