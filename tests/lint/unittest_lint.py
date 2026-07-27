@@ -1299,3 +1299,33 @@ def test_lint_namespace_package_under_dir_on_path(initialized_linter: PyLinter) 
         with lint.augmented_sys_path(extra_sys_paths):
             linter.check(["namespace_on_path"])
     assert linter.file_state.base_name == "namespace_on_path"
+
+
+def test_pragma_line_number_is_reset_between_modules(tmp_path: Path) -> None:
+    """A pragma in one module must not change message locations in the next.
+
+    Regression test for https://github.com/pylint-dev/pylint/pull/11176#issuecomment-5084749143
+    """
+    pragma_module = tmp_path / "with_pragma.py"
+    pragma_module.write_text(
+        '"""Short module with an unneeded pragma."""\n'
+        "# pylint: disable=too-many-lines\n",
+        encoding="utf-8",
+    )
+    long_module = tmp_path / "long_module.py"
+    long_module.write_text(
+        '"""Long module without any pragma."""\n' + "A = 1\n" * 10, encoding="utf-8"
+    )
+    reporter = testutils.GenericTestReporter()
+    linter = PyLinter()
+    linter.set_reporter(reporter)
+    checkers.initialize(linter)
+    linter.config.max_module_lines = 5
+    linter.config.persistent = 0
+    linter.disable("all")
+    linter.enable("too-many-lines")
+    linter.open()
+    linter.check([str(pragma_module), str(long_module)])
+    assert [(m.symbol, m.module, m.line) for m in reporter.messages] == [
+        ("too-many-lines", "long_module", 1)
+    ]

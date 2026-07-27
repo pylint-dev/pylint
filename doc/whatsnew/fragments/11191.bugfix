@@ -1,0 +1,6 @@
+``too-many-lines`` could be reported at the line of a ``# pylint: disable=too-many-lines``
+pragma found in a previously linted module. Pragma positions are now reset between
+modules, so the message is reported at line 1 (or at the current module's own pragma)
+regardless of which files were linted before.
+
+Refs #11191
