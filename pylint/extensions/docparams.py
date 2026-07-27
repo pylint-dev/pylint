@@ -333,7 +333,6 @@ class DocstringParameterChecker(BaseChecker):
             node_doc, node.args, node, node_allow_no_param
         )
 
-<<<<<<< HEAD
     def check_constructor_params_are_not_documented_twice(
         self, node: nodes.FunctionDef, node_doc: Docstring
     ) -> None:
@@ -348,7 +347,7 @@ class DocstringParameterChecker(BaseChecker):
             class_node.doc_node, self.linter.config.default_docstring_type
         )
         self.check_single_constructor_params(class_doc, node_doc, class_node, node.name)
-=======
+
     def check_functiondef_type_annotations(
         self,
         node: nodes.FunctionDef,
@@ -394,7 +393,6 @@ class DocstringParameterChecker(BaseChecker):
                     node=node,
                     confidence=HIGH,
                 )
->>>>>>> a16888749 (feat(docparams): add mismatched-type-doc (W9022) checker for annotation vs docstring type mismatch)
 
     def check_functiondef_returns(
         self, node: nodes.FunctionDef, node_doc: Docstring
