@@ -1,0 +1,7 @@
+Add ``invalid-lazy-import`` (E0403), emitted when a PEP 810 ``lazy`` import is
+used where Python forbids it: inside a function, a class body or a ``try``
+statement, or as a wildcard import. Python only rejects those when compiling
+the module, and ``ast`` parses them without complaining, so ``pylint`` has to
+report them itself.
+
+Refs #10982
