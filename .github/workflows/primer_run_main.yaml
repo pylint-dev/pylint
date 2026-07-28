@@ -29,8 +29,11 @@ jobs:
     timeout-minutes: 45
     strategy:
       matrix:
-        # TODO: Bump upper bound to 3.15 after final release of 3.15
-        python-version: ["3.10", "3.14"]
+        # 3.15 is here so that main publishes the 'primer_output_main_3.15_*'
+        # artifacts a PR run needs. 3.14 stays until 'primer_comment.yaml'
+        # switches its DEFAULT_PYTHON over, since that job diffs those
+        # artifacts, and dropping them would break the primer comment.
+        python-version: ["3.10", "3.14", "3.15"]
         batches: [4]
         batchIdx: [0, 1, 2, 3]
     steps:
@@ -41,6 +44,7 @@ jobs:
         uses: actions/setup-python@v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
           check-latest: true
 
       # Create a re-usable virtual environment
