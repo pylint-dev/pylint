@@ -2,4 +2,10 @@ Add ``using-comprehension-unpacking-in-unsupported-version`` (W2607), emitted wh
 the code uses the unpacking in comprehensions added by PEP 798 while
 ``py-version`` still includes a Python version that cannot compile it.
 
+Add ``invalid-lazy-import`` (E0403), emitted when a PEP 810 ``lazy`` import is
+used where Python forbids it: inside a function, a class body or a ``try``
+statement, or as a wildcard import. Python only rejects those when compiling
+the module, and ``ast`` parses them without complaining, so ``pylint`` has to
+report them itself.
+
 Refs #10982
