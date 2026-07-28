@@ -18,21 +18,6 @@
         "absolutePath": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py"
       },
       {
-        "type": "info",
-        "module": "astropy.coordinates.angles.angle_parsetab",
-        "obj": "",
-        "line": 14,
-        "column": 0,
-        "endLine": null,
-        "endColumn": null,
-        "path": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py",
-        "symbol": "locally-disabled",
-        "message": "Locally disabling looping-through-iterator (W4801)",
-        "messageId": "I0011",
-        "confidence": "UNDEFINED",
-        "absolutePath": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py"
-      },
-      {
         "type": "warning",
         "module": "astropy.coordinates.angles.angle_parsetab",
         "obj": "",
@@ -59,6 +44,21 @@
         "symbol": "unused-variable",
         "message": "Unused variable 'foo'",
         "messageId": "W0612",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py"
+      },
+      {
+        "type": "info",
+        "module": "astropy.coordinates.angles.angle_parsetab",
+        "obj": "",
+        "line": 14,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py",
+        "symbol": "locally-disabled",
+        "message": "Locally disabling looping-through-iterator (W4801)",
+        "messageId": "I0011",
         "confidence": "UNDEFINED",
         "absolutePath": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py"
       }

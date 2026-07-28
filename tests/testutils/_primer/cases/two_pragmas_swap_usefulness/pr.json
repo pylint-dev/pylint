@@ -1,24 +1,4 @@
 {
-  "astroid": {
-    "commit": "1234567890abcdef",
-    "messages": [
-      {
-        "type": "convention",
-        "module": "astroid.node_classes",
-        "obj": "my_function",
-        "line": 100,
-        "column": 0,
-        "endLine": 100,
-        "endColumn": 15,
-        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/node_classes.py",
-        "symbol": "too-complex",
-        "message": "'my_function' is too complex. The McCabe rating is 18",
-        "messageId": "R1260",
-        "confidence": "UNDEFINED",
-        "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/node_classes.py"
-      }
-    ]
-  },
   "astropy": {
     "commit": "1fb40bc1f22f176254ef583065aa155f53f3b414",
     "messages": [
@@ -26,14 +6,14 @@
         "type": "info",
         "module": "astropy.coordinates.angles.angle_parsetab",
         "obj": "",
-        "line": 14,
+        "line": 10,
         "column": 0,
         "endLine": null,
         "endColumn": null,
         "path": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py",
-        "symbol": "locally-disabled",
-        "message": "Locally disabling looping-through-iterator (W4801)",
-        "messageId": "I0011",
+        "symbol": "useless-suppression",
+        "message": "Useless suppression of 'no-member'",
+        "messageId": "I0021",
         "confidence": "UNDEFINED",
         "absolutePath": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py"
       },
@@ -41,13 +21,13 @@
         "type": "info",
         "module": "astropy.coordinates.angles.angle_parsetab",
         "obj": "",
-        "line": 14,
+        "line": 51,
         "column": 0,
         "endLine": null,
         "endColumn": null,
         "path": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py",
         "symbol": "suppressed-message",
-        "message": "Suppressed 'looping-through-iterator' (from line 14)",
+        "message": "Suppressed 'no-member' (from line 50)",
         "messageId": "I0020",
         "confidence": "UNDEFINED",
         "absolutePath": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py"
