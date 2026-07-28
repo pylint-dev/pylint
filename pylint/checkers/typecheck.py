@@ -2404,25 +2404,37 @@ class IterableChecker(BaseChecker):
         for kwarg in node.kwargs:
             self._check_mapping(kwarg.value)
 
-    @only_required_for_messages("not-an-iterable")
-    def visit_listcomp(self, node: nodes.ListComp) -> None:
+    def _check_comprehension_generators(self, node: nodes.ComprehensionScope) -> None:
         for gen in node.generators:
             self._check_iterable(gen.iter, check_async=gen.is_async)
 
+    def _check_comprehension(
+        self, node: nodes.ListComp | nodes.SetComp | nodes.GeneratorExp
+    ) -> None:
+        self._check_comprehension_generators(node)
+        # PEP 798 unpacking: ``[*element for ... ]`` iterates the element too.
+        if isinstance(node.elt, nodes.Starred):
+            self._check_iterable(node.elt.value)
+
     @only_required_for_messages("not-an-iterable")
+    def visit_listcomp(self, node: nodes.ListComp) -> None:
+        self._check_comprehension(node)
+
+    @only_required_for_messages("not-an-iterable", "not-a-mapping")
     def visit_dictcomp(self, node: nodes.DictComp) -> None:
-        for gen in node.generators:
-            self._check_iterable(gen.iter, check_async=gen.is_async)
+        self._check_comprehension_generators(node)
+        # PEP 798 unpacking: ``{**element for ...}`` merges the element, which
+        # astroid represents with a ``DictUnpack`` key.
+        if isinstance(node.key, nodes.DictUnpack):
+            self._check_mapping(node.value)
 
     @only_required_for_messages("not-an-iterable")
     def visit_setcomp(self, node: nodes.SetComp) -> None:
-        for gen in node.generators:
-            self._check_iterable(gen.iter, check_async=gen.is_async)
+        self._check_comprehension(node)
 
     @only_required_for_messages("not-an-iterable")
     def visit_generatorexp(self, node: nodes.GeneratorExp) -> None:
-        for gen in node.generators:
-            self._check_iterable(gen.iter, check_async=gen.is_async)
+        self._check_comprehension(node)
 
 
 def register(linter: PyLinter) -> None:
