@@ -10,3 +10,6 @@ def transform(lists, dicts):
     double_starred_dict = {**d for d in dicts}
     starred_gen = list(*sub for sub in lists)
     return starred_list, starred_set, double_starred_dict, starred_gen
+
+
+STILL_BAD = *[1, 2]  # [star-needs-assignment-target]
