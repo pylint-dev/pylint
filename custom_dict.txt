@@ -134,6 +134,7 @@ functiøn
 functools
 genexpr
 getattr
+getdefaultlocale
 globals
 globbing
 GPL

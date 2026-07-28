@@ -313,6 +313,13 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
     },
 }
 
+# Methods whose deprecation was reversed, keyed by the version that undid it.
+UNDEPRECATED_METHODS: DeprecationDict = {
+    # 'locale.getdefaultlocale' was announced for removal in 3.15, which
+    # reversed the deprecation instead.
+    (3, 15, 0): {"locale.getdefaultlocale"},
+}
+
 
 DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
     (3, 2, 0): {
@@ -616,6 +623,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
             if since_vers <= sys.version_info:
                 self._deprecated_methods.update(func_list)
+        for since_vers, func_list in UNDEPRECATED_METHODS.items():
+            if since_vers <= sys.version_info:
+                self._deprecated_methods.difference_update(func_list)
         for since_vers, args_list in DEPRECATED_ARGUMENTS.items():
             if since_vers <= sys.version_info:
                 self._deprecated_arguments.update(args_list)

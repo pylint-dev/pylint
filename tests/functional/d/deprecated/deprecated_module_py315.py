@@ -1,3 +1,4 @@
-"""Tests for deprecated-module with PEP 810 lazy imports."""
+"""Test deprecated modules from Python 3.15."""
 # pylint: disable=unused-import
-lazy import json  # [deprecated-module]
+
+import profile  # [deprecated-module]
