@@ -25,6 +25,7 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
   "Topic :: Software Development :: Debuggers",
@@ -39,8 +40,10 @@ dependencies = [
   # Also upgrade test-min dependency group and requirements_test_min.txt.
   # Pinned to dev of second minor update to allow editable installs and fix primer issues,
   # see https://github.com/pylint-dev/astroid/issues/1341
-  "astroid>=4.2.0b4,<=4.3",
+  "astroid>=4.2.0b5,<=4.3",
   "colorama>=0.4.5; sys_platform=='win32'",
+  # Python 3.15 support has not been released yet, so we pin to a specific commit that supports it.
+  "dill @ git+https://github.com/uqfoundation/dill@2308ffb0d0c605b9c050fa4c9fd5793d65c67022 ; python_version>='3.15'",
   "dill>=0.2; python_version<'3.11'",
   "dill>=0.3.6; python_version>='3.11'",
   "dill>=0.3.7; python_version>='3.12'",
@@ -88,7 +91,7 @@ docs = [
 # Configuration for the build system
 test-min = [
   # Base test dependencies
-  "astroid==4.2.0b4",                   # Pinned to a specific version for tests
+  "astroid==4.2.0b5",                   # Pinned to a specific version for tests
   "py~=1.11.0",
   "pytest>=8.4,<10",
   "pytest-benchmark~=5.1",
@@ -202,7 +205,7 @@ skip = """\
   """
 
 [tool.pyproject-fmt]
-max_supported_python = "3.14"
+max_supported_python = "3.15"
 
 [tool.mypy]
 # TODO: Remove this once pytest has annotations
