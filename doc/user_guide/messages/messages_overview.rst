@@ -99,6 +99,7 @@ All messages in the error category:
    error/invalid-getnewargs-returned
    error/invalid-hash-returned
    error/invalid-index-returned
+   error/invalid-lazy-import
    error/invalid-length-hint-returned
    error/invalid-length-returned
    error/invalid-match-args-definition
