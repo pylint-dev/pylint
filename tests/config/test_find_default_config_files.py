@@ -20,7 +20,9 @@ from pytest import CaptureFixture
 from pylint import config, testutils
 from pylint.config.find_default_config_files import (
     _cfg_or_ini_has_config,
+    _minimum_from_requires_python,
     _toml_has_config,
+    find_default_py_version,
 )
 from pylint.lint.run import Run
 
@@ -340,3 +342,68 @@ def test_permission_error() -> None:
     """
     with mock.patch("pathlib.Path.is_file", side_effect=PermissionError):
         list(config.find_default_config_files())
+
+
+@pytest.mark.parametrize(
+    "requires_python,expected",
+    [
+        (">=3.10.0", (3, 10, 0)),
+        (">=3.10", (3, 10)),
+        (">=3.9,<4", (3, 9)),
+        (">=3.9, <4", (3, 9)),
+        ("<4,>=3.9", (3, 9)),
+        (">=3.8,!=3.9.*", (3, 8)),
+        ("~=3.11", (3, 11)),
+        # The strictest lower bound wins
+        (">=3.9,>=3.11", (3, 11)),
+        # Nothing that pins the lower bound exactly
+        (">3.8", None),
+        ("<4", None),
+        ("==3.11.*", None),
+        ("", None),
+        # Not a version at all
+        (">=three.ten", None),
+        (">=", None),
+    ],
+)
+def test_minimum_from_requires_python(
+    requires_python: str, expected: tuple[int, ...] | None
+) -> None:
+    """Test the lower bound we read out of a 'requires-python' value."""
+    assert _minimum_from_requires_python(requires_python) == expected
+
+
+@pytest.mark.parametrize(
+    "content,expected",
+    [
+        ('[project]\nrequires-python = ">=3.10"\n', (3, 10)),
+        # No lower bound to read, the caller keeps its own default
+        ('[project]\nrequires-python = "<4"\n', None),
+        ("[project]\nname = 'no_requires_python'\n", None),
+        ("[tool.pylint]\n", None),
+        # 'requires-python' must be a string
+        ("[project]\nrequires-python = 3.10\n", None),
+        ("this is not toml", None),
+    ],
+)
+def test_find_default_py_version(
+    content: str, expected: tuple[int, ...] | None, tmp_path: Path
+) -> None:
+    """Test reading 'requires-python' from the closest pyproject.toml."""
+    (tmp_path / "pyproject.toml").write_text(content, encoding="utf-8")
+    current_dir = os.getcwd()
+    os.chdir(tmp_path)
+    try:
+        assert find_default_py_version() == expected
+    finally:
+        os.chdir(current_dir)
+
+
+def test_find_default_py_version_without_pyproject(tmp_path: Path) -> None:
+    """Test that a project without a pyproject.toml keeps the default."""
+    current_dir = os.getcwd()
+    os.chdir(tmp_path)
+    try:
+        assert find_default_py_version() is None
+    finally:
+        os.chdir(current_dir)

@@ -40,6 +40,39 @@ def _find_pyproject() -> Path:
     return current_dir
 
 
+def _minimum_from_requires_python(specifiers: str) -> tuple[int, ...] | None:
+    """Return the oldest version allowed by a ``requires-python`` value.
+
+    Only the clauses that pin a lower bound exactly are understood::
+
+        ">=3.10.0"       ->  (3, 10, 0)
+        ">=3.9, <4"      ->  (3, 9)
+        "~=3.11"         ->  (3, 11)
+        ">3.8"           ->  None
+        "<4"             ->  None
+
+    ``None`` means no lower bound could be read, in which case the caller
+    should fall back to its own default rather than guess.
+    """
+    minimum: tuple[int, ...] | None = None
+    for specifier in specifiers.split(","):
+        specifier = specifier.strip()
+        for operator in (">=", "~="):
+            if not specifier.startswith(operator):
+                continue
+            try:
+                version = tuple(
+                    int(part) for part in specifier[len(operator) :].strip().split(".")
+                )
+            except ValueError:
+                return None
+            # I.e. ">=3.9, >=3.11" is as strict as ">=3.11"
+            if minimum is None or version > minimum:
+                minimum = version
+            break
+    return minimum
+
+
 def _toml_has_config(path: Path | str) -> bool:
     with open(path, mode="rb") as toml_handle:
         try:
@@ -115,6 +148,27 @@ def _find_config_in_home_or_environment() -> Iterator[Path]:
             home_rc = user_home / ".config" / "pylintrc"
             if home_rc.is_file():
                 yield home_rc.resolve()
+
+
+def find_default_py_version() -> tuple[int, ...] | None:
+    """Return the oldest Python version the project being linted supports.
+
+    It comes from ``requires-python`` in the closest ``pyproject.toml``, which is
+    a better guess than the interpreter running pylint. ``None`` means there is
+    nothing to read it from, or that it is not a plain lower bound.
+    """
+    try:
+        pyproject = _find_pyproject()
+        if not pyproject.is_file():
+            return None
+        with open(pyproject, mode="rb") as toml_handle:
+            content = tomllib.load(toml_handle)
+    except (OSError, tomllib.TOMLDecodeError):
+        return None
+    requires_python = content.get("project", {}).get("requires-python")
+    if not isinstance(requires_python, str):
+        return None
+    return _minimum_from_requires_python(requires_python)
 
 
 def find_default_config_files() -> Iterator[Path]:
