@@ -3,6 +3,7 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 import os
+from pathlib import Path
 from unittest import mock
 
 import pytest
@@ -17,6 +18,81 @@ def _initialized_linter(linter: PyLinter) -> PyLinter:
     return linter
 
 
+@pytest.fixture(name="package_with_non_package_subdirectories")
+def _package_with_non_package_subdirectories(tmp_path: Path) -> tuple[Path, set[Path]]:
+    package = tmp_path / "root_package"
+    files = {
+        package / "__init__.py",
+        package / "module.py",
+        package / "nested_package" / "__init__.py",
+        package / "nested_package" / "module.py",
+        package / "nested_package" / "tools" / "tool.py",
+        package / "scripts" / "script.py",
+        package / "scripts" / "helper.pyi",
+        package / "scripts" / "extra_package" / "__init__.py",
+        package / "scripts" / "extra_package" / "module.py",
+        package / "scripts" / "extra_package" / "resources" / "data.py",
+    }
+    for file in files:
+        file.parent.mkdir(parents=True, exist_ok=True)
+        file.touch()
+    return package, files
+
+
+def test_discover_files_below_package_root(
+    initialized_linter: PyLinter,
+    package_with_non_package_subdirectories: tuple[Path, set[Path]],
+) -> None:
+    package, _ = package_with_non_package_subdirectories
+
+    discovered = {
+        Path(path) for path in initialized_linter._discover_files([str(package)])
+    }
+
+    assert discovered == {
+        package,
+        package / "nested_package" / "tools" / "tool.py",
+        package / "scripts" / "script.py",
+        package / "scripts" / "helper.pyi",
+        package / "scripts" / "extra_package",
+        package / "scripts" / "extra_package" / "resources" / "data.py",
+    }
+
+
+@pytest.mark.parametrize("trailing_separator", [False, True])
+def test_expanded_files_below_package_root_are_not_duplicated(
+    initialized_linter: PyLinter,
+    package_with_non_package_subdirectories: tuple[Path, set[Path]],
+    trailing_separator: bool,
+) -> None:
+    package, expected_files = package_with_non_package_subdirectories
+    package_argument = str(package) + (os.sep if trailing_separator else "")
+
+    discovered = tuple(initialized_linter._discover_files([package_argument]))
+    file_descriptions = tuple(initialized_linter._iterate_file_descrs(discovered))
+    expanded_files = [Path(item.filepath) for item in file_descriptions]
+
+    assert set(expanded_files) == expected_files
+    assert len(expanded_files) == len(expected_files)
+
+
+def test_ignore_non_package_subdirectory_below_package_root(
+    initialized_linter: PyLinter,
+    package_with_non_package_subdirectories: tuple[Path, set[Path]],
+) -> None:
+    package, _ = package_with_non_package_subdirectories
+    initialized_linter.config.ignore = ["scripts"]
+
+    discovered = {
+        Path(path) for path in initialized_linter._discover_files([str(package)])
+    }
+
+    assert discovered == {
+        package,
+        package / "nested_package" / "tools" / "tool.py",
+    }
+
+
 def mock_isdir(path: str) -> bool:
     """
     Mock of os.path.isdir() for the following tests:
@@ -26,19 +102,6 @@ def mock_isdir(path: str) -> bool:
     if path == ".":
         return True
     raise ValueError(f"Not expecting an isdir call on {path}")
-
-
-def mock_isfile(path: str) -> bool:
-    """
-    Mock of os.path.isfile() for the following tests:
-    - test_discover_files_does_not_ignore_similarly_named_package
-    - test_discover_files_does_not_ignore_similarly_named_package_even_if_first_is_ignored
-    """
-    if path == f".{os.sep}__init__.py":
-        return False
-    if path == f".{os.sep}manage.py":
-        return True
-    raise ValueError(f"Not expecting an isfile call on {path}")
 
 
 @pytest.fixture(name="mock_tree")
@@ -81,21 +144,13 @@ def test_does_not_ignore_similarly_named_package(
     first and does not match an ignore config value.
     """
     with mock.patch("os.walk") as mock_walk:
-        with mock.patch.multiple(
-            "os.path", isdir=mock.DEFAULT, isfile=mock.DEFAULT
-        ) as mock_path:
+        with mock.patch("os.path.isdir", side_effect=mock_isdir) as mock_isdir_method:
             mock_walk.return_value = mock_tree
-            mock_path["isdir"].side_effect = mock_isdir
-            mock_path["isfile"].side_effect = mock_isfile
 
             results = tuple(initialized_linter._discover_files(["."]))
 
-            assert mock_path["isdir"].call_count == 1
-            assert mock_path["isdir"].call_args_list == [mock.call(".")]
-            assert mock_path["isfile"].call_count == 1
-            assert mock_path["isfile"].call_args_list == [
-                mock.call(f".{os.sep}__init__.py"),
-            ]
+            assert mock_isdir_method.call_count == 1
+            assert mock_isdir_method.call_args_list == [mock.call(".")]
 
     assert len(results) == 3
     assert results == (
@@ -116,9 +171,7 @@ def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
     NOTE: manage.py probably should be ignored.
     """
     with mock.patch("os.walk") as mock_walk:
-        with mock.patch.multiple(
-            "os.path", isdir=mock.DEFAULT, isfile=mock.DEFAULT
-        ) as mock_path:
+        with mock.patch("os.path.isdir", side_effect=mock_isdir) as mock_isdir_method:
             initialized_linter.config.ignore = [
                 ".venv",
                 "applications",
@@ -126,17 +179,11 @@ def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
                 "manage.py",
             ]
             mock_walk.return_value = mock_tree
-            mock_path["isdir"].side_effect = mock_isdir
-            mock_path["isfile"].side_effect = mock_isfile
 
             results = tuple(initialized_linter._discover_files(["."]))
 
-            assert mock_path["isdir"].call_count == 1
-            assert mock_path["isdir"].call_args_list == [mock.call(".")]
-            assert mock_path["isfile"].call_count == 1
-            assert mock_path["isfile"].call_args_list == [
-                mock.call(f".{os.sep}__init__.py"),
-            ]
+            assert mock_isdir_method.call_count == 1
+            assert mock_isdir_method.call_args_list == [mock.call(".")]
 
     assert len(results) == 2
     assert results == (f".{os.sep}manage.py", f".{os.sep}applications_api")
