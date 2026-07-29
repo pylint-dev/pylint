@@ -1855,6 +1855,16 @@ def get_import_name(importnode: ImportNode, modname: str | None) -> str | None:
     return modname
 
 
+def is_sys_version_info(node: nodes.NodeNG) -> bool:
+    """Return True if node refers to ``sys.version_info``."""
+    return (
+        isinstance(node, nodes.Attribute)
+        and node.attrname == "version_info"
+        and isinstance(node.expr, nodes.Name)
+        and node.expr.name == "sys"
+    )
+
+
 def is_sys_guard(node: nodes.If) -> bool:
     """Return True if IF stmt is a sys.version_info guard.
 
@@ -1865,10 +1875,7 @@ def is_sys_guard(node: nodes.If) -> bool:
         value = node.test.left
         if isinstance(value, nodes.Subscript):
             value = value.value
-        if (
-            isinstance(value, nodes.Attribute)
-            and value.as_string() == "sys.version_info"
-        ):
+        if is_sys_version_info(value):
             return True
     elif isinstance(node.test, nodes.Attribute) and node.test.as_string() in {
         "six.PY2",
