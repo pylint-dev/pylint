@@ -56,6 +56,20 @@ TYPING_PROTOCOLS = frozenset(
     {"typing.Protocol", "typing_extensions.Protocol", ".Protocol"}
 )
 COMMUTATIVE_OPERATORS = frozenset({"*", "+", "^", "&", "|"})
+REVERSED_COMPS = {
+    "<": ">",
+    "<=": ">=",
+    ">": "<",
+    ">=": "<=",
+    "==": "==",
+    "!=": "!=",
+}
+"""Comparators mapped to the comparator to use once the operands are swapped.
+
+Membership and identity operators are left out on purpose: unlike for
+:func:`get_inverse_comparator`, swapping the operands of ``in`` or ``is``
+changes the meaning of the comparison.
+"""
 ITER_METHOD = "__iter__"
 AITER_METHOD = "__aiter__"
 NEXT_METHOD = "__next__"
