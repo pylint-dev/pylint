@@ -105,3 +105,15 @@ class SixthGoodIterator:
 
     def __iter__(self):
         return UNINFERABLE
+
+
+class ClassmethodGetattr:
+    """Regression fixture for inference through a classmethod."""
+
+    @classmethod
+    def f(cls):
+        return 2
+
+    @classmethod
+    def h(cls):
+        return getattr(cls.f, "__func__")

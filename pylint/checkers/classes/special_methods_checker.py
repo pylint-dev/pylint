@@ -40,14 +40,14 @@ def _safe_infer_call_result(
     try:
         inferit = node.infer_call_result(caller, context=context)
         value = next(inferit)
-    except astroid.InferenceError:
+    except (astroid.InferenceError, AttributeError):
         return None  # inference failed
     except StopIteration:
         return None  # no values inferred
     try:
         next(inferit)
         return None  # there is ambiguity on the inferred node
-    except astroid.InferenceError:
+    except (astroid.InferenceError, AttributeError):
         return None  # there is some kind of ambiguity
     except StopIteration:
         return value

@@ -1,0 +1,3 @@
+Fix a crash when inferring ``getattr()`` on a classmethod.
+
+Closes #11198
