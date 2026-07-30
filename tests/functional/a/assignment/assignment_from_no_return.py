@@ -91,3 +91,15 @@ class Unsupported:
 
 
 link = Unsupported().readlink()  # no error here
+
+
+# The same holds when an earlier branch returns without a value: the function
+# body still ends in an unconditional raise.
+def early_return_then_raise(value):
+    """Returns on one branch, otherwise always raises"""
+    if value:
+        return
+    raise ValueError(value)
+
+
+maybe = early_return_then_raise(None)  # no error here
