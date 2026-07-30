@@ -119,3 +119,16 @@ for k in D:  # [consider-using-dict-items]
 for var in os.environ.keys():  # [consider-iterating-dictionary]
     if var.startswith("foo_"):
         del os.environ[var]  # index lookup necessary here, do not emit error
+
+
+# Regression test for issue #11173
+SETTINGS = {"debug": True, "verbose": False}
+
+
+class Walker:
+    def __init__(self):
+        self.current = None
+
+    def run(self, key):
+        for self.current in SETTINGS:
+            print(SETTINGS[key])
