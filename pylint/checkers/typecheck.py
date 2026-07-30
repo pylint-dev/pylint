@@ -241,7 +241,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "callable object.",
     ),
     "E1111": (
-        "Assigning result of a function call, where the function has no return",
+        "Assigning result of %r to a variable, but %r doesn't return anything%s",
         "assignment-from-no-return",
         "Used when an assignment is done on a function call but the "
         "inferred function doesn't return anything.",
@@ -1314,7 +1314,10 @@ accessed. Python regular expressions are accepted.",
         # Handle builtins such as list.sort() or dict.update()
         if self._is_builtin_no_return(node):
             self.add_message(
-                "assignment-from-no-return", node=node, confidence=INFERENCE
+                "assignment-from-no-return",
+                node=node,
+                args=self._assignment_from_no_return_args(node),
+                confidence=INFERENCE,
             )
             return
 
@@ -1325,7 +1328,11 @@ accessed. Python regular expressions are accepted.",
             function_node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
         )
         if not return_nodes:
-            self.add_message("assignment-from-no-return", node=node)
+            self.add_message(
+                "assignment-from-no-return",
+                node=node,
+                args=self._assignment_from_no_return_args(node),
+            )
         else:
             for ret_node in return_nodes:
                 match ret_node.value:
@@ -1369,6 +1376,23 @@ accessed. Python regular expressions are accepted.",
                     and attr in BUILTINS_IMPLICIT_RETURN_NONE.get(inferred.pytype(), ())
                 )
         return False
+
+    @staticmethod
+    def _assignment_from_no_return_args(node: nodes.Assign) -> tuple[str, str, str]:
+        assert isinstance(node.value, nodes.Call)
+        call = node.value.as_string()
+        match node.value.func:
+            case nodes.Attribute(attrname=attr):
+                name = f"{attr}()"
+                suggestion = {"reverse": "reversed", "sort": "sorted"}.get(attr)
+            case nodes.Name(name=func_name):
+                name = f"{func_name}()"
+                suggestion = None
+            case _:
+                name = call
+                suggestion = None
+        hint = f"; did you mean to use {suggestion}(...) instead?" if suggestion else ""
+        return call, name, hint
 
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:
         """Check a string is assigned to self.__name__."""
