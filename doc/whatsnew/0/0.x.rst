@@ -4,13 +4,13 @@ Release date: 2013-04-25
 
 * bitbucket #1: fix "dictionary changed size during iteration" crash
 
-* #74013: new E1310[bad-str-strip-call] message warning when a call to a
+* #74013: new E1310[:ref:`bad-str-strip-call`] message warning when a call to a
   {l,r,}strip method contains duplicate characters (patch by Torsten Marek)
 
-* #123233: new E0108[duplicate-argument-name] message reporting duplicate
+* #123233: new E0108[:ref:`duplicate-argument-name`] message reporting duplicate
   argument names
 
-* #81378: emit W0120[useless-else-on-loop] for loops without break
+* #81378: emit W0120[:ref:`useless-else-on-loop`] for loops without break
 
 * #124660: internal dependencies should not appear in external dependencies
   report

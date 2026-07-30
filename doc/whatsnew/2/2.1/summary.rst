@@ -48,7 +48,7 @@ Other Changes
 
 * ``no-else-return`` also specifies the type of the branch that is causing the error.
 
-* Fixed inconsistent behaviour for bad-continuation on first line of file.
+* Fixed inconsistent behaviour for :ref:`bad-continuation` on first line of file.
 
 * Fixed a bug where ``pylint`` was not able to disable certain messages on the last line through
   the global disable option.

@@ -61,7 +61,7 @@ Release date: 2018-08-01
 
   Closes #2295
 
-* Fix inconsistent behaviour for bad-continuation on first line of file
+* Fix inconsistent behaviour for :ref:`bad-continuation` on first line of file
 
   Closes #2281
 

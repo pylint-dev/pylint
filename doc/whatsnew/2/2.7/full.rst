@@ -137,7 +137,7 @@ Release date: 2021-02-21
 
 * Add ``nan-comparison`` check for NaN comparisons
 
-* Bug fix for empty-comment message line number.
+* Bug fix for :ref:`empty-comment` message line number.
 
   Closes #4009
 
@@ -179,7 +179,7 @@ Release date: 2021-02-21
 
   Closes #3347, #3953, #3865, #3275
 
-* Fix TypedDict inherit-non-class false-positive Python 3.9+
+* Fix TypedDict :ref:`inherit-non-class` false-positive Python 3.9+
 
   Closes #1927
 
