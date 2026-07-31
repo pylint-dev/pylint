@@ -1,0 +1,5 @@
+Fix a false positive for ``unspecified-encoding`` (W1514) when the ``mode``
+argument of ``open`` cannot be inferred (e.g. it is a function parameter),
+since the mode could be binary.
+
+Closes #10201
