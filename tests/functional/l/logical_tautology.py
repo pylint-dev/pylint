@@ -5,7 +5,11 @@ def foo(obj):
     arg = 786
     if arg == arg: # [comparison-with-itself]
         return True
+    elif arg != arg: # [comparison-with-itself]
+        return True
     elif obj.child.value != obj.child.value: # [comparison-with-itself]
+        return True
+    elif arg > arg: # [comparison-with-itself]
         return True
     elif arg.real > arg.real: # [comparison-with-itself]
         return True
