@@ -1,0 +1,7 @@
+Fix a false positive for ``useless-parent-delegation`` when a method overrides a
+method of a C-level parent whose signature cannot be inspected, such as
+``Exception.__init__``. Because ``Exception.__init__`` accepts ``*args``, an
+override taking only ``self`` narrows the accepted arguments and is not useless.
+Overrides of ``object.__init__`` are still reported.
+
+Closes #9994
