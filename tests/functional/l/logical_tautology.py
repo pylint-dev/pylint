@@ -38,3 +38,21 @@ def bar():
 def foobar():
     arg = 786
     return arg > 786
+
+
+class TestClass:
+    def __init__(self):
+        self.x = 1
+
+    @property
+    def prop(self):
+        return 42
+
+    def method(self):
+        if self.x == self.x:  # [comparison-with-itself]
+            return True
+        if self.prop == self.prop:  # property is not idempotent, no message
+            return True
+        if self.x != self.x:  # [comparison-with-itself]
+            return True
+        return None
