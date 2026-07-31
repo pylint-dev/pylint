@@ -1874,10 +1874,10 @@ def is_platform_guard(node: nodes.If) -> bool:
         value = node.test.left
         if isinstance(value, nodes.Subscript):
             value = value.value
-        if (
-            isinstance(value, nodes.Attribute)
-            and value.as_string() in {"os.name", "sys.platform"}
-        ):
+        if isinstance(value, nodes.Attribute) and value.as_string() in {
+            "os.name",
+            "sys.platform",
+        }:
             return True
     return False
 
