@@ -90,3 +90,23 @@ def test_context_managers(**kw):
 
 
 test_context_managers(a=1)
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/10029
+# Keyword-only arguments provided through a **kwargs dict whose keys are
+# inferable should not be reported as missing.
+def fun_with_kwargs(a, b, *, c, d, **kwargs):
+    """function with kwargs"""
+    return a + b + c + d
+
+
+someargs = {}
+someargs["c"] = 3
+someargs["d"] = 4
+someargs["e"] = 5
+someargs["f"] = 6
+
+rval = fun_with_kwargs(1, 2, **someargs)
+
+# Control: the dict does not contain the required keyword-only arguments.
+otherargs = {"e": 5}
+rval2 = fun_with_kwargs(1, 2, **otherargs)  # [missing-kwoa, missing-kwoa]
