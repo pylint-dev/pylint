@@ -467,7 +467,7 @@ def test_disable_similar_with_reports(initialized_linter: PyLinter) -> None:
     assert "metrics" in checker_names
 
 
-def test_disable_alot(linter: PyLinter) -> None:
+def test_disable_a_lot(linter: PyLinter) -> None:
     """Check that we disabled a lot of checkers."""
     linter.set_option("reports", False)
     linter.set_option("disable", "R,C,W")
