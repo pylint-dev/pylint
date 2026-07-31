@@ -1,0 +1,5 @@
+``comparison-with-itself`` now also flags redundant comparisons of the same
+attribute access, e.g. ``a.b == a.b``, when the receiver is a plain name and
+the attribute is not a property (properties are not idempotent).
+
+Closes #10713

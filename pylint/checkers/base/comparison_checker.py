@@ -245,10 +245,53 @@ class ComparisonChecker(_BasicChecker):
         ):
             left_operand = left_operand.name
             right_operand = right_operand.name
+        elif isinstance(left_operand, nodes.Attribute) and isinstance(
+            right_operand, nodes.Attribute
+        ):
+            # Compare identical attribute accesses, e.g. ``a.b == a.b``.
+            # Only flag when the receiver is a plain name (a call or an
+            # attribute chain may evaluate to different objects) and the
+            # attribute is not a property (which is not idempotent).
+            if (
+                left_operand.attrname == right_operand.attrname
+                and isinstance(left_operand.expr, nodes.Name)
+                and isinstance(right_operand.expr, nodes.Name)
+                and left_operand.expr.name == right_operand.expr.name
+                and not self._is_property_attribute(left_operand)
+            ):
+                left_operand = left_operand.as_string()
+                right_operand = right_operand.as_string()
+            else:
+                return
 
         if left_operand == right_operand:
             suggestion = f"{left_operand} {operator} {right_operand}"
             self.add_message("comparison-with-itself", node=node, args=(suggestion,))
+
+    def _is_property_attribute(self, node: nodes.Attribute) -> bool:
+        """Return True when the attribute access resolves to a property.
+
+        Properties are not idempotent, so ``a.prop == a.prop`` may be a
+        meaningful comparison. ``functools.cached_property`` is excluded:
+        it evaluates once per instance, so two accesses compare the same
+        value.
+        """
+        receiver = utils.safe_infer(node.expr)
+        if receiver is None:
+            return True
+        try:
+            attrs = receiver.getattr(node.attrname)
+        except astroid.exceptions.AttributeInferenceError:
+            return True
+        if attrs is astroid.Uninferable:
+            return True
+        return any(
+            isinstance(attr, nodes.FunctionDef)
+            and {"builtins.property", "abc.abstractproperty"}.intersection(
+                attr.decoratornames()
+            )
+            for attr in attrs
+        )
 
     def _check_constants_comparison(self, node: nodes.Compare) -> None:
         """When two constants are being compared it is always a logical tautology."""
