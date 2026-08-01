@@ -1,0 +1,1 @@
+consider-iterating-dictionary:22:19:22:27:loop_into_attribute_keys:Consider iterating the dictionary directly instead of calling .keys():INFERENCE

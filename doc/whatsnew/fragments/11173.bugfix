@@ -1,0 +1,4 @@
+Fix a crash in ``consider-using-dict-items`` when the loop or comprehension
+target is an attribute or a subscript instead of a plain name.
+
+Closes #11173
