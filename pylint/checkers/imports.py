@@ -31,6 +31,7 @@ from pylint.checkers.utils import (
     is_module_ignored,
     is_sys_guard,
     node_ignores_exception,
+    zealous_is_sys_guard,
 )
 from pylint.constants import MAX_NUMBER_OF_IMPORT_SHOWN
 from pylint.exceptions import EmptyReportError
@@ -148,10 +149,11 @@ def _ignore_import_failure(
         return True
 
     # Ignore import failure if part of guarded import block
-    # I.e. `sys.version_info` or `typing.TYPE_CHECKING`
+    # I.e. `sys.version_info` or `typing.TYPE_CHECKING`. The import already
+    # failed, so this runs rarely and can afford the zealous guard detection.
     if in_type_checking_block(node):
         return True
-    if isinstance(node.parent, nodes.If) and is_sys_guard(node.parent):
+    if isinstance(node.parent, nodes.If) and zealous_is_sys_guard(node.parent):
         return True
 
     return node_ignores_exception(node, ImportError)

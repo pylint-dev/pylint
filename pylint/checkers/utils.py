@@ -1864,6 +1864,85 @@ def is_sys_guard(node: nodes.If) -> bool:
     return False
 
 
+def zealous_is_sys_guard(node: nodes.If) -> bool:
+    """Return True if IF stmt is a version guard, however it is spelled.
+
+    A more thorough (and more expensive) version of ``is_sys_guard``: it
+    resolves names instead of matching the exact ``sys.version_info`` spelling,
+    so it also recognizes guards written ``from sys import version_info``,
+    guards on aliased imports, ``sys.hexversion``, and comparisons putting the
+    version on the right-hand side. Reserve it for checks that run rarely,
+    e.g. once an import has already failed.
+    """
+    if is_sys_guard(node):
+        return True
+    return _is_version_guard_test(node.test)
+
+
+def _is_version_guard_test(test: nodes.NodeNG) -> bool:
+    match test:
+        case nodes.BoolOp():
+            return any(_is_version_guard_test(value) for value in test.values)
+        case nodes.UnaryOp(op="not"):
+            return _is_version_guard_test(test.operand)
+        case nodes.Compare():
+            operands = [test.left] + [operand for _, operand in test.ops]
+            return any(_is_version_info_value(operand) for operand in operands)
+        case _:
+            # A bare truthiness guard: only six's version flags qualify.
+            return _is_six_version_flag(test)
+
+
+def _is_version_info_value(value: nodes.NodeNG) -> bool:
+    match value:
+        case nodes.Subscript():
+            return _is_version_info_value(value.value)
+        case nodes.Attribute(attrname="version_info" | "hexversion"):
+            return _resolves_to_module(value.expr, "sys")
+        case nodes.Attribute():
+            # e.g. the `major` in `version_info.major`
+            return _is_version_info_value(value.expr)
+        case nodes.Name():
+            return _binds_module_member(
+                value, "sys", frozenset({"version_info", "hexversion"})
+            )
+        case _:
+            return False
+
+
+def _is_six_version_flag(test: nodes.NodeNG) -> bool:
+    match test:
+        case nodes.Attribute(attrname="PY2" | "PY3"):
+            return _resolves_to_module(test.expr, "six")
+        case nodes.Name():
+            return _binds_module_member(test, "six", frozenset({"PY2", "PY3"}))
+        case _:
+            return False
+
+
+def _resolves_to_module(expr: nodes.NodeNG, modname: str) -> bool:
+    match safe_infer(expr):
+        case nodes.Module(name=name) if name == modname:
+            return True
+    return False
+
+
+def _binds_module_member(
+    name: nodes.Name, modname: str, members: frozenset[str]
+) -> bool:
+    """Whether the name is bound by a ``from modname import <member>``."""
+    _, assignments = name.lookup(name.name)
+    return any(
+        isinstance(assignment, nodes.ImportFrom)
+        and assignment.modname == modname
+        and any(
+            real in members and (alias or real) == name.name
+            for real, alias in assignment.names
+        )
+        for assignment in assignments
+    )
+
+
 def _is_node_in_same_scope(
     candidate: nodes.NodeNG, node_scope: nodes.LocalsDictNodeNG
 ) -> bool:
