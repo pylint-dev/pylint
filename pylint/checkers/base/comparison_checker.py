@@ -24,6 +24,19 @@ def _is_one_arg_pos_call(call: nodes.NodeNG) -> bool:
     return isinstance(call, nodes.Call) and len(call.args) == 1 and not call.keywords
 
 
+def _same_attribute_chain(left: nodes.Attribute, right: nodes.Attribute) -> bool:
+    if left.attrname != right.attrname:
+        return False
+
+    match left.expr, right.expr:
+        case nodes.Name(name=left_name), nodes.Name(name=right_name):
+            return bool(left_name == right_name)
+        case nodes.Attribute() as left_attribute, nodes.Attribute() as right_attribute:
+            return _same_attribute_chain(left_attribute, right_attribute)
+        case _:
+            return False
+
+
 class ComparisonChecker(_BasicChecker):
     """Checks for comparisons.
 
@@ -288,6 +301,13 @@ class ComparisonChecker(_BasicChecker):
         ):
             left_operand = left_operand.name
             right_operand = right_operand.name
+        elif (
+            isinstance(left_operand, nodes.Attribute)
+            and isinstance(right_operand, nodes.Attribute)
+            and _same_attribute_chain(left_operand, right_operand)
+        ):
+            left_operand = left_operand.as_string()
+            right_operand = right_operand.as_string()
 
         if left_operand == right_operand:
             suggestion = f"{left_operand} {operator} {right_operand}"
