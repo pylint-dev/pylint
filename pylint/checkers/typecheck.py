@@ -1343,6 +1343,18 @@ accessed. Python regular expressions are accepted.",
         return (
             isinstance(function_node, nodes.AsyncFunctionDef)
             or utils.is_error(function_node)
+            # a body ending in an unconditional raise, with no return statement
+            # anywhere, never returns normally
+            or (
+                bool(function_node.body)
+                and isinstance(function_node.body[-1], nodes.Raise)
+                and not any(
+                    function_node.nodes_of_class(
+                        nodes.Return,
+                        skip_klass=(nodes.FunctionDef, nodes.Lambda),
+                    )
+                )
+            )
             or function_node.is_generator()
             or function_node.is_abstract(pass_is_abstract=False)
         )
