@@ -1,14 +1,23 @@
-nan-comparison:7:4:7:18::Comparison 'x is numpy.NaN' should be 'math.isnan(x)':UNDEFINED
-nan-comparison:8:4:8:18::Comparison 'x == numpy.NaN' should be 'math.isnan(x)':UNDEFINED
-nan-comparison:9:4:9:21::Comparison 'x == float('nan')' should be 'math.isnan(x)':UNDEFINED
-nan-comparison:10:4:10:21::Comparison 'x is float('nan')' should be 'math.isnan(x)':UNDEFINED
-nan-comparison:11:4:11:26::Comparison 'numpy.NaN == numpy.NaN' should be 'math.isnan(numpy.NaN)':UNDEFINED
-nan-comparison:14:4:14:22::Comparison 'numpy.NaN is not x' should be 'not math.isnan(x)':UNDEFINED
-nan-comparison:15:4:15:18::Comparison 'numpy.NaN != x' should be 'not math.isnan(x)':UNDEFINED
-nan-comparison:17:4:17:18::Comparison 'x != numpy.NaN' should be 'not math.isnan(x)':UNDEFINED
-nan-comparison:18:5:18:22::Comparison 'x != float('nan')' should be 'not math.isnan(x)':UNDEFINED
-nan-comparison:19:4:19:22::Comparison 'x is not numpy.NaN' should be 'not math.isnan(x)':UNDEFINED
-nan-comparison:20:7:20:21::Comparison 'x == numpy.NaN' should be 'math.isnan(x)':UNDEFINED
-nan-comparison:21:7:21:28::Comparison 'x is not float('nan')' should be 'not math.isnan(x)':UNDEFINED
-nan-comparison:22:3:22:17::Comparison 'x == numpy.NaN' should be 'math.isnan(x)':UNDEFINED
-nan-comparison:24:9:24:23::Comparison 'x is numpy.NaN' should be 'math.isnan(x)':UNDEFINED
+nan-comparison:12:4:12:18::Comparison 'x is numpy.NaN' should be 'math.isnan(x)':UNDEFINED
+nan-comparison:13:4:13:18::Comparison 'x == numpy.NaN' should be 'math.isnan(x)':UNDEFINED
+nan-comparison:14:4:14:21::Comparison 'x == float('nan')' should be 'math.isnan(x)':UNDEFINED
+nan-comparison:15:4:15:21::Comparison 'x is float('nan')' should be 'math.isnan(x)':UNDEFINED
+nan-comparison:16:4:16:26::Comparison 'numpy.NaN == numpy.NaN' should be 'math.isnan(numpy.NaN)':UNDEFINED
+nan-comparison:19:4:19:22::Comparison 'numpy.NaN is not x' should be 'not math.isnan(x)':UNDEFINED
+nan-comparison:20:4:20:18::Comparison 'numpy.NaN != x' should be 'not math.isnan(x)':UNDEFINED
+nan-comparison:22:4:22:18::Comparison 'x != numpy.NaN' should be 'not math.isnan(x)':UNDEFINED
+nan-comparison:23:5:23:22::Comparison 'x != float('nan')' should be 'not math.isnan(x)':UNDEFINED
+nan-comparison:24:4:24:22::Comparison 'x is not numpy.NaN' should be 'not math.isnan(x)':UNDEFINED
+nan-comparison:25:7:25:21::Comparison 'x == numpy.NaN' should be 'math.isnan(x)':UNDEFINED
+nan-comparison:26:7:26:28::Comparison 'x is not float('nan')' should be 'not math.isnan(x)':UNDEFINED
+nan-comparison:27:3:27:17::Comparison 'x == numpy.NaN' should be 'math.isnan(x)':UNDEFINED
+nan-comparison:29:9:29:23::Comparison 'x is numpy.NaN' should be 'math.isnan(x)':UNDEFINED
+nan-comparison:32:5:32:18::Comparison 'x == math.nan' should be 'math.isnan(x)':UNDEFINED
+nan-comparison:33:5:33:22::Comparison 'x is not math.nan' should be 'not math.isnan(x)':UNDEFINED
+nan-comparison:34:5:34:13::Comparison 'x != nan' should be 'not math.isnan(x)':UNDEFINED
+nan-comparison:35:5:35:19::Comparison 'x == numpy.nan' should be 'math.isnan(x)':UNDEFINED
+nan-comparison:36:5:36:19::Comparison 'x == numpy.NAN' should be 'math.isnan(x)':UNDEFINED
+nan-comparison:37:5:37:19::Comparison 'x is numpy.nan' should be 'math.isnan(x)':UNDEFINED
+nan-comparison:38:5:38:24::Comparison 'x == Decimal('nan')' should be 'math.isnan(x)':UNDEFINED
+nan-comparison:39:5:39:32::Comparison 'x != decimal.Decimal('NaN')' should be 'not math.isnan(x)':UNDEFINED
+nan-comparison:43:5:43:16::Comparison 'x == MY_NAN' should be 'math.isnan(x)':UNDEFINED

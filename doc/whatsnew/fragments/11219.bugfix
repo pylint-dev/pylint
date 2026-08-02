@@ -1,0 +1,7 @@
+``nan-comparison`` now also recognizes ``math.nan``, ``numpy.nan``, ``Decimal("nan")``
+and any name or attribute that pylint can infer to a NaN constant, such as a module
+level constant defined as ``math.nan``. Only ``numpy.NaN`` -- removed in numpy 2.0 --
+and ``float("nan")`` were detected before. Infinities are still not reported, as
+comparing against them is meaningful.
+
+Refs #11219
