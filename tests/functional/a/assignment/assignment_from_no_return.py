@@ -93,13 +93,13 @@ class Unsupported:
 link = Unsupported().readlink()  # no error here
 
 
-# The same holds when an earlier branch returns without a value: the function
-# body still ends in an unconditional raise.
+# A trailing raise does not make the function no-return if an earlier branch
+# can still return: here the bare return yields None, which is still reported.
 def early_return_then_raise(value):
-    """Returns on one branch, otherwise always raises"""
+    """Returns on one branch, otherwise raises"""
     if value:
         return
     raise ValueError(value)
 
 
-maybe = early_return_then_raise(None)  # no error here
+maybe = early_return_then_raise(None)  # [assignment-from-none]
