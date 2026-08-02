@@ -499,6 +499,8 @@ def _setattr_in_defining_methods(
             if not isinstance(method, nodes.FunctionDef):
                 continue
             for call in method.nodes_of_class(nodes.Call):
+                if call.frame() is not method:
+                    continue
                 if _setattr_attr_name(call, method) == attr:
                     return True
     return False
