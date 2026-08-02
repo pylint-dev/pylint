@@ -1,4 +1,6 @@
 :ref:`attribute-defined-outside-init` now reports attributes assigned with
 ``setattr(self, "name", value)`` outside defining methods.
+It no longer reports attributes assigned normally in a child class when a parent
+defining method initializes them with ``setattr``.
 
 Closes #9798

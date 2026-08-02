@@ -146,3 +146,21 @@ class NonMethodDefiningParent:
 class ChildOfNonMethodDefiningParent(NonMethodDefiningParent):
     def later(self):
         setattr(self, "not_defined_by_parent", 1)  # [attribute-defined-outside-init]
+
+
+class ChildAssignmentForParentSetattr(ParentAttrInInit):
+    def later(self):
+        self.defined_by_parent = 2
+
+
+class ParentWithNestedSetattr:
+    def __init__(self):
+        def rename(self):
+            setattr(self, "nested_attr", 1)
+
+        rename(object())
+
+
+class ChildOfParentWithNestedSetattr(ParentWithNestedSetattr):
+    def later(self):
+        setattr(self, "nested_attr", 2)  # [attribute-defined-outside-init]

@@ -22,7 +22,7 @@ def test_attribute_defined_outside_init_disabled(linter: PyLinter) -> None:
 
     checker._check_attribute_defined_outside_init(klass)
 
-    assert klass in checker._setattr_attrs
+    assert klass not in checker._setattr_attrs
 
 
 def test_visit_call_ignores_setattr_outside_method(linter: PyLinter) -> None:

@@ -455,7 +455,7 @@ def _setattr_attr_name(node: nodes.Call, frame: nodes.FunctionDef) -> str | None
     match node.func, node.args:
         case (
             nodes.Name(name="setattr"),
-            [nodes.Name(name=instance_name), nodes.Const(value=str() as attr), *_],
+            [nodes.Name(name=instance_name), nodes.Const(value=str() as attr), _, *_],
         ):
             pass
         case _:
@@ -1252,6 +1252,7 @@ a metaclass class method.",
                 self.add_message("unused-private-member", node=assign_attr, args=args)
 
     def _check_attribute_defined_outside_init(self, cnode: nodes.ClassDef) -> None:
+        setattr_attrs = self._setattr_attrs.pop(cnode, None)
         # check access to existent members on non metaclass classes
         if (
             "attribute-defined-outside-init"
@@ -1271,7 +1272,6 @@ a metaclass class method.",
             return
         defining_methods = self.linter.config.defining_attr_methods
         current_module = cnode.root()
-        setattr_attrs = self._setattr_attrs.pop(cnode, None)
         instance_attrs: Mapping[str, Sequence[nodes.NodeNG]]
         if setattr_attrs:
             merged: dict[str, list[nodes.NodeNG]] = {
