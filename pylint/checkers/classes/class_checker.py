@@ -142,12 +142,6 @@ def _definition_equivalent_to_call(
     return all(kw in call.args or kw in definition.kwonlyargs for kw in call.kws)
 
 
-def _is_object_method(method: nodes.FunctionDef) -> bool:
-    """Check whether the given method is defined on the builtin object class."""
-    parent = method.parent
-    return isinstance(parent, nodes.ClassDef) and parent.qname() == "builtins.object"
-
-
 def _is_trivial_super_delegation(function: nodes.FunctionDef) -> bool:
     """Check whether a function definition is a method consisting only of a
     call to the same function on the superclass.
@@ -1409,15 +1403,15 @@ a metaclass class method.",
                 or _has_different_parameters_default_value(
                     meth_node.args, function.args
                 )
-                # arguments to builtins such as Exception.__init__() cannot be
-                # inspected: narrowing them down to 'self' still changes the
-                # accepted signature, unless the parent is object() which
-                # accepts nothing else
+                # Arguments to builtins such as Exception.__init__() cannot be
+                # inspected. If astroid cannot infer the bound super method,
+                # narrowing it down to 'self' can still change the accepted
+                # signature.
                 or (
                     meth_node.args.args is None
                     and (
                         function.argnames() != ["self"]
-                        or not _is_object_method(meth_node)
+                        or util.safe_infer(call.func) is None
                     )
                 )
             ):
