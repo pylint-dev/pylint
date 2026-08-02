@@ -79,3 +79,10 @@ class LambdaAttribute:  # pylint: disable=too-few-public-methods
         # ``self.lam`` infers to a BoundMethod proxying a Lambda, which has
         # neither ``decoratornames()`` nor a list ``body``.
         return self.lam == 1
+
+
+def compare_unbound_methods(obj):
+    # ``object.__init__`` infers to a bare ``UnboundMethod``, which is not a
+    # bare callable here: this is a legitimate identity check.
+    init = getattr(obj, "__init__", None)
+    return init != object.__init__

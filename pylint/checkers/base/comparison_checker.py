@@ -279,13 +279,16 @@ class ComparisonChecker(_BasicChecker):
         number_of_bare_callables = 0
         for operand in left_operand, right_operand:
             inferred = utils.safe_infer(operand)
-            # Bound and unbound methods proxy the function they were built from.
-            # Unwrap them so that a lambda assigned as a class attribute is seen
-            # as the ``Lambda`` it is: a ``Lambda`` has no ``decoratornames()``
-            # and its ``body`` is a single expression instead of a list of
-            # statements, so it is not a bare callable for this check.
-            while isinstance(inferred, (astroid.BoundMethod, astroid.UnboundMethod)):
+            # An unbound method on its own is not a bare callable here, but a
+            # bound method proxies the function it was built from, so unwrap it.
+            # This matters because a lambda assigned as a class attribute also
+            # infers to a ``BoundMethod``, and a ``Lambda`` has no
+            # ``decoratornames()`` and its ``body`` is a single expression
+            # instead of a list of statements.
+            while isinstance(inferred, astroid.BoundMethod):
                 inferred = inferred._proxied  # pylint: disable=protected-access
+                if isinstance(inferred, astroid.UnboundMethod):
+                    inferred = inferred._proxied  # pylint: disable=protected-access
             if not isinstance(inferred, nodes.FunctionDef):
                 continue
             # Ignore callables that raise, as well as typing constants
