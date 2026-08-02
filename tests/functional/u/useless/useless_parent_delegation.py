@@ -430,3 +430,23 @@ class Lemon(Fruit):
 class CustomError(Exception):
     def __init__(self, message="default"):
         super().__init__(message)
+
+
+# https://github.com/pylint-dev/pylint/issues/9994
+# The signature of a C-level parent such as Exception.__init__ cannot be
+# inspected, so an override taking only ``self`` still narrows the accepted
+# arguments (Exception accepts *args) and is therefore not useless.
+class MyException(Exception):
+    def __init__(self):
+        super().__init__()
+
+
+class MyDict(dict):
+    def __init__(self):
+        super().__init__()
+
+
+# object() accepts nothing besides self, so this override really is useless.
+class PlainObject:
+    def __init__(self):  # [useless-parent-delegation]
+        super().__init__()
