@@ -41,6 +41,7 @@ boundmethod
 builtins
 bw
 callables
+callee
 cardinality
 cd
 cfg
@@ -228,6 +229,7 @@ mymodule
 mypy
 namedtuple
 namespace
+NaN
 newsfile
 newstyle
 nl

@@ -188,7 +188,7 @@ Basic checker Messages
   a try...finally block: the exceptions raised in the try clause will be
   silently swallowed instead of being re-raised.
 :nan-comparison (W0177): *Comparison %s should be %s*
-  Used when an expression is compared to NaN values like numpy.NaN and
+  Used when an expression is compared to NaN values like math.nan, numpy.nan or
   float('nan').
 :assert-on-tuple (W0199): *Assert called on a populated tuple. Did you mean 'assert x,y'?*
   A call of assert on a tuple will always evaluate to true if the tuple is not

@@ -4,6 +4,8 @@
 
 """Comparison checker from the basic checker."""
 
+import math
+
 import astroid
 from astroid import nodes
 
@@ -77,7 +79,7 @@ class ComparisonChecker(_BasicChecker):
             "Comparison %s should be %s",
             "nan-comparison",
             "Used when an expression is compared to NaN "
-            "values like numpy.NaN and float('nan').",
+            "values like math.nan, numpy.nan or float('nan').",
         ),
     }
 
@@ -144,6 +146,8 @@ class ComparisonChecker(_BasicChecker):
         checking_for_absence: bool = False,
     ) -> None:
         def _is_float_nan(node: nodes.NodeNG) -> bool:
+            # ``float('nan')`` infers to an *instance* of float, which carries no
+            # value to inspect, so this branch has to stay shape-based.
             try:
                 match node:
                     case nodes.Call(args=[nodes.Const(value=str() as value)]) if (
@@ -154,14 +158,53 @@ class ComparisonChecker(_BasicChecker):
             except AttributeError:
                 return False
 
-        def _is_numpy_nan(node: nodes.NodeNG) -> bool:
+        def _is_decimal_nan(node: nodes.NodeNG) -> bool:
+            # ``decimal`` NaNs compare just like float ones, but ``Decimal('nan')``
+            # is not inferable without the call being evaluated, hence the
+            # shape-based match on the callee name.
             match node:
-                case nodes.Attribute(attrname="NaN", expr=nodes.Name(name=name)):
+                case nodes.Call(
+                    func=nodes.Name(name="Decimal")
+                    | nodes.Attribute(attrname="Decimal"),
+                    args=[nodes.Const(value=str() as value)],
+                ):
+                    return value.lower() == "nan"
+            return False
+
+        def _is_inferred_nan(node: nodes.NodeNG) -> bool:
+            """Whether ``node`` infers to a NaN constant, e.g. ``math.nan``.
+
+            Only names and attributes are inferred: those are the shapes a NaN
+            constant can hide behind, and inferring every operand of every
+            comparison would be needlessly expensive.
+            """
+            if not isinstance(node, (nodes.Name, nodes.Attribute)):
+                return False
+            # ``math.inf`` also infers to a float constant, so the value itself
+            # has to be checked with ``isnan`` and not merely be 'special'.
+            match utils.safe_infer(node):
+                case nodes.Const(value=float() as value):
+                    return math.isnan(value)
+            return False
+
+        def _is_numpy_nan(node: nodes.NodeNG) -> bool:
+            # Purely syntactic on purpose: numpy need not be installed for the
+            # analysed code to be checked, in which case ``np.nan`` is
+            # uninferable. ``NaN``/``NAN`` were removed in numpy 2.0.
+            match node:
+                case nodes.Attribute(
+                    attrname="nan" | "NaN" | "NAN", expr=nodes.Name(name=name)
+                ):
                     return name in {"numpy", "np"}
             return False
 
         def _is_nan(node: nodes.NodeNG) -> bool:
-            return _is_float_nan(node) or _is_numpy_nan(node)
+            return (
+                _is_numpy_nan(node)
+                or _is_inferred_nan(node)
+                or _is_float_nan(node)
+                or _is_decimal_nan(node)
+            )
 
         nan_left = _is_nan(left_value)
         if not nan_left and not _is_nan(right_value):
