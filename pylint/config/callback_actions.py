@@ -382,6 +382,24 @@ class _XableAction(_AccessLinterObjectAction):
         raise NotImplementedError  # pragma: no cover
 
 
+class _MessageSetsAction(_AccessLinterObjectAction):
+    """Callback action for setting message sets."""
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = "--disable",
+    ) -> None:
+        for msg_set in values or ():
+            actions = utils.utils._import_attribute(msg_set)
+            for enable in actions["enable"]:
+                self.linter.enable(enable)
+            for disable in actions["disable"]:
+                self.linter.disable(disable)
+
+
 class _DisableAction(_XableAction):
     """Callback action for disabling a message."""
 
