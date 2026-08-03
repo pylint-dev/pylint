@@ -18,7 +18,7 @@ Release date: 2020-08-20
 
   Closes #1082, #3434, #3461
 
-* bad-continuation and bad-whitespace have been removed, black or another formatter can help you with this better than Pylint
+* :ref:`bad-continuation` and :ref:`bad-whitespace` have been removed, black or another formatter can help you with this better than Pylint
 
   Closes #246, #289, #638, #747, #1148, #1179, #1943, #2041, #2301, #2304, #2944, #3565
 
@@ -30,7 +30,7 @@ Release date: 2020-08-20
 
   Closes #3655
 
-* mixed-indentation has been removed, it is no longer useful since TabError is included directly in python3
+* :ref:`mixed-indentation` has been removed, it is no longer useful since TabError is included directly in python3
 
   Closes #2984 #3573
 

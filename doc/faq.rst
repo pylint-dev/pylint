@@ -98,17 +98,17 @@ of pylint is not easy; we also discourage the use of the ``-j`` option if this m
 Which messages should I disable to avoid duplicates if I use other popular linters ?
 ------------------------------------------------------------------------------------
 
-pycodestyle_: bad-indentation, bare-except, line-too-long, missing-final-newline, multiple-statements, singleton-comparison, trailing-newlines, trailing-whitespace, unnecessary-negation, unnecessary-semicolon, wrong-import-position
+pycodestyle_: :ref:`bad-indentation`, :ref:`bare-except`, :ref:`line-too-long`, :ref:`missing-final-newline`, :ref:`multiple-statements`, :ref:`singleton-comparison`, :ref:`trailing-newlines`, :ref:`trailing-whitespace`, :ref:`unnecessary-negation`, :ref:`unnecessary-semicolon`, :ref:`wrong-import-position`
 
-pyflakes_: undefined-variable, unused-import, unused-variable
+pyflakes_: :ref:`undefined-variable`, :ref:`unused-import`, :ref:`unused-variable`
 
-mccabe_: too-many-branches
+mccabe_: :ref:`too-many-branches`
 
-pydocstyle_: missing-module-docstring, missing-class-docstring, missing-function-docstring
+pydocstyle_: :ref:`missing-module-docstring`, :ref:`missing-class-docstring`, :ref:`missing-function-docstring`
 
-pep8-naming_: invalid-name, bad-classmethod-argument, bad-mcs-classmethod-argument, no-self-argument
+pep8-naming_: :ref:`invalid-name`, :ref:`bad-classmethod-argument`, :ref:`bad-mcs-classmethod-argument`, :ref:`no-self-argument`
 
-isort_ and flake8-import-order_: ungrouped-imports, wrong-import-order
+isort_ and flake8-import-order_: :ref:`ungrouped-imports`, :ref:`wrong-import-order`
 
 .. _`pycodestyle`: https://github.com/PyCQA/pycodestyle
 .. _`pyflakes`: https://github.com/PyCQA/pyflakes

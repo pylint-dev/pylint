@@ -251,7 +251,7 @@ Release date: 2018-07-15
   ``__doc__`` can be used to specify a docstring for a module without
   passing it as a first-statement string.
 
-* Fix false positive bad-whitespace from function arguments with default
+* Fix false positive :ref:`bad-whitespace` from function arguments with default
   values and annotations
 
   Closes #1831

@@ -28,7 +28,7 @@ Release date: 2017-12-15
 
   Closes #1301
 
-* Do not display no-absolute-import warning multiple times per file.
+* Do not display :ref:`no-absolute-import` warning multiple times per file.
 
 * ``trailing-comma-tuple`` refactor check now extends to assignment with
    more than one element (such as lists)
@@ -66,7 +66,7 @@ Release date: 2017-12-15
 
   Closes #1614
 
-* Fix a false positive with bad-python3-import on relative imports
+* Fix a false positive with :ref:`bad-python3-import` on relative imports
 
   Closes #1608
 
