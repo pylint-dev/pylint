@@ -876,7 +876,7 @@ Refactoring checker Messages
   Using the builtin dict.get for getting a value from a dictionary if a key is
   present or a default if not, is simpler and considered more idiomatic,
   although sometimes a bit slower
-:chained-comparison (R1716): *Simplify chained comparison between the operands*
+:chained-comparison (R1716): *Simplify chained comparison between the operands: %s*
   This message is emitted when pylint encounters boolean operation like "a < b
   and b < c", suggesting instead to refactor it to "a < b < c"
 :consider-using-dict-comprehension (R1717): *Consider using a dictionary comprehension*
@@ -949,6 +949,13 @@ Refactoring checker Messages
 :use-yield-from (R1737): *Use 'yield from' directly instead of yielding each element one by one*
   Yielding directly from the iterator is faster and arguably cleaner code than
   yielding each element one by one in the loop.
+:chained-comparison-all-equal (R1738): *Simplify chained comparison cycle to equality between the operands: %s*
+  Emitted when the operands of a boolean condition form a cycle of weak
+  inequalities (``<=`` or ``>=``). The condition is equivalent to checking that
+  all the operands are equal.
+:impossible-comparison (R1739): *This comparison always evaluates to False*
+  Emitted when a boolean condition contains a chain of comparisons that is
+  logically contradictory and can never be true (e.g. ``a > b and b > a``).
 :unnecessary-negation (C0117): *Consider changing "%s" to "%s"*
   Used when a boolean expression contains an unneeded negation, e.g. when two
   negation operators cancel each other out.

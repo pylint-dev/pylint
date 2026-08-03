@@ -8,7 +8,7 @@ import collections
 import copy
 import itertools
 import tokenize
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
 from functools import cached_property, reduce
 from re import Pattern
@@ -22,6 +22,7 @@ from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.base.basic_error_checker import _loop_exits_early
 from pylint.checkers.utils import node_frame_class, truncated_dict_suggestion
+from pylint.graph import get_cycles, get_paths
 from pylint.interfaces import HIGH, INFERENCE, Confidence
 
 if TYPE_CHECKING:
@@ -30,8 +31,55 @@ if TYPE_CHECKING:
 
 NodesWithNestedBlocks: TypeAlias = nodes.Try | nodes.While | nodes.For | nodes.If
 
+# Operands of the simple comparisons we can reason about: variable names and
+# numeric literals (``a == 0``, ``a < b``...). Anything else is treated as
+# opaque and kept verbatim in the suggestion.
+_ComparisonOperand: TypeAlias = str | int | float
+_ComparisonEdge: TypeAlias = tuple[_ComparisonOperand, _ComparisonOperand]
+
 KNOWN_INFINITE_ITERATORS = {"itertools.count", "itertools.cycle"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
+_REVERSED_COMPARE = {">": "<", ">=": "<=", "==": "=="}
+
+
+@dataclass
+class _ComparisonGraph:
+    """Directed graph of operands extracted from a chain of ``and``-ed comparisons.
+
+    ``<`` and ``<=`` are flipped so every inequality edge points from the
+    larger operand to the smaller one. This way ``a < b`` and ``b > a``
+    produce the same edge (``b -> a``). Equality edges keep their source-order
+    direction so ``b == 2`` renders as written.
+
+    Attributes:
+        ``edges``: outgoing neighbors of each node.
+        ``symbols``: the operator on each ``(left, right)`` edge. One of
+            ``>``, ``>=`` or ``==`` once the inequalities have been flipped.
+        ``indegree``: number of edges pointing at each node. Nodes with no
+            incoming edge are the roots from which path search starts.
+        ``frequency``: how many times each edge was contributed by the
+            source comparisons. Decremented as paths are extracted so a
+            single edge doesn't get rendered twice.
+        ``source_count``: how many source-level ``Compare`` statements were
+            folded into this graph. Used to tell whether path extraction
+            actually shortened the chain.
+    """
+
+    edges: dict[_ComparisonOperand, set[_ComparisonOperand]] = field(
+        default_factory=lambda: collections.defaultdict(set)
+    )
+    symbols: dict[_ComparisonEdge, str] = field(
+        default_factory=lambda: collections.defaultdict(lambda: ">")
+    )
+    indegree: dict[_ComparisonOperand, int] = field(
+        default_factory=lambda: collections.defaultdict(int)
+    )
+    frequency: dict[_ComparisonEdge, int] = field(
+        default_factory=lambda: collections.defaultdict(int)
+    )
+    source_count: int = 0
+
+
 CALLS_THAT_COULD_BE_REPLACED_BY_WITH = frozenset(
     (
         "threading.lock.acquire",
@@ -372,7 +420,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "more idiomatic, although sometimes a bit slower",
         ),
         "R1716": (
-            "Simplify chained comparison between the operands",
+            "Simplify chained comparison between the operands: %s",
             "chained-comparison",
             "This message is emitted when pylint encounters boolean operation like "
             '"a < b and b < c", suggesting instead to refactor it to "a < b < c"',
@@ -507,6 +555,19 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "use-yield-from",
             "Yielding directly from the iterator is faster and arguably cleaner code than yielding each element "
             "one by one in the loop.",
+        ),
+        "R1738": (
+            "Simplify chained comparison cycle to equality between the operands: %s",
+            "chained-comparison-all-equal",
+            "Emitted when the operands of a boolean condition form a cycle of weak "
+            "inequalities (``<=`` or ``>=``). The condition is equivalent to checking "
+            "that all the operands are equal.",
+        ),
+        "R1739": (
+            "This comparison always evaluates to False",
+            "impossible-comparison",
+            "Emitted when a boolean condition contains a chain of comparisons that "
+            "is logically contradictory and can never be true (e.g. ``a > b and b > a``).",
         ),
     }
     options = (
@@ -1410,61 +1471,232 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             confidence=HIGH,
         )
 
-    def _check_chained_comparison(self, node: nodes.BoolOp) -> None:
-        """Check if there is any chained comparison in the expression.
-
-        Add a refactoring message if a boolOp contains comparison like a < b and b < c,
-        which can be chained as a < b < c.
-
-        Care is taken to avoid simplifying a < b < c and b < d.
-        """
-        if not (node.op == "and" and len(node.values) >= 2):
+    def _check_comparisons(self, node: nodes.BoolOp) -> None:
+        segments = self._segment_comparisons(node)
+        if segments is None:
             return
 
-        def _find_lower_upper_bounds(
-            comparison_node: nodes.Compare,
-            uses: collections.defaultdict[str, dict[str, set[nodes.Compare]]],
-        ) -> None:
-            left_operand = comparison_node.left
-            for operator, right_operand in comparison_node.ops:
-                for operand in (left_operand, right_operand):
-                    match operand:
-                        case nodes.Name(name=value) | nodes.Const(value=value) if (
-                            value is not None
-                        ):
-                            pass
-                        case _:
-                            continue
+        # Bail on the first cycle. Reporting both ``impossible-comparison`` and
+        # ``chained-comparison`` on the same node would be noisy and the cycle
+        # is the strictly more important finding.
+        for segment in segments:
+            if isinstance(segment, _ComparisonGraph) and self._emit_cycles(
+                node, segment
+            ):
+                return
 
-                    match operator:
-                        case "<" | "<=":
-                            if operand is left_operand:
-                                uses[value]["lower_bound"].add(comparison_node)
-                            elif operand is right_operand:
-                                uses[value]["upper_bound"].add(comparison_node)
-                        case ">" | ">=":
-                            if operand is left_operand:
-                                uses[value]["upper_bound"].add(comparison_node)
-                            elif operand is right_operand:
-                                uses[value]["lower_bound"].add(comparison_node)
-                left_operand = right_operand
-
-        uses: collections.defaultdict[str, dict[str, set[nodes.Compare]]] = (
-            collections.defaultdict(
-                lambda: {"lower_bound": set(), "upper_bound": set()}
+        rendered: list[str] = []
+        for segment in segments:
+            if isinstance(segment, str):
+                rendered.append(segment)
+                continue
+            paths = get_paths(segment.edges, segment.indegree, segment.frequency)
+            rendered.extend(
+                sorted(self._render_path(p, segment.symbols) for p in paths)
             )
-        )
-        for comparison_node in node.values:
-            if isinstance(comparison_node, nodes.Compare):
-                _find_lower_upper_bounds(comparison_node, uses)
 
-        for bounds in uses.values():
-            num_shared = len(bounds["lower_bound"].intersection(bounds["upper_bound"]))
-            num_lower_bounds = len(bounds["lower_bound"])
-            num_upper_bounds = len(bounds["upper_bound"])
-            if num_shared < num_lower_bounds and num_shared < num_upper_bounds:
-                self.add_message("chained-comparison", node=node)
-                break
+        if len(rendered) < len(node.values):
+            args = " and ".join(rendered)
+            self.add_message(
+                "chained-comparison", node=node, args=(args,), confidence=HIGH
+            )
+
+    def _segment_comparisons(
+        self, node: nodes.BoolOp
+    ) -> list[_ComparisonGraph | str] | None:
+        """Split ``node.values`` into runs of consecutive processable Compares.
+
+        Any statement we can't fold into the graph (function calls, ``!=``,
+        ``in``...) acts as a boundary: chaining across it would change the
+        short-circuit evaluation order, so ``_is_int(v) and v >= 0 and v <=
+        999`` must always render the type guard before the numeric range.
+        Each run is wrapped in a ``_ComparisonGraph`` (which may then yield
+        a chain); each boundary statement is kept verbatim as a string.
+
+        Returns ``None`` when nothing in ``node.values`` is foldable, which
+        also covers the trivial single-statement or pure ``==`` cases the
+        original check already ignored.
+        """
+        if node.op != "and" or len(node.values) < 2:
+            return None
+
+        segments: list[_ComparisonGraph | str] = []
+        pending: list[tuple[_ComparisonGraph, list[int | float]]] = []
+        current = _ComparisonGraph()
+        const_values: list[int | float] = []
+        for statement in node.values:
+            if self._add_compare_to_graph(statement, current, const_values):
+                continue
+            if current.source_count > 0:
+                pending.append((current, const_values))
+                segments.append(current)
+            segments.append(statement.as_string())
+            current = _ComparisonGraph()
+            const_values = []
+        if current.source_count > 0:
+            pending.append((current, const_values))
+            segments.append(current)
+
+        if not pending:
+            return None
+        # Bail before constant linking. ``value == 1 and value == 2`` would
+        # otherwise gain a synthetic ``2 > 1`` edge and look chain-collapsible
+        # to ``value == 2``, which is wrong (the original is impossible). The
+        # plain all-``==`` case was silent in the pre-PR check, keep it that
+        # way.
+        if all(symbol == "==" for g, _ in pending for symbol in g.symbols.values()):
+            return None
+        for graph, consts in pending:
+            self._link_constants(graph, consts)
+        return segments
+
+    def _emit_cycles(self, node: nodes.BoolOp, graph: _ComparisonGraph) -> bool:
+        """Emit ``impossible-comparison`` / ``chained-comparison-all-equal``
+        for any cycle in ``graph``.
+
+        Returns whether anything was emitted.
+        """
+        str_edges = {
+            str(key): {str(dest) for dest in graph.edges[key]} for key in graph.edges
+        }
+        cycles = get_cycles(str_edges)
+        if not cycles:
+            return False
+        self._handle_cycles(node, graph, cycles)
+        return True
+
+    @staticmethod
+    def _render_path(
+        path: tuple[_ComparisonOperand, ...],
+        symbols: dict[_ComparisonEdge, str],
+    ) -> str:
+        """Render a graph path as the suggested simplified Python expression.
+
+        The graph is built largest-first so a ``>=``/``>`` path reads
+        ``999 >= v >= 0``. We flip it to smallest-first (``0 <= v <= 999``)
+        which is how Python code idiomatically writes a range check.
+        Equality-only paths keep their original direction so a single
+        ``b == 2`` is not rewritten as ``2 == b``.
+        """
+        edge_symbols = [symbols[path[i], path[i + 1]] for i in range(len(path) - 1)]
+        if all(symbol == "==" for symbol in edge_symbols):
+            rendered = str(path[0])
+            for i, symbol in enumerate(edge_symbols):
+                rendered += f" {symbol} {path[i + 1]}"
+            return rendered
+        rendered = str(path[-1])
+        for i in range(len(path) - 1, 0, -1):
+            symbol = _REVERSED_COMPARE[symbols[path[i - 1], path[i]]]
+            rendered += f" {symbol} {path[i - 1]}"
+        return rendered
+
+    def _add_compare_to_graph(
+        self,
+        statement: nodes.NodeNG,
+        graph: _ComparisonGraph,
+        const_values: list[int | float],
+    ) -> bool:
+        """Try to fold ``statement`` into ``graph``.
+
+        Returns ``True`` when every operator/operand in ``statement`` is
+        something we can reason about (a numeric or string comparison between
+        a variable name and a numeric literal). Returns ``False`` otherwise so
+        the caller can keep the original text and mention it verbatim in the
+        suggestion. The graph is only mutated when the whole statement is
+        processable, so a partially-valid Compare doesn't leave half-committed
+        edges behind.
+        """
+        if not isinstance(statement, nodes.Compare):
+            return False
+        pending_consts: list[int | float] = []
+        left = self._get_compare_operand_value(statement.left, pending_consts)
+        if left is None:
+            return False
+        operands: list[_ComparisonOperand] = [left]
+        operators: list[str] = []
+        for operator, right_node in statement.ops:
+            if operator not in {"<", ">", "==", "<=", ">="}:
+                return False
+            right = self._get_compare_operand_value(right_node, pending_consts)
+            if right is None:
+                return False
+            operators.append(operator)
+            operands.append(right)
+
+        const_values.extend(pending_consts)
+        for i, operator in enumerate(operators):
+            left, right = operands[i], operands[i + 1]
+            # Make the graph always point from larger to smaller.
+            if operator == "<":
+                operator = ">"
+                left, right = right, left
+            elif operator == "<=":
+                operator = ">="
+                left, right = right, left
+            graph.edges[left].add(right)
+            graph.edges.setdefault(right, set())
+            graph.symbols[(left, right)] = operator
+            graph.indegree[left] += 0
+            graph.indegree[right] += 1
+            graph.frequency[(left, right)] += 1
+        graph.source_count += 1
+        return True
+
+    @staticmethod
+    def _link_constants(
+        graph: _ComparisonGraph, const_values: list[int | float]
+    ) -> None:
+        """Add synthetic ``>`` edges between every pair of constants.
+
+        Without this, ``a < b and b < 0 and c == 786`` wouldn't notice that
+        ``786 > 0``, so it would render as two unrelated chains. The synthetic
+        edges also let the search collapse the chain to its longest form.
+        """
+        sorted_consts = sorted(const_values)
+        while sorted_consts:
+            largest = sorted_consts.pop()
+            for smaller in set(sorted_consts):
+                if smaller >= largest:
+                    continue
+                graph.symbols[(largest, smaller)] = ">"
+                graph.indegree[smaller] += 1
+                graph.frequency[(largest, smaller)] += 1
+                graph.edges[largest].add(smaller)
+                # Drop redundant shortcut edges from ``largest`` to ``smaller``'s
+                # symbol neighbors so they're not rendered twice.
+                for adj in graph.edges[smaller]:
+                    if isinstance(adj, str):
+                        graph.edges[largest].discard(adj)
+
+    @staticmethod
+    def _get_compare_operand_value(
+        node: nodes.NodeNG, const_values: list[int | float]
+    ) -> _ComparisonOperand | None:
+        if isinstance(node, nodes.Name) and isinstance(node.name, str):
+            return node.name
+        if isinstance(node, nodes.Const) and isinstance(node.value, (int, float)):
+            const_values.append(node.value)
+            return node.value
+        return None
+
+    def _handle_cycles(
+        self,
+        node: nodes.BoolOp,
+        graph: _ComparisonGraph,
+        cycles: Sequence[list[str]],
+    ) -> None:
+        for cycle in cycles:
+            edges = [(cycle[i], cycle[i + 1]) for i in range(len(cycle) - 1)]
+            edges.append((cycle[-1], cycle[0]))
+            if all(graph.symbols[edge] == ">=" for edge in edges):
+                self.add_message(
+                    "chained-comparison-all-equal",
+                    node=node,
+                    args=(" == ".join(cycle),),
+                    confidence=HIGH,
+                )
+            else:
+                self.add_message("impossible-comparison", node=node, confidence=HIGH)
 
     @staticmethod
     def _apply_boolean_simplification_rules(
@@ -1551,13 +1783,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "consider-merging-isinstance",
         "consider-using-in",
         "chained-comparison",
+        "chained-comparison-all-equal",
+        "impossible-comparison",
         "simplifiable-condition",
         "condition-evals-to-constant",
     )
     def visit_boolop(self, node: nodes.BoolOp) -> None:
         self._check_consider_merging_isinstance(node)
         self._check_consider_using_in(node)
-        self._check_chained_comparison(node)
+        self._check_comparisons(node)
         self._check_simplifiable_condition(node)
 
     @staticmethod
