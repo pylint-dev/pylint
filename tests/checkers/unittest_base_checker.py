@@ -4,6 +4,7 @@
 
 """Unittest for the BaseChecker class."""
 
+import astroid
 import pytest
 
 from pylint.checkers import BaseChecker
@@ -12,7 +13,9 @@ from pylint.checkers.typecheck import TypeChecker
 from pylint.exceptions import InvalidMessageError
 from pylint.extensions.broad_try_clause import BroadTryClauseChecker
 from pylint.extensions.while_used import WhileChecker
+from pylint.interfaces import HIGH
 from pylint.lint.pylinter import PyLinter
+from pylint.testutils import UnittestLinter
 
 
 class OtherBasicChecker(BaseChecker):
@@ -183,3 +186,57 @@ def test_base_checker_consistent_hash() -> None:
 
     assert hash(checker) == original_hash
     assert checker in some_set
+
+
+class _DelegationChecker(BaseChecker):
+    """Minimal checker used to exercise ``add_message_at_*`` delegation."""
+
+    name = "delegation-checker"
+    msgs = {
+        "W9999": (
+            "Delegation test %s",
+            "delegation-test",
+            "Used in tests to exercise add_message_at_* delegation.",
+        ),
+    }
+
+
+def test_base_checker_add_message_at_node_delegates() -> None:
+    """``BaseChecker.add_message_at_node`` forwards to the linter and captures."""
+    linter = UnittestLinter()
+    checker = _DelegationChecker(linter)
+    linter.register_checker(checker)
+
+    module_node = astroid.parse("def foo(): pass", module_name="m")
+    node = module_node.body[0]
+    checker.add_message_at_node("W9999", node, args=("hello",), confidence=HIGH)
+
+    messages = linter.release_messages()
+    assert len(messages) == 1
+    assert messages[0].msg_id == "W9999"
+    assert messages[0].args == ("hello",)
+    assert messages[0].confidence == HIGH
+
+
+def test_base_checker_add_message_at_location_delegates() -> None:
+    """``BaseChecker.add_message_at_location`` forwards to the linter and captures."""
+    linter = UnittestLinter()
+    checker = _DelegationChecker(linter)
+    linter.register_checker(checker)
+
+    checker.add_message_at_location(
+        "W9999",
+        module="other_module",
+        filepath="other.py",
+        line=42,
+        col_offset=3,
+        args=("world",),
+        confidence=HIGH,
+    )
+
+    messages = linter.release_messages()
+    assert len(messages) == 1
+    assert messages[0].msg_id == "W9999"
+    assert messages[0].line == 42
+    assert messages[0].col_offset == 3
+    assert messages[0].args == ("world",)
