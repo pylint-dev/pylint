@@ -1,0 +1,6 @@
+arguments-differ:18:4:18:11:Child.fun:Kinds of parameters changed from (2 positional-or-keyword) in 'Base.fun' to (1 positional-or-keyword, 1 keyword-only) in overriding 'Child.fun' method:UNDEFINED
+arguments-differ:21:4:21:23:Child.positional_only:Kinds of parameters changed from (3 positional-only) in 'Base.positional_only' to (3 positional-or-keyword) in overriding 'Child.positional_only' method:UNDEFINED
+arguments-differ:34:4:34:27:VariadicChild.variadic_positional:Kinds of parameters changed from (1 positional-or-keyword, *args) in 'VariadicBase.variadic_positional' to (2 positional-or-keyword) in overriding 'VariadicChild.variadic_positional' method:UNDEFINED
+arguments-differ:34:4:34:27:VariadicChild.variadic_positional:Variadics removed in overriding 'VariadicChild.variadic_positional' method:UNDEFINED
+arguments-differ:37:4:37:24:VariadicChild.variadic_keyword:Kinds of parameters changed from (1 positional-or-keyword, **kwargs) in 'VariadicBase.variadic_keyword' to (1 positional-or-keyword, 1 keyword-only) in overriding 'VariadicChild.variadic_keyword' method:UNDEFINED
+arguments-differ:37:4:37:24:VariadicChild.variadic_keyword:Variadics removed in overriding 'VariadicChild.variadic_keyword' method:UNDEFINED
