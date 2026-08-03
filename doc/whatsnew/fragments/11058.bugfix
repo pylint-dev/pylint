@@ -1,0 +1,9 @@
+Fix a crash (``AttributeError: 'TypeVar' object has no attribute 'qname'``)
+in the refactoring checker when a PEP 695 type parameter was used outside its
+type alias (e.g. ``type T[U] = None`` followed by ``U()``). Such a use is now
+correctly reported as ``undefined-variable`` instead: the type parameter is
+scoped to the alias and using it afterwards raises ``NameError`` at runtime.
+
+Requires astroid >= 4.2 (pylint-dev/astroid#3119).
+
+Closes #11058
