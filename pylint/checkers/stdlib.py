@@ -864,9 +864,16 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             if mode_arg:
                 confidence = INFERENCE
 
+        # Whether a mode argument was provided but could not be inferred.
+        mode_arg_uninferable = False
         if mode_arg:
             mode_arg = utils.safe_infer(mode_arg)
-            if (
+            if mode_arg is None:
+                # The mode argument was provided but its value cannot be
+                # inferred (e.g. it is a function parameter). The mode could
+                # be binary, so we cannot safely emit unspecified-encoding.
+                mode_arg_uninferable = True
+            elif (
                 func_name in OPEN_FILES_MODE
                 and isinstance(mode_arg, nodes.Const)
                 and not _check_mode_str(mode_arg.value)
@@ -880,8 +887,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     confidence=confidence,
                 )
 
-        if not mode_arg or (
-            isinstance(mode_arg, nodes.Const) and "b" not in str(mode_arg.value)
+        if not mode_arg_uninferable and (
+            mode_arg is None
+            or (isinstance(mode_arg, nodes.Const) and "b" not in str(mode_arg.value))
         ):
             confidence = HIGH
             try:
