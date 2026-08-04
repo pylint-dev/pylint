@@ -671,7 +671,7 @@ class PyLinter(
                 package_directories: set[str] = set()
                 for root, _, files in os.walk(something):
                     if any(root.startswith(s) for s in skip_subtrees):
-                        # Skip ignored subtrees.
+                        # Skip ignored sub-trees.
                         continue
 
                     if _is_ignored_file(
