@@ -1,0 +1,6 @@
+Keep up with two Python 3.15 changes to the standard library: ``profile`` is
+reported by ``deprecated-module``, and ``locale.getdefaultlocale`` is no longer
+reported by ``deprecated-method``, since 3.15 reversed its deprecation instead
+of removing it as announced.
+
+Refs #10982

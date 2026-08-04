@@ -1,0 +1,5 @@
+``not-an-iterable`` and ``not-a-mapping`` are now also emitted for the value
+unpacked by PEP 798 comprehension unpacking, e.g. ``[*number for number in
+numbers]`` or ``{**number for number in numbers}``.
+
+Refs #10982
