@@ -1,0 +1,6 @@
+[MAIN]
+load-plugins=pylint.extensions.docparams
+
+[PARAMETER DOCUMENTATION]
+default-docstring-type=sphinx
+check-type-doc-match=yes

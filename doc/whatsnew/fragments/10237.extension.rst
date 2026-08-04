@@ -1,0 +1,6 @@
+Added new opt-in checker ``mismatched-type-doc`` (W9022) to ``pylint.extensions.docparams``.
+When ``--check-type-doc-match=yes`` is set, emits W9022 when a parameter's PEP 484
+annotation differs from the type string declared in its docstring (Google, Sphinx, and
+NumPy styles supported).
+
+Closes #10237
