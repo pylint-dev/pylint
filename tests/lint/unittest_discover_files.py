@@ -3,6 +3,7 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 import os
+from collections.abc import Iterator
 from unittest import mock
 
 import pytest
@@ -70,6 +71,34 @@ def _mock_tree() -> list[tuple[str, list[str], list[str]]]:
             ["test1.py", "test2.py", "__init__.py"],
         ),
     ]
+
+
+def test_discover_files_in_deterministic_order(initialized_linter: PyLinter) -> None:
+    def unordered_walk(
+        _path: str,
+    ) -> Iterator[tuple[str, list[str], list[str]]]:
+        directories = ["z_package", "a_directory"]
+        yield ".", directories, ["z.py", "README.rst", "a.py"]
+        for directory in directories:
+            if directory == "z_package":
+                yield directory, [], ["__init__.py"]
+            else:
+                yield directory, [], ["z.py", "a.py"]
+
+    with (
+        mock.patch("os.path.isdir", return_value=True),
+        mock.patch("os.path.isfile", return_value=False),
+        mock.patch("os.walk", side_effect=unordered_walk),
+    ):
+        results = tuple(initialized_linter._discover_files(["."]))
+
+    assert results == (
+        f".{os.sep}a.py",
+        f".{os.sep}z.py",
+        f"a_directory{os.sep}a.py",
+        f"a_directory{os.sep}z.py",
+        "z_package",
+    )
 
 
 def test_does_not_ignore_similarly_named_package(
