@@ -114,3 +114,18 @@ with contextlib.suppress(ImportError):
 with contextlib.suppress(ImportError):
     with contextlib.suppress(TypeError):
         import foo2
+
+# Version guards are recognized however `sys.version_info` is spelled
+from sys import version_info
+
+if version_info >= (3, 9):
+    import some_module
+    from some_module import some_class
+else:
+    import some_module_alt
+
+if (3, 9) <= version_info:
+    import some_module
+
+if version_info[:2] >= (3, 9):
+    import some_module

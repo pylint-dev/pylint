@@ -385,6 +385,66 @@ def test_if_sys_guard() -> None:
     assert utils.is_sys_guard(code[5]) is False
 
 
+def test_if_zealous_sys_guard() -> None:
+    code = astroid.extract_node("""
+    import sys
+    import sys as system
+    from sys import version_info
+    from sys import version_info as vi
+    from sys import hexversion
+    from six import PY2
+    from collections import OrderedDict as version_info_fake
+
+    if version_info >= (3, 8):  #@
+        pass
+
+    if vi[:2] >= (3, 8):  #@
+        pass
+
+    if system.version_info >= (3, 8):  #@
+        pass
+
+    if sys.version_info.major >= 3:  #@
+        pass
+
+    if (3, 8) <= sys.version_info:  #@
+        pass
+
+    if hexversion >= 0x030800F0:  #@
+        pass
+
+    if sys.version_info >= (3, 8) and sys.platform == "linux":  #@
+        pass
+
+    if not sys.version_info >= (3, 8):  #@
+        pass
+
+    if PY2:  #@
+        pass
+
+    if sys.version_info > (3, 8):  #@
+        pass
+
+    if sys.some_other_function > (3, 8):  #@
+        pass
+
+    if version_info_fake >= (3, 8):  #@
+        pass
+
+    if sys.platform == "linux":  #@
+        pass
+    """)
+    assert isinstance(code, list) and len(code) == 13
+
+    for guard in code[:10]:
+        assert isinstance(guard, nodes.If)
+        assert utils.zealous_is_sys_guard(guard) is True, guard.as_string()
+
+    for not_a_guard in code[10:]:
+        assert isinstance(not_a_guard, nodes.If)
+        assert utils.zealous_is_sys_guard(not_a_guard) is False, not_a_guard.as_string()
+
+
 def test_if_typing_guard() -> None:
     code = astroid.extract_node("""
     import typing

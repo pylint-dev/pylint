@@ -1,0 +1,8 @@
+Fixed a false positive for ``import-error`` when a failing import is guarded
+by a version check that does not spell out
+``sys.version_info`` literally: guards written ``from sys import
+version_info`` (possibly aliased), guards on an aliased ``sys`` import,
+``sys.hexversion``, and comparisons putting the version on the right-hand
+side are now recognized too.
+
+Refs #11209

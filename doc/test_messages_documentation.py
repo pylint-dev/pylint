@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import sys
 from collections import Counter
 from pathlib import Path
 from typing import TextIO
@@ -72,6 +73,22 @@ def _add_code_example_to_suite(
 TESTS_DIR = Path(__file__).parent.resolve() / "data" / "messages"
 TESTS = get_functional_test_files_from_directory(TESTS_DIR)
 TESTS_NAMES = [f"{t[0]}-{t[1].stem}" for t in TESTS]
+
+
+def _min_pyver(example: Path) -> tuple[int, ...] | None:
+    """The Python version an example needs to be parsed, if it declares one.
+
+    An example written in syntax that older interpreters cannot parse declares
+    the version it needs in a ``min_pyver`` file next to it, e.g. ``3.15``.
+    A message that merely does not apply to every ``py-version`` does not
+    belong here: such an example pins ``py-version`` in its own ``pylintrc``.
+    """
+    min_pyver_file = example.parent / "min_pyver"
+    if not min_pyver_file.exists():
+        return None
+    return tuple(
+        int(part) for part in min_pyver_file.read_text(encoding="utf-8").split(".")
+    )
 
 
 class LintModuleTest:
@@ -217,6 +234,12 @@ class LintModuleTest:
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_code_examples(test_file: tuple[str, Path]) -> None:
+    min_pyver = _min_pyver(test_file[1])
+    if min_pyver and sys.version_info[: len(min_pyver)] < min_pyver:
+        pytest.skip(
+            f"'{test_file[1]}' needs Python "
+            f"{'.'.join(str(part) for part in min_pyver)} to be parsed"
+        )
     known_multiple_file_messages = ["cyclic-import", "duplicate-code"]
     lint_test = LintModuleTest(test_file, known_multiple_file_messages)
     lint_test.runTest()
