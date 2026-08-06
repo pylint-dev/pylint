@@ -286,9 +286,9 @@ class ComparisonChecker(_BasicChecker):
             # ``decoratornames()`` and its ``body`` is a single expression
             # instead of a list of statements.
             while isinstance(inferred, astroid.BoundMethod):
-                inferred = inferred._proxied  # pylint: disable=protected-access
+                inferred = inferred._proxied
                 if isinstance(inferred, astroid.UnboundMethod):
-                    inferred = inferred._proxied  # pylint: disable=protected-access
+                    inferred = inferred._proxied
             if not isinstance(inferred, nodes.FunctionDef):
                 continue
             # Ignore callables that raise, as well as typing constants
