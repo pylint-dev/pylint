@@ -177,6 +177,16 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "you expect to catch. This can hide bugs or make it harder to debug programs "
         "when unrelated errors are hidden.",
     ),
+    "W0720": (
+        "Redundant exception message: '%s' included in message with 'raise ... from %s'",
+        "redundant-exception-message",
+        "When using 'raise ... from', the original exception is automatically "
+        "chained and its message is preserved via __cause__. Including the "
+        "original error message (via str(err), f-string, or concatenation) "
+        "results in duplicate information in logs. Use a descriptive message "
+        "without the original error, or extract specific context like file paths.",
+        {"default_enabled": False},
+    ),
 }
 
 
@@ -311,6 +321,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         "raising-format-tuple",
         "raise-missing-from",
         "broad-exception-raised",
+        "redundant-exception-message",
     )
     def visit_raise(self, node: nodes.Raise) -> None:
         if node.exc is None:
@@ -321,6 +332,7 @@ class ExceptionsChecker(checkers.BaseChecker):
             self._check_raise_missing_from(node)
         else:
             self._check_bad_exception_cause(node)
+            self._check_redundant_exception_message(node)
 
         expr = node.exc
         ExceptionRaiseRefVisitor(self, node).visit(expr)
@@ -413,6 +425,80 @@ class ExceptionsChecker(checkers.BaseChecker):
                 args=("", node.as_string(), containing_except_node.name.name),
                 confidence=HIGH,
             )
+
+    def _check_redundant_exception_message(self, node: nodes.Raise) -> None:
+        """Check for redundant exception message when using 'raise ... from'.
+
+        Detects patterns like:
+            raise SomeError(f"message: {err}") from err
+            raise SomeError(f"message: {str(err)}") from err
+            raise SomeError("message: " + str(err)) from err
+        """
+        if node.cause is None or not isinstance(node.exc, nodes.Call):
+            return
+
+        # Get the name of the chained exception variable
+        cause_name: str | None = None
+        if isinstance(node.cause, nodes.Name):
+            cause_name = node.cause.name
+        else:
+            return  # Can't analyze complex cause expressions
+
+        # Check the arguments of the raised exception
+        for arg in node.exc.args:
+            if self._contains_exception_in_message(arg, cause_name):
+                self.add_message(
+                    "redundant-exception-message",
+                    node=node,
+                    args=(cause_name, cause_name),
+                    confidence=HIGH,
+                )
+                return
+
+    def _is_str_call_of(self, node: nodes.NodeNG, name: str) -> bool:
+        """Check if node is a str(name) call."""
+        return (
+            isinstance(node, nodes.Call)
+            and isinstance(node.func, nodes.Name)
+            and node.func.name == "str"
+            and node.args
+            and isinstance(node.args[0], nodes.Name)
+            and node.args[0].name == name
+        )
+
+    def _contains_exception_in_message(self, node: nodes.NodeNG, exc_name: str) -> bool:
+        """Check if the node contains a reference to the exception variable.
+
+        Detects:
+        - f"...{err}..." or f"...{err!s}..." or f"...{err!r}..."
+        - f"...{str(err)}..."
+        - "..." + str(err)
+        - str(err) in concatenation
+        """
+        if isinstance(node, nodes.JoinedStr):
+            # f-string: check for {err} or {str(err)}
+            for value in node.values:
+                if isinstance(value, nodes.FormattedValue):
+                    inner = value.value
+                    # Direct reference: f"{err}"
+                    if isinstance(inner, nodes.Name) and inner.name == exc_name:
+                        return True
+                    # str(err) call: f"{str(err)}"
+                    if self._is_str_call_of(inner, exc_name):
+                        return True
+        elif isinstance(node, nodes.BinOp) and node.op == "+":
+            # String concatenation: "message: " + str(err)
+            return self._contains_exception_in_message(
+                node.left, exc_name
+            ) or self._contains_exception_in_message(node.right, exc_name)
+        elif self._is_str_call_of(node, exc_name):
+            # str(err) directly as argument
+            return True
+        elif isinstance(node, nodes.Name) and node.name == exc_name:
+            # Direct reference as argument (rare but possible)
+            return True
+
+        return False
 
     def _check_catching_non_exception(
         self,
