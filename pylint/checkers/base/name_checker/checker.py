@@ -581,16 +581,18 @@ class NameChecker(_BasicChecker):
     ) -> bool:
         if isinstance(inferred_assign_type, nodes.ClassDef):
             return True
-        if isinstance(inferred_assign_type, bases.Instance) and {
-            "EnumMeta",
-            "TypedDict",
-        }.intersection(
-            {
+        if isinstance(inferred_assign_type, bases.Instance):
+            if "EnumMeta" in {
                 ancestor.name
                 for ancestor in cast(InferenceResult, inferred_assign_type).mro()
-            }
-        ):
-            return True
+            }:
+                return True
+            # The functional syntax `X = TypedDict("X", {...})` defines a new type,
+            # and is inferred as an instance of `TypedDict` itself. Instantiating a
+            # `TypedDict` subclass only builds a value, so its name is not a class
+            # name.
+            if inferred_assign_type._proxied.name == "TypedDict":
+                return True
         if (
             isinstance(inferred_assign_type, nodes.FunctionDef)
             and inferred_assign_type.qname() == "typing.Annotated"
