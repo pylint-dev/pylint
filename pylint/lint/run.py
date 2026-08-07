@@ -191,15 +191,15 @@ group are mutually exclusive.",
                 sys.exit(code)
             return
 
-        # Display help if there are no files to lint or only internal checks enabled (`--disable=all`)
+        # Exit early when every user-visible message is disabled (e.g. `--disable=all`)
         disable_all_msg_set = set(
             msg.symbol for msg in linter.msgs_store.messages
         ) - set(msg[1] for msg in linter.default_enabled_messages.values())
-        if not linter.config.files or (
+        if (
             len(linter.config.enable) == 0
             and set(linter.config.disable) == disable_all_msg_set
         ):
-            print("No files to lint: exiting.")
+            print("No messages to check: exiting.")
             sys.exit(32)
 
         if linter.config.jobs < 0:
