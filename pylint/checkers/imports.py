@@ -29,6 +29,7 @@ from pylint.checkers.utils import (
     in_type_checking_block,
     is_from_fallback_block,
     is_module_ignored,
+    is_platform_guard,
     is_sys_guard,
     node_ignores_exception,
 )
@@ -622,7 +623,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 and not in_type_checking_block(import_node)
                 and not (
                     isinstance(import_node.parent, nodes.If)
-                    and is_sys_guard(import_node.parent)
+                    and (
+                        is_sys_guard(import_node.parent)
+                        or is_platform_guard(import_node.parent)
+                    )
                 )
             ):
                 self.add_message("ungrouped-imports", node=import_node, args=package)
