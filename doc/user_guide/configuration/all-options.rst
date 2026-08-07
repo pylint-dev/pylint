@@ -1318,7 +1318,7 @@ Standard Checkers
 
 --ignore-signatures
 """""""""""""""""""
-*Signatures are removed from the similarity computation*
+*Signatures are removed from the similarity computation. Functions whose body only contains placeholder statements (pass, ..., raise NotImplementedError, return NotImplemented) are removed entirely.*
 
 **Default:**  ``True``
 
