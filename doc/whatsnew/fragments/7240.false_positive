@@ -1,0 +1,6 @@
+Fixed a false positive ``no-member`` for names used inside a comprehension
+in a branch guarded by a platform check like ``sys.platform == "linux"``.
+
+Fixed by upgrading astroid to 4.3.0.
+
+Closes #7240

@@ -1,0 +1,6 @@
+Fixed a false positive ``syntax-error`` for type comments spread over
+multiple lines of a call, like ``relationship(  # type: Set[Port]``.
+
+Fixed by upgrading astroid to 4.3.0.
+
+Closes #3556

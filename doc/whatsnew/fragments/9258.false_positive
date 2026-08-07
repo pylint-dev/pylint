@@ -1,0 +1,6 @@
+Fixed a false positive ``unused-variable`` for ``_HAS_DEFAULT_FACTORY`` when
+linting dataclasses with ``allow-global-unused-variables = no``.
+
+Fixed by upgrading astroid to 4.3.0.
+
+Closes #9258

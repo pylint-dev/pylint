@@ -1,0 +1,6 @@
+Fixed a false positive ``unnecessary-lambda`` when the lambda calls a
+function with ``**kwargs`` built from an if-else expression.
+
+Fixed by upgrading astroid to 4.3.0.
+
+Closes #7647
