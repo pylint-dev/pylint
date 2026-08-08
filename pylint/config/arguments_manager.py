@@ -24,6 +24,7 @@ from pylint.config.argument import (
     _StoreOldNamesArgument,
     _StoreTrueArgument,
 )
+from pylint.config.callback_actions import _CallbackAction
 from pylint.config.exceptions import (
     UnrecognizedArgumentAction,
     _UnrecognizedOptionError,
@@ -206,6 +207,7 @@ class _ArgumentsManager:
 
     def _parse_configuration_file(self, arguments: list[str]) -> None:
         """Parse the arguments found in a configuration file into the namespace."""
+        self._reset_callback_actions()
         try:
             self.config, parsed_args = self._arg_parser.parse_known_args(
                 arguments, self.config
@@ -225,11 +227,19 @@ class _ArgumentsManager:
         """Parse the arguments found on the command line into the namespace."""
         arguments = sys.argv[1:] if arguments is None else arguments
 
+        self._reset_callback_actions()
+
         self.config, parsed_args = self._arg_parser.parse_known_args(
             arguments, self.config
         )
 
         return parsed_args
+
+    def _reset_callback_actions(self) -> None:
+        """Start a fresh accumulation scope for callback actions."""
+        for action in self._arg_parser._actions:
+            if isinstance(action, _CallbackAction):
+                action.reset()
 
     def _generate_config(
         self, stream: TextIO | None = None, skipsections: tuple[str, ...] = ()

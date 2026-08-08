@@ -1263,6 +1263,39 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             expected_output.format(path="tests/regrtest_data/unused_variable.py"),
         )
 
+    def test_repeated_output_format_options_write_to_all_files(
+        self, tmp_path: Path
+    ) -> None:
+        path = join(HERE, "regrtest_data", "unused_variable.py")
+        output_files = [tmp_path / "first.txt", tmp_path / "second.txt"]
+        arguments = _add_rcfile_default_pylintrc(
+            [
+                path,
+                *(
+                    f"--output-format=text:{output_file}"
+                    for output_file in output_files
+                ),
+            ]
+        )
+
+        process = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pylint",
+                *arguments,
+                "--persistent=no",
+            ],
+            capture_output=True,
+            check=False,
+        )
+
+        assert process.returncode == MSG_TYPES_STATUS["W"]
+        for output_file in output_files:
+            assert "Unused variable 'variable'" in output_file.read_text(
+                encoding="utf-8"
+            )
+
     def test_output_file_can_be_combined_with_custom_reporter(
         self, tmp_path: Path
     ) -> None:
