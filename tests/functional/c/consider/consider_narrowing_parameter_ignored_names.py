@@ -5,7 +5,9 @@
 
 class ColorVisitor:
     def visit_assign(self, node):
+        print(node.value)
         return node.value
 
     def leave_assign(self, node):
+        print(node.value)
         return node.value

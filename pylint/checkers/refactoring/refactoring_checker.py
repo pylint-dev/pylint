@@ -246,6 +246,7 @@ class _ParameterUsage:
     """How a parameter is used inside the body of its function."""
 
     attribute_names: set[str] = field(default_factory=set)
+    access_count: int = 0
     only_calls: bool = True
     narrowable: bool = True
 
@@ -584,6 +585,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._init()
         self._never_returning_functions: set[str] = set()
         self._suggest_join_with_non_empty_separator: bool = False
+        self._escaped_names_module: nodes.Module | None = None
+        self._escaped_names: frozenset[str] = frozenset()
 
     def _init(self) -> None:
         self._nested_blocks: list[NodesWithNestedBlocks] = []
@@ -1073,6 +1076,27 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._consider_using_with_stack.function_scope.clear()
         self._check_narrowable_parameters(node)
 
+    def _name_escapes_module(self, node: nodes.FunctionDef) -> bool:
+        """Check if the function is referenced somewhere without being called.
+
+        A function passed as a callback ('handler.addFilter(my_filter)',
+        'callbacks.append(fix)', registration in a dict...) has its signature
+        imposed by whoever ends up calling it.
+        """
+        module = node.root()
+        if module is not self._escaped_names_module:
+            escaped = set()
+            for child in module.nodes_of_class((nodes.Name, nodes.Attribute)):
+                parent = child.parent
+                if isinstance(parent, nodes.Call) and parent.func is child:
+                    continue  # a direct call is not an escaping reference
+                escaped.add(
+                    child.name if isinstance(child, nodes.Name) else child.attrname
+                )
+            self._escaped_names_module = module
+            self._escaped_names = frozenset(escaped)
+        return node.name in self._escaped_names
+
     def _signature_is_imposed(self, node: nodes.FunctionDef) -> bool:
         """Check whether the function is not free to change its signature."""
         ignored_names = self.linter.config.ignored_function_names
@@ -1101,12 +1125,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 "__new__",
             }:
                 return True
-            return (
+            if (
                 node.is_abstract()
                 or utils.overrides_a_method(klass, node.name)
                 or utils.is_protocol_class(klass)
-            )
-        return False
+            ):
+                return True
+        return self._name_escapes_module(node)
 
     @staticmethod
     def _narrowable_parameter_usages(
@@ -1131,6 +1156,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 parent = child.parent
                 if isinstance(parent, nodes.Attribute) and parent.expr is child:
                     usage.attribute_names.add(parent.attrname)
+                    usage.access_count += 1
                     usage.only_calls = usage.only_calls and (
                         isinstance(parent.parent, nodes.Call)
                         and parent.parent.func is parent
@@ -1175,6 +1201,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         usages = self._narrowable_parameter_usages(node, candidates)
         for name, usage in usages.items():
             if not usage.narrowable or len(usage.attribute_names) != 1:
+                continue
+            if usage.access_count < 2:
+                # A single access is a weak signal: short adapter functions
+                # implementing a duck-typed interface (e.g. 'filter(record)'
+                # for the logging framework) often look exactly like this.
                 continue
             if usage.only_calls:
                 # Every access immediately calls the attribute: suggesting to

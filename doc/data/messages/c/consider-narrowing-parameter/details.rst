@@ -5,10 +5,15 @@ only have the one value the function really needs, which makes the function
 harder to reuse and to test. Accepting the value itself (*data coupling*)
 keeps the function independent.
 
-The suggestion is only emitted when a single attribute is used. If the
-function reads several attributes of the parameter, passing the whole object
-is often the clearer design (see the *Preserve Whole Object* refactoring from
-Martin Fowler's catalog).
+The suggestion is only emitted when a single attribute is used, and used at
+least twice. If the function reads several attributes of the parameter,
+passing the whole object is often the clearer design (see the *Preserve Whole
+Object* refactoring from Martin Fowler's catalog), and a single access is a
+weak signal: short adapters implementing a duck-typed interface (like
+``filter(record)`` for the ``logging`` framework) often look exactly like
+this. Functions that are referenced without being called (passed as a
+callback, registered in a container...) are not reported either: their
+signature belongs to whoever ends up calling them.
 
 The checker cannot know that an attribute is a structural back-reference
 (like the ``parent`` of a tree node) whose narrowing would lose information,

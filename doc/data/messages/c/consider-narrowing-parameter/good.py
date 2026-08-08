@@ -1,5 +1,6 @@
 def print_color(color):
-    print(color)
+    print("This fruit is", color)
+    print("I like", color)
 
 
 class Apple:

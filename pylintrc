@@ -105,7 +105,7 @@ disable=
     # We anticipate #3512 where it will become optional
     fixme,
     consider-using-assignment-expr,
-    # 86 hits on our own code base to clean up before enabling (see #11236)
+    # 27 hits on our own code base to clean up before enabling (see #11236)
     consider-narrowing-parameter,
 
 

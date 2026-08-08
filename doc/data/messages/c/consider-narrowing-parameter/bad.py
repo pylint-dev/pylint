@@ -1,5 +1,6 @@
 def print_color(fruit):  # [consider-narrowing-parameter]
-    print(fruit.color)
+    print("This fruit is", fruit.color)
+    print("I like", fruit.color)
 
 
 class Apple:
