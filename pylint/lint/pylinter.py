@@ -666,13 +666,12 @@ class PyLinter(
         Returns iterator of paths to discovered modules and packages.
         """
         for something in files_or_modules:
-            if os.path.isdir(something) and not os.path.isfile(
-                os.path.join(something, "__init__.py")
-            ):
+            if os.path.isdir(something):
                 skip_subtrees: list[str] = []
+                package_directories: set[str] = set()
                 for root, _, files in os.walk(something):
                     if any(root.startswith(s) for s in skip_subtrees):
-                        # Skip subtree of already discovered package.
+                        # Skip ignored sub-trees.
                         continue
 
                     if _is_ignored_file(
@@ -685,8 +684,13 @@ class PyLinter(
                         continue
 
                     if "__init__.py" in files:
-                        skip_subtrees.append(root + os.sep)
-                        yield root
+                        package_directory = os.path.normpath(root)
+                        if (
+                            os.path.dirname(package_directory)
+                            not in package_directories
+                        ):
+                            yield root
+                        package_directories.add(package_directory)
                     else:
                         yield from (
                             os.path.join(root, file)
