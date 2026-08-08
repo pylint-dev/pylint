@@ -102,7 +102,8 @@ KNOWN_TREACHEROUS_FUNCTIONS = {
     "sort": "sorted",
 }
 """Functions that modify in place and return None, mapped to the function
-returning a new value that the user probably meant to call instead."""
+returning a new value that the user probably meant to call instead.
+"""
 
 
 class VERSION_COMPATIBLE_OVERLOAD:
