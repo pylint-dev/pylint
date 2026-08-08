@@ -480,6 +480,12 @@ notes-rgx=
 
 [REFACTORING]
 
+# Regular expression matching names of functions or methods whose signature is
+# imposed by a convention or a protocol (for example visitor callbacks such as
+# '(visit|leave)_.*'), and that 'consider-narrowing-parameter' should not be
+# raised for.
+ignored-function-names=
+
 # Maximum number of nested blocks for function / method body
 max-nested-blocks=5
 

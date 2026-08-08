@@ -1,6 +1,7 @@
 abc
 abcmeta
 abspath
+abstractmethod
 abstractproperty
 analyse
 analysed

@@ -1,0 +1,7 @@
+Added the ``consider-narrowing-parameter`` check: emitted when a function or
+method parameter is only ever used to access a single attribute, meaning the
+function could accept that attribute's value directly and reduce coupling with
+its callers. Functions whose signature is imposed by a convention or a
+protocol can be excluded with the new ``ignored-function-names`` option.
+
+Refs #11236

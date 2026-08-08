@@ -241,6 +241,15 @@ class ConsiderUsingWithStack:
             stack.clear()
 
 
+@dataclass
+class _ParameterUsage:
+    """How a parameter is used inside the body of its function."""
+
+    attribute_names: set[str] = field(default_factory=set)
+    only_calls: bool = True
+    narrowable: bool = True
+
+
 class RefactoringChecker(checkers.BaseTokenChecker):
     """Looks for code which can be refactored.
 
@@ -508,6 +517,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Yielding directly from the iterator is faster and arguably cleaner code than yielding each element "
             "one by one in the loop.",
         ),
+        "R1738": (
+            "Parameter '%s' is only used as '%s.%s'; consider accepting the attribute value directly",
+            "consider-narrowing-parameter",
+            "Emitted when a function or method parameter is only ever used to access a "
+            "single attribute, meaning the function could accept that attribute's value "
+            "directly and reduce coupling with the caller.",
+        ),
     }
     options = (
         (
@@ -541,6 +557,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     "Let 'consider-using-join' be raised when the separator to "
                     "join on would be non-empty (resulting in expected fixes "
                     'of the type: ``"- " + "\n- ".join(items)``)'
+                ),
+            },
+        ),
+        (
+            "ignored-function-names",
+            {
+                "default": "",
+                "type": "regexp",
+                "metavar": "<regexp>",
+                "help": (
+                    "Regular expression matching names of functions or methods "
+                    "whose signature is imposed by a convention or a protocol "
+                    "(for example visitor callbacks such as '(visit|leave)_.*'), "
+                    "and that 'consider-narrowing-parameter' should not be "
+                    "raised for."
                 ),
             },
         ),
@@ -1023,6 +1054,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "inconsistent-return-statements",
         "useless-return",
         "consider-using-with",
+        "consider-narrowing-parameter",
     )
     def leave_functiondef(self, node: nodes.FunctionDef) -> None:
         # check left-over nested blocks stack
@@ -1039,6 +1071,118 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self._consider_using_with_stack.function_scope
         )
         self._consider_using_with_stack.function_scope.clear()
+        self._check_narrowable_parameters(node)
+
+    def _signature_is_imposed(self, node: nodes.FunctionDef) -> bool:
+        """Check whether the function is not free to change its signature."""
+        ignored_names = self.linter.config.ignored_function_names
+        if ignored_names and ignored_names.pattern and ignored_names.match(node.name):
+            return True
+        # Reuse the callback naming convention of 'unused-argument': callbacks
+        # have their signature imposed by their caller.
+        if any(
+            node.name.startswith(cb) or node.name.endswith(cb)
+            for cb in self.linter.config.callbacks
+        ):
+            return True
+        # A decorator other than staticmethod/classmethod may register the
+        # function somewhere or impose its signature (property, overload,
+        # singledispatch, abstractmethod, framework routes...).
+        if node.decorators and not all(
+            isinstance(decorator, nodes.Name)
+            and decorator.name in {"staticmethod", "classmethod"}
+            for decorator in node.decorators.nodes
+        ):
+            return True
+        if node.is_method():
+            klass = node.parent.frame()
+            if node.name in utils.PYMETHODS and node.name not in {
+                "__init__",
+                "__new__",
+            }:
+                return True
+            return (
+                node.is_abstract()
+                or utils.overrides_a_method(klass, node.name)
+                or utils.is_protocol_class(klass)
+            )
+        return False
+
+    @staticmethod
+    def _narrowable_parameter_usages(
+        node: nodes.FunctionDef, candidates: dict[str, nodes.AssignName]
+    ) -> dict[str, _ParameterUsage]:
+        """Collect how each candidate parameter is used in the function body."""
+        usages = {name: _ParameterUsage() for name in candidates}
+        for child in node.nodes_of_class((nodes.Name, nodes.AssignName, nodes.DelName)):
+            usage = usages.get(child.name)
+            if usage is None or not usage.narrowable:
+                continue
+            if isinstance(child, (nodes.AssignName, nodes.DelName)):
+                # Rebinding or deleting the name ('param = ...', 'for param
+                # in ...', 'with ... as param', walrus, 'del param'...)
+                # disqualifies it, but the parameter's own definition in the
+                # signature does not.
+                if child.parent is not node.args and child.scope() is node:
+                    usage.narrowable = False
+            else:
+                if child.lookup(child.name)[0] is not node:
+                    continue
+                parent = child.parent
+                if isinstance(parent, nodes.Attribute) and parent.expr is child:
+                    usage.attribute_names.add(parent.attrname)
+                    usage.only_calls = usage.only_calls and (
+                        isinstance(parent.parent, nodes.Call)
+                        and parent.parent.func is parent
+                    )
+                else:
+                    # Bare use, or a store/delete on the attribute
+                    # ('param.value = ...'): the whole object is needed.
+                    usage.narrowable = False
+        return usages
+
+    @utils.only_required_for_messages("consider-narrowing-parameter")
+    def _check_narrowable_parameters(self, node: nodes.FunctionDef) -> None:
+        """Check for parameters that are only ever used through a single attribute.
+
+        Such a parameter couples the function to a composite object when it only
+        needs one piece of it: the function could accept the attribute's value
+        directly instead.
+        """
+        if self._signature_is_imposed(node):
+            return
+        ignored_arguments = self.linter.config.ignored_argument_names
+        candidates: dict[str, nodes.AssignName] = {}
+        skip_first = node.is_method() and node.type != "staticmethod"
+        positional = node.args.posonlyargs + node.args.args
+        for index, argument in enumerate(positional):
+            if skip_first and index == 0:
+                continue  # self or cls
+            candidates[argument.name] = argument
+        for argument in node.args.kwonlyargs:
+            candidates[argument.name] = argument
+        if ignored_arguments is not None:
+            for name in list(candidates):
+                if ignored_arguments.match(name):
+                    del candidates[name]
+        if not candidates:
+            return
+        usages = self._narrowable_parameter_usages(node, candidates)
+        for name, usage in usages.items():
+            if not usage.narrowable or len(usage.attribute_names) != 1:
+                continue
+            if usage.only_calls:
+                # Every access immediately calls the attribute: suggesting to
+                # pass the bound method around would not improve the code.
+                continue
+            self.add_message(
+                "consider-narrowing-parameter",
+                node=candidates[name],
+                args=(name, name, usage.attribute_names.pop()),
+                confidence=HIGH,
+            )
+
+    leave_asyncfunctiondef = _check_narrowable_parameters
 
     @utils.only_required_for_messages("consider-using-with")
     def leave_classdef(self, _: nodes.ClassDef) -> None:

@@ -1,0 +1,2 @@
+[refactoring]
+ignored-function-names=(visit|leave)_.*
