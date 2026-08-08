@@ -1,0 +1,4 @@
+Fix a crash in the typecheck checker when a dynamically created class has a
+non-string name.
+
+Closes #11229
