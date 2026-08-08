@@ -1,7 +1,7 @@
-assignment-from-no-return:17:0:17:20::Assigning result of 'func_no_return()' to a variable, but 'func_no_return()' doesn't return anything:UNDEFINED
+assignment-from-no-return:17:0:17:20::Assigning result of a function call, but 'func_no_return' doesn't return anything:INFERENCE
 assignment-from-none:25:0:25:22::Assigning result of a function call, where the function returns None:UNDEFINED
 assignment-from-none:32:0:32:31::Assigning result of a function call, where the function returns None:UNDEFINED
-assignment-from-no-return:35:0:35:14::Assigning result of 'lst.sort()' to a variable, but 'sort()' doesn't return anything; did you mean to use sorted(...) instead?:INFERENCE
-assignment-from-no-return:36:0:36:17::Assigning result of 'lst.reverse()' to a variable, but 'reverse()' doesn't return anything; did you mean to use reversed(...) instead?:INFERENCE
-assignment-from-no-return:38:0:38:26::"Assigning result of 'my_dict.update({2: 1})' to a variable, but 'update()' doesn't return anything":INFERENCE
-assignment-from-no-return:40:0:40:43::Assigning result of 'my_set.symmetric_difference_update([6])' to a variable, but 'symmetric_difference_update()' doesn't return anything:INFERENCE
+assignment-from-no-return:35:0:35:14::Assigning result of a function call, but 'sort' doesn't return anything, did you mean to use 'sorted(...)' instead?:INFERENCE
+assignment-from-no-return:36:0:36:17::Assigning result of a function call, but 'reverse' doesn't return anything, did you mean to use 'reversed(...)' instead?:INFERENCE
+assignment-from-no-return:38:0:38:26::Assigning result of a function call, but 'update' doesn't return anything:INFERENCE
+assignment-from-no-return:40:0:40:43::Assigning result of a function call, but 'symmetric_difference_update' doesn't return anything:INFERENCE

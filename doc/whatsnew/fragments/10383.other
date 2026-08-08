@@ -1,3 +1,5 @@
-Clarified the ``assignment-from-no-return`` documentation with examples for assigning the result of in-place list methods such as ``sort()`` and ``reverse()``.
+``assignment-from-no-return`` now names the callable that does not return anything and,
+for functions listed in the new ``known-treacherous-functions`` option, hints at the
+function to use instead (e.g. ``sorted(...)`` for ``sort()``).
 
 Closes #10383
