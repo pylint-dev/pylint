@@ -1,0 +1,2 @@
+[TYPECHECK]
+known-treacherous-functions=shuffle:sample

@@ -97,6 +97,12 @@ BUILTINS_IMPLICIT_RETURN_NONE = {
         "update",
     },
 }
+KNOWN_TREACHEROUS_FUNCTIONS = {
+    "reverse": "reversed",
+    "sort": "sorted",
+}
+"""Functions that modify in place and return None, mapped to the function
+returning a new value that the user probably meant to call instead."""
 
 
 class VERSION_COMPATIBLE_OVERLOAD:
@@ -1017,6 +1023,20 @@ accessed. Python regular expressions are accepted.",
                 "a decorated function.",
             },
         ),
+        (
+            "known-treacherous-functions",
+            {
+                "default": tuple(
+                    f"{function}:{suggestion}"
+                    for function, suggestion in KNOWN_TREACHEROUS_FUNCTIONS.items()
+                ),
+                "type": "csv",
+                "metavar": "<function:suggestion>",
+                "help": "Couples of functions that do not return anything and of the "
+                "function to use instead, separated by a comma. Used to hint at the "
+                "right function to use in the 'assignment-from-no-return' message.",
+            },
+        ),
     )
 
     def open(self) -> None:
@@ -1025,6 +1045,12 @@ accessed. Python regular expressions are accepted.",
         self._py314_plus = py_version >= (3, 14)
         self._postponed_evaluation_enabled = False
         self._mixin_class_rgx = self.linter.config.mixin_class_rgx
+        # Build a mapping {'function': 'suggestion'}
+        self._known_treacherous_functions = dict(
+            function.split(":", maxsplit=1)
+            for function in self.linter.config.known_treacherous_functions
+            if ":" in function
+        )
 
     def visit_module(self, node: nodes.Module) -> None:
         self._postponed_evaluation_enabled = (
@@ -1316,7 +1342,7 @@ accessed. Python regular expressions are accepted.",
             self.add_message(
                 "assignment-from-no-return",
                 node=node,
-                args=self._assignment_from_no_return_args(node),
+                args=self._assignment_from_no_return_args(node.value),
                 confidence=INFERENCE,
             )
             return
@@ -1331,7 +1357,8 @@ accessed. Python regular expressions are accepted.",
             self.add_message(
                 "assignment-from-no-return",
                 node=node,
-                args=self._assignment_from_no_return_args(node),
+                args=self._assignment_from_no_return_args(node.value),
+                confidence=INFERENCE,
             )
         else:
             for ret_node in return_nodes:
@@ -1377,22 +1404,18 @@ accessed. Python regular expressions are accepted.",
                 )
         return False
 
-    @staticmethod
-    def _assignment_from_no_return_args(node: nodes.Assign) -> tuple[str, str, str]:
-        assert isinstance(node.value, nodes.Call)
-        call = node.value.as_string()
-        match node.value.func:
-            case nodes.Attribute(attrname=attr):
-                name = f"{attr}()"
-                suggestion = {"reverse": "reversed", "sort": "sorted"}.get(attr)
-            case nodes.Name(name=func_name):
-                name = f"{func_name}()"
-                suggestion = None
+    def _assignment_from_no_return_args(self, call: nodes.Call) -> tuple[str, str]:
+        """Get the name of the called function and a hint about what to use instead."""
+        match call.func:
+            case nodes.Attribute(attrname=name) | nodes.Name(name=name):
+                pass
             case _:
-                name = call
-                suggestion = None
-        hint = f"; did you mean to use {suggestion}(...) instead?" if suggestion else ""
-        return call, name, hint
+                name = call.func.as_string()
+        suggestion = self._known_treacherous_functions.get(name)
+        hint = (
+            f", did you mean to use '{suggestion}(...)' instead?" if suggestion else ""
+        )
+        return name, hint
 
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:
         """Check a string is assigned to self.__name__."""

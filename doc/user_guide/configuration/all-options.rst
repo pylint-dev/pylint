@@ -1528,6 +1528,13 @@ Standard Checkers
 **Default:**  ``('optparse.Values', 'thread._local', '_thread._local', 'argparse.Namespace')``
 
 
+--known-treacherous-functions
+"""""""""""""""""""""""""""""
+*Couples of functions that do not return anything and of the function to use instead, separated by a comma. Used to hint at the right function to use in the 'assignment-from-no-return' message.*
+
+**Default:**  ``('reverse:reversed', 'sort:sorted')``
+
+
 --missing-member-hint
 """""""""""""""""""""
 *Show a hint with possible names when a member name was not found. The aspect of finding the hint is based on edit distance.*
@@ -1587,6 +1594,8 @@ Standard Checkers
    ignored-checks-for-mixins = ["no-member", "not-async-context-manager", "not-context-manager", "attribute-defined-outside-init"]
 
    ignored-classes = ["optparse.Values", "thread._local", "_thread._local", "argparse.Namespace"]
+
+   known-treacherous-functions = ["reverse:reversed", "sort:sorted"]
 
    missing-member-hint = true
 
