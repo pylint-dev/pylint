@@ -1,7 +1,8 @@
 """Tests for consider-narrowing-parameter."""
 
-# pylint: disable=missing-docstring,too-few-public-methods,unused-argument
+# pylint: disable=missing-docstring,too-few-public-methods,unused-argument,bare-except
 
+import builtins
 from abc import ABCMeta, abstractmethod
 from functools import lru_cache, singledispatch
 from typing import Protocol
@@ -312,3 +313,27 @@ class CitrusJuicer(BaseJuicer):
     def squeeze(self, press):
         print(press.level)
         return press.level * 2
+
+
+def bare_guard(fruit):
+    try:
+        print(fruit.color)
+        return str(fruit.color)
+    except:
+        return ""
+
+
+def tuple_guard(fruit):
+    try:
+        print(fruit.color)
+        return str(fruit.color)
+    except (TypeError, AttributeError):
+        return ""
+
+
+def dotted_guard(fruit):
+    try:
+        print(fruit.color)
+        return str(fruit.color)
+    except builtins.AttributeError:
+        return ""
