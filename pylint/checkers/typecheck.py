@@ -241,7 +241,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "callable object.",
     ),
     "E1111": (
-        "Assigning result of %r to a variable, but %r doesn't return anything%s",
+        "Assigning result of a function call, but %r doesn't return anything%s",
         "assignment-from-no-return",
         "Used when an assignment is done on a function call but the "
         "inferred function doesn't return anything.",
