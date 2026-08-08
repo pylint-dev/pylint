@@ -1,5 +1,5 @@
 ``assignment-from-no-return`` now names the callable that does not return anything and,
-for functions listed in the new ``known-treacherous-functions`` option, hints at the
-function to use instead (e.g. ``sorted(...)`` for ``sort()``).
+for functions listed in the new ``known-side-effects-only-functions`` option, hints at
+the equivalent function to use instead (e.g. ``reversed(...)`` for ``reverse()``).
 
 Closes #10383

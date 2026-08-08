@@ -97,12 +97,12 @@ BUILTINS_IMPLICIT_RETURN_NONE = {
         "update",
     },
 }
-KNOWN_TREACHEROUS_FUNCTIONS = {
+KNOWN_SIDE_EFFECTS_ONLY_FUNCTIONS = {
     "reverse": "reversed",
     "sort": "sorted",
 }
-"""Functions that modify in place and return None, mapped to the function
-returning a new value that the user probably meant to call instead.
+"""Functions that only have side effects and return None, mapped to the
+equivalent function returning a new value that is often expected instead.
 """
 
 
@@ -1025,17 +1025,18 @@ accessed. Python regular expressions are accepted.",
             },
         ),
         (
-            "known-treacherous-functions",
+            "known-side-effects-only-functions",
             {
                 "default": tuple(
                     f"{function}:{suggestion}"
-                    for function, suggestion in KNOWN_TREACHEROUS_FUNCTIONS.items()
+                    for function, suggestion in KNOWN_SIDE_EFFECTS_ONLY_FUNCTIONS.items()
                 ),
                 "type": "csv",
                 "metavar": "<function:suggestion>",
-                "help": "Couples of functions that do not return anything and of the "
-                "function to use instead, separated by a comma. Used to hint at the "
-                "right function to use in the 'assignment-from-no-return' message.",
+                "help": "Couples of functions with side effects that are often believed "
+                "to return something and the equivalent function that does return "
+                "something, separated by a comma. Used to hint at the right function "
+                "to use in the 'assignment-from-no-return' message.",
             },
         ),
     )
@@ -1047,9 +1048,9 @@ accessed. Python regular expressions are accepted.",
         self._postponed_evaluation_enabled = False
         self._mixin_class_rgx = self.linter.config.mixin_class_rgx
         # Build a mapping {'function': 'suggestion'}
-        self._known_treacherous_functions = dict(
+        self._known_side_effects_only_functions = dict(
             function.split(":", maxsplit=1)
-            for function in self.linter.config.known_treacherous_functions
+            for function in self.linter.config.known_side_effects_only_functions
             if ":" in function
         )
 
@@ -1412,7 +1413,7 @@ accessed. Python regular expressions are accepted.",
                 pass
             case _:
                 name = call.func.as_string()
-        suggestion = self._known_treacherous_functions.get(name)
+        suggestion = self._known_side_effects_only_functions.get(name)
         hint = (
             f", did you mean to use '{suggestion}(...)' instead?" if suggestion else ""
         )

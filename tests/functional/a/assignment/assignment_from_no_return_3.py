@@ -1,4 +1,4 @@
-"""Check that 'known-treacherous-functions' adds a hint to 'assignment-from-no-return'."""
+"""Check 'known-side-effects-only-functions' hints in 'assignment-from-no-return'."""
 
 # pylint: disable=invalid-name
 
