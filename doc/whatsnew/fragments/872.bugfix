@@ -1,0 +1,7 @@
+``# pylint: disable`` comments at the beginning of an ``else`` block (or on
+the line just above the ``else`` keyword) now suppress messages in that block
+instead of being ignored.
+
+Fixed by upgrading astroid to 4.3.0.
+
+Closes #872

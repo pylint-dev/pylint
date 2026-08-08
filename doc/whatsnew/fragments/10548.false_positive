@@ -1,0 +1,6 @@
+Fixed a false positive ``unexpected-keyword-argument`` when passing ``dtype``
+to ``numpy.concatenate()``.
+
+Fixed by upgrading astroid to 4.3.0.
+
+Closes #10548

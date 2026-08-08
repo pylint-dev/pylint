@@ -1,0 +1,6 @@
+Fixed a false positive ``invalid-enum-extension`` when subclassing an enum
+without members defined in another module.
+
+Fixed by upgrading astroid to 4.3.0.
+
+Closes #6887

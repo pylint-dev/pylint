@@ -1,0 +1,6 @@
+Fixed an ``AstroidBuildingError`` crash when inheriting from a generic
+dataclass that rebinds ``__init__`` in ``__init_subclass__``.
+
+Fixed by upgrading astroid to 4.3.0.
+
+Closes #10519
