@@ -24,7 +24,7 @@ def outer_price(basket):
 
 class Shop:
     def __init__(self, fruit):
-        # dunders are part of the public interface of the class
+        # dunder methods are part of the public interface of the class
         self.color = fruit.color
         self.dark = fruit.color
 

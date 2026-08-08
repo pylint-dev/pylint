@@ -1337,8 +1337,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             ):
                 # An exit point precedes every access: narrowing would make
                 # the attribute access unconditional at the call site, which
-                # changes behavior when the attribute is a side-effectful
-                # property (e.g. one that lazily creates an object).
+                # changes behavior when the attribute is a property with side
+                # effects (e.g. one that lazily creates an object).
                 continue
             if usage.only_calls:
                 # Every access immediately calls the attribute: suggesting to

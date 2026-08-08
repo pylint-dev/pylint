@@ -274,7 +274,7 @@ def class_factory(cls):
 def stamp_color(fruit, enabled):
     # An exit point precedes every access: narrowing would evaluate
     # 'fruit.color' unconditionally at the call site, which changes behavior
-    # if the attribute is a side-effectful property.
+    # if the attribute is a property with side effects.
     if not enabled:
         return
     print(fruit.color)
