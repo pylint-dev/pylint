@@ -7,6 +7,10 @@ Pre-commit integration
 discourage it as pylint -- due to its speed -- is more suited to a continuous integration
 job or a git ``pre-push`` hook, especially if your repository is large.
 
+If you want a ready-made continuous integration setup, `MegaLinter
+<https://megalinter.io/>`_ is an open-source linters aggregator that `runs pylint
+out of the box <https://megalinter.io/latest/descriptors/python_pylint/>`_.
+
 Since ``pylint`` needs to import modules and dependencies to work correctly, the
 hook only works with a local installation of ``pylint`` (in your environment). It means
 it can't be used with ``pre-commit.ci``, and you will need to add the following to your
