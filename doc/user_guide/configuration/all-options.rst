@@ -1528,9 +1528,9 @@ Standard Checkers
 **Default:**  ``('optparse.Values', 'thread._local', '_thread._local', 'argparse.Namespace')``
 
 
---known-treacherous-functions
-"""""""""""""""""""""""""""""
-*Couples of functions that do not return anything and of the function to use instead, separated by a comma. Used to hint at the right function to use in the 'assignment-from-no-return' message.*
+--known-side-effects-only-functions
+"""""""""""""""""""""""""""""""""""
+*Couples of functions with side effects that are often believed to return something and the equivalent function that does return something, separated by a comma. Used to hint at the right function to use in the 'assignment-from-no-return' message.*
 
 **Default:**  ``('reverse:reversed', 'sort:sorted')``
 
@@ -1595,7 +1595,7 @@ Standard Checkers
 
    ignored-classes = ["optparse.Values", "thread._local", "_thread._local", "argparse.Namespace"]
 
-   known-treacherous-functions = ["reverse:reversed", "sort:sorted"]
+   known-side-effects-only-functions = ["reverse:reversed", "sort:sorted"]
 
    missing-member-hint = true
 

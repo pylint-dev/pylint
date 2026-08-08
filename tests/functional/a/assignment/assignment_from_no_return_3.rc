@@ -1,2 +1,2 @@
 [TYPECHECK]
-known-treacherous-functions=shuffle:sample
+known-side-effects-only-functions=shuffle:sample
