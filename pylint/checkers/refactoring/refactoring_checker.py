@@ -1158,6 +1158,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for index, argument in enumerate(positional):
             if skip_first and index == 0:
                 continue  # self or cls
+            if argument.name in {"self", "cls"}:
+                # Follows the method convention even outside a class body
+                # (closure capture with 'self=self', function attached to a
+                # class later...).
+                continue
             candidates[argument.name] = argument
         for argument in node.args.kwonlyargs:
             candidates[argument.name] = argument

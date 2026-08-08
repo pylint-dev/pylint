@@ -18,3 +18,9 @@ by a convention or a framework can be excluded with the
 
     [REFACTORING]
     ignored-function-names=(visit|leave)_.*
+
+This is also the right knob for pytest test suites, where test function
+parameters are fixtures injected by name and cannot be narrowed::
+
+    [REFACTORING]
+    ignored-function-names=(test_|pytest_).*

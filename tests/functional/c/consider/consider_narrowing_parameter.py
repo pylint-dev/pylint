@@ -192,3 +192,13 @@ class Colored:
     @color.setter
     def color(self, value):
         self._hue = value.color
+
+
+def method_to_attach(self):
+    """'self' follows the method convention even outside a class body."""
+    return self.color
+
+
+def class_factory(cls):
+    """Same convention for 'cls'."""
+    return cls.color
