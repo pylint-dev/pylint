@@ -14,3 +14,4 @@ consider-narrowing-parameter:86:23:86:28:Basket.__init__:Parameter 'fruit' is on
 consider-narrowing-parameter:90:23:90:28:Basket.describe:Parameter 'fruit' is only used as 'fruit.color'; consider accepting the attribute value directly:HIGH
 consider-narrowing-parameter:95:24:95:29:Basket.static_describe:Parameter 'fruit' is only used as 'fruit.color'; consider accepting the attribute value directly:HIGH
 consider-narrowing-parameter:100:28:100:33:Basket.class_describe:Parameter 'fruit' is only used as 'fruit.color'; consider accepting the attribute value directly:HIGH
+consider-narrowing-parameter:294:17:294:22:parse_weight:Parameter 'fruit' is only used as 'fruit.weight'; consider accepting the attribute value directly:HIGH

@@ -1,3 +1,2 @@
 [refactoring]
-ignored-function-names=(visit|leave)_.*
 suggest-narrowing-public-parameters=yes

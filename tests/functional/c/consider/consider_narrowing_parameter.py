@@ -269,3 +269,46 @@ def class_factory(cls):
     """Same convention for 'cls'."""
     print(cls.color)
     return cls.color
+
+
+def stamp_color(fruit, enabled):
+    # An exit point precedes every access: narrowing would evaluate
+    # 'fruit.color' unconditionally at the call site, which changes behavior
+    # if the attribute is a side-effectful property.
+    if not enabled:
+        return
+    print(fruit.color)
+    print(fruit.color)
+
+
+def crash_line(report):
+    # The code treats the attribute as possibly missing: hoisting the access
+    # out of the 'try' would move the failure past the guard.
+    try:
+        print(report.summary)
+        return str(report.summary)
+    except AttributeError:
+        return ""
+
+
+def parse_weight(fruit):  # [consider-narrowing-parameter]
+    # A handler that cannot catch AttributeError does not prevent narrowing.
+    try:
+        print(fruit.weight)
+        return int(fruit.weight)
+    except ValueError:
+        return 0
+
+
+class BaseJuicer:
+    def squeeze(self, press):
+        # Overridden by CitrusJuicer below: narrowing the base would break
+        # the polymorphic call sites shared with the override.
+        print(press.level)
+        return press.level
+
+
+class CitrusJuicer(BaseJuicer):
+    def squeeze(self, press):
+        print(press.level)
+        return press.level * 2

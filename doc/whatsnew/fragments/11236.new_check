@@ -1,7 +1,8 @@
-Added the ``consider-narrowing-parameter`` check: emitted when a function or
-method parameter is only ever used to access a single attribute, meaning the
-function could accept that attribute's value directly and reduce coupling with
-its callers. Functions whose signature is imposed by a convention or a
-protocol can be excluded with the new ``ignored-function-names`` option.
+Added the ``consider-narrowing-parameter`` check: emitted when a private or
+nested function only ever uses a single attribute of one of its parameters,
+meaning it could accept the attribute value directly. Use the
+``suggest-narrowing-public-parameters`` option to also check public functions,
+and ``ignored-function-names`` to exclude functions whose signature is imposed
+by a convention.
 
 Refs #11236

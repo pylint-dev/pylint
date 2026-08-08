@@ -486,6 +486,12 @@ notes-rgx=
 # raised for.
 ignored-function-names=
 
+# Let 'consider-narrowing-parameter' be raised for public functions and
+# methods too. By default only private (single leading underscore) and nested
+# functions are checked, because narrowing a public signature is a breaking
+# change for callers.
+suggest-narrowing-public-parameters=no
+
 # Maximum number of nested blocks for function / method body
 max-nested-blocks=5
 
