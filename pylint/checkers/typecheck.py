@@ -97,6 +97,13 @@ BUILTINS_IMPLICIT_RETURN_NONE = {
         "update",
     },
 }
+KNOWN_SIDE_EFFECTS_ONLY_FUNCTIONS = {
+    "reverse": "reversed",
+    "sort": "sorted",
+}
+"""Functions that only have side effects and return None, mapped to the
+equivalent function returning a new value that is often expected instead.
+"""
 
 
 class VERSION_COMPATIBLE_OVERLOAD:
@@ -241,7 +248,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "callable object.",
     ),
     "E1111": (
-        "Assigning result of a function call, where the function has no return",
+        "Assigning result of a function call, but %r doesn't return anything%s",
         "assignment-from-no-return",
         "Used when an assignment is done on a function call but the "
         "inferred function doesn't return anything.",
@@ -1017,6 +1024,21 @@ accessed. Python regular expressions are accepted.",
                 "a decorated function.",
             },
         ),
+        (
+            "known-side-effects-only-functions",
+            {
+                "default": tuple(
+                    f"{function}:{suggestion}"
+                    for function, suggestion in KNOWN_SIDE_EFFECTS_ONLY_FUNCTIONS.items()
+                ),
+                "type": "csv",
+                "metavar": "<function:suggestion>",
+                "help": "Couples of functions with side effects that are often believed "
+                "to return something and the equivalent function that does return "
+                "something, separated by a comma. Used to hint at the right function "
+                "to use in the 'assignment-from-no-return' message.",
+            },
+        ),
     )
 
     def open(self) -> None:
@@ -1025,6 +1047,12 @@ accessed. Python regular expressions are accepted.",
         self._py314_plus = py_version >= (3, 14)
         self._postponed_evaluation_enabled = False
         self._mixin_class_rgx = self.linter.config.mixin_class_rgx
+        # Build a mapping {'function': 'suggestion'}
+        self._known_side_effects_only_functions = dict(
+            function.split(":", maxsplit=1)
+            for function in self.linter.config.known_side_effects_only_functions
+            if ":" in function
+        )
 
     def visit_module(self, node: nodes.Module) -> None:
         self._postponed_evaluation_enabled = (
@@ -1314,7 +1342,10 @@ accessed. Python regular expressions are accepted.",
         # Handle builtins such as list.sort() or dict.update()
         if self._is_builtin_no_return(node):
             self.add_message(
-                "assignment-from-no-return", node=node, confidence=INFERENCE
+                "assignment-from-no-return",
+                node=node,
+                args=self._assignment_from_no_return_args(node.value),
+                confidence=INFERENCE,
             )
             return
 
@@ -1325,7 +1356,12 @@ accessed. Python regular expressions are accepted.",
             function_node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
         )
         if not return_nodes:
-            self.add_message("assignment-from-no-return", node=node)
+            self.add_message(
+                "assignment-from-no-return",
+                node=node,
+                args=self._assignment_from_no_return_args(node.value),
+                confidence=INFERENCE,
+            )
         else:
             for ret_node in return_nodes:
                 match ret_node.value:
@@ -1369,6 +1405,19 @@ accessed. Python regular expressions are accepted.",
                     and attr in BUILTINS_IMPLICIT_RETURN_NONE.get(inferred.pytype(), ())
                 )
         return False
+
+    def _assignment_from_no_return_args(self, call: nodes.Call) -> tuple[str, str]:
+        """Get the name of the called function and a hint about what to use instead."""
+        match call.func:
+            case nodes.Attribute(attrname=name) | nodes.Name(name=name):
+                pass
+            case _:
+                name = call.func.as_string()
+        suggestion = self._known_side_effects_only_functions.get(name)
+        hint = (
+            f", did you mean to use '{suggestion}(...)' instead?" if suggestion else ""
+        )
+        return name, hint
 
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:
         """Check a string is assigned to self.__name__."""
