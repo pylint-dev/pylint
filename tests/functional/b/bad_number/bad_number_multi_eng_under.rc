@@ -1,0 +1,3 @@
+[main]
+number-notation-style=engineering,underscore
+number-notation-threshold=1e6

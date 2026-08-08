@@ -126,6 +126,7 @@ fixme
 Flymake
 fmt
 formatter
+formatters
 formfeed
 fromlineno
 fullname
@@ -194,6 +195,7 @@ linkers
 linter
 linux
 listcomp
+localcontext
 Logilab
 longstring
 lsp

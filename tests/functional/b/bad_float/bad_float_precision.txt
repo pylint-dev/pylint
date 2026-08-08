@@ -1,0 +1,5 @@
+bad-float-precision:4:14:4:21::"'1.5e500' overflows to infinity in float, and it should be written as 'decimal.Decimal(""1.5e500"")' or 'math.inf' instead":HIGH
+bad-float-precision:5:19:5:26::"'1.5e309' overflows to infinity in float, and it should be written as 'decimal.Decimal(""1.5e309"")' or 'math.inf' instead":HIGH
+bad-float-precision:10:14:10:21::"'1e-1000' underflows to zero in float, and it should be written as '0.0' or 'decimal.Decimal(""1e-1000"")' instead":HIGH
+bad-float-precision:11:16:11:24::"'1.5e-500' underflows to zero in float, and it should be written as '0.0' or 'decimal.Decimal(""1.5e-500"")' instead":HIGH
+bad-float-precision:16:15:16:37::"'3.14159265358979323846' has 21 significant digits, more than float can represent exactly, and it should be written as '3.141592653589793' or 'decimal.Decimal(""3.14159265358979323846"")' instead":HIGH

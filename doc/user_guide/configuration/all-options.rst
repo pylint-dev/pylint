@@ -948,6 +948,20 @@ Standard Checkers
 **Default:**  ``1000``
 
 
+--number-notation-style
+"""""""""""""""""""""""
+*Allowed notation styles for number literals above 'number-notation-threshold'. Comma-separated list of 'scientific', 'engineering', and/or 'underscore' (PEP 515). Empty (default) accepts any of the three; list a subset to restrict accepted forms.*
+
+**Default:**  ``()``
+
+
+--number-notation-threshold
+"""""""""""""""""""""""""""
+*Threshold for number literals to be expected to be written using the scientific, engineering or underscore notation. If the absolute value of a number literal is greater than this value (or smaller than the inverse of this value for scientific and engineering notation), it will be checked.*
+
+**Default:**  ``1e6``
+
+
 --single-line-class-stmt
 """"""""""""""""""""""""
 *Allow the body of a class to be on the same line as the declaration if body contains single statement.*
@@ -958,6 +972,13 @@ Standard Checkers
 --single-line-if-stmt
 """""""""""""""""""""
 *Allow the body of an if to be on the same line as the test if there is no else.*
+
+**Default:**  ``False``
+
+
+--suggest-int-underscore
+""""""""""""""""""""""""
+*Suggest PEP 515 underscore grouping for integer literals above 'number-notation-threshold' that don't already use underscores. Applies to all bases (decimal, hex, octal, binary). Integers with existing but incorrect underscore grouping are always flagged regardless of this option.*
 
 **Default:**  ``False``
 
@@ -988,9 +1009,15 @@ Standard Checkers
 
    max-module-lines = 1000
 
+   number-notation-style = []
+
+   number-notation-threshold = 1000000.0
+
    single-line-class-stmt = false
 
    single-line-if-stmt = false
+
+   suggest-int-underscore = false
 
 
 
