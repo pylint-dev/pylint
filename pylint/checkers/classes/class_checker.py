@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from functools import cached_property
 from itertools import chain, zip_longest
 from re import Pattern
@@ -447,6 +447,65 @@ def _called_in_methods(
     return False
 
 
+def _setattr_attr_name(node: nodes.Call, frame: nodes.FunctionDef) -> str | None:
+    """The attribute name of a literal ``setattr(self, "name", value)`` in *frame*.
+
+    Returns None when *node* is not such a call.
+    """
+    match node.func, node.args:
+        case (
+            nodes.Name(name="setattr"),
+            [nodes.Name(name=instance_name), nodes.Const(value=str() as attr), _, *_],
+        ):
+            pass
+        case _:
+            return None
+    if frame.type in {"classmethod", "staticmethod"}:
+        return None
+    # Same first argument logic as in '_check_first_arg_for_type': a method
+    # whose only parameter is '*args' does not receive the instance by name.
+    if frame.args.posonlyargs:
+        first_arg = frame.args.posonlyargs[0].name
+    elif frame.args.args:
+        first_arg = frame.argnames()[0]
+    else:
+        return None
+    if instance_name != first_arg:
+        return None
+    inferred = safe_infer(node.func)
+    if not (
+        isinstance(inferred, nodes.FunctionDef)
+        and is_builtin_object(inferred)
+        and inferred.name == "setattr"
+    ):
+        return None
+    return attr
+
+
+def _setattr_in_defining_methods(
+    klass: nodes.ClassDef, attr: str, defining_methods: Sequence[str]
+) -> bool:
+    """Whether *attr* is set by ``setattr(self, "attr", ...)`` in a defining method.
+
+    Only the defining methods are scanned, and only for an attribute that is
+    about to be reported, so this stays cheap. It cannot rely on state gathered
+    while walking, because *klass* may live in a module that is never walked at
+    all, or that is only walked later on.
+    """
+    if klass.type == "metaclass":
+        return False
+    for method_name in defining_methods:
+        for method in klass.locals.get(method_name, ()):
+            if not isinstance(method, nodes.FunctionDef):
+                continue
+            for call in method.nodes_of_class(nodes.Call):
+                if call.frame() is not method:
+                    continue
+                if _setattr_attr_name(call, method) == attr:
+                    return True
+    return False
+
+
 def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
     """Check if the given attribute *name* is a property in the given *klass*.
 
@@ -848,12 +907,14 @@ a metaclass class method.",
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
         self._accessed = ScopeAccessMap()
+        self._setattr_attrs: dict[nodes.ClassDef, dict[str, list[nodes.Call]]] = {}
         self._first_attrs: list[str | None] = []
 
     def open(self) -> None:
         self._mixin_class_rgx = self.linter.config.mixin_class_rgx
         py_version = self.linter.config.py_version
         self._py38_plus = py_version >= (3, 8)
+        self._setattr_attrs = {}
 
     @cached_property
     def _dummy_rgx(self) -> Pattern[str]:
@@ -1191,6 +1252,7 @@ a metaclass class method.",
                 self.add_message("unused-private-member", node=assign_attr, args=args)
 
     def _check_attribute_defined_outside_init(self, cnode: nodes.ClassDef) -> None:
+        setattr_attrs = self._setattr_attrs.pop(cnode, None)
         # check access to existent members on non metaclass classes
         if (
             "attribute-defined-outside-init"
@@ -1210,58 +1272,99 @@ a metaclass class method.",
             return
         defining_methods = self.linter.config.defining_attr_methods
         current_module = cnode.root()
-        for attr, nodes_lst in cnode.instance_attrs.items():
+        instance_attrs: Mapping[str, Sequence[nodes.NodeNG]]
+        if setattr_attrs:
+            merged: dict[str, list[nodes.NodeNG]] = {
+                attr: list(attr_nodes)
+                for attr, attr_nodes in cnode.instance_attrs.items()
+            }
+            for attr, setattr_nodes in setattr_attrs.items():
+                merged.setdefault(attr, []).extend(setattr_nodes)
+            instance_attrs = merged
+        else:
+            instance_attrs = cnode.instance_attrs
+        for attr, nodes_lst in instance_attrs.items():
             # Exclude `__dict__` as it is already defined.
             if attr == "__dict__":
                 continue
 
             # Skip nodes which are not in the current module and it may screw up
             # the output, while it's not worth it
-            nodes_lst = [
+            filtered_nodes = [
                 n
                 for n in nodes_lst
                 if not isinstance(n.statement(), (nodes.Delete, nodes.AugAssign))
                 and n.root() is current_module
             ]
-            if not nodes_lst:
+            if not filtered_nodes:
                 continue  # error detected by typechecking
 
             # Check if any method attr is defined in is a defining method
             # or if we have the attribute defined in a setter.
-            frames = (node.frame() for node in nodes_lst)
+            frames = (node.frame() for node in filtered_nodes)
             if any(
                 frame.name in defining_methods or is_property_setter(frame)
                 for frame in frames
             ):
                 continue
 
-            # check attribute is defined in a parent's __init__
-            for parent in cnode.instance_attr_ancestors(attr):
-                attr_defined = False
-                # check if any parent method attr is defined in is a defining method
-                for node in parent.instance_attrs[attr]:
-                    if node.frame().name in defining_methods:
-                        attr_defined = True
-                if attr_defined:
-                    # we're done :)
-                    break
-            else:
-                # check attribute is defined as a class attribute
-                try:
-                    cnode.local_attr(attr)
-                except astroid.NotFoundError:
-                    for node in nodes_lst:
-                        if node.frame().name not in defining_methods:
-                            # If the attribute was set by a call in any
-                            # of the defining methods, then don't emit
-                            # the warning.
-                            if _called_in_methods(
-                                node.frame(), cnode, defining_methods
-                            ):
-                                continue
-                            self.add_message(
-                                "attribute-defined-outside-init", args=attr, node=node
-                            )
+            # check attribute is defined as a class attribute
+            try:
+                cnode.local_attr(attr)
+                continue
+            except astroid.NotFoundError:
+                pass
+
+            if self._defined_in_parent_init(cnode, attr, defining_methods):
+                continue
+
+            for node in filtered_nodes:
+                if node.frame().name not in defining_methods:
+                    # If the attribute was set by a call in any
+                    # of the defining methods, then don't emit
+                    # the warning.
+                    if _called_in_methods(node.frame(), cnode, defining_methods):
+                        continue
+                    self.add_message(
+                        "attribute-defined-outside-init", args=attr, node=node
+                    )
+
+    def _defined_in_parent_init(
+        self, cnode: nodes.ClassDef, attr: str, defining_methods: Sequence[str]
+    ) -> bool:
+        # check attribute is defined in a parent's __init__
+        for parent in cnode.instance_attr_ancestors(attr):
+            # check if any parent method attr is defined in is a defining method
+            if any(
+                node.frame().name in defining_methods
+                for node in parent.instance_attrs[attr]
+            ):
+                return True
+        for parent in cnode.ancestors():
+            if parent.root().name == "builtins":
+                continue
+            if _setattr_in_defining_methods(parent, attr, defining_methods):
+                return True
+        return False
+
+    @only_required_for_messages("attribute-defined-outside-init")
+    def visit_call(self, node: nodes.Call) -> None:
+        if not (isinstance(node.func, nodes.Name) and node.func.name == "setattr"):
+            return
+        frame = node.frame()
+        if not (isinstance(frame, nodes.FunctionDef) and frame.is_method()):
+            return
+        frame_class = node_frame_class(node)
+        # In a metaclass method the first argument is the class itself, so
+        # ``setattr(cls, "name", value)`` defines a class attribute, exactly
+        # like ``cls.name = value`` does.
+        if frame_class is None or frame_class.type == "metaclass":
+            return
+        attr = _setattr_attr_name(node, frame)
+        if attr is not None:
+            self._setattr_attrs.setdefault(frame_class, {}).setdefault(attr, []).append(
+                node
+            )
 
     # pylint: disable = too-many-branches, too-many-return-statements
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
