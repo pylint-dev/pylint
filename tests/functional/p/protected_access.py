@@ -1,6 +1,6 @@
 """Tests for protected_access"""
 # pylint: disable=missing-class-docstring, too-few-public-methods, pointless-statement
-# pylint: disable=missing-function-docstring, invalid-metaclass, no-member
+# pylint: disable=missing-function-docstring, invalid-metaclass, no-member, consider-narrowing-parameter
 # pylint: disable=no-self-argument, undefined-variable, unused-variable
 
 import os

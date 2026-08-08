@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods
+# pylint: disable=missing-docstring,too-few-public-methods,consider-narrowing-parameter
 '''Test that a function is considered a method when looked up through a class.'''
 
 class Clazz:
