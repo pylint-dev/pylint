@@ -54,6 +54,16 @@ jobs:
             env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
             'requirements_test.txt', 'requirements_test_min.txt',
             'requirements_test_pre_commit.txt') }}
+      # The cache can be evicted between the moment it is created on 'main'
+      # and the moment this job runs, so recreate the virtual environment
+      # if it is missing.
+      - name: Create Python virtual environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install --upgrade --requirement requirements_test.txt
       # The cached venv contains the pylint that was installed when the cache was
       # created, which can be stale. Reinstall from the current checkout so the
       # comparison and comment rendering use the right code (see #11153).
