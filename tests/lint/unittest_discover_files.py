@@ -175,9 +175,7 @@ def mock_os_walk(
 ) -> Callable[..., Iterator[tuple[str, list[str], list[str]]]]:
     tree_by_root = {root: (dirnames, files) for root, dirnames, files in tree}
 
-    def walk(
-        root: str, *, topdown: bool
-    ) -> Iterator[tuple[str, list[str], list[str]]]:
+    def walk(root: str, *, topdown: bool) -> Iterator[tuple[str, list[str], list[str]]]:
         assert root == "."
         assert topdown
 
