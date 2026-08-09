@@ -406,6 +406,7 @@ class _ArgumentsManager:
 
     def set_option(self, optname: str, value: Any) -> None:
         """Set an option on the namespace object."""
+        self._reset_callback_actions()
         self.config = self._arg_parser.parse_known_args(
             [f"--{optname.replace('_', '-')}", _parse_rich_type_value(value)],
             self.config,
