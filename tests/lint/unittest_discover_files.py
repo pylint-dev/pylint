@@ -106,6 +106,20 @@ def test_ignore_non_package_subdirectory_below_package_root(
     mock_walk.assert_called_once_with(str(package), topdown=True)
 
 
+def test_ignore_supplied_package_root(
+    initialized_linter: PyLinter,
+    package_with_non_package_subdirectories: tuple[Path, set[Path]],
+) -> None:
+    package, _ = package_with_non_package_subdirectories
+    initialized_linter.config.ignore = [package.name]
+
+    with mock.patch("os.walk", wraps=os.walk) as mock_walk:
+        discovered = tuple(initialized_linter._discover_files([str(package)]))
+
+    assert not discovered
+    mock_walk.assert_called_once_with(str(package), topdown=True)
+
+
 def test_discover_files_sorts_directories(
     initialized_linter: PyLinter, tmp_path: Path
 ) -> None:
