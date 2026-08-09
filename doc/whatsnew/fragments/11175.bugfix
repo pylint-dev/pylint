@@ -1,3 +1,0 @@
-Fixed a crash in ``comparison-with-callable`` when comparing a lambda assigned as a class attribute.
-
-Closes #11175

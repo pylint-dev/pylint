@@ -74,6 +74,84 @@ to your liking.
 
 .. towncrier release notes start
 
+What's new in Pylint 4.0.7?
+---------------------------
+Release date: 2026-08-09
+
+
+False Positives Fixed
+---------------------
+
+- Fix a false positive for ``invalid-name`` when a module-level variable is assigned
+  an instance of a ``TypedDict`` subclass. Such a name is a value, not a type
+  definition, so it is now checked against the constant or variable regex instead
+  of ``class-rgx``.
+
+  Closes #11231 (`#11231 <https://github.com/pylint-dev/pylint/issues/11231>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix a crash in the ``bad-open-mode`` check when the ``mode`` argument of
+  ``open`` is the ``NotImplemented`` constant (Python >= 3.14).
+
+  Closes #11099 (`#11099 <https://github.com/pylint-dev/pylint/issues/11099>`_)
+
+- Fix a crash in the ``not-context-manager`` and ``not-async-context-manager``
+  checks when the context manager infers to a value without a name, such as the
+  ``slice`` returned by ``with slice(...)`` / ``async with slice(...)``.
+
+  Closes #11102 (`#11102 <https://github.com/pylint-dev/pylint/issues/11102>`_)
+
+- Fix a false positive for ``nested-min-max`` (``W3301``) when the inner ``min``/``max`` call carries a keyword argument such as ``key=``. Flattening the call dropped the keyword and changed the result, so nested calls whose inner call has keyword arguments are no longer flagged.
+
+  Closes #11130 (`#11130 <https://github.com/pylint-dev/pylint/issues/11130>`_)
+
+- Fix a false suggestion from ``nested-min-max`` (``W3301``): when rewriting a nested ``min``/``max`` into a splat call, arguments positioned after the splatted call were silently dropped, so the suggested code changed the result.
+
+  Closes #11134 (`#11134 <https://github.com/pylint-dev/pylint/issues/11134>`_)
+
+- Fix a false positive for ``too-many-locals`` (``R0914``): PEP 695 type parameters, i.e. the ``T1`` and ``T2`` in a generic ``def f[T1, T2]`` signature, were counted as local variables. They are type-system constructs, not runtime locals, and are now excluded from the local-variable count.
+
+  Closes #11136 (`#11136 <https://github.com/pylint-dev/pylint/issues/11136>`_)
+
+- Fix `literal-comparison` (`R0123`) emitting a corrupted suggestion for identifiers
+  that contain ``is`` (e.g. ``axis is 5`` was rendered ``ax== == 5``). The suggestion
+  is now rebuilt from the operands and operator.
+
+  Closes #11146 (`#11146 <https://github.com/pylint-dev/pylint/issues/11146>`_)
+
+- Fix false positives in `bad-string-format-type` (`E1307`) for valid ``%`` formatting:
+  ``%i``/``%u`` applied to a float (both truncate like ``%d``) and ``%a`` applied to any
+  non-int type (``%a`` is type-agnostic like ``%s``/``%r``).
+
+  Closes #11147 (`#11147 <https://github.com/pylint-dev/pylint/issues/11147>`_)
+
+- Fix a false positive for :ref:`useless-parent-delegation` when an override changes
+  the default value of a positional-only parameter.
+
+  Closes #11148 (`#11148 <https://github.com/pylint-dev/pylint/issues/11148>`_)
+
+- Fixed a crash in ``comparison-with-callable`` when comparing a lambda assigned as a class attribute.
+
+  Closes #11175 (`#11175 <https://github.com/pylint-dev/pylint/issues/11175>`_)
+
+- ``too-many-lines`` could be reported at the line of a ``# pylint: disable=too-many-lines``
+  pragma found in a previously linted module. Pragma positions are now reset between
+  modules, so the message is reported at line 1 (or at the current module's own pragma)
+  regardless of which files were linted before.
+
+  Refs #11191 (`#11191 <https://github.com/pylint-dev/pylint/issues/11191>`_)
+
+- Fix a crash when a call unpacks a dictionary whose keys are not string
+  constants, e.g. ``copy.copy(**{-1: 1})``.
+
+  Closes #11222 (`#11222 <https://github.com/pylint-dev/pylint/issues/11222>`_)
+
+
+
 What's new in Pylint 4.0.6?
 ---------------------------
 Release date: 2026-06-14
