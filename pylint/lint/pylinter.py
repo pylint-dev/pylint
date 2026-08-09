@@ -667,21 +667,28 @@ class PyLinter(
         """
         for something in files_or_modules:
             if os.path.isdir(something):
-                skip_subtrees: list[str] = []
                 package_directories: set[str] = set()
-                for root, _, files in os.walk(something):
-                    if any(root.startswith(s) for s in skip_subtrees):
-                        # Skip ignored sub-trees.
-                        continue
-
+                for root, dirnames, files in os.walk(something, topdown=True):
                     if _is_ignored_file(
                         root,
                         self.config.ignore,
                         self.config.ignore_patterns,
                         self.config.ignore_paths,
                     ):
-                        skip_subtrees.append(root + os.sep)
+                        dirnames.clear()
                         continue
+
+                    dirnames[:] = [
+                        dirname
+                        for dirname in dirnames
+                        if not _is_ignored_file(
+                            os.path.join(root, dirname),
+                            self.config.ignore,
+                            self.config.ignore_patterns,
+                            self.config.ignore_paths,
+                        )
+                    ]
+                    dirnames.sort()
 
                     if "__init__.py" in files:
                         package_directory = os.path.normpath(root)
