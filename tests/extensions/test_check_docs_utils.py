@@ -117,6 +117,13 @@ def test_space_indentation(string: str, count: int) -> None:
     """,
             set(),
         ),
+        (
+            """
+    def my_func():
+        raise sum #@
+    """,
+            set(),
+        ),
     ],
 )
 def test_exception(code: str, expected: set[str]) -> None:

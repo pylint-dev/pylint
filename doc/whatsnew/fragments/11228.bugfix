@@ -1,0 +1,3 @@
+Avoid a crash in the ``docparams`` extension when a raised expression cannot be inferred as an exception class.
+
+Closes #11228

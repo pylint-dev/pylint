@@ -150,7 +150,8 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
         return {
             exc
             for exc in exceptions
-            if not utils.node_ignores_exception(node, exc.name)
+            if isinstance(exc, nodes.ClassDef)
+            and not utils.node_ignores_exception(node, exc.name)
         }
     except astroid.InferenceError:
         return set()
