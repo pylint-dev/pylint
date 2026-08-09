@@ -26,10 +26,6 @@ if TYPE_CHECKING:
 class _CallbackAction(argparse.Action):
     """Custom callback action."""
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        self.reset()
-
     def reset(self) -> None:
         """Reset state retained while parsing one source of arguments."""
 

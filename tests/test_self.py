@@ -1288,9 +1288,12 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             ],
             capture_output=True,
             check=False,
+            cwd=str(tmp_path),
         )
 
-        assert process.returncode == MSG_TYPES_STATUS["W"]
+        assert process.returncode == MSG_TYPES_STATUS["W"], (
+            f"{process.stdout!r}\n{process.stderr!r}"
+        )
         for output_file in output_files:
             assert "Unused variable 'variable'" in output_file.read_text(
                 encoding="utf-8"
