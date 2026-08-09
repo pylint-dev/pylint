@@ -6,6 +6,15 @@ def baz():  # [disallowed-name]
 class foo():  # [disallowed-name]
     pass
 
-foo = {}.keys()  # Should raise disallowed-name once _check_name() is refactored.
+foo = {}.keys()  # [disallowed-name]
 foo = 42  # [disallowed-name]
 aaa = 42  # [invalid-name]
+
+# Disallowed names are still reported when the assigned value is not a constant,
+# while `invalid-name` remains silenced for such names.
+toto = {}.keys()  # [disallowed-name]
+some_name = {}.keys()
+
+for _ in range(3):
+    tata = {}.keys()  # [disallowed-name]
+    some_other_name = {}.keys()

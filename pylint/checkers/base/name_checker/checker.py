@@ -510,10 +510,14 @@ class NameChecker(_BasicChecker):
                         node, (nodes.For, nodes.While)
                     )
                 ):
-                    if not self._meets_exception_for_non_consts(
-                        inferred_assign_type, node.name
-                    ):
-                        self._check_name("const", node.name, node)
+                    self._check_name(
+                        "const",
+                        node.name,
+                        node,
+                        disallowed_check_only=self._meets_exception_for_non_consts(
+                            inferred_assign_type, node.name
+                        ),
+                    )
                 else:
                     node_type = "variable"
                     iattrs = tuple(node.frame().igetattr(node.name))
@@ -530,15 +534,15 @@ class NameChecker(_BasicChecker):
                         for combo in itertools.combinations(attrs, 2)
                     ):
                         node_type = "const"
-                    if not self._meets_exception_for_non_consts(
-                        inferred_assign_type, node.name
-                    ):
-                        self._check_name(
-                            node_type,
-                            node.name,
-                            node,
-                            disallowed_check_only=redefines_import,
-                        )
+                    self._check_name(
+                        node_type,
+                        node.name,
+                        node,
+                        disallowed_check_only=redefines_import
+                        or self._meets_exception_for_non_consts(
+                            inferred_assign_type, node.name
+                        ),
+                    )
 
         # Check names defined in function scopes
         elif isinstance(frame, nodes.FunctionDef):
@@ -671,7 +675,9 @@ class NameChecker(_BasicChecker):
         regexp = self._name_regexps[node_type]
         match = regexp.match(name)
 
-        if _is_multi_naming_match(match, node_type, confidence):
+        if not disallowed_check_only and _is_multi_naming_match(
+            match, node_type, confidence
+        ):
             name_group = self._find_name_group(node_type)
             bad_name_group = self._bad_names.setdefault(name_group, {})
             # Ignored because this is checked by the if statement

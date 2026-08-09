@@ -1,0 +1,5 @@
+Fix a false negative for ``disallowed-name`` on module-level names assigned a
+value that is not a constant. The control flow that suppresses ``invalid-name``
+for these names no longer skips the ``disallowed-name`` check as well.
+
+Closes #10679
