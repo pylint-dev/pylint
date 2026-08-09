@@ -510,13 +510,15 @@ class NameChecker(_BasicChecker):
                         node, (nodes.For, nodes.While)
                     )
                 ):
+                    meets_exception = self._meets_exception_for_non_consts(
+                        inferred_assign_type, node.name
+                    )
                     self._check_name(
                         "const",
                         node.name,
                         node,
-                        disallowed_check_only=self._meets_exception_for_non_consts(
-                            inferred_assign_type, node.name
-                        ),
+                        disallowed_check_only=meets_exception,
+                        skip_name_group_census=meets_exception,
                     )
                 else:
                     node_type = "variable"
@@ -534,14 +536,15 @@ class NameChecker(_BasicChecker):
                         for combo in itertools.combinations(attrs, 2)
                     ):
                         node_type = "const"
+                    meets_exception = self._meets_exception_for_non_consts(
+                        inferred_assign_type, node.name
+                    )
                     self._check_name(
                         node_type,
                         node.name,
                         node,
-                        disallowed_check_only=redefines_import
-                        or self._meets_exception_for_non_consts(
-                            inferred_assign_type, node.name
-                        ),
+                        disallowed_check_only=redefines_import or meets_exception,
+                        skip_name_group_census=meets_exception,
                     )
 
         # Check names defined in function scopes
@@ -654,8 +657,15 @@ class NameChecker(_BasicChecker):
         node: nodes.NodeNG,
         confidence: interfaces.Confidence = interfaces.HIGH,
         disallowed_check_only: bool = False,
+        skip_name_group_census: bool = False,
     ) -> None:
-        """Check for a name using the type's regexp."""
+        """Check for a name using the type's regexp.
+
+        ``disallowed_check_only`` suppresses ``invalid-name`` while still
+        letting the name take part in the multiple naming style census.
+        ``skip_name_group_census`` additionally keeps it out of that census,
+        for names that previously never reached this method at all.
+        """
 
         def _should_exempt_from_invalid_name(node: nodes.NodeNG) -> bool:
             if node_type == "variable":
@@ -675,7 +685,7 @@ class NameChecker(_BasicChecker):
         regexp = self._name_regexps[node_type]
         match = regexp.match(name)
 
-        if not disallowed_check_only and _is_multi_naming_match(
+        if not skip_name_group_census and _is_multi_naming_match(
             match, node_type, confidence
         ):
             name_group = self._find_name_group(node_type)
