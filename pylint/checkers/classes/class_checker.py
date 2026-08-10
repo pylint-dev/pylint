@@ -1321,6 +1321,13 @@ a metaclass class method.",
             if self._defined_in_parent_init(cnode, attr, defining_methods):
                 continue
 
+            if parent_setattr_names is None:
+                parent_setattr_names = self._parent_setattr_names(
+                    cnode, defining_methods
+                )
+            if attr in parent_setattr_names:
+                continue
+
             for node in filtered_nodes:
                 if node.frame().name not in defining_methods:
                     # If the attribute was set by a call in any
