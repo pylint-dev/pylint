@@ -1342,20 +1342,23 @@ a metaclass class method.",
     def _defined_in_parent_init(
         self, cnode: nodes.ClassDef, attr: str, defining_methods: Sequence[str]
     ) -> bool:
-        # check attribute is defined in a parent's __init__
-        for parent in cnode.instance_attr_ancestors(attr):
-            # check if any parent method attr is defined in is a defining method
-            if any(
-                node.frame().name in defining_methods
-                for node in parent.instance_attrs[attr]
-            ):
-                return True
+        # check attribute is defined in a parent's defining method
+        return any(
+            node.frame().name in defining_methods
+            for parent in cnode.instance_attr_ancestors(attr)
+            for node in parent.instance_attrs[attr]
+        )
+
+    def _parent_setattr_names(
+        self, cnode: nodes.ClassDef, defining_methods: Sequence[str]
+    ) -> set[str]:
+        """Names an ancestor of *cnode* sets with ``setattr`` in a defining method."""
+        names: set[str] = set()
         for parent in cnode.ancestors():
             if parent.root().name == "builtins":
                 continue
-            if _setattr_in_defining_methods(parent, attr, defining_methods):
-                return True
-        return False
+            names |= _setattr_names_in_defining_methods(parent, defining_methods)
+        return names
 
     @only_required_for_messages("attribute-defined-outside-init")
     def visit_call(self, node: nodes.Call) -> None:
