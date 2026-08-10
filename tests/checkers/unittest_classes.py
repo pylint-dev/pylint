@@ -7,7 +7,7 @@ from astroid import nodes
 
 from pylint.checkers.classes.class_checker import (
     ClassChecker,
-    _setattr_in_defining_methods,
+    _setattr_names_in_defining_methods,
 )
 from pylint.lint import PyLinter
 
@@ -35,7 +35,7 @@ def test_visit_call_ignores_setattr_outside_method(linter: PyLinter) -> None:
     assert not checker._setattr_attrs
 
 
-def test_setattr_in_defining_methods_ignores_metaclass() -> None:
+def test_setattr_names_in_defining_methods_ignores_metaclass() -> None:
     module = astroid.parse("""
         class Meta(type):
             def __init__(cls):
@@ -48,5 +48,5 @@ def test_setattr_in_defining_methods_ignores_metaclass() -> None:
     meta, plain = module.body[0], module.body[1]
 
     assert isinstance(meta, nodes.ClassDef) and isinstance(plain, nodes.ClassDef)
-    assert not _setattr_in_defining_methods(meta, "banana", ("__init__",))
-    assert _setattr_in_defining_methods(plain, "banana", ("__init__",))
+    assert _setattr_names_in_defining_methods(meta, ("__init__",)) == set()
+    assert _setattr_names_in_defining_methods(plain, ("__init__",)) == {"banana"}
