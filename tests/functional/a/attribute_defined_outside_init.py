@@ -164,3 +164,37 @@ class ParentWithNestedSetattr:
 class ChildOfParentWithNestedSetattr(ParentWithNestedSetattr):
     def later(self):
         setattr(self, "nested_attr", 2)  # [attribute-defined-outside-init]
+
+
+class TwoArgumentSetattr:
+    def __init__(self):
+        setattr(self, "two_arg")  # TypeError at runtime, defines nothing
+
+    def later(self):
+        setattr(self, "two_arg", 1)  # [attribute-defined-outside-init]
+
+
+class ClassAndStaticSetattr:
+    @classmethod
+    def from_class(cls):
+        setattr(cls, "made_in_classmethod", 1)
+
+    @staticmethod
+    def from_static(self):  # pylint: disable=bad-staticmethod-argument
+        setattr(self, "made_in_staticmethod", 1)
+
+
+class ShadowedSetattr:
+    def later(self):
+        def setattr(obj, name, value):  # pylint: disable=redefined-builtin,unused-argument
+            return None
+
+        setattr(self, "not_really_set", 1)
+
+
+class SameClassSetattrThenAssign:
+    def __init__(self):
+        setattr(self, "from_init", 1)
+
+    def later(self):
+        self.from_init = 2
