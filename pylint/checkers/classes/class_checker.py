@@ -482,18 +482,19 @@ def _setattr_attr_name(node: nodes.Call, frame: nodes.FunctionDef) -> str | None
     return attr
 
 
-def _setattr_in_defining_methods(
-    klass: nodes.ClassDef, attr: str, defining_methods: Sequence[str]
-) -> bool:
-    """Whether *attr* is set by ``setattr(self, "attr", ...)`` in a defining method.
+def _setattr_names_in_defining_methods(
+    klass: nodes.ClassDef, defining_methods: Sequence[str]
+) -> set[str]:
+    """Names set by ``setattr(self, "name", ...)`` in *klass*' defining methods.
 
-    Only the defining methods are scanned, and only for an attribute that is
-    about to be reported, so this stays cheap. It cannot rely on state gathered
-    while walking, because *klass* may live in a module that is never walked at
-    all, or that is only walked later on.
+    Only the defining methods are scanned, and only once a message is about to
+    be reported, so this stays cheap. It cannot rely on state gathered while
+    walking, because *klass* may live in a module that is never walked at all,
+    or that is only walked later on.
     """
     if klass.type == "metaclass":
-        return False
+        return set()
+    names: set[str] = set()
     for method_name in defining_methods:
         for method in klass.locals.get(method_name, ()):
             if not isinstance(method, nodes.FunctionDef):
@@ -501,9 +502,10 @@ def _setattr_in_defining_methods(
             for call in method.nodes_of_class(nodes.Call):
                 if call.frame() is not method:
                     continue
-                if _setattr_attr_name(call, method) == attr:
-                    return True
-    return False
+                attr = _setattr_attr_name(call, method)
+                if attr is not None:
+                    names.add(attr)
+    return names
 
 
 def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
