@@ -1274,6 +1274,7 @@ a metaclass class method.",
             return
         defining_methods = self.linter.config.defining_attr_methods
         current_module = cnode.root()
+        parent_setattr_names: set[str] | None = None
         instance_attrs: Mapping[str, Sequence[nodes.NodeNG]]
         if setattr_attrs:
             merged: dict[str, list[nodes.NodeNG]] = {
