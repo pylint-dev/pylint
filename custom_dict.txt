@@ -144,6 +144,7 @@ grey
 guido's
 gv
 hashable
+hashlib
 hmac
 html
 iattrs
