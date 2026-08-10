@@ -1272,7 +1272,7 @@ Typecheck checker Messages
   Used when a variable is accessed for a nonexistent member.
 :not-callable (E1102): *%s is not callable*
   Used when an object being called has been inferred to a non callable object.
-:assignment-from-no-return (E1111): *Assigning result of a function call, where the function has no return*
+:assignment-from-no-return (E1111): *Assigning result of a function call, but %r doesn't return anything%s*
   Used when an assignment is done on a function call but the inferred function
   doesn't return anything.
 :no-value-for-parameter (E1120): *No value for argument %s in %s call*
