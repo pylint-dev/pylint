@@ -21,3 +21,4 @@ nan-comparison:37:5:37:19::Comparison 'x is numpy.nan' should be 'math.isnan(x)'
 nan-comparison:38:5:38:24::Comparison 'x == Decimal('nan')' should be 'math.isnan(x)':UNDEFINED
 nan-comparison:39:5:39:32::Comparison 'x != decimal.Decimal('NaN')' should be 'not math.isnan(x)':UNDEFINED
 nan-comparison:43:5:43:16::Comparison 'x == MY_NAN' should be 'math.isnan(x)':UNDEFINED
+undefined-variable:55:10:55:26::Undefined variable 'undefined_callee':UNDEFINED
