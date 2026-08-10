@@ -50,3 +50,6 @@ o4 = x == -math.inf
 o5 = x == math.pi
 o6 = x == Decimal("1.5")
 o7 = x == Decimal(x)
+
+# A call to a name that cannot be inferred is checked without crashing
+p1 = x == undefined_callee("nan")  # [undefined-variable]
