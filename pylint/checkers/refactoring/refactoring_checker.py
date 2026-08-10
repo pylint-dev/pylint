@@ -1088,6 +1088,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 if isinstance(element, nodes.Call):
                     return
 
+                # ``dict([*pair_list for pair_list in pairs])`` (PEP 798)
+                # flattens its argument, so it is not equivalent to a
+                # key/value dict comprehension.
+                if isinstance(element, nodes.Starred):
+                    return
+
                 # If we have an `IfExp` here where both the key AND value
                 # are different, then don't raise the issue. See #5588
                 if (
