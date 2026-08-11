@@ -24,7 +24,7 @@ repos:
     hooks:
       - id: zizmor
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.16.1"
+    rev: "v0.16.2"
     hooks:
       - id: ruff-check
         args: ["--fix"]
@@ -42,7 +42,7 @@ repos:
         exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
   - repo: https://github.com/PyCQA/isort
-    rev: 9.0.0b1
+    rev: 9.0.0b2
     hooks:
       - id: isort
         exclude: doc/data/messages/
@@ -169,7 +169,7 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.26.0"
+    rev: "v2.27.0"
     hooks:
       - id: pyproject-fmt
   - repo: https://github.com/abravalheri/validate-pyproject
