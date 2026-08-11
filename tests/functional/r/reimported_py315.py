@@ -4,3 +4,5 @@ import os
 lazy import os  # [reimported]
 lazy import sys
 lazy import sys  # [reimported]
+lazy import collections
+import collections  # [reimported]
