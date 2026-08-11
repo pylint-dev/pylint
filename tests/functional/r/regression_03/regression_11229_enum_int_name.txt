@@ -1,0 +1,3 @@
+invalid-name:10:0:10:13::Class name "enum_instance" doesn't conform to PascalCase naming style:HIGH
+no-member:11:0:11:15::Instance of 1 has no 'b' member:INFERENCE
+pointless-statement:11:0:11:15::Statement seems to have no effect:UNDEFINED

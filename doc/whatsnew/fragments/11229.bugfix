@@ -1,0 +1,3 @@
+Fix a crash in ``no-member`` when astroid infers a non-string class name (e.g. ``Enum(1, "")``).
+
+Closes #11229
