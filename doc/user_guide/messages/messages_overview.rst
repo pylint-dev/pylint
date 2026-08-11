@@ -595,6 +595,7 @@ All messages in the refactor category:
    refactor/consider-alternative-union-syntax
    refactor/consider-math-not-float
    refactor/consider-merging-isinstance
+   refactor/consider-narrowing-parameter
    refactor/consider-refactoring-into-while-condition
    refactor/consider-swap-variables
    refactor/consider-using-alias

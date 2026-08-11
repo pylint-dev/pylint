@@ -949,6 +949,10 @@ Refactoring checker Messages
 :use-yield-from (R1737): *Use 'yield from' directly instead of yielding each element one by one*
   Yielding directly from the iterator is faster and arguably cleaner code than
   yielding each element one by one in the loop.
+:consider-narrowing-parameter (R1738): *Parameter '%s' is only used as '%s.%s'; consider accepting the attribute value directly*
+  Emitted when a function or method parameter is only ever used to access a
+  single attribute, meaning the function could accept that attribute's value
+  directly and reduce coupling with the caller.
 :unnecessary-negation (C0117): *Consider changing "%s" to "%s"*
   Used when a boolean expression contains an unneeded negation, e.g. when two
   negation operators cancel each other out.

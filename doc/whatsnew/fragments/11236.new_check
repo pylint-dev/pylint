@@ -1,0 +1,8 @@
+Added the ``consider-narrowing-parameter`` check: emitted when a private or
+nested function only ever uses a single attribute of one of its parameters,
+meaning it could accept the attribute value directly. Use the
+``suggest-narrowing-public-parameters`` option to also check public functions,
+and ``ignored-function-names`` to exclude functions whose signature is imposed
+by a convention.
+
+Refs #11236

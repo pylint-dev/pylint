@@ -105,6 +105,8 @@ disable=
     # We anticipate #3512 where it will become optional
     fixme,
     consider-using-assignment-expr,
+    # 16 hits on our own code base to clean up before enabling (see #11236)
+    consider-narrowing-parameter,
 
 
 [REPORTS]
@@ -518,6 +520,11 @@ bad-functions=map,input
 
 
 [REFACTORING]
+
+# Regular expression matching names of functions or methods whose signature is
+# imposed by a convention or a protocol, and that
+# 'consider-narrowing-parameter' should not be raised for.
+ignored-function-names=(visit|leave)_.*
 
 # Maximum number of nested blocks for function / method body
 max-nested-blocks=5

@@ -1,0 +1,3 @@
+consider-narrowing-parameter:11:19:11:25:_private_price:Parameter 'basket' is only used as 'basket.price'; consider accepting the attribute value directly:HIGH
+consider-narrowing-parameter:17:14:17:19:outer_price.inner:Parameter 'fruit' is only used as 'fruit.color'; consider accepting the attribute value directly:HIGH
+consider-narrowing-parameter:35:23:35:28:Shop._sticker:Parameter 'fruit' is only used as 'fruit.color'; consider accepting the attribute value directly:HIGH

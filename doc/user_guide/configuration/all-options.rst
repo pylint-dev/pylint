@@ -1245,6 +1245,13 @@ Standard Checkers
 
 ``Refactoring`` **Checker**
 ---------------------------
+--ignored-function-names
+""""""""""""""""""""""""
+*Regular expression matching names of functions or methods whose signature is imposed by a convention or a protocol (for example visitor callbacks such as '(visit|leave)_.*'), and that 'consider-narrowing-parameter' should not be raised for.*
+
+**Default:** ``""``
+
+
 --max-nested-blocks
 """""""""""""""""""
 *Maximum number of nested blocks for function / method body*
@@ -1267,6 +1274,13 @@ Standard Checkers
 **Default:**  ``True``
 
 
+--suggest-narrowing-public-parameters
+"""""""""""""""""""""""""""""""""""""
+*Let 'consider-narrowing-parameter' be raised for public functions and methods too. By default only private (single leading underscore) and nested functions are checked, because narrowing a public signature is a breaking change for callers.*
+
+**Default:**  ``False``
+
+
 
 .. raw:: html
 
@@ -1278,11 +1292,15 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.refactoring]
+   ignored-function-names = ""
+
    max-nested-blocks = 5
 
    never-returning-functions = ["sys.exit", "argparse.parse_error"]
 
    suggest-join-with-non-empty-separator = true
+
+   suggest-narrowing-public-parameters = false
 
 
 

@@ -1,0 +1,2 @@
+[refactoring]
+suggest-narrowing-public-parameters=yes
