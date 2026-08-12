@@ -81,6 +81,7 @@ DEPRECATED_MODULES = {
         "uu",
         "xdrlib",
     },
+    (3, 15, 0): {"profile"},
 }
 
 
