@@ -259,6 +259,20 @@ DELETED_MESSAGE_METADATA: dict[str, tuple[str, str | None]] = {
         "2.14.0",
         "Name 'async' will become a keyword in Python 3.7",
     ),
+    # Issue #1896 — Python 2 only checks, first absent in pylint 2.2.0
+    "old-style-class": ("2.2.0", "Old-style class defined."),
+    "slots-on-old-class": ("2.2.0", "Use of __slots__ on an old style class"),
+    "super-on-old-class": ("2.2.0", "Use of super on an old style class"),
+    "deprecated-lambda": (
+        "2.2.0",
+        "map/filter on lambda could be replaced by comprehension",
+    ),
+    "lowercase-l-suffix": ("2.2.0", 'Use of "l" as long integer identifier'),
+    "nonstandard-exception": (
+        "2.2.0",
+        'Exception doesn\'t inherit from standard "Exception" class',
+    ),
+    "property-on-old-class": ("2.2.0", 'Use of "property" on an old style class'),
 }
 
 

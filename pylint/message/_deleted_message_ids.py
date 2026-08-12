@@ -124,6 +124,15 @@ DELETED_MESSAGES_IDS = {
     "https://github.com/pylint-dev/pylint/pull/6421": [
         DeletedMessage("W0111", "assign-to-new-keyword"),
     ],
+    "https://github.com/pylint-dev/pylint/issues/1896": [
+        DeletedMessage("C1001", "old-style-class"),
+        DeletedMessage("E1001", "slots-on-old-class"),
+        DeletedMessage("E1002", "super-on-old-class"),
+        DeletedMessage("W0110", "deprecated-lambda"),
+        DeletedMessage("W0332", "lowercase-l-suffix"),
+        DeletedMessage("W0710", "nonstandard-exception"),
+        DeletedMessage("W1001", "property-on-old-class"),
+    ],
 }
 MOVED_TO_EXTENSIONS = {
     "https://pylint.readthedocs.io/en/latest/whatsnew/2/2.14/summary.html#removed-checkers": [
