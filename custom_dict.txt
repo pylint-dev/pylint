@@ -25,6 +25,7 @@ attr
 attrib
 attrname
 attrs
+backticks
 backport
 BaseChecker
 basename
@@ -100,6 +101,7 @@ dirname
 docparams
 docstring
 docstrings
+doctest
 dumpable
 dunder
 elif
@@ -352,6 +354,8 @@ tokeninfo
 tokenization
 tokenize
 tokenizer
+toctree
+toctrees
 toml
 tomlkit
 toplevel
