@@ -304,7 +304,7 @@ Other Bug Fixes
 Performance Improvements
 ------------------------
 
-- The Similarities checker no longer runs when its :ref:`duplicate-code <duplicate-code>` message (``R0801``) is disabled, even if ``reports=yes`` is set. Previously, the checker's report (``RP0801``) would cause the expensive similarity computation to run regardless.
+- The :ref:`Similarities <similarities-checker>` checker no longer runs when its :ref:`duplicate-code <duplicate-code>` message (``R0801``) is disabled, even if ``reports=yes`` is set. Previously, the checker's report (``RP0801``) would cause the expensive similarity computation to run regardless.
 
   Closes #3443 (`#3443 <https://github.com/pylint-dev/pylint/issues/3443>`_)
 

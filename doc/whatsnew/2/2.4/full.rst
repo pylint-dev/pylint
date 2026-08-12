@@ -280,7 +280,7 @@ Release date: 2019-09-24
 
   Closes #2837
 
-* Ignore raw docstrings when running Similarities checker with ``ignore-docstrings=yes`` option
+* Ignore raw docstrings when running the :ref:`Similarities <similarities-checker>` checker with ``ignore-docstrings=yes`` option
 
 * Fix crash when calling ``inherit_from_std_ex`` on a class which is its own ancestor
 
