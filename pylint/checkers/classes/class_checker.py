@@ -478,9 +478,14 @@ def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
 
 
 def _has_same_layout_slots(
-    slots: list[nodes.Const | None], assigned_value: nodes.Name
+    slots: list[nodes.Const | None], assigned_value: nodes.NodeNG
 ) -> bool:
-    inferred = next(assigned_value.infer())
+    try:
+        inferred = next(assigned_value.infer())
+    except astroid.InferenceError:
+        # An unresolvable value gets the same answer as any other
+        # value that is not a class definition.
+        return False
     if isinstance(inferred, nodes.ClassDef):
         other_slots = inferred.slots()
         if all(
@@ -1738,6 +1743,14 @@ a metaclass class method.",
         if not node.attrname == "__class__":
             return
         if isinstance(node.parent, nodes.Tuple):
+            assign_node = node.parent.parent
+            if not isinstance(assign_node, nodes.Assign) or not isinstance(
+                assign_node.value, (nodes.Tuple, nodes.List)
+            ):
+                # A for-loop or ``with`` tuple target, a nested tuple, or an
+                # unpacked call result: the value assigned to ``__class__``
+                # cannot be pinpointed, keep quiet to avoid false positives.
+                return
             class_index = -1
             for i, elt in enumerate(node.parent.elts):
                 if hasattr(elt, "attrname") and elt.attrname == "__class__":
@@ -1746,8 +1759,20 @@ a metaclass class method.",
                 # This should not happen because we checked that the node name
                 # is '__class__' earlier, but let's not be too confident here
                 return  # pragma: no cover
-            inferred = safe_infer(node.parent.parent.value.elts[class_index])
+            if class_index >= len(assign_node.value.elts):
+                # Unbalanced unpacking, which fails at runtime anyway.
+                return
+            inferred = safe_infer(assign_node.value.elts[class_index])
         else:
+            if (
+                not isinstance(
+                    node.parent, (nodes.Assign, nodes.AnnAssign, nodes.AugAssign)
+                )
+                or node.parent.value is None
+            ):
+                # A for-loop, ``with``, or comprehension target, or a bare
+                # annotation: there is no assigned value to check.
+                return
             inferred = safe_infer(node.parent.value)
         match inferred:
             case nodes.ClassDef() | util.UninferableBase() | None:
@@ -1824,10 +1849,20 @@ a metaclass class method.",
                     if _has_data_descriptor(klass, node.attrname):
                         # Descriptors circumvent the slots mechanism as well.
                         return
-                if node.attrname == "__class__" and _has_same_layout_slots(
-                    slots, node.parent.value
-                ):
-                    return
+                if node.attrname == "__class__":
+                    # Only a plain assignment carries a value whose slots
+                    # layout can be compared; a for-loop, ``with``, or
+                    # tuple-unpacking target does not.
+                    if (
+                        not isinstance(
+                            node.parent,
+                            (nodes.Assign, nodes.AnnAssign, nodes.AugAssign),
+                        )
+                        or node.parent.value is None
+                    ):
+                        return
+                    if _has_same_layout_slots(slots, node.parent.value):
+                        return
                 self.add_message(
                     "assigning-non-slot",
                     args=(node.attrname,),

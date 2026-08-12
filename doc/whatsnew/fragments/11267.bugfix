@@ -1,0 +1,8 @@
+Fix a crash in the class checker when ``x.__class__`` is an assignment target
+outside a plain assignment, such as a for-loop, ``with``, or comprehension
+target, a bare annotation, or a tuple target unpacked from a non-literal or
+too-short right-hand side. This affected both ``invalid-class-object`` and
+``assigning-non-slot``, which also crashed when the assigned value could not
+be resolved by astroid.
+
+Closes #11267

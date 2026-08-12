@@ -73,3 +73,45 @@ class Pylint7429Good:
             "othervalue",
         )
         print(myvar, other)
+
+
+def get_pair():
+    return AnotherClass, "myvalue"
+
+
+class CrashRegression11267:
+    """``x.__class__`` targets outside a plain assignment used to crash.
+
+    See https://github.com/pylint-dev/pylint/issues/11267
+    """
+
+    def dunder_class_as_loop_target(self):
+        for self.__class__ in [AnotherClass]:
+            pass
+
+    def dunder_class_as_tuple_loop_target(self):
+        for self.__class__, myvar in [(AnotherClass, "myvalue")]:
+            print(myvar)
+
+    def dunder_class_as_with_target(self, ctx):
+        with ctx as self.__class__:
+            pass
+
+    def dunder_class_as_comprehension_target(self):
+        return [0 for self.__class__ in [AnotherClass]]
+
+    def dunder_class_annotation_without_value(self):
+        self.__class__: type
+
+    def dunder_class_unpacked_from_call(self):
+        self.__class__, myvar = get_pair()
+        print(myvar)
+
+    def dunder_class_in_nested_tuple_target(self, other):
+        (other.attr, self.__class__), myvar = (1, AnotherClass), 2
+        print(myvar)
+
+    def dunder_class_unbalanced_unpacking(self):
+        # pylint: disable-next=unbalanced-tuple-unpacking
+        myvar, self.__class__ = (AnotherClass,)
+        print(myvar)
