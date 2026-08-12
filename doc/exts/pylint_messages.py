@@ -498,14 +498,29 @@ def _get_message_data_path(message: MessageDefinition) -> Path:
     return PYLINT_MESSAGES_DATA_PATH / message.symbol[0] / message.symbol
 
 
+def _get_newest_mtime(path: Path) -> float:
+    """Return the mtime of 'path', or the newest mtime it contains if it's a dir."""
+    if path.is_dir():
+        return max(
+            (_get_newest_mtime(child) for child in path.iterdir()),
+            default=path.stat().st_mtime,
+        )
+    return path.stat().st_mtime
+
+
 def _message_needs_update(message_data: MessageData, category: str) -> bool:
     """Do we need to regenerate this message .rst ?"""
     message_path = _get_message_path(category, message_data)
     if not message_path.exists():
         return True
     message_path_stats = message_path.stat().st_mtime
-    checker_path_stats = Path(message_data.checker_module_path).stat().st_mtime
-    return checker_path_stats > message_path_stats
+    source_path_stats = Path(message_data.checker_module_path).stat().st_mtime
+    # The page also embeds the examples, the details and the related links, so
+    # editing those has to regenerate it too.
+    data_path = _get_message_data_path(message_data.definition)
+    if data_path.exists():
+        source_path_stats = max(source_path_stats, _get_newest_mtime(data_path))
+    return source_path_stats > message_path_stats
 
 
 def _get_category_directory(category: str) -> Path:
