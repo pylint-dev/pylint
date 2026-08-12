@@ -22,7 +22,7 @@ Release date: 2025-10-05
 False Positives Fixed
 ---------------------
 
-- Fix :ref:`used-before-assignment` for PEP 695 type aliases and parameters.
+- Fix :ref:`used-before-assignment <used-before-assignment>` for PEP 695 type aliases and parameters.
 
   Closes #9815 (`#9815 <https://github.com/pylint-dev/pylint/issues/9815>`_)
 
@@ -63,16 +63,16 @@ For details, see: https://github.com/pylint-dev/pylint/pull/10482#issuecomment-3
 False Positives Fixed
 ---------------------
 
-- Fix false positives for :ref:`possibly-used-before-assignment` when variables are exhaustively
+- Fix false positives for :ref:`possibly-used-before-assignment <possibly-used-before-assignment>` when variables are exhaustively
   assigned within a :keyword:`match` block.
 
   Closes #9668 (`#9668 <https://github.com/pylint-dev/pylint/issues/9668>`_)
 
-- Fix false positive for :ref:`missing-raises-doc` and :ref:`missing-yield-doc` when the method length is less than docstring-min-length.
+- Fix false positive for :ref:`missing-raises-doc <missing-raises-doc>` and :ref:`missing-yield-doc <missing-yield-doc>` when the method length is less than docstring-min-length.
 
   Refs #10104 (`#10104 <https://github.com/pylint-dev/pylint/issues/10104>`_)
 
-- Fix a false positive for :ref:`unused-variable` when multiple except handlers bind the same name under a try block.
+- Fix a false positive for :ref:`unused-variable <unused-variable>` when multiple except handlers bind the same name under a try block.
 
   Closes #10426 (`#10426 <https://github.com/pylint-dev/pylint/issues/10426>`_)
 
@@ -81,7 +81,7 @@ False Positives Fixed
 False Negatives Fixed
 ---------------------
 
-- Fix false-negative for :ref:`used-before-assignment` with ``from __future__ import annotations`` in function definitions.
+- Fix false-negative for :ref:`used-before-assignment <used-before-assignment>` with ``from __future__ import annotations`` in function definitions.
 
   Refs #10482 (`#10482 <https://github.com/pylint-dev/pylint/issues/10482>`_)
 
@@ -108,7 +108,7 @@ Release date: 2025-05-04
 False Positives Fixed
 ---------------------
 
-- Comparisons between two calls to `type()` won't raise an :ref:`unidiomatic-typecheck` warning anymore, consistent with the behavior applied only for ``==`` previously.
+- Comparisons between two calls to `type()` won't raise an :ref:`unidiomatic-typecheck <unidiomatic-typecheck>` warning anymore, consistent with the behavior applied only for ``==`` previously.
 
   Closes #10161 (`#10161 <https://github.com/pylint-dev/pylint/issues/10161>`_)
 
@@ -125,7 +125,7 @@ Other Bug Fixes
 
   Closes #10282 (`#10282 <https://github.com/pylint-dev/pylint/issues/10282>`_)
 
-- Using a slice as a class decorator now raises a :ref:`not-callable` message instead of crashing. A lot of checks that dealt with decorators (too many to list) are now shortcut if the decorator can't immediately be inferred to a function or class definition.
+- Using a slice as a class decorator now raises a :ref:`not-callable <not-callable>` message instead of crashing. A lot of checks that dealt with decorators (too many to list) are now shortcut if the decorator can't immediately be inferred to a function or class definition.
 
   Closes #10334 (`#10334 <https://github.com/pylint-dev/pylint/issues/10334>`_)
 
@@ -134,7 +134,7 @@ Other Bug Fixes
 Other Changes
 -------------
 
-- The algorithm used for :ref:`no-member` suggestions is now more efficient and cuts the
+- The algorithm used for :ref:`no-member <no-member>` suggestions is now more efficient and cuts the
   calculation when the distance score is already above the threshold.
 
   Refs #10277 (`#10277 <https://github.com/pylint-dev/pylint/issues/10277>`_)
@@ -149,7 +149,7 @@ Release date: 2025-03-20
 False Positives Fixed
 ---------------------
 
-- Fix a false positive for :ref:`used-before-assignment` when an inner function's return type
+- Fix a false positive for :ref:`used-before-assignment <used-before-assignment>` when an inner function's return type
   annotation is a class defined at module scope.
 
   Closes #9391 (`#9391 <https://github.com/pylint-dev/pylint/issues/9391>`_)
@@ -164,12 +164,12 @@ Release date: 2025-03-09
 False Positives Fixed
 ---------------------
 
-- Fix false positives for :ref:`use-implicit-booleaness-not-comparison`, :ref:`use-implicit-booleaness-not-comparison-to-string`
-  and :ref:`use-implicit-booleaness-not-comparison-to-zero` when chained comparisons are checked.
+- Fix false positives for :ref:`use-implicit-booleaness-not-comparison <use-implicit-booleaness-not-comparison>`, :ref:`use-implicit-booleaness-not-comparison-to-string <use-implicit-booleaness-not-comparison-to-string>`
+  and :ref:`use-implicit-booleaness-not-comparison-to-zero <use-implicit-booleaness-not-comparison-to-zero>` when chained comparisons are checked.
 
   Closes #10065 (`#10065 <https://github.com/pylint-dev/pylint/issues/10065>`_)
 
-- Fix a false positive for :ref:`invalid-getnewargs-ex-returned` when the tuple or dict has been assigned to a name.
+- Fix a false positive for :ref:`invalid-getnewargs-ex-returned <invalid-getnewargs-ex-returned>` when the tuple or dict has been assigned to a name.
 
   Closes #10208 (`#10208 <https://github.com/pylint-dev/pylint/issues/10208>`_)
 
@@ -182,7 +182,7 @@ False Positives Fixed
 Other Bug Fixes
 ---------------
 
-- Fixed conditional import x.y causing false positive :ref:`possibly-used-before-assignment`.
+- Fixed conditional import x.y causing false positive :ref:`possibly-used-before-assignment <possibly-used-before-assignment>`.
 
   Closes #10081 (`#10081 <https://github.com/pylint-dev/pylint/issues/10081>`_)
 
@@ -190,7 +190,7 @@ Other Bug Fixes
 
   Closes #10106 (`#10106 <https://github.com/pylint-dev/pylint/issues/10106>`_)
 
-- Fixed raising :ref:`invalid-name` when using camelCase for private methods with two leading underscores.
+- Fixed raising :ref:`invalid-name <invalid-name>` when using camelCase for private methods with two leading underscores.
 
   Closes #10189 (`#10189 <https://github.com/pylint-dev/pylint/issues/10189>`_)
 
@@ -235,12 +235,12 @@ Release date: 2024-12-23
 False Positives Fixed
 ---------------------
 
-- Fix false positives for :ref:`undefined-variable` for classes using Python 3.12
+- Fix false positives for :ref:`undefined-variable <undefined-variable>` for classes using Python 3.12
   generic type syntax.
 
   Closes #9335 (`#9335 <https://github.com/pylint-dev/pylint/issues/9335>`_)
 
-- Fix a false positive for :ref:`use-implicit-booleaness-not-len`. No lint should be emitted for
+- Fix a false positive for :ref:`use-implicit-booleaness-not-len <use-implicit-booleaness-not-len>`. No lint should be emitted for
   generators (:py:func:`len` is not defined for generators).
 
   Refs #10100 (`#10100 <https://github.com/pylint-dev/pylint/issues/10100>`_)
@@ -264,7 +264,7 @@ Release date: 2024-12-01
 False Positives Fixed
 ---------------------
 
-- Fix a false positive for :ref:`potential-index-error` when an indexed iterable
+- Fix a false positive for :ref:`potential-index-error <potential-index-error>` when an indexed iterable
   contains a starred element that evaluates to more than one item.
 
   Closes #10076 (`#10076 <https://github.com/pylint-dev/pylint/issues/10076>`_)
@@ -314,7 +314,7 @@ Changes requiring user actions
 New Features
 ------------
 
-- Add new :ref:`declare-non-slot` error which reports when a class has a `__slots__` member and a type hint on the class is not present in `__slots__`.
+- Add new :ref:`declare-non-slot <declare-non-slot>` error which reports when a class has a `__slots__` member and a type hint on the class is not present in `__slots__`.
 
   Refs #9499 (`#9499 <https://github.com/pylint-dev/pylint/issues/9499>`_)
 
@@ -323,7 +323,7 @@ New Features
 New Checks
 ----------
 
-- Added :ref:`too-many-positional-arguments` to allow distinguishing the configuration for too many
+- Added :ref:`too-many-positional-arguments <too-many-positional-arguments>` to allow distinguishing the configuration for too many
   total arguments (with keyword-only params specified after `*`) from the configuration
   for too many positional-or-keyword or positional-only arguments.
 
@@ -332,23 +332,23 @@ New Checks
 
   Closes #9099 (`#9099 <https://github.com/pylint-dev/pylint/issues/9099>`_)
 
-- Add :ref:`using-exception-groups-in-unsupported-version` and
-  :ref:`using-generic-type-syntax-in-unsupported-version` for uses of Python 3.11+ or
+- Add :ref:`using-exception-groups-in-unsupported-version <using-exception-groups-in-unsupported-version>` and
+  :ref:`using-generic-type-syntax-in-unsupported-version <using-generic-type-syntax-in-unsupported-version>` for uses of Python 3.11+ or
   3.12+ features on lower supported versions provided with ``--py-version``.
 
   Closes #9791 (`#9791 <https://github.com/pylint-dev/pylint/issues/9791>`_)
 
-- Add :ref:`using-assignment-expression-in-unsupported-version` for uses of ``:=`` (walrus operator)
+- Add :ref:`using-assignment-expression-in-unsupported-version <using-assignment-expression-in-unsupported-version>` for uses of ``:=`` (walrus operator)
   on Python versions below 3.8 provided with ``--py-version``.
 
   Closes #9820 (`#9820 <https://github.com/pylint-dev/pylint/issues/9820>`_)
 
-- Add :ref:`using-positional-only-args-in-unsupported-version` for uses of positional-only args on
+- Add :ref:`using-positional-only-args-in-unsupported-version <using-positional-only-args-in-unsupported-version>` for uses of positional-only args on
   Python versions below 3.8 provided with ``--py-version``.
 
   Closes #9823 (`#9823 <https://github.com/pylint-dev/pylint/issues/9823>`_)
 
-- Add :ref:`unnecessary-default-type-args` to the ``typing`` extension to detect the use
+- Add :ref:`unnecessary-default-type-args <unnecessary-default-type-args>` to the ``typing`` extension to detect the use
   of unnecessary default type args for :py:class:`typing.Generator` and :py:class:`typing.AsyncGenerator`.
 
   Refs #9938 (`#9938 <https://github.com/pylint-dev/pylint/issues/9938>`_)
@@ -362,20 +362,20 @@ False Negatives Fixed
 
   Closes #7565. (`#7565 <https://github.com/pylint-dev/pylint/issues/7565>`_)
 
-- Fix a false negative for :ref:`await-outside-async` when await is inside Lambda.
+- Fix a false negative for :ref:`await-outside-async <await-outside-async>` when await is inside Lambda.
 
   Refs #9653 (`#9653 <https://github.com/pylint-dev/pylint/issues/9653>`_)
 
-- Fix a false negative for :ref:`duplicate-argument-name` by including ``positional-only``, ``*args`` and ``**kwargs`` arguments in the check.
+- Fix a false negative for :ref:`duplicate-argument-name <duplicate-argument-name>` by including ``positional-only``, ``*args`` and ``**kwargs`` arguments in the check.
 
   Closes #9669 (`#9669 <https://github.com/pylint-dev/pylint/issues/9669>`_)
 
-- Fix false negative for :ref:`multiple-statements` when multiple statements are present on :keyword:`else` and :keyword:`finally` lines of :keyword:`try`.
+- Fix false negative for :ref:`multiple-statements <multiple-statements>` when multiple statements are present on :keyword:`else` and :keyword:`finally` lines of :keyword:`try`.
 
   Refs #9759 (`#9759 <https://github.com/pylint-dev/pylint/issues/9759>`_)
 
 - Fix false negatives when :py:func::`isinstance` does not have exactly two arguments.
-  pylint now emits a :ref:`too-many-function-args` or :ref:`no-value-for-parameter`
+  pylint now emits a :ref:`too-many-function-args <too-many-function-args>` or :ref:`no-value-for-parameter <no-value-for-parameter>`
   appropriately for :py:func:`isinstance` calls.
 
   Closes #9847 (`#9847 <https://github.com/pylint-dev/pylint/issues/9847>`_)
@@ -424,7 +424,7 @@ Internal Changes
 ----------------
 
 - All variables, classes, functions and file names containing the word 'similar', when it was,
-  in fact, referring to 'symilar' (the standalone program for the :ref:`duplicate-code` check) were renamed
+  in fact, referring to 'symilar' (the standalone program for the :ref:`duplicate-code <duplicate-code>` check) were renamed
   to 'symilar'.
 
   Closes #9734 (`#9734 <https://github.com/pylint-dev/pylint/issues/9734>`_)

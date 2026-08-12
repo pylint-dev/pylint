@@ -129,7 +129,7 @@ Other Bug Fixes
 
   Closes #11147 (`#11147 <https://github.com/pylint-dev/pylint/issues/11147>`_)
 
-- Fix a false positive for :ref:`useless-parent-delegation` when an override changes
+- Fix a false positive for :ref:`useless-parent-delegation <useless-parent-delegation>` when an override changes
   the default value of a positional-only parameter.
 
   Closes #11148 (`#11148 <https://github.com/pylint-dev/pylint/issues/11148>`_)
@@ -433,17 +433,17 @@ Release date: 2025-10-20
 False Positives Fixed
 ---------------------
 
-- Fix false positive for :ref:`invalid-name` on a partially uninferable module-level constant.
+- Fix false positive for :ref:`invalid-name <invalid-name>` on a partially uninferable module-level constant.
 
   Closes #10652 (`#10652 <https://github.com/pylint-dev/pylint/issues/10652>`_)
 
-- Fix a false positive for :ref:`invalid-name` on exclusive module-level assignments
-  composed of three or more branches. We won't raise :ref:`disallowed-name` on module-level names that can't be inferred
+- Fix a false positive for :ref:`invalid-name <invalid-name>` on exclusive module-level assignments
+  composed of three or more branches. We won't raise :ref:`disallowed-name <disallowed-name>` on module-level names that can't be inferred
   until a further refactor to remove this false negative is done.
 
   Closes #10664 (`#10664 <https://github.com/pylint-dev/pylint/issues/10664>`_)
 
-- Fix false positive for :ref:`invalid-name` for ``TypedDict`` instances.
+- Fix false positive for :ref:`invalid-name <invalid-name>` for ``TypedDict`` instances.
 
   Closes #10672 (`#10672 <https://github.com/pylint-dev/pylint/issues/10672>`_)
 
@@ -466,7 +466,7 @@ False Positives Fixed
   Closes #10647 (`#10647 <https://github.com/pylint-dev/pylint/issues/10647>`_)
 
 - Check enums created with the ``Enum()`` functional syntax to pass against the
-  ``--class-rgx`` for the :ref:`invalid-name` check, like other enums.
+  ``--class-rgx`` for the :ref:`invalid-name <invalid-name>` check, like other enums.
 
   Closes #10660 (`#10660 <https://github.com/pylint-dev/pylint/issues/10660>`_)
 
@@ -523,7 +523,7 @@ Breaking Changes
 
   Refs #10480 (`#10480 <https://github.com/pylint-dev/pylint/issues/10480>`_)
 
-- Removed support for ``nmp.NaN`` alias for ``numpy.NaN`` being recognized in :ref:`nan-comparison`. Use ``np`` or ``numpy`` instead.
+- Removed support for ``nmp.NaN`` alias for ``numpy.NaN`` being recognized in :ref:`nan-comparison <nan-comparison>`. Use ``np`` or ``numpy`` instead.
 
   Refs #10583 (`#10583 <https://github.com/pylint-dev/pylint/issues/10583>`_)
 
@@ -626,17 +626,17 @@ New Checks
 
 - Add new checks for invalid uses of class patterns in :keyword:`match`.
 
-  * :ref:`invalid-match-args-definition` is emitted if :py:data:`object.__match_args__` isn't a tuple of strings.
-  * :ref:`too-many-positional-sub-patterns` if there are more positional sub-patterns than specified in :py:data:`object.__match_args__`.
-  * :ref:`multiple-class-sub-patterns` if there are multiple sub-patterns for the same attribute.
+  * :ref:`invalid-match-args-definition <invalid-match-args-definition>` is emitted if :py:data:`object.__match_args__` isn't a tuple of strings.
+  * :ref:`too-many-positional-sub-patterns <too-many-positional-sub-patterns>` if there are more positional sub-patterns than specified in :py:data:`object.__match_args__`.
+  * :ref:`multiple-class-sub-patterns <multiple-class-sub-patterns>` if there are multiple sub-patterns for the same attribute.
 
   Refs #10559 (`#10559 <https://github.com/pylint-dev/pylint/issues/10559>`_)
 
 - Add additional checks for suboptimal uses of class patterns in :keyword:`match`.
 
-  * :ref:`match-class-bind-self` is emitted if a name is bound to ``self`` instead of
+  * :ref:`match-class-bind-self <match-class-bind-self>` is emitted if a name is bound to ``self`` instead of
     using an ``as`` pattern.
-  * :ref:`match-class-positional-attributes` is emitted if a class pattern has positional
+  * :ref:`match-class-positional-attributes <match-class-positional-attributes>` is emitted if a class pattern has positional
     attributes when keywords could be used.
 
   Refs #10587 (`#10587 <https://github.com/pylint-dev/pylint/issues/10587>`_)
@@ -661,7 +661,7 @@ False Positives Fixed
 
   Closes #10061 (`#10061 <https://github.com/pylint-dev/pylint/issues/10061>`_)
 
-- Fix :ref:`no-name-in-module` for members of ``concurrent.futures`` with Python 3.14.
+- Fix :ref:`no-name-in-module <no-name-in-module>` for members of ``concurrent.futures`` with Python 3.14.
 
   Closes #10632 (`#10632 <https://github.com/pylint-dev/pylint/issues/10632>`_)
 
@@ -710,7 +710,7 @@ False Negatives Fixed
 
   Refs #10542 (`#10542 <https://github.com/pylint-dev/pylint/issues/10542>`_)
 
-- Fix false-negative where :ref:`unused-import` was not reported for names referenced in a preceding ``global`` statement.
+- Fix false-negative where :ref:`unused-import <unused-import>` was not reported for names referenced in a preceding ``global`` statement.
 
   Refs #10633 (`#10633 <https://github.com/pylint-dev/pylint/issues/10633>`_)
 
@@ -737,12 +737,12 @@ Other Bug Fixes
 
   Closes #10508 (`#10508 <https://github.com/pylint-dev/pylint/issues/10508>`_)
 
-- Fix a crash in :ref:`nested-min-max` when using ``builtins.min`` or ``builtins.max``
+- Fix a crash in :ref:`nested-min-max <nested-min-max>` when using ``builtins.min`` or ``builtins.max``
   instead of ``min`` or ``max`` directly.
 
   Closes #10626 (`#10626 <https://github.com/pylint-dev/pylint/issues/10626>`_)
 
-- Fixed a crash in :ref:`unnecessary-dict-index-lookup` when the index of an enumerated list
+- Fixed a crash in :ref:`unnecessary-dict-index-lookup <unnecessary-dict-index-lookup>` when the index of an enumerated list
   was deleted inside a for loop.
 
   Closes #10627 (`#10627 <https://github.com/pylint-dev/pylint/issues/10627>`_)

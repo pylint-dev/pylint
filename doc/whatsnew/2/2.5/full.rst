@@ -112,7 +112,7 @@ Release date: 2020-04-27
 
   Closes #3445
 
-* Fix :ref:`dangerous-default-value` rule to account for keyword argument defaults
+* Fix :ref:`dangerous-default-value <dangerous-default-value>` rule to account for keyword argument defaults
 
   Closes #3373
 
