@@ -15,6 +15,8 @@ Pylint checkers can provide three set of features:
 
 Below is a list of all checkers and their features.
 
+.. _async-checker:
+
 Async checker
 ~~~~~~~~~~~~~
 
@@ -31,6 +33,8 @@ Async checker Messages
   emitted when using Python < 3.5.
 
 
+.. _bad-chained-comparison-checker:
+
 Bad-Chained-Comparison checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -43,6 +47,8 @@ Bad-Chained-Comparison checker Messages
   comparisons that belong to different semantic groups ("<" does not mean the
   same thing as "is", chaining them in "0 < x is None" is probably a mistake).
 
+
+.. _basic-checker:
 
 Basic checker
 ~~~~~~~~~~~~~
@@ -245,6 +251,8 @@ Basic checker Reports
 :RP0101: Statistics by type
 
 
+.. _classes-checker:
+
 Classes checker
 ~~~~~~~~~~~~~~~
 
@@ -402,6 +410,8 @@ Classes checker Messages
   an unexpected reason. Please report this kind if you don't make sense of it.
 
 
+.. _dataclass-checker:
+
 Dataclass checker
 ~~~~~~~~~~~~~~~~~
 
@@ -413,6 +423,8 @@ Dataclass checker Messages
   The dataclasses.field() specifier should only be used as the value of an
   assignment within a dataclass, or within the make_dataclass() function.
 
+
+.. _design-checker:
 
 Design checker
 ~~~~~~~~~~~~~~
@@ -452,6 +464,8 @@ Design checker Messages
 :too-many-positional-arguments (R0917): *Too many positional arguments (%s/%s)*
   Used when a function has too many positional arguments.
 
+
+.. _exceptions-checker:
 
 Exceptions checker
 ~~~~~~~~~~~~~~~~~~
@@ -527,6 +541,8 @@ Exceptions checker Messages
   unrelated errors are hidden.
 
 
+.. _format-checker:
+
 Format checker
 ~~~~~~~~~~~~~~
 
@@ -561,6 +577,8 @@ Format checker Messages
 :unexpected-line-ending-format (C0328): *Unexpected line ending format. There is '%s' while it should be '%s'.*
   Used when there is different newline than expected.
 
+
+.. _imports-checker:
 
 Imports checker
 ~~~~~~~~~~~~~~~
@@ -619,6 +637,8 @@ Imports checker Reports
 :RP0402: Modules dependencies graph
 
 
+.. _lambda-expressions-checker:
+
 Lambda-Expressions checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -633,6 +653,8 @@ Lambda-Expressions checker Messages
   Used when a lambda expression is directly called rather than executing its
   contents inline.
 
+
+.. _logging-checker:
 
 Logging checker
 ~~~~~~~~~~~~~~~
@@ -676,6 +698,8 @@ Logging checker Messages
   formatting as normal.
 
 
+.. _match_statements-checker:
+
 Match Statements checker
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -702,6 +726,8 @@ Match Statements checker Messages
   skip the `__match_args__` lookup.
 
 
+.. _method_args-checker:
+
 Method Args checker
 ~~~~~~~~~~~~~~~~~~~
 
@@ -721,6 +747,8 @@ Method Args checker Messages
   indefinitely).
 
 
+.. _metrics-checker:
+
 Metrics checker
 ~~~~~~~~~~~~~~~
 
@@ -730,6 +758,8 @@ Metrics checker Reports
 ^^^^^^^^^^^^^^^^^^^^^^^
 :RP0701: Raw metrics
 
+
+.. _miscellaneous-checker:
 
 Miscellaneous checker
 ~~~~~~~~~~~~~~~~~~~~~
@@ -745,6 +775,8 @@ Miscellaneous checker Messages
 :use-symbolic-message-instead (I0023):
   Used when a message is enabled or disabled by id.
 
+
+.. _modified_iteration-checker:
 
 Modified Iteration checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -765,6 +797,8 @@ Modified Iteration checker Messages
   use a copy of the list.
 
 
+.. _nested_min_max-checker:
+
 Nested Min Max checker
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -775,6 +809,8 @@ Nested Min Max checker Messages
 :nested-min-max (W3301): *Do not use nested call of '%s'; it's possible to do '%s' instead*
   Nested calls ``min(1, min(2, 3))`` can be rewritten as ``min(1, 2, 3)``.
 
+
+.. _newstyle-checker:
 
 Newstyle checker
 ~~~~~~~~~~~~~~~~
@@ -787,6 +823,8 @@ Newstyle checker Messages
   Used when another argument than the current class is given as first argument
   of the super builtin.
 
+
+.. _nonascii-checker-checker:
 
 Nonascii-Checker checker
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -812,6 +850,8 @@ Nonascii-Checker checker Messages
   programming in English, then there should be no need for non ASCII characters
   in Python Names. If not you can simply disable this check.
 
+
+.. _refactoring-checker:
 
 Refactoring checker
 ~~~~~~~~~~~~~~~~~~~
@@ -996,6 +1036,8 @@ Refactoring checker Messages
   string, or an empty sequence) the code will not be equivalent.
 
 
+.. _similarities-checker:
+
 Similarities checker
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -1015,6 +1057,8 @@ Similarities checker Reports
 :RP0801: Duplication
 
 
+.. _spelling-checker:
+
 Spelling checker
 ~~~~~~~~~~~~~~~~
 
@@ -1031,6 +1075,8 @@ Spelling checker Messages
 :invalid-characters-in-docstring (C0403): *Invalid characters %r in a docstring*
   Used when a word in docstring cannot be checked by enchant.
 
+
+.. _stdlib-checker:
 
 Stdlib checker
 ~~~~~~~~~~~~~~
@@ -1107,6 +1153,8 @@ Stdlib checker Messages
 :deprecated-attribute (W4906): *Using deprecated attribute %r*
   The attribute is marked as deprecated and will be removed in the future.
 
+
+.. _string-checker:
 
 String checker
 ~~~~~~~~~~~~~~
@@ -1195,6 +1243,8 @@ String checker Messages
   are Unicode by default.
 
 
+.. _threading-checker:
+
 Threading checker
 ~~~~~~~~~~~~~~~~~
 
@@ -1206,6 +1256,8 @@ Threading checker Messages
   Used when a new lock instance is created by using with statement which has no
   effect. Instead, an existing instance should be used to acquire lock.
 
+
+.. _typecheck-checker:
 
 Typecheck checker
 ~~~~~~~~~~~~~~~~~
@@ -1309,6 +1361,8 @@ Typecheck checker Messages
   performed by introspecting living objects in run-time.
 
 
+.. _unicode_checker-checker:
+
 Unicode Checker checker
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1351,6 +1405,8 @@ Unicode Checker checker Messages
   https://peps.python.org/pep-0008/#source-file-encoding
 
 
+.. _unnecessary-dunder-call-checker:
+
 Unnecessary-Dunder-Call checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1362,6 +1418,8 @@ Unnecessary-Dunder-Call checker Messages
   Used when a dunder method is manually called instead of using the
   corresponding function/method/operator.
 
+
+.. _unnecessary_ellipsis-checker:
 
 Unnecessary Ellipsis checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1375,6 +1433,8 @@ Unnecessary Ellipsis checker Messages
   code consisting of an ellipsis is unnecessary if there is a docstring on the
   preceding line or if there is a statement in the same scope.
 
+
+.. _unsupported_version-checker:
 
 Unsupported Version checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1402,6 +1462,8 @@ Unsupported Version checker Messages
   Used when the py-version set by the user is lower than 3.8 and pylint
   encounters positional-only arguments.
 
+
+.. _variables-checker:
 
 Variables checker
 ~~~~~~~~~~~~~~~~~

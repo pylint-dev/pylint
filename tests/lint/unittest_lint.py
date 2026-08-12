@@ -929,6 +929,8 @@ def test_full_documentation(linter: PyLinter) -> None:
         # auto-generated text
         "^Pylint global options and switches$",
         "Verbatim name of the checker is ``variables``",
+        # anchor to link to a checker
+        "^\\.\\. _variables-checker:$",
         # messages
         "^:undefined-loop-variable \\(W0631\\): *",
         # options

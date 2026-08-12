@@ -107,6 +107,13 @@ class BaseChecker(_ArgumentsProvider):
         if module:
             # Provide anchor to link against
             result += f".. _{module}:\n\n"
+        else:
+            # Provide anchor to link against, so the documentation can point at
+            # a checker instead of at one of the messages it happens to raise.
+            # Only for the checkers shipped by default, since an extension can
+            # extend one of them and reuse its name, as 'mccabe' does with
+            # 'design', and two identical anchors are an error.
+            result += f".. _{self.name}-checker:\n\n"
         result += f"{get_rst_title(checker_title, '~')}\n"
         if module:
             result += f"This checker is provided by ``{module}``.\n"
