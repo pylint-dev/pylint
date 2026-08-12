@@ -106,7 +106,7 @@ Release date: 2015-12-21
 
   Closes #168
 
-* Accept only functions and methods for the :ref:`deprecated-method` checker.
+* Accept only functions and methods for the :ref:`deprecated-method <deprecated-method>` check.
 
   This prevents a crash which can occur when an object doesn't have
   .qname() method after the inference.
@@ -223,7 +223,7 @@ Release date: 2015-11-29
 
   Closes #563
 
-* Make :ref:`no-self-use` checker not emit a warning if there is a 'super()'
+* Make the :ref:`no-self-use <no-self-use>` check not emit a warning if there is a 'super()'
   call inside the method.
 
   Closes #667
@@ -507,7 +507,7 @@ Release date: 2015-11-29
 
   Closes #608.
 
-* Improved the :ref:`not-in-loop` checker to properly detect more cases.
+* Improved the :ref:`not-in-loop <not-in-loop>` check to properly detect more cases.
 
 * Add a new error, :ref:`continue-in-finally`, which is emitted when
   the ``continue`` keyword is found inside a ``finally`` clause, which

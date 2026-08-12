@@ -301,7 +301,7 @@ Release date: 2017-04-13
 
 * Added refactoring message :ref:`no-else-return`'.
 
-* Improve :ref:`unused-variable` checker to warn about unused variables in module scope.
+* Improve the :ref:`unused-variable <unused-variable>` check to warn about unused variables in module scope.
 
   Closes #919
 

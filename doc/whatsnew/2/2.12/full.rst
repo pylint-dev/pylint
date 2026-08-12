@@ -235,7 +235,7 @@ Release date: 2021-11-24
   is set to a version that does not support ``typing.final`` (< 3.8)
 
 * Added configuration option ``exclude-too-few-public-methods`` to allow excluding
-  classes from the ``min-public-methods`` checker.
+  classes from the ``min-public-methods`` check.
 
   Closes #3370
 
