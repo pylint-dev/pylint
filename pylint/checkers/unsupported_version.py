@@ -67,6 +67,12 @@ class UnsupportedVersionChecker(BaseChecker):
             "Used when the py-version set by the user is lower than 3.8 and pylint encounters "
             "positional-only arguments.",
         ),
+        "W2607": (
+            "Unpacking in comprehensions is not supported by all versions included in the py-version setting",
+            "using-comprehension-unpacking-in-unsupported-version",
+            "Used when the py-version set by the user is lower than 3.15 and pylint encounters "
+            "the ``*`` or ``**`` unpacking added by PEP 798 in a comprehension.",
+        ),
     }
 
     def open(self) -> None:
@@ -76,6 +82,7 @@ class UnsupportedVersionChecker(BaseChecker):
         self._py38_plus = py_version >= (3, 8)
         self._py311_plus = py_version >= (3, 11)
         self._py312_plus = py_version >= (3, 12)
+        self._py315_plus = py_version >= (3, 15)
 
     @only_required_for_messages("using-f-string-in-unsupported-version")
     def visit_joinedstr(self, node: nodes.JoinedStr) -> None:
@@ -187,6 +194,44 @@ class UnsupportedVersionChecker(BaseChecker):
         if not self._py312_plus:
             self.add_message(
                 "using-generic-type-syntax-in-unsupported-version",
+                node=node,
+                confidence=HIGH,
+            )
+
+    @only_required_for_messages("using-comprehension-unpacking-in-unsupported-version")
+    def visit_listcomp(self, node: nodes.ListComp) -> None:
+        self._check_comprehension_unpacking(node)
+
+    @only_required_for_messages("using-comprehension-unpacking-in-unsupported-version")
+    def visit_setcomp(self, node: nodes.SetComp) -> None:
+        self._check_comprehension_unpacking(node)
+
+    @only_required_for_messages("using-comprehension-unpacking-in-unsupported-version")
+    def visit_generatorexp(self, node: nodes.GeneratorExp) -> None:
+        self._check_comprehension_unpacking(node)
+
+    def _check_comprehension_unpacking(
+        self, node: nodes.ListComp | nodes.SetComp | nodes.GeneratorExp
+    ) -> None:
+        """Add a message for ``[*element for element in elements]`` when the
+        py-version is lower than 3.15.
+        """
+        if not self._py315_plus and isinstance(node.elt, nodes.Starred):
+            self.add_message(
+                "using-comprehension-unpacking-in-unsupported-version",
+                node=node,
+                confidence=HIGH,
+            )
+
+    @only_required_for_messages("using-comprehension-unpacking-in-unsupported-version")
+    def visit_dictcomp(self, node: nodes.DictComp) -> None:
+        """Add a message for ``{**element for element in elements}``.
+
+        astroid represents that unpacking with a ``DictUnpack`` key.
+        """
+        if not self._py315_plus and isinstance(node.key, nodes.DictUnpack):
+            self.add_message(
+                "using-comprehension-unpacking-in-unsupported-version",
                 node=node,
                 confidence=HIGH,
             )
