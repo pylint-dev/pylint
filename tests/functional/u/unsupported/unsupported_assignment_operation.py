@@ -91,3 +91,25 @@ deq[0] = 42
 values = [1, 2, 3, 4]
 (values[0], values[1]) = 3, 4
 (values[0], SubscriptableClass()[0]) = 42, 42 # [unsupported-assignment-operation]
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/10050
+nested_dict = {"outer": None}
+nested_dict["outer"] = {"inner": None}
+nested_dict["outer"]["inner"] = 42
+
+non_subscriptable = {"outer": None}
+non_subscriptable["outer"] = None
+non_subscriptable["outer"]["inner"] = 42  # [unsupported-assignment-operation]
+
+
+class DiscardingMapping:
+    def __getitem__(self, _key):
+        return None
+
+    def __setitem__(self, _key, _value):
+        pass
+
+
+discarding_mapping = DiscardingMapping()
+discarding_mapping["outer"] = {"inner": None}
+discarding_mapping["outer"]["inner"] = 42  # [unsupported-assignment-operation]

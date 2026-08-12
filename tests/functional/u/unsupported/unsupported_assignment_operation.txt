@@ -15,3 +15,5 @@ unsupported-assignment-operation:75:0:75:20::'SubscriptableClass()' does not sup
 unsupported-assignment-operation:81:0:81:6::'test()' does not support item assignment:UNDEFINED
 unsupported-assignment-operation:82:0:82:4::'test' does not support item assignment:UNDEFINED
 unsupported-assignment-operation:93:12:93:32::'SubscriptableClass()' does not support item assignment:UNDEFINED
+unsupported-assignment-operation:102:0:102:26::"""non_subscriptable['outer']"" does not support item assignment":UNDEFINED
+unsupported-assignment-operation:115:0:115:27::"""discarding_mapping['outer']"" does not support item assignment":UNDEFINED
