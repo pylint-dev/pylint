@@ -11,7 +11,7 @@ import re
 from collections.abc import Iterable
 
 import astroid
-from astroid import nodes
+from astroid import bases, nodes
 from astroid.util import UninferableBase
 
 from pylint.checkers import utils
@@ -150,7 +150,12 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
         return {
             exc
             for exc in exceptions
-            if not utils.node_ignores_exception(node, exc.name)
+            # Inference is not restricted to exception classes: ``raise sum``
+            # infers to a FunctionDef and ``raise os`` to a Module, neither of
+            # which implements ``ancestors()``. ``Instance`` is kept because it
+            # proxies ``name`` and ``ancestors`` to the class it wraps.
+            if isinstance(exc, (nodes.ClassDef, bases.Instance))
+            and not utils.node_ignores_exception(node, exc.name)
         }
     except astroid.InferenceError:
         return set()
