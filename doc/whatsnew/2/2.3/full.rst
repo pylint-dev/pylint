@@ -58,7 +58,7 @@ Release date: 2019-02-27
 
   Closes #2635
 
-* Fix :ref:`missing-raises-doc` false positive (W9006)
+* Fix :ref:`missing-raises-doc <missing-raises-doc>` false positive
 
   Closes #1502
 
@@ -70,7 +70,7 @@ Release date: 2019-02-27
 
   Closes #2645
 
-* Add ``no-else-raise`` warning (R1720)
+* Add ``no-else-raise`` warning (:ref:`R1720 <no-else-raise>`)
 
   Closes #2558
 
@@ -78,7 +78,7 @@ Release date: 2019-02-27
 
   Closes #2643
 
-* Fix incorrect generation of ``no-else-return`` warnings (R1705)
+* Fix incorrect generation of ``no-else-return`` warnings (:ref:`R1705 <no-else-return>`)
 
   Fixed issue where ``if`` statements with nested ``if`` statements
   were incorrectly being flagged as ``no-else-return`` in some cases and

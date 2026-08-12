@@ -157,8 +157,8 @@ Release date: 2022-06-06
 
   Closes #6624
 
-* ``bad-option-value`` (E0012) is now a warning ``unknown-option-value`` (W0012). Deleted messages that do not exist
-  anymore in pylint now raise ``useless-option-value`` (R0022) instead of ``bad-option-value``. This allows to
+* ``bad-option-value`` (:ref:`E0012 <bad-option-value>`) is now a warning ``unknown-option-value`` (:ref:`W0012 <unknown-option-value>`). Deleted messages that do not exist
+  anymore in pylint now raise ``useless-option-value`` (:ref:`R0022 <useless-option-value>`) instead of ``bad-option-value``. This allows to
   distinguish between genuine typos and configuration that could be cleaned up.  Existing message disables for
   ``bad-option-value`` will still work on both new messages.
 
@@ -264,7 +264,7 @@ Release date: 2022-06-01
   by making ``ImportsChecker`` solely responsible for emitting ``deprecated-module`` instead
   of sharing responsibility with ``StdlibChecker``. (This could have led to double messages.)
 
-* The ``no-init`` (W0232) warning has been removed. It's ok to not have an ``__init__`` in a class.
+* The ``no-init`` (:ref:`W0232 <no-init>`) warning has been removed. It's ok to not have an ``__init__`` in a class.
 
   Closes #2409
 

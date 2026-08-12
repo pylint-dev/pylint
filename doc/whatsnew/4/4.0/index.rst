@@ -167,7 +167,7 @@ False Positives Fixed
 
   Closes #6663 (`#6663 <https://github.com/pylint-dev/pylint/issues/6663>`_)
 
-- Fix a false positive for ``invalid-name`` (C0103) where the default
+- Fix a false positive for ``invalid-name`` (:ref:`C0103 <invalid-name>`) where the default
   ``typevar-rgx`` rejected ``TypeVar`` names containing digits, such as
   ``Ec2T``.
 
@@ -182,7 +182,7 @@ False Positives Fixed
 
   Closes #9833 (`#9833 <https://github.com/pylint-dev/pylint/issues/9833>`_)
 
-- Fix a false positive for ``function-redefined`` (E0102) when reusing names that
+- Fix a false positive for ``function-redefined`` (:ref:`E0102 <function-redefined>`) when reusing names that
   match ``dummy-variables-rgx`` (such as ``_``), which is common for
   ``pytest-bdd`` step definitions. This restores the behavior from before pylint
   4.0.0; as a consequence the false negative fixed in #9894 is reintroduced for
@@ -294,7 +294,7 @@ Other Bug Fixes
 
   The default `paramspec-rgx` and `typevartuple-rgx` patterns rejected names
   containing digits (e.g. ``Ec2P``, ``S3Ts``), emitting a false ``invalid-name``
-  (C0103). Allow digits in the lowercase segments, consistent with the
+  (:ref:`C0103 <invalid-name>`). Allow digits in the lowercase segments, consistent with the
   ``typevar`` and ``typealias`` patterns.
 
   Closes #11090 (`#11090 <https://github.com/pylint-dev/pylint/issues/11090>`_)
@@ -304,7 +304,7 @@ Other Bug Fixes
 Performance Improvements
 ------------------------
 
-- The duplicate-code checker no longer runs when its message (R0801) is disabled, even if ``reports=yes`` is set. Previously, the checker's report (RP0801) would cause the expensive similarity computation to run regardless.
+- The :ref:`duplicate-code <duplicate-code>` checker no longer runs when its message (``R0801``) is disabled, even if ``reports=yes`` is set. Previously, the checker's report (``RP0801``) would cause the expensive similarity computation to run regardless.
 
   Closes #3443 (`#3443 <https://github.com/pylint-dev/pylint/issues/3443>`_)
 
@@ -318,7 +318,7 @@ Release date: 2026-02-20
 False Positives Fixed
 ---------------------
 
-- Fix possibly-used-before-assignment false positive when using self.fail() in tests.
+- Fix :ref:`possibly-used-before-assignment <possibly-used-before-assignment>` false positive when using self.fail() in tests.
 
   Closes #10743 (`#10743 <https://github.com/pylint-dev/pylint/issues/10743>`_)
 
@@ -333,7 +333,7 @@ False Positives Fixed
 
   Closes #10790 (`#10790 <https://github.com/pylint-dev/pylint/issues/10790>`_)
 
-- Avoid emitting `unspecified-encoding` (W1514) when `py-version` is 3.15+.
+- Avoid emitting `unspecified-encoding` (:ref:`W1514 <unspecified-encoding>`) when `py-version` is 3.15+.
 
   Refs #10791 (`#10791 <https://github.com/pylint-dev/pylint/issues/10791>`_)
 
@@ -683,7 +683,7 @@ False Negatives Fixed
 
   Closes #9770 (`#9770 <https://github.com/pylint-dev/pylint/issues/9770>`_)
 
-- Fix false negative where function-redefined (E0102) was not reported for functions with a leading underscore.
+- Fix false negative where :ref:`function-redefined <function-redefined>` was not reported for functions with a leading underscore.
 
   Closes #9894 (`#9894 <https://github.com/pylint-dev/pylint/issues/9894>`_)
 
@@ -725,7 +725,7 @@ Other Bug Fixes
 
   Closes #8736. (`#8736 <https://github.com/pylint-dev/pylint/issues/8736>`_)
 
-- Fixed unidiomatic-typecheck only checking left-hand side.
+- Fixed :ref:`unidiomatic-typecheck <unidiomatic-typecheck>` only checking left-hand side.
 
   Closes #10217 (`#10217 <https://github.com/pylint-dev/pylint/issues/10217>`_)
 

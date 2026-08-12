@@ -326,7 +326,7 @@ Release date: 2019-09-24
   This check is emitted when ``pylint`` finds a class variable that conflicts with a slot
   name, which would raise a ``ValueError`` at runtime.
 
-* Added new check: :ref:`dict-iter-missing-items` (E1141)
+* Added new check: :ref:`dict-iter-missing-items <dict-iter-missing-items>`
 
   Closes #2761
 
@@ -340,7 +340,7 @@ Release date: 2019-09-24
 
   Closes #2816
 
-* C0412 (ungrouped-import) is now compatible with isort.
+* :ref:`C0412 <ungrouped-imports>` (ungrouped-import) is now compatible with isort.
 
   Closes #2806
 
@@ -378,7 +378,7 @@ Release date: 2019-09-24
 
   Closes #2581
 
-* Changed description of W0199 to use the term 2-item-tuple instead of 2-uple.
+* Changed description of :ref:`W0199 <assert-on-tuple>` to use the term 2-item-tuple instead of 2-uple.
 
 * Allow a ``.`` as a prefix for Sphinx name resolution.
 

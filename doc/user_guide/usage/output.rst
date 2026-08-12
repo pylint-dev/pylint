@@ -55,9 +55,9 @@ obj
 msg
     text of the message
 msg_id
-    the message code (eg. I0011)
+    the message code (eg. :ref:`I0011 <locally-disabled>`)
 symbol
-    symbolic name of the message (eg. locally-disabled)
+    symbolic name of the message (eg. :ref:`locally-disabled <locally-disabled>`)
 C
     one letter indication of the message category
 category

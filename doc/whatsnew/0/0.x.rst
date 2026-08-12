@@ -4,13 +4,13 @@ Release date: 2013-04-25
 
 * bitbucket #1: fix "dictionary changed size during iteration" crash
 
-* #74013: new E1310[bad-str-strip-call] message warning when a call to a
+* #74013: new :ref:`bad-str-strip-call <bad-str-strip-call>` message warning when a call to a
   {l,r,}strip method contains duplicate characters (patch by Torsten Marek)
 
-* #123233: new E0108[duplicate-argument-name] message reporting duplicate
+* #123233: new :ref:`duplicate-argument-name <duplicate-argument-name>` message reporting duplicate
   argument names
 
-* #81378: emit W0120[useless-else-on-loop] for loops without break
+* #81378: emit :ref:`useless-else-on-loop <useless-else-on-loop>` for loops without break
 
 * #124660: internal dependencies should not appear in external dependencies
   report
@@ -21,7 +21,7 @@ Release date: 2013-04-25
 * #123285: apply pragmas for warnings attached to lines to physical source
   code lines
 
-* #123259: do not emit E0105 for yield expressions inside lambdas
+* #123259: do not emit :ref:`E0105 <yield-outside-function>` for yield expressions inside lambdas
 
 * #123892: don't crash when attempting to show source code line that can't
   be encoded with the current locale settings
@@ -42,10 +42,10 @@ Release date: 2013-02-26
   'disable-all' inline directive in favour of 'skip-file' (patch by
   A.Fayolle)
 
-* #110840: add messages I0020 and I0021 for reporting of suppressed
+* #110840: add messages :ref:`I0020 <suppressed-message>` and :ref:`I0021 <useless-suppression>` for reporting of suppressed
   messages and useless suppression pragmas. (patch by Torsten Marek)
 
-* #112728: add warning E0604 for non-string objects in __all__
+* #112728: add warning :ref:`E0604 <invalid-all-object>` for non-string objects in __all__
   (patch by Torsten Marek)
 
 * #120657: add warning W0110/deprecated-lambda when a map/filter
@@ -59,7 +59,7 @@ Release date: 2013-02-26
 
 * #110839: bind <F5> to Run button in pylint-gui
 
-* #115580: fix erroneous W0212 (access to protected member) on super call
+* #115580: fix erroneous :ref:`W0212 <protected-access>` (access to protected member) on super call
   (patch by Martin Pool)
 
 * #110853: fix a crash when an __init__ method in a base class has been
@@ -82,7 +82,7 @@ Release date: 2013-02-26
 
 * #120635: redefine cmp function used in pylint.reporters
 
-* Include full warning id for I0020 and I0021 and make sure to flush
+* Include full warning id for :ref:`I0020 <suppressed-message>` and :ref:`I0021 <useless-suppression>` and make sure to flush
   warnings after each module, not at the end of the pylint run.
   (patch by Torsten Marek)
 
@@ -104,26 +104,26 @@ Release date: 2012-10-05
   and 'symilar' command line tool (patch by Ry4an Brase)
 
 * #104571: check for anomalous backslash escape, introducing new
-  W1401 and W1402 messages (patch by Martin Pool)
+  :ref:`W1401 <anomalous-backslash-in-string>` and :ref:`W1402 <anomalous-unicode-escape-in-string>` messages (patch by Martin Pool)
 
 * #100707: check for boolop being used as exception class, introducing
-  new W0711 message (patch by Tim Hatch)
+  new :ref:`W0711 <binary-op-exception>` message (patch by Tim Hatch)
 
 * #4014: improve checking of metaclass methods first args, introducing
-  new C0204 message (patch by lothiraldan@gmail.com finalized by sthenault)
+  new :ref:`C0204 <bad-mcs-classmethod-argument>` message (patch by lothiraldan@gmail.com finalized by sthenault)
 
 * #4685: check for consistency of a module's __all__ variable,
-  introducing new E0603 message
+  introducing new :ref:`E0603 <undefined-all-variable>` message
 
 * #105337: allow custom reporter in output-format (patch by Kevin Jing Qiu)
 
-* #104420: check for protocol completeness and avoid false R0903
+* #104420: check for protocol completeness and avoid false :ref:`R0903 <too-few-public-methods>`
   (patch by Peter Hammond)
 
 * #100654: fix grammatical error for W0332 message (using 'l' as
   long int identifier)
 
-* #103656: fix W0231 false positive for missing call to object.__init__
+* #103656: fix :ref:`W0231 <super-init-not-called>` false positive for missing call to object.__init__
   (patch by lothiraldan@gmail.com)
 
 * #63424: fix similarity report disabling by properly renaming it to RP0801
@@ -145,19 +145,19 @@ Release date: 2012-07-17
   except handler contains a tuple of names instead of a single name.
   (patch by tmarek@google.com)
 
-* #7394: W0212 (access to protected member) not emitted on assignments
+* #7394: :ref:`W0212 <protected-access>` (access to protected member) not emitted on assignments
   (patch by lothiraldan@gmail.com)
 
 * #18772; no prototype consistency check for mangled methods (patch by
   lothiraldan@gmail.com)
 
-* #92911: emit W0102 when sets are used as default arguments in functions
+* #92911: emit :ref:`W0102 <dangerous-default-value>` when sets are used as default arguments in functions
   (patch by tmarek@google.com)
 
-* #77982: do not emit E0602 for loop variables of comprehensions
+* #77982: do not emit :ref:`E0602 <undefined-variable>` for loop variables of comprehensions
   used as argument values inside a decorator (patch by tmarek@google.com)
 
-* #89092: don't emit E0202 (attribute hiding a method) on @property methods
+* #89092: don't emit :ref:`E0202 <method-hidden>` (attribute hiding a method) on @property methods
 
 * #92584: fix pylint-gui crash due to internal API change
 
@@ -177,13 +177,13 @@ Release date: 2011-12-08
 * #81078: Warn if names in  exception handlers clobber overwrite
   existing names (patch by tmarek@google.com)
 
-* #81113: Fix W0702 messages appearing with the wrong line number.
+* #81113: Fix :ref:`W0702 <bare-except>` messages appearing with the wrong line number.
   (patch by tmarek@google.com)
 
 * #50461, #52020, #51222: Do not issue warnings when using 2.6's
   property.setter/deleter functionality (patch by dneil@google.com)
 
-* #9188, #4024: Do not trigger W0631 if a loop variable is assigned
+* #9188, #4024: Do not trigger :ref:`W0631 <undefined-loop-variable>` if a loop variable is assigned
   in the else branch of a for loop.
 
 
@@ -205,7 +205,7 @@ Release date: 2011-10-7
 
 * #76920: crash if on e.g. "pylint --rcfile" (patch by Torsten Marek)
 
-* #77237: warning for E0202 may be very misleading
+* #77237: warning for :ref:`E0202 <method-hidden>` may be very misleading
 
 * #73941: HTML report messages table is badly rendered
 
@@ -246,13 +246,13 @@ Release date: 2011-01-11
 
 * finalize python3 support
 
-* new W0106 warning 'Expression "%s" is assigned to nothing'
+* new :ref:`W0106 <expression-not-assigned>` warning 'Expression "%s" is assigned to nothing'
 
 * drop E0501 and E0502 messages about wrong source encoding: not anymore
   interesting since it's a syntax error for python >= 2.5 and we now only
   support this python version and above.
 
-* don't emit W0221 or W0222 when methods as variable arguments (e.g. \*arg
+* don't emit :ref:`W0221 <arguments-differ>` or :ref:`W0222 <signature-differs>` when methods as variable arguments (e.g. \*arg
   and/or \*\*args). Patch submitted by Charles Duffy.
 
 
@@ -323,7 +323,7 @@ Release date: 2010-05-11
 
 * fix #21591: html reporter produces no output if reports is set to 'no'
 
-* fix #4581: not Missing docstring (C0111) warning if a method is overridden
+* fix #4581: not Missing docstring (:ref:`C0111 <missing-docstring>`) warning if a method is overridden
 
 * fix #4683: Non-ASCII characters count double if utf8 encode
 
@@ -346,9 +346,9 @@ Release date: 2010-03-01
 * fix #19339: pylint.el : non existing py-mod-map
   (closes Debian Bug report logs - #475939)
 
-* implement #18860, new W0199 message on assert (a, b)
+* implement #18860, new :ref:`W0199 <assert-on-tuple>` message on assert (a, b)
 
-* implement #9776, 'W0150' break or return statement in finally block may
+* implement #9776, ':ref:`W0150 <lost-exception>`' break or return statement in finally block may
   swallow exception.
 
 * fix #9263, __init__ and __new__ are checked for unused arguments
@@ -357,13 +357,13 @@ Release date: 2010-03-01
 
 * fix #5975, Abstract intermediate class not recognized as such
 
-* fix #5977, yield and return statement have their own counters, no more R0911
+* fix #5977, yield and return statement have their own counters, no more :ref:`R0911 <too-many-return-statements>`
   (Too many return statements) when a function have many yield stamtements
 
 * implement #5564, function / method arguments with leading "_" are ignored in
   arguments / local variables count.
 
-* implement #9982, E0711 specific error message when raising NotImplemented
+* implement #9982, :ref:`E0711 <notimplemented-raised>` specific error message when raising NotImplemented
 
 * remove --cache-size option
 
@@ -388,7 +388,7 @@ Release date: 2009-12-18
 
 * refactor and fix the imports checker
 
-* fix #18862: E0601 false positive with lambda functions
+* fix #18862: :ref:`E0601 <used-before-assignment>` false positive with lambda functions
 
 * fix #8764: More than one statement on a single line false positive with
   try/except/finally
@@ -408,20 +408,20 @@ Release date: 2009-03-25
 
 * tests ok with python 2.4, 2.5, 2.6. 2.3 not tested
 
-* fix #8687, W0613 false positive on inner function
+* fix #8687, :ref:`W0613 <unused-argument>` false positive on inner function
 
-* fix #8350, C0322 false positive on multi-line string
+* fix #8350, :ref:`C0322 <no-space-before-operator>` false positive on multi-line string
 
 * fix #8332: set E0501 line no to the first line where non ascii character
   has been found
 
-* avoid some E0203 / E0602 false negatives by detecting respectively
+* avoid some :ref:`E0203 <access-member-before-definition>` / :ref:`E0602 <undefined-variable>` false negatives by detecting respectively
   AttributeError / NameError
 
-* implements #4037: don't issue W0142 (* or ** magic) when they are barely
+* implements #4037: don't issue :ref:`W0142 <star-args>` (* or ** magic) when they are barely
   passed from */** arguments
 
-* complete #5573: more complete list of special methods, also skip W0613
+* complete #5573: more complete list of special methods, also skip :ref:`W0613 <unused-argument>`
   for python internal method
 
 * don't show information messages by default
@@ -433,7 +433,7 @@ What's New in Pylint 0.17.0?
 ============================
 Release date: 2009-03-19
 
-* semicolon check : move W0601 to W0301
+* semicolon check : move :ref:`W0601 <global-variable-undefined>` to :ref:`W0301 <unnecessary-semicolon>`
 
 * remove rpython : remove all rpython checker, modules and tests
 
@@ -452,18 +452,18 @@ Release date: 2009-01-28
 
 * setuptools/easy_install support
 
-* include a modified version of Maarten ter Huurne patch to avoid W0613
+* include a modified version of Maarten ter Huurne patch to avoid :ref:`W0613 <unused-argument>`
   warning on arguments from overridden method
 
 * implement #5575  drop dumb W0704 message) by adding W0704 to ignored
   messages by default
 
-* new W0108 message, checking for suspicious lambda (provided by  Nathaniel
+* new :ref:`W0108 <unnecessary-lambda>` message, checking for suspicious lambda (provided by  Nathaniel
   Manista)
 
-* fix W0631, false positive reported by Paul Hachmann
+* fix :ref:`W0631 <undefined-loop-variable>`, false positive reported by Paul Hachmann
 
-* fix #6951: false positive with W0104
+* fix #6951: false positive with :ref:`W0104 <pointless-statement>`
 
 * fix #6949
 
@@ -481,7 +481,7 @@ What's New in Pylint 0.15.2?
 ============================
 Release date: 2008-10-13
 
-* fix #5672: W0706 weirdness ( W0706 removed )
+* fix #5672: :ref:`W0706 <try-except-raise>` weirdness (removed)
 
 * fix #5998: documentation points to wrong url for mailing list
 
@@ -532,10 +532,10 @@ Release date: 2008-01-14
 
 * fix a bug in colorized reporter, spotted by Dave Borowitz
 
-* applied patch from Stefan Rank to avoid W0410 false positive when
+* applied patch from Stefan Rank to avoid :ref:`W0410 <misplaced-future>` false positive when
   multiple "from __future__" import statements
 
-* implement #4012: flag back tick as deprecated (new W0333 message)
+* implement #4012: flag back tick as deprecated (new :ref:`W0333 <old-backtick>` message)
 
 * new ignored-class option on typecheck checker allowing to skip members
   checking based on class name (patch provided by Thomas W Barr)
@@ -568,18 +568,18 @@ Release date: 2007-02-28
   translator of the PyPy project. For more information about PyPy or
   RPython, visit https://www.pypy.org, previously codespeak.net/pypy/
 
-* new E0104 and E0105 messages introduced to respectively warn about
+* new :ref:`E0104 <return-outside-function>` and :ref:`E0105 <yield-outside-function>` messages introduced to respectively warn about
   "return" and "yield" outside function or method
 
-* new E0106 message when "yield" and "return something" are mixed in a
+* new :ref:`E0106 <return-arg-in-generator>` message when "yield" and "return something" are mixed in a
   function or method
 
-* new W0107 message for unnecessary pass statement
+* new :ref:`W0107 <unnecessary-pass>` message for unnecessary pass statement
 
-* new W0614 message to differentiate between unused ``import X`` and
+* new :ref:`W0614 <unused-wildcard-import>` message to differentiate between unused ``import X`` and
   unused `from X import *` (#3209, patch submitted by Daniel Drake)
 
-* included Daniel Drake's patch to have a different message E1003 instead of
+* included Daniel Drake's patch to have a different message :ref:`E1003 <bad-super-call>` instead of
   E1001 when a missing member is found but an inference failure has been
   detected
 
@@ -597,9 +597,9 @@ Release date: 2007-02-28
 
 * fix #3205: W0704 false positive
 
-* fix #3123: W0212 false positive on static method
+* fix #3123: :ref:`W0212 <protected-access>` false positive on static method
 
-* fix #2485: W0222 false positive
+* fix #2485: :ref:`W0222 <signature-differs>` false positive
 
 * fix #3259: when a message is explicitly enabled, check the checker
   emitting it is enabled
@@ -609,19 +609,19 @@ What's New in Pylint 0.12.2?
 ============================
 Release date: 2006-11-23
 
-* fix #3143: W0233 bug w/ YES objects
+* fix #3143: :ref:`W0233 <non-parent-init-called>` bug w/ YES objects
 
 * fix #3119: Off-by-one error counting lines in a file
 
 * fix #3117: ease sys.stdout overriding for reporters
 
-* fix #2508: E0601 false positive with lambda
+* fix #2508: :ref:`E0601 <used-before-assignment>` false positive with lambda
 
-* fix #3125: E1101 false positive and a message duplication. Only the last part
+* fix #3125: :ref:`E1101 <no-member>` false positive and a message duplication. Only the last part
   is actually fixed since the initial false positive is due to dynamic setting of
   attributes on the decimal.Context class.
 
-* fix #3149: E0101 false positives and introduced E0100 for generator __init__
+* fix #3149: :ref:`E0101 <return-in-init>` false positives and introduced :ref:`E0100 <init-is-generator>` for generator __init__
   methods
 
 * fixed some format checker false positives
@@ -657,15 +657,15 @@ Release date: 2006-08-10
 
 * started a reference user manual
 
-* new W0212 message for access to protected member from client code
+* new :ref:`W0212 <protected-access>` message for access to protected member from client code
   (Closes #14081)
 
-* new W0105 and W0106 messages extracted from W0104 (statement seems
+* new :ref:`W0105 <pointless-string-statement>` and :ref:`W0106 <expression-not-assigned>` messages extracted from :ref:`W0104 <pointless-statement>` (statement seems
   to have no effect) respectively when the statement is actually string
   (that's sometimes used instead of comments for documentation) or an
   empty  statement generated by a useless semicolon
 
-* reclassified W0302 to C0302
+* reclassified W0302 to :ref:`C0302 <too-many-lines>`
 
 * fix so that global messages are not anymore connected to the last
   analyzed module (Closes #10106)
@@ -681,7 +681,7 @@ Release date: 2006-04-19
 
 * fix crash caused by the exceptions checker in some case
 
-* fix some E1101 false positive with abstract method or classes defining
+* fix some :ref:`E1101 <no-member>` false positive with abstract method or classes defining
   __getattr__
 
 * dirty fix to avoid "_socketobject" has not "connect" member. The actual
@@ -706,24 +706,24 @@ Release date: 2006-03-06
 * this release require the 0.15 version of astng or superior (it will save
   you a lot of pylint crashes...)
 
-* W0705 has been reclassified to E0701, and is now detecting more
+* :ref:`W0705 <duplicate-except>` has been reclassified to :ref:`E0701 <bad-except-order>`, and is now detecting more
   inheriting problem, and a false positive when empty except clause is
   following an Exception catch has been fixed (Closes #10422)
 
 * E0212 and E0214 (metaclass/class method should have mcs/cls as first
-  argument have been reclassified to C0202 and C0203 since this not as
-  well established as "self" for instance method (E0213)
+  argument have been reclassified to :ref:`C0202 <bad-classmethod-argument>` and :ref:`C0203 <bad-mcs-method-argument>` since this not as
+  well established as "self" for instance method (:ref:`E0213 <no-self-argument>`)
 
 * W0224 has been reclassified into F0220 (failed to resolve interfaces
   implemented by a class)
 
 * a new typecheck checker, introducing the following checks:
 
-    - E1101, access to nonexistent member (implements #10430), remove
+    - :ref:`E1101 <no-member>`, access to nonexistent member (implements #10430), remove
       the need of E0201 and so some options has been moved from the
       classes checker to this one
-    - E1102, calling a non callable object
-    - E1111 and W1111 when an assignment is done on a function call but the
+    - :ref:`E1102 <not-callable>`, calling a non callable object
+    - :ref:`E1111 <assignment-from-no-return>` and :ref:`W1111 <old-assignment-from-none>` when an assignment is done on a function call but the
       inferred function returns None (implements #10431)
 
 * change in the base checker:
@@ -736,22 +736,22 @@ Release date: 2006-03-06
       #9146)
     - the C0101 check with its min-name-length option has
       been removed (this can be specified in the regxp after all...)
-    - W0103 and W0121 are now handled by the variables checker
-      (W0103 is now W0603 and W0604 has been split into different messages)
-    - W0131 and W0132 messages  have been reclassified to C0111 and
-      C0112 respectively
-    - new W0104 message on statement without effect
+    - W0103 and :ref:`W0121 <old-old-raise-syntax>` are now handled by the variables checker
+      (W0103 is now :ref:`W0603 <global-statement>` and :ref:`W0604 <global-at-module-level>` has been split into different messages)
+    - :ref:`W0131 <named-expr-without-context>` and :ref:`W0132 <old-empty-docstring>` messages  have been reclassified to :ref:`C0111 <missing-docstring>` and
+      :ref:`C0112 <empty-docstring>` respectively
+    - new :ref:`W0104 <pointless-statement>` message on statement without effect
 
 * regexp support for dummy-variables (dummy-variables-rgx option
   replace dummy-variables) (implements #10027)
 
-* better global statement handling, see W0602, W0603, W0604 messages
+* better global statement handling, see :ref:`W0602 <global-variable-not-assigned>`, :ref:`W0603 <global-statement>`, :ref:`W0604 <global-at-module-level>` messages
   (implements #10344 and #10236)
 
 * --debug-mode option, disabling all checkers without error message
   and filtering others to only display error
 
-* fixed some R0201 (method could be a function) false positive
+* fixed some :ref:`R0201 <old-no-self-use>` (method could be a function) false positive
 
 
 What's New in Pylint 0.9.0?
@@ -773,13 +773,13 @@ Release date: 2006-01-10
   before using the one specified in the PYLINTRC environment variable
   or the default ~/.pylintrc or /etc/pylintrc
 
-* fixed W0706 (Identifier used to raise an exception is assigned...)
+* fixed :ref:`W0706 <try-except-raise>` (Identifier used to raise an exception is assigned...)
   false positive and reraising a caught exception instance
 
-* fixed E0611 (No name get in module blabla) false positive when accessing
+* fixed :ref:`E0611 <no-name-in-module>` (No name get in module blabla) false positive when accessing
   to a class'__dict__
 
-* fixed some E0203 ("access to member before its definition") false
+* fixed some :ref:`E0203 <access-member-before-definition>` ("access to member before its definition") false
   positive
 
 * fixed E0214 ("metaclass method first argument should be mcs) false
@@ -787,11 +787,11 @@ Release date: 2006-01-10
 
 * fixed packaging which was missing the test/regrtest_data directory
 
-* W0212 (method could be a function) has been reclassified in the
-  REFACTOR category as R0201, and is no more considerer when a method
+* :ref:`W0212 <protected-access>` (method could be a function) has been reclassified in the
+  REFACTOR category as :ref:`R0201 <old-no-self-use>`, and is no more considerer when a method
   overrides an abstract method from an ancestor class
 
-* include module name in W0401 (wildcard import), as suggested by
+* include module name in :ref:`W0401 <wildcard-import>` (wildcard import), as suggested by
   Amaury
 
 * when using the '--parseable', path are written relative to the
@@ -825,10 +825,10 @@ What's New in Pylint 0.8.0?
 ============================
 Release date: 2005-10-21
 
-* check names imported from a module exists in the module (E0611),
+* check names imported from a module exists in the module (:ref:`E0611 <no-name-in-module>`),
   patch contributed by Amaury Forgeot d'Arc
 
-* print a warning (W0212) for methods that could be a function
+* print a warning (:ref:`W0212 <protected-access>`) for methods that could be a function
   (implements #9100)
 
 * new --defining-attr-methods option on classes checker
@@ -837,7 +837,7 @@ Release date: 2005-10-21
   --zope=yes to avoid false positive on acquired attributes (listed
   using this new option) (Closes #8616)
 
-* generate one E0602 for each use of an undefined variable
+* generate one :ref:`E0602 <undefined-variable>` for each use of an undefined variable
   (previously, only one for the first use but not for the following)
   (implements #1000)
 
@@ -845,7 +845,7 @@ Release date: 2005-10-21
 
 * fix Windows .bat file,  patch contributed by Amaury Forgeot d'Arc
 
-* fix one more false positive for E0601 (access before definition)
+* fix one more false positive for :ref:`E0601 <used-before-assignment>` (access before definition)
   with for loop such as "for i in range(10): print i" (test
   func_noerror_defined_and_used_on_same_line)
 
@@ -883,7 +883,7 @@ Release date: 2005-05-27
 
 * fix bug with --list-messages and python -OO
 
-* fix possible false positive for W0201
+* fix possible false positive for :ref:`W0201 <attribute-defined-outside-init>`
 
 
 What's New in Pylint 0.6.4?
@@ -896,7 +896,7 @@ Release date: 2005-04-14
 * don't fail if we are unable to read an inline option  (e.g. inside a
   module), just produce an information message (test func_i0010)
 
-* new message E0103 for break or continue outside loop (Closes #8883,
+* new message :ref:`E0103 <not-in-loop>` for break or continue outside loop (Closes #8883,
   test func_continue_not_in_loop)
 
 * fix bug in the variables checker, causing non detection of some
@@ -921,7 +921,7 @@ What's New in Pylint 0.6.3?
 Release date: 2005-02-24
 
 * fix scope problem which may cause false positive and true negative
-  on E0602
+  on :ref:`E0602 <undefined-variable>`
 
 * fix problem with some options such as disable-msg causing error when
   they are coming from the configuration file
@@ -934,10 +934,10 @@ Release date: 2005-02-16
 * fix false positive on E0201 ("access to undefined member") with
   metaclasses
 
-* fix false positive on E0203 ("access to member before its
+* fix false positive on :ref:`E0203 <access-member-before-definition>` ("access to member before its
   definition") when attributes are defined in a parent class
 
-* fix false positive on W0706 ("identifier used to raise an exception
+* fix false positive on :ref:`W0706 <try-except-raise>` ("identifier used to raise an exception
   assigned to...")
 
 * fix interpretation of ``\t`` as value for the indent-string
@@ -974,7 +974,7 @@ Release date: 2005-01-20
 * fix a bug which may cause crashes on resolving parent classes
 
 * fix problems with the format checker: don't chock on files
-  containing multiple CR, avoid C0322, C0323, C0324 false positives
+  containing multiple CR, avoid :ref:`C0322 <no-space-before-operator>`, :ref:`C0323 <no-space-after-operator>`, :ref:`C0324 <no-space-after-comma>` false positives
   with triple quoted string with quote inside
 
 * correctly detect access to member defined latter in __init__ method
@@ -1158,7 +1158,7 @@ Release date: 2003-11-20
 
 * read disable-msg and enable-msg options in source files (should be
   in comments on the top of the file, in the form
-  "# pylint: disable-msg=W0402"
+  "# pylint: disable-msg=:ref:`W0402 <old-deprecated-module>`"
 
 * new message for modules importing themselves instead of the "cyclic
   import" message

@@ -79,7 +79,7 @@ New checkers
 Removed checkers
 ================
 
-* The ``no-init`` (W0232) warning has been removed. It's ok to not have an ``__init__`` in a class.
+* The ``no-init`` (:ref:`W0232 <no-init>`) warning has been removed. It's ok to not have an ``__init__`` in a class.
 
   Closes #2409
 

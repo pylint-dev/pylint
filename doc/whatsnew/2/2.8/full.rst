@@ -52,7 +52,7 @@ Release date: 2021-04-24
 
   Closes #4252
 
-* Add new extension ``ConfusingConsecutiveElifChecker``. This optional checker emits a refactoring message (R5601 ``confusing-consecutive-elif``)
+* Add new extension ``ConfusingConsecutiveElifChecker``. This optional checker emits a refactoring message (:ref:`R5601 <confusing-consecutive-elif>` ``confusing-consecutive-elif``)
   if if/elif statements with different indentation levels follow directly one after the other.
 
 * New option ``--output=<file>`` to output result to a file rather than printing to stdout.

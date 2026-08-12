@@ -55,7 +55,7 @@ Release date: 2021-08-20
   Closes #4775
 
 * Added ``ignored-parents`` option to the design checker to ignore specific
-  classes from the ``too-many-ancestors`` check (R0901).
+  classes from the ``too-many-ancestors`` check (:ref:`R0901 <too-many-ancestors>`).
 
   Fixes part of #3057
 

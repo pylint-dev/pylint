@@ -25,7 +25,7 @@ New checkers
 
 * Add ``deprecated-argument`` check for deprecated arguments.
 
-* Add new extension ``ConfusingConsecutiveElifChecker``. This optional checker emits a refactoring message (R5601 ``confusing-consecutive-elif``)
+* Add new extension ``ConfusingConsecutiveElifChecker``. This optional checker emits a refactoring message (:ref:`R5601 <confusing-consecutive-elif>` ``confusing-consecutive-elif``)
   if if/elif statements with different indentation levels follow directly one after the other.
 
 * Add ``consider-using-min-max-builtin`` check for if statement which could be replaced by Python builtin min or max.

@@ -45,7 +45,7 @@ Release date: 2021-07-20
 
   Closes #4687
 
-* Fix false-positive ``consider-using-with`` (R1732) if a ternary conditional is used together with ``with``
+* Fix false-positive ``consider-using-with`` (:ref:`R1732 <consider-using-with>`) if a ternary conditional is used together with ``with``
 
   Closes #4676
 
@@ -53,7 +53,7 @@ Release date: 2021-07-20
 
   Closes #4629
 
-* Fix false-positive ``consider-using-with`` (R1732) if ``contextlib.ExitStack`` takes care of calling the ``__exit__`` method
+* Fix false-positive ``consider-using-with`` (:ref:`R1732 <consider-using-with>`) if ``contextlib.ExitStack`` takes care of calling the ``__exit__`` method
 
   Closes #4654
 
