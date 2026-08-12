@@ -5,11 +5,11 @@ What's New in Pylint 2.2.2?
 ---------------------------
 Release date: 2018-11-28
 
-* Change the ``logging-format-style`` to use name identifier instead of their
+* Change the :ref:`logging-format-style <logging-format-style-option>` to use name identifier instead of their
   corresponding Python identifiers
 
   This is to prevent users having to think about escaping the default value for
-  ``logging-format-style`` in the generated config file. Also our config parsing
+  :ref:`logging-format-style <logging-format-style-option>` in the generated config file. Also our config parsing
   utilities don't quite support escaped values when it comes to ``choices`` detection,
   so this would have needed various hacks around that.
 
@@ -192,7 +192,7 @@ Release date: 2018-11-25
 
 * Add new option to logging checker, ``logging_format_style``
 
-* Fix --ignore-imports to understand multi-line imports
+* Fix :ref:`--ignore-imports <ignore-imports-option>` to understand multi-line imports
 
   Closes #1422
   Closes #2019

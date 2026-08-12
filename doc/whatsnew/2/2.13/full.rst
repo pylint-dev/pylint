@@ -90,12 +90,12 @@ Release date: 2022-04-20
   Closes #5406
 
 * Fixed a false positive for ``unused-variable`` when a builtin specified in
-  ``--additional-builtins`` is given a type annotation.
+  :ref:`--additional-builtins <additional-builtins-option>` is given a type annotation.
 
   Closes #6388
 
 * Fixed an ``AstroidError`` in 2.13.0 raised by the ``duplicate-code`` checker with
-  ``ignore-imports`` or ``ignore-signatures`` enabled.
+  :ref:`ignore-imports <ignore-imports-option>` or :ref:`ignore-signatures <ignore-signatures-option>` enabled.
 
   Closes #6301
 
@@ -261,7 +261,7 @@ Release date: 2022-03-24
 
 * Fix pyreverse diagrams type hinting for methods returning None.
 
-* Fix matching ``--notes`` options that end in a non-word character.
+* Fix matching :ref:`--notes <notes-option>` options that end in a non-word character.
 
   Closes #5840
 
@@ -282,7 +282,7 @@ Release date: 2022-03-24
 * The line numbering for messages related to function arguments is now more accurate. This can
   require some message disables to be relocated to updated positions.
 
-* Add ``--recursive`` option to allow recursive discovery of all modules and packages in subtree. Running pylint with
+* Add :ref:`--recursive <recursive-option>` option to allow recursive discovery of all modules and packages in subtree. Running pylint with
   ``--recursive=y`` option will check all discovered ``.py`` files and packages found inside subtree of directory provided
   as parameter to pylint.
 
@@ -524,7 +524,7 @@ Release date: 2022-03-24
 * By default, pylint does no longer take files starting with ``.#`` into account. Those are
   considered ``Emacs file locks``. See
   https://www.gnu.org/software/emacs/manual/html_node/elisp/File-Locks.html.
-  This behavior can be reverted by redefining the ``ignore-patterns`` option.
+  This behavior can be reverted by redefining the :ref:`ignore-patterns <ignore-patterns-option>` option.
 
   Closes #367
 
@@ -706,11 +706,11 @@ Release date: 2022-03-24
 * ``TypingChecker``
 
   * Added new check ``broken-noreturn`` to detect broken uses of ``typing.NoReturn``
-    if ``py-version`` is set to Python ``3.7.1`` or below.
+    if :ref:`py-version <py-version-option>` is set to Python ``3.7.1`` or below.
     https://bugs.python.org/issue34921
 
   * Added new check ``broken-collections-callable`` to detect broken uses of ``collections.abc.Callable``
-    if ``py-version`` is set to Python ``3.9.1`` or below.
+    if :ref:`py-version <py-version-option>` is set to Python ``3.9.1`` or below.
     https://bugs.python.org/issue42965
 
 * The ``testutils`` for unittests now accept ``end_lineno`` and ``end_column``. Tests
@@ -759,7 +759,7 @@ Release date: 2022-03-24
   Closes #214
 
 * Improve ``invalid-name`` check for ``TypeVar`` names.
-  The accepted pattern can be customized with ``--typevar-rgx``.
+  The accepted pattern can be customized with :ref:`--typevar-rgx <typevar-rgx-option>`.
 
   Closes #3401
 

@@ -57,7 +57,7 @@ What's New in Pylint 2.4.2?
 Release date: 2019-09-30
 
 
-* ``ignored-modules`` can skip submodules.
+* :ref:`ignored-modules <ignored-modules-option>` can skip submodules.
 
   Closes #3135
 
@@ -301,7 +301,7 @@ Release date: 2019-09-24
 * Add ``preferred-module`` checker that notify if an import has a replacement module that should be used.
 
   This check is emitted when ``pylint`` finds an imported module that has a
-  preferred replacement listed in ``preferred-modules``.
+  preferred replacement listed in :ref:`preferred-modules <preferred-modules-option>`.
 
 * ``assigning-non-slot`` not emitted for classes with unknown base classes.
 
@@ -348,7 +348,7 @@ Release date: 2019-09-24
 
   Closes #2877
 
-* ``signature-mutators`` option was added.
+* :ref:`signature-mutators <signature-mutators-option>` option was added.
   With this option, users can choose to ignore ``too-many-function-args``, ``unexpected-keyword-arg``,
   and ``no-value-for-parameter`` for functions decorated with decorators that change
   the signature of a decorated function.
@@ -374,7 +374,7 @@ Release date: 2019-09-24
 
   Closes #2963
 
-* Added ``__post_init__`` to ``defining-attr-methods`` in order to avoid ``attribute-defined-outside-init`` in dataclasses.
+* Added ``__post_init__`` to :ref:`defining-attr-methods <defining-attr-methods-option>` in order to avoid ``attribute-defined-outside-init`` in dataclasses.
 
   Closes #2581
 

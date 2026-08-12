@@ -101,7 +101,7 @@ False Positives Fixed
 ---------------------
 
 - Fix a false positive for ``unused-variable`` when there is an import in a
-  ``if TYPE_CHECKING:`` block and ``allow-global-unused-variables`` is set to
+  ``if TYPE_CHECKING:`` block and :ref:`allow-global-unused-variables <allow-global-unused-variables-option>` is set to
   ``no`` in the configuration.
 
   Closes #8696 (`#8696 <https://github.com/pylint-dev/pylint/issues/8696>`_)
@@ -300,7 +300,7 @@ Release date: 2023-03-22
 False Positives Fixed
 ---------------------
 
-- Adds ``asyncSetUp`` to the default ``defining-attr-methods`` list to silence
+- Adds ``asyncSetUp`` to the default :ref:`defining-attr-methods <defining-attr-methods-option>` list to silence
   ``attribute-defined-outside-init`` warning when using
   ``unittest.IsolatedAsyncioTestCase``.
 
@@ -311,7 +311,7 @@ False Positives Fixed
 Other Bug Fixes
 ---------------
 
-- ``--clear-cache-post-run`` now also clears LRU caches for pylint utilities
+- :ref:`--clear-cache-post-run <clear-cache-post-run-option>` now also clears LRU caches for pylint utilities
   holding references to AST nodes.
 
   Closes #8361 (`#8361 <https://github.com/pylint-dev/pylint/issues/8361>`_)
@@ -320,7 +320,7 @@ Other Bug Fixes
 
   Closes #8434 (`#8434 <https://github.com/pylint-dev/pylint/issues/8434>`_)
 
-- Fix a regression of ``preferred-modules`` where a partial match was used
+- Fix a regression of :ref:`preferred-modules <preferred-modules-option>` where a partial match was used
   instead of the required full match.
 
   Closes #8453 (`#8453 <https://github.com/pylint-dev/pylint/issues/8453>`_)
@@ -362,7 +362,7 @@ New Features
   Closes #7081. (`#7081 <https://github.com/pylint-dev/pylint/issues/7081>`_)
 
 - Accept values of the form ``<class name>.<attribute name>`` for the
-  ``exclude-protected`` list.
+  :ref:`exclude-protected <exclude-protected-option>` list.
 
   Closes #7343 (`#7343 <https://github.com/pylint-dev/pylint/issues/7343>`_)
 
@@ -370,7 +370,7 @@ New Features
 
   Refs #7851 (`#7851 <https://github.com/pylint-dev/pylint/issues/7851>`_)
 
-- Adds new functionality with preferred-modules configuration to detect
+- Adds new functionality with :ref:`preferred-modules <preferred-modules-option>` configuration to detect
   submodules.
 
   Refs #7957 (`#7957 <https://github.com/pylint-dev/pylint/issues/7957>`_)
@@ -379,7 +379,7 @@ New Features
 
   Closes #8154 (`#8154 <https://github.com/pylint-dev/pylint/issues/8154>`_)
 
-- Add globbing pattern support for ``--source-roots``.
+- Add globbing pattern support for :ref:`--source-roots <source-roots-option>`.
 
   Closes #8290 (`#8290 <https://github.com/pylint-dev/pylint/issues/8290>`_)
 

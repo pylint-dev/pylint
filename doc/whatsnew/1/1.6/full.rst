@@ -61,14 +61,14 @@ Release date: 2016-07-03
 
 * :ref:`bad-builtin` is now an extension check.
 
-* generated-members support qualified name through regular expressions.
+* :ref:`generated-members <generated-members-option>` support qualified name through regular expressions.
 
   For instance, one can specify a regular expression as --generated-members=astroid.node_classes.*
   for ignoring every :ref:`no-member` error that is accessed as in ``astroid.node_classes.missing.object``.
 
-* Add the ability to ignore files based on regex matching, with the new ``--ignore-patterns``
+* Add the ability to ignore files based on regex matching, with the new :ref:`--ignore-patterns <ignore-patterns-option>`
   option. Allow for multiple ignore patterns to be specified. Rather than clobber the existing
-  ignore option, we introduced a new one called ignore-patterns.
+  ignore option, we introduced a new one called :ref:`ignore-patterns <ignore-patterns-option>`.
 
   Closes #156
 
@@ -77,7 +77,7 @@ Release date: 2016-07-03
 
   Closes #682
 
-* Add a new option, 'redefining-builtins-modules', for controlling the modules
+* Add a new option, ':ref:`redefining-builtins-modules <redefining-builtins-modules-option>`', for controlling the modules
   which can redefine builtins, such as six.moves and future.builtins.
 
   Closes #464

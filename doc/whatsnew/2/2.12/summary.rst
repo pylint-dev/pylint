@@ -4,7 +4,7 @@
 Summary -- Release highlights
 =============================
 
-In 2.12, we introduced a new option ``py-version`` that permits to analyse code for a python
+In 2.12, we introduced a new option :ref:`py-version <py-version-option>` that permits to analyse code for a python
 version that may differ from your current python interpreter. This does not affect all checkers but
 permits, for example, to check for python 3.5 code smells (using f-string's) while using pylint with python 3.6.
 The minimum version to run pylint is now 3.6.2, while the last working version for python 3.6.0
@@ -18,7 +18,7 @@ Lastly, in addition to the information we already had about start line and start
 we introduced new information about the end line and end column of messages. This
 will permit to have more precise visual clue in IDE like in pylint for vs-code. The default
 will stay the same to not break compatibility but it can be retrieved by adding ``end_line``
-and ``end_column`` to the ``--msg-template`` option. For better result stick to python 3.8+.
+and ``end_column`` to the :ref:`--msg-template <msg-template-option>` option. For better result stick to python 3.8+.
 
 The checker for Yoda conditions is now an extension, you might want to enable it if you were
 relying on this check. There's also a new extension checker, ``consider-using-any-or-all`` that
@@ -45,9 +45,9 @@ typing.final
   Closes #3197
 
 * Created new ``UnsupportedVersionChecker`` checker class that includes checks for features
-  not supported by all versions indicated by a ``py-version``.
+  not supported by all versions indicated by a :ref:`py-version <py-version-option>`.
 
-  * Added ``using-f-string-in-unsupported-version`` checker. Issued when ``py-version``
+  * Added ``using-f-string-in-unsupported-version`` checker. Issued when :ref:`py-version <py-version-option>`
     is set to a version that does not support f-strings (< 3.6)
 
 * Added new checker ``use-implicit-booleaness-not-comparison``: Emitted when
@@ -55,7 +55,7 @@ typing.final
 
   Closes #4774
 
-* Added ``using-final-decorator-in-unsupported-version`` checker. Issued when ``py-version``
+* Added ``using-final-decorator-in-unsupported-version`` checker. Issued when :ref:`py-version <py-version-option>`
   is set to a version that does not support typing.final (< 3.8)
 
 * Added new checker ``useless-with-lock`` to find incorrect usage of with statement and threading module locks.
@@ -87,7 +87,7 @@ Extensions
 
 * Moved ``misplaced-comparison-constant`` to its own extension ``comparison_placement``.
   This checker was opinionated and now no longer a default. It can be reactived by adding
-  ``pylint.extensions.comparison_placement`` to ``load-plugins`` in your config.
+  ``pylint.extensions.comparison_placement`` to :ref:`load-plugins <load-plugins-option>` in your config.
 
   Closes #1064
 
@@ -100,12 +100,12 @@ Other Changes
 
   Closes #5178
 
-* Added configuration option ``exclude-too-few-public-methods`` to allow excluding
-  classes from the ``min-public-methods`` checker.
+* Added configuration option :ref:`exclude-too-few-public-methods <exclude-too-few-public-methods-option>` to allow excluding
+  classes from the :ref:`min-public-methods <min-public-methods-option>` checker.
 
   Closes #3370
 
-* Fix ``accept-no-yields-doc`` and ``accept-no-return-doc`` not allowing missing ``yield`` or
+* Fix :ref:`accept-no-yields-doc <accept-no-yields-doc-option>` and :ref:`accept-no-return-doc <accept-no-return-doc-option>` not allowing missing ``yield`` or
   ``return`` documentation when a docstring is partially correct
 
   Closes #5223
@@ -180,9 +180,9 @@ Other Changes
 
   Closes #4426
 
-* Support configuring mixin class pattern via ``mixin-class-rgx``
+* Support configuring mixin class pattern via :ref:`mixin-class-rgx <mixin-class-rgx-option>`
 
-* Normalize the input to the ``ignore-paths`` option to allow both Posix and
+* Normalize the input to the :ref:`ignore-paths <ignore-paths-option>` option to allow both Posix and
   Windows paths
 
   Closes #5194
@@ -197,7 +197,7 @@ Other Changes
 
   Closes #5222
 
-* The ``--jobs`` parameter now falls back to 1 if the host operating system does not
+* The :ref:`--jobs <jobs-option>` parameter now falls back to 1 if the host operating system does not
   have functioning shared semaphore implementation.
 
   Closes #5216
@@ -234,7 +234,7 @@ Other Changes
 
   Fixes part of #5321
 
-* Add ability to add ``end_line`` and ``end_column`` to the ``--msg-template`` option.
+* Add ability to add ``end_line`` and ``end_column`` to the :ref:`--msg-template <msg-template-option>` option.
   With the standard ``TextReporter`` this will add the line and column number of the
   end of a node to the output of Pylint. If these numbers are unknown, they are represented
   by an empty string.

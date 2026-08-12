@@ -44,8 +44,8 @@ Other Changes
 
   Closes #1070
 
-* Reduce usage of blacklist/whitelist terminology. Notably, ``extension-pkg-allow-list`` is an
-  alternative to ``extension-pkg-whitelist`` and the message ``blacklisted-name`` is now emitted as
+* Reduce usage of blacklist/whitelist terminology. Notably, :ref:`extension-pkg-allow-list <extension-pkg-allow-list-option>` is an
+  alternative to :ref:`extension-pkg-whitelist <extension-pkg-whitelist-option>` and the message ``blacklisted-name`` is now emitted as
   ``disallowed-name``. The previous names are accepted to maintain backward compatibility.
 
 * The packaging is now done via setuptools exclusively. ``doc``, ``tests``, ``man``, ``elisp`` and ``Changelog`` are
