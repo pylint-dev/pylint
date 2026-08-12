@@ -55,7 +55,7 @@ obj
 msg
     text of the message
 msg_id
-    the message code (eg. :ref:`I0011 <locally-disabled>`)
+    the message code (eg. I0011)
 symbol
     symbolic name of the message (eg. :ref:`locally-disabled <locally-disabled>`)
 C

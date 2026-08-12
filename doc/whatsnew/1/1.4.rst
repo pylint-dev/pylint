@@ -52,12 +52,12 @@ Release date: 2015-03-11
 
   Closes #389
 
-* Add a new warning, ':ref:`unichr-builtin <unichr-builtin>`', emitted by the Python 3
+* Add a new warning, :ref:`unichr-builtin <unichr-builtin>`, emitted by the Python 3
   porting checker, when the unichr builtin is found.
 
   Closes #472
 
-* Add a new warning, ':ref:`intern-builtin <intern-builtin>`', emitted by the Python 3
+* Add a new warning, :ref:`intern-builtin <intern-builtin>`, emitted by the Python 3
   porting checker, when the intern builtin is found.
 
   Closes #473
@@ -67,9 +67,9 @@ Release date: 2015-03-11
 * The HTML output accepts the ``--msg-template`` option. Patch by
   Dan Goldsmith.
 
-* Add ':ref:`map-builtin-not-iterating <map-builtin-not-iterating>`' (replacing ':ref:`implicit-map-evaluation <implicit-map-evaluation>`'),
-  ':ref:`zip-builtin-not-iterating <zip-builtin-not-iterating>`', ':ref:`range-builtin-not-iterating <range-builtin-not-iterating>`', and
-  ':ref:`filter-builtin-not-iterating <filter-builtin-not-iterating>`' which are emitted by ``--py3k`` when the
+* Add :ref:`map-builtin-not-iterating <map-builtin-not-iterating>` (replacing :ref:`implicit-map-evaluation <implicit-map-evaluation>`),
+  :ref:`zip-builtin-not-iterating <zip-builtin-not-iterating>`, :ref:`range-builtin-not-iterating <range-builtin-not-iterating>`, and
+  :ref:`filter-builtin-not-iterating <filter-builtin-not-iterating>` which are emitted by ``--py3k`` when the
   appropriate built-in is not used in an iterating context (semantics
   taken from 2to3).
 
@@ -84,7 +84,7 @@ Release date: 2015-03-11
 
   Closes #467
 
-* Add a new warning for the Python 3 porting checker, ':ref:`using-cmp-argument <using-cmp-argument>`',
+* Add a new warning for the Python 3 porting checker, :ref:`using-cmp-argument <using-cmp-argument>`,
   emitted when the ``cmp`` argument for the ``list.sort`` or ``sorted builtin``
   is encountered.
 
@@ -270,7 +270,7 @@ Release date: 2014-11-23
 * Detect calls of the parent's __init__, through a binded super() call.
 
 * Check that a class has an explicitly defined metaclass before
-  emitting ':ref:`old-style-class <old-style-class>`' for Python 2.
+  emitting :ref:`old-style-class <old-style-class>` for Python 2.
 
 * Emit :ref:`catching-non-exception` for non-class nodes.
 
@@ -399,5 +399,5 @@ Release date: 2014-11-23
 * Add 'old-octal-literal' to Python 3 porting checker, emitted when
   encountering octals with the old syntax.
 
-* Add ':ref:`implicit-map-evaluation <implicit-map-evaluation>`' to Python 3 porting checker, emitted
+* Add :ref:`implicit-map-evaluation <implicit-map-evaluation>` to Python 3 porting checker, emitted
   when encountering the use of map builtin, without explicit evaluation.

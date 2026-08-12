@@ -1,4 +1,4 @@
-Fix a false positive for ``invalid-name`` (:ref:`C0103 <invalid-name>`) where the default
+Fix a false positive for :ref:`invalid-name <invalid-name>` where the default
 ``typevar-rgx`` rejected ``TypeVar`` names containing digits, such as
 ``Ec2T``.
 

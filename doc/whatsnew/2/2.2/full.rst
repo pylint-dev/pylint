@@ -64,7 +64,7 @@ Release date: 2018-11-25
 
   Closes #2522
 
-* Remove ``enumerate`` usage suggestion when defining ``__iter__`` (:ref:`C0200 <consider-using-enumerate>`)
+* Remove ``enumerate`` usage suggestion when defining ``__iter__`` (:ref:`consider-using-enumerate <consider-using-enumerate>`)
 
   Closes #2477
 
@@ -88,7 +88,7 @@ Release date: 2018-11-25
 
   Closes #2488
 
-* Remove wrong modules from ':ref:`bad-python3-import <bad-python3-import>`'.
+* Remove wrong modules from :ref:`bad-python3-import <bad-python3-import>`.
 
   Closes #2453
 
@@ -197,6 +197,6 @@ Release date: 2018-11-25
   Closes #1422
   Closes #2019
 
-* Add a new check ':ref:`implicit-str-concat-in-sequence <implicit-str-concat-in-sequence>`' to spot string concatenation inside lists, sets & tuples.
+* Add a new check :ref:`implicit-str-concat-in-sequence <implicit-str-concat-in-sequence>` to spot string concatenation inside lists, sets & tuples.
 
 * ``literal-comparison`` is now emitted for 0 and 1 literals.

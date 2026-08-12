@@ -34,7 +34,7 @@ False Positives Fixed
 
   Closes #10508 (`#10508 <https://github.com/pylint-dev/pylint/issues/10508>`_)
 
-- Fix false positive ``undefined-variable`` (:ref:`E0602 <undefined-variable>`) for for-loop variable shadowing patterns like ``for item in item:`` when the variable was previously defined.
+- Fix false positive :ref:`undefined-variable <undefined-variable>` for for-loop variable shadowing patterns like ``for item in item:`` when the variable was previously defined.
 
   Closes #10562 (`#10562 <https://github.com/pylint-dev/pylint/issues/10562>`_)
 

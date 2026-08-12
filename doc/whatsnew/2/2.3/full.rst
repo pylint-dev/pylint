@@ -70,7 +70,7 @@ Release date: 2019-02-27
 
   Closes #2645
 
-* Add ``no-else-raise`` warning (:ref:`R1720 <no-else-raise>`)
+* Add :ref:`no-else-raise <no-else-raise>` warning
 
   Closes #2558
 
@@ -78,7 +78,7 @@ Release date: 2019-02-27
 
   Closes #2643
 
-* Fix incorrect generation of ``no-else-return`` warnings (:ref:`R1705 <no-else-return>`)
+* Fix incorrect generation of :ref:`no-else-return <no-else-return>` warnings
 
   Fixed issue where ``if`` statements with nested ``if`` statements
   were incorrectly being flagged as ``no-else-return`` in some cases and

@@ -336,7 +336,7 @@ Release date: 2020-04-27
   check for nested statements (e.g., inside of an ``if`` statement).
 
 * Recognize classes explicitly inheriting from ``abc.ABC`` or having an
-  ``abc.ABCMeta`` metaclass as abstract. This makes them not trigger :ref:`W0223 <abstract-method>`.
+  ``abc.ABCMeta`` metaclass as abstract. This makes them not trigger :ref:`abstract-method <abstract-method>`.
 
   Closes #3098
 

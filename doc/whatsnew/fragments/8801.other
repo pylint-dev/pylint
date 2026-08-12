@@ -1,4 +1,4 @@
-Document that the ``wrong-import-order`` (:ref:`C0411 <wrong-import-order>`) classification of imports as
+Document that the :ref:`wrong-import-order <wrong-import-order>` classification of imports as
 third-party vs first-party depends on the current working directory and
 recommend ``known-first-party`` as the deterministic workaround.
 

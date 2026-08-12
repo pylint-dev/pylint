@@ -167,7 +167,7 @@ False Positives Fixed
 
   Closes #6663 (`#6663 <https://github.com/pylint-dev/pylint/issues/6663>`_)
 
-- Fix a false positive for ``invalid-name`` (:ref:`C0103 <invalid-name>`) where the default
+- Fix a false positive for :ref:`invalid-name <invalid-name>` where the default
   ``typevar-rgx`` rejected ``TypeVar`` names containing digits, such as
   ``Ec2T``.
 
@@ -182,7 +182,7 @@ False Positives Fixed
 
   Closes #9833 (`#9833 <https://github.com/pylint-dev/pylint/issues/9833>`_)
 
-- Fix a false positive for ``function-redefined`` (:ref:`E0102 <function-redefined>`) when reusing names that
+- Fix a false positive for :ref:`function-redefined <function-redefined>` when reusing names that
   match ``dummy-variables-rgx`` (such as ``_``), which is common for
   ``pytest-bdd`` step definitions. This restores the behavior from before pylint
   4.0.0; as a consequence the false negative fixed in #9894 is reintroduced for
@@ -293,8 +293,8 @@ Other Bug Fixes
 - Allow digits in ParamSpec and TypeVarTuple names for `invalid-name` check.
 
   The default `paramspec-rgx` and `typevartuple-rgx` patterns rejected names
-  containing digits (e.g. ``Ec2P``, ``S3Ts``), emitting a false ``invalid-name``
-  (:ref:`C0103 <invalid-name>`). Allow digits in the lowercase segments, consistent with the
+  containing digits (e.g. ``Ec2P``, ``S3Ts``), emitting a false
+  :ref:`invalid-name <invalid-name>`. Allow digits in the lowercase segments, consistent with the
   ``typevar`` and ``typealias`` patterns.
 
   Closes #11090 (`#11090 <https://github.com/pylint-dev/pylint/issues/11090>`_)
@@ -333,7 +333,7 @@ False Positives Fixed
 
   Closes #10790 (`#10790 <https://github.com/pylint-dev/pylint/issues/10790>`_)
 
-- Avoid emitting `unspecified-encoding` (:ref:`W1514 <unspecified-encoding>`) when `py-version` is 3.15+.
+- Avoid emitting :ref:`unspecified-encoding <unspecified-encoding>` when `py-version` is 3.15+.
 
   Refs #10791 (`#10791 <https://github.com/pylint-dev/pylint/issues/10791>`_)
 
@@ -523,7 +523,7 @@ Breaking Changes
 
   Refs #10480 (`#10480 <https://github.com/pylint-dev/pylint/issues/10480>`_)
 
-- Removed support for ``nmp.NaN`` alias for ``numpy.NaN`` being recognized in ':ref:`nan-comparison`'. Use ``np`` or ``numpy`` instead.
+- Removed support for ``nmp.NaN`` alias for ``numpy.NaN`` being recognized in :ref:`nan-comparison`. Use ``np`` or ``numpy`` instead.
 
   Refs #10583 (`#10583 <https://github.com/pylint-dev/pylint/issues/10583>`_)
 

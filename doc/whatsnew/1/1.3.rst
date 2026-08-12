@@ -28,7 +28,7 @@ Release date: 2014-07-26
 
   Closes #229
 
-* Fix a false positive regarding :ref:`W0511 <fixme>`.
+* Fix a false positive regarding :ref:`fixme <fixme>`.
 
   Closes #149.
 

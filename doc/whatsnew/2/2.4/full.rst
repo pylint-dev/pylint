@@ -340,7 +340,7 @@ Release date: 2019-09-24
 
   Closes #2816
 
-* :ref:`C0412 <ungrouped-imports>` (ungrouped-import) is now compatible with isort.
+* :ref:`ungrouped-imports <ungrouped-imports>` is now compatible with isort.
 
   Closes #2806
 
@@ -378,7 +378,7 @@ Release date: 2019-09-24
 
   Closes #2581
 
-* Changed description of :ref:`W0199 <assert-on-tuple>` to use the term 2-item-tuple instead of 2-uple.
+* Changed description of :ref:`assert-on-tuple <assert-on-tuple>` to use the term 2-item-tuple instead of 2-uple.
 
 * Allow a ``.`` as a prefix for Sphinx name resolution.
 

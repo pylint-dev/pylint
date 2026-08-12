@@ -58,9 +58,9 @@ New checkers
 Other Changes
 =============
 
-* Fix false-positive ``consider-using-with`` (:ref:`R1732 <consider-using-with>`) if a ternary conditional is used together with ``with``
+* Fix false-positive :ref:`consider-using-with <consider-using-with>` if a ternary conditional is used together with ``with``
 
-* Fix false-positive ``consider-using-with`` (:ref:`R1732 <consider-using-with>`) if ``contextlib.ExitStack`` takes care of calling the ``__exit__`` method
+* Fix false-positive :ref:`consider-using-with <consider-using-with>` if ``contextlib.ExitStack`` takes care of calling the ``__exit__`` method
 
 * Add type annotations to pyreverse dot files
 

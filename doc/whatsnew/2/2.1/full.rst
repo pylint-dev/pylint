@@ -36,7 +36,7 @@ Release date: 2018-08-01
 
 * ``chain.from_iterable`` no longer emits `dict-{}-not-iterating` when dealing with dict values and keys
 
-* Demote the ``try-except-raise`` message from an error to a warning (:ref:`E0705 <bad-exception-cause>` -> :ref:`W0706 <try-except-raise>`)
+* Demote the ``try-except-raise`` message from an error to a warning (E0705 -> W0706)
 
   Closes #2323
 
