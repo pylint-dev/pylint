@@ -270,7 +270,7 @@ Release date: 2014-11-23
 * Detect calls of the parent's __init__, through a binded super() call.
 
 * Check that a class has an explicitly defined metaclass before
-  emitting 'old-style-class' for Python 2.
+  emitting ':ref:`old-style-class <old-style-class>`' for Python 2.
 
 * Emit :ref:`catching-non-exception` for non-class nodes.
 

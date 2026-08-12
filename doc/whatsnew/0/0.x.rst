@@ -48,7 +48,7 @@ Release date: 2013-02-26
 * #112728: add warning :ref:`E0604 <invalid-all-object>` for non-string objects in __all__
   (patch by Torsten Marek)
 
-* #120657: add warning W0110/deprecated-lambda when a map/filter
+* #120657: add warning :ref:`W0110/deprecated-lambda <deprecated-lambda>` when a map/filter
   of a lambda could be a comprehension (patch by Martin Pool)
 
 * #113231: logging checker now looks at instances of Logger classes
@@ -120,7 +120,7 @@ Release date: 2012-10-05
 * #104420: check for protocol completeness and avoid false :ref:`R0903 <too-few-public-methods>`
   (patch by Peter Hammond)
 
-* #100654: fix grammatical error for W0332 message (using 'l' as
+* #100654: fix grammatical error for :ref:`W0332 <lowercase-l-suffix>` message (using 'l' as
   long int identifier)
 
 * #103656: fix :ref:`W0231 <super-init-not-called>` false positive for missing call to object.__init__
@@ -580,7 +580,7 @@ Release date: 2007-02-28
   unused `from X import *` (#3209, patch submitted by Daniel Drake)
 
 * included Daniel Drake's patch to have a different message :ref:`E1003 <bad-super-call>` instead of
-  E1001 when a missing member is found but an inference failure has been
+  :ref:`E1001 <slots-on-old-class>` when a missing member is found but an inference failure has been
   detected
 
 * msvs reporter for Visual Studio line number reporting (#3285)
