@@ -206,6 +206,8 @@ All permanently deleted messages in the error category:
    error/old-raise-syntax
    error/parameter-unpacking
    error/print-statement
+   error/slots-on-old-class
+   error/super-on-old-class
    error/unpacking-in-except
 
 .. _warning-category:
@@ -422,6 +424,7 @@ All permanently deleted messages in the warning category:
    warning/comprehension-escape
    warning/delslice-method
    warning/deprecated-itertools-function
+   warning/deprecated-lambda
    warning/deprecated-operator-function
    warning/deprecated-str-translate-call
    warning/deprecated-string-function
@@ -448,6 +451,7 @@ All permanently deleted messages in the warning category:
    warning/intern-builtin
    warning/invalid-str-codec
    warning/long-builtin
+   warning/lowercase-l-suffix
    warning/map-builtin-not-iterating
    warning/metaclass-assignment
    warning/mixed-indentation
@@ -455,6 +459,7 @@ All permanently deleted messages in the warning category:
    warning/next-method-defined
    warning/no-absolute-import
    warning/no-init
+   warning/nonstandard-exception
    warning/nonzero-method
    warning/oct-method
    warning/old-backtick
@@ -463,6 +468,7 @@ All permanently deleted messages in the warning category:
    warning/old-old-raise-syntax
    warning/old-raising-string
    warning/old-unpacking-in-except
+   warning/property-on-old-class
    warning/raising-string
    warning/range-builtin-not-iterating
    warning/raw_input-builtin
@@ -575,6 +581,7 @@ All permanently deleted messages in the convention category:
    convention/no-space-after-comma
    convention/no-space-after-operator
    convention/no-space-before-operator
+   convention/old-style-class
 
 .. _refactor-category:
 
