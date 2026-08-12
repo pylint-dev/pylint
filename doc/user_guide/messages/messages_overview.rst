@@ -377,6 +377,7 @@ All messages in the warning category:
    warning/using-f-string-in-unsupported-version
    warning/using-final-decorator-in-unsupported-version
    warning/using-generic-type-syntax-in-unsupported-version
+   warning/using-lazy-import-in-unsupported-version
    warning/using-positional-only-args-in-unsupported-version
    warning/while-used
    warning/wildcard-import

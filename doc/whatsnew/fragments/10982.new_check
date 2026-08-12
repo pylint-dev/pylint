@@ -8,4 +8,8 @@ statement, or as a wildcard import. Python only rejects those when compiling
 the module, and ``ast`` parses them without complaining, so ``pylint`` has to
 report them itself.
 
+Add ``using-lazy-import-in-unsupported-version`` (W2608), emitted when the code
+uses a PEP 810 ``lazy`` import while ``py-version`` still includes a Python
+version that cannot compile it.
+
 Refs #10982

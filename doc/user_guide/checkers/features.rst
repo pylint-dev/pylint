@@ -1469,6 +1469,9 @@ Unsupported Version checker Messages
 :using-comprehension-unpacking-in-unsupported-version (W2607): *Unpacking in comprehensions is not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.15 and pylint
   encounters the ``*`` or ``**`` unpacking added by PEP 798 in a comprehension.
+:using-lazy-import-in-unsupported-version (W2608): *Lazy imports are not supported by all versions included in the py-version setting*
+  Used when the py-version set by the user is lower than 3.15 and pylint
+  encounters the ``lazy`` import added by PEP 810.
 
 
 .. _variables-checker:
