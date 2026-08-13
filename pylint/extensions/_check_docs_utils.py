@@ -113,7 +113,10 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
     if isinstance(node.exc, nodes.Name):
         inferred = utils.safe_infer(node.exc)
         if inferred:
-            exceptions = [inferred]
+            if isinstance(inferred, astroid.Instance):
+                exceptions = [inferred.getattr("__class__")[0]]
+            else:
+                exceptions = [inferred]
     elif node.exc is None:
         handler = node.parent
         while handler and not isinstance(handler, nodes.ExceptHandler):
