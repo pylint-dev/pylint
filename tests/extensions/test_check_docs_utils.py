@@ -193,11 +193,13 @@ def test_possible_exc_types_instance() -> None:
     It is not a ``ClassDef``, but it proxies ``name`` and ``ancestors`` to the
     class it wraps, so it is still usable by the callers.
     """
-    raise_node = astroid.extract_node("""
+    raise_node = astroid.extract_node(
+        """
     def my_func():
         err = ValueError("hi")
         raise err  #@
-    """)
+    """
+    )
     found_nodes = utils.possible_exc_types(raise_node)
     assert {node.name for node in found_nodes} == {"ValueError"}
     assert {ancestor.name for node in found_nodes for ancestor in node.ancestors()} >= {
