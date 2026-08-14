@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+import typing
+
 import astroid
 import pytest
 from astroid import nodes
@@ -610,3 +612,30 @@ def test_is_terminating_func_overload_with_noreturn_implementation() -> None:
 """)
     result = utils.is_terminating_func(node)
     assert result is True
+
+
+def test_is_terminating_func_qualified_noreturn() -> None:
+    """``-> typing.NoReturn`` is an Attribute node, not a Name."""
+    node = astroid.extract_node("""
+    import typing
+
+    def terminate(msg) -> typing.NoReturn:
+        raise SystemExit(msg)
+
+    terminate("nope")  #@
+    """)
+    assert utils.is_terminating_func(node) is True
+
+
+@pytest.mark.skipif(not hasattr(typing, "Never"), reason="typing.Never requires Python 3.11+")
+def test_is_terminating_func_qualified_never() -> None:
+    """``-> typing.Never`` is likewise an Attribute node."""
+    node = astroid.extract_node("""
+    import typing
+
+    def terminate(msg) -> typing.Never:
+        raise SystemExit(msg)
+
+    terminate("nope")  #@
+    """)
+    assert utils.is_terminating_func(node) is True

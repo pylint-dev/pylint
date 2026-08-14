@@ -2237,7 +2237,7 @@ def is_terminating_func(node: nodes.Call) -> bool:
                 not isinstance(inferred, nodes.AsyncFunctionDef)
                 or isinstance(node.parent, nodes.Await)
             )
-            and isinstance(inferred.returns, nodes.Name)
+            and isinstance(inferred.returns, (nodes.Name, nodes.Attribute))
             and (inferred_func := safe_infer(inferred.returns))
             and hasattr(inferred_func, "qname")
             and inferred_func.qname()
