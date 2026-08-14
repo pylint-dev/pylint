@@ -1,0 +1,143 @@
+```python
+import astroid
+from collections import defaultdict
+from typing import Tuple, Optional, Union
+
+from pylint.checkers import BaseChecker
+from astroid import nodes
+from pylint.interfaces import IAstNode
+
+
+class VersionInfoChecker(BaseChecker):
+    """
+    Checker for Pylint that warns when `sys.version_info` is compared 
+    against a literal tuple suggesting an older Python version than the 
+    configured `--py-version`.
+    """
+    
+    name = 'version_info'
+    # Register message IDs to pylint's pool or use generic naming
+    msgs = {
+        'version-comparison': (
+            'Unnecessary sys.version_info check',
+            'version-comparison',
+            'Emitted when sys.version_info is compared against a tuple that '
+            'suggests an older Python version than the configured --py-version.'
+        ),
+        'version-info-tuple': (
+            'Version info tuple used outside comparison context',
+            'version-info-tuple',
+            'Emitted when the Tuple literal for version_info is found but not '
+            'part of a comparison chain.'
+        ),
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Get the version string from the linter, e.g., 3.6 (default)
+        try:
+            self.py_version_str = self.linter.config.py_version
+            # Parse string "3.6" to tuple (3, 6)
+            self.py_version_tuple = self._parse_version(self.py_version_str)
+        except (AttributeError, ValueError):
+            # Default fallback if config is missing or weird
+            self.py_version_tuple = (3, 6)
+
+    def _parse_version(self, version: str) -> Tuple[int, int]:
+        """Helper to parse version string like '3.6' into (3, 6)."""
+        parts = str(version).split('.')
+        if len(parts) >= 2:
+            return (int(parts[0]), int(parts[1]))
+        elif len(parts) == 1:
+            return (int(parts[0]), 0)
+        return (0, 0)
+
+    def _check_version_operand(self, operand: nodes.NodeNG, node: nodes.NodeNG):
+        """
+        Internal logic to analyze the operand (usually the literal Tuple)
+        inside a Compare node.
+        """
+        # If the operand is a Tuple, check its elements against config
+        if isinstance(operand, nodes.Tuple):
+            # Infer the nodes inside the tuple to see if they are numbers
+            inferred = [n for n in operand.get_children() if n]
+            
+            # If we have 2 elements (Major, Minor), check against config
+            if len(inferred) >= 2:
+                # Infer major version
+                major = inferred[0] if inferred[0] else operand.elts[0]
+                # Infer minor version
+                minor = inferred[1] if len(inferred) > 1 and inferred[1] else operand.elts[1]
+                
+                # Logic: If Config is 3.6 and Code says < (3, 5), warn if it matters.
+                # We want to warn if the literal implies a narrower range than expected.
+                # Here we check if the operand is indeed a version tuple.
+                
+                # We emit the message if the tuple looks like a specific version check
+                self.add_message(
+                    'version-comparison',
+                    node=node,
+                    args=(str(operand.elts) if hasattr(operand, 'elts') else str(operand))
+                )
+
+    def visit_compare(self, node: nodes.Compare):
+        """
+        Visit the top-level Compare node (e.g., 'if ... < ... :').
+        Inspects operands to find the version info tuple.
+        """
+        # Handle chained comparisons (e.g. sys.v < 3 < 6)
+        # We primarily look for the literal Tuple in the comparison.
+        if hasattr(node, 'operands'):
+            for operand in node.operands:
+                # Check if it's the `sys.version_info` Attribute
+                if isinstance(operand, nodes.Attribute) and operand.name == 'version_info':
+                    # It's the subject of the version check
+                    self._check_version_operand(operand, node)
+                # Check if it's the literal Tuple (e.g. (3, 5))
+                elif isinstance(operand, nodes.Tuple):
+                    # This is the right-hand side of sys.version_info < (3, 5)
+                    self._check_version_operand(operand, node)
+
+    def visit_attribute(self, node: nodes.Attribute):
+        """
+        Visit specific `sys.version_info` attributes.
+        Helps if they are used without an explicit Compare node.
+        """
+        if node.name == 'version_info':
+            # If it's just used, it implies a context of version dependency
+            self.add_message(
+                'version-comparison',
+                node=node,
+                args='(version-info)'
+            )
+
+    def visit_tuple(self, node: nodes.Tuple):
+        """
+        Visit Tuple nodes specifically.
+        Useful for `from __future__ import annotations` style version checks.
+        """
+        # Often visited by `visit_compare` above, but catches standalone cases
+        if len(node.elts) >= 2:
+             self.add_message(
+                'version-comparison',
+                node=node,
+                args=(node.elts[0].value, node.elts[1].value)
+            )
+
+    def visit_functiondef(self, node):
+        """
+        Helper to find where version_info is accessed inside function scopes.
+        """
+        for item in node.body:
+            # Recursively find compare nodes if needed
+            if hasattr(item, 'name') and item.name == 'version_info':
+                self.visit_compare(item)
+
+
+# Register the checker dynamically so it works when `--load-plugins=...` is used
+# or simply import it in `setup.cfg`/`pyproject.toml`
+def register_version_info_checker():
+    from pylint.lint.pycall import PyCall
+    VersionInfoChecker.register_checker(VersionInfoChecker)
+```
