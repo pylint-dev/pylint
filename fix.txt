@@ -10,11 +10,11 @@ from pylint.interfaces import IAstNode
 
 class VersionInfoChecker(BaseChecker):
     """
-    Checker for Pylint that warns when `sys.version_info` is compared 
-    against a literal tuple suggesting an older Python version than the 
+    Checker for Pylint that warns when `sys.version_info` is compared
+    against a literal tuple suggesting an older Python version than the
     configured `--py-version`.
     """
-    
+
     name = 'version_info'
     # Register message IDs to pylint's pool or use generic naming
     msgs = {
@@ -34,7 +34,7 @@ class VersionInfoChecker(BaseChecker):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
         # Get the version string from the linter, e.g., 3.6 (default)
         try:
             self.py_version_str = self.linter.config.py_version
@@ -62,18 +62,18 @@ class VersionInfoChecker(BaseChecker):
         if isinstance(operand, nodes.Tuple):
             # Infer the nodes inside the tuple to see if they are numbers
             inferred = [n for n in operand.get_children() if n]
-            
+
             # If we have 2 elements (Major, Minor), check against config
             if len(inferred) >= 2:
                 # Infer major version
                 major = inferred[0] if inferred[0] else operand.elts[0]
                 # Infer minor version
                 minor = inferred[1] if len(inferred) > 1 and inferred[1] else operand.elts[1]
-                
+
                 # Logic: If Config is 3.6 and Code says < (3, 5), warn if it matters.
                 # We want to warn if the literal implies a narrower range than expected.
                 # Here we check if the operand is indeed a version tuple.
-                
+
                 # We emit the message if the tuple looks like a specific version check
                 self.add_message(
                     'version-comparison',
