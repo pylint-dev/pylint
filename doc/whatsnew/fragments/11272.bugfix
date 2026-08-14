@@ -1,0 +1,3 @@
+Fix a crash in ``invalid-name`` when a name is assigned an instance of a class with duplicate bases. Resolving the MRO raised ``DuplicateBasesError`` and aborted the whole file with a fatal ``astroid-error``; an unresolvable MRO is now treated as "no ancestors", as it already is elsewhere in pylint.
+
+Refs #11272
