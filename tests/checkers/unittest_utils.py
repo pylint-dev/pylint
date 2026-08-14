@@ -627,7 +627,9 @@ def test_is_terminating_func_qualified_noreturn() -> None:
     assert utils.is_terminating_func(node) is True
 
 
-@pytest.mark.skipif(not hasattr(typing, "Never"), reason="typing.Never requires Python 3.11+")
+@pytest.mark.skipif(
+    not hasattr(typing, "Never"), reason="typing.Never requires Python 3.11+"
+)
 def test_is_terminating_func_qualified_never() -> None:
     """``-> typing.Never`` is likewise an Attribute node."""
     node = astroid.extract_node("""
