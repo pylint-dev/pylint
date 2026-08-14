@@ -16,3 +16,6 @@ class NotDuplicates(Alpha, str):
 
 
 print(Duplicates.__mro__)
+
+
+INSTANCE = Duplicates()

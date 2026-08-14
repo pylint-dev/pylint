@@ -582,10 +582,13 @@ class NameChecker(_BasicChecker):
         if isinstance(inferred_assign_type, nodes.ClassDef):
             return True
         if isinstance(inferred_assign_type, bases.Instance):
-            if "EnumMeta" in {
-                ancestor.name
-                for ancestor in cast(InferenceResult, inferred_assign_type).mro()
-            }:
+            try:
+                mro = cast(InferenceResult, inferred_assign_type).mro()
+            except astroid.MroError:
+                # Duplicate or inconsistent bases leave the class without an
+                # MRO to walk. It is not an ``EnumMeta`` instance either way.
+                mro = []
+            if "EnumMeta" in {ancestor.name for ancestor in mro}:
                 return True
             # The functional syntax `X = TypedDict("X", {...})` defines a new type,
             # and is inferred as an instance of `TypedDict` itself. Instantiating a
