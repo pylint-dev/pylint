@@ -107,7 +107,14 @@ class MermaidJSPrinter(Printer):
 
 
 class HTMLMermaidJSPrinter(MermaidJSPrinter):
-    """Printer for MermaidJS diagrams wrapped in a html boilerplate."""
+    """Printer for MermaidJS diagrams wrapped in a html boilerplate.
+
+    Since the output is a standalone HTML document, it is safe to set a
+    Mermaid theme on the diagram itself: unlike ``MermaidJSPrinter``, whose
+    raw diagram syntax is meant to be embedded in a page that may already
+    define its own Mermaid theme, there is no surrounding page whose theme
+    could be unexpectedly overridden here.
+    """
 
     HTML_OPEN_BOILERPLATE = """<html>
   <body>
@@ -121,10 +128,15 @@ class HTMLMermaidJSPrinter(MermaidJSPrinter):
 """
     GRAPH_INDENT_LEVEL = 4
 
+    MERMAID_THEMES: dict[str, str] = {"dark": "dark"}
+
     def _open_graph(self) -> None:
         self.emit(self.HTML_OPEN_BOILERPLATE)
         for _ in range(self.GRAPH_INDENT_LEVEL):
             self._inc_indent()
+        mermaid_theme = self.MERMAID_THEMES.get(self.theme)
+        if mermaid_theme:
+            self.emit(f"%%{{init: {{'theme': '{mermaid_theme}'}}}}%%")
         super()._open_graph()
 
     def _close_graph(self) -> None:
