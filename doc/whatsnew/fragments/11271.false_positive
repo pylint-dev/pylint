@@ -1,7 +1,3 @@
-Treat ``-> typing.NoReturn`` and ``-> typing.Never`` the same as the
-unqualified ``NoReturn`` / ``Never`` forms when deciding that a call
-never returns. ``is_terminating_func`` previously required a ``Name``
-annotation, so the qualified attribute form still emitted
-``possibly-used-before-assignment`` and missed ``unreachable``.
+Treat ``typing.NoReturn`` and ``typing.Never`` the same as ``NoReturn`` / ``Never`` when deciding that a call never returns.
 
 Closes #11271
