@@ -14,7 +14,7 @@ import sys
 from collections.abc import Iterable
 from enum import Enum, auto
 from re import Pattern
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import bases, nodes, util
