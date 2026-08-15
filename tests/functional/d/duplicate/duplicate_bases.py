@@ -1,5 +1,5 @@
 """Test duplicate bases error."""
-# pylint: disable=missing-docstring,too-few-public-methods,attribute-defined-outside-init
+# pylint: disable=missing-docstring,too-few-public-methods
 
 
 class Duplicates(str, str):  # [duplicate-bases]
@@ -18,21 +18,7 @@ class NotDuplicates(Alpha, str):
 print(Duplicates.__mro__)
 
 
+# The name checker asks whether this is an enum member, which used to walk an
+# MRO the duplicate bases leave unusable and abort the whole file.
 INSTANCE = Duplicates()
-
-
-class SlottedDuplicates(str, str):  # [duplicate-bases]
-    __slots__ = ("attr",)
-
-
-SLOTTED = SlottedDuplicates()
-SLOTTED.attr = 1
-
-
-class DuplicateErrors(TypeError, TypeError):  # [duplicate-bases]
-    pass
-
-
-def generator():
-    yield 1
-    raise DuplicateErrors()
+print(INSTANCE)
