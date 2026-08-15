@@ -1,0 +1,11 @@
+useless-version-check:8:3:8:29::'sys.version_info >= (3, 8)' is always True for the Python versions supported by py-version (3.10):HIGH
+useless-version-check:11:3:11:31::'sys.version_info > (3, 9, 2)' is always True for the Python versions supported by py-version (3.10):HIGH
+useless-version-check:14:3:14:28::'sys.version_info < (3, 8)' is always False for the Python versions supported by py-version (3.10):HIGH
+useless-version-check:17:3:17:29::'sys.version_info <= (3, 9)' is always False for the Python versions supported by py-version (3.10):HIGH
+useless-version-check:20:3:20:33::"'sys.version_info[:2] == (3, 5)' is always False for the Python versions supported by py-version (3.10)":HIGH
+useless-version-check:23:3:23:33::"'sys.version_info[:2] != (3, 5)' is always True for the Python versions supported by py-version (3.10)":HIGH
+useless-version-check:26:3:26:29::'(3, 8) <= sys.version_info' is always True for the Python versions supported by py-version (3.10):HIGH
+useless-version-check:29:3:29:27::'sys.version_info[0] >= 3' is always True for the Python versions supported by py-version (3.10):HIGH
+useless-version-check:32:3:32:29::'sys.version_info.major > 2' is always True for the Python versions supported by py-version (3.10):HIGH
+useless-version-check:35:13:35:40::'sys.version_info >= (3, 10)' is always True for the Python versions supported by py-version (3.10):HIGH
+useless-version-check:39:7:39:33:guarded_by_a_dead_check:'sys.version_info >= (3, 3)' is always True for the Python versions supported by py-version (3.10):HIGH

@@ -2,8 +2,8 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Checker for features used that are not supported by all python versions
-indicated by the py-version setting.
+"""Checker for features used and version checks made that do not agree with the
+py-version setting.
 """
 
 from __future__ import annotations
@@ -14,6 +14,8 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
+    REVERSED_COMPS,
+    is_sys_version_info,
     only_required_for_messages,
     safe_infer,
     uninferable_final_decorators,
@@ -24,9 +26,87 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
+def _oldest_supported_value(
+    node: nodes.NodeNG, py_version: tuple[int, ...]
+) -> tuple[bool, tuple[int, ...]] | None:
+    """Evaluate a ``sys.version_info`` expression for the oldest supported interpreter.
+
+    With ``py-version=3.10``, so ``py_version`` being ``(3, 10)``::
+
+        sys.version_info        ->  (False, (3, 10))
+        sys.version_info[:2]    ->  (False, (3, 10))
+        sys.version_info[:1]    ->  (False, (3,))
+        sys.version_info[0]     ->  (True, (3,))
+        sys.version_info.major  ->  (True, (3,))
+        sys.version_info.minor  ->  None
+        sys.version_info[1]     ->  None
+        sys.version_info[1:]    ->  None
+        anything_else           ->  None
+
+    The first item says whether the expression is a plain number instead of a
+    tuple, so that ``sys.version_info[0] >= (3, 10)`` — a ``TypeError`` when it
+    runs — is never decided here.
+
+    ``minor`` gets ``None`` because it goes back to 0 on a new major release: it
+    does not grow with the interpreter version, unlike the whole tuple and the
+    slices that start at the major version.
+    """
+    if is_sys_version_info(node):
+        return False, py_version
+    if isinstance(node, nodes.Attribute) and is_sys_version_info(node.expr):
+        return (True, py_version[:1]) if node.attrname == "major" else None
+    if not isinstance(node, nodes.Subscript) or not is_sys_version_info(node.value):
+        return None
+    index = node.slice
+    if isinstance(index, nodes.Const):
+        return (True, py_version[:1]) if index.value == 0 else None
+    if not isinstance(index, nodes.Slice) or index.step is not None:
+        return None
+    if index.lower is not None and not (
+        isinstance(index.lower, nodes.Const) and index.lower.value == 0
+    ):
+        return None
+    if index.upper is None:
+        return False, py_version
+    if isinstance(index.upper, nodes.Const) and isinstance(index.upper.value, int):
+        return False, py_version[: index.upper.value]
+    return None
+
+
+def _version_constant(node: nodes.NodeNG) -> tuple[bool, tuple[int, ...]] | None:
+    """Return the integer or integer tuple literal that node is, if any."""
+    if isinstance(node, nodes.Const):
+        return (True, (node.value,)) if isinstance(node.value, int) else None
+    if not isinstance(node, nodes.Tuple) or not node.elts:
+        return None
+    values = []
+    for element in node.elts:
+        if not isinstance(element, nodes.Const) or not isinstance(element.value, int):
+            return None
+        values.append(element.value)
+    return False, tuple(values)
+
+
+def _constant_comparison_result(
+    operator: str, oldest: tuple[int, ...], constant: tuple[int, ...]
+) -> str | None:
+    """Return the outcome shared by every supported interpreter, if there is one.
+
+    The set of supported versions has no upper bound, so a comparison can only be
+    decided by its lower bound: ``sys.version_info < x`` is never always true.
+    """
+    if operator in {">=", "<"}:
+        decided = oldest >= constant
+    else:
+        decided = oldest > constant
+    if not decided:
+        return None
+    return "True" if operator in {">=", ">", "!="} else "False"
+
+
 class UnsupportedVersionChecker(BaseChecker):
-    """Checker for features that are not supported by all python versions
-    indicated by the py-version setting.
+    """Checker for features used and version checks made that do not agree with
+    the py-version setting.
     """
 
     name = "unsupported_version"
@@ -67,15 +147,65 @@ class UnsupportedVersionChecker(BaseChecker):
             "Used when the py-version set by the user is lower than 3.8 and pylint encounters "
             "positional-only arguments.",
         ),
+        "W2607": (
+            "'%s' is always %s for the Python versions supported by py-version (%s)",
+            "useless-version-check",
+            "Emitted when a ``sys.version_info`` comparison can only have one outcome "
+            "for the interpreters allowed by the py-version setting, so the branch it "
+            "guards is dead code. Disabled by default: it is meant to be run once when "
+            "you drop the maintenance of a Python interpreter, and py-version defaults "
+            "to the interpreter running pylint rather than to the oldest one you "
+            "support.",
+            {"default_enabled": False},
+        ),
     }
 
     def open(self) -> None:
         """Initialize visit variables and statistics."""
         py_version = self.linter.config.py_version
+        self._py_version = py_version
+        self._py_version_string = ".".join(str(part) for part in py_version)
         self._py36_plus = py_version >= (3, 6)
         self._py38_plus = py_version >= (3, 8)
         self._py311_plus = py_version >= (3, 11)
         self._py312_plus = py_version >= (3, 12)
+
+    @only_required_for_messages("useless-version-check")
+    def visit_compare(self, node: nodes.Compare) -> None:
+        """Check ``sys.version_info`` comparisons that py-version already decides."""
+        if len(node.ops) != 1:
+            return
+        operator, right = node.ops[0]
+        if operator not in REVERSED_COMPS:
+            return
+
+        projection = _oldest_supported_value(node.left, self._py_version)
+        constant = _version_constant(right)
+        if projection is None or constant is None:
+            # I.e. ``(3, 8) <= sys.version_info``
+            projection = _oldest_supported_value(right, self._py_version)
+            constant = _version_constant(node.left)
+            operator = REVERSED_COMPS[operator]
+        if projection is None or constant is None:
+            return
+
+        is_scalar, oldest = projection
+        constant_is_scalar, expected = constant
+        if is_scalar is not constant_is_scalar:
+            # Comparing a tuple with an int always raises a TypeError
+            return
+        # py-version omits the parts it does not constrain: 3.10 means 3.10.0
+        oldest += (0,) * (len(expected) - len(oldest))
+
+        result = _constant_comparison_result(operator, oldest, expected)
+        if result is None:
+            return
+        self.add_message(
+            "useless-version-check",
+            node=node,
+            args=(node.as_string(), result, self._py_version_string),
+            confidence=HIGH,
+        )
 
     @only_required_for_messages("using-f-string-in-unsupported-version")
     def visit_joinedstr(self, node: nodes.JoinedStr) -> None:

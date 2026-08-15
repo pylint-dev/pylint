@@ -55,6 +55,20 @@ TYPING_PROTOCOLS = frozenset(
     {"typing.Protocol", "typing_extensions.Protocol", ".Protocol"}
 )
 COMMUTATIVE_OPERATORS = frozenset({"*", "+", "^", "&", "|"})
+REVERSED_COMPS = {
+    "<": ">",
+    "<=": ">=",
+    ">": "<",
+    ">=": "<=",
+    "==": "==",
+    "!=": "!=",
+}
+"""Comparators mapped to the comparator to use once the operands are swapped.
+
+Membership and identity operators are left out on purpose: unlike for
+:func:`get_inverse_comparator`, swapping the operands of ``in`` or ``is``
+changes the meaning of the comparison.
+"""
 ITER_METHOD = "__iter__"
 AITER_METHOD = "__aiter__"
 NEXT_METHOD = "__next__"
@@ -1843,6 +1857,16 @@ def get_import_name(importnode: ImportNode, modname: str | None) -> str | None:
     return modname
 
 
+def is_sys_version_info(node: nodes.NodeNG) -> bool:
+    """Return True if node refers to ``sys.version_info``."""
+    return (
+        isinstance(node, nodes.Attribute)
+        and node.attrname == "version_info"
+        and isinstance(node.expr, nodes.Name)
+        and node.expr.name == "sys"
+    )
+
+
 def is_sys_guard(node: nodes.If) -> bool:
     """Return True if IF stmt is a sys.version_info guard.
 
@@ -1853,10 +1877,7 @@ def is_sys_guard(node: nodes.If) -> bool:
         value = node.test.left
         if isinstance(value, nodes.Subscript):
             value = value.value
-        if (
-            isinstance(value, nodes.Attribute)
-            and value.as_string() == "sys.version_info"
-        ):
+        if is_sys_version_info(value):
             return True
     elif isinstance(node.test, nodes.Attribute) and node.test.as_string() in {
         "six.PY2",
