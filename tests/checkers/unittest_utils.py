@@ -6,8 +6,6 @@
 
 from __future__ import annotations
 
-import typing
-
 import astroid
 import pytest
 from astroid import nodes
@@ -612,5 +610,3 @@ def test_is_terminating_func_overload_with_noreturn_implementation() -> None:
 """)
     result = utils.is_terminating_func(node)
     assert result is True
-
-
