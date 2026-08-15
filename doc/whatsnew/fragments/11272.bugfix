@@ -1,4 +1,5 @@
-Avoid ``ref:astroid-error`` for classes with duplicate or inconsistent MRO, for
- ``ref:invalid-name``, ``ref:stop-iteration-return`` and the ``__slots__`` checks.
+Avoid a fatal :ref:`astroid-error` in :ref:`invalid-name`,
+:ref:`stop-iteration-return` and :ref:`assigning-non-slot` for classes with
+duplicate or inconsistent bases, which leave the class without an MRO to walk.
 
 Refs #11272
