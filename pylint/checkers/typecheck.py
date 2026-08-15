@@ -518,8 +518,10 @@ def _emit_no_member(
             return False
         except astroid.NotFoundError:
             pass
-    if isinstance(owner_name, str) and owner_name and node.attrname.startswith(
-        "_" + owner_name
+    if (
+        isinstance(owner_name, str)
+        and owner_name
+        and node.attrname.startswith("_" + owner_name)
     ):
         # Test if an attribute has been mangled ('private' attribute)
         unmangled_name = node.attrname.split("_" + owner_name)[-1]
