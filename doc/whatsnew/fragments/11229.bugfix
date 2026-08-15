@@ -1,0 +1,6 @@
+Fix a crash in the ``types`` checker when ``Enum`` is called with a non-string
+class name (e.g. ``Enum(1, "")``). Astroid infers such an owner with an
+``int`` name, which made ``_emit_no_member`` raise ``TypeError`` and abort the
+whole file with an ``astroid-error`` fatal message.
+
+Closes #11229

@@ -1,0 +1,1 @@
+no-member:13:6:13:9::Instance of 1 has no 'b' member:INFERENCE
