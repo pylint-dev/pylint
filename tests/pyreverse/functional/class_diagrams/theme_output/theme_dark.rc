@@ -1,0 +1,3 @@
+[testoptions]
+output_formats=dot,puml,mmd,html
+command_line_args=-S --theme dark
