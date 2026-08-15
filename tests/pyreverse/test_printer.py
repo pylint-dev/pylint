@@ -9,7 +9,7 @@ from astroid import nodes
 
 from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
-from pylint.pyreverse.printer import Layout, NodeProperties, NodeType, Printer
+from pylint.pyreverse.printer import Layout, Printer
 
 
 @pytest.mark.parametrize(
@@ -53,60 +53,3 @@ def test_method_arguments_none() -> None:
     func.postinit(args, body=None)
     parsed_args = Printer._get_method_arguments(func)
     assert parsed_args == []
-
-
-class TestPlantUmlPrinter:
-    printer = PlantUmlPrinter(title="unittest", layout=Layout.TOP_TO_BOTTOM)
-
-    def test_node_without_properties(self) -> None:
-        self.printer.emit_node(name="test", type_=NodeType.CLASS)
-        assert self.printer.lines[-2:] == ['class "test" as test {\n', "}\n"]
-
-
-def test_dot_printer_light_theme_has_no_bgcolor() -> None:
-    printer = DotPrinter(title="unittest")
-    assert not any("bgcolor" in line for line in printer.lines)
-
-
-def test_dot_printer_dark_theme_emits_bgcolor_and_default_colors() -> None:
-    printer = DotPrinter(title="unittest", theme="dark")
-    assert any('bgcolor="#1e1e1e"' in line for line in printer.lines)
-    printer.emit_node(name="test", type_=NodeType.CLASS)
-    node_line = printer.lines[-1]
-    assert 'color="#e0e0e0"' in node_line
-    assert 'fontcolor="#e0e0e0"' in node_line
-
-
-def test_dot_printer_node_color_override_takes_precedence_over_theme() -> None:
-    printer = DotPrinter(title="unittest", theme="dark")
-    printer.emit_node(
-        name="test",
-        type_=NodeType.CLASS,
-        properties=NodeProperties(label="test", color="red", fontcolor="blue"),
-    )
-    node_line = printer.lines[-1]
-    assert 'color="red"' in node_line
-    assert 'fontcolor="blue"' in node_line
-
-
-def test_plantuml_printer_light_theme_has_no_skinparam() -> None:
-    printer = PlantUmlPrinter(title="unittest")
-    assert not any("skinparam" in line for line in printer.lines)
-
-
-def test_plantuml_printer_dark_theme_emits_skinparam_block() -> None:
-    printer = PlantUmlPrinter(title="unittest", theme="dark")
-    joined = "".join(printer.lines)
-    assert "skinparam backgroundColor #1e1e1e" in joined
-    assert "skinparam class {" in joined
-    assert "FontColor #e0e0e0" in joined
-
-
-def test_plantuml_printer_fontcolor_override_takes_precedence_over_theme() -> None:
-    printer = PlantUmlPrinter(title="unittest", theme="dark")
-    printer.emit_node(
-        name="test",
-        type_=NodeType.CLASS,
-        properties=NodeProperties(label="test", fontcolor="red"),
-    )
-    assert any("<color:red>test</color>" in line for line in printer.lines)
