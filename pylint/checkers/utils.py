@@ -1491,6 +1491,20 @@ def has_known_bases(
     return True
 
 
+def safe_mro(node: nodes.ClassDef | bases.Instance) -> list[nodes.ClassDef]:
+    """Return the MRO of ``node``, or an empty list if it does not have one.
+
+    Duplicate or inconsistent bases leave a class without a usable MRO, and
+    ``mro()`` raises instead of returning one. A caller that only walks the MRO
+    to look something up can treat that as "no ancestors" rather than let the
+    error abort the whole file.
+    """
+    try:
+        return node.mro()
+    except astroid.MroError:
+        return []
+
+
 def is_none(node: nodes.NodeNG) -> bool:
     match node:
         case None | nodes.Const(value=None) | nodes.Name(value="None"):

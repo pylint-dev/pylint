@@ -1,5 +1,5 @@
 """Test duplicate bases error."""
-# pylint: disable=missing-docstring,too-few-public-methods
+# pylint: disable=missing-docstring,too-few-public-methods,attribute-defined-outside-init
 
 
 class Duplicates(str, str):  # [duplicate-bases]
@@ -19,3 +19,20 @@ print(Duplicates.__mro__)
 
 
 INSTANCE = Duplicates()
+
+
+class SlottedDuplicates(str, str):  # [duplicate-bases]
+    __slots__ = ("attr",)
+
+
+SLOTTED = SlottedDuplicates()
+SLOTTED.attr = 1
+
+
+class DuplicateErrors(TypeError, TypeError):  # [duplicate-bases]
+    pass
+
+
+def generator():
+    yield 1
+    raise DuplicateErrors()

@@ -1,1 +1,3 @@
 duplicate-bases:5:0:5:16:Duplicates:Duplicate bases for class 'Duplicates':UNDEFINED
+duplicate-bases:24:0:24:23:SlottedDuplicates:Duplicate bases for class 'SlottedDuplicates':UNDEFINED
+duplicate-bases:32:0:32:21:DuplicateErrors:Duplicate bases for class 'DuplicateErrors':UNDEFINED

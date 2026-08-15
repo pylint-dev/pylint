@@ -1,3 +1,7 @@
-Fix a crash in ``invalid-name`` when a name is assigned an instance of a class with duplicate bases. Resolving the MRO raised ``DuplicateBasesError`` and aborted the whole file with a fatal ``astroid-error``; an unresolvable MRO is now treated as "no ancestors", as it already is elsewhere in pylint.
+Add ``safe_mro`` and use it wherever a checker only walks a class's MRO to look
+something up. Duplicate or inconsistent bases leave a class without an MRO, and
+the error raised in their place used to abort the whole file with a fatal
+``astroid-error`` instead of reporting the offences the file does have. This
+affects ``invalid-name``, ``stop-iteration-return`` and the ``__slots__`` checks.
 
 Refs #11272
