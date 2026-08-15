@@ -67,7 +67,9 @@ def test_instance_attrs_resolution(test_context: tuple[Project, Linker]) -> None
     assert type_dict["_id"][0] is astroid.Uninferable
 
 
-def test_empty_node_instance_attrs_do_not_crash(test_context: tuple[Project, Linker]) -> None:
+def test_empty_node_instance_attrs_do_not_crash(
+    test_context: tuple[Project, Linker],
+) -> None:
     """ClassDefs with EmptyNode instance attrs (e.g. namedtuple brains) must not crash the Linker."""
     proj, linker = test_context
     klass = proj.get_module("data.clientmodule_test")["Specialization"]
