@@ -1,7 +1,4 @@
-Add ``safe_mro`` and use it wherever a checker only walks a class's MRO to look
-something up. Duplicate or inconsistent bases leave a class without an MRO, and
-the error raised in their place used to abort the whole file with a fatal
-``astroid-error`` instead of reporting the offences the file does have. This
-affects ``invalid-name``, ``stop-iteration-return`` and the ``__slots__`` checks.
+Avoid ``ref:astroid-error`` for classes with duplicate or inconsistent MRO, for
+ ``ref:invalid-name``, ``ref:stop-iteration-return`` and the ``__slots__`` checks.
 
 Refs #11272
