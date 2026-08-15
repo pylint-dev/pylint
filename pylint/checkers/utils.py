@@ -1500,9 +1500,11 @@ def safe_mro(node: nodes.ClassDef | bases.Instance) -> list[nodes.ClassDef]:
     error abort the whole file.
     """
     try:
-        return node.mro()
+        # ``Instance`` proxies the call, so it is only typed through ``__getattr__``
+        mro: list[nodes.ClassDef] = node.mro()
     except astroid.MroError:
         return []
+    return mro
 
 
 def is_none(node: nodes.NodeNG) -> bool:
