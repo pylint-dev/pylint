@@ -1,0 +1,7 @@
+digraph "classes" {
+rankdir=BT
+charset="utf-8"
+"theme_light.Animal" [color="black", fontcolor="black", label=<{Animal|<br ALIGN="LEFT"/>|<I>speak</I>()<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"theme_light.Dog" [color="black", fontcolor="black", label=<{Dog|<br ALIGN="LEFT"/>|speak()<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"theme_light.Dog" -> "theme_light.Animal" [arrowhead="empty", arrowtail="none"];
+}
