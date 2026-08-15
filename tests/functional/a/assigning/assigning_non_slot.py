@@ -138,6 +138,10 @@ class ClassWithSlots:
     __slots__ = ['foobar']
 
 
+class ClassWithoutSlots:
+    pass
+
+
 class ClassReassigningDunderClass:
     __slots__ = ['foobar']
 
@@ -258,3 +262,13 @@ class ClassReassigningDunderClassDifferently:
     def release_undefined_name(self):
         # pylint: disable-next=undefined-variable
         self.__class__ = UndefinedClass  # [assigning-non-slot]
+
+    def release_to_class_without_slots(self):
+        # A class without ``__slots__`` has a different layout, which CPython
+        # rejects at runtime too.
+        self.__class__ = ClassWithoutSlots  # [assigning-non-slot]
+
+    def release_in_starred_target(self):
+        # +1: [assigning-non-slot,invalid-class-object]
+        *self.__class__, myvar = [1, 2]
+        print(myvar)

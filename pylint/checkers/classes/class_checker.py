@@ -488,12 +488,32 @@ def _has_same_layout_slots(
         return False
     if isinstance(inferred, nodes.ClassDef):
         other_slots = inferred.slots()
+        if other_slots is None:
+            # A class without ``__slots__`` anywhere in its mro has a
+            # different layout, which CPython rejects at runtime too.
+            return False
         if all(
             first_slot and second_slot and first_slot.value == second_slot.value
             for (first_slot, second_slot) in zip_longest(slots, other_slots)
         ):
             return True
     return False
+
+
+def _assigned_value(node: nodes.AssignAttr) -> nodes.NodeNG | None:
+    """Return the value bound to ``node``, if a single one can be pinpointed.
+
+    An assignment statement carries the value it binds, and a starred target
+    (``head, *foo.attr = ...``) is resolved by astroid through the target
+    itself. A for-loop, ``with``, or comprehension target has no such value,
+    and neither has a bare annotation (``foo.attr: int``).
+    """
+    parent = node.parent
+    if not isinstance(
+        parent, (nodes.Assign, nodes.AnnAssign, nodes.AugAssign, nodes.Starred)
+    ):
+        return None
+    return parent.value
 
 
 MSGS: dict[str, MessageDefinitionTuple] = {
@@ -1742,7 +1762,7 @@ a metaclass class method.",
     def _check_invalid_class_object(self, node: nodes.AssignAttr) -> None:
         if not node.attrname == "__class__":
             return
-        if isinstance(node.parent, nodes.Tuple):
+        if isinstance(node.parent, (nodes.Tuple, nodes.List)):
             assign_node = node.parent.parent
             if not isinstance(assign_node, nodes.Assign) or not isinstance(
                 assign_node.value, (nodes.Tuple, nodes.List)
@@ -1764,16 +1784,12 @@ a metaclass class method.",
                 return
             inferred = safe_infer(assign_node.value.elts[class_index])
         else:
-            if (
-                not isinstance(
-                    node.parent, (nodes.Assign, nodes.AnnAssign, nodes.AugAssign)
-                )
-                or node.parent.value is None
-            ):
+            assigned_value = _assigned_value(node)
+            if assigned_value is None:
                 # A for-loop, ``with``, or comprehension target, or a bare
                 # annotation: there is no assigned value to check.
                 return
-            inferred = safe_infer(node.parent.value)
+            inferred = safe_infer(assigned_value)
         match inferred:
             case nodes.ClassDef() | util.UninferableBase() | None:
                 # If uninferable, we allow it to prevent false positives
@@ -1850,18 +1866,13 @@ a metaclass class method.",
                         # Descriptors circumvent the slots mechanism as well.
                         return
                 if node.attrname == "__class__":
-                    # Only a plain assignment carries a value whose slots
-                    # layout can be compared; a for-loop, ``with``, or
-                    # tuple-unpacking target does not.
-                    if (
-                        not isinstance(
-                            node.parent,
-                            (nodes.Assign, nodes.AnnAssign, nodes.AugAssign),
-                        )
-                        or node.parent.value is None
-                    ):
+                    # Without a single assigned value there is no slots layout
+                    # to compare against, e.g. for a for-loop, ``with``, or
+                    # tuple-unpacking target.
+                    assigned_value = _assigned_value(node)
+                    if assigned_value is None:
                         return
-                    if _has_same_layout_slots(slots, node.parent.value):
+                    if _has_same_layout_slots(slots, assigned_value):
                         return
                 self.add_message(
                     "assigning-non-slot",
