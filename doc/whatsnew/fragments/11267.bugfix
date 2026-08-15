@@ -1,0 +1,3 @@
+Fix a crash in :ref:`invalid-class-object` and :ref:`assigning-non-slot` when ``__class__`` is assigned outside a simple assignment (e.g. ``for obj.__class__ in classes:``).
+
+Closes #11267
