@@ -15,6 +15,7 @@ from pathlib import Path
 
 import astroid
 import pytest
+from astroid import nodes
 
 from pylint.pyreverse.inspector import Linker, Project
 from pylint.testutils.utils import _test_cwd
@@ -64,6 +65,19 @@ def test_instance_attrs_resolution(test_context: tuple[Project, Linker]) -> None
     ]
     assert type_dict["relation"][0].name == "DoNothing"
     assert type_dict["_id"][0] is astroid.Uninferable
+
+
+def test_empty_node_instance_attrs_do_not_crash(test_context: tuple[Project, Linker]) -> None:
+    """ClassDefs with EmptyNode instance attrs (e.g. namedtuple brains) must not crash the Linker."""
+    proj, linker = test_context
+    klass = proj.get_module("data.clientmodule_test")["Specialization"]
+    fake = nodes.EmptyNode()
+    fake.attrname = "synthetic"
+    klass.instance_attrs["synthetic"] = [fake]
+    # The visit has already happened in the fixture; ensure a re-visit over the
+    # mutated class node does not raise (see pylint issue #10767).
+    linker._visited.clear()
+    linker.visit(klass)
 
 
 def test_from_directory(test_context: tuple[Project, Linker]) -> None:
