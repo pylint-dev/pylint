@@ -58,6 +58,7 @@ classobj
 CLI
 cls
 cmp
+cnode
 codebase
 codec
 codecs
