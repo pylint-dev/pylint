@@ -638,7 +638,7 @@ def test_safe_mro_returns_nothing_for_duplicate_bases() -> None:
 
 
 def test_safe_mro_returns_nothing_for_inconsistent_bases() -> None:
-    """An unresolvable linearisation is the other way to lose the MRO."""
+    """Bases that cannot be put in a consistent order are the other way to lose it."""
     node = astroid.extract_node("""
     class First:
         pass
