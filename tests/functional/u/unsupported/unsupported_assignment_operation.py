@@ -113,3 +113,59 @@ class DiscardingMapping:
 discarding_mapping = DiscardingMapping()
 discarding_mapping["outer"] = {"inner": None}
 discarding_mapping["outer"]["inner"] = 42  # [unsupported-assignment-operation]
+
+
+# Shapes of https://github.com/pylint-dev/pylint/issues/10050 that the adjacent
+# assignment fallback still misses: astroid keeps inferring the item from the
+# container literal, so every message below is a false positive.
+
+# An unrelated statement sits between the two assignments.
+spaced_dict = {"outer": None}
+spaced_dict["outer"] = {"inner": None}
+print(spaced_dict)
+spaced_dict["outer"]["inner"] = 42  # [unsupported-assignment-operation]  FALSE POSITIVE
+
+# The item is read instead of written.
+read_dict = {"outer": None}
+read_dict["outer"] = {"inner": 42}
+print(read_dict["outer"]["inner"])  # [unsubscriptable-object]  FALSE POSITIVE
+
+# The item is deleted instead of written.
+deleted_dict = {"outer": None}
+deleted_dict["outer"] = {"inner": 42}
+del deleted_dict["outer"]["inner"]  # [unsupported-delete-operation]  FALSE POSITIVE
+
+# Only the outermost subscript of a chain is covered.
+deep_dict = {"first": None}
+deep_dict["first"] = {"second": None}
+deep_dict["first"]["second"] = {"third": None}
+deep_dict["first"]["second"]["third"] = 42  # [unsubscriptable-object]  FALSE POSITIVE
+
+# The replacement is stored through an alias of the same dictionary.
+aliased_dict = {"outer": None}
+alias = aliased_dict
+alias["outer"] = {"inner": None}
+aliased_dict["outer"]["inner"] = 42  # [unsupported-assignment-operation]  FALSE POSITIVE
+
+# The adjacent assignment stores an ambiguous value. The fallback gives up and
+# the stale ``None`` from the container literal is used instead of bailing out.
+def store_ambiguous(flag):
+    ambiguous_dict = {"outer": None}
+    ambiguous_dict["outer"] = {"inner": None} if flag else None
+    ambiguous_dict["outer"]["inner"] = 42  # [unsupported-assignment-operation]  FALSE POSITIVE
+
+
+# Shapes that are already handled, kept as regression guards.
+
+def local_scope():
+    local_dict = {"outer": None}
+    local_dict["outer"] = {"inner": None}
+    local_dict["outer"]["inner"] = 42
+
+nested_list = [None]
+nested_list[0] = {"inner": None}
+nested_list[0]["inner"] = 42
+
+augmented_dict = {"outer": None}
+augmented_dict["outer"] = {"inner": 0}
+augmented_dict["outer"]["inner"] += 1

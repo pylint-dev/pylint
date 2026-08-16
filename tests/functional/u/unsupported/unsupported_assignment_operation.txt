@@ -17,3 +17,9 @@ unsupported-assignment-operation:82:0:82:4::'test' does not support item assignm
 unsupported-assignment-operation:93:12:93:32::'SubscriptableClass()' does not support item assignment:UNDEFINED
 unsupported-assignment-operation:102:0:102:26::"""non_subscriptable['outer']"" does not support item assignment":UNDEFINED
 unsupported-assignment-operation:115:0:115:27::"""discarding_mapping['outer']"" does not support item assignment":UNDEFINED
+unsupported-assignment-operation:126:0:126:20::"""spaced_dict['outer']"" does not support item assignment":UNDEFINED
+unsubscriptable-object:131:6:131:24::Value 'read_dict['outer']' is unsubscriptable:UNDEFINED
+unsupported-delete-operation:136:4:136:25::"""deleted_dict['outer']"" does not support item deletion":UNDEFINED
+unsubscriptable-object:142:0:142:18::Value 'deep_dict['first']' is unsubscriptable:UNDEFINED
+unsupported-assignment-operation:148:0:148:21::"""aliased_dict['outer']"" does not support item assignment":UNDEFINED
+unsupported-assignment-operation:155:4:155:27:store_ambiguous:"""ambiguous_dict['outer']"" does not support item assignment":UNDEFINED
