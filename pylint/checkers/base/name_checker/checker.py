@@ -661,10 +661,12 @@ class NameChecker(_BasicChecker):
     ) -> None:
         """Check for a name using the type's regexp.
 
-        ``disallowed_check_only`` suppresses ``invalid-name`` while still
-        letting the name take part in the multiple naming style census.
-        ``skip_name_group_census`` additionally keeps it out of that census,
-        for names that previously never reached this method at all.
+        ``disallowed_check_only`` suppresses ``invalid-name`` for this node, but
+        the name still counts towards its ``name-group``, so it can still make
+        another name in that group be reported as the minority style.
+        ``skip_name_group_census`` takes the name out of that group as well: use
+        it when the name is exempt from the naming style itself, not merely from
+        the message.
         """
 
         def _should_exempt_from_invalid_name(node: nodes.NodeNG) -> bool:
