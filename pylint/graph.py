@@ -190,7 +190,7 @@ def _get_cycles(
         for node in path[::-1]:
             if node == vertice:
                 break
-            cycle.insert(0, str(node))
+            cycle.insert(0, node)
         # make a canonical representation
         start_from = min(cycle)
         index = cycle.index(start_from)

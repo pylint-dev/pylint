@@ -127,6 +127,12 @@ def test_all_equal():
         pass
     elif a <= b and b <= c and c <= d and d <= a: # [chained-comparison-all-equal]
         pass
+    # A cycle that runs through a literal is still a cycle of weak
+    # inequalities: this one only says ``a == 5``.
+    elif a >= 5 and 5 >= a: # [chained-comparison-all-equal]
+        pass
+    elif a >= 5 and 5 >= b and b >= a: # [chained-comparison-all-equal]
+        pass
 
 
 def test_chained_comparison_with_unprocessable_operands():

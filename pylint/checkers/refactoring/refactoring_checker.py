@@ -68,9 +68,7 @@ class _ComparisonGraph:
     edges: dict[_ComparisonOperand, set[_ComparisonOperand]] = field(
         default_factory=lambda: collections.defaultdict(set)
     )
-    symbols: dict[_ComparisonEdge, str] = field(
-        default_factory=lambda: collections.defaultdict(lambda: ">")
-    )
+    symbols: dict[_ComparisonEdge, str] = field(default_factory=dict)
     indegree: dict[_ComparisonOperand, int] = field(
         default_factory=lambda: collections.defaultdict(int)
     )
@@ -1556,13 +1554,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         Returns whether anything was emitted.
         """
+        # ``get_cycles`` canonicalizes each cycle with ``min()``, so it needs a
+        # graph whose nodes are all of the same, orderable type. Feed it the
+        # string spelling of every operand and keep the way back: ``symbols``
+        # is keyed by the operands themselves, and the ``int`` ``5`` does not
+        # compare equal to the ``str`` ``"5"``.
+        by_str = {str(operand): operand for operand in graph.edges}
         str_edges = {
             str(key): {str(dest) for dest in graph.edges[key]} for key in graph.edges
         }
         cycles = get_cycles(str_edges)
         if not cycles:
             return False
-        self._handle_cycles(node, graph, cycles)
+        self._handle_cycles(
+            node, graph, [[by_str[name] for name in cycle] for cycle in cycles]
+        )
         return True
 
     @staticmethod
@@ -1683,16 +1689,23 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self,
         node: nodes.BoolOp,
         graph: _ComparisonGraph,
-        cycles: Sequence[list[str]],
+        cycles: Sequence[list[_ComparisonOperand]],
     ) -> None:
         for cycle in cycles:
+            # ``get_cycles`` starts each cycle at its alphabetically smallest
+            # operand, which puts a literal first. Rotate to a variable so the
+            # suggestion reads ``a == 5`` rather than ``5 == a``.
+            first_name = next(
+                (i for i, operand in enumerate(cycle) if isinstance(operand, str)), 0
+            )
+            cycle = cycle[first_name:] + cycle[:first_name]
             edges = [(cycle[i], cycle[i + 1]) for i in range(len(cycle) - 1)]
             edges.append((cycle[-1], cycle[0]))
             if all(graph.symbols[edge] == ">=" for edge in edges):
                 self.add_message(
                     "chained-comparison-all-equal",
                     node=node,
-                    args=(" == ".join(cycle),),
+                    args=(" == ".join(str(operand) for operand in cycle),),
                     confidence=HIGH,
                 )
             else:
