@@ -1647,7 +1647,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ``10 < a``).
         """
         edge_symbols = [symbols[path[i], path[i + 1]] for i in range(len(path) - 1)]
-        if all(symbol == "==" for symbol in edge_symbols):
+        lone_variable_first = isinstance(path[0], str) and not any(
+            isinstance(operand, str) for operand in path[1:]
+        )
+        if lone_variable_first or all(symbol == "==" for symbol in edge_symbols):
             rendered = str(path[0])
             for i, symbol in enumerate(edge_symbols):
                 rendered += f" {symbol} {path[i + 1]}"

@@ -4,7 +4,7 @@ chained-comparison:23:7:23:23:test_simplify_chained_comparison_3:"Simplify chain
 chained-comparison:25:9:25:25:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 1 < a < 10":HIGH
 chained-comparison:27:9:27:26:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 1 < a <= 10":HIGH
 chained-comparison:29:9:29:26:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a == 10":HIGH
-chained-comparison:31:9:31:25:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 10 < a":HIGH
+chained-comparison:31:9:31:25:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a > 10":HIGH
 chained-comparison:33:9:33:27:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < 10":HIGH
 chained-comparison:35:9:35:35:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 1 == a < c and a < b":HIGH
 chained-comparison:37:9:37:36:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 1 < a < 10 and b == 2":HIGH
