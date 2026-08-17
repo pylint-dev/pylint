@@ -1428,7 +1428,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         # Gather information for the suggestion
-        common_variable = sorted(list(common_variables))[0]
+        common_variable = sorted(common_variables)[0]
         values = list(collections.OrderedDict.fromkeys(values))
         values.remove(common_variable)
         values_string = ", ".join(values) if len(values) != 1 else values[0] + ","
