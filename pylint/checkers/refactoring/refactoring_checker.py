@@ -1495,13 +1495,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 continue
             paths = get_paths(segment.edges, segment.indegree, segment.frequency)
             rendered.extend(
-                sorted(self._render_path(p, segment.symbols) for p in paths)
+                sorted(
+                    self._render_path(piece, segment.symbols)
+                    for path in paths
+                    for piece in self._split_at_literal_equalities(
+                        path, segment.symbols
+                    )
+                )
             )
 
         if len(rendered) < len(node.values):
-            args = " and ".join(rendered)
             self.add_message(
-                "chained-comparison", node=node, args=(args,), confidence=HIGH
+                "chained-comparison",
+                node=node,
+                args=(" and ".join(rendered),),
+                confidence=HIGH,
             )
 
     def _segment_comparisons(
@@ -1596,6 +1604,33 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return f"({text})" if needs_parentheses else text
 
     @staticmethod
+    def _split_at_literal_equalities(
+        path: tuple[_ComparisonOperand, ...],
+        symbols: dict[_ComparisonEdge, str],
+    ) -> Iterator[tuple[_ComparisonOperand, ...]]:
+        """Cut ``path`` wherever it passes through an equality with a literal.
+
+        ``x == 0`` is a fact about ``x`` alone, so using that ``0`` as a link
+        in a chain relates two conditions that have nothing to do with each
+        other: ``neg_ct == 0 and result < 0`` would be reported as
+        ``result < 0 == neg_ct``, which is harder to read than the code it
+        replaces. A literal is still welcome at either end of a chain, and
+        two inequalities may still meet on one (``startValue < 0 <= minV``).
+        """
+        start = 0
+        for index in range(1, len(path) - 1):
+            if isinstance(path[index], str):
+                continue
+            if "==" not in (
+                symbols[path[index - 1], path[index]],
+                symbols[path[index], path[index + 1]],
+            ):
+                continue
+            yield path[start : index + 1]
+            start = index
+        yield path[start:]
+
+    @staticmethod
     def _render_path(
         path: tuple[_ComparisonOperand, ...],
         symbols: dict[_ComparisonEdge, str],
@@ -1605,8 +1640,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         The graph is built largest-first so a ``>=``/``>`` path reads
         ``999 >= v >= 0``. We flip it to smallest-first (``0 <= v <= 999``)
         which is how Python code idiomatically writes a range check.
-        Equality-only paths keep their original direction so a single
-        ``b == 2`` is not rewritten as ``2 == b``.
+
+        Flipping only pays off when the chain surrounds something. A path
+        keeps its original direction when it is all equalities (``b == 2``,
+        not ``2 == b``) and when a lone variable heads it (``a > 10``, not
+        ``10 < a``).
         """
         edge_symbols = [symbols[path[i], path[i + 1]] for i in range(len(path) - 1)]
         if all(symbol == "==" for symbol in edge_symbols):
@@ -1681,20 +1719,57 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return True
 
     @staticmethod
-    def _link_constants(
-        graph: _ComparisonGraph, const_values: list[int | float]
-    ) -> None:
-        """Add synthetic ``>`` edges between every pair of constants.
+    def _components(
+        graph: _ComparisonGraph,
+    ) -> dict[_ComparisonOperand, int]:
+        """Group the operands that are already compared with one another.
 
-        Without this, ``a < b and b < 0 and c == 786`` wouldn't notice that
-        ``786 > 0``, so it would render as two unrelated chains. The synthetic
-        edges also let the search collapse the chain to its longest form.
+        Two operands share a component when a path of comparisons runs between
+        them, whichever way the edges point.
         """
+        neighbors: dict[_ComparisonOperand, set[_ComparisonOperand]] = (
+            collections.defaultdict(set)
+        )
+        for left, rights in graph.edges.items():
+            for right in rights:
+                neighbors[left].add(right)
+                neighbors[right].add(left)
+
+        components: dict[_ComparisonOperand, int] = {}
+        for index, start in enumerate(list(graph.edges)):
+            if start in components:
+                continue
+            to_visit = [start]
+            while to_visit:
+                operand = to_visit.pop()
+                if operand in components:
+                    continue
+                components[operand] = index
+                to_visit.extend(neighbors.get(operand, ()))
+        return components
+
+    @classmethod
+    def _link_constants(
+        cls, graph: _ComparisonGraph, const_values: list[int | float]
+    ) -> None:
+        """Add synthetic ``>`` edges between the constants of one component.
+
+        Without this, ``a > 1 and a > 10`` wouldn't notice that ``10 > 1``, so
+        it would render as two chains instead of collapsing to ``a > 10``.
+
+        Constants of *different* components stay unlinked: in
+        ``a < b and b < 0 and c == 786`` the ``786`` has nothing to do with
+        the rest, and a synthetic ``786 > 0`` edge would splice the two
+        conditions into ``a < b < 0 < 786 == c``.
+        """
+        components = cls._components(graph)
         sorted_consts = sorted(const_values)
         while sorted_consts:
             largest = sorted_consts.pop()
             for smaller in set(sorted_consts):
                 if smaller >= largest:
+                    continue
+                if components.get(largest) != components.get(smaller):
                     continue
                 graph.symbols[(largest, smaller)] = ">"
                 graph.indegree[smaller] += 1

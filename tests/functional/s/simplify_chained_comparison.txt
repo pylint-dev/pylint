@@ -13,9 +13,9 @@ chained-comparison:41:9:41:24:test_simplify_chained_comparison_3:"Simplify chain
 chained-comparison:43:9:43:24:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: c < b < a":HIGH
 chained-comparison:45:9:45:35:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 1 == a < b < c":HIGH
 chained-comparison:47:9:47:37:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < c and c == 786":HIGH
-chained-comparison:49:9:49:37:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < 0 < 786 == c":HIGH
-chained-comparison:51:9:51:37:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < 0 < 786 == c":HIGH
-chained-comparison:53:9:53:37:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < 0 < 786 == c":HIGH
+chained-comparison:49:9:49:37:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < 0 and c == 786":HIGH
+chained-comparison:51:9:51:37:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < 0 and c == 786":HIGH
+chained-comparison:53:9:53:37:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < 0 and c == 786":HIGH
 chained-comparison:55:9:55:28:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < c < d":HIGH
 chained-comparison:57:9:57:28:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < c < d":HIGH
 chained-comparison:59:9:59:38:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a < b < c":HIGH
@@ -50,3 +50,5 @@ impossible-comparison:214:7:214:44:test_several_cycles:This comparison always ev
 comparison-with-itself:221:7:221:13:test_comparison_with_itself_is_a_boundary:Redundant comparison - a >= a:UNDEFINED
 comparison-with-itself:223:7:223:12:test_comparison_with_itself_is_a_boundary:Redundant comparison - a > a:UNDEFINED
 comparison-with-itself:225:17:225:23:test_comparison_with_itself_is_a_boundary:Redundant comparison - b >= b:UNDEFINED
+chained-comparison:237:7:237:34:test_a_literal_equality_does_not_link_two_conditions:"Simplify chained comparison between the operands: apples < 0 <= bananas":HIGH
+chained-comparison:240:7:240:59:test_a_literal_equality_does_not_link_two_conditions:"Simplify chained comparison between the operands: apples < bananas < 0 and cherries == 786":HIGH

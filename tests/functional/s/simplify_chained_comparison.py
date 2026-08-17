@@ -224,3 +224,18 @@ def test_comparison_with_itself_is_a_boundary():
         pass
     if a > b and b >= b: # [comparison-with-itself]
         pass
+
+
+def test_a_literal_equality_does_not_link_two_conditions():
+    """``fruit == 0`` is a fact about ``fruit``, not a link in a chain."""
+    apples, bananas, cherries = 1, 2, 3
+    # Chaining these through the ``0`` would suggest ``bananas < 0 == apples``,
+    # which reads worse than the two conditions it replaces.
+    if apples == 0 and bananas < 0:
+        pass
+    # Two inequalities may still meet on a literal.
+    if apples < 0 and bananas >= 0: # [chained-comparison]
+        pass
+    # ``786`` has nothing to do with the rest, so it gains no ``786 > 0`` edge.
+    if apples < bananas and bananas < 0 and cherries == 786: # [chained-comparison]
+        pass
