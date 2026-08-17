@@ -11,6 +11,10 @@ updates:
     rebase-strategy: "disabled"
     cooldown:
       default-days: 7
+    groups:
+      pip:
+        patterns:
+          - "*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -23,3 +27,7 @@ updates:
     rebase-strategy: "disabled"
     cooldown:
       default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"
