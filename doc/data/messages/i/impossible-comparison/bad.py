@@ -1,4 +1,4 @@
-def can_form_triangle(a, b, c):
-    # The two checks contradict each other: if ``a`` is strictly greater
-    # than ``b``, then ``b`` cannot also be strictly greater than ``a``.
-    return a > b and b > a and c > 0  # [impossible-comparison]
+def has_more_apples_than_bananas(apples, bananas):
+    # The two checks contradict each other: if there are more apples than
+    # bananas, there cannot also be more bananas than apples.
+    return apples > bananas and bananas > apples  # [impossible-comparison]
