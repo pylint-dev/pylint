@@ -213,3 +213,14 @@ def test_several_cycles():
     # A single contradiction is enough to silence the equality groups.
     if a > b and b > a and c >= d and d >= c: # [impossible-comparison]
         pass
+
+
+def test_comparison_with_itself_is_a_boundary():
+    """``comparison-with-itself`` owns these, so no chain is suggested."""
+    a, b = 1, 2
+    if a >= a and b > 0: # [comparison-with-itself]
+        pass
+    if a > a and b > 0: # [comparison-with-itself]
+        pass
+    if a > b and b >= b: # [comparison-with-itself]
+        pass

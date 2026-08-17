@@ -47,3 +47,6 @@ impossible-comparison:207:7:207:42:test_several_cycles:This comparison always ev
 chained-comparison-all-equal:211:7:211:46:test_several_cycles:"Simplify chained comparison cycle to equality between the operands: a == b":HIGH
 chained-comparison-all-equal:211:7:211:46:test_several_cycles:"Simplify chained comparison cycle to equality between the operands: c == d":HIGH
 impossible-comparison:214:7:214:44:test_several_cycles:This comparison always evaluates to False:HIGH
+comparison-with-itself:221:7:221:13:test_comparison_with_itself_is_a_boundary:Redundant comparison - a >= a:UNDEFINED
+comparison-with-itself:223:7:223:12:test_comparison_with_itself_is_a_boundary:Redundant comparison - a > a:UNDEFINED
+comparison-with-itself:225:17:225:23:test_comparison_with_itself_is_a_boundary:Redundant comparison - b >= b:UNDEFINED

@@ -1646,6 +1646,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             operators.append(operator)
             operands.append(right)
 
+        # A comparison of an operand with itself would become a self-loop, and
+        # a self-loop is a cycle: ``a >= a``, which is always True, would be
+        # reported as a one-operand ``chained-comparison-all-equal``. Leave it
+        # to ``comparison-with-itself`` and treat the statement as a boundary
+        # so it still shows up verbatim in any suggestion.
+        if any(left == right for left, right in itertools.pairwise(operands)):
+            return False
+
         const_values.extend(pending_consts)
         for i, operator in enumerate(operators):
             left, right = operands[i], operands[i + 1]
