@@ -45,6 +45,8 @@ _REVERSED_COMPARE = {">": "<", ">=": "<=", "==": "=="}
 # condition would hit the interpreter's recursion limit and be reported as a
 # fatal error. No hand-written condition comes close.
 _MAX_COMPARISON_OPERANDS = 64
+# Stop adding parts to a suggestion once it is this long.
+_MAX_SUGGESTION_LENGTH = 64
 
 
 @dataclass
@@ -1508,7 +1510,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self.add_message(
                 "chained-comparison",
                 node=node,
-                args=(" and ".join(rendered),),
+                args=(self._join_suggestion(rendered),),
                 confidence=HIGH,
             )
 
@@ -1629,6 +1631,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             yield path[start : index + 1]
             start = index
         yield path[start:]
+
+    @staticmethod
+    def _join_suggestion(parts: list[str]) -> str:
+        """Join the parts of a suggestion, truncating an overlong one.
+
+        A condition can hold many operands, and a part that we could not fold
+        into the graph is spliced in verbatim, so the suggestion has no
+        natural length limit.
+        """
+        kept: list[str] = []
+        for part in parts:
+            if kept and len(" and ".join(kept)) >= _MAX_SUGGESTION_LENGTH:
+                return " and ".join((*kept, "..."))
+            kept.append(part)
+        return " and ".join(kept)
 
     @staticmethod
     def _render_path(

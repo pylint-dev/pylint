@@ -239,3 +239,18 @@ def test_a_literal_equality_does_not_link_two_conditions():
     # ``786`` has nothing to do with the rest, so it gains no ``786 > 0`` edge.
     if apples < bananas and bananas < 0 and cherries == 786: # [chained-comparison]
         pass
+
+
+def test_suggestion_is_truncated():
+    """A part we can't fold in is spliced in verbatim, so this can grow."""
+    def looks_like_a_ripe_banana(fruit):
+        return fruit > 0
+
+    def smells_like_a_ripe_banana(fruit):
+        return fruit > 0
+
+    banana = int(input())
+    # +1: [chained-comparison]
+    if (looks_like_a_ripe_banana(banana) and smells_like_a_ripe_banana(banana)
+            and banana > 1 and banana < 10):
+        pass
