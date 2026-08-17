@@ -40,3 +40,6 @@ chained-comparison:154:7:154:40:test_chained_comparison_with_unprocessable_opera
 chained-comparison:156:7:156:40:test_chained_comparison_with_unprocessable_operands:"Simplify chained comparison between the operands: 5 > items[0] and 1 < v < 10":HIGH
 impossible-comparison:176:7:176:36:test_cycles_do_not_cross_unprocessable_boundaries:This comparison always evaluates to False:HIGH
 chained-comparison-all-equal:178:7:178:38:test_cycles_do_not_cross_unprocessable_boundaries:"Simplify chained comparison cycle to equality between the operands: a == b":HIGH
+chained-comparison:196:7:196:36:test_boundary_keeps_its_parentheses:"Simplify chained comparison between the operands: 1 < a < 10 and (b or c)":HIGH
+chained-comparison:198:7:198:43:test_boundary_keeps_its_parentheses:"Simplify chained comparison between the operands: 1 < a < 10 and (b if c else d)":HIGH
+chained-comparison:200:7:200:36:test_boundary_keeps_its_parentheses:"Simplify chained comparison between the operands: 1 < a < 10 and (b := c)":HIGH

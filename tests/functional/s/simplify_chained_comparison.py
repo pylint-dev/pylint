@@ -183,3 +183,19 @@ def test_cycles_do_not_cross_unprocessable_boundaries():
         pass
     if a >= b and is_int(v) and b >= a:
         pass
+
+
+def test_boundary_keeps_its_parentheses():
+    """A boundary looser than ``and`` must stay parenthesized.
+
+    The suggestion joins its parts with ``and``, so dropping the parentheses
+    around ``b or c`` would suggest a different expression.
+    """
+    a = int(input())
+    b, c, d = 1, 2, 3
+    if a > 1 and a < 10 and (b or c): # [chained-comparison]
+        pass
+    if a > 1 and a < 10 and (b if c else d): # [chained-comparison]
+        pass
+    if a > 1 and a < 10 and (b := c): # [chained-comparison]
+        pass

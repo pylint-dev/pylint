@@ -1528,7 +1528,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if current.source_count > 0:
                 pending.append((current, const_values))
                 segments.append(current)
-            segments.append(statement.as_string())
+            segments.append(self._render_boundary(statement))
             current = _ComparisonGraph()
             const_values = []
         if current.source_count > 0:
@@ -1570,6 +1570,23 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             node, graph, [[by_str[name] for name in cycle] for cycle in cycles]
         )
         return True
+
+    @staticmethod
+    def _render_boundary(statement: nodes.NodeNG) -> str:
+        """Render a statement that can't be folded into the graph, verbatim.
+
+        The parts of the suggestion are joined with ``and``, so a statement
+        that binds more loosely than ``and`` has to keep its parentheses.
+        Without them ``a > 1 and a < 10 and (b or c)`` would be suggested as
+        ``1 < a < 10 and b or c``, which is a different expression.
+        """
+        text = statement.as_string()
+        # ``NamedExpr`` is absent on purpose: astroid already renders it as
+        # ``(b := c)``.
+        needs_parentheses = isinstance(
+            statement, (nodes.IfExp, nodes.Lambda, nodes.Yield, nodes.YieldFrom)
+        ) or (isinstance(statement, nodes.BoolOp) and statement.op == "or")
+        return f"({text})" if needs_parentheses else text
 
     @staticmethod
     def _render_path(
