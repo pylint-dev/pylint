@@ -122,6 +122,8 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         # this len() call is part of a test condition
         if not utils.is_test_condition(node, parent):
             return
+        if not node.args:
+            return
         len_arg = node.args[0]
         if isinstance(len_arg, (nodes.ListComp, nodes.SetComp, nodes.DictComp)):
             # The node is a comprehension as in len([x for x in ...])

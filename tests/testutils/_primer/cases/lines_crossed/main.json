@@ -1,0 +1,37 @@
+{
+  "astroid": {
+    "commit": "1234567890abcdef",
+    "messages": [
+      {
+        "type": "warning",
+        "module": "astroid.rebuilder",
+        "obj": "",
+        "line": 10,
+        "column": 4,
+        "endLine": 10,
+        "endColumn": 16,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/rebuilder.py",
+        "symbol": "unused-variable",
+        "message": "Unused variable 'node'",
+        "messageId": "W0612",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/rebuilder.py"
+      },
+      {
+        "type": "warning",
+        "module": "astroid.rebuilder",
+        "obj": "",
+        "line": 20,
+        "column": 4,
+        "endLine": 20,
+        "endColumn": 16,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/rebuilder.py",
+        "symbol": "unused-variable",
+        "message": "Unused variable 'node'",
+        "messageId": "W0612",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/rebuilder.py"
+      }
+    ]
+  }
+}

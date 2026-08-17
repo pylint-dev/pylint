@@ -274,15 +274,23 @@ def test_message_state_scope(initialized_linter: PyLinter) -> None:
 
     linter = initialized_linter
     linter.disable("C0202")
-    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope("C0202")
+    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope(
+        "C0202", None, interfaces.UNDEFINED
+    )
     linter.disable("W0101", scope="module", line=3)
-    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope("C0202")
-    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope("W0101", 3)
+    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope(
+        "C0202", None, interfaces.UNDEFINED
+    )
+    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope(
+        "W0101", 3, interfaces.UNDEFINED
+    )
     linter.enable("W0102", scope="module", line=3)
-    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope("W0102", 3)
+    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope(
+        "W0102", 3, interfaces.UNDEFINED
+    )
     linter.config = FakeConfig()
     assert MSG_STATE_CONFIDENCE == linter._get_message_state_scope(
-        "this-is-bad", confidence=interfaces.INFERENCE
+        "this-is-bad", None, confidence=interfaces.INFERENCE
     )
 
 
@@ -459,7 +467,7 @@ def test_disable_similar_with_reports(initialized_linter: PyLinter) -> None:
     assert "metrics" in checker_names
 
 
-def test_disable_alot(linter: PyLinter) -> None:
+def test_disable_a_lot(linter: PyLinter) -> None:
     """Check that we disabled a lot of checkers."""
     linter.set_option("reports", False)
     linter.set_option("disable", "R,C,W")
@@ -513,6 +521,20 @@ def test_addmessage(linter: PyLinter) -> None:
             end_column=None,
         ),
     )
+
+
+def test_addmessage_preserves_explicit_zero_col_offset(linter: PyLinter) -> None:
+    """An explicit ``col_offset=0`` from the caller must not be overwritten
+    by the node's value (``not 0`` is True so the old falsey check was buggy).
+    """
+    linter.set_reporter(testutils.GenericTestReporter())
+    linter.open()
+    linter.set_current_module("m")
+    module_node = astroid.parse("\n\nfunc(arg)", module_name="m")
+    arg_node = module_node.body[0].value.args[0]  # ``arg`` — col_offset == 5
+    assert arg_node.col_offset != 0  # sanity-check fixture
+    linter.add_message("C0321", node=arg_node, col_offset=0)
+    assert linter.reporter.messages[0].location.column == 0
 
 
 def test_addmessage_invalid(linter: PyLinter) -> None:
@@ -907,6 +929,8 @@ def test_full_documentation(linter: PyLinter) -> None:
         # auto-generated text
         "^Pylint global options and switches$",
         "Verbatim name of the checker is ``variables``",
+        # anchor to link to a checker
+        "^\\.\\. _variables-checker:$",
         # messages
         "^:undefined-loop-variable \\(W0631\\): *",
         # options
@@ -1277,3 +1301,33 @@ def test_lint_namespace_package_under_dir_on_path(initialized_linter: PyLinter) 
         with lint.augmented_sys_path(extra_sys_paths):
             linter.check(["namespace_on_path"])
     assert linter.file_state.base_name == "namespace_on_path"
+
+
+def test_pragma_line_number_is_reset_between_modules(tmp_path: Path) -> None:
+    """A pragma in one module must not change message locations in the next.
+
+    Regression test for https://github.com/pylint-dev/pylint/pull/11176#issuecomment-5084749143
+    """
+    pragma_module = tmp_path / "with_pragma.py"
+    pragma_module.write_text(
+        '"""Short module with an unneeded pragma."""\n'
+        "# pylint: disable=too-many-lines\n",
+        encoding="utf-8",
+    )
+    long_module = tmp_path / "long_module.py"
+    long_module.write_text(
+        '"""Long module without any pragma."""\n' + "A = 1\n" * 10, encoding="utf-8"
+    )
+    reporter = testutils.GenericTestReporter()
+    linter = PyLinter()
+    linter.set_reporter(reporter)
+    checkers.initialize(linter)
+    linter.config.max_module_lines = 5
+    linter.config.persistent = 0
+    linter.disable("all")
+    linter.enable("too-many-lines")
+    linter.open()
+    linter.check([str(pragma_module), str(long_module)])
+    assert [(m.symbol, m.module, m.line) for m in reporter.messages] == [
+        ("too-many-lines", "long_module", 1)
+    ]

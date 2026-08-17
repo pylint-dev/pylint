@@ -1,0 +1,8 @@
+Allow digits in ParamSpec and TypeVarTuple names for `invalid-name` check.
+
+The default `paramspec-rgx` and `typevartuple-rgx` patterns rejected names
+containing digits (e.g. ``Ec2P``, ``S3Ts``), emitting a false ``invalid-name``
+(C0103). Allow digits in the lowercase segments, consistent with the
+``typevar`` and ``typealias`` patterns.
+
+Closes #11090

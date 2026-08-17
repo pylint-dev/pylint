@@ -1,0 +1,5 @@
+Fix a false positive for ``invalid-name`` (C0103) where the default
+``typevar-rgx`` rejected ``TypeVar`` names containing digits, such as
+``Ec2T``.
+
+Closes #8499

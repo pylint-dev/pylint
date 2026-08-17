@@ -94,7 +94,7 @@ def math(): # [function-redefined]
     pass
 
 import math as _
-def fun():
+def _():
     pass
 
 # pylint: disable=too-few-public-methods

@@ -355,9 +355,18 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     if found_and_or:
                         return
                     if keyword_token == "in":
-                        # This special case was added in https://github.com/pylint-dev/pylint/pull/4948
-                        # but it could be removed in the future. Avoid churn for now.
-                        return
+                        # Parentheses around a tuple after ``in`` are required, so
+                        # they were given a blanket pass in pull request #4948.
+                        # Parentheses around a single literal (e.g. ``x in ("a")``)
+                        # are still superfluous, so report only those and leave
+                        # anything more complex untouched to avoid the false
+                        # positives #4948 guarded against.
+                        single_literal = i == start + 3 and tokens[start + 2].type in {
+                            tokenize.STRING,
+                            tokenize.NUMBER,
+                        }
+                        if not single_literal:
+                            return
                     self.add_message(
                         "superfluous-parens", line=line_num, args=keyword_token
                     )

@@ -81,3 +81,14 @@ hi = ("CONST",)
 
 #TODO: maybe get this line to report [superfluous-parens] without causing other false positives.
 assert "" + ("Version " + "String") in Z
+
+# Parentheses around a single literal after ``in`` are superfluous (#9878),
+# but parentheses around a tuple or a larger expression are not.
+if Z in ("CONST"):  # [superfluous-parens]
+    pass
+if Z in ("CONST",):
+    pass
+if Z in ("a", "b"):
+    pass
+if Z in ("Version " + "String"):
+    pass

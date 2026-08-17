@@ -101,8 +101,8 @@ contributors:
 - Cezar Elnazli <cezar.elnazli2@gmail.com>: deprecated-method
 - Joseph Young <80432516+jpy-git@users.noreply.github.com> (jpy-git)
 - Tim Martin <tim@asymptotic.co.uk>
-- Ollie <46904826+ollie-iterators@users.noreply.github.com>
 - Julian Grimm <51880314+Julfried@users.noreply.github.com>
+- Ollie <46904826+ollie-iterators@users.noreply.github.com>
 - Tushar Sadhwani <tushar.sadhwani000@gmail.com> (tusharsadhwani)
 - Nicolas Chauvat <nicolas.chauvat@logilab.fr>
 - orSolocate <38433858+orSolocate@users.noreply.github.com>
@@ -134,6 +134,7 @@ contributors:
   * Added new check `logging-fstring-interpolation`
   * Documentation typo fixes
 - Jakub Wilk <jwilk@jwilk.net>
+- Emmanuel Ferdman <emmanuelferdman@gmail.com>
 - Eli Fine <ejfine@gmail.com> (eli88fine): Fixed false positive duplicate code warning for lines with symbols only
 - Émile Crater <emile@crater.logilab.fr>
 - Pavel Roskin <proski@gnu.org>
@@ -192,6 +193,7 @@ contributors:
 - Or Bahari <or.ba402@gmail.com>
 - Mr. Senko <atodorov@mrsenko.com>
 - Mike Frysinger <vapier@gmail.com>
+- Matt Van Horn <455140+mvanhorn@users.noreply.github.com>
 - Martin von Gagern <gagern@google.com> (Google): Added 'raising-format-tuple' warning.
 - Martin Vielsmaier <martin@vielsmaier.net>
 - Martin Pool <mbp@google.com> (Google):
@@ -207,7 +209,6 @@ contributors:
 - James Addison <55152140+jayaddison@users.noreply.github.com>
 - Ionel Maries Cristian <contact@ionelmc.ro>
 - Gergely Kalmár <gergely.kalmar@logikal.jp>
-- Emmanuel Ferdman <emmanuelferdman@gmail.com>
 - Damien Baty <damien.baty@polyconseil.fr>
 - Benjamin Drung <benjamin.drung@profitbricks.com>: contributing Debian Developer
 - Anubhav <35621759+anubh-v@users.noreply.github.com>
@@ -215,12 +216,16 @@ contributors:
 - Andrew J. Simmons <anjsimmo@gmail.com>
 - Alexey Pelykh <alexey.pelykh@gmail.com>
 - Alex Prabhat Bara <alexpbara@gmail.com>
+- Akshay Choudhary <153769403+Akshay9715@users.noreply.github.com>
 - wtracy <afishionado@gmail.com>
 - jessebrennan <jesse@jesse.computer>
 - chohner <mail@chohner.com>
 - aatle <168398276+aatle@users.noreply.github.com>
 - Tiago Honorato <61059243+tiagohonorato@users.noreply.github.com>
+- Tankou <117810219+KoseiTanno@users.noreply.github.com>
 - Steven M. Vascellaro <svascellaro@gmail.com>
+- Sai Asish Y <say.apm35@gmail.com>
+- Roger Sheu <78449574+rogersheu@users.noreply.github.com>
 - Robin Tweedie <70587124+robin-wayve@users.noreply.github.com>
 - Roberto Leinardi <leinardi@gmail.com>: PyCharm plugin maintainer
 - Ricardo Gemignani <ricardo.gemignani@gmail.com>
@@ -242,6 +247,7 @@ contributors:
 - James Morgensen <james.morgensen@gmail.com>: ignored-modules option applies to import errors.
 - Jaehoon Hwang <jaehoonhwang@users.noreply.github.com> (jaehoonhwang)
 - Huw Jones <huw@huwcbjones.co.uk>
+- Hamza Mobeen <s.hamzamobeen@gmail.com>
 - Gideon <87426140+GideonBear@users.noreply.github.com>
 - Ganden Schaffner <gschaffner@pm.me>
 - Frost Ming <frostming@tencent.com>
@@ -264,6 +270,7 @@ contributors:
 - tbennett0 <tbennett0@users.noreply.github.com>
 - purajit <7026198+purajit@users.noreply.github.com>
 - omarandlorraine <64254276+omarandlorraine@users.noreply.github.com>
+- h1whelan <h1whelan@users.noreply.github.com>
 - craig-sh <craig-sh@users.noreply.github.com>
 - bernie gray <bfgray3@users.noreply.github.com>
 - azinneck0485 <123660683+azinneck0485@users.noreply.github.com>
@@ -280,10 +287,10 @@ contributors:
 - Samuel FORESTIER <HorlogeSkynet@users.noreply.github.com>
 - Rémi Cardona <remi.cardona@polyconseil.fr>
 - Ryan Ozawa <ryan.ozawa21@gmail.com>
-- Roger Sheu <78449574+rogersheu@users.noreply.github.com>
 - Raphael Gaschignard <raphael@makeleaps.com>
 - Ram Rachum <ram@rachum.com> (cool-RR)
 - Radostin Stoyanov <rst0git@users.noreply.github.com>
+- Puneet Dixit <puneetdixit4321@gmail.com>
 - Peter Bittner <django@bittner.it>
 - Paul Renvoisé <PaulRenvoise@users.noreply.github.com>
 - PHeanEX <github@pheanex.de>
@@ -302,6 +309,7 @@ contributors:
 - Maarten ter Huurne <maarten@treewalker.org>
 - Lefteris Karapetsas <lefteris@refu.co>
 - LCD 47 <lcd047@gmail.com>
+- Karl Hill <karlhillx@gmail.com>
 - Jérome Perrin <perrinjerome@gmail.com>
 - Justin Li <justinnhli@gmail.com>
 - Julfried <julian.grimm8@gmail.com>
@@ -316,6 +324,7 @@ contributors:
 - Grygorii Iermolenko <gyermolenko@gmail.com>
 - Grizzly Nyo <grizzly.nyo@gmail.com>
 - Gabriel R. Sezefredo <g@briel.dev>: Fixed "exception-escape" false positive with generators
+- Fridayai700 <aifriday700@gmail.com>
 - Filipe Brandenburger <filbranden@google.com>
 - Fantix King <fantix@uchicago.edu> (UChicago)
 - Eric McDonald <221418+emcd@users.noreply.github.com>
@@ -341,12 +350,13 @@ contributors:
 - Artem Yurchenko <artemyurchenko@zoho.com>
 - Alexander Kapshuna <kapsh@kap.sh>
 - Alexander Grund <Flamefire@users.noreply.github.com>
-- Akshay Choudhary <153769403+Akshay9715@users.noreply.github.com>
+- Aleksandr Kotlyar <ask.kotlyar@gmail.com>
 - Adam Parkin <pzelnip@users.noreply.github.com>
 - 谭九鼎 <109224573@qq.com>
 - Łukasz Sznuk <ls@rdprojekt.pl>
 - zasca <gorstav@gmail.com>
 - y2kbugger <y2kbugger@users.noreply.github.com>
+- wlkjyy <wlkjyy@vip.qq.com>
 - vinnyrose <vinnyrose@users.noreply.github.com>
 - ttenhoeve-aa <ttenhoeve@appannie.com>
 - thinwybk <florian.k@mailbox.org>
@@ -388,6 +398,7 @@ contributors:
 - amelenty <ada.melentyeva@gmail.com>
 - akirchhoff-modular <github-work@kirchhoff.digital>
 - agutole <toldo_carp@hotmail.com>
+- adam-grant-hendry <59346180+adam-grant-hendry@users.noreply.github.com>
 - Zeckie <49095968+Zeckie@users.noreply.github.com>
 - Zeb Nicholls <zebedee.nicholls@climate-energy-college.org>
   * Made W9011 compatible with 'of' syntax in return types
@@ -437,6 +448,8 @@ contributors:
 - Skip Montanaro <skip@pobox.com>
 - Sigurd Spieckermann <2206639+sisp@users.noreply.github.com>
 - Shiv Venkatasubrahmanyam <shvenkat@users.noreply.github.com>
+- Shehab Sherif <shehabsheriftawfik@gmail.com>
+- Shane Smiskol <shane@smiskol.com>
 - Sebastian Müller <mueller.seb@posteo.de>
 - Sayyed Faisal Ali <80758388+C0DE-SLAYER@users.noreply.github.com>
 - Sasha Bagan <pnlbagan@gmail.com>
@@ -448,6 +461,7 @@ contributors:
 - Ry4an Brase <ry4an-hg@ry4an.org>
 - Ruro <ruro.ruro@ya.ru>
 - Roshan Shetty <roshan.shetty2816@gmail.com>
+- Roman Valov <roman.valov@gmail.com>
 - Roman Ivanov <me@roivanov.com>
 - Robert Schweizer <robert_schweizer@gmx.de>
 - Reverb Chu <reverbc@users.noreply.github.com>
@@ -462,6 +476,7 @@ contributors:
 - R. N. West <98110034+rnwst@users.noreply.github.com>
 - Qwiddle13 <32040075+Qwiddle13@users.noreply.github.com>
 - Quentin Young <qlyoung@users.noreply.github.com>
+- Prerna Utage <prernautage04@gmail.com>
 - Prajwal Borkar <sunnyborkar7777@gmail.com>
 - Petr Pulc <petrpulc@gmail.com>: require whitespace around annotations
 - Peter Dawyndt <Peter.Dawyndt@UGent.be>
@@ -489,6 +504,7 @@ contributors:
 - Mitchell Young <mitchelly@gmail.com>: minor adjustment to docparams
 - Mitar <mitar.github@tnode.com>
 - Ming Lyu <CareF.Lm@gmail.com>
+- Millefeuille <millefeuille42@proton.me>
 - Mikhail f. Shiryaev <mr.felixoid@gmail.com>
 - Mike Fiedler <miketheman@gmail.com> (miketheman)
 - Mike Bryant <leachim@leachim.info>
@@ -512,11 +528,13 @@ contributors:
 - Marco Edward Gorelli <marcogorelli@protonmail.com>: Documented Jupyter integration
 - Marcin Kurczewski <rr-@sakuya.pl> (rr-)
 - Maik Röder <maikroeder@gmail.com>
+- MJSHANG <shangmengjiajiajia@gmail.com>
 - Lumír 'Frenzy' Balhar <frenzy.madness@gmail.com>
 - Ludovic Aubry <ludal@logilab.fr>
 - Louis Sautier <sautier.louis@gmail.com>
 - Lorena Buciu <46202743+lorena-b@users.noreply.github.com>
 - Logan Miller <14319179+komodo472@users.noreply.github.com>
+- Labib Bin Salam <98468420+Labib-Bin-Salam@users.noreply.github.com>
 - Kári Tristan Helgason <kthelgason@gmail.com>
 - Kurian Benoy <70306694+kurianbenoy-aot@users.noreply.github.com>
 - Krzysztof Czapla <k.czapla68@gmail.com>
@@ -532,6 +550,7 @@ contributors:
 - Kelvin Chiu <kelvin.chiu021@outlook.com>
 - Kayran Schmidt <59456929+yumasheta@users.noreply.github.com>
 - Karthik Nadig <kanadig@microsoft.com>
+- Kaiden Wang <kaidenwang0309@gmail.com>
 - Jürgen Hermann <jh@web.de>
 - Josselin Feist <josselin@trailofbits.com>
 - Jonathan Kotta <KottaJonathan@JohnDeere.com>
@@ -541,6 +560,7 @@ contributors:
 - John Belmonte <john@neggie.net>
 - Johannes Maron <johannes@maron.family>
 - Joffrey Mander <joffrey.mander+pro@gmail.com>
+- Joeseph Grey <212606152+StressTestor@users.noreply.github.com>
 - Jochen Preusche <iilei@users.noreply.github.com>
 - Joao Faria <joaovitorfaria.dev@gmail.com>
 - Jeroen Seegers <jeroenseegers@users.noreply.github.com>:
@@ -587,6 +607,8 @@ contributors:
 - Eddie Darling <eddie.darling@genapsys.com>
 - Drew Risinger <drewrisinger@users.noreply.github.com>
 - Dr. Nick <das-intensity@users.noreply.github.com>
+- Doug Needham <douglas.w.needham@gmail.com>
+  * Fixed issue 10969, pylint not discovering similarly named package.
 - Don Kirkby <donkirkby@users.noreply.github.com>
 - Don Jayamanne <don.jayamanne@yahoo.com>
 - Dominic Lavery <che@thisdevice.co.uk>
@@ -673,8 +695,6 @@ contributors:
 - Adam Tuft <73994535+adamtuft@users.noreply.github.com>
 - Adam Dangoor <adamdangoor@gmail.com>
 - 243f6a88 85a308d3 <33170174+243f6a8885a308d313198a2e037@users.noreply.github.com>
-- Doug Needham <douglas.w.needham@gmail.com>
-  * Fixed issue 10969, pylint not discovering similarly named package.
 
 
 Co-Author

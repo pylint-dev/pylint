@@ -18,7 +18,7 @@ env:
   KEY_PREFIX: venv-primer
   # If you change this, also change PRIMER_CURRENT_INTERPRETER in
   # tests/testutils/_primer/test_primer.py
-  DEFAULT_PYTHON: "3.13"
+  DEFAULT_PYTHON: "3.15"
 
 permissions:
   contents: read
@@ -32,18 +32,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v6.2.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
+          allow-prereleases: true
           check-latest: true
 
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: venv
           key:
@@ -51,9 +54,26 @@ jobs:
             env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
             'requirements_test.txt', 'requirements_test_min.txt',
             'requirements_test_pre_commit.txt') }}
+      # The cache can be evicted between the moment it is created on 'main'
+      # and the moment this job runs, so recreate the virtual environment
+      # if it is missing.
+      - name: Create Python virtual environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install --upgrade --requirement requirements_test.txt
+      # The cached venv contains the pylint that was installed when the cache was
+      # created, which can be stale. Reinstall from the current checkout so the
+      # comparison and comment rendering use the right code (see #11153).
+      - name: Install pylint from the current checkout
+        run: |
+          . venv/bin/activate
+          pip install . --no-deps
 
       - name: Download outputs
-        uses: actions/github-script@v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             // Download workflow pylint output
@@ -95,13 +115,15 @@ jobs:
         run: |
           . venv/bin/activate
           python tests/primer/__main__.py compare \
-          --commit=${{ github.event.workflow_run.head_sha }} \
+          --commit=${GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA} \
           --base-file=output_${{ env.DEFAULT_PYTHON }}_main_BATCHIDX.txt \
           --new-file=output_${{ env.DEFAULT_PYTHON }}_pr_BATCHIDX.txt \
           --batches=4
+        env:
+          GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
       - name: Post comment
         id: post-comment
-        uses: actions/github-script@v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require('fs')

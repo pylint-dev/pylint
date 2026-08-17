@@ -75,3 +75,31 @@ class B(A):
 
 
 res = B().a.f()  # no error here
+
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/11114
+# A function whose body ends in an unconditional raise never returns normally,
+# even when other statements precede the raise (e.g. pathlib.Path.readlink()
+# on platforms without symlink support).
+class Unsupported:
+    """Class with a method that always raises"""
+
+    def readlink(self):
+        """Always raises, so assigning its result is not an error"""
+        message = f"{type(self).__name__}.readlink() is unsupported"
+        raise OSError(message)
+
+
+link = Unsupported().readlink()  # no error here
+
+
+# A trailing raise does not make the function no-return if an earlier branch
+# can still return: here the bare return yields None, which is still reported.
+def early_return_then_raise(value):
+    """Returns on one branch, otherwise raises"""
+    if value:
+        return
+    raise ValueError(value)
+
+
+maybe = early_return_then_raise(None)  # [assignment-from-none]

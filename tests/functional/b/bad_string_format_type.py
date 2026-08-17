@@ -21,6 +21,14 @@ b"test".format(1, 2) # [no-member]
 "%s" % None
 "%(key)s" % {"key": None}
 
+# ``%i`` and ``%u`` accept a float (truncated like ``%d``); ``%a`` accepts any
+# type just like ``%s``/``%r``. None of the following are errors.
+"%i" % 1.1
+"%u" % 1.1
+"%a" % 1.1
+"%a" % "abc"
+"%(key)i" % {"key": 1.1}
+
 # Test incorrect format types
 "%d" % "1"  # [bad-string-format-type]
 "%(key)d" % {"key": "1"}  # [bad-string-format-type]

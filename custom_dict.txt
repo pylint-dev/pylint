@@ -41,6 +41,7 @@ boundmethod
 builtins
 bw
 callables
+callee
 cardinality
 cd
 cfg
@@ -57,6 +58,7 @@ classobj
 CLI
 cls
 cmp
+cnode
 codebase
 codec
 codecs
@@ -143,6 +145,7 @@ grey
 guido's
 gv
 hashable
+hashlib
 hmac
 html
 iattrs
@@ -200,6 +203,7 @@ mapfile
 mapreduce
 maxsize
 maxsplit
+mccabe
 mcs
 mermaidjs
 metaclass
@@ -228,6 +232,7 @@ mymodule
 mypy
 namedtuple
 namespace
+NaN
 newsfile
 newstyle
 nl
@@ -353,6 +358,7 @@ tomlkit
 toplevel
 towncrier
 tp
+traceback
 truthey
 truthness
 truthy
@@ -367,6 +373,7 @@ uid
 uml
 un
 unary
+unboundmethod
 unflattens
 unhandled
 unicode

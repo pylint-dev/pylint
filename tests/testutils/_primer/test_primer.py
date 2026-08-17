@@ -26,7 +26,7 @@ CASES_PATH = HERE / "cases"
 
 # If you change this, also change DEFAULT_PYTHON in
 # ``.github/workflows/primer_comment.yaml``
-PRIMER_CURRENT_INTERPRETER = (3, 13)
+PRIMER_CURRENT_INTERPRETER = (3, 15)
 
 DEFAULT_ARGS = ["python tests/primer/__main__.py", "compare", "--commit=v2.14.2"]
 
@@ -118,8 +118,8 @@ class TestPrimer:
             )
         assert len(content) < max_comment_length
 
-    def test_truncate_falls_back_when_no_space(self) -> None:
-        """When the pre-limit prefix has no space, cut at ``max_len - 10`` directly."""
+    def test_truncate_falls_back_when_no_line_break(self) -> None:
+        """When the pre-limit prefix has no line break, cut inside the line."""
         max_comment_length = 200
         config = argparse.Namespace(commit="v2.14.2")
         command = CompareCommand(PRIMER_DIRECTORY, {}, config)

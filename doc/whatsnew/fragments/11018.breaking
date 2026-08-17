@@ -1,0 +1,12 @@
+The ``confidence`` parameter is no longer nullable on any APIs except for
+``is_message_enabled`` (where ``confidence=None`` means "don't filter by
+confidence"). The default became ``interfaces.UNDEFINED`` (an immutable value);
+the behavior is unchanged unless you were passing an explicit ``None``. This
+avoids a runtime check in multiple function to set the default value conditionally.
+
+The ``constants.MSG_STATE_*`` integer were replaced by a ``MessageDisableReason`` enum.
+The old names remain as deprecated aliases pointing at the enum members.
+``MessageDisableReason`` is an ``IntEnum`` so existing code comparing the return of
+``_get_message_state_scope`` to the literal ``0`` / ``1`` / ``2`` keeps working.
+
+Refs #11018

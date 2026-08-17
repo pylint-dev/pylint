@@ -28,7 +28,7 @@ def _config_initialization(  # pylint: disable=too-many-statements
     linter: PyLinter,
     args_list: list[str],
     reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,
-    config_file: None | str | Path = None,
+    config_file: str | Path | None = None,
     verbose_mode: bool = False,
 ) -> None:
     """Parse all available options, read config files and command line arguments and

@@ -230,6 +230,13 @@ class RecommendationChecker(checkers.BaseChecker):
             case nodes.Name(name="self") if scope.name == "__iter__":
                 return
 
+        # ``consider-using-enumerate`` only applies to a simple loop variable.
+        # A tuple or attribute target (e.g. ``for self.idx in range(len(x))``)
+        # cannot be rewritten with ``enumerate``, and accessing
+        # ``node.target.name`` on such a target raises AttributeError (#10099).
+        if not isinstance(node.target, nodes.AssignName):
+            return
+
         # Verify that the body of the for loop uses a subscript
         # with the object that was iterated. This uses some heuristics
         # in order to make sure that the same object is used in the
@@ -269,6 +276,13 @@ class RecommendationChecker(checkers.BaseChecker):
 
         iterating_object_name = utils.get_iterating_dictionary_name(node)
         if iterating_object_name is None:
+            return
+
+        # ``consider-using-dict-items`` only applies to a simple loop variable.
+        # An attribute or subscript target (e.g. ``for self.key in d``) cannot be
+        # rewritten with ``.items()``, and accessing ``node.target.name`` on such
+        # a target raises AttributeError (#10099).
+        if not isinstance(node.target, nodes.AssignName):
             return
 
         # Verify that the body of the for loop uses a subscript
@@ -326,6 +340,11 @@ class RecommendationChecker(checkers.BaseChecker):
         """Add message when accessing dict values by index lookup."""
         iterating_object_name = utils.get_iterating_dictionary_name(node)
         if iterating_object_name is None:
+            return
+
+        # See ``_check_consider_using_dict_items``: a non-name target has no
+        # ``.name`` and cannot be rewritten with ``.items()`` (#10099).
+        if not isinstance(node.target, nodes.AssignName):
             return
 
         for child in node.parent.get_children():

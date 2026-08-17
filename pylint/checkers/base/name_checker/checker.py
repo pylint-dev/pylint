@@ -40,10 +40,12 @@ _BadNamesTuple = tuple[nodes.NodeNG, str, str, interfaces.Confidence]
 # Default patterns for name types that do not have styles
 DEFAULT_PATTERNS = {
     "typevar": re.compile(
-        r"^_{0,2}(?!T[A-Z])(?:[A-Z]+|(?:[A-Z]+[a-z]+)+(?:T)?(?<!Type))(?:_co(?:ntra)?)?$"
+        r"^_{0,2}(?!T[A-Z])(?:[A-Z]+|(?:[A-Z]+[a-z0-9]+)+(?:T)?(?<!Type))(?:_co(?:ntra)?)?$"
     ),
-    "paramspec": re.compile(r"^_{0,2}(?:[A-Z]+|(?:[A-Z]+[a-z]+)+(?:P)?(?<!Type))$"),
-    "typevartuple": re.compile(r"^_{0,2}(?:[A-Z]+|(?:[A-Z]+[a-z]+)+(?:Ts)?(?<!Type))$"),
+    "paramspec": re.compile(r"^_{0,2}(?:[A-Z]+|(?:[A-Z]+[a-z0-9]+)+(?:P)?(?<!Type))$"),
+    "typevartuple": re.compile(
+        r"^_{0,2}(?:[A-Z]+|(?:[A-Z]+[a-z0-9]+)+(?:Ts)?(?<!Type))$"
+    ),
     "typealias": re.compile(
         r"^_{0,2}(?!T[A-Z]|Type)[A-Z]+[a-z0-9]+(?:[A-Z][a-z0-9]+)*$"
     ),
@@ -450,7 +452,9 @@ class NameChecker(_BasicChecker):
                 )
 
                 # Check TypeVar's and TypeAliases assigned alone or in tuple assignment
-                if isinstance(node.parent, nodes.Assign):
+                if isinstance(node.parent, nodes.Assign) and isinstance(
+                    assign_type.targets[0], nodes.AssignName
+                ):
                     if typevar_node_type := self._assigns_typevar(assign_type.value):
                         self._check_name(
                             typevar_node_type, assign_type.targets[0].name, node
@@ -577,16 +581,18 @@ class NameChecker(_BasicChecker):
     ) -> bool:
         if isinstance(inferred_assign_type, nodes.ClassDef):
             return True
-        if isinstance(inferred_assign_type, bases.Instance) and {
-            "EnumMeta",
-            "TypedDict",
-        }.intersection(
-            {
+        if isinstance(inferred_assign_type, bases.Instance):
+            if "EnumMeta" in {
                 ancestor.name
                 for ancestor in cast(InferenceResult, inferred_assign_type).mro()
-            }
-        ):
-            return True
+            }:
+                return True
+            # The functional syntax `X = TypedDict("X", {...})` defines a new type,
+            # and is inferred as an instance of `TypedDict` itself. Instantiating a
+            # `TypedDict` subclass only builds a value, so its name is not a class
+            # name.
+            if inferred_assign_type._proxied.name == "TypedDict":
+                return True
         if (
             isinstance(inferred_assign_type, nodes.FunctionDef)
             and inferred_assign_type.qname() == "typing.Annotated"
@@ -736,6 +742,8 @@ class NameChecker(_BasicChecker):
 
         name_arg = None
         for kw in keywords:
+            if not isinstance(kw.value, nodes.Const):
+                continue
             if variance == TypeVarVariance.double_variant:
                 pass
             elif kw.arg == "covariant" and kw.value.value:
@@ -750,8 +758,7 @@ class NameChecker(_BasicChecker):
                     if variance != TypeVarVariance.covariant
                     else TypeVarVariance.double_variant
                 )
-
-            if kw.arg == "name" and isinstance(kw.value, nodes.Const):
+            if kw.arg == "name":
                 name_arg = kw.value.value
 
         if name_arg is None and args and isinstance(args[0], nodes.Const):

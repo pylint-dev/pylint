@@ -1,0 +1,6 @@
+Fix a false positive for ``invalid-name`` when a module-level variable is assigned
+an instance of a ``TypedDict`` subclass. Such a name is a value, not a type
+definition, so it is now checked against the constant or variable regex instead
+of ``class-rgx``.
+
+Closes #11231

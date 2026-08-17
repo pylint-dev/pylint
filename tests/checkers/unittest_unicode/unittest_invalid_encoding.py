@@ -139,7 +139,7 @@ class TestInvalidEncoding(pylint.testutils.CheckerTestCase):
 
     @pytest.mark.parametrize(
         "codec, msg",
-        (pytest.param(codec, msg, id=codec) for codec, msg in CODEC_AND_MSG),
+        [pytest.param(codec, msg, id=codec) for codec, msg in CODEC_AND_MSG],
     )
     def test___check_codec(
         self, codec: str, msg: tuple[pylint.testutils.MessageTest]

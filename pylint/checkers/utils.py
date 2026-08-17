@@ -756,9 +756,11 @@ def infer_kwarg_from_call(call_node: nodes.Call, keyword: str) -> nodes.Name | N
     for arg in call_node.kwargs:
         inferred = safe_infer(arg.value)
         if isinstance(inferred, nodes.Dict):
-            for item in inferred.items:
-                if item[0].value == keyword:
-                    return item[1]
+            for key, value in inferred.items:
+                # Keys can be any expression (or None for '**' unpacking),
+                # only string constants can name a keyword argument.
+                if isinstance(key, nodes.Const) and key.value == keyword:
+                    return value
 
     return None
 
@@ -1174,9 +1176,14 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
         if meta.name == "ABCMeta" and meta.root().name in ABC_MODULES:
             return True
 
-    for ancestor in node.ancestors():
-        if ancestor.name == "ABC" and ancestor.root().name in ABC_MODULES:
-            # abc.ABC inheritance
+    # As well as direct abc.ABC inheritance
+    for base in node.bases:
+        inferred_base = safe_infer(base)
+        if (
+            isinstance(inferred_base, nodes.ClassDef)
+            and inferred_base.root().name in ABC_MODULES
+            and inferred_base.name == "ABC"
+        ):
             return True
 
     for method in node.methods():
@@ -2230,7 +2237,7 @@ def is_terminating_func(node: nodes.Call) -> bool:
                 not isinstance(inferred, nodes.AsyncFunctionDef)
                 or isinstance(node.parent, nodes.Await)
             )
-            and isinstance(inferred.returns, nodes.Name)
+            and isinstance(inferred.returns, (nodes.Name, nodes.Attribute))
             and (inferred_func := safe_infer(inferred.returns))
             and hasattr(inferred_func, "qname")
             and inferred_func.qname()

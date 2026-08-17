@@ -598,7 +598,7 @@ See also :ref:`parameter_documentation checker's options' documentation <paramet
 
 Parameter Documentation checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:multiple-constructor-doc (W9005): *"%s" has constructor parameters documented in class and __init__*
+:multiple-constructor-doc (W9005): *"%s" has constructor parameters documented in class and %s*
   Please remove parameter declarations in the class or constructor.
 :missing-raises-doc (W9006): *"%s" not documented as being raised*
   Please document exceptions for all raised exception types.

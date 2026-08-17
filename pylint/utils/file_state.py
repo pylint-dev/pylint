@@ -13,7 +13,7 @@ from astroid import nodes
 
 from pylint.constants import (
     INCOMPATIBLE_WITH_USELESS_SUPPRESSION,
-    MSG_STATE_SCOPE_MODULE,
+    MessageDisableReason,
     WarningScope,
 )
 
@@ -207,15 +207,18 @@ class FileState:
             self._raw_module_msgs_state[msg.msgid] = {line: status}
 
     def handle_ignored_message(
-        self, state_scope: Literal[0, 1, 2] | None, msgid: str, line: int | None
+        self,
+        state_scope: MessageDisableReason | None,
+        msgid: str,
+        line: int | None,
     ) -> None:
         """Report an ignored message.
 
-        state_scope is either MSG_STATE_SCOPE_MODULE or MSG_STATE_SCOPE_CONFIG,
-        depending on whether the message was disabled locally in the module,
-        or globally.
+        ``state_scope`` indicates whether the message was disabled
+        inline in the module, globally in the configuration, or filtered
+        out by the ``--confidence`` setting.
         """
-        if state_scope == MSG_STATE_SCOPE_MODULE:
+        if state_scope == MessageDisableReason.MODULE:
             assert isinstance(line, int)  # should always be int inside module scope
 
             try:

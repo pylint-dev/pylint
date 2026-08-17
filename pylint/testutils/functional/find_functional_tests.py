@@ -24,6 +24,7 @@ IGNORED_PARENT_DIRS = {
     "ext",
     "regression",
     "regression_02",
+    "regression_03",
     "used_02",
 }
 """Direct parent directories that should be ignored."""

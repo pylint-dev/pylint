@@ -1,0 +1,3 @@
+Fix a crash in the variables checker when ``NotImplemented`` is used as the test of an ``if`` statement, which raised a ``TypeError`` in a boolean context on Python 3.14.
+
+Closes #11025

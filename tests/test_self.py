@@ -1079,6 +1079,33 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         )
         self._test_output([path, "-j2"], expected_output="")
 
+    @pytest.mark.parametrize(
+        "jobs,modules",
+        [
+            ("1", ["child.py", "parent.py"]),
+            pytest.param(
+                "2",
+                ["parent.py", "child.py"],
+                marks=pytest.mark.needs_two_cores,
+            ),
+        ],
+        ids=["child-first", "parallel"],
+    )
+    def test_setattr_defined_in_parent_is_order_independent(
+        self, jobs: str, modules: list[str]
+    ) -> None:
+        path = join(HERE, "regrtest_data", "attribute_defined_setattr_parent")
+        with _test_cwd(path):
+            self._runtest(
+                [
+                    f"--jobs={jobs}",
+                    "--disable=all",
+                    "--enable=attribute-defined-outside-init",
+                    *modules,
+                ],
+                code=0,
+            )
+
     @pytest.mark.needs_two_cores
     @pytest.mark.parametrize(
         "args",
@@ -1262,6 +1289,42 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             output_file,
             expected_output.format(path="tests/regrtest_data/unused_variable.py"),
         )
+
+    def test_repeated_output_format_options_write_to_all_files(
+        self, tmp_path: Path
+    ) -> None:
+        path = join(HERE, "regrtest_data", "unused_variable.py")
+        output_files = [tmp_path / "first.txt", tmp_path / "second.txt"]
+        arguments = _add_rcfile_default_pylintrc(
+            [
+                path,
+                *(
+                    f"--output-format=text:{output_file}"
+                    for output_file in output_files
+                ),
+            ]
+        )
+
+        process = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pylint",
+                *arguments,
+                "--persistent=no",
+            ],
+            capture_output=True,
+            check=False,
+            cwd=str(tmp_path),
+        )
+
+        assert (
+            process.returncode == MSG_TYPES_STATUS["W"]
+        ), f"{process.stdout!r}\n{process.stderr!r}"
+        for output_file in output_files:
+            assert "Unused variable 'variable'" in output_file.read_text(
+                encoding="utf-8"
+            )
 
     def test_output_file_can_be_combined_with_custom_reporter(
         self, tmp_path: Path

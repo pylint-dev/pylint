@@ -59,9 +59,8 @@ def test_primer_stdlib_no_crash(
         try:
             # We want to test all the code we can
             enables = ["--enable-all-extensions", "--enable=all"]
-            # Duplicate code takes too long and is relatively safe
             # We don't want to lint the test directory which are repetitive
-            disables = ["--disable=duplicate-code", "--ignore=test"]
+            disables = ["--ignore=test"]
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", category=UserWarning)
                 Run([test_module_name, *enables, *disables])

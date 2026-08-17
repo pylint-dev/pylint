@@ -133,3 +133,6 @@ def not_context_manager():
 
 with not_context_manager(): # [not-context-manager]
     pass
+
+with slice(None): # [not-context-manager]
+    pass
