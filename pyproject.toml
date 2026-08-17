@@ -154,7 +154,6 @@ lint.ignore = [
   "DTZ005",  # `datetime.datetime.now()` called without a `tz` argument
   "EXE001",  # Shebang is present but file is not executable
   "FLY002",  # Consider f-string instead of string join
-  "FURB177", # Prefer `Path.cwd()` over `Path().resolve()` for current-directory lookups
   "FURB192", # Prefer `min` over `sorted()` to compute the minimum value in a sequence
   "ISC004",  # Implicitly concatenated string in a collection literal
   "LOG015",  # `logging` call on the root logger
