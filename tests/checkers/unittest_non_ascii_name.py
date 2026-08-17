@@ -259,7 +259,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
         """We expect that for everything that user can change there is a message."""
         node = astroid.extract_node(f"{import_statement} #@")
 
-        expected_msgs: Iterable[pylint.testutils.MessageTest] = tuple()
+        expected_msgs: Iterable[pylint.testutils.MessageTest] = ()
 
         if wrong_name:
             expected_msgs = (
