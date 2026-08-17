@@ -44,22 +44,22 @@ class UnittestLinter(PyLinter):
         # Look up "location" data of node if not yet supplied
         if node:
             if node.position:
-                if not line:
+                if line is None:
                     line = node.position.lineno
-                if not col_offset:
+                if col_offset is None:
                     col_offset = node.position.col_offset
-                if not end_lineno:
+                if end_lineno is None:
                     end_lineno = node.position.end_lineno
-                if not end_col_offset:
+                if end_col_offset is None:
                     end_col_offset = node.position.end_col_offset
             else:
-                if not line:
+                if line is None:
                     line = node.fromlineno
-                if not col_offset:
+                if col_offset is None:
                     col_offset = node.col_offset
-                if not end_lineno:
+                if end_lineno is None:
                     end_lineno = node.end_lineno
-                if not end_col_offset:
+                if end_col_offset is None:
                     end_col_offset = node.end_col_offset
 
         self._messages.append(
