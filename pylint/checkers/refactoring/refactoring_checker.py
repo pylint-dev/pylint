@@ -31,9 +31,12 @@ if TYPE_CHECKING:
 
 NodesWithNestedBlocks: TypeAlias = nodes.Try | nodes.While | nodes.For | nodes.If
 
-# Operands of the simple comparisons we can reason about: variable names and
-# numeric literals (``a == 0``, ``a < b``...). Anything else is treated as
-# opaque and kept verbatim in the suggestion.
+# An operand of a comparison we can reason about. A number is held as itself,
+# because ``_link_constants`` needs to order it. Everything else is held as the
+# text it was written with: ``a``, ``obj.MAX``, ``len(items)``. Ordering never
+# needs the value, only the relations between operands, so an expression we
+# cannot evaluate is still a perfectly good node. Its text is only ever a bare
+# identifier when it *is* a variable, which keeps the two apart.
 _ComparisonOperand: TypeAlias = str | int | float
 _ComparisonEdge: TypeAlias = tuple[_ComparisonOperand, _ComparisonOperand]
 
@@ -1549,12 +1552,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if node.op != "and" or len(node.values) < 2:
             return None
 
+        reusable_texts = self._operands_written_once(node)
         segments: list[_ComparisonGraph | str] = []
         pending: list[tuple[_ComparisonGraph, list[int | float]]] = []
         current = _ComparisonGraph()
         const_values: list[int | float] = []
         for statement in node.values:
-            if self._add_compare_to_graph(statement, current, const_values):
+            if self._add_compare_to_graph(
+                statement, current, const_values, reusable_texts
+            ):
                 continue
             if current.source_count > 0:
                 pending.append((current, const_values))
@@ -1580,6 +1586,29 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for graph, consts in pending:
             self._link_constants(graph, consts)
         return segments
+
+    @staticmethod
+    def _operands_written_once(node: nodes.BoolOp) -> set[str]:
+        """Texts of the operands that appear exactly once in ``node``.
+
+        A name stands for one value however often it is written, and a number
+        is its own value, but any other expression is only known by its text.
+        Two occurrences of that text may well be two different values --
+        ``next(it) > 0 and next(it) < 10`` reads the iterator twice -- so such
+        an operand may only join a chain when it is written once.
+        """
+        counts: collections.Counter[str] = collections.Counter()
+        for statement in node.values:
+            if not isinstance(statement, nodes.Compare):
+                continue
+            operands = [statement.left, *(right for _, right in statement.ops)]
+            counts.update(
+                operand.as_string()
+                for operand in operands
+                if not isinstance(operand, nodes.Name)
+                and _numeric_operand_value(operand) is None
+            )
+        return {text for text, count in counts.items() if count == 1}
 
     def _emit_cycles(self, node: nodes.BoolOp, graph: _ComparisonGraph) -> bool:
         """Emit ``impossible-comparison`` / ``chained-comparison-all-equal``
@@ -1699,21 +1728,23 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         statement: nodes.NodeNG,
         graph: _ComparisonGraph,
         const_values: list[int | float],
+        reusable_texts: set[str],
     ) -> bool:
         """Try to fold ``statement`` into ``graph``.
 
-        Returns ``True`` when every operator/operand in ``statement`` is
-        something we can reason about (a numeric or string comparison between
-        a variable name and a numeric literal). Returns ``False`` otherwise so
-        the caller can keep the original text and mention it verbatim in the
-        suggestion. The graph is only mutated when the whole statement is
-        processable, so a partially-valid Compare doesn't leave half-committed
-        edges behind.
+        Returns ``True`` when every operator is one we order by and every
+        operand can be a node. Returns ``False`` otherwise so the caller can
+        keep the original text and mention it verbatim in the suggestion.
+
+        The graph is only mutated when the whole statement is processable, so
+        a partially-valid Compare doesn't leave half-committed edges behind.
         """
         if not isinstance(statement, nodes.Compare):
             return False
         pending_consts: list[int | float] = []
-        left = self._get_compare_operand_value(statement.left, pending_consts)
+        left = self._get_compare_operand_value(
+            statement.left, pending_consts, reusable_texts
+        )
         if left is None:
             return False
         operands: list[_ComparisonOperand] = [left]
@@ -1721,7 +1752,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for operator, right_node in statement.ops:
             if operator not in {"<", ">", "==", "<=", ">="}:
                 return False
-            right = self._get_compare_operand_value(right_node, pending_consts)
+            right = self._get_compare_operand_value(
+                right_node, pending_consts, reusable_texts
+            )
             if right is None:
                 return False
             operators.append(operator)
@@ -1819,7 +1852,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _get_compare_operand_value(
-        node: nodes.NodeNG, const_values: list[int | float]
+        node: nodes.NodeNG,
+        const_values: list[int | float],
+        reusable_texts: set[str],
     ) -> _ComparisonOperand | None:
         if isinstance(node, nodes.Name):
             # ``Name.name`` is typed ``Any``; pin it down for mypy.
@@ -1829,6 +1864,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if value is not None:
             const_values.append(value)
             return value
+        # ``as_string`` is typed ``Any``; pin it down for mypy.
+        text: str = node.as_string()
+        # An expression written the same way twice is not necessarily the same
+        # value, so only a text used once may take part. ``isidentifier``
+        # keeps a text that looks like a variable (``None``) out of the graph,
+        # where it could be mistaken for one.
+        if text in reusable_texts and not text.isidentifier():
+            return text
         return None
 
     def _handle_cycles(

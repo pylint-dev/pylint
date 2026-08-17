@@ -2,6 +2,8 @@
 
 # pylint: disable=missing-docstring, invalid-name, no-else-return, too-many-branches
 
+import sys
+
 
 def test_simplify_chained_comparison_1():
     a = 1
@@ -266,4 +268,33 @@ def test_negative_literals():
     if apples < -5 and apples > -1: # [impossible-comparison]
         pass
     if -1.5 < apples and apples < -0.5: # [chained-comparison]
+        pass
+
+
+def test_operands_we_cannot_evaluate():
+    """Ordering needs the relations between operands, never their values."""
+    apples = int(input())
+    crates = [1, 2, 3]
+    if apples >= 0 and apples <= sys.maxsize: # [chained-comparison]
+        pass
+    if apples > 0 and len(crates) > apples: # [chained-comparison]
+        pass
+    if crates[0] < apples and apples < len(crates): # [chained-comparison]
+        pass
+
+
+def test_an_expression_written_twice_may_be_two_values():
+    """``take(basket)`` twice may hand out two different apples."""
+    def take(basket):
+        return next(basket)
+
+    basket = iter([1, 2, 3])
+    crates = [1, 2, 3]
+    apples = int(input())
+    if take(basket) > 0 and take(basket) < 10:
+        pass
+    if len(crates) > apples and apples > len(crates):
+        pass
+    # A guard still comes before the range it protects.
+    if crates is not None and len(crates) > apples and apples > 0: # [chained-comparison]
         pass
