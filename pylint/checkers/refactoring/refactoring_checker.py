@@ -50,6 +50,15 @@ _REVERSED_COMPARE = {">": "<", ">=": "<=", "==": "=="}
 _MAX_COMPARISON_OPERANDS = 64
 # Stop adding parts to a suggestion once it is this long.
 _MAX_SUGGESTION_LENGTH = 64
+# Evaluating one of these can have a side effect or hand back something new,
+# so two occurrences of the same text need not be the same value.
+_IMPURE_NODES = (
+    nodes.Await,
+    nodes.Call,
+    nodes.NamedExpr,
+    nodes.Yield,
+    nodes.YieldFrom,
+)
 
 
 def _numeric_operand_value(node: nodes.NodeNG) -> int | float | None:
@@ -1552,14 +1561,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if node.op != "and" or len(node.values) < 2:
             return None
 
-        reusable_texts = self._operands_written_once(node)
+        usable_texts = self._usable_operand_texts(node)
         segments: list[_ComparisonGraph | str] = []
         pending: list[tuple[_ComparisonGraph, list[int | float]]] = []
         current = _ComparisonGraph()
         const_values: list[int | float] = []
         for statement in node.values:
             if self._add_compare_to_graph(
-                statement, current, const_values, reusable_texts
+                statement, current, const_values, usable_texts
             ):
                 continue
             if current.source_count > 0:
@@ -1588,27 +1597,37 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return segments
 
     @staticmethod
-    def _operands_written_once(node: nodes.BoolOp) -> set[str]:
-        """Texts of the operands that appear exactly once in ``node``.
+    def _usable_operand_texts(node: nodes.BoolOp) -> set[str]:
+        """Texts of the operands that may stand for a value in ``node``.
 
         A name stands for one value however often it is written, and a number
         is its own value, but any other expression is only known by its text.
-        Two occurrences of that text may well be two different values --
-        ``next(it) > 0 and next(it) < 10`` reads the iterator twice -- so such
-        an operand may only join a chain when it is written once.
+        The same text is the same value as long as reading it cannot do
+        anything: ``-x`` and ``obj.limit`` are as steady as a name.
+
+        A call is not. ``next(it) > 0 and next(it) < 10`` reads the iterator
+        twice, so a text holding a call is only usable when the condition
+        writes it once.
         """
         counts: collections.Counter[str] = collections.Counter()
+        impure_texts: set[str] = set()
         for statement in node.values:
             if not isinstance(statement, nodes.Compare):
                 continue
-            operands = [statement.left, *(right for _, right in statement.ops)]
-            counts.update(
-                operand.as_string()
-                for operand in operands
-                if not isinstance(operand, nodes.Name)
-                and _numeric_operand_value(operand) is None
-            )
-        return {text for text, count in counts.items() if count == 1}
+            for operand in (statement.left, *(right for _, right in statement.ops)):
+                if isinstance(operand, nodes.Name):
+                    continue
+                if _numeric_operand_value(operand) is not None:
+                    continue
+                text: str = operand.as_string()
+                counts[text] += 1
+                if next(operand.nodes_of_class(_IMPURE_NODES), None) is not None:
+                    impure_texts.add(text)
+        return {
+            text
+            for text, count in counts.items()
+            if count == 1 or text not in impure_texts
+        }
 
     def _emit_cycles(self, node: nodes.BoolOp, graph: _ComparisonGraph) -> bool:
         """Emit ``impossible-comparison`` / ``chained-comparison-all-equal``
@@ -1728,7 +1747,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         statement: nodes.NodeNG,
         graph: _ComparisonGraph,
         const_values: list[int | float],
-        reusable_texts: set[str],
+        usable_texts: set[str],
     ) -> bool:
         """Try to fold ``statement`` into ``graph``.
 
@@ -1743,7 +1762,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return False
         pending_consts: list[int | float] = []
         left = self._get_compare_operand_value(
-            statement.left, pending_consts, reusable_texts
+            statement.left, pending_consts, usable_texts
         )
         if left is None:
             return False
@@ -1753,7 +1772,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if operator not in {"<", ">", "==", "<=", ">="}:
                 return False
             right = self._get_compare_operand_value(
-                right_node, pending_consts, reusable_texts
+                right_node, pending_consts, usable_texts
             )
             if right is None:
                 return False
@@ -1854,7 +1873,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _get_compare_operand_value(
         node: nodes.NodeNG,
         const_values: list[int | float],
-        reusable_texts: set[str],
+        usable_texts: set[str],
     ) -> _ComparisonOperand | None:
         if isinstance(node, nodes.Name):
             # ``Name.name`` is typed ``Any``; pin it down for mypy.
@@ -1866,11 +1885,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return value
         # ``as_string`` is typed ``Any``; pin it down for mypy.
         text: str = node.as_string()
-        # An expression written the same way twice is not necessarily the same
-        # value, so only a text used once may take part. ``isidentifier``
-        # keeps a text that looks like a variable (``None``) out of the graph,
-        # where it could be mistaken for one.
-        if text in reusable_texts and not text.isidentifier():
+        # ``isidentifier`` keeps a text that looks like a variable (``None``)
+        # out of the graph, where it could be mistaken for one.
+        if text in usable_texts and not text.isidentifier():
             return text
         return None
 

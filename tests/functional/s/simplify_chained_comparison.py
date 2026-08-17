@@ -287,7 +287,7 @@ def test_operands_we_cannot_evaluate():
         pass
 
 
-def test_an_expression_written_twice_may_be_two_values():
+def test_a_call_written_twice_may_be_two_values():
     """``take(basket)`` twice may hand out two different apples."""
     def take(basket):
         return next(basket)
@@ -299,10 +299,21 @@ def test_an_expression_written_twice_may_be_two_values():
         pass
     if len(crates) > apples and apples > len(crates):
         pass
-    # Conservative: ``-apples`` is as steady as ``apples``, but the rule looks
-    # at the text, and this text is written twice.
-    if crates[0] > -apples and -apples > 0:
+    # The call is buried, but reading the text twice still runs it twice.
+    if crates[take(basket)] > apples and apples > crates[take(basket)]:
         pass
     # A guard still comes before the range it protects.
     if crates is not None and len(crates) > apples and apples > 0: # [chained-comparison]
+        pass
+
+
+def test_an_operand_without_a_call_may_be_written_twice():
+    """Reading ``-apples`` or ``sys.maxsize`` twice cannot change anything."""
+    crates = [1, 2, 3]
+    apples = int(input())
+    if crates[0] > -apples and -apples > 0: # [chained-comparison]
+        pass
+    if sys.maxsize > apples and apples > sys.maxsize: # [impossible-comparison]
+        pass
+    if crates[0] > apples and apples > crates[0]: # [impossible-comparison]
         pass

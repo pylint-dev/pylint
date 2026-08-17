@@ -61,4 +61,7 @@ chained-comparison:278:7:278:44:test_operands_we_cannot_evaluate:"Simplify chain
 chained-comparison:280:7:280:42:test_operands_we_cannot_evaluate:"Simplify chained comparison between the operands: 0 < apples < len(crates)":HIGH
 chained-comparison:282:7:282:50:test_operands_we_cannot_evaluate:"Simplify chained comparison between the operands: crates[0] < apples < len(crates)":HIGH
 chained-comparison:286:7:286:39:test_operands_we_cannot_evaluate:"Simplify chained comparison between the operands: -bananas < apples < 5":HIGH
-chained-comparison:307:7:307:65:test_an_expression_written_twice_may_be_two_values:"Simplify chained comparison between the operands: crates is not None and 0 < apples < len(crates)":HIGH
+chained-comparison:306:7:306:65:test_a_call_written_twice_may_be_two_values:"Simplify chained comparison between the operands: crates is not None and 0 < apples < len(crates)":HIGH
+chained-comparison:314:7:314:42:test_an_operand_without_a_call_may_be_written_twice:"Simplify chained comparison between the operands: 0 < -apples < crates[0]":HIGH
+impossible-comparison:316:7:316:52:test_an_operand_without_a_call_may_be_written_twice:This comparison always evaluates to False:HIGH
+impossible-comparison:318:7:318:48:test_an_operand_without_a_call_may_be_written_twice:This comparison always evaluates to False:HIGH
