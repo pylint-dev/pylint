@@ -254,3 +254,16 @@ def test_suggestion_is_truncated():
     if (looks_like_a_ripe_banana(banana) and smells_like_a_ripe_banana(banana)
             and banana > 1 and banana < 10):
         pass
+
+
+def test_negative_literals():
+    """``-1`` is a minus applied to ``1``, but it is still a number."""
+    apples = int(input())
+    if apples > -1 and apples < 5: # [chained-comparison]
+        pass
+    if apples > -1 and apples > 3: # [chained-comparison]
+        pass
+    if apples < -5 and apples > -1: # [impossible-comparison]
+        pass
+    if -1.5 < apples and apples < -0.5: # [chained-comparison]
+        pass

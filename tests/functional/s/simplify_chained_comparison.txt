@@ -53,3 +53,7 @@ comparison-with-itself:225:17:225:23:test_comparison_with_itself_is_a_boundary:R
 chained-comparison:237:7:237:34:test_a_literal_equality_does_not_link_two_conditions:"Simplify chained comparison between the operands: apples < 0 <= bananas":HIGH
 chained-comparison:240:7:240:59:test_a_literal_equality_does_not_link_two_conditions:"Simplify chained comparison between the operands: apples < bananas < 0 and cherries == 786":HIGH
 chained-comparison:254:8:255:42:test_suggestion_is_truncated:"Simplify chained comparison between the operands: looks_like_a_ripe_banana(banana) and smells_like_a_ripe_banana(banana) and ...":HIGH
+chained-comparison:262:7:262:33:test_negative_literals:"Simplify chained comparison between the operands: -1 < apples < 5":HIGH
+chained-comparison:264:7:264:33:test_negative_literals:"Simplify chained comparison between the operands: apples > 3":HIGH
+impossible-comparison:266:7:266:34:test_negative_literals:This comparison always evaluates to False:HIGH
+chained-comparison:268:7:268:38:test_negative_literals:"Simplify chained comparison between the operands: -1.5 < apples < -0.5":HIGH

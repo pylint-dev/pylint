@@ -49,6 +49,22 @@ _MAX_COMPARISON_OPERANDS = 64
 _MAX_SUGGESTION_LENGTH = 64
 
 
+def _numeric_operand_value(node: nodes.NodeNG) -> int | float | None:
+    """Return the number ``node`` is written as, or ``None``.
+
+    Python has no negative literals: ``-1`` is a minus applied to ``1``, so a
+    plain ``Const`` test misses every negative number in the source.
+    """
+    if isinstance(node, nodes.UnaryOp) and node.op in {"-", "+"}:
+        operand_value = _numeric_operand_value(node.operand)
+        if operand_value is None:
+            return None
+        return -operand_value if node.op == "-" else operand_value
+    if isinstance(node, nodes.Const) and isinstance(node.value, (int, float)):
+        return node.value
+    return None
+
+
 @dataclass
 class _ComparisonGraph:
     """Directed graph of operands extracted from a chain of ``and``-ed comparisons.
@@ -1805,11 +1821,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _get_compare_operand_value(
         node: nodes.NodeNG, const_values: list[int | float]
     ) -> _ComparisonOperand | None:
-        if isinstance(node, nodes.Name) and isinstance(node.name, str):
-            return node.name
-        if isinstance(node, nodes.Const) and isinstance(node.value, (int, float)):
-            const_values.append(node.value)
-            return node.value
+        if isinstance(node, nodes.Name):
+            # ``Name.name`` is typed ``Any``; pin it down for mypy.
+            name: str = node.name
+            return name
+        value = _numeric_operand_value(node)
+        if value is not None:
+            const_values.append(value)
+            return value
         return None
 
     def _handle_cycles(
