@@ -139,7 +139,6 @@ lint.extend-select = [
 lint.ignore = [
   "B905",    # `zip()` without an explicit `strict=` parameter
   "BLE001",  # Do not catch blind exception: `Exception`
-  "C414",    # Unnecessary `list()` call within `sorted()`
   "D100",    # Missing docstring in public module
   "D101",    # Missing docstring in public class
   "D102",    # Missing docstring in public method
