@@ -1571,11 +1571,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         Returns whether anything was emitted.
         """
-        # ``get_cycles`` canonicalizes each cycle with ``min()``, so it needs a
-        # graph whose nodes are all of the same, orderable type. Feed it the
-        # string spelling of every operand and keep the way back: ``symbols``
-        # is keyed by the operands themselves, and the ``int`` ``5`` does not
-        # compare equal to the ``str`` ``"5"``.
+        # ``get_cycles`` picks a canonical start for each cycle with ``min()``,
+        # so it needs a graph whose nodes can all be compared with each other.
+        # Feed it the string spelling of every operand and keep the way back:
+        # ``symbols`` is keyed by the operands themselves, and the ``int`` ``5``
+        # does not compare equal to the ``str`` ``"5"``.
         by_str = {str(operand): operand for operand in graph.edges}
         str_edges = {
             str(key): {str(dest) for dest in graph.edges[key]} for key in graph.edges
