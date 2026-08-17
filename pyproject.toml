@@ -139,7 +139,6 @@ lint.extend-select = [
 lint.ignore = [
   "B905",    # `zip()` without an explicit `strict=` parameter
   "BLE001",  # Do not catch blind exception: `Exception`
-  "C401",    # Unnecessary generator (rewrite as a set comprehension)
   "C405",    # Unnecessary list literal (rewrite as a set literal)
   "C408",    # Unnecessary `dict()` call (rewrite as a literal)
   "C414",    # Unnecessary `list()` call within `sorted()`
