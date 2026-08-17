@@ -201,3 +201,4 @@ def open_with_unknown_mode(mode):
     open(FILENAME, mode)
     open(FILENAME, mode=mode)
     Path(FILENAME).open(mode)
+    open(f, mode, encoding=None)
