@@ -40,6 +40,11 @@ _ComparisonEdge: TypeAlias = tuple[_ComparisonOperand, _ComparisonOperand]
 KNOWN_INFINITE_ITERATORS = {"itertools.count", "itertools.cycle"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
 _REVERSED_COMPARE = {">": "<", ">=": "<=", "==": "=="}
+# Give up above this many distinct operands in one run of comparisons. Both the
+# cycle search and the path search are recursive, so a machine-generated
+# condition would hit the interpreter's recursion limit and be reported as a
+# fatal error. No hand-written condition comes close.
+_MAX_COMPARISON_OPERANDS = 64
 
 
 @dataclass
@@ -1536,6 +1541,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             segments.append(current)
 
         if not pending:
+            return None
+        if any(len(graph.edges) > _MAX_COMPARISON_OPERANDS for graph, _ in pending):
             return None
         # Bail before constant linking. ``value == 1 and value == 2`` would
         # otherwise gain a synthetic ``2 > 1`` edge and look chain-collapsible
