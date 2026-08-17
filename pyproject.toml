@@ -156,7 +156,6 @@ lint.ignore = [
   "FLY002", # Consider f-string instead of string join
   "ISC004", # Implicitly concatenated string in a collection literal
   "LOG015", # `logging` call on the root logger
-  "PT014",  # Duplicate of test case in `@pytest_mark.parametrize`
   "PT031",  # `pytest.warns()` block should contain a single simple statement
   "PTH100", # `os.path.abspath()` should be replaced by `Path.resolve()`
   "PTH103", # `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
