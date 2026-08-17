@@ -199,9 +199,7 @@ class LintModuleTest:
         for message in messages:
             if message.path not in file_representations:
                 with open(message.path) as f:
-                    file_representations[message.path] = [
-                        line[:-1] for line in f.readlines()
-                    ]
+                    file_representations[message.path] = [line[:-1] for line in f]
             file_representations[message.path][
                 message.line - 1
             ] += f"  # <-- /!\\ unexpected '{message.symbol}' /!\\"

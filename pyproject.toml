@@ -160,7 +160,6 @@ lint.ignore = [
   "EXE001",  # Shebang is present but file is not executable
   "FLY002",  # Consider f-string instead of string join
   "FURB105", # Unnecessary empty string passed to `print`
-  "FURB129", # Instead of calling `readlines()`, iterate over file object directly
   "FURB167", # Use of regular expression alias `re.M`
   "FURB177", # Prefer `Path.cwd()` over `Path().resolve()` for current-directory lookups
   "FURB192", # Prefer `min` over `sorted()` to compute the minimum value in a sequence
