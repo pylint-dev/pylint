@@ -1708,6 +1708,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         graph: _ComparisonGraph,
         cycles: Sequence[list[_ComparisonOperand]],
     ) -> None:
+        all_equal_cycles: list[list[_ComparisonOperand]] = []
         for cycle in cycles:
             # ``get_cycles`` starts each cycle at its alphabetically smallest
             # operand, which puts a literal first. Rotate to a variable so the
@@ -1719,14 +1720,22 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             edges = [(cycle[i], cycle[i + 1]) for i in range(len(cycle) - 1)]
             edges.append((cycle[-1], cycle[0]))
             if all(graph.symbols[edge] == ">=" for edge in edges):
-                self.add_message(
-                    "chained-comparison-all-equal",
-                    node=node,
-                    args=(" == ".join(str(operand) for operand in cycle),),
-                    confidence=HIGH,
-                )
-            else:
-                self.add_message("impossible-comparison", node=node, confidence=HIGH)
+                all_equal_cycles.append(cycle)
+                continue
+            # One strict cycle already makes the whole condition unsatisfiable.
+            # A second ``impossible-comparison`` on the same node would be an
+            # exact duplicate, and the equality groups of the other cycles are
+            # moot once nothing can be true.
+            self.add_message("impossible-comparison", node=node, confidence=HIGH)
+            return
+
+        for cycle in all_equal_cycles:
+            self.add_message(
+                "chained-comparison-all-equal",
+                node=node,
+                args=(" == ".join(str(operand) for operand in cycle),),
+                confidence=HIGH,
+            )
 
     @staticmethod
     def _apply_boolean_simplification_rules(

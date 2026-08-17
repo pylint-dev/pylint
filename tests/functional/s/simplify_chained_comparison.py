@@ -199,3 +199,17 @@ def test_boundary_keeps_its_parentheses():
         pass
     if a > 1 and a < 10 and (b := c): # [chained-comparison]
         pass
+
+
+def test_several_cycles():
+    a, b, c, d = 1, 2, 3, 4
+    # Two contradictions, but the condition can only be False once.
+    if a > b and b > a and c > d and d > c: # [impossible-comparison]
+        pass
+    # Two independent groups of equal operands, each worth its own message.
+    # +1: [chained-comparison-all-equal,chained-comparison-all-equal]
+    if a >= b and b >= a and c >= d and d >= c:
+        pass
+    # A single contradiction is enough to silence the equality groups.
+    if a > b and b > a and c >= d and d >= c: # [impossible-comparison]
+        pass

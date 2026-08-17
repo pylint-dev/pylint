@@ -43,3 +43,7 @@ chained-comparison-all-equal:178:7:178:38:test_cycles_do_not_cross_unprocessable
 chained-comparison:196:7:196:36:test_boundary_keeps_its_parentheses:"Simplify chained comparison between the operands: 1 < a < 10 and (b or c)":HIGH
 chained-comparison:198:7:198:43:test_boundary_keeps_its_parentheses:"Simplify chained comparison between the operands: 1 < a < 10 and (b if c else d)":HIGH
 chained-comparison:200:7:200:36:test_boundary_keeps_its_parentheses:"Simplify chained comparison between the operands: 1 < a < 10 and (b := c)":HIGH
+impossible-comparison:207:7:207:42:test_several_cycles:This comparison always evaluates to False:HIGH
+chained-comparison-all-equal:211:7:211:46:test_several_cycles:"Simplify chained comparison cycle to equality between the operands: a == b":HIGH
+chained-comparison-all-equal:211:7:211:46:test_several_cycles:"Simplify chained comparison cycle to equality between the operands: c == d":HIGH
+impossible-comparison:214:7:214:44:test_several_cycles:This comparison always evaluates to False:HIGH
