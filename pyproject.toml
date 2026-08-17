@@ -180,7 +180,6 @@ lint.ignore = [
   "SIM114", # Combine `if` branches using logical `or` operator
   "SIM115", # Use a context manager for opening files
   "SIM117", # Use a single `with` statement with multiple contexts
-  "SIM118", # Use `key in dict` instead of `key in dict.keys()`
   "SIM201", # Use `!=` instead of `not ==`
   "TRY004", # Prefer `TypeError` exception for invalid type
   "YTT204", # `sys.version_info.minor` compared to integer
