@@ -281,6 +281,10 @@ def test_operands_we_cannot_evaluate():
         pass
     if crates[0] < apples and apples < len(crates): # [chained-comparison]
         pass
+    # A minus applied to a name is not a number, but it is still an operand.
+    bananas = int(input())
+    if apples > -bananas and apples < 5: # [chained-comparison]
+        pass
 
 
 def test_an_expression_written_twice_may_be_two_values():
@@ -294,6 +298,10 @@ def test_an_expression_written_twice_may_be_two_values():
     if take(basket) > 0 and take(basket) < 10:
         pass
     if len(crates) > apples and apples > len(crates):
+        pass
+    # Conservative: ``-apples`` is as steady as ``apples``, but the rule looks
+    # at the text, and this text is written twice.
+    if crates[0] > -apples and -apples > 0:
         pass
     # A guard still comes before the range it protects.
     if crates is not None and len(crates) > apples and apples > 0: # [chained-comparison]

@@ -60,4 +60,5 @@ chained-comparison:270:7:270:38:test_negative_literals:"Simplify chained compari
 chained-comparison:278:7:278:44:test_operands_we_cannot_evaluate:"Simplify chained comparison between the operands: 0 <= apples <= sys.maxsize":HIGH
 chained-comparison:280:7:280:42:test_operands_we_cannot_evaluate:"Simplify chained comparison between the operands: 0 < apples < len(crates)":HIGH
 chained-comparison:282:7:282:50:test_operands_we_cannot_evaluate:"Simplify chained comparison between the operands: crates[0] < apples < len(crates)":HIGH
-chained-comparison:299:7:299:65:test_an_expression_written_twice_may_be_two_values:"Simplify chained comparison between the operands: crates is not None and 0 < apples < len(crates)":HIGH
+chained-comparison:286:7:286:39:test_operands_we_cannot_evaluate:"Simplify chained comparison between the operands: -bananas < apples < 5":HIGH
+chained-comparison:307:7:307:65:test_an_expression_written_twice_may_be_two_values:"Simplify chained comparison between the operands: crates is not None and 0 < apples < len(crates)":HIGH
