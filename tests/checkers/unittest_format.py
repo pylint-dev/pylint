@@ -215,3 +215,44 @@ class TestIgnorePatternInLongLines(CheckerTestCase):
         for msg, code in cases:
             with self.assertAddsMessages(msg):
                 self.checker.process_tokens(_tokenize_str(code + "\n"))
+
+
+class TestIgnoredToolPragmas(CheckerTestCase):
+    CHECKER_CLASS = FormatChecker
+
+    def test_trailing_tool_pragma_not_counted(self) -> None:
+        """Trailing pragmas from other tools do not count toward the length."""
+        self.checker.linter.config.max_line_length = 20
+        self.checker.linter.config.ignore_pattern_in_long_lines = None
+        cases = [
+            "x = '12345'  # type: ignore",
+            "x = '12345'  # type: ignore[assignment]",
+            "x = '12345'  # noqa",
+            "x = '12345'  # noqa: E501, RUF001",
+            "x = '12345'  # pragma: no cover",
+            "x = '123'  # noqa: E501  # pragma: no cover",
+        ]
+        with self.assertNoMessages():
+            for code in cases:
+                self.checker.process_tokens(_tokenize_str(code + "\n"))
+
+    def test_trailing_tool_pragma_still_catches_too_long_code(self) -> None:
+        """Code that is too long on its own is still reported, discounting the
+        pragma when computing the reported length.
+        """
+        self.checker.linter.config.max_line_length = 20
+        self.checker.linter.config.ignore_pattern_in_long_lines = None
+        cases = [
+            (
+                MessageTest("line-too-long", line=1, args=(26, 20)),
+                "x = '12345678901234567890'  # noqa",
+            ),
+            (
+                # A word that only looks like a pragma is left untouched.
+                MessageTest("line-too-long", line=1, args=(36, 20)),
+                "x = '12345'  # noqal is not a pragma",
+            ),
+        ]
+        for msg, code in cases:
+            with self.assertAddsMessages(msg):
+                self.checker.process_tokens(_tokenize_str(code + "\n"))

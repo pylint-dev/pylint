@@ -13,6 +13,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 from __future__ import annotations
 
+import re
 import tokenize
 from functools import reduce
 from re import Match
@@ -30,6 +31,19 @@ from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragm
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
+
+# Trailing pragma comments understood by other common Python tooling. Just like
+# Pylint's own disable pragmas, these are not counted toward the line length so
+# that a line is not flagged as ``line-too-long`` solely because of such a
+# pragma. See https://github.com/pylint-dev/pylint/issues/10172.
+_IGNORED_PRAGMA_RGX = re.compile(
+    r"[ \t]*#[ \t]*"
+    r"(?:"
+    r"type:[ \t]*ignore(?:\[[^\]\n]*\])?"  # mypy / pyright
+    r"|noqa\b(?::[ \t\w,]*)?"  # flake8 / ruff
+    r"|pragma:[ \t]*no[ \t]?cover"  # coverage.py
+    r")"
+)
 
 _KEYWORD_TOKENS = {
     "assert",
@@ -716,6 +730,11 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 checker_off = True
             # The 'pylint: disable whatever' should not be taken into account for line length count
             lines = self.remove_pylint_option_from_lines(mobj)
+
+        # Trailing pragmas from other tooling (``# type: ignore``, ``# noqa``,
+        # ``# pragma: no cover``, ...) should not be taken into account for the
+        # line length count either.
+        lines = _IGNORED_PRAGMA_RGX.sub("", lines)
 
         ignore_pattern_in_long_lines = self.linter.config.ignore_pattern_in_long_lines
         if ignore_pattern_in_long_lines:
