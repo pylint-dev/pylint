@@ -32,10 +32,7 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-# Trailing pragma comments understood by other common Python tooling. Just like
-# Pylint's own disable pragmas, these are not counted toward the line length so
-# that a line is not flagged as ``line-too-long`` solely because of such a
-# pragma. See https://github.com/pylint-dev/pylint/issues/10172.
+# Trailing pragmas from other tooling, discounted from line length like Pylint's own (see #10172).
 _IGNORED_PRAGMA_RGX = re.compile(
     r"[ \t]*#[ \t]*"
     r"(?:"
