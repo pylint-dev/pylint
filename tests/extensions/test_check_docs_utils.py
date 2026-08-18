@@ -196,4 +196,3 @@ def test_get_setters_property_with_non_function_attr() -> None:
             raise Exception
     """)
     assert utils.get_setters_property(node) is None
-
