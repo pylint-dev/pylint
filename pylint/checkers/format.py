@@ -39,9 +39,10 @@ if TYPE_CHECKING:
 _IGNORED_PRAGMA_RGX = re.compile(
     r"[ \t]*#[ \t]*"
     r"(?:"
-    r"type:[ \t]*ignore(?:\[[^\]\n]*\])?"  # mypy / pyright
+    r"type:[ \t]*ignore(?:\[[^\]\n]*\])?"  # mypy
+    r"|pyright:[ \t]*ignore(?:\[[^\]\n]*\])?"  # pyright
     r"|noqa\b(?::[ \t\w,]*)?"  # flake8 / ruff
-    r"|pragma:[ \t]*no[ \t]?cover"  # coverage.py
+    r"|pragma:[ \t]*no[ \t]?(?:cover|branch)"  # coverage.py
     r")"
 )
 

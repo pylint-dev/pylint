@@ -227,9 +227,12 @@ class TestIgnoredToolPragmas(CheckerTestCase):
         cases = [
             "x = '12345'  # type: ignore",
             "x = '12345'  # type: ignore[assignment]",
+            "x = '12345'  # pyright: ignore",
+            "x = '12345'  # pyright: ignore[reportGeneralTypeIssues]",
             "x = '12345'  # noqa",
             "x = '12345'  # noqa: E501, RUF001",
             "x = '12345'  # pragma: no cover",
+            "x = '12345'  # pragma: no branch",
             "x = '123'  # noqa: E501  # pragma: no cover",
         ]
         with self.assertNoMessages():

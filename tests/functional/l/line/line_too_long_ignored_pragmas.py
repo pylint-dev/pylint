@@ -8,10 +8,13 @@ See issue #10172 for the rationale behind this behaviour.
 # of a trailing tool pragma, so no message is expected here.
 a1 = "a compact but readable pragma sample"  # type: ignore
 a2 = "a compact but readable pragma sample"  # type: ignore[assignment]
-a3 = "a compact but readable pragma sample"  # noqa
-a4 = "a compact but readable pragma sample"  # noqa: E501, RUF001
-a5 = "a compact but readable pragma sample"  # pragma: no cover
-a6 = "a compact pragma sample"  # noqa: E501  # pragma: no cover
+a3 = "a compact but readable pragma sample"  # pyright: ignore
+a4 = "a compact but readable pragma sample"  # pyright: ignore[reportArgumentType]
+a5 = "a compact but readable pragma sample"  # noqa
+a6 = "a compact but readable pragma sample"  # noqa: E501, RUF001
+a7 = "a compact but readable pragma sample"  # pragma: no cover
+a8 = "a compact but readable pragma sample"  # pragma: no branch
+a9 = "a compact pragma sample"  # noqa: E501  # pragma: no cover
 
 # The code is still too long once the pragma is discounted,
 # so the message is still emitted, using the length of the
