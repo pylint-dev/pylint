@@ -332,6 +332,14 @@ class Docstring:
     def match_param_docs(self) -> tuple[set[str], set[str]]:
         return set(), set()
 
+    def match_param_types(self) -> dict[str, str]:
+        """Return a mapping of parameter name to its docstring type string.
+
+        The default implementation returns an empty dict.
+        Subclasses override this for each docstring style.
+        """
+        return {}
+
     def params_documented_elsewhere(self) -> bool:
         return self.re_for_parameters_see.search(self.doc) is not None
 
@@ -404,6 +412,17 @@ class SphinxDocstring(Docstring):
         \s*                             # whitespace
         :                               # final colon
         """
+
+    _re_sphinx_type_tag = re.compile(
+        r"""
+        :type\s+
+        (?P<name>\*{0,2}\w+)
+        \s*:\s*
+        (?P<type>[^\n]+)
+        """,
+        re.VERBOSE,
+    )
+
     re_raise_in_docstring = re.compile(re_raise_raw, re.X | re.S)
 
     re_rtype_in_docstring = re.compile(r":rtype:")
@@ -424,6 +443,13 @@ class SphinxDocstring(Docstring):
                 self.re_property_type_in_docstring.search(self.doc),
             )
         )
+
+    def match_param_types(self) -> dict[str, str]:
+        """Return {param_name: type_str} from Sphinx :type: tags."""
+        result: dict[str, str] = {}
+        for m in self._re_sphinx_type_tag.finditer(self.doc):
+            result[m.group("name")] = m.group("type").strip()
+        return result
 
     def exceptions(self) -> set[str]:
         types: set[str] = set()
@@ -615,6 +641,17 @@ class GoogleDocstring(Docstring):
         _re_section_template.format(r"Yields?"), re.X | re.S | re.M
     )
 
+    _re_google_param_type = re.compile(
+        r"""
+        ^\s*
+        \*{0,2}(?P<name>\w+)
+        \s*
+        \((?P<type>[^)]+)\)
+        \s*:
+        """,
+        re.VERBOSE | re.MULTILINE,
+    )
+
     re_yields_line = re_returns_line
 
     supports_yields = True
@@ -761,6 +798,20 @@ class GoogleDocstring(Docstring):
 
         return params_with_doc, params_with_type
 
+    def match_param_types(self) -> dict[str, str]:
+        """Return {param_name: type_str} from Google-style Args section."""
+        result: dict[str, str] = {}
+        for line in self._parse_section(self.re_param_section):
+            m = self._re_google_param_type.match(line)
+            if m:
+                result[m.group("name")] = m.group("type").strip()
+        if hasattr(self, "re_keyword_param_section"):
+            for line in self._parse_section(self.re_keyword_param_section):
+                m = self._re_google_param_type.match(line)
+                if m:
+                    result[m.group("name")] = m.group("type").strip()
+        return result
+
     def _first_line(self) -> str:
         return self.doc.lstrip().split("\n", 1)[0]
 
@@ -870,6 +921,16 @@ class NumpyDocstring(GoogleDocstring):
         re.X | re.S | re.M,
     )
 
+    _re_numpy_param_type = re.compile(
+        r"""
+        ^\s*
+        (?P<name>\*{0,2}\w+)
+        \s*:\s*
+        (?P<type>[^\n]+)
+        """,
+        re.VERBOSE | re.MULTILINE,
+    )
+
     re_yields_section = re.compile(
         _re_section_template.format(r"Yields?"), re.X | re.S | re.M
     )
@@ -911,6 +972,15 @@ class NumpyDocstring(GoogleDocstring):
                     params_with_doc.add(param_name)
 
         return params_with_doc, params_with_type
+
+    def match_param_types(self) -> dict[str, str]:
+        """Return {param_name: type_str} from NumPy-style Parameters section."""
+        result: dict[str, str] = {}
+        for line in self._parse_section(self.re_param_section):
+            m = self._re_numpy_param_type.match(line)
+            if m and m.group("type").strip():
+                result[m.group("name")] = m.group("type").strip()
+        return result
 
     @staticmethod
     def min_section_indent(section_match: re.Match[str]) -> int:
