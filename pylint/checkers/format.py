@@ -55,7 +55,7 @@ _JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
 # ruff, coverage). Like pylint's own inline pragmas, these should not count
 # towards ``line-too-long`` when they are the only thing pushing a line past the
 # limit. Matched on raw source text and anchored to the end of the line, so a
-# chain such as "# noqa: E501  # pragma: no cover" is handled too.
+# chain such as "# pragma: no cover" is handled too.
 _TRAILING_TOOL_PRAGMA_RGX = re.compile(
     r"(?:\s*#\s*(?:"
     r"type:\s*ignore(?:\[[^\]]*\])?"
