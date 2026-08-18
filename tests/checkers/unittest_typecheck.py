@@ -35,15 +35,13 @@ class TestTypeChecker(CheckerTestCase):
             "malformed-entry-without-suggestion",
         )
         self.checker.open()
-        module = astroid.parse(
-            """
+        module = astroid.parse("""
             items = []
             result = items.reverse()
             result = shuffle(items)
             functions = [shuffle]
             result = functions[0](items)
-            """
-        )
+            """)
         reverse_assign = module.body[1]
         shuffle_assign = module.body[2]
         subscript_assign = module.body[4]
