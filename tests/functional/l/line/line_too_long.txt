@@ -9,3 +9,4 @@ line-too-long:64:0:None:None::Line too long (122/100):UNDEFINED
 line-too-long:71:0:None:None::Line too long (131/100):UNDEFINED
 line-too-long:72:0:None:None::Line too long (135/100):UNDEFINED
 line-too-long:76:0:None:None::Line too long (135/100):UNDEFINED
+line-too-long:85:0:None:None::Line too long (113/100):UNDEFINED

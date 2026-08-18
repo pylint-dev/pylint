@@ -1,0 +1,6 @@
+``line-too-long`` no longer counts a trailing tooling pragma towards the line
+length. Like pylint's own ``# pylint: ...`` pragmas, comments such as
+``# type: ignore``, ``# pyright: ignore``, ``# noqa`` and ``# pragma: no cover``
+are now ignored when they are the only thing pushing a line past the limit.
+
+Closes #10172

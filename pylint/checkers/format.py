@@ -13,6 +13,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 from __future__ import annotations
 
+import re
 import tokenize
 from functools import reduce
 from re import Match
@@ -49,6 +50,20 @@ _KEYWORD_TOKENS = {
     ":=",
 }
 _JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
+
+# Trailing pragma comments understood by other tooling (type checkers, flake8 /
+# ruff, coverage). Like pylint's own inline pragmas, these should not count
+# towards ``line-too-long`` when they are the only thing pushing a line past the
+# limit. Matched on raw source text and anchored to the end of the line, so a
+# chain such as "# noqa: E501  # pragma: no cover" is handled too.
+_TRAILING_TOOL_PRAGMA_RGX = re.compile(
+    r"(?:\s*#\s*(?:"
+    r"type:\s*ignore(?:\[[^\]]*\])?"
+    r"|pyright:\s*ignore(?:\[[^\]]*\])?"
+    r"|noqa(?::\s*[A-Z]+[0-9]+(?:\s*,\s*[A-Z]+[0-9]+)*)?"
+    r"|pragma:\s*no\s+(?:cover|branch)"
+    r"))+\s*$"
+)
 
 
 MSGS: dict[str, MessageDefinitionTuple] = {
@@ -613,6 +628,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         max_chars = self.linter.config.max_line_length
         ignore_long_line = self.linter.config.ignore_long_lines
         line = line.rstrip()
+        if len(line) > max_chars:
+            # A trailing tooling pragma (``type: ignore``, ``noqa``, ...) should
+            # not, on its own, make a line count as too long.
+            line = _TRAILING_TOOL_PRAGMA_RGX.sub("", line).rstrip()
         if len(line) > max_chars and not ignore_long_line.search(line):
             if checker_off:
                 self.linter.add_ignored_message("line-too-long", i)

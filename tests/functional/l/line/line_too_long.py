@@ -75,3 +75,11 @@ VAR = """A very very long, maybe too much, constant. Just here to trigger messag
 # +1: [line-too-long]
 VAR_BIS = """A very very long, maybe too much, constant. Just here to trigger message emission and check everything is fine and nice"""
 """But it is however too long, isn't it? I don't know what to say more here. I got a lack of imagination, just listening to music..."""#pylint: disable=line-too-long
+
+
+# Trailing tool pragmas (type checkers, flake8/ruff, coverage) should not, on
+# their own, make a line count as too long. See issue #10172.
+GOOD = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"  # type: ignore
+GOOD_BIS = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"  # noqa: E501, RUF001  # pragma: no cover
+# +1: [line-too-long]
+TOO_LONG = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"  # type: ignore

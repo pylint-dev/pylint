@@ -215,3 +215,43 @@ class TestIgnorePatternInLongLines(CheckerTestCase):
         for msg, code in cases:
             with self.assertAddsMessages(msg):
                 self.checker.process_tokens(_tokenize_str(code + "\n"))
+
+
+class TestTrailingToolPragmaInLongLines(CheckerTestCase):
+    CHECKER_CLASS = FormatChecker
+
+    def test_trailing_tool_pragma_not_counted(self) -> None:
+        self.checker.linter.config.max_line_length = 20
+        cases = [
+            "x = '12345'            # type: ignore",
+            "x = '12345678901234'   # type: ignore[assignment]",
+            "x = '12345678901234'   # pyright: ignore[reportAny]",
+            "x = '12345678901234'   # noqa",
+            "x = '12345678901234'   # noqa: E501, RUF001",
+            "x = '12345678901234'   # pragma: no cover",
+            "x = '12345'  # noqa: E501  # pragma: no cover  # type: ignore",
+        ]
+        with self.assertNoMessages():
+            for code in cases:
+                self.checker.process_tokens(_tokenize_str(code + "\n"))
+
+    def test_trailing_tool_pragma_still_catches_too_long_code(self) -> None:
+        self.checker.linter.config.max_line_length = 20
+        cases = [
+            (
+                MessageTest("line-too-long", line=1, args=(26, 20)),
+                "x = '12345678901234567890'  # type: ignore",
+            ),
+            (
+                MessageTest("line-too-long", line=1, args=(26, 20)),
+                "x = '12345678901234567890'  # noqa: E501",
+            ),
+            (
+                # An unrecognised pragma is left alone and counted as usual.
+                MessageTest("line-too-long", line=1, args=(38, 20)),
+                "x = '12345'            # other: ignore",
+            ),
+        ]
+        for msg, code in cases:
+            with self.assertAddsMessages(msg):
+                self.checker.process_tokens(_tokenize_str(code + "\n"))
