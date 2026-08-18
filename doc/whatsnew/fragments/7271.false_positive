@@ -1,0 +1,1 @@
+Fix a false positive for ``use-a-generator`` and ``consider-using-generator`` for async list comprenehensions.

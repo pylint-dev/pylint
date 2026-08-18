@@ -1,2 +1,4 @@
-use-a-generator:7:0:7:33::Use a generator instead 'any(0 for x in list(range(10)))':UNDEFINED
-use-a-generator:8:0:8:33::Use a generator instead 'all(0 for y in list(range(10)))':UNDEFINED
+use-a-generator:16:0:16:33::Use a generator instead 'any(0 for x in list(range(10)))':UNDEFINED
+use-a-generator:17:0:17:33::Use a generator instead 'all(0 for y in list(range(10)))':UNDEFINED
+use-a-generator:22:0:22:58::Use a generator instead 'any(0 for x in list(range(10)) for y in list(range(10)))':UNDEFINED
+use-a-generator:23:0:23:58::Use a generator instead 'all(0 for y in list(range(10)) for x in list(range(10)))':UNDEFINED

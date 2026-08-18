@@ -1121,7 +1121,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         match node:
             case nodes.Call(
                 func=nodes.Name(name=call_name), args=[nodes.ListComp() as comp]
-            ) if (call_name in CALLS_THAT_SHOULD_USE_GENERATOR):
+            ) if call_name in CALLS_THAT_SHOULD_USE_GENERATOR and not any(
+                c.is_async for c in comp.generators
+            ):
                 # functions in checked_calls take exactly one positional argument
                 # check whether the argument is list comprehension
                 pass
