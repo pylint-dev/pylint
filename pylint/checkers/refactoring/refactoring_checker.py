@@ -1179,7 +1179,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         body=[_],
                     ) as loop_node
                 ),
-            ) if not isinstance(loop_node, nodes.AsyncFor) and target_name == name:
+            ) if (
+                not isinstance(loop_node, nodes.AsyncFor) and target_name == name
+            ):
                 pass
             case _:
                 # Avoid a false positive if the return value from `yield` is used,
