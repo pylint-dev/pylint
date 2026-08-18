@@ -3,3 +3,4 @@
 import isort
 import pytest
 from pytest import mark
+from astroid.modutils import get_module_part, is_stdlib_module
