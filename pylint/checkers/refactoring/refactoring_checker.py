@@ -1173,16 +1173,20 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         match node:
             case nodes.Yield(
                 value=nodes.Name(name=name),
-                parent=nodes.Expr(parent=nodes.For(body=[_]) as loop_node),
-            ) if not isinstance(loop_node, nodes.AsyncFor):
+                parent=nodes.Expr(
+                    parent=nodes.For(
+                        target=nodes.AssignName(name=target_name),
+                        body=[_],
+                    ) as loop_node
+                ),
+            ) if (
+                not isinstance(loop_node, nodes.AsyncFor) and target_name == name
+            ):
                 pass
             case _:
                 # Avoid a false positive if the return value from `yield` is used,
                 # (such as via Assign, AugAssign, etc).
                 return
-
-        if loop_node.target.name != name:
-            return
 
         if isinstance(node.frame(), nodes.AsyncFunctionDef):
             return
