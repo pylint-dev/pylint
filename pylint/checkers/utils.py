@@ -1868,6 +1868,44 @@ def is_module_member(node: nodes.NodeNG, *qnames: str) -> bool:
     return False
 
 
+def is_sys_guard(node: nodes.If) -> bool:
+    """Return True if the 'if' node is a system version guard equivalent.
+
+    >>> import sys
+    >>> from typing import Literal
+    """
+    return _is_version_guard_test(node.test)
+
+
+def _is_version_guard_test(test: nodes.NodeNG) -> bool:
+    match test:
+        case nodes.BoolOp():
+            return any(_is_version_guard_test(value) for value in test.values)
+        case nodes.UnaryOp(op="not"):
+            return _is_version_guard_test(test.operand)
+        case nodes.Compare():
+            operands = [test.left] + [operand for _, operand in test.ops]
+            return any(_is_version_info_value(operand) for operand in operands)
+        case _:
+            # A bare truthiness guard: only six's version flags qualify.
+            return is_module_member(test, "six.PY2", "six.PY3")
+
+
+def _is_version_info_value(value: nodes.NodeNG) -> bool:
+    """Whether the value grows with the version of the running interpreter."""
+    if is_module_member(value, "sys.version_info", "sys.hexversion"):
+        return True
+    match value:
+        case nodes.Subscript():
+            # e.g. the `[:2]` in `version_info[:2]`
+            return _is_version_info_value(value.value)
+        case nodes.Attribute():
+            # e.g. the `major` in `version_info.major`
+            return _is_version_info_value(value.expr)
+        case _:
+            return False
+
+
 def _resolves_to_module(expr: nodes.NodeNG, modname: str) -> bool:
     if isinstance(expr, nodes.Name):
         # Answer from the binding rather than from inference, which comes up
@@ -1903,29 +1941,6 @@ def _binds_module_member(
         )
         for assignment in assignments
     )
-
-
-def is_sys_guard(node: nodes.If) -> bool:
-    """Return True if IF stmt is a sys.version_info guard.
-
-    >>> import sys
-    >>> from typing import Literal
-    """
-    if isinstance(node.test, nodes.Compare):
-        value = node.test.left
-        if isinstance(value, nodes.Subscript):
-            value = value.value
-        if (
-            isinstance(value, nodes.Attribute)
-            and value.as_string() == "sys.version_info"
-        ):
-            return True
-    elif isinstance(node.test, nodes.Attribute) and node.test.as_string() in {
-        "six.PY2",
-        "six.PY3",
-    }:
-        return True
-    return False
 
 
 def _is_node_in_same_scope(

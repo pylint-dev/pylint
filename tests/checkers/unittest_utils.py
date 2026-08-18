@@ -564,6 +564,103 @@ def test_if_sys_guard() -> None:
     assert utils.is_sys_guard(code[5]) is False
 
 
+def test_if_sys_guard_alternative_spellings() -> None:
+    """A version guard is recognized however the version is spelled."""
+    code = astroid.extract_node("""
+    import sys
+    import sys as system
+    from sys import version_info
+    from sys import version_info as vi
+    from sys import hexversion
+    from six import PY2
+
+    if version_info >= (3, 8):  #@
+        pass
+
+    if vi[:2] >= (3, 8):  #@
+        pass
+
+    if system.version_info >= (3, 8):  #@
+        pass
+
+    if sys.version_info.major >= 3:  #@
+        pass
+
+    if (3, 8) <= sys.version_info:  #@
+        pass
+
+    if hexversion >= 0x030800F0:  #@
+        pass
+
+    if sys.version_info >= (3, 8) and sys.platform == "linux":  #@
+        pass
+
+    if not sys.version_info >= (3, 8):  #@
+        pass
+
+    if PY2:  #@
+        pass
+    """)
+    assert isinstance(code, list) and len(code) == 9
+
+    for guard in code:
+        assert isinstance(guard, nodes.If)
+        assert utils.is_sys_guard(guard) is True, guard.as_string()
+
+
+def test_if_sys_guard_lookalikes() -> None:
+    """Something that merely reads like a version check is not a guard."""
+    code = astroid.extract_node("""
+    import os
+    import sys
+    import os as compat
+    from django import VERSION as version_info
+
+    if sys.some_other_function > (3, 8):  #@
+        pass
+
+    if version_info >= (3, 8):  #@
+        pass
+
+    if compat.PY2:  #@
+        pass
+
+    if os.version_info >= (3, 8):  #@
+        pass
+
+    if os.getenv("PY2"):  #@
+        pass
+
+    if sys.platform == "linux":  #@
+        pass
+    """)
+    assert isinstance(code, list) and len(code) == 6
+
+    for not_a_guard in code:
+        assert isinstance(not_a_guard, nodes.If)
+        assert utils.is_sys_guard(not_a_guard) is False, not_a_guard.as_string()
+
+
+def test_if_sys_guard_shadowed_sys() -> None:
+    """A local class named sys reads exactly like the module and is not it."""
+    code = astroid.extract_node("""
+    class sys:
+        version_info = (3, 12)
+        hexversion = 0x030C00F0
+
+    if sys.version_info >= (3, 8):  #@
+        pass
+
+    if sys.hexversion >= 0x030800F0:  #@
+        pass
+    """)
+    assert isinstance(code, list) and len(code) == 2
+
+    for not_a_guard in code:
+        assert isinstance(not_a_guard, nodes.If)
+        assert utils.is_sys_guard(not_a_guard) is False, not_a_guard.as_string()
+
+
 def test_if_typing_guard() -> None:
     code = astroid.extract_node("""
     import typing
