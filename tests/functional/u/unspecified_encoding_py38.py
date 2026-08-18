@@ -194,3 +194,26 @@ Path(FILENAME).read_text(**KWARGS)  # [unspecified-encoding]
 
 KWARGS = {"encoding": "utf-8"}
 Path(FILENAME).read_text(**KWARGS)
+
+# The mode argument cannot be inferred: no message should be emitted
+# https://github.com/pylint-dev/pylint/issues/10201
+def open_with_unknown_mode(mode):
+    """Open a file with an unknown mode"""
+    return open(FILENAME, mode)
+
+open_with_unknown_mode("r+b")
+open_with_unknown_mode("wb")
+
+def io_open_with_unknown_mode(mode):
+    """Open a file with an unknown mode"""
+    return io.open(FILENAME, mode)
+
+io_open_with_unknown_mode("r+b")
+io_open_with_unknown_mode("wb")
+
+def path_open_with_unknown_mode(mode):
+    """Open a path with an unknown mode"""
+    return Path(FILENAME).open(mode)
+
+path_open_with_unknown_mode("r+b")
+path_open_with_unknown_mode("wb")
