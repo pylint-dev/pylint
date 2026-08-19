@@ -1,0 +1,1 @@
+disallowed-name:8:0:8:3::"Disallowed name ""foo""":HIGH
