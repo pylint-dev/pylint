@@ -198,3 +198,28 @@ class SameClassSetattrThenAssign:
 
     def later(self):
         self.from_init = 2
+
+
+class G:
+    """https://github.com/pylint-dev/pylint/issues/5214"""
+
+    def __init__(self):
+        self.init_helper()
+
+    def init_helper(self):
+        self.var1 = True
+
+    def other_func(self):
+        self.var1 = False
+
+
+class HParent:
+    def __init__(self):
+        self.init_helper()
+
+    def init_helper(self):
+        self.var1 = True
+
+class HDerived(HParent):
+    def other_func(self):
+        self.var1 = False
