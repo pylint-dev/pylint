@@ -806,7 +806,7 @@ def error_of_type(
 
 def decorated_with_property(node: nodes.NodeNG) -> bool:
     """Detect if the given function node is decorated with a property."""
-    if not isinstance(node, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
+    if not isinstance(node, nodes.FunctionDef):
         return False
     if not node.decorators:
         return False
