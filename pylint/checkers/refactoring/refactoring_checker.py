@@ -1159,12 +1159,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 "use-a-generator",
                 node=node,
                 args=(call_name, inside_comp),
+                confidence=HIGH,
             )
         else:
             self.add_message(
                 "consider-using-generator",
                 node=node,
                 args=(call_name, inside_comp),
+                confidence=HIGH,
             )
 
     @utils.only_required_for_messages(

@@ -1,7 +1,7 @@
-consider-using-generator:12:0:12:34::Consider using a generator instead 'list(0 for y in list(range(10)))':UNDEFINED
-consider-using-generator:13:0:13:35::Consider using a generator instead 'tuple(0 for y in list(range(10)))':UNDEFINED
-consider-using-generator:14:0:14:29::Consider using a generator instead 'sum(x * x for x in range(10))':UNDEFINED
-consider-using-generator:15:0:15:29::Consider using a generator instead 'min(x * x for x in range(10))':UNDEFINED
-consider-using-generator:16:0:16:29::Consider using a generator instead 'max(x * x for x in range(10))':UNDEFINED
-consider-using-generator:26:0:26:41::Consider using a generator instead 'min((x * x for x in range(10)), default=42)':UNDEFINED
-consider-using-generator:67:4:67:66:main:Consider using a generator instead 'sum(apple for apple in await pick_apples() if is_red(apple))':UNDEFINED
+consider-using-generator:12:0:12:34::Consider using a generator instead 'list(0 for y in list(range(10)))':HIGH
+consider-using-generator:13:0:13:35::Consider using a generator instead 'tuple(0 for y in list(range(10)))':HIGH
+consider-using-generator:14:0:14:29::Consider using a generator instead 'sum(x * x for x in range(10))':HIGH
+consider-using-generator:15:0:15:29::Consider using a generator instead 'min(x * x for x in range(10))':HIGH
+consider-using-generator:16:0:16:29::Consider using a generator instead 'max(x * x for x in range(10))':HIGH
+consider-using-generator:26:0:26:41::Consider using a generator instead 'min((x * x for x in range(10)), default=42)':HIGH
+consider-using-generator:67:4:67:66:main:Consider using a generator instead 'sum(apple for apple in await pick_apples() if is_red(apple))':HIGH
