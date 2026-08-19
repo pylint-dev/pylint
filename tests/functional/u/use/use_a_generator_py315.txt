@@ -1,2 +1,2 @@
-use-a-generator:3:6:3:31::Use a generator instead 'any(*x for x in NESTED)':UNDEFINED
-use-a-generator:4:6:4:31::Use a generator instead 'all(*x for x in NESTED)':UNDEFINED
+use-a-generator:3:6:3:31::Use a generator instead 'any(*x for x in NESTED)':HIGH
+use-a-generator:4:6:4:31::Use a generator instead 'all(*x for x in NESTED)':HIGH
