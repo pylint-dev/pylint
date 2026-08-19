@@ -50,6 +50,10 @@ _AccessNodes: TypeAlias = nodes.Attribute | nodes.AssignAttr
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
 BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
+# Special methods that build or configure the class itself. A subclass routinely
+# takes different arguments there without breaking substitutability, because
+# callers name the concrete class instead of going through the base one.
+CONSTRUCTOR_METHODS = {"__new__", "__init__", "__init_subclass__", "__post_init__"}
 ASTROID_TYPE_COMPARATORS = {
     nodes.Const: lambda a, b: a.value == b.value,
     nodes.ClassDef: lambda a, b: a.qname == b.qname,
@@ -378,13 +382,18 @@ def _different_parameters(
     if kwarg_lost or vararg_lost:
         output_messages += ["Variadics removed in"]
 
-    if original.name in PYMETHODS:
-        # Ignore the difference for special methods. If the parameter
-        # numbers are different, then that is going to be caught by
-        # unexpected-special-method-signature.
-        # If the names are different, it doesn't matter, since they can't
-        # be used as keyword arguments anyway.
+    if original.name in CONSTRUCTOR_METHODS:
+        # Ignore every difference for the constructor family, overriding those
+        # with another signature is idiomatic.
         output_messages.clear()
+    elif original.name in PYMETHODS:
+        # For the other special methods, only keep the difference in the number
+        # of parameters. If the names are different, it doesn't matter, since
+        # they can't be used as keyword arguments anyway, and losing variadics
+        # is fine as long as the remaining parameters still match.
+        output_messages[:] = [
+            message for message in output_messages if "Number" in message
+        ]
 
     return output_messages
 
