@@ -1,2 +1,4 @@
-invalid-name:11:0:11:10::"Constant name ""module_var"" doesn't conform to UPPER_CASE naming style":HIGH
-invalid-name:17:4:17:10::"Variable name ""BadMix"" doesn't conform to snake_case naming style":HIGH
+invalid-name:12:0:12:10::"Constant name ""module_var"" doesn't conform to UPPER_CASE naming style":HIGH
+invalid-name:18:4:18:10::"Variable name ""BadMix"" doesn't conform to snake_case naming style":HIGH
+invalid-name:19:4:19:21::"Variable name ""unused_returnCode"" doesn't conform to snake_case naming style":HIGH
+invalid-name:27:4:27:17::"Constant name ""imported_flag"" doesn't conform to UPPER_CASE naming style":HIGH

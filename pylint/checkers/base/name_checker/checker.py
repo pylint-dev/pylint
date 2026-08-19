@@ -549,10 +549,12 @@ class NameChecker(_BasicChecker):
                     if not self._meets_exception_for_non_consts(
                         inferred_assign_type, node.name
                     ):
-                        if _in_dunder_main_block(node):
-                            self._check_name_in_main_block(node)
-                        else:
-                            self._check_name("const", node.name, node)
+                        node_type = (
+                            self._name_type_in_main_block(node)
+                            if _in_dunder_main_block(node)
+                            else "const"
+                        )
+                        self._check_name(node_type, node.name, node)
                 else:
                     node_type = "variable"
                     iattrs = tuple(node.frame().igetattr(node.name))
@@ -573,10 +575,7 @@ class NameChecker(_BasicChecker):
                         inferred_assign_type, node.name
                     ):
                         if node_type == "const" and _in_dunder_main_block(node):
-                            self._check_name_in_main_block(
-                                node, disallowed_check_only=redefines_import
-                            )
-                            return
+                            node_type = self._name_type_in_main_block(node)
                         self._check_name(
                             node_type,
                             node.name,
@@ -612,23 +611,18 @@ class NameChecker(_BasicChecker):
             else:
                 self._check_name("class_attribute", node.name, node)
 
-    def _check_name_in_main_block(
-        self, node: nodes.AssignName, disallowed_check_only: bool = False
-    ) -> None:
-        """Check a module-level name assigned in an ``if __name__ == "__main__":``
-        block.
+    def _name_type_in_main_block(self, node: nodes.AssignName) -> str:
+        """Name type to check a name assigned in an ``if __name__ == "__main__":``
+        block against.
 
         Such a block reads like a script body, so a name there may legitimately
-        follow either the constant or the variable naming style.
+        follow either the constant or the variable naming style. Returning the
+        style the name already conforms to lets both pass, and reports the name
+        against the variable style when it conforms to neither.
         """
-        node_type = (
-            "const"
-            if self._name_regexps["const"].match(node.name) is not None
-            else "variable"
-        )
-        self._check_name(
-            node_type, node.name, node, disallowed_check_only=disallowed_check_only
-        )
+        if self._name_regexps["const"].match(node.name) is not None:
+            return "const"
+        return "variable"
 
     def _meets_exception_for_non_consts(
         self, inferred_assign_type: InferenceResult | None, name: str
