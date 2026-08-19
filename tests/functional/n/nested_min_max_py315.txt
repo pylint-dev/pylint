@@ -1,2 +1,2 @@
-consider-using-generator:3:18:3:43::Consider using a generator instead 'min(*x for x in NESTED)':UNDEFINED
+consider-using-generator:3:18:3:43::Consider using a generator instead 'min(*x for x in NESTED)':HIGH
 nested-min-max:3:11:3:44::Do not use nested call of 'min'; it's possible to do 'min(1, *[*x for x in NESTED])' instead:INFERENCE
