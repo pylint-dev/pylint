@@ -1,1 +1,5 @@
-Fix a false positive for ``use-a-generator`` and ``consider-using-generator`` for async list comprenehensions.
+Fix a false positive for ``consider-using-generator`` and ``use-a-generator``
+with an asynchronous list comprehension. Turning it into a generator expression
+would create an asynchronous generator, which those functions cannot consume.
+
+Closes #7271

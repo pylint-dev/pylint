@@ -1,4 +1,4 @@
-use-a-generator:16:0:16:33::Use a generator instead 'any(0 for x in list(range(10)))':UNDEFINED
-use-a-generator:17:0:17:33::Use a generator instead 'all(0 for y in list(range(10)))':UNDEFINED
-use-a-generator:22:0:22:58::Use a generator instead 'any(0 for x in list(range(10)) for y in list(range(10)))':UNDEFINED
-use-a-generator:23:0:23:58::Use a generator instead 'all(0 for y in list(range(10)) for x in list(range(10)))':UNDEFINED
+use-a-generator:9:0:9:33::Use a generator instead 'any(0 for x in list(range(10)))':UNDEFINED
+use-a-generator:10:0:10:33::Use a generator instead 'all(0 for y in list(range(10)))':UNDEFINED
+use-a-generator:46:4:46:48:main:Use a generator instead 'any(apple > 1 for apple in await basket())':UNDEFINED
+use-a-generator:47:4:47:48:main:Use a generator instead 'all(apple > 1 for apple in await basket())':UNDEFINED

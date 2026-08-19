@@ -211,6 +211,22 @@ def _is_part_of_assignment_target(node: nodes.NodeNG) -> bool:
     return False
 
 
+def _is_asynchronous_comprehension(comp: nodes.ListComp) -> bool:
+    """Check whether a comprehension would become an asynchronous generator.
+
+    That is the case when it uses ``async for``, or awaits anywhere but in its
+    outermost iterable, the only part evaluated outside of the generator.
+    """
+    if any(generator.is_async for generator in comp.generators):
+        return True
+
+    outermost_iterable = comp.generators[0].iter
+    return any(
+        node is not outermost_iterable and not outermost_iterable.parent_of(node)
+        for node in comp.nodes_of_class(nodes.Await)
+    )
+
+
 @dataclass
 class ConsiderUsingWithStack:
     """Stack for objects that may potentially trigger a R1732 message
@@ -1121,14 +1137,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         match node:
             case nodes.Call(
                 func=nodes.Name(name=call_name), args=[nodes.ListComp() as comp]
-            ) if call_name in CALLS_THAT_SHOULD_USE_GENERATOR and not any(
-                c.is_async for c in comp.generators
-            ):
+            ) if (call_name in CALLS_THAT_SHOULD_USE_GENERATOR):
                 # functions in checked_calls take exactly one positional argument
                 # check whether the argument is list comprehension
                 pass
             case _:
                 return
+
+        if _is_asynchronous_comprehension(comp):
+            # The generator expression would be an asynchronous generator,
+            # which none of these functions can consume.
+            return
 
         inside_comp = comp.as_string()[1:-1]  # remove square brackets '[]'
         if node.keywords:
