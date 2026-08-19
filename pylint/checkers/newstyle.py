@@ -67,6 +67,16 @@ class NewStyleConflictChecker(BaseChecker):
                     # super first arg should not be the class
                     continue
 
+            # A function nested in the method can itself be a method of another
+            # class (e.g. it is attached with ``cls.method = classmethod(func)``
+            # later). When the second argument of super() is one of that nested
+            # function's own parameters, the call does not refer to ``klass``.
+            frame = stmt.frame()
+            if frame is not node and isinstance(frame, nodes.FunctionDef):
+                match call.args:
+                    case [_, nodes.Name(name=second), *_] if second in frame.argnames():
+                        continue
+
             # calling super(type(self), self) can lead to recursion loop
             # in derived classes
             match arg0:
