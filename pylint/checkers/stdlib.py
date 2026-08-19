@@ -866,19 +866,18 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
         if mode_arg:
             mode_arg = utils.safe_infer(mode_arg)
-            if (
-                func_name in OPEN_FILES_MODE
-                and isinstance(mode_arg, nodes.Const)
-                and not _check_mode_str(mode_arg.value)
-            ):
-                self.add_message(
-                    "bad-open-mode",
-                    node=node,
-                    # avoid a boolean context on the constant ``bool(NotImplemented)``
-                    # raises a TypeError on Python >= 3.14
-                    args=str(mode_arg.value),
-                    confidence=confidence,
-                )
+            if func_name in OPEN_FILES_MODE:
+                if not isinstance(mode_arg, nodes.Const):
+                    return  # mode may be binary - don't guess
+                if not _check_mode_str(mode_arg.value):
+                    self.add_message(
+                        "bad-open-mode",
+                        node=node,
+                        # avoid a boolean context on the constant ``bool(NotImplemented)``
+                        # raises a TypeError on Python >= 3.14
+                        args=str(mode_arg.value),
+                        confidence=confidence,
+                    )
 
         if not mode_arg or (
             isinstance(mode_arg, nodes.Const) and "b" not in str(mode_arg.value)
