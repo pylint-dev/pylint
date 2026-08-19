@@ -168,3 +168,49 @@ class TestMultiNamingStyle(CheckerTestCase):
                 self.checker.visit_functiondef(func)
             if func:
                 self.checker.leave_module(func.root)
+
+    def test_main_block_variable_does_not_require_const(self) -> None:
+        module = astroid.parse(
+            """
+        def main() -> int:
+            return 0
+
+        if __name__ == '__main__':
+            exit_code = main()
+            raise SystemExit(exit_code)
+        """,
+            "test_module",
+        )
+        with self.assertNoMessages():
+            self.walk(module)
+
+    def test_main_block_variable_invalid_name_raises_variable_warning(self) -> None:
+        module = astroid.parse(
+            """
+        def main() -> int:
+            return 0
+
+        if __name__ == '__main__':
+            exitCode = main()
+            raise SystemExit(exitCode)
+        """,
+            "test_module",
+        )
+        assign_name = module.body[1].body[0].targets[0]
+        message = MessageTest(
+            "invalid-name",
+            node=assign_name,
+            args=(
+                "Variable",
+                "exitCode",
+                "snake_case naming style",
+            ),
+            confidence=HIGH,
+            line=6,
+            col_offset=4,
+            end_line=6,
+            end_col_offset=12,
+        )
+        with self.assertAddsMessages(message):
+            self.walk(module)
+

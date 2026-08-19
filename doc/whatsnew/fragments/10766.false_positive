@@ -1,0 +1,3 @@
+Fix false positive ``invalid-name`` (constant naming style) for variables defined inside ``if __name__ == '__main__':`` blocks.
+
+Closes #10766

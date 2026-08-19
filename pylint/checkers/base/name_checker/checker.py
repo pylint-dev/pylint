@@ -114,6 +114,34 @@ def _redefines_import(node: nodes.AssignName) -> bool:
     return False
 
 
+def _is_in_main_block(node: nodes.NodeNG) -> bool:
+    """Detect if the given node is inside an `if __name__ == '__main__':` block."""
+    current: nodes.NodeNG | None = node
+    while current and not isinstance(current, nodes.Module):
+        if isinstance(current, (nodes.FunctionDef, nodes.ClassDef)):
+            return False
+        if isinstance(current.parent, nodes.If) and current is not current.parent.test:
+            test = current.parent.test
+            if isinstance(test, nodes.Compare):
+                left = test.left
+                for op, right in test.ops:
+                    if op in ("==", "is"):
+                        if (
+                            isinstance(left, nodes.Name)
+                            and left.name == "__name__"
+                            and isinstance(right, nodes.Const)
+                            and right.value == "__main__"
+                        ) or (
+                            isinstance(right, nodes.Name)
+                            and right.name == "__name__"
+                            and isinstance(left, nodes.Const)
+                            and left.value == "__main__"
+                        ):
+                            return True
+        current = current.parent
+    return False
+
+
 def _determine_function_name_type(
     node: nodes.FunctionDef, config: argparse.Namespace
 ) -> str:
@@ -509,6 +537,7 @@ class NameChecker(_BasicChecker):
                     and not utils.get_node_first_ancestor_of_type(
                         node, (nodes.For, nodes.While)
                     )
+                    and not _is_in_main_block(node)
                 ):
                     if not self._meets_exception_for_non_consts(
                         inferred_assign_type, node.name
@@ -525,9 +554,13 @@ class NameChecker(_BasicChecker):
                     # Do the exclusive assignment analysis on attrs, not iattrs.
                     # iattrs locations could be anywhere (inference result).
                     attrs = tuple(node.frame().getattr(node.name))
-                    if len(attrs) > 1 and all(
-                        astroid.are_exclusive(*combo)
-                        for combo in itertools.combinations(attrs, 2)
+                    if (
+                        not _is_in_main_block(node)
+                        and len(attrs) > 1
+                        and all(
+                            astroid.are_exclusive(*combo)
+                            for combo in itertools.combinations(attrs, 2)
+                        )
                     ):
                         node_type = "const"
                     if not self._meets_exception_for_non_consts(
