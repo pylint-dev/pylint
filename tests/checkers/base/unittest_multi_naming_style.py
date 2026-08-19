@@ -213,4 +213,3 @@ class TestMultiNamingStyle(CheckerTestCase):
         )
         with self.assertAddsMessages(message):
             self.walk(module)
-
