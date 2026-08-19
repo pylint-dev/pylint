@@ -246,10 +246,16 @@ class SpecialMethodsChecker(BaseChecker):
 
     @staticmethod
     def _is_wrapped_type(node: InferenceResult, type_: str) -> bool:
+        """Check whether ``node`` is an instance of the builtin ``type_``.
+
+        Instances of subclasses of the builtin type are accepted too: returning
+        ``self`` from the ``__str__`` of a ``str`` subclass or a ``namedtuple``
+        from ``__getnewargs__`` is valid.
+        """
         return (
             isinstance(node, bases.Instance)
-            and node.name == type_
             and not isinstance(node, nodes.Const)
+            and node.is_subtype_of(f"builtins.{type_}")
         )
 
     @staticmethod
