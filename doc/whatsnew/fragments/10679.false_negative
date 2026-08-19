@@ -1,5 +1,5 @@
-Fix a false negative for ``disallowed-name`` on module-level names assigned a
-value that is not a constant. The control flow that suppresses ``invalid-name``
-for these names no longer skips the ``disallowed-name`` check as well.
+``foo = {}.keys()`` at module level is now reported as ``disallowed-name`` when
+``foo`` is listed in ``bad-names``. Module-level names whose value cannot be
+inferred are still not reported.
 
 Closes #10679
