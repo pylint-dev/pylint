@@ -1,0 +1,9 @@
+Fix false positives for :ref:`invalid-str-returned`, :ref:`invalid-repr-returned`,
+:ref:`invalid-format-returned`, :ref:`invalid-bytes-returned`, :ref:`invalid-hash-returned`,
+:ref:`invalid-index-returned`, :ref:`invalid-length-returned`,
+:ref:`invalid-length-hint-returned`, :ref:`invalid-getnewargs-returned` and
+:ref:`invalid-getnewargs-ex-returned` when the returned value is an instance of a
+subclass of the expected builtin type, such as ``self`` in a ``str`` subclass or a
+``namedtuple``.
+
+Closes #11306
