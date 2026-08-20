@@ -122,7 +122,7 @@ def _check_functional_tests_structure(
             directory_does_not_exists.append((file, possible_dir))
         # Exclude some directories as they follow a different structure
         if (
-            not len(file.parent.stem) == 1  # First letter sub-directories
+            len(file.parent.stem) != 1  # First letter sub-directories
             and file.parent.stem not in IGNORED_PARENT_DIRS
             and file.parent.parent.stem not in IGNORED_PARENT_PARENT_DIRS
         ):

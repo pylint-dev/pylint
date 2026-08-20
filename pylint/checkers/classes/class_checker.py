@@ -1876,7 +1876,7 @@ a metaclass class method.",
         self._check_invalid_class_object(node)
 
     def _check_invalid_class_object(self, node: nodes.AssignAttr) -> None:
-        if not node.attrname == "__class__":
+        if node.attrname != "__class__":
             return
         if isinstance(node.parent, (nodes.Tuple, nodes.List)):
             assign_node = node.parent.parent

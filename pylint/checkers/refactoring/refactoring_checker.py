@@ -2460,14 +2460,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             start_val, confidence = self._get_start_value(start_arg)
             if start_val is None:
                 return False, confidence
-            return not start_val == 0, confidence
+            return start_val != 0, confidence
 
         for keyword in node.iter.keywords:
             if keyword.arg == "start":
                 start_val, confidence = self._get_start_value(keyword.value)
                 if start_val is None:
                     return False, confidence
-                return not start_val == 0, confidence
+                return start_val != 0, confidence
 
         return False, confidence
 
