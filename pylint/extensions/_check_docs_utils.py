@@ -284,7 +284,7 @@ class Docstring:
         r"""
         For\s+the\s+(other)?\s*parameters\s*,\s+see
         """,
-        re.X | re.S,
+        re.VERBOSE | re.DOTALL,
     )
 
     supports_yields: bool = False
@@ -375,7 +375,7 @@ class SphinxDocstring(Docstring):
         \s*                       # whitespace
         :                         # final colon
         """
-    re_param_in_docstring = re.compile(re_param_raw, re.X | re.S)
+    re_param_in_docstring = re.compile(re_param_raw, re.VERBOSE | re.DOTALL)
 
     re_type_raw = rf"""
         :type                           # Sphinx keyword
@@ -384,14 +384,16 @@ class SphinxDocstring(Docstring):
         \s*                             # whitespace
         :                               # final colon
         """
-    re_type_in_docstring = re.compile(re_type_raw, re.X | re.S)
+    re_type_in_docstring = re.compile(re_type_raw, re.VERBOSE | re.DOTALL)
 
     re_property_type_raw = rf"""
         :type:                      # Sphinx keyword
         \s+                         # whitespace
         {re_multiple_simple_type}   # type declaration
         """
-    re_property_type_in_docstring = re.compile(re_property_type_raw, re.X | re.S)
+    re_property_type_in_docstring = re.compile(
+        re_property_type_raw, re.VERBOSE | re.DOTALL
+    )
 
     re_raise_raw = rf"""
         :                               # initial colon
@@ -404,7 +406,7 @@ class SphinxDocstring(Docstring):
         \s*                             # whitespace
         :                               # final colon
         """
-    re_raise_in_docstring = re.compile(re_raise_raw, re.X | re.S)
+    re_raise_in_docstring = re.compile(re_raise_raw, re.VERBOSE | re.DOTALL)
 
     re_rtype_in_docstring = re.compile(r":rtype:")
 
@@ -496,19 +498,20 @@ class EpytextDocstring(SphinxDocstring):
     """
 
     re_param_in_docstring = re.compile(
-        SphinxDocstring.re_param_raw.replace(":", "@", 1), re.X | re.S
+        SphinxDocstring.re_param_raw.replace(":", "@", 1), re.VERBOSE | re.DOTALL
     )
 
     re_type_in_docstring = re.compile(
-        SphinxDocstring.re_type_raw.replace(":", "@", 1), re.X | re.S
+        SphinxDocstring.re_type_raw.replace(":", "@", 1), re.VERBOSE | re.DOTALL
     )
 
     re_property_type_in_docstring = re.compile(
-        SphinxDocstring.re_property_type_raw.replace(":", "@", 1), re.X | re.S
+        SphinxDocstring.re_property_type_raw.replace(":", "@", 1),
+        re.VERBOSE | re.DOTALL,
     )
 
     re_raise_in_docstring = re.compile(
-        SphinxDocstring.re_raise_raw.replace(":", "@", 1), re.X | re.S
+        SphinxDocstring.re_raise_raw.replace(":", "@", 1), re.VERBOSE | re.DOTALL
     )
 
     re_rtype_in_docstring = re.compile(
@@ -519,7 +522,7 @@ class EpytextDocstring(SphinxDocstring):
         )
         :                       # final colon
         """,
-        re.X | re.S,
+        re.VERBOSE | re.DOTALL,
     )
 
     re_returns_in_docstring = re.compile(r"@returns?:")
@@ -559,12 +562,12 @@ class GoogleDocstring(Docstring):
 
     re_param_section = re.compile(
         _re_section_template.format(r"(?:Args|Arguments|Parameters)"),
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_keyword_param_section = re.compile(
         _re_section_template.format(r"Keyword\s(?:Args|Arguments|Parameters)"),
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_param_line = re.compile(
@@ -576,11 +579,11 @@ class GoogleDocstring(Docstring):
             [)] )? \s* :                # optional type declaration
         \s*  (.*)                       # beginning of optional description
     """,
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_raise_section = re.compile(
-        _re_section_template.format(r"Raises"), re.X | re.S | re.M
+        _re_section_template.format(r"Raises"), re.VERBOSE | re.DOTALL | re.MULTILINE
     )
 
     re_raise_line = re.compile(
@@ -588,11 +591,11 @@ class GoogleDocstring(Docstring):
         \s*  ({re_multiple_type}) \s* :  # identifier
         \s*  (.*)                        # beginning of optional description
     """,
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_returns_section = re.compile(
-        _re_section_template.format(r"Returns?"), re.X | re.S | re.M
+        _re_section_template.format(r"Returns?"), re.VERBOSE | re.DOTALL | re.MULTILINE
     )
 
     re_returns_line = re.compile(
@@ -600,7 +603,7 @@ class GoogleDocstring(Docstring):
         \s* ({re_multiple_type}:)?        # identifier
         \s* (.*)                          # beginning of description
     """,
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_property_returns_line = re.compile(
@@ -608,11 +611,11 @@ class GoogleDocstring(Docstring):
         ^{re_multiple_type}:           # identifier
         \s* (.*)                       # Summary line / description
     """,
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_yields_section = re.compile(
-        _re_section_template.format(r"Yields?"), re.X | re.S | re.M
+        _re_section_template.format(r"Yields?"), re.VERBOSE | re.DOTALL | re.MULTILINE
     )
 
     re_yields_line = re_returns_line
@@ -823,7 +826,7 @@ class NumpyDocstring(GoogleDocstring):
 
     re_param_section = re.compile(
         _re_section_template.format(r"(?:Args|Arguments|Parameters)"),
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_param_line = re.compile(
@@ -842,11 +845,11 @@ class NumpyDocstring(GoogleDocstring):
             \s* (?P<param_desc>.*)                  # optional description
         )?
     """,
-        re.X | re.S,
+        re.VERBOSE | re.DOTALL,
     )
 
     re_raise_section = re.compile(
-        _re_section_template.format(r"Raises"), re.X | re.S | re.M
+        _re_section_template.format(r"Raises"), re.VERBOSE | re.DOTALL | re.MULTILINE
     )
 
     re_raise_line = re.compile(
@@ -854,11 +857,11 @@ class NumpyDocstring(GoogleDocstring):
         \s* ({GoogleDocstring.re_type})$   # type declaration
         \s* (.*)                           # optional description
     """,
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_returns_section = re.compile(
-        _re_section_template.format(r"Returns?"), re.X | re.S | re.M
+        _re_section_template.format(r"Returns?"), re.VERBOSE | re.DOTALL | re.MULTILINE
     )
 
     re_returns_line = re.compile(
@@ -867,11 +870,11 @@ class NumpyDocstring(GoogleDocstring):
         ({GoogleDocstring.re_multiple_type})$   # type declaration
         \s* (.*)                                # optional description
     """,
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_yields_section = re.compile(
-        _re_section_template.format(r"Yields?"), re.X | re.S | re.M
+        _re_section_template.format(r"Yields?"), re.VERBOSE | re.DOTALL | re.MULTILINE
     )
 
     re_yields_line = re_returns_line
