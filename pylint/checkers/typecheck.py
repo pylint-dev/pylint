@@ -1376,7 +1376,7 @@ accessed. Python regular expressions are accepted.",
         lhs = node.targets[0]
         if not isinstance(lhs, nodes.AssignAttr):
             return
-        if not lhs.attrname == "__name__":
+        if lhs.attrname != "__name__":
             return
 
         # If the right-hand side is not a string
