@@ -36,6 +36,18 @@ name is found in, and not the type of object assigned.
 | ``typealias``      | Type alias declared with ``TypeAlias`` or assignments of ``Union``.                                         |
 +--------------------+-------------------------------------------------------------------------------------------------------------+
 
+Names assigned in an ``if __name__ == "__main__":`` block are an exception: such
+a block reads like a script body, so a name there is accepted if it follows
+either the ``const`` or the ``variable`` naming style::
+
+    if __name__ == "__main__":
+        apple_count = count_apples()  # accepted, variable style
+        APPLE_COUNT = count_apples()  # accepted, constant style
+        appleCount = count_apples()  # reported, it follows neither style
+
+The ``else`` branch of such a block runs when the module is imported, so names
+assigned there keep following the ``const`` naming style.
+
 Default behavior
 ~~~~~~~~~~~~~~~~
 By default, Pylint will enforce PEP8_-suggested names.
