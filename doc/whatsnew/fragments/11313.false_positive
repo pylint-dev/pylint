@@ -1,0 +1,6 @@
+Fix a false positive for :ref:`bad-super-call` when ``super()`` is called
+inside a function nested in a method with that nested function's own
+parameter as the second argument, as for a function that is later attached to
+another class as a method.
+
+Closes #11313
