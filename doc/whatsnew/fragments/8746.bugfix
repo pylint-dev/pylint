@@ -1,0 +1,6 @@
+Fixed a crash when defining a functional ``namedtuple`` with a field name
+that changes under NFKC normalization, like ``"µ"`` (MICRO SIGN).
+
+Fixed by upgrading astroid to 4.3.0.
+
+Closes #8746

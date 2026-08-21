@@ -1,0 +1,7 @@
+Fixed a false positive ``no-name-in-module`` when a module is imported with
+an alias that shadows its base module and a function named ``format`` is
+called on the alias.
+
+Fixed by upgrading astroid to 4.3.0.
+
+Closes #10193

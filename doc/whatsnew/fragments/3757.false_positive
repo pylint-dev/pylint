@@ -1,0 +1,6 @@
+Fixed a false positive ``syntax-error`` when importing a module containing
+badly placed type annotations in type comments.
+
+Fixed by upgrading astroid to 4.3.0.
+
+Closes #3757
