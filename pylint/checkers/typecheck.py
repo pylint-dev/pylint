@@ -106,6 +106,50 @@ class VERSION_COMPATIBLE_OVERLOAD:
 VERSION_COMPATIBLE_OVERLOAD_SENTINEL = VERSION_COMPATIBLE_OVERLOAD()
 
 
+def _same_literal_subscript_chain(left: nodes.NodeNG, right: nodes.NodeNG) -> bool:
+    """Return whether two name-rooted, literal subscript chains are equal."""
+    if isinstance(left, nodes.Name) and isinstance(right, nodes.Name):
+        return bool(left.name == right.name)
+    if (
+        isinstance(left, nodes.Subscript)
+        and isinstance(right, nodes.Subscript)
+        and isinstance(left.slice, nodes.Const)
+        and isinstance(right.slice, nodes.Const)
+    ):
+        if left.slice.value != right.slice.value:
+            return False
+        return _same_literal_subscript_chain(left.value, right.value)
+    return False
+
+
+def _infer_adjacent_subscript_assignment(
+    subscript: nodes.Subscript,
+) -> SuccessfulInferenceResult | None:
+    """Infer an adjacent assignment on a built-in, literal subscript chain."""
+    root: nodes.NodeNG = subscript
+    while isinstance(root, nodes.Subscript) and isinstance(root.slice, nodes.Const):
+        root = root.value
+    if not isinstance(root, nodes.Name):
+        return None
+
+    # A custom __setitem__ implementation need not store the assigned value.
+    inferred_root = safe_infer(root)
+    if not isinstance(inferred_root, (nodes.Dict, nodes.List)):
+        return None
+
+    previous = subscript.statement().previous_sibling()
+    if not isinstance(previous, nodes.Assign):
+        return None
+
+    if any(
+        isinstance(target, nodes.Subscript)
+        and _same_literal_subscript_chain(target, subscript)
+        for target in previous.targets
+    ):
+        return safe_infer(previous.value)
+    return None
+
+
 def _is_owner_ignored(
     owner: SuccessfulInferenceResult,
     attrname: str | None,
@@ -2268,6 +2312,19 @@ accessed. Python regular expressions are accepted.",
             return
 
         inferred = safe_infer(node.value)
+
+        if (
+            node.ctx == astroid.Context.Store
+            and isinstance(node.value, nodes.Subscript)
+            and (
+                inferred is None
+                or isinstance(inferred, util.UninferableBase)
+                or not supports_setitem(inferred, node)
+            )
+        ):
+            previous_inferred = _infer_adjacent_subscript_assignment(node.value)
+            if previous_inferred is not None:
+                inferred = previous_inferred
 
         if inferred is None or isinstance(inferred, util.UninferableBase):
             return
