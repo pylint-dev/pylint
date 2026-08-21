@@ -594,6 +594,11 @@ Imports checker Messages
 :relative-beyond-top-level (E0402): *Attempted relative import beyond top-level package*
   Used when a relative import tries to access too many levels in the current
   package.
+:invalid-lazy-import (E0403): *Lazy import is not allowed %s*
+  Emitted when a PEP 810 ``lazy`` import is used where Python forbids it:
+  inside a function, a class body or a ``try`` statement, or as a wildcard
+  import. This is a SyntaxError. This message can't be emitted when using
+  Python < 3.15.
 :wildcard-import (W0401): *Wildcard import %s*
   Used when `from module import *` is detected.
 :reimported (W0404): *Reimport %r (imported line %s)*
@@ -1464,6 +1469,9 @@ Unsupported Version checker Messages
 :using-comprehension-unpacking-in-unsupported-version (W2607): *Unpacking in comprehensions is not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.15 and pylint
   encounters the ``*`` or ``**`` unpacking added by PEP 798 in a comprehension.
+:using-lazy-import-in-unsupported-version (W2608): *Lazy imports are not supported by all versions included in the py-version setting*
+  Used when the py-version set by the user is lower than 3.15 and pylint
+  encounters the ``lazy`` import added by PEP 810.
 
 
 .. _variables-checker:

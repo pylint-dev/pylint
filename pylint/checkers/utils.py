@@ -1843,6 +1843,17 @@ def get_import_name(importnode: ImportNode, modname: str | None) -> str | None:
     return modname
 
 
+def is_lazy_import(node: nodes.Import | nodes.ImportFrom) -> bool:
+    """Return True if the import is a PEP 810 lazy import.
+
+    ``astroid`` renamed the attribute holding it from ``lazy`` to ``is_lazy`` in
+    4.3.0, and the current pin spans the rename, so ask for either spelling.
+
+    TODO: Read ``node.is_lazy`` directly once the astroid pin requires 4.3.
+    """
+    return bool(getattr(node, "is_lazy", getattr(node, "lazy", False)))
+
+
 def is_sys_guard(node: nodes.If) -> bool:
     """Return True if IF stmt is a sys.version_info guard.
 
