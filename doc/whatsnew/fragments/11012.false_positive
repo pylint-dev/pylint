@@ -1,0 +1,4 @@
+Fix ``invalid-name`` false positives for module-level all-caps aliases that
+preserve the name of an external callable.
+
+Closes #11012
