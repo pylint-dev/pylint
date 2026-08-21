@@ -28,6 +28,8 @@ SIMILAR_CLS_A = str(INPUT / "similar_cls_a.py")
 SIMILAR_CLS_B = str(INPUT / "similar_cls_b.py")
 EMPTY_FUNCTION_1 = str(INPUT / "similar_empty_func_1.py")
 EMPTY_FUNCTION_2 = str(INPUT / "similar_empty_func_2.py")
+TRIVIAL_STUBS_1 = str(INPUT / "similar_trivial_stubs_1.py")
+TRIVIAL_STUBS_2 = str(INPUT / "similar_trivial_stubs_2.py")
 MULTILINE = str(INPUT / "multiline-import")
 HIDE_CODE_WITH_IMPORTS = str(INPUT / "hide_code_with_imports.py")
 
@@ -248,6 +250,62 @@ def test_ignore_signatures_empty_functions_pass() -> None:
     assert output.getvalue().strip() == """
 TOTAL lines=14 duplicates=0 percent=0.00
 """.strip()
+
+
+def test_ignore_signatures_trivial_stub_bodies_pass() -> None:
+    """Functions whose body only contains placeholder statements (``pass``,
+    ``...``, ``raise NotImplementedError``, ``return NotImplemented``) are
+    ignored entirely when signatures are ignored, while functions with a real
+    implementation are still compared.
+
+    Near-miss placeholders (``raise ValueError(...)``, ``return None``) must
+    NOT be ignored: they still participate in the similarity computation.
+
+    The fixtures also pin decorated and docstring-bearing stubs: astroid puts
+    ``FunctionDef.lineno`` on the first decorator and moves leading docstrings
+    out of ``body`` into ``doc_node``. If either invariant shifts, the
+    identical decorator or docstring lines re-enter the comparison and the
+    exact-output assertion below fails.
+
+    Regression test for https://github.com/pylint-dev/pylint/issues/7213
+    """
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+        symilar.Run(["--ignore-signatures", TRIVIAL_STUBS_1, TRIVIAL_STUBS_2])
+    assert ex.value.code == 0
+    assert output.getvalue().strip() == (f"""
+6 similar lines in 2 files
+=={TRIVIAL_STUBS_1}:[51:67]
+=={TRIVIAL_STUBS_2}:[51:67]
+           raise ValueError("not a placeholder")
+
+       def other_raise_two(self):
+           raise ValueError("not a placeholder")
+
+       def other_raise_three(self):
+           raise ValueError("not a placeholder")
+
+       def other_return_one(self):
+           return None
+
+       def other_return_two(self):
+           return None
+
+       def other_return_three(self):
+           return None
+
+5 similar lines in 2 files
+=={TRIVIAL_STUBS_1}:[39:46]
+=={TRIVIAL_STUBS_2}:[39:46]
+           total = 0
+           for value in values:
+               total += value * 2
+           total *= 3
+           return total
+
+       def divider(self):
+TOTAL lines=184 duplicates=11 percent=5.98
+""").strip()
 
 
 def test_no_hide_code_with_imports() -> None:
