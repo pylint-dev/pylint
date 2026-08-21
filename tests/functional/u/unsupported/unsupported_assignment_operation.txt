@@ -23,3 +23,4 @@ unsupported-delete-operation:136:4:136:25::"""deleted_dict['outer']"" does not s
 unsubscriptable-object:142:0:142:18::Value 'deep_dict['first']' is unsubscriptable:UNDEFINED
 unsupported-assignment-operation:148:0:148:21::"""aliased_dict['outer']"" does not support item assignment":UNDEFINED
 unsupported-assignment-operation:155:4:155:27:store_ambiguous:"""ambiguous_dict['outer']"" does not support item assignment":UNDEFINED
+unsupported-assignment-operation:181:0:181:29::"""different_root_shape['outer']"" does not support item assignment":UNDEFINED

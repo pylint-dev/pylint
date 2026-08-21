@@ -169,3 +169,13 @@ nested_list[0]["inner"] = 42
 augmented_dict = {"outer": None}
 augmented_dict["outer"] = {"inner": 0}
 augmented_dict["outer"]["inner"] += 1
+
+
+# A similarly shaped target rooted in another expression must not match.
+def make_mapping():
+    return {"outer": None}
+
+
+different_root_shape = {"outer": None}
+make_mapping()["outer"] = {"inner": None}
+different_root_shape["outer"]["inner"] = 42  # [unsupported-assignment-operation]
