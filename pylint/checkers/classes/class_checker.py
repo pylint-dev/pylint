@@ -36,6 +36,7 @@ from pylint.checkers.utils import (
     node_frame_class,
     only_required_for_messages,
     safe_infer,
+    safe_mro,
     unimplemented_abstract_methods,
     uninferable_final_decorators,
 )
@@ -1934,19 +1935,25 @@ a metaclass class method.",
         # what will happen when assigning to an attribute.
         if any(
             base.locals.get("__setattr__")
-            for base in klass.mro()
+            for base in safe_mro(klass)
             if base.qname() != "builtins.object"
         ):
             return
 
         # If 'typing.Generic' is a base of bases of klass, the cached version
         # of 'slots()' might have been evaluated incorrectly, thus deleted cache entry.
-        if any(base.qname() == "typing.Generic" for base in klass.mro()):
+        if any(base.qname() == "typing.Generic" for base in safe_mro(klass)):
             cache = getattr(klass, "__cache", None)
             if cache and cache.get(klass.slots) is not None:
                 del cache[klass.slots]
 
-        slots = klass.slots()
+        try:
+            slots = klass.slots()
+        except (NotImplementedError, astroid.MroError):
+            # ``slots()`` walks the MRO internally, so it gives up on exactly
+            # the classes ``safe_mro`` has nothing to return for. It raises
+            # ``NotImplementedError`` rather than the ``MroError`` underneath.
+            return
         if slots is None:
             return
         # If any ancestor doesn't use slots, the slots

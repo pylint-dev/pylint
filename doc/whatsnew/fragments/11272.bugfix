@@ -1,0 +1,5 @@
+Avoid a fatal :ref:`astroid-error` in :ref:`invalid-name`,
+:ref:`stop-iteration-return` and :ref:`assigning-non-slot` for classes with
+duplicate or inconsistent bases, which leave the class without an MRO to walk.
+
+Refs #11272
