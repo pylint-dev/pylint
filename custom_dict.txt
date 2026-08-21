@@ -176,6 +176,8 @@ iTerm
 jn
 jpg
 json
+junit
+JUnit
 jx
 jython
 # class is a reserved word
@@ -229,6 +231,7 @@ myfunction
 mymain
 mymethod
 mymodule
+mypackage
 mypy
 namedtuple
 namespace
@@ -258,6 +261,7 @@ overridable
 params
 paren
 parens
+parseable
 passthru
 pathlib
 patternerror
@@ -346,6 +350,8 @@ sys
 tbump
 tempfile
 testcase
+testcases
+testsuite
 testdata
 testoptions
 tmp

@@ -17,6 +17,7 @@ pylint the ``--output-format=<value>`` option. Possible values are:
 * ``json``: old json format
 * ``msvs``: visual studio
 * ``github``: `GitHub action messages <https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions>`_
+* ``junit``: JUnit XML for CI/CD integration (Jenkins, Azure DevOps, GitLab CI, GitHub Actions)
 
 Multiple output formats can be used at the same time by passing
 a comma-separated list of formats to ``--output-format``.
