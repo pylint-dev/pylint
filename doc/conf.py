@@ -44,6 +44,7 @@ extensions = [
     "pylint_extensions",
     "pylint_messages",
     "pylint_options",
+    "pylint_role",
     "pyreverse_configuration",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.intersphinx",
