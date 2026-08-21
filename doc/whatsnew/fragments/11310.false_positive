@@ -1,0 +1,5 @@
+Fix a false positive for :ref:`unreachable` on the statement following an
+instantiation of ``_sitebuiltins.Quitter`` (the class of the ``exit`` and
+``quit`` builtins). Only calling the instance terminates, not creating it.
+
+Closes #11310
