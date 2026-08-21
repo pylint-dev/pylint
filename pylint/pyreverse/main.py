@@ -245,6 +245,19 @@ OPTIONS: Options = (
             "help": "Comma separated list of colors to use for the package depth coloring.",
         },
     ),
+    (
+        "theme",
+        {
+            "dest": "theme",
+            "action": "store",
+            "default": "light",
+            "choices": ["light", "dark"],
+            "metavar": "<light|dark>",
+            "type": "string",
+            "group": OPTIONS_GROUPS["DISPLAY"],
+            "help": "Color theme to use for the generated diagrams.",
+        },
+    ),
     # Output Control options
     (
         "output",
