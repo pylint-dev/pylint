@@ -66,4 +66,4 @@ Other Changes
 
 * ``pylint`` gained the ability to specify a default docstring type for when the check cannot guess the type
 
-  For this we added a ``--default-docstring-type`` command line option.
+  For this we added a :ref:`--default-docstring-type <default-docstring-type-option>` command line option.

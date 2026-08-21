@@ -36,7 +36,7 @@ Release date: 2021-07-20
 
 * Added ``time.clock`` to deprecated functions/methods for python 3.3
 
-* Fix bug in which --fail-on can return a zero exit code even when the specified issue is present
+* Fix bug in which :ref:`--fail-on <fail-on-option>` can return a zero exit code even when the specified issue is present
 
   Closes #4296
   Closes #3363
@@ -62,7 +62,7 @@ Release date: 2021-07-20
 
   Closes #4657
 
-* Fix ignored empty functions by similarities checker with "ignore-signatures" option enabled
+* Fix ignored empty functions by similarities checker with ":ref:`ignore-signatures <ignore-signatures-option>`" option enabled
 
   Closes #4652
 
@@ -195,7 +195,7 @@ Release date: 2021-06-29
 
   Closes #4429
 
-* Added ``ignore-paths`` behaviour. Defined regex patterns are matched against full file path.
+* Added :ref:`ignore-paths <ignore-paths-option>` behaviour. Defined regex patterns are matched against full file path.
 
   Closes #2541
 
@@ -208,7 +208,7 @@ Release date: 2021-06-29
 
   Closes #4430
 
-* Added ``--fail-on`` option to return non-zero exit codes regardless of ``--fail-under`` value.
+* Added :ref:`--fail-on <fail-on-option>` option to return non-zero exit codes regardless of :ref:`--fail-under <fail-under-option>` value.
 
 * numversion tuple contains integers again to fix multiple pylint's plugins that relied on it
 
@@ -262,7 +262,7 @@ Release date: 2021-06-29
 
   Closes #2309
 
-* Allow comma-separated list in ``output-format`` and separate output files for
+* Allow comma-separated list in :ref:`output-format <output-format-option>` and separate output files for
   each specified format.
 
   Closes #1798

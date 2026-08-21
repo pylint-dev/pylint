@@ -1,6 +1,6 @@
 The ``docparams`` extension now emits ``multiple-constructor-doc`` when
 constructor parameters are documented in both the class docstring and the
 constructor docstring, even when the constructor method is skipped by
-``no-docstring-rgx``.
+:ref:`no-docstring-rgx <no-docstring-rgx-option>`.
 
 Closes #6692

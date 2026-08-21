@@ -69,7 +69,7 @@ Release date: 2014-04-18
 * Add new warning :ref:`eval-used`, checking that the builtin function ``eval`` was used.
 
 * Make it possible to show a naming hint for invalid name by setting
-  include-naming-hint. Also make the naming hints configurable.
+  :ref:`include-naming-hint <include-naming-hint-option>`. Also make the naming hints configurable.
 
   Closes BitBucket #138
 
@@ -83,11 +83,11 @@ Release date: 2014-04-18
 * Also inspect arguments to constructor calls, and emit relevant
   warnings; contributed by sebastianu@google.com.
 
-* Added a new configuration option logging-modules to make the list
+* Added a new configuration option :ref:`logging-modules <logging-modules-option>` to make the list
   of module names that can be checked for :ref:`logging-not-lazy` et. al.
   configurable; contributed by morbo@google.com.
 
-* ensure init-hooks is evaluated before other options, notably load-plugins
+* ensure init-hooks is evaluated before other options, notably :ref:`load-plugins <load-plugins-option>`
 
   Closes #166
 

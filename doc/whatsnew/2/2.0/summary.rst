@@ -259,7 +259,7 @@ Other Changes
 
 * Suppress false-positive ``not-callable`` messages from certain staticmethod descriptors
 
-* Expand ``ignored-argument-names`` include starred arguments and keyword arguments
+* Expand :ref:`ignored-argument-names <ignored-argument-names-option>` include starred arguments and keyword arguments
 
 * ``singleton-comparison`` will suggest better boolean conditions for negative conditions.
 
@@ -299,14 +299,14 @@ Other Changes
   More details on the postponed evaluation of annotations can be read in
   `PEP 563`_.
 
-* A new command line option was added, ``--exit-zero``, for the use of continuous integration
+* A new command line option was added, :ref:`--exit-zero <exit-zero-option>`, for the use of continuous integration
   scripts which abort if a command returns a non-zero status code.  If the
   option is specified, and Pylint runs successfully, it will exit with 0
   regardless of the number of lint issues detected.
 
   Configuration errors, parse errors, and calling Pylint with invalid
   command-line options all still return a non-zero error code, even if
-  ``--exit-zero`` is specified.
+  :ref:`--exit-zero <exit-zero-option>` is specified.
 
 * Don't emit ``unused-import`` anymore for typing imports used in type comments. For instance,
   in the following example pylint used to complain that ``Any`` and ``List`` are not used,
@@ -334,7 +334,7 @@ Other Changes
   a value to a function call to that method (so basically it will be ``None``),
   then ``pylint`` is going to emit an ``assignment-from-no-return`` error.
 
-* A new flag was added, ``--ignore-none`` which controls the ``no-member``
+* A new flag was added, :ref:`--ignore-none <ignore-none-option>` which controls the ``no-member``
   behaviour with respect to ``None`` values.
 
   Previously ``pylint`` was not emitting ``no-member`` if it inferred that

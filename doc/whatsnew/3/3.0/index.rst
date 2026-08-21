@@ -312,7 +312,7 @@ Changes requiring user actions
     and they now need to be enabled explicitly.
 
   - The ``pylint.extensions.emptystring`` and ``pylint.extensions.compare-to-zero`` extensions
-    no longer exist and need to be removed from the ``load-plugins`` option.
+    no longer exist and need to be removed from the :ref:`load-plugins <load-plugins-option>` option.
 
   - Messages related to implicit booleaness were made more explicit and actionable.
     This permits to make their likeness explicit and will provide better performance as they
@@ -324,7 +324,7 @@ Changes requiring user actions
 
   Refs #7737 (`#7737 <https://github.com/pylint-dev/pylint/issues/7737>`_)
 
-- The ``overgeneral-exceptions`` option now only takes fully qualified names
+- The :ref:`overgeneral-exceptions <overgeneral-exceptions-option>` option now only takes fully qualified names
   into account (``builtins.Exception`` not ``Exception``). If you overrode
   this option, you need to use the fully qualified name now.
 
@@ -354,7 +354,7 @@ New Features
   key and that ``"message-id"`` now follows the camelCase convention and is renamed to
   ``"messageId"``.
   The new reporter also reports the "score" of the modules you linted as defined by the
-  ``evaluation`` option and provides statistics about the modules you linted.
+  :ref:`evaluation <evaluation-option>` option and provides statistics about the modules you linted.
 
   We encourage users to use the new reporter as the ``json`` reporter will no longer
   be maintained.
@@ -446,7 +446,7 @@ False Positives Fixed
 
   Closes #8167 (`#8167 <https://github.com/pylint-dev/pylint/issues/8167>`_)
 
-- Adds ``asyncSetUp`` to the default ``defining-attr-methods`` list to silence
+- Adds ``asyncSetUp`` to the default :ref:`defining-attr-methods <defining-attr-methods-option>` list to silence
   ``attribute-defined-outside-init`` warning when using
   ``unittest.IsolatedAsyncioTestCase``.
 
@@ -549,15 +549,15 @@ False Negatives Fixed
 Other Bug Fixes
 ---------------
 
-- Support ``duplicate-code`` message when parallelizing with ``--jobs``.
+- Support ``duplicate-code`` message when parallelizing with :ref:`--jobs <jobs-option>`.
 
   Closes #374 (`#374 <https://github.com/pylint-dev/pylint/issues/374>`_)
 
-- Support ``cyclic-import`` message when parallelizing with ``--jobs``.
+- Support ``cyclic-import`` message when parallelizing with :ref:`--jobs <jobs-option>`.
 
   Closes #4171 (`#4171 <https://github.com/pylint-dev/pylint/issues/4171>`_)
 
-- ``--jobs`` can now be used with ``--load-plugins``.
+- :ref:`--jobs <jobs-option>` can now be used with :ref:`--load-plugins <load-plugins-option>`.
 
   This had regressed in astroid 2.5.0.
 
@@ -573,7 +573,7 @@ Other Bug Fixes
 
   Closes #7229 (`#7229 <https://github.com/pylint-dev/pylint/issues/7229>`_)
 
-- The ``ignored-modules`` option will now be correctly taken into account for ``no-name-in-module``.
+- The :ref:`ignored-modules <ignored-modules-option>` option will now be correctly taken into account for ``no-name-in-module``.
 
   Closes #7578 (`#7578 <https://github.com/pylint-dev/pylint/issues/7578>`_)
 
@@ -582,8 +582,8 @@ Other Bug Fixes
 
   Closes #7710 (`#7710 <https://github.com/pylint-dev/pylint/issues/7710>`_)
 
-- Avoid duplicative warnings for unqualified exception names in the ``overgeneral-exceptions``
-  setting when running with ``--jobs``.
+- Avoid duplicative warnings for unqualified exception names in the :ref:`overgeneral-exceptions <overgeneral-exceptions-option>`
+  setting when running with :ref:`--jobs <jobs-option>`.
 
   Closes #7774 (`#7774 <https://github.com/pylint-dev/pylint/issues/7774>`_)
 
@@ -596,7 +596,7 @@ Other Bug Fixes
 
   Closes #8198 (`#8198 <https://github.com/pylint-dev/pylint/issues/8198>`_)
 
-- ``--clear-cache-post-run`` now also clears LRU caches for pylint utilities
+- :ref:`--clear-cache-post-run <clear-cache-post-run-option>` now also clears LRU caches for pylint utilities
   holding references to AST nodes.
 
   Closes #8361 (`#8361 <https://github.com/pylint-dev/pylint/issues/8361>`_)
@@ -610,7 +610,7 @@ Other Bug Fixes
 
   Closes #8437 (`#8437 <https://github.com/pylint-dev/pylint/issues/8437>`_)
 
-- Fix a regression of ``preferred-modules`` where a partial match was used instead of the required full match.
+- Fix a regression of :ref:`preferred-modules <preferred-modules-option>` where a partial match was used instead of the required full match.
 
   Closes #8453 (`#8453 <https://github.com/pylint-dev/pylint/issues/8453>`_)
 
@@ -661,7 +661,7 @@ Other Bug Fixes
 
 - Prevented data loss in the linter stats for messages relating
   to the linter itself (e.g. ``unknown-option-value``), fixing
-  problems with score, fail-on, etc.
+  problems with score, :ref:`fail-on <fail-on-option>`, etc.
 
   Closes #9059 (`#9059 <https://github.com/pylint-dev/pylint/issues/9059>`_)
 

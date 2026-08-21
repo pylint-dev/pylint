@@ -211,7 +211,7 @@ False Positives Fixed
 Other Bug Fixes
 ---------------
 
-- Fix a false negative for ``--ignore-patterns`` when the directory to be linted is specified using a dot(``.``) and all files are ignored instead of only the files whose name begin with a dot.
+- Fix a false negative for :ref:`--ignore-patterns <ignore-patterns-option>` when the directory to be linted is specified using a dot(``.``) and all files are ignored instead of only the files whose name begin with a dot.
 
   Closes #9273 (`#9273 <https://github.com/pylint-dev/pylint/issues/9273>`_)
 
