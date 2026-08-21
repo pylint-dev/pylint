@@ -84,3 +84,25 @@ from argparse import THIS_does_not_EXIST
 # only if numpy is installed. We are not installing numpy on CI (for now)
 from numpy.distutils.misc_util import is_sequence
 from pydantic import BaseModel
+
+
+# A version guard counts however `sys.version_info` is spelled
+from sys import version_info
+
+if version_info >= (3, 9):
+    from collections import only_on_new_pythons
+    import collections.only_on_new_pythons
+else:
+    from collections import only_on_old_pythons
+
+if (3, 9) <= version_info:
+    from collections import right_hand_side
+
+if version_info[:2] >= (3, 9):
+    import collections.sliced_guard
+
+# A name that merely looks like the version does not guard anything
+from collections import OrderedDict as version_info_fake
+
+if version_info_fake >= (3, 9):
+    from collections import not_guarded_at_all  # [no-name-in-module]
