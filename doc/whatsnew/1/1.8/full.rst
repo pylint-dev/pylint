@@ -28,14 +28,14 @@ Release date: 2017-12-15
 
   Closes #1301
 
-* Do not display no-absolute-import warning multiple times per file.
+* Do not display :ref:`no-absolute-import <no-absolute-import>` warning multiple times per file.
 
 * ``trailing-comma-tuple`` refactor check now extends to assignment with
    more than one element (such as lists)
 
   Closes #1713
 
-* Fixing u'' string in :ref:`superfluous-parens` message
+* Fixing u'' string in :ref:`superfluous-parens <superfluous-parens>` message
 
   Closes #1420
 
@@ -66,7 +66,7 @@ Release date: 2017-12-15
 
   Closes #1614
 
-* Fix a false positive with bad-python3-import on relative imports
+* Fix a false positive with :ref:`bad-python3-import <bad-python3-import>` on relative imports
 
   Closes #1608
 
@@ -76,9 +76,9 @@ Release date: 2017-12-15
 
 * Added a couple of new Python 3 checks for accessing dict methods in non-iterable context
 
-* Protocol checks (:ref:`not-a-mapping`, :ref:`not-an-iterable` and co.) aren't emitted on classes with dynamic getattr
+* Protocol checks (:ref:`not-a-mapping <not-a-mapping>`, :ref:`not-an-iterable <not-an-iterable>` and co.) aren't emitted on classes with dynamic getattr
 
-* Added a new warning, :ref:`bad-thread-instantiation`'
+* Added a new warning, :ref:`bad-thread-instantiation <bad-thread-instantiation>`'
 
   This message is emitted when the threading.Thread class does not
   receive the target argument, but receives just one argument, which
@@ -147,8 +147,8 @@ Release date: 2017-12-15
 
   Closes #1085
 
-* Disabling :ref:`wrong-import-order`', :ref:`wrong-import-position`', or
-  :ref:`ungrouped-imports`' for a single line now prevents that line from
+* Disabling :ref:`wrong-import-order <wrong-import-order>`', :ref:`wrong-import-position <wrong-import-position>`', or
+  :ref:`ungrouped-imports <ungrouped-imports>`' for a single line now prevents that line from
   triggering violations on subsequent lines.
 
   Closes #1336

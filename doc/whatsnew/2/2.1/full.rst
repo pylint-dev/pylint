@@ -61,7 +61,7 @@ Release date: 2018-08-01
 
   Closes #2295
 
-* Fix inconsistent behaviour for bad-continuation on first line of file
+* Fix inconsistent behaviour for :ref:`bad-continuation <bad-continuation>` on first line of file
 
   Closes #2281
 
@@ -78,7 +78,7 @@ Release date: 2018-08-01
 
   Closes #2300
 
-* Fix false-positive :ref:`undefined-variable` for self referential class name in lamdbas
+* Fix false-positive :ref:`undefined-variable <undefined-variable>` for self referential class name in lamdbas
 
   Closes #704
 
