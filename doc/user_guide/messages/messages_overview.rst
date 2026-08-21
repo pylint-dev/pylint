@@ -370,6 +370,7 @@ All messages in the warning category:
    warning/useless-type-doc
    warning/useless-with-lock
    warning/using-assignment-expression-in-unsupported-version
+   warning/using-comprehension-unpacking-in-unsupported-version
    warning/using-constant-test
    warning/using-exception-groups-in-unsupported-version
    warning/using-f-string-in-unsupported-version

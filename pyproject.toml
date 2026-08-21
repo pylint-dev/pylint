@@ -122,7 +122,7 @@ extend-exclude = [
   "tests/input/",
   "tests/regrtest_data/",
 ]
-lint.select = [
+lint.extend-select = [
   "B",   # bugbear
   "D",   # pydocstyle
   "E",   # pycodestyle
@@ -137,35 +137,61 @@ lint.select = [
   "W",   # pycodestyle
 ]
 lint.ignore = [
-  "B905",   # `zip()` without an explicit `strict=` parameter
-  "D100",   # Missing docstring in public module
-  "D101",   # Missing docstring in public class
-  "D102",   # Missing docstring in public method
-  "D103",   # Missing docstring in public function
-  "D104",   # Missing docstring in public package
-  "D105",   # Missing docstring in magic method
-  "D106",   # Missing docstring in public nested class
-  "D107",   # Missing docstring in `__init__`
-  "D205",   # 1 blank line required between summary line and description
-  "D400",   # First line should end with a period
-  "D401",   # First line of docstring should be in imperative mood
-  "PTH100", # `os.path.abspath()` should be replaced by `Path.resolve()`
-  "PTH103", # `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
-  "PTH107", # `os.remove()` should be replaced by `Path.unlink()`
-  "PTH108", # `os.unlink()` should be replaced by `Path.unlink()`
-  "PTH109", # `os.getcwd()` should be replaced by `Path.cwd()`
-  "PTH110", # `os.path.exists()` should be replaced by `Path.exists()`
-  "PTH111", # `os.path.expanduser()` should be replaced by `Path.expanduser()`
-  "PTH112", # `os.path.isdir()` should be replaced by `Path.is_dir()`
-  "PTH113", # `os.path.isfile()` should be replaced by `Path.is_file()`
-  "PTH118", # `os.path.join()` should be replaced by `Path` with `/` operator
-  "PTH119", # `os.path.basename()` should be replaced by `Path.name`
-  "PTH120", # `os.path.dirname()` should be replaced by `Path.parent`
-  "PTH122", # `os.path.splitext()` should be replaced by `Path.suffix`, `Path.stem`, and `Path.parent`
-  "PTH123", # `open()` should be replaced by `Path.open()`
-  "PTH207", # Replace `glob` with `Path.glob` or `Path.rglob`
-  "PTH208", # Use `pathlib.Path.iterdir()` instead"
-  "RUF012", # mutable default values in class attributes
+  "B905",    # `zip()` without an explicit `strict=` parameter
+  "BLE001",  # Do not catch blind exception: `Exception`
+  "C400",    # Unnecessary generator (rewrite as a list comprehension)
+  "C401",    # Unnecessary generator (rewrite as a set comprehension)
+  "C405",    # Unnecessary list literal (rewrite as a set literal)
+  "C408",    # Unnecessary `dict()` call (rewrite as a literal)
+  "C414",    # Unnecessary `list()` call within `sorted()`
+  "D100",    # Missing docstring in public module
+  "D101",    # Missing docstring in public class
+  "D102",    # Missing docstring in public method
+  "D103",    # Missing docstring in public function
+  "D104",    # Missing docstring in public package
+  "D105",    # Missing docstring in magic method
+  "D106",    # Missing docstring in public nested class
+  "D107",    # Missing docstring in `__init__`
+  "D205",    # 1 blank line required between summary line and description
+  "D400",    # First line should end with a period
+  "D401",    # First line of docstring should be in imperative mood
+  "DTZ003",  # `datetime.datetime.utcnow()` used
+  "DTZ005",  # `datetime.datetime.now()` called without a `tz` argument
+  "EXE001",  # Shebang is present but file is not executable
+  "FLY002",  # Consider f-string instead of string join
+  "FURB177", # Prefer `Path.cwd()` over `Path().resolve()` for current-directory lookups
+  "FURB192", # Prefer `min` over `sorted()` to compute the minimum value in a sequence
+  "ISC004",  # Implicitly concatenated string in a collection literal
+  "LOG015",  # `logging` call on the root logger
+  "PT014",   # Duplicate of test case in `@pytest_mark.parametrize`
+  "PT031",   # `pytest.warns()` block should contain a single simple statement
+  "PTH100",  # `os.path.abspath()` should be replaced by `Path.resolve()`
+  "PTH103",  # `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
+  "PTH107",  # `os.remove()` should be replaced by `Path.unlink()`
+  "PTH108",  # `os.unlink()` should be replaced by `Path.unlink()`
+  "PTH109",  # `os.getcwd()` should be replaced by `Path.cwd()`
+  "PTH110",  # `os.path.exists()` should be replaced by `Path.exists()`
+  "PTH111",  # `os.path.expanduser()` should be replaced by `Path.expanduser()`
+  "PTH112",  # `os.path.isdir()` should be replaced by `Path.is_dir()`
+  "PTH113",  # `os.path.isfile()` should be replaced by `Path.is_file()`
+  "PTH118",  # `os.path.join()` should be replaced by `Path` with `/` operator
+  "PTH119",  # `os.path.basename()` should be replaced by `Path.name`
+  "PTH120",  # `os.path.dirname()` should be replaced by `Path.parent`
+  "PTH122",  # `os.path.splitext()` should be replaced by `Path.suffix`, `Path.stem`, and `Path.parent`
+  "PTH123",  # `open()` should be replaced by `Path.open()`
+  "PTH207",  # Replace `glob` with `Path.glob` or `Path.rglob`
+  "PTH208",  # Use `pathlib.Path.iterdir()` instead"
+  "RUF012",  # mutable default values in class attributes
+  "S102",    # Use of `exec` detected
+  "SIM102",  # Use a single `if` statement instead of nested `if` statements
+  "SIM103",  # Return the condition directly
+  "SIM114",  # Combine `if` branches using logical `or` operator
+  "SIM115",  # Use a context manager for opening files
+  "SIM117",  # Use a single `with` statement with multiple contexts
+  "SIM118",  # Use `key in dict` instead of `key in dict.keys()`
+  "SIM201",  # Use `!=` instead of `not ==`
+  "TRY004",  # Prefer `TypeError` exception for invalid type
+  "YTT204",  # `sys.version_info.minor` compared to integer
 ]
 lint.pydocstyle.convention = "pep257"
 

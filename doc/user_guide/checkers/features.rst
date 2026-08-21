@@ -1461,6 +1461,9 @@ Unsupported Version checker Messages
 :using-positional-only-args-in-unsupported-version (W2606): *Positional-only arguments are not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.8 and pylint
   encounters positional-only arguments.
+:using-comprehension-unpacking-in-unsupported-version (W2607): *Unpacking in comprehensions is not supported by all versions included in the py-version setting*
+  Used when the py-version set by the user is lower than 3.15 and pylint
+  encounters the ``*`` or ``**`` unpacking added by PEP 798 in a comprehension.
 
 
 .. _variables-checker:

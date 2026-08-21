@@ -1,2 +1,8 @@
 [testoptions]
 min_pyver=3.15
+
+[IMPORTS]
+# ``astroid`` is only third party when it is not sitting in a directory that
+# isort mistakes for a source root. In astroid's own CI the workspace is named
+# ``astroid``, so isort places the import first party and the message changes.
+known-third-party=astroid

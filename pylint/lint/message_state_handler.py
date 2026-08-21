@@ -257,7 +257,7 @@ class _MessageStateHandler:
         print("\nNon-emittable messages with current interpreter:")
         for msg_def in non_emittable:
             print(f"  {msg_def.symbol} ({msg_def.msgid})")
-        print("")
+        print()
 
     def _get_message_state_scope(
         self,
