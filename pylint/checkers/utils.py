@@ -1866,6 +1866,24 @@ def is_sys_guard(node: nodes.If) -> bool:
     return False
 
 
+def is_platform_guard(node: nodes.If) -> bool:
+    """Return True if IF stmt is a os.name or sys.platform guard.
+
+    These guards split imports by OS/environment; the branches are
+    mutually exclusive so imports inside them cannot be grouped.
+    """
+    if isinstance(node.test, nodes.Compare):
+        value = node.test.left
+        if isinstance(value, nodes.Subscript):
+            value = value.value
+        if isinstance(value, nodes.Attribute) and value.as_string() in {
+            "os.name",
+            "sys.platform",
+        }:
+            return True
+    return False
+
+
 def _is_node_in_same_scope(
     candidate: nodes.NodeNG, node_scope: nodes.LocalsDictNodeNG
 ) -> bool:
