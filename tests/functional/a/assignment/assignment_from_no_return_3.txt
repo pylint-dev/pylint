@@ -1,0 +1,1 @@
+assignment-from-no-return:12:0:12:16::Assigning result of a function call, but 'shuffle' doesn't return anything, did you mean to use 'sample(...)' instead?:INFERENCE
