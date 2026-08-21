@@ -26,6 +26,7 @@ from pylint.config.callback_actions import (
     _ListMessagesEnabledAction,
     _LongHelpAction,
     _MessageHelpAction,
+    _MessageSetsAction,
     _OutputFormatAction,
 )
 from pylint.typing import Options
@@ -179,6 +180,19 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "group": "Messages control",
                 "help": "Only show warnings with the listed confidence levels."
                 f" Leave empty to show all. Valid levels: {', '.join(interfaces.CONFIDENCE_LEVEL_NAMES)}.",
+            },
+        ),
+        (
+            "message-sets",
+            {
+                "action": _MessageSetsAction,
+                "callback": lambda x1, x2, x3, x4: x1,
+                "default": ("pylint.core"),  # pylint.recommended in v5
+                "metavar": "<msg ids>",
+                "short": "msg-sets",
+                "group": "Messages control",
+                "help": "",
+                "kwargs": {"linter": linter},
             },
         ),
         (
