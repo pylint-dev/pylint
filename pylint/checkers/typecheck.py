@@ -1285,7 +1285,25 @@ accessed. Python regular expressions are accepted.",
         self._check_assignment_from_function_call(node)
         self._check_dundername_is_string(node)
 
-    def _check_assignment_from_function_call(self, node: nodes.Assign) -> None:
+    @only_required_for_messages(
+        "assignment-from-no-return",
+        "assignment-from-none",
+    )
+    def visit_annassign(self, node: nodes.AnnAssign) -> None:
+        """Process annotated assignments in the AST."""
+        self._check_assignment_from_function_call(node)
+
+    @only_required_for_messages(
+        "assignment-from-no-return",
+        "assignment-from-none",
+    )
+    def visit_namedexpr(self, node: nodes.NamedExpr) -> None:
+        """Process named expressions in the AST."""
+        self._check_assignment_from_function_call(node)
+
+    def _check_assignment_from_function_call(
+        self, node: nodes.Assign | nodes.AnnAssign | nodes.NamedExpr
+    ) -> None:
         """When assigning to a function call, check that the function returns a valid
         value.
         """
@@ -1360,7 +1378,9 @@ accessed. Python regular expressions are accepted.",
         )
 
     @staticmethod
-    def _is_builtin_no_return(node: nodes.Assign) -> bool:
+    def _is_builtin_no_return(
+        node: nodes.Assign | nodes.AnnAssign | nodes.NamedExpr,
+    ) -> bool:
         match node.value:
             case nodes.Call(func=nodes.Attribute(expr=expr, attrname=attr)):
                 return (

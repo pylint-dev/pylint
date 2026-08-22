@@ -1,0 +1,3 @@
+False negative - assign `list.reverse()` instead of `reversed(list)`
+
+Closes #10383

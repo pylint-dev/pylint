@@ -1,0 +1,4 @@
+assignment-from-no-return:15:0:15:23::Assigning result of a function call, where the function has no return:INFERENCE
+assignment-from-no-return:18:4:18:23::Assigning result of a function call, where the function has no return:INFERENCE
+assignment-from-none:21:0:21:30::Assigning result of a function call, where the function returns None:UNDEFINED
+assignment-from-no-return:23:4:23:25::Assigning result of a function call, where the function has no return:UNDEFINED
