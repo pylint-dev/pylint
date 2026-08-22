@@ -1,0 +1,3 @@
+W0640 cell-var-from-loop false positive in Generator Comprehension of functions
+
+Closes #10055

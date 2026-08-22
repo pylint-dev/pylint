@@ -2976,6 +2976,11 @@ class VariablesChecker(BaseChecker):
         Special cases where we don't care about the error:
         1. When the node's function is immediately called, e.g. (lambda: i)()
         2. When the node's function is returned from within the loop, e.g. return lambda: i
+        3. When the node is a cell var of a generator expression that is only
+           consumed by a for loop calling each produced function immediately, e.g.
+           test = (lambda: print(i) for i in range(10))
+           for call in test:
+               call()
         """
         if not self.linter.is_message_enabled("cell-var-from-loop"):
             return
@@ -2999,6 +3004,12 @@ class VariablesChecker(BaseChecker):
             return
 
         if utils.is_comprehension(assign_scope):
+            if isinstance(
+                assign_scope, nodes.GeneratorExp
+            ) and self._is_safely_consumed_generator(assign_scope):
+                # A lazily consumed generator whose closures are all called
+                # immediately cannot outlive the producing iteration.
+                return
             self.add_message("cell-var-from-loop", node=node, args=node.name)
         else:
             # Look for an enclosing For loop.
@@ -3019,6 +3030,75 @@ class VariablesChecker(BaseChecker):
                     and not isinstance(node_scope.statement(), nodes.Return)
                 ):
                     self.add_message("cell-var-from-loop", node=node, args=node.name)
+
+    @staticmethod
+    def _is_safely_consumed_generator(assign_scope: nodes.GeneratorExp) -> bool:
+        """Return True if a generator expression is provably consumed item by item.
+
+        The safe pattern is a generator expression bound with a plain
+        assignment to a single local name that is not used anywhere else in
+        the enclosing scope except as the iterable of exactly one for loop,
+        where every reference to the loop's target variable inside the loop
+        body is an immediate call of it:
+
+            test = (lambda: print(i) for i in range(10))
+            for call in test:
+                call()
+
+        In that case the loop variable can never outlive the iteration that
+        produced it, so there is no late-binding issue to report. Generators
+        that escape the current scope keep warning, since how a caller
+        elsewhere consumes them cannot be seen.
+        """
+        assign = assign_scope.parent
+        if not (
+            isinstance(assign, nodes.Assign)
+            and len(assign.targets) == 1
+            and isinstance(assign.targets[0], nodes.AssignName)
+        ):
+            return False
+        generator_name = assign.targets[0].name
+
+        # A generator expression is a scope of its own in astroid, so the
+        # enclosing scope has to be resolved from the assignment statement
+        # rather than from the generator expression itself.
+        enclosing_scope = assign.scope()
+        assignments = enclosing_scope.locals.get(generator_name, [])
+        if len(assignments) != 1 or assignments[0] is not assign.targets[0]:
+            return False
+
+        # The name must be used exactly once: as the iterable of a for loop.
+        uses = [
+            name_node
+            for name_node in enclosing_scope.nodes_of_class(nodes.Name)
+            if name_node.name == generator_name
+        ]
+        if len(uses) != 1:
+            return False
+        for_loop = uses[0].parent
+        if not (isinstance(for_loop, nodes.For) and for_loop.iter is uses[0]):
+            return False
+
+        # Every reference to the loop's target variable inside the loop body
+        # must be an immediate call of it; nothing may be stored, appended,
+        # returned or otherwise passed elsewhere.
+        target = for_loop.target
+        if not isinstance(target, nodes.AssignName):
+            return False
+        target_name = target.name
+        for statement in for_loop.body:
+            for name_node in statement.nodes_of_class(nodes.Name):
+                if name_node.name == target_name and not utils.is_being_called(
+                    name_node
+                ):
+                    return False
+        # The target may not leak into the else branch either, since that
+        # runs after the generator is exhausted.
+        return not any(
+            name_node.name == target_name
+            for statement in for_loop.orelse
+            for name_node in statement.nodes_of_class(nodes.Name)
+        )
 
     def _should_ignore_redefined_builtin(self, stmt: nodes.NodeNG) -> bool:
         if not isinstance(stmt, nodes.ImportFrom):
