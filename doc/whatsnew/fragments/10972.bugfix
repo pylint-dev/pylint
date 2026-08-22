@@ -1,0 +1,3 @@
+Abstract method false-positive when using TypeVarTuple
+
+Closes #10972

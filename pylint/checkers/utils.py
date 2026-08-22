@@ -959,11 +959,62 @@ def unimplemented_abstract_methods(
         is_abstract_cb = partial(decorated_with, qnames=ABC_METHODS)
     visited: dict[str, nodes.FunctionDef] = {}
     try:
-        mro = reversed(node.mro())
+        mro = list(reversed(node.mro()))
     except astroid.ResolveError:
         # Probably inconsistent hierarchy, don't try to figure this out here.
         return {}
+
+    known_classes = set(mro)
+
+    def _recover_lost_generic_bases(
+        klass: nodes.ClassDef,
+        seen: set[nodes.ClassDef],
+        max_depth: int = 10,
+    ) -> list[nodes.ClassDef]:
+        """Recover ancestors astroid silently dropped from the MRO.
+
+        This happens for PEP 695 / TypeVarTuple generic bases such as
+        ``class Foo(Bar[T, *Ts])`` where inferring the whole ``Subscript``
+        fails, causing astroid's ``ancestors()`` to skip ``Bar`` entirely.
+        We try to recover ``Bar`` by inferring just the subscript's
+        ``.value`` (i.e. ``Bar`` without its type arguments).
+        """
+        if max_depth <= 0:
+            return []
+        recovered: list[nodes.ClassDef] = []
+        for base in getattr(klass, "bases", []):
+            if not isinstance(base, nodes.Subscript):
+                continue
+            # If the whole subscript can already be inferred, astroid's
+            # own ancestors() resolution handles it fine.
+            try:
+                next(base.infer())
+                continue
+            except (astroid.InferenceError, StopIteration):
+                pass
+            inferred_base = safe_infer(base.value)
+            if not isinstance(inferred_base, nodes.ClassDef):
+                continue
+            if inferred_base in known_classes or inferred_base in seen:
+                continue
+            seen.add(inferred_base)
+            recovered.append(inferred_base)
+            recovered.extend(
+                _recover_lost_generic_bases(inferred_base, seen, max_depth - 1)
+            )
+        return recovered
+
+    seen_recovered: set[nodes.ClassDef] = set()
+    full_mro: list[nodes.ClassDef] = []
     for ancestor in mro:
+        recovered_bases = _recover_lost_generic_bases(ancestor, seen_recovered)
+        # Recovered bases should be visited before their subclass so that
+        # the subclass can still override methods defined on them, but
+        # after the ancestors already correctly resolved.
+        full_mro.extend(recovered_bases)
+        full_mro.append(ancestor)
+
+    for ancestor in full_mro:
         for obj in ancestor.values():
             inferred = obj
             if isinstance(obj, nodes.AssignName):
