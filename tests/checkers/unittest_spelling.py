@@ -616,13 +616,9 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
                 ":keyword str argname1: Description of argname1", id="keyword"
             ),
             pytest.param(":type argname1: str", id="type"),
-            pytest.param(
-                ":raises ValueError: Description of the error", id="raises"
-            ),
+            pytest.param(":raises ValueError: Description of the error", id="raises"),
             pytest.param(":raise ValueError: Description of the error", id="raise"),
-            pytest.param(
-                ":except ValueError: Description of the error", id="except"
-            ),
+            pytest.param(":except ValueError: Description of the error", id="except"),
             pytest.param(
                 ":exception ValueError: Description of the error", id="exception"
             ),
@@ -641,15 +637,13 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
         spell-checked, e.g. in ``:param str argname1: description`` neither
         ``param`` nor ``str`` should be flagged.
         """
-        stmt = astroid.extract_node(
-            f'''
+        stmt = astroid.extract_node(f'''
 def func(argname1):
     """
     {field_line}
     """
     ...
-'''
-        )
+''')
         self.checker.visit_functiondef(stmt)
         assert not self.linter.release_messages()
 
@@ -659,15 +653,13 @@ def func(argname1):
         """The description following a field list marker must still be
         spell-checked; only the marker itself is skipped.
         """
-        stmt = astroid.extract_node(
-            '''
+        stmt = astroid.extract_node('''
 def func():
     """
     :rtype: Descrption
     """
     ...
-'''
-        )
+''')
         with self.assertAddsMessages(
             MessageTest(
                 "wrong-spelling-in-docstring",
@@ -688,15 +680,13 @@ def func():
         """Only known Sphinx field list names are treated as markers; an
         unrecognized leading ``:word:`` is still spell-checked as prose.
         """
-        stmt = astroid.extract_node(
-            '''
+        stmt = astroid.extract_node('''
 def func():
     """
     :fooo bar: some description
     """
     ...
-'''
-        )
+''')
         with self.assertAddsMessages(
             MessageTest(
                 "wrong-spelling-in-docstring",

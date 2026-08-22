@@ -167,9 +167,7 @@ SPHINX_FIELD_LIST_NAMES = frozenset(
 )
 
 
-SPHINX_FIELD_LIST_MARKER_REGEX = re.compile(
-    r"^:([a-zA-Z]+)(?:\s+[^:\s]+){0,2}:"
-)
+SPHINX_FIELD_LIST_MARKER_REGEX = re.compile(r"^:([a-zA-Z]+)(?:\s+[^:\s]+){0,2}:")
 
 
 def _strip_sphinx_field_list_marker(line: str) -> str:
