@@ -364,7 +364,9 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     # The empty tuple () is always accepted.
                     if i == start + 2:
                         return
-                    if found_and_or:
+                    if found_and_or and (
+                        keyword_token == "not" or tokens[i + 1].string == "in"
+                    ):
                         return
                     if keyword_token == "in":
                         # Parentheses around a tuple after ``in`` are required, so

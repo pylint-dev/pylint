@@ -1,0 +1,3 @@
+False negative ``superfluous-parens`` when around two conditional and an ``and``
+
+Closes #10084
