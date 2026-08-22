@@ -1,0 +1,3 @@
+Spellchecker doesn't ignore labels and types in autodoc docstrings
+
+Closes #10187
