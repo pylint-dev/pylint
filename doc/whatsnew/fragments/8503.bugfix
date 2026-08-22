@@ -1,0 +1,3 @@
+--fail-under has no visual impact on terminal output
+
+Closes #8503

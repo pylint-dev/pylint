@@ -248,6 +248,12 @@ group are mutually exclusive.",
                 if score_value >= linter.config.fail_under:
                     sys.exit(0)
                 else:
+                    print(
+                        f"Score {score_value:.2f}/10 was below the required "
+                        f"--fail-under threshold of {linter.config.fail_under:.2f}/10; "
+                        "exiting with a failure status.",
+                        file=sys.stderr,
+                    )
                     # We need to make sure we return a failing exit code in this case.
                     # So we use self.linter.msg_status if that is non-zero, otherwise we just return 1.
                     sys.exit(self.linter.msg_status or 1)
