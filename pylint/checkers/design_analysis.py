@@ -13,8 +13,9 @@ from typing import TYPE_CHECKING
 
 from astroid import nodes
 
+from astroid import nodes, objects
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import is_enum, only_required_for_messages
+from pylint.checkers.utils import is_enum, only_required_for_messages, safe_infer
 from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
 
@@ -240,6 +241,21 @@ def _count_methods_in_class(node: nodes.ClassDef) -> int:
     for method in node.mymethods():
         if SPECIAL_OBJ.search(method.name) and method.name != "__init__":
             all_methods += 1
+
+    # Count public attributes that are properties or descriptors
+    for item in node.body:
+        if isinstance(item, nodes.Assign) and len(item.targets) == 1:
+            target = item.targets[0]
+            if isinstance(target, nodes.AssignName) and not target.name.startswith("_"):
+                inferred = safe_infer(item.value)
+                if isinstance(inferred, objects.Property):
+                    all_methods += 1
+                elif inferred:
+                    try:
+                        if inferred.getattr("__get__"):
+                            all_methods += 1
+                    except Exception:
+                        pass
     return all_methods
 
 
