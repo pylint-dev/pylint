@@ -2098,8 +2098,10 @@ accessed. Python regular expressions are accepted.",
         else:
             for ret_node in return_nodes:
                 if not (
-                    isinstance(ret_node.value, nodes.Const)
-                    and ret_node.value.value is None
+                    (
+                        isinstance(ret_node.value, nodes.Const)
+                        and ret_node.value.value is None
+                    )
                     or ret_node.value is None
                 ):
                     break
