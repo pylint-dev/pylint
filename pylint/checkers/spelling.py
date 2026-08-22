@@ -142,6 +142,51 @@ class SphinxDirectives(RegExFilter):
     _pattern = re.compile(r"^(:([a-z]+)){1,2}:`([^`]+)(`)?")
 
 
+SPHINX_FIELD_LIST_NAMES = frozenset(
+    (
+        "param",
+        "parameter",
+        "arg",
+        "argument",
+        "key",
+        "keyword",
+        "type",
+        "raises",
+        "raise",
+        "except",
+        "exception",
+        "var",
+        "ivar",
+        "cvar",
+        "vartype",
+        "returns",
+        "return",
+        "rtype",
+        "meta",
+    )
+)
+
+
+SPHINX_FIELD_LIST_MARKER_REGEX = re.compile(r"^:([a-zA-Z]+)(?:\s+[^:\s]+){0,2}:")
+
+
+def _strip_sphinx_field_list_marker(line: str) -> str:
+    """Strip a leading Sphinx/reST info field list marker from a docstring line.
+
+    Markers have the shape ``:fieldname:``, ``:fieldname argname:`` or
+    ``:fieldname type argname:``. Only markers whose field name is a
+    recognized Sphinx field name are stripped; the rest of the line
+    (the description) is left untouched.
+    """
+    stripped = line.lstrip()
+    leading_space = len(line) - len(stripped)
+    match = SPHINX_FIELD_LIST_MARKER_REGEX.match(stripped)
+    if match and match.group(1) in SPHINX_FIELD_LIST_NAMES:
+        end = match.end()
+        return line[:leading_space] + (" " * (end)) + line[leading_space + end :]
+    return line
+
+
 class ForwardSlashChunker(Chunker):  # type: ignore[misc]
     """This chunker allows splitting words like 'before/after' into 'before' and
     'after'.
@@ -357,6 +402,9 @@ class SpellingChecker(BaseTokenChecker):
             starts_with_comment = False
 
         line = _strip_code_flanked_in_backticks(line)
+
+        if "docstring" in msgid:
+            line = _strip_sphinx_field_list_marker(line)
 
         for word, word_start_at in self.tokenizer(line.strip()):
             word_start_at += initial_space

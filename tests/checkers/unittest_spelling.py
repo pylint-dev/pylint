@@ -597,3 +597,106 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
             )
         ):
             self.checker.visit_functiondef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    @pytest.mark.parametrize(
+        "field_line",
+        [
+            pytest.param(":arg str argname1: Description of argname1", id="arg"),
+            pytest.param(
+                ":argument str argname1: Description of argname1", id="argument"
+            ),
+            pytest.param(":param str argname1: Description of argname1", id="param"),
+            pytest.param(
+                ":parameter str argname1: Description of argname1", id="parameter"
+            ),
+            pytest.param(":key str argname1: Description of argname1", id="key"),
+            pytest.param(
+                ":keyword str argname1: Description of argname1", id="keyword"
+            ),
+            pytest.param(":type argname1: str", id="type"),
+            pytest.param(":raises ValueError: Description of the error", id="raises"),
+            pytest.param(":raise ValueError: Description of the error", id="raise"),
+            pytest.param(":except ValueError: Description of the error", id="except"),
+            pytest.param(
+                ":exception ValueError: Description of the error", id="exception"
+            ),
+            pytest.param(":var argname1: Description of argname1", id="var"),
+            pytest.param(":ivar argname1: Description of argname1", id="ivar"),
+            pytest.param(":cvar argname1: Description of argname1", id="cvar"),
+            pytest.param(":vartype argname1: str", id="vartype"),
+            pytest.param(":rtype: str", id="rtype"),
+            pytest.param(":returns: Description of return value", id="returns"),
+            pytest.param(":return: Description of return value", id="return"),
+            pytest.param(":meta private:", id="meta"),
+        ],
+    )
+    def test_skip_sphinx_field_list_markers(self, field_line: str) -> None:
+        """Sphinx/reST info field list markers (labels and types) should not be
+        spell-checked, e.g. in ``:param str argname1: description`` neither
+        ``param`` nor ``str`` should be flagged.
+        """
+        stmt = astroid.extract_node(f'''
+def func(argname1):
+    """
+    {field_line}
+    """
+    ...
+''')
+        self.checker.visit_functiondef(stmt)
+        assert not self.linter.release_messages()
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_sphinx_field_list_description_still_checked(self) -> None:
+        """The description following a field list marker must still be
+        spell-checked; only the marker itself is skipped.
+        """
+        stmt = astroid.extract_node('''
+def func():
+    """
+    :rtype: Descrption
+    """
+    ...
+''')
+        with self.assertAddsMessages(
+            MessageTest(
+                "wrong-spelling-in-docstring",
+                line=4,
+                args=(
+                    "Descrption",
+                    "    :rtype: Descrption",
+                    "            ^^^^^^^^^^",
+                    self._get_msg_suggestions("Descrption"),
+                ),
+            )
+        ):
+            self.checker.visit_functiondef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_unrecognized_field_name_not_stripped(self) -> None:
+        """Only known Sphinx field list names are treated as markers; an
+        unrecognized leading ``:word:`` is still spell-checked as prose.
+        """
+        stmt = astroid.extract_node('''
+def func():
+    """
+    :fooo bar: some description
+    """
+    ...
+''')
+        with self.assertAddsMessages(
+            MessageTest(
+                "wrong-spelling-in-docstring",
+                line=4,
+                args=(
+                    "fooo",
+                    "    :fooo bar: some description",
+                    "     ^^^^",
+                    self._get_msg_suggestions("fooo"),
+                ),
+            )
+        ):
+            self.checker.visit_functiondef(stmt)
