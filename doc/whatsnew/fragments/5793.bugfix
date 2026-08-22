@@ -1,0 +1,3 @@
+arguments-differ: number of parameters was some number ... and is now the same number in overridden ...
+
+Closes #5793
