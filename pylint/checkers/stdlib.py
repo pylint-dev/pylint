@@ -585,7 +585,8 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "The first argument of assertTrue and assertFalse is "
             "a condition. If a constant is passed as parameter, that "
             "condition will be always true. In this case a warning "
-            "should be emitted.",
+            "should be emitted. The same applies to assertEqual and "
+            "assertNotEqual when both compared values are constants.",
         ),
         "W1506": (
             "threading.Thread needs the target function",
@@ -892,15 +893,27 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             )
 
     def _check_redundant_assert(self, node: nodes.Call, infer: InferenceResult) -> None:
+        if not isinstance(infer, astroid.BoundMethod):
+            return
         if (
-            isinstance(infer, astroid.BoundMethod)
-            and node.args
+            node.args
             and isinstance(node.args[0], nodes.Const)
             and infer.name in {"assertTrue", "assertFalse"}
         ):
             self.add_message(
                 "redundant-unittest-assert",
                 args=(infer.name, node.args[0].value),
+                node=node,
+            )
+        elif (
+            len(node.args) > 1
+            and isinstance(node.args[0], nodes.Const)
+            and isinstance(node.args[1], nodes.Const)
+            and infer.name in {"assertEqual", "assertNotEqual"}
+        ):
+            self.add_message(
+                "redundant-unittest-assert",
+                args=(infer.name, (node.args[0].value, node.args[1].value)),
                 node=node,
             )
 
