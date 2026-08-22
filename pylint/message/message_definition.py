@@ -100,9 +100,11 @@ class MessageDefinition:
                     f" This message can't be emitted when using Python {restriction}."
                 )
         msg_help = normalize_text(" ".join(desc.split()), indent="  ")
+        msg_help = msg_help.replace("\\", "\\\\")
         message_id = f"{self.symbol} ({self.msgid})"
         if title != "%s":
             title = title.splitlines()[0]
+            title = title.replace("\\", "\\\\")
             return f":{message_id}: *{title.rstrip(' ')}*\n{msg_help}"
         return f":{message_id}:\n{msg_help}"
 
