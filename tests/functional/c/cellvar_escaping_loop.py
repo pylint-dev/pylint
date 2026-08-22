@@ -109,6 +109,17 @@ def good_case_issue_5012():
 
     return funs
 
+
+def good_case11():
+    """Generator of closures consumed in place, calling each one immediately.
+
+    https://github.com/pylint-dev/pylint/issues/10055
+    """
+    test = (lambda: print(i) for i in range(10))
+    for call in test:
+        call()
+
+
 def bad_case():
     """Closing over a loop variable."""
     lst = []
@@ -225,6 +236,18 @@ def bad_case_issue2846():
     ]
 
     return lst_a, lst_b
+
+
+def bad_case11():
+    """Storing a generator's closures instead of calling them immediately is
+    still unsafe: the caller may call them all later, after the shared cell
+    has settled on its final value.
+    """
+    test = (lambda: i for i in range(10))  # [cell-var-from-loop]
+    funcs = []
+    for item in test:
+        funcs.append(item)
+    return funcs
 
 
 class Test(Enum):
