@@ -1059,7 +1059,8 @@ Stdlib checker Messages
 :redundant-unittest-assert (W1503): *Redundant use of %s with constant value %r*
   The first argument of assertTrue and assertFalse is a condition. If a
   constant is passed as parameter, that condition will be always true. In this
-  case a warning should be emitted.
+  case a warning should be emitted. The same applies to assertEqual and
+  assertNotEqual when both compared values are constants.
 :bad-thread-instantiation (W1506): *threading.Thread needs the target function*
   The warning is emitted when a threading.Thread class is instantiated without
   the target function being passed as a kwarg or as a second argument. By
