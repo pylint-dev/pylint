@@ -1,0 +1,3 @@
+Using return value of a function that returns None is not always reported.
+
+Closes #10476

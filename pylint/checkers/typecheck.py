@@ -2044,12 +2044,67 @@ accessed. Python regular expressions are accepted.",
                             "not-context-manager", node=node, args=(inferred_name,)
                         )
 
-    @only_required_for_messages("invalid-unary-operand-type")
+    @only_required_for_messages(
+        "invalid-unary-operand-type",
+        "assignment-from-no-return",
+        "assignment-from-none",
+    )
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """Detect TypeErrors for unary operands."""
         for error in node.type_errors():
             # Let the error customize its output.
             self.add_message("invalid-unary-operand-type", args=str(error), node=node)
+
+        if node.op == "not" and isinstance(node.operand, nodes.Call):
+            self._check_assignment_from_function_call_boolctx(node.operand)
+
+    def _check_assignment_from_function_call_boolctx(self, node: nodes.Call) -> None:
+        """When using a function call result in a boolean context, check that the
+        function returns a valid value.
+        """
+        function_node = safe_infer(node.func)
+        funcs = (nodes.FunctionDef, astroid.UnboundMethod, astroid.BoundMethod)
+        if not isinstance(function_node, funcs):
+            return
+
+        # Unwrap to get the actual function node object
+        if isinstance(function_node, astroid.BoundMethod) and isinstance(
+            function_node._proxied, astroid.UnboundMethod
+        ):
+            function_node = function_node._proxied._proxied
+
+        # Make sure that it's a valid function that we can analyze.
+        # Ordered from less expensive to more expensive checks.
+        if (
+            not function_node.is_function
+            or function_node.decorators
+            or self._is_ignored_function(function_node)
+        ):
+            return
+
+        # Fix a false-negative for list.sort(), see issue #5722
+        if self._is_list_sort_method(node):
+            self.add_message("assignment-from-none", node=node)
+            return
+
+        if not function_node.root().fully_defined():
+            return
+
+        return_nodes = list(
+            function_node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
+        )
+        if not return_nodes:
+            self.add_message("assignment-from-no-return", node=node)
+        else:
+            for ret_node in return_nodes:
+                if not (
+                    isinstance(ret_node.value, nodes.Const)
+                    and ret_node.value.value is None
+                    or ret_node.value is None
+                ):
+                    break
+            else:
+                self.add_message("assignment-from-none", node=node)
 
     @only_required_for_messages("unsupported-binary-operation")
     def visit_binop(self, node: nodes.BinOp) -> None:
