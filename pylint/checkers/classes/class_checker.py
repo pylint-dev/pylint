@@ -2519,13 +2519,20 @@ a metaclass class method.",
                     if refmethod.args.kwonlyargs:
                         total_args_refmethod += len(refmethod.args.kwonlyargs)
                     error_type = "arguments-differ"
-                    msg_args = (
-                        msg
-                        + f"was {total_args_refmethod} in '{refmethod.parent.frame().name}.{refmethod.name}' and "
-                        f"is now {total_args_method1} in",
-                        class_type,
-                        f"{method1.parent.frame().name}.{method1.name}",
-                    )
+                    if total_args_refmethod == total_args_method1:
+                        msg_args = (
+                            f"Number of parameters is unchanged, but their kind differs (e.g. positional vs keyword-only) compared to '{refmethod.parent.frame().name}.{refmethod.name}' in",
+                            class_type,
+                            f"{method1.parent.frame().name}.{method1.name}",
+                        )
+                    else:
+                        msg_args = (
+                            msg
+                            + f"was {total_args_refmethod} in '{refmethod.parent.frame().name}.{refmethod.name}' and "
+                            f"is now {total_args_method1} in",
+                            class_type,
+                            f"{method1.parent.frame().name}.{method1.name}",
+                        )
                 elif "renamed" in msg:
                     error_type = "arguments-renamed"
                     msg_args = (
