@@ -1359,7 +1359,9 @@ a metaclass class method.",
                     # of the defining methods, then don't emit
                     # the warning.
                     if _called_in_methods(node.frame(), cnode, defining_methods):
-                        continue
+                        break
+            else:
+                for node in filtered_nodes:
                     self.add_message(
                         "attribute-defined-outside-init", args=attr, node=node
                     )
@@ -1367,9 +1369,11 @@ a metaclass class method.",
     def _defined_in_parent_init(
         self, cnode: nodes.ClassDef, attr: str, defining_methods: Sequence[str]
     ) -> bool:
-        # check attribute is defined in a parent's defining method
+        # check attribute is defined in a parent's defining method, either
+        # directly or in a method called from a defining method
         return any(
             node.frame().name in defining_methods
+            or _called_in_methods(node.frame(), parent, defining_methods)
             for parent in cnode.instance_attr_ancestors(attr)
             for node in parent.instance_attrs[attr]
         )
