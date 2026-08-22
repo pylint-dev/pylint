@@ -11,9 +11,8 @@ from collections import defaultdict
 from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
-from astroid import nodes
-
 from astroid import nodes, objects
+
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_enum, only_required_for_messages, safe_infer
 from pylint.interfaces import HIGH
