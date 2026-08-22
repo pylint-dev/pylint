@@ -1,0 +1,3 @@
+False positive E1133 (not-an-iterable) when returning (type hinted) class variable
+
+Closes #10298

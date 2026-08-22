@@ -205,3 +205,23 @@ class Model:
 
     def method(self):
         return [f + 1 for f in self.field] if self.field else None
+
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/10298
+class ClassAttrHolder:
+    @classmethod
+    def reset(cls):
+        ClassAttrHolder.x = None
+
+    @classmethod
+    def fill(cls):
+        ClassAttrHolder.x = [1]
+
+    def value(self) -> list[int]:
+        if ClassAttrHolder.x is None:
+            ClassAttrHolder.fill()
+        return ClassAttrHolder.x
+
+
+for i in ClassAttrHolder().value():
+    print(i)

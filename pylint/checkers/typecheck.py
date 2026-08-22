@@ -2375,6 +2375,42 @@ class IterableChecker(BaseChecker):
                 return True
         return False
 
+    @staticmethod
+    def _is_declared_iterable_return_type(node: nodes.NodeNG) -> bool:
+        """Check if the node is a call whose declared return type is iterable."""
+        if not isinstance(node, nodes.Call):
+            return False
+
+        inferred_func = safe_infer(node.func)
+        if not inferred_func:
+            return False
+
+        # Unwrap BoundMethod/UnboundMethod proxies to reach the FunctionDef.
+        funcdef = inferred_func
+        while hasattr(funcdef, "_proxied"):
+            funcdef = funcdef._proxied
+
+        if not isinstance(funcdef, nodes.FunctionDef):
+            return False
+
+        returns = funcdef.returns
+        if returns is None:
+            return False
+
+        inferred_return = safe_infer(returns)
+        if not inferred_return:
+            return False
+
+        # If the annotation resolves to a ClassDef, instantiate it to check
+        # whether instances of that class are iterable.
+        if isinstance(inferred_return, nodes.ClassDef):
+            try:
+                inferred_return = inferred_return.instantiate_class()
+            except astroid.InferenceError:
+                return False
+
+        return is_iterable(inferred_return)
+
     def _check_iterable(self, node: nodes.NodeNG, check_async: bool = False) -> None:
         if is_inside_abstract_class(node):
             return
@@ -2382,7 +2418,8 @@ class IterableChecker(BaseChecker):
         if not inferred or is_comprehension(inferred):
             return
         if not is_iterable(inferred, check_async=check_async):
-            self.add_message("not-an-iterable", args=node.as_string(), node=node)
+            if not self._is_declared_iterable_return_type(node):
+                self.add_message("not-an-iterable", args=node.as_string(), node=node)
 
     def _check_mapping(self, node: nodes.NodeNG) -> None:
         if is_inside_abstract_class(node):
