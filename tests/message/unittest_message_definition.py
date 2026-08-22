@@ -174,10 +174,12 @@ message one msg description"""
         """
         checker = UnicodeChecker(PyLinter())
         message = next(
-            msg for msg in checker.messages if msg.symbol == "invalid-character-backspace"
+            msg
+            for msg in checker.messages
+            if msg.symbol == "invalid-character-backspace"
         )
         expected_format_help = (
-            ':invalid-character-backspace (E2510): *Invalid unescaped character '
+            ":invalid-character-backspace (E2510): *Invalid unescaped character "
             'backspace, use "' + r"\\b" + '" instead.*\n'
             "  Moves the cursor back, so the character after it will overwrite the character\n"
             "  before."
