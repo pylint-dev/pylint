@@ -1,0 +1,3 @@
+False positive ``too-few-public-methods`` on property function calls and descriptors
+
+Closes #10348

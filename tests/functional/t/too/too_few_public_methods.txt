@@ -1,1 +1,2 @@
 too-few-public-methods:7:0:7:10:Aaaa:Too few public methods (1/2):UNDEFINED
+too-few-public-methods:71:0:71:16:Descriptor:Too few public methods (1/2):UNDEFINED

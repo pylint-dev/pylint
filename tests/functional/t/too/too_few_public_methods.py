@@ -47,3 +47,34 @@ class DumbList:
 
     def __getitem__(self, index):
         return self._list[index]
+
+
+class PropertyCalls:
+    """Properties built via a direct ``property(...)`` call still count."""
+    id = property(lambda self: None)
+    name = property(lambda self: None)
+
+
+def make_property():
+    def getter(_self):
+        pass
+
+    return property(getter)
+
+
+class PropertyFactory:
+    """Properties returned from a helper function still count."""
+    id = make_property()
+    name = make_property()
+
+
+class Descriptor: # [too-few-public-methods]
+    """A data descriptor with a single dunder method: still too few."""
+    def __get__(self, instance, owner=None):
+        pass
+
+
+class Descriptors:
+    """Descriptor instances used as class attributes still count."""
+    id = Descriptor()
+    name = Descriptor()
