@@ -10,6 +10,7 @@ from unittest import mock
 import pytest
 
 from pylint.checkers import BaseChecker
+from pylint.checkers.unicode import UnicodeChecker
 from pylint.constants import WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.lint.pylinter import PyLinter
@@ -139,3 +140,46 @@ message one msg description"""
         expected_format_help = """:msg-symbol-one (W1234): *message one*
   msg description"""
         assert FalseChecker().messages[0].format_help() == expected_format_help
+
+    def test_format_help_escapes_backslashes(self) -> None:
+        """A lone backslash is a reST escape character and gets stripped by
+        the renderer, so any literal backslash in a message's title or
+        description must be doubled to survive rendering.
+
+        See https://github.com/pylint-dev/pylint/issues/10737
+        """
+        checker_mock = mock.Mock(name="Checker")
+        checker_mock.name = "checker"
+        msg = MessageDefinition(
+            checker_mock,
+            "W1234",
+            'Invalid unescaped character backspace, use "' + r"\b" + '" instead.',
+            "Escape like " + r"\t" + " is used here.",
+            "msg-symbol",
+            WarningScope.NODE,
+        )
+        expected_format_help = (
+            ':msg-symbol (W1234): *Invalid unescaped character backspace, use "'
+            + r"\\b"
+            + '" instead.*\n'
+            "  Escape like " + r"\\t" + " is used here."
+        )
+        assert msg.format_help() == expected_format_help
+
+    def test_format_help_invalid_character_backspace(self) -> None:
+        """The auto-generated message help for ``invalid-character-backspace``
+        must double its literal backslash so it isn't swallowed by reST.
+
+        See https://github.com/pylint-dev/pylint/issues/10737
+        """
+        checker = UnicodeChecker(PyLinter())
+        message = next(
+            msg for msg in checker.messages if msg.symbol == "invalid-character-backspace"
+        )
+        expected_format_help = (
+            ':invalid-character-backspace (E2510): *Invalid unescaped character '
+            'backspace, use "' + r"\\b" + '" instead.*\n'
+            "  Moves the cursor back, so the character after it will overwrite the character\n"
+            "  before."
+        )
+        assert message.format_help() == expected_format_help
