@@ -248,6 +248,7 @@ class ClassDiadefGenerator(DiaDefGenerator):
 
     def class_diagram(self, project: Project, klass: str) -> ClassDiagram:
         """Return a class diagram definition for the class and related classes."""
+        klass_name = klass
         self.classdiagram = ClassDiagram(klass, self.config.mode, self.linker)
         if len(project.modules) > 1:
             module, klass = klass.rsplit(".", 1)
@@ -258,6 +259,10 @@ class ClassDiadefGenerator(DiaDefGenerator):
         klass = next(module.ilookup(klass))
 
         if not isinstance(klass, nodes.ClassDef):
+            warnings.warn(
+                f"Unable to infer requested class {klass_name!r}; generated diagram will be empty.",
+                stacklevel=2,
+            )
             return self.classdiagram
 
         anc_level, association_level = self._get_levels()

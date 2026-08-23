@@ -284,14 +284,18 @@ def test_known_values4(HANDLER: DiadefsHandler, PROJECT: Project) -> None:
     ]
 
 
-def test_class_diagram_ignores_uninferable_target(HANDLER: DiadefsHandler) -> None:
+def test_class_diagram_warns_for_uninferable_target(HANDLER: DiadefsHandler) -> None:
     module = parse("from unresolved import Target", module_name="sample")
     project = Project("sample")
     project.add_module(module)
 
-    diagram = ClassDiadefGenerator(Linker(project), HANDLER).class_diagram(
-        project, "Target"
-    )
+    with pytest.warns(
+        UserWarning,
+        match=re.escape("Unable to infer requested class 'Target'; generated diagram will be empty."),
+    ):
+        diagram = ClassDiadefGenerator(Linker(project), HANDLER).class_diagram(
+            project, "Target"
+        )
 
     assert diagram.objects == []
 
