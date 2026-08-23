@@ -291,7 +291,9 @@ def test_class_diagram_warns_for_uninferable_target(HANDLER: DiadefsHandler) -> 
 
     with pytest.warns(
         UserWarning,
-        match=re.escape("Unable to infer requested class 'Target'; generated diagram will be empty."),
+        match=re.escape(
+            "Unable to infer requested class 'Target'; generated diagram will be empty."
+        ),
     ):
         diagram = ClassDiadefGenerator(Linker(project), HANDLER).class_diagram(
             project, "Target"
