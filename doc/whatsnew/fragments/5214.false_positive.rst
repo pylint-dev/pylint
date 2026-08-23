@@ -1,1 +1,0 @@
-Fix false positives where __init__ uses a helper method to create attributes
