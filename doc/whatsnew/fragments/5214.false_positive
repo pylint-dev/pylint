@@ -1,3 +1,3 @@
-Fix false positives where ``__init__`` (etc) uses a helper method to create attributes.
+Fix false positives for :ref:attribute-defined-outside-init`` where ``__init__`` (etc.) uses a helper method to create attributes.
 
 Closes #5214

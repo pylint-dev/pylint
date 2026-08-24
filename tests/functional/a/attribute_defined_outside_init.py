@@ -220,6 +220,7 @@ class HParent:
     def init_helper(self):
         self.var1 = True
 
+
 class HDerived(HParent):
     def other_func(self):
         self.var1 = False
