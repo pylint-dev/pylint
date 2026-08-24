@@ -35,6 +35,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       has-output: ${{ steps.check.outputs.has-output }}
+      skipped: ${{ steps.check.outputs.skipped }}
     steps:
       - name: Check the run produced an output to compare
         id: check
@@ -46,13 +47,84 @@ jobs:
                repo: context.repo.repo,
                run_id: ${{ github.event.workflow_run.id }},
             });
-            const hasOutput = artifacts.data.artifacts.some((artifact) =>
-              artifact.name === 'pr_number'
-            );
+            const names = artifacts.data.artifacts.map((artifact) => artifact.name);
+            const hasOutput = names.includes('pr_number');
+            const skipped = names.includes('primer_skipped');
             if (!hasOutput) {
-              core.notice("The primer did not run, there is nothing to comment.")
+              core.notice("The primer did not run, there is nothing to compare.")
             }
             core.setOutput("has-output", hasOutput)
+            core.setOutput("skipped", skipped)
+
+  # The primer skipped this branch because it does not contain the commit on
+  # 'main' its output would be compared against. Say so where the author will
+  # see it: they only need to press 'Update branch'.
+  suggest-update:
+    needs: check-output
+    if: needs.check-output.outputs.skipped == 'true'
+    name: Suggest an update
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Download the reason for skipping
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: ${{ github.event.workflow_run.id }},
+            });
+            const [marker] = artifacts.data.artifacts.filter((artifact) =>
+              artifact.name === 'primer_skipped'
+            );
+            const downloaded = await github.rest.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: marker.id,
+               archive_format: "zip",
+            });
+            fs.writeFileSync('primer_skipped.zip', Buffer.from(downloaded.data));
+      - name: Unzip the reason for skipping
+        run: unzip primer_skipped.zip
+      - name: Ask for the branch to be updated
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const mainSha = fs.readFileSync('main_sha.txt', { encoding: 'utf8' }).trim();
+            const prNumber = parseInt(fs.readFileSync('pr_number.txt', { encoding: 'utf8' }));
+            // An invisible marker so the next run can recognize its own comment.
+            // Asking once is enough: only ask again if something was said since.
+            const marker = '<!-- primer-skipped -->';
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              issue_number: prNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const lastOwnComment = comments.filter((comment) =>
+              comment.user.login === 'github-actions[bot]'
+            ).pop();
+            if (lastOwnComment && lastOwnComment.body.includes(marker)) {
+              core.notice("The branch was already asked to be updated, not asking again.")
+              return
+            }
+            await github.rest.issues.createComment({
+              issue_number: prNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `${marker}\n🤖 **The primer did not run on this pull request.** 🤖\n\n` +
+                `It compares the branch against the output of the last successful run ` +
+                `on \`main\`, at ${mainSha}, and this branch does not contain that ` +
+                `commit yet — so the comparison would credit this pull request with ` +
+                `everything that landed on \`main\` in between.\n\n` +
+                `Press **Update branch** below (or rebase) and the primer will run on ` +
+                `the next push.`
+            });
 
   primer-comment:
     needs: check-output

@@ -82,9 +82,23 @@ jobs:
           else
             echo "::notice ::Skipping the primer: this branch does not contain $MAIN_SHA, the commit the 'main' output it would be compared against was produced from. Merge or rebase on 'main' to get a run."
             echo "up-to-date=false" >> "$GITHUB_OUTPUT"
+            echo "The primer did not run: this branch does not contain \`$MAIN_SHA\`, the commit on 'main' its output would have been compared against." >> "$GITHUB_STEP_SUMMARY"
+            echo "$MAIN_SHA" > main_sha.txt
+            echo "$PR_NUMBER" > pr_number.txt
           fi
         env:
           MAIN_SHA: ${{ steps.main-run.outputs.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+      # The comment job needs to know which PR to nudge, and why. It cannot ask
+      # this job: 'workflow_run' only gives it the run, not the job outputs.
+      - name: Upload the reason for skipping
+        if: steps.compare.outputs.up-to-date != 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: primer_skipped
+          path: |
+            main_sha.txt
+            pr_number.txt
 
   run-primer:
     name: Run / ${{ matrix.python-version }} / batch index ${{ matrix.batchIdx }}
