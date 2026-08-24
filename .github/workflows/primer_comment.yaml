@@ -118,10 +118,11 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: `${marker}\n🤖 **The primer did not run on this pull request.** 🤖\n\n` +
-                `It compares the branch against the output of the last successful run ` +
-                `on \`main\`, at ${mainSha}, and this branch does not contain that ` +
-                `commit yet — so the comparison would credit this pull request with ` +
-                `everything that landed on \`main\` in between.\n\n` +
+                `It compares this branch against the output of the last successful run ` +
+                `on \`main\`, at ${mainSha}, and the branch does not contain that ` +
+                `commit yet. Every message \`main\` gained in between would look ` +
+                `removed by this pull request, and every one it fixed would look added: ` +
+                `the comparison would read as a revert of \`main\`.\n\n` +
                 `Press **Update branch** below (or rebase) and the primer will run on ` +
                 `the next push.`
             });

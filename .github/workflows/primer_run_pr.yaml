@@ -34,8 +34,9 @@ permissions:
 jobs:
   # The primer compares this branch against the output of the last successful
   # run on 'main'. If the branch does not contain the commit that output was
-  # produced from, the comparison also shows everything that happened on 'main'
-  # in between, which is noise the author cannot act on. Rather than merge
+  # produced from, then it is missing what 'main' has: every message 'main'
+  # gained in between looks removed by the branch, every one it fixed looks
+  # added, and the comparison reads as a revert of 'main'. Rather than merge
   # 'main' in and prime a tree nobody wrote, skip the run and ask for a rebase.
   check-main-baseline:
     name: Check the branch contains the primed 'main'
@@ -80,7 +81,7 @@ jobs:
           then
             echo "up-to-date=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::notice ::Skipping the primer: this branch does not contain $MAIN_SHA, the commit the 'main' output it would be compared against was produced from. Merge or rebase on 'main' to get a run."
+            echo "::notice ::Skipping the primer: this branch does not contain $MAIN_SHA, the commit the 'main' output it would be compared against was produced from, so the comparison would read as a revert of 'main'. Merge or rebase on 'main' to get a run."
             echo "up-to-date=false" >> "$GITHUB_OUTPUT"
             echo "The primer did not run: this branch does not contain \`$MAIN_SHA\`, the commit on 'main' its output would have been compared against." >> "$GITHUB_STEP_SUMMARY"
             echo "$MAIN_SHA" > main_sha.txt
