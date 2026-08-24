@@ -1,3 +1,8 @@
 unnecessary-direct-lambda-call:4:4:4:33::Lambda expression called directly. Execute the expression inline instead.:HIGH
 unnecessary-direct-lambda-call:5:8:5:27::Lambda expression called directly. Execute the expression inline instead.:HIGH
 unnecessary-direct-lambda-call:5:29:5:47::Lambda expression called directly. Execute the expression inline instead.:HIGH
+unnecessary-direct-lambda-call:21:18:21:38:ClassBodyWalrus:Lambda expression called directly. Execute the expression inline instead.:HIGH
+unnecessary-direct-lambda-call:23:26:23:63:ClassBodyWalrus:Lambda expression called directly. Execute the expression inline instead.:HIGH
+unnecessary-direct-lambda-call:26:13:26:67:ClassBodyWalrus:Lambda expression called directly. Execute the expression inline instead.:HIGH
+unnecessary-direct-lambda-call:26:23:26:63:ClassBodyWalrus.<lambda>:Lambda expression called directly. Execute the expression inline instead.:HIGH
+unnecessary-direct-lambda-call:31:11:31:66:outside_a_class_body:Lambda expression called directly. Execute the expression inline instead.:HIGH

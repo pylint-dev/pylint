@@ -12,6 +12,15 @@ from astroid import nodes
 from pylint.checkers import BaseChecker
 from pylint.interfaces import HIGH
 
+# PEP 572 forbids an assignment expression inside a comprehension whose
+# containing scope is a class body, and every comprehension form is covered.
+COMPREHENSION_NODES = (
+    nodes.DictComp,
+    nodes.GeneratorExp,
+    nodes.ListComp,
+    nodes.SetComp,
+)
+
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
@@ -82,12 +91,39 @@ class LambdaExpressionChecker(BaseChecker):
 
     def visit_call(self, node: nodes.Call) -> None:
         """Check if lambda expression is called directly."""
-        if isinstance(node.func, nodes.Lambda):
+        if isinstance(node.func, nodes.Lambda) and not _lambda_scope_is_required(node):
             self.add_message(
                 "unnecessary-direct-lambda-call",
                 node=node,
                 confidence=HIGH,
             )
+
+
+def _lambda_scope_is_required(node: nodes.Call) -> bool:
+    """Whether inlining this directly called lambda would not compile.
+
+    A comprehension carrying an assignment expression is a SyntaxError when its
+    containing scope is a class body (PEP 572). The lambda supplies a function
+    scope in between, so removing it, which is exactly what the message advises,
+    turns working code into code that does not parse.
+
+    Only a comprehension that would land in the class body itself counts. One
+    nested inside a further lambda or function keeps a scope of its own after
+    the inlining, so the call around it is still reported.
+    """
+    if not isinstance(node.frame(), nodes.ClassDef):
+        return False
+    for comprehension in node.func.body.nodes_of_class(COMPREHENSION_NODES):
+        if not any(True for _ in comprehension.nodes_of_class(nodes.NamedExpr)):
+            continue
+        enclosing_scope = comprehension.parent
+        while enclosing_scope is not None and not isinstance(
+            enclosing_scope, (nodes.Lambda, nodes.FunctionDef)
+        ):
+            enclosing_scope = enclosing_scope.parent
+        if enclosing_scope is node.func:
+            return True
+    return False
 
 
 def register(linter: PyLinter) -> None:
