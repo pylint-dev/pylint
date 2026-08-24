@@ -223,3 +223,23 @@ class HParent:
 class HDerived(HParent):
     def other_func(self):
         self.var1 = False
+
+
+class UnrelatedHelperOwner:
+    def init_helper(self):
+        """Same name as SameNameHelperCall.init_helper, other class."""
+
+
+class SameNameHelperCall:
+    # '_called_in_methods' matches the called method by name only, so calling
+    # 'init_helper' on another object counts as calling our own: both
+    # assignments below are known false negatives.
+    def __init__(self):
+        self.other = UnrelatedHelperOwner()
+        self.other.init_helper()
+
+    def init_helper(self):
+        self.var1 = True
+
+    def other_func(self):
+        self.var1 = False
