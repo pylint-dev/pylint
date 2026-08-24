@@ -1353,18 +1353,17 @@ a metaclass class method.",
             if attr in parent_setattr_names:
                 continue
 
+            # If the attribute was set by a call made in any of the defining
+            # methods, then it is initialized after all: don't emit for any of
+            # the assignments.
+            if any(
+                _called_in_methods(node.frame(), cnode, defining_methods)
+                for node in filtered_nodes
+            ):
+                continue
+
             for node in filtered_nodes:
-                if node.frame().name not in defining_methods:
-                    # If the attribute was set by a call in any
-                    # of the defining methods, then don't emit
-                    # the warning.
-                    if _called_in_methods(node.frame(), cnode, defining_methods):
-                        break
-            else:
-                for node in filtered_nodes:
-                    self.add_message(
-                        "attribute-defined-outside-init", args=attr, node=node
-                    )
+                self.add_message("attribute-defined-outside-init", args=attr, node=node)
 
     def _defined_in_parent_init(
         self, cnode: nodes.ClassDef, attr: str, defining_methods: Sequence[str]
