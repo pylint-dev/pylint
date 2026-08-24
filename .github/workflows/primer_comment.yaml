@@ -22,14 +22,46 @@ env:
 
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
-  primer-comment:
+  # The run skips itself when the branch does not contain the commit the 'main'
+  # output was produced from, and a skipped job still makes for a successful
+  # workflow, so there is nothing to comment on and no artifact to download.
+  check-output:
     # Skip job if the workflow failed
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    name: Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      has-output: ${{ steps.check.outputs.has-output }}
+    steps:
+      - name: Check the run produced an output to compare
+        id: check
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: ${{ github.event.workflow_run.id }},
+            });
+            const hasOutput = artifacts.data.artifacts.some((artifact) =>
+              artifact.name === 'pr_number'
+            );
+            if (!hasOutput) {
+              core.notice("The primer did not run, there is nothing to comment.")
+            }
+            core.setOutput("has-output", hasOutput)
+
+  primer-comment:
+    needs: check-output
+    if: needs.check-output.outputs.has-output == 'true'
     name: Run
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

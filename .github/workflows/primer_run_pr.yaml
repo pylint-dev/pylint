@@ -32,8 +32,64 @@ permissions:
   contents: read
 
 jobs:
+  # The primer compares this branch against the output of the last successful
+  # run on 'main'. If the branch does not contain the commit that output was
+  # produced from, the comparison also shows everything that happened on 'main'
+  # in between, which is noise the author cannot act on. Rather than merge
+  # 'main' in and prime a tree nobody wrote, skip the run and ask for a rebase.
+  check-main-baseline:
+    name: Check the branch contains the primed 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      up-to-date: ${{ steps.compare.outputs.up-to-date }}
+      main-run-id: ${{ steps.main-run.outputs.id }}
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Find the last successful run on 'main'
+        id: main-run
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: ".github/workflows/primer_run_main.yaml",
+              status: "success"
+            });
+            const lastRunMain = runs.data.workflow_runs.reduce(function(prev, current) {
+                return (prev.run_number > current.run_number) ? prev : current
+            })
+            console.log("Last run on main:")
+            console.log(lastRunMain.html_url)
+            core.setOutput("id", lastRunMain.id)
+            core.setOutput("sha", lastRunMain.head_sha)
+      - name: Compare the branch with the primed 'main'
+        id: compare
+        run: |
+          if ! git cat-file -e "${MAIN_SHA}^{commit}" 2> /dev/null
+          then
+            echo "::warning ::$MAIN_SHA is not in this repository (was 'main' force-pushed?), priming anyway"
+            echo "up-to-date=true" >> "$GITHUB_OUTPUT"
+          elif git merge-base --is-ancestor "$MAIN_SHA" HEAD
+          then
+            echo "up-to-date=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice ::Skipping the primer: this branch does not contain $MAIN_SHA, the commit the 'main' output it would be compared against was produced from. Merge or rebase on 'main' to get a run."
+            echo "up-to-date=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          MAIN_SHA: ${{ steps.main-run.outputs.sha }}
+
   run-primer:
     name: Run / ${{ matrix.python-version }} / batch index ${{ matrix.batchIdx }}
+    needs: check-main-baseline
+    if: needs.check-main-baseline.outputs.up-to-date == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
@@ -45,6 +101,9 @@ jobs:
       - name: Check out code from GitHub
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          # The default merge ref would prime the branch merged with the tip of
+          # 'main', which is not what the 'main' output was produced from.
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
           persist-credentials: false
       - name: Set up Python ${{ matrix.python-version }}
@@ -96,36 +155,21 @@ jobs:
 
       # Cache primer packages
       - name: Download last 'main' run info
-        id: download-main-run
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           COMMIT_STRING_ARTIFACT: primer_commitstring_${{ matrix.python-version }}
+          MAIN_RUN_ID: ${{ needs.check-main-baseline.outputs.main-run-id }}
           OUTPUT_ARTIFACT:
             primer_output_main_${{ matrix.python-version }}_batch${{ matrix.batchIdx }}
         with:
-          # Return the commit as a bare string: the default JSON encoding would
-          # wrap it in double quotes, and those end up inside the ref name when
-          # the shell expands the environment variable holding it.
-          result-encoding: string
           script: |
-            const { COMMIT_STRING_ARTIFACT, OUTPUT_ARTIFACT } = process.env
+            const { COMMIT_STRING_ARTIFACT, MAIN_RUN_ID, OUTPUT_ARTIFACT } = process.env
             // Download 'main' pylint output
             const fs = require('fs');
-            const runs = await github.rest.actions.listWorkflowRuns({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: ".github/workflows/primer_run_main.yaml",
-              status: "success"
-            });
-            const lastRunMain = runs.data.workflow_runs.reduce(function(prev, current) {
-                return (prev.run_number > current.run_number) ? prev : current
-            })
-            console.log("Last run on main:")
-            console.log(lastRunMain.html_url)
             const artifacts_main = await github.rest.actions.listWorkflowRunArtifacts({
                owner: context.repo.owner,
                repo: context.repo.repo,
-               run_id: lastRunMain.id,
+               run_id: Number(MAIN_RUN_ID),
             });
 
             // Get commitstring
@@ -149,7 +193,6 @@ jobs:
                archive_format: "zip",
             });
             fs.writeFileSync(`${OUTPUT_ARTIFACT}.zip`, Buffer.from(downloadWorkflowTwo.data));
-            return lastRunMain.head_sha;
       - name: Copy and unzip the commit string
         run: |
           unzip primer_commitstring_${{ matrix.python-version }}.zip
@@ -188,16 +231,6 @@ jobs:
         run: |
           . venv/bin/activate
           python tests/primer/__main__.py prepare --check
-
-      # Merge the 'main' commit of last successful run
-      - name: Pull 'main'
-        shell: bash
-        run: |
-          git config --global user.email "primer@example.com"
-          git config --global user.name "Pylint Primer"
-          git pull origin "${MAIN_RUN_REF}" --no-edit --no-commit --no-rebase
-        env:
-          MAIN_RUN_REF: ${{ steps.download-main-run.outputs.result }}
 
       # Run primer
       - name: Run pylint primer
