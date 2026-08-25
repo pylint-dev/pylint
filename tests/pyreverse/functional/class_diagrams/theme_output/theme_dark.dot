@@ -4,5 +4,5 @@ charset="utf-8"
 bgcolor="#1e1e1e"
 "theme_dark.Animal" [color="#e0e0e0", fontcolor="#e0e0e0", label=<{Animal|<br ALIGN="LEFT"/>|<I>speak</I>()<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
 "theme_dark.Dog" [color="#e0e0e0", fontcolor="#e0e0e0", label=<{Dog|<br ALIGN="LEFT"/>|speak()<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
-"theme_dark.Dog" -> "theme_dark.Animal" [arrowhead="empty", arrowtail="none"];
+"theme_dark.Dog" -> "theme_dark.Animal" [arrowhead="empty", arrowtail="none", color="#e0e0e0"];
 }

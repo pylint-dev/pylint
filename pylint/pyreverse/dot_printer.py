@@ -164,8 +164,8 @@ class DotPrinter(Printer):
         label: str | None = None,
     ) -> None:
         """Create an edge from one node to another to display relationships."""
-        arrowstyle = ARROWS[type_]
-        attrs = [f'{prop}="{value}"' for prop, value in arrowstyle.items()]
+        edge_style = {"color": self._theme_colors["color"], **ARROWS[type_]}
+        attrs = [f'{prop}="{value}"' for prop, value in edge_style.items()]
         if label:
             attrs.append(f'label="{label}"')
         self.emit(f'"{from_node}" -> "{to_node}" [{", ".join(sorted(attrs))}];')
