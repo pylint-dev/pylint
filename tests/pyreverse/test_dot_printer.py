@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from pylint.pyreverse.dot_printer import DotPrinter
-from pylint.pyreverse.printer import NodeProperties, NodeType
+from pylint.pyreverse.printer import EdgeType, NodeProperties, NodeType
 
 
 def test_dot_printer_light_theme_has_no_bgcolor() -> None:
@@ -32,3 +32,23 @@ def test_dot_printer_node_color_override_takes_precedence_over_theme() -> None:
     node_line = printer.lines[-1]
     assert 'color="red"' in node_line
     assert 'fontcolor="blue"' in node_line
+
+
+def test_dot_printer_light_theme_edge_color() -> None:
+    printer = DotPrinter(title="unittest")
+    printer.emit_edge(from_node="a", to_node="b", type_=EdgeType.USES)
+    assert 'color="black"' in printer.lines[-1]
+
+
+def test_dot_printer_dark_theme_edge_color() -> None:
+    printer = DotPrinter(title="unittest", theme="dark")
+    printer.emit_edge(from_node="a", to_node="b", type_=EdgeType.USES)
+    assert 'color="#e0e0e0"' in printer.lines[-1]
+
+
+def test_dot_printer_dark_theme_edge_color_with_per_type_override() -> None:
+    printer = DotPrinter(title="unittest", theme="dark")
+    printer.emit_edge(from_node="a", to_node="b", type_=EdgeType.COMPOSITION)
+    edge_line = printer.lines[-1]
+    assert 'color="#e0e0e0"' in edge_line
+    assert 'fontcolor="green"' in edge_line
