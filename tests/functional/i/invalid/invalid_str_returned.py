@@ -62,3 +62,10 @@ class AnotherAmbiguousStr:
 
     def __str__(self):
         return str(Missing)
+
+
+class SubclassGoodStr(str):
+    """__str__ returns a str subclass instance, e.g. `return self`."""
+
+    def __str__(self):
+        return self

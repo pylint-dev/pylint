@@ -69,3 +69,10 @@ class AnotherAmbiguousLen:
     """Potential uninferable return value"""
     def __len__(self):
         return int(Missing)
+
+
+class SubclassGoodLen(int):
+    """__len__ returns an int subclass instance."""
+
+    def __len__(self):
+        return self

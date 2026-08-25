@@ -62,3 +62,10 @@ class AnotherAmbiguousLengthHint:
     """Potential uninferable return value"""
     def __length_hint__(self):
         return int(Missing)
+
+
+class SubclassGoodLengthHint(int):
+    """__length_hint__ returns an int subclass instance."""
+
+    def __length_hint__(self):
+        return self

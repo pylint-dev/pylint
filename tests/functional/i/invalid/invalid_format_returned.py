@@ -62,3 +62,10 @@ class AnotherAmbiguousFormat:
 
     def __format__(self, format_spec):
         return str(Missing)
+
+
+class SubclassGoodFormat(str):
+    """__format__ returns a str subclass instance."""
+
+    def __format__(self, format_spec):
+        return self

@@ -62,3 +62,10 @@ class AnotherAmbiguousBytes:
 
     def __bytes__(self):
         return bytes(Missing)
+
+
+class SubclassGoodBytes(bytes):
+    """__bytes__ returns a bytes subclass instance."""
+
+    def __bytes__(self):
+        return self

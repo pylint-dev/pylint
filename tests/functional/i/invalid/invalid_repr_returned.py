@@ -62,3 +62,10 @@ class AnotherAmbiguousRepr:
 
     def __repr__(self):
         return str(Missing)
+
+
+class SubclassGoodRepr(str):
+    """__repr__ returns a str subclass instance, like pdb._rstr."""
+
+    def __repr__(self):
+        return self

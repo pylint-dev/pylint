@@ -69,3 +69,10 @@ class AnotherAmbiguousHash:
 
     def __hash__(self):
         return hash(Missing)
+
+
+class SubclassGoodHash(int):
+    """__hash__ returns an int subclass instance."""
+
+    def __hash__(self):
+        return self

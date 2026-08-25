@@ -1,0 +1,8 @@
+Fix false positives for ``invalid-str-returned``, ``invalid-repr-returned``,
+``invalid-format-returned``, ``invalid-hash-returned``, ``invalid-index-returned``,
+``invalid-length-returned``, ``invalid-length-hint-returned``,
+``invalid-bytes-returned`` and ``invalid-getnewargs-returned`` when the returned
+value is an instance of a subclass of the expected builtin type, such as
+``return self`` from a ``str`` subclass in ``__str__``.
+
+Closes #11306

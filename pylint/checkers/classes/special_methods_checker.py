@@ -246,10 +246,18 @@ class SpecialMethodsChecker(BaseChecker):
 
     @staticmethod
     def _is_wrapped_type(node: InferenceResult, type_: str) -> bool:
+        # Instances of subclasses of the builtin are valid return values,
+        # e.g. `return self` from a str subclass in __str__.
         return (
             isinstance(node, bases.Instance)
-            and node.name == type_
             and not isinstance(node, nodes.Const)
+            and (
+                node.name == type_
+                or any(
+                    ancestor.qname() == f"builtins.{type_}"
+                    for ancestor in node._proxied.ancestors()
+                )
+            )
         )
 
     @staticmethod

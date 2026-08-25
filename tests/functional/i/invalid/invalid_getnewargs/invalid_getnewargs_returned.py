@@ -60,3 +60,10 @@ class AnotherAmbiguousGetNewArgs:
     """Potential uninferable return value"""
     def __getnewargs__(self):
         return tuple(Missing)
+
+
+class SubclassGoodGetNewArgs(tuple):
+    """__getnewargs__ returns a tuple subclass instance."""
+
+    def __getnewargs__(self):
+        return self

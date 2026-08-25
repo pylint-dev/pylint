@@ -69,3 +69,10 @@ class AnotherAmbiguousIndex:
 
     def __index__(self):
         return int(Missing)
+
+
+class SubclassGoodIndex(int):
+    """__index__ returns an int subclass instance."""
+
+    def __index__(self):
+        return self
