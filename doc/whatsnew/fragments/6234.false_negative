@@ -1,0 +1,7 @@
+``deprecated-method`` is now emitted for ``datetime.datetime.utcnow()`` and
+``datetime.datetime.utcfromtimestamp()`` on Python 3.12 and above. Both were
+already listed as deprecated, but astroid's ``datetime`` brain extends the
+module with ``from _pydatetime import *`` on 3.12+, so inference reported the
+private implementation module and the check never matched.
+
+Refs #6234

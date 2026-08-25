@@ -301,6 +301,11 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "builtins.bool.__invert__",
             "datetime.datetime.utcfromtimestamp",
             "datetime.datetime.utcnow",
+            # On 3.12+ astroid's datetime brain extends the module with
+            # ``from _pydatetime import *``, so inference reports the private
+            # implementation module and the public names above never match.
+            "_pydatetime.datetime.utcfromtimestamp",
+            "_pydatetime.datetime.utcnow",
             "pkgutil.find_loader",
             "pkgutil.get_loader",
             "pty.master_open",

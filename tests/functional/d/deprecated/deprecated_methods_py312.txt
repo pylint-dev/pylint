@@ -1,0 +1,2 @@
+deprecated-method:8:11:8:37:naive_now:Using deprecated method utcnow():UNDEFINED
+deprecated-method:12:11:12:56:naive_from_timestamp:Using deprecated method utcfromtimestamp():UNDEFINED
