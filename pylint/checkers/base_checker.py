@@ -134,7 +134,9 @@ class BaseChecker(_ArgumentsProvider):
                 result += f"See also :ref:`{self.name} checker's options' documentation <{anchor}>`\n\n"
         if msgs:
             result += get_rst_title(f"{checker_title} Messages", "^")
-            for msgid, msg in sorted(msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[0])):
+            for msgid, msg in sorted(
+                msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[0])
+            ):
                 msg_def = self.create_message_definition_from_tuple(msgid, msg)
                 result += f"{msg_def.format_help(checkerref=False)}\n"
             result += "\n"
@@ -157,7 +159,9 @@ class BaseChecker(_ArgumentsProvider):
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
     ) -> None:
-        self.linter.add_message(msgid, line, node, args, confidence, col_offset, end_lineno, end_col_offset)
+        self.linter.add_message(
+            msgid, line, node, args, confidence, col_offset, end_lineno, end_col_offset
+        )
 
     def check_consistency(self) -> None:
         """Check the consistency of msgid.

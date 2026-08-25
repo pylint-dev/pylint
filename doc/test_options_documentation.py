@@ -23,10 +23,16 @@ if _EXTS_PATH not in sys.path:
 
 import pylint_options  # type: ignore[import-not-found, unused-ignore]  # pylint: disable=wrong-import-position,import-error  # noqa: E402
 
-from pylint.checkers.base_checker import BaseChecker  # noqa: E402  # pylint: disable=wrong-import-position
-from pylint.extensions.mccabe import McCabeMethodChecker  # noqa: E402  # pylint: disable=wrong-import-position
+from pylint.checkers.base_checker import (  # noqa: E402  # pylint: disable=wrong-import-position
+    BaseChecker,
+)
+from pylint.extensions.mccabe import (  # noqa: E402  # pylint: disable=wrong-import-position
+    McCabeMethodChecker,
+)
 from pylint.lint import PyLinter  # noqa: E402  # pylint: disable=wrong-import-position
-from pylint.typing import MessageDefinitionTuple  # noqa: E402  # pylint: disable=wrong-import-position
+from pylint.typing import (  # noqa: E402  # pylint: disable=wrong-import-position
+    MessageDefinitionTuple,
+)
 
 
 def test_colliding_extension_names_contains_design() -> None:
@@ -39,13 +45,19 @@ def test_colliding_extension_names_contains_design() -> None:
 def test_get_options_anchor_single_source_of_truth() -> None:
     get_anchor = pylint_options._get_options_anchor
     # Colliding extension -> module-based anchor.
-    assert get_anchor("design", "pylint.extensions.mccabe") == "pylint.extensions.mccabe-options"
+    assert (
+        get_anchor("design", "pylint.extensions.mccabe")
+        == "pylint.extensions.mccabe-options"
+    )
     # Core checker (module is None) keeps name-based anchor even when colliding.
     assert get_anchor("design", None) == "design-options"
     # Non-colliding extensions keep name-based anchors.
     assert get_anchor("dunder", "pylint.extensions.dunder") == "dunder-options"
     assert get_anchor("typing", "pylint.extensions.typing") == "typing-options"
-    assert get_anchor("broad_try_clause", "pylint.extensions.broad_try_clause") == "broad_try_clause-options"
+    assert (
+        get_anchor("broad_try_clause", "pylint.extensions.broad_try_clause")
+        == "broad_try_clause-options"
+    )
 
 
 def test_all_options_splits_design_checker() -> None:

@@ -121,12 +121,16 @@ def _get_all_options(linter: PyLinter) -> OptionsDataDict:
     return all_options
 
 
-def _create_checker_section(checker: str, options: list[OptionsData], linter: PyLinter) -> str:
+def _create_checker_section(
+    checker: str, options: list[OptionsData], linter: PyLinter
+) -> str:
     checker_string = f".. _{checker}-options:\n\n"
     display_name = options[0].checker.name.capitalize()
     if checker != options[0].checker.name:
         # Colliding extension: the anchor is module-based - disambiguate the title.
-        checker_string += get_rst_title(f"``{display_name}`` **Checker** (``{checker}``)", "-")
+        checker_string += get_rst_title(
+            f"``{display_name}`` **Checker** (``{checker}``)", "-"
+        )
     else:
         checker_string += get_rst_title(f"``{display_name}`` **Checker**", "-")
 
@@ -178,7 +182,11 @@ def _create_checker_section(checker: str, options: list[OptionsData], linter: Py
         # Tomlkit doesn't support regular expressions
         if isinstance(value, re.Pattern):
             value = value.pattern
-        elif isinstance(value, (list, tuple)) and value and isinstance(value[0], re.Pattern):
+        elif (
+            isinstance(value, (list, tuple))
+            and value
+            and isinstance(value[0], re.Pattern)
+        ):
             value = [i.pattern for i in value]
 
         # Sorting in order for the output to be the same on all interpreters
@@ -192,7 +200,9 @@ def _create_checker_section(checker: str, options: list[OptionsData], linter: Py
         checker_table.add(tomlkit.nl())
 
     pylint_tool_table.add(options[0].checker.name.lower(), checker_table)
-    toml_string = "\n".join(f"   {i}" if i else "" for i in tomlkit.dumps(toml_doc).split("\n"))
+    toml_string = "\n".join(
+        f"   {i}" if i else "" for i in tomlkit.dumps(toml_doc).split("\n")
+    )
     checker_string += f"""
 .. raw:: html
 
@@ -226,7 +236,9 @@ def _write_options_page(options: OptionsDataDict, linter: PyLinter) -> None:
     # checkers then it wouldn't be possible to have a checker with the same name
     # spanning multiple classes. It would make pylint plugin code less readable by
     # forcing to use a single class / file.
-    for checker_name, checker_options in sorted(options.items(), key=lambda x: x[1][0].checker):
+    for checker_name, checker_options in sorted(
+        options.items(), key=lambda x: x[1][0].checker
+    ):
         if not found_extensions and checker_options[0].extension:
             sections.append(get_rst_title("Extensions", "^"))
             found_extensions = True

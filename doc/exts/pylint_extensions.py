@@ -38,7 +38,9 @@ class _CheckerInfo(TypedDict):
 def builder_inited(app: Sphinx | None) -> None:
     """Output full documentation in ReST format for all extension modules."""
     # PACKAGE/docs/exts/pylint_extensions.py --> PACKAGE/
-    base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    base_path = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    )
     # PACKAGE/ --> PACKAGE/pylint/extensions
     ext_path = os.path.join(base_path, "pylint", "extensions")
     modules = []
@@ -58,7 +60,9 @@ def builder_inited(app: Sphinx | None) -> None:
     linter = PyLinter()
     linter.load_plugin_modules(modules)
 
-    extensions_doc = os.path.join(base_path, "doc", "user_guide", "checkers", "extensions.rst")
+    extensions_doc = os.path.join(
+        base_path, "doc", "user_guide", "checkers", "extensions.rst"
+    )
     with open(extensions_doc, "w", encoding="utf-8") as stream:
         stream.write(get_rst_title("Optional checkers", "="))
         stream.write("""
@@ -74,7 +78,9 @@ def builder_inited(app: Sphinx | None) -> None:
             "by adding a ``load-plugins`` line to the ``MAIN`` "
             "section of your ``.pylintrc``, for example::\n"
         )
-        stream.write("\n    load-plugins=pylint.extensions.docparams,pylint.extensions.docstyle\n\n")
+        stream.write(
+            "\n    load-plugins=pylint.extensions.docparams,pylint.extensions.docstyle\n\n"
+        )
 
         # Print checker documentation to stream
         by_checker = get_plugins_info(linter, doc_files)
@@ -104,7 +110,9 @@ def builder_inited(app: Sphinx | None) -> None:
             )
 
 
-def get_plugins_info(linter: PyLinter, doc_files: dict[str, str]) -> dict[BaseChecker, _CheckerInfo]:
+def get_plugins_info(
+    linter: PyLinter, doc_files: dict[str, str]
+) -> dict[BaseChecker, _CheckerInfo]:
     by_checker: dict[BaseChecker, _CheckerInfo] = {}
     for checker in linter.get_checkers():
         if checker.name == MAIN_CHECKER_NAME:
