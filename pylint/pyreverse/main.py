@@ -248,7 +248,6 @@ OPTIONS: Options = (
     (
         "theme",
         {
-            "dest": "theme",
             "action": "store",
             "default": "light",
             "choices": ["light", "dark"],
