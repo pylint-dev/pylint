@@ -1,0 +1,6 @@
+Fix a false positive for ``bad-string-format-type`` when the argument is an
+instance of a subclass of the expected builtin type, such as ``bool`` for
+``%d``, an ``enum.IntEnum`` member for ``%x``, or a user-defined subclass of
+``float`` for ``%f``: these format exactly like their builtin base type.
+
+Closes #11315

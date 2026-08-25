@@ -1,5 +1,6 @@
 """Tests for bad string format type"""
-# pylint: disable=consider-using-f-string, pointless-statement
+# pylint: disable=consider-using-f-string, pointless-statement, expression-not-assigned
+import enum
 
 # Test formatting of bytes
 b"test".format(1, 2) # [no-member]
@@ -54,3 +55,21 @@ def test_format(my_input_value, my_other_input_value):
     print("%d %s" % (my_input_value, my_other_input_value))
     to_be_formatted = (my_input_value, my_other_input_value)
     print("%d %s" % to_be_formatted)
+
+
+# Subclasses of the builtin types format exactly like their base type:
+# bool and IntEnum members are ints, a float subclass is a float.
+class IntChoice(enum.IntEnum):
+    """An IntEnum whose members are ints."""
+
+    OPTION = 1
+
+
+class UnitFloat(float):
+    """A user-defined subclass of float."""
+
+
+"%i" % True
+"%d %x" % (IntChoice.OPTION, IntChoice.OPTION)
+"%f %i" % (UnitFloat(1.5), UnitFloat(1.5))
+"%d %x" % (1, UnitFloat(1.5))  # [bad-string-format-type]
