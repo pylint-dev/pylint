@@ -215,6 +215,11 @@ Design checker Documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 You can now use this plugin for finding complexity issues in your code base.
 
+Shares the ``design`` name with pylint's standard Design checker, which is
+always enabled. This extension is opt-in via ``--load-plugins``; it adds
+``--max-complexity`` and the ``too-complex`` message. Disable the standard
+checker with ``--disable=design``.
+
 Activate it through ``pylint --load-plugins=pylint.extensions.mccabe``. It introduces
 a new warning, ``too-complex``, which is emitted when a code block has a complexity
 higher than a preestablished value, which can be controlled through the
@@ -251,7 +256,7 @@ higher than a preestablished value, which can be controlled through the
     $ pylint a.py --load-plugins=pylint.extensions.mccabe --max-complexity=50
     $
 
-See also :ref:`design checker's options' documentation <design-options>`
+See also :ref:`design checker's options' documentation <pylint.extensions.mccabe-options>`
 
 Design checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^

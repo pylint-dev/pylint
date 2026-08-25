@@ -50,8 +50,7 @@ DYNAMICALLY_DEFINED_OPTIONS: dict[str, dict[str, str]] = {
         # backslash as an escape character, which would otherwise render as a
         # bare "t".
         "default": '"    "',
-        "help": "String used as indentation unit. This is usually "
-        '"    " (4 spaces) or "\\\\t" (1 tab).',  # noqa: RUF001
+        "help": 'String used as indentation unit. This is usually "    " (4 spaces) or "\\\\t" (1 tab).',  # noqa: RUF001
     },
     "py-version": {"default": "sys.version_info[:2]"},
     "spelling-dict": {
@@ -59,6 +58,26 @@ DYNAMICALLY_DEFINED_OPTIONS: dict[str, dict[str, str]] = {
         "help": "Spelling dictionary name. Available dictionaries depends on your local enchant installation",
     },
 }
+
+
+_COLLIDING_EXTENSION_NAMES: frozenset[str] = frozenset({"design"})
+
+
+def _get_colliding_extension_names() -> frozenset[str]:
+    """Return checker names that collide between core and extension registries."""
+    return _COLLIDING_EXTENSION_NAMES
+
+
+def _get_options_anchor(name: str, module: str | None) -> str:
+    """Return the ``-options`` anchor base for a checker.
+
+    Non-colliding checkers keep ``{name}-options``. A colliding
+    extension checker uses ``{module}-options`` so anchors stay in sync.
+    The function is the only place ``f"{module}-options"`` is spelled.
+    """
+    if module and name in _get_colliding_extension_names():
+        return f"{module}-options"
+    return f"{name}-options"
 
 
 def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
@@ -80,23 +99,36 @@ def _get_all_options(linter: PyLinter) -> OptionsDataDict:
                         f"{new_value!r} (instead of {option_info[key_to_change]!r})"
                     )
                     option_info[key_to_change] = new_value
-            all_options[checker.name].append(
+            module = getmodule(checker).__name__  # type: ignore[union-attr]
+            is_extension = module.startswith("pylint.extensions.")
+            # Colliding extension checkers are keyed by module so they get
+            # their own section (``pylint.extensions.mccabe-options``) instead
+            # of merging into the core ``design-options`` section (#9174).
+            if is_extension:
+                anchor = _get_options_anchor(checker.name, module)
+                key = anchor[: -len("-options")]
+            else:
+                key = checker.name
+            all_options[key].append(
                 OptionsData(
                     option_name,
                     option_info,
                     checker,
-                    getmodule(checker).__name__.startswith("pylint.extensions."),  # type: ignore[union-attr]
+                    is_extension,
                 )
             )
 
     return all_options
 
 
-def _create_checker_section(
-    checker: str, options: list[OptionsData], linter: PyLinter
-) -> str:
+def _create_checker_section(checker: str, options: list[OptionsData], linter: PyLinter) -> str:
     checker_string = f".. _{checker}-options:\n\n"
-    checker_string += get_rst_title(f"``{checker.capitalize()}`` **Checker**", "-")
+    display_name = options[0].checker.name.capitalize()
+    if checker != options[0].checker.name:
+        # Colliding extension: the anchor is module-based - disambiguate the title.
+        checker_string += get_rst_title(f"``{display_name}`` **Checker** (``{checker}``)", "-")
+    else:
+        checker_string += get_rst_title(f"``{display_name}`` **Checker**", "-")
 
     toml_doc = tomlkit.document()
     tool_table = tomlkit.table(is_super_table=True)
@@ -146,11 +178,7 @@ def _create_checker_section(
         # Tomlkit doesn't support regular expressions
         if isinstance(value, re.Pattern):
             value = value.pattern
-        elif (
-            isinstance(value, (list, tuple))
-            and value
-            and isinstance(value[0], re.Pattern)
-        ):
+        elif isinstance(value, (list, tuple)) and value and isinstance(value[0], re.Pattern):
             value = [i.pattern for i in value]
 
         # Sorting in order for the output to be the same on all interpreters
@@ -164,9 +192,7 @@ def _create_checker_section(
         checker_table.add(tomlkit.nl())
 
     pylint_tool_table.add(options[0].checker.name.lower(), checker_table)
-    toml_string = "\n".join(
-        f"   {i}" if i else "" for i in tomlkit.dumps(toml_doc).split("\n")
-    )
+    toml_string = "\n".join(f"   {i}" if i else "" for i in tomlkit.dumps(toml_doc).split("\n"))
     checker_string += f"""
 .. raw:: html
 
@@ -200,9 +226,7 @@ def _write_options_page(options: OptionsDataDict, linter: PyLinter) -> None:
     # checkers then it wouldn't be possible to have a checker with the same name
     # spanning multiple classes. It would make pylint plugin code less readable by
     # forcing to use a single class / file.
-    for checker_name, checker_options in sorted(
-        options.items(), key=lambda x: x[1][0].checker
-    ):
+    for checker_name, checker_options in sorted(options.items(), key=lambda x: x[1][0].checker):
         if not found_extensions and checker_options[0].extension:
             sections.append(get_rst_title("Extensions", "^"))
             found_extensions = True

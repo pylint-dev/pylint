@@ -38,9 +38,7 @@ class _CheckerInfo(TypedDict):
 def builder_inited(app: Sphinx | None) -> None:
     """Output full documentation in ReST format for all extension modules."""
     # PACKAGE/docs/exts/pylint_extensions.py --> PACKAGE/
-    base_path = os.path.dirname(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    )
+    base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     # PACKAGE/ --> PACKAGE/pylint/extensions
     ext_path = os.path.join(base_path, "pylint", "extensions")
     modules = []
@@ -60,9 +58,7 @@ def builder_inited(app: Sphinx | None) -> None:
     linter = PyLinter()
     linter.load_plugin_modules(modules)
 
-    extensions_doc = os.path.join(
-        base_path, "doc", "user_guide", "checkers", "extensions.rst"
-    )
+    extensions_doc = os.path.join(base_path, "doc", "user_guide", "checkers", "extensions.rst")
     with open(extensions_doc, "w", encoding="utf-8") as stream:
         stream.write(get_rst_title("Optional checkers", "="))
         stream.write("""
@@ -78,13 +74,13 @@ def builder_inited(app: Sphinx | None) -> None:
             "by adding a ``load-plugins`` line to the ``MAIN`` "
             "section of your ``.pylintrc``, for example::\n"
         )
-        stream.write(
-            "\n    load-plugins=pylint.extensions.docparams,"
-            "pylint.extensions.docstyle\n\n"
-        )
+        stream.write("\n    load-plugins=pylint.extensions.docparams,pylint.extensions.docstyle\n\n")
 
         # Print checker documentation to stream
         by_checker = get_plugins_info(linter, doc_files)
+        # Keep pylint core free of doc/exts imports.
+        from pylint_options import _get_options_anchor
+
         max_len = len(by_checker)
         for i, checker_information in enumerate(sorted(by_checker.items())):
             checker, information = checker_information
@@ -93,6 +89,7 @@ def builder_inited(app: Sphinx | None) -> None:
             if i == max_len - 1:
                 # Remove the \n\n at the end of the file
                 j = -3
+            options_anchor = _get_options_anchor(checker.name, information["module"])
             print(
                 checker.get_full_documentation(
                     msgs=information["msgs"],
@@ -101,14 +98,13 @@ def builder_inited(app: Sphinx | None) -> None:
                     doc=information["doc"],
                     module=information["module"],
                     show_options=False,
+                    options_anchor=options_anchor,
                 )[:j],
                 file=stream,
             )
 
 
-def get_plugins_info(
-    linter: PyLinter, doc_files: dict[str, str]
-) -> dict[BaseChecker, _CheckerInfo]:
+def get_plugins_info(linter: PyLinter, doc_files: dict[str, str]) -> dict[BaseChecker, _CheckerInfo]:
     by_checker: dict[BaseChecker, _CheckerInfo] = {}
     for checker in linter.get_checkers():
         if checker.name == MAIN_CHECKER_NAME:
