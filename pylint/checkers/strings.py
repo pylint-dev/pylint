@@ -230,9 +230,7 @@ def arg_matches_format_type(
         # Subclasses such as bool, IntEnum members or user-defined
         # subclasses of float format exactly like their builtin base
         arg_types = {arg_type.pytype()}
-        arg_types.update(
-            ancestor.qname() for ancestor in arg_type._proxied.ancestors()
-        )
+        arg_types.update(ancestor.qname() for ancestor in arg_type._proxied.ancestors())
         if "builtins.int" in arg_types:
             # Integers allow all types
             return True
