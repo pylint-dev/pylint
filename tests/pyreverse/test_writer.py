@@ -284,6 +284,28 @@ def test_color_for_stdlib_module(default_config: PyreverseConfig) -> None:
     assert writer.get_shape_color(obj) == "grey"
 
 
+def test_mmd_rejects_dark_theme() -> None:
+    """Plain '.mmd' output may be embedded in a page with its own Mermaid
+    theme, so it must reject a non-light theme instead of silently
+    ignoring it.
+    """
+    config = PyreverseConfig(output_format="mmd", theme="dark")
+    writer = DiagramWriter(config)
+    with pytest.raises(SystemExit) as exc_info:
+        writer.set_printer("classes.mmd", "classes")
+    assert exc_info.value.code == 32
+
+
+def test_html_accepts_dark_theme() -> None:
+    """HTMLMermaidJSPrinter is a standalone document, so a dark theme is
+    supported and must not be rejected the way plain '.mmd' is.
+    """
+    config = PyreverseConfig(output_format="html", theme="dark")
+    writer = DiagramWriter(config)
+    writer.set_printer("classes.html", "classes")
+    assert writer.printer.theme == "dark"
+
+
 def test_package_name_with_slash(default_config: PyreverseConfig) -> None:
     """Test to check the names of the generated files are corrected
     when using an incorrect character like "/" in the package name.
