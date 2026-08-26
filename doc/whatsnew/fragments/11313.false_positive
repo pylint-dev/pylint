@@ -1,0 +1,5 @@
+Fix a false positive for ``bad-super-call`` when a function nested in a method
+binds its own first argument in ``super()``, such as an ``__init_subclass__``
+being attached to another class as ``warnings.deprecated`` does.
+
+Closes #11313

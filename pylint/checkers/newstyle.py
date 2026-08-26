@@ -67,6 +67,21 @@ class NewStyleConflictChecker(BaseChecker):
                     # super first arg should not be the class
                     continue
 
+            scope = stmt.scope()
+            if scope is not node and len(call.args) > 1:
+                second_arg = call.args[1]
+                if (
+                    isinstance(second_arg, nodes.Name)
+                    and isinstance(scope, (nodes.FunctionDef, nodes.Lambda))
+                    and second_arg.name in scope.argnames()
+                ):
+                    # A nested function that binds its own first argument in
+                    # super() is presumably attached to another class later,
+                    # e.g. warnings.deprecated attaching __init_subclass__;
+                    # super()'s first argument then legitimately refers to a
+                    # class other than the one of the enclosing method.
+                    continue
+
             # calling super(type(self), self) can lead to recursion loop
             # in derived classes
             match arg0:

@@ -154,3 +154,22 @@ class AlabamaCousin(Child, Niece):
     def method(self):
         print("AlabamaCousin")
         super(Child, self).method()
+
+
+# https://github.com/pylint-dev/pylint/issues/11313
+# A nested function that binds its own first argument in super() is
+# presumably attached to another class later, like warnings.deprecated
+# attaching __init_subclass__.
+class Decorator:
+    def __call__(self, arg):
+        if isinstance(arg, type):
+            def __init_subclass__(cls, *args, **kwargs):
+                return super(arg, cls).__init_subclass__(*args, **kwargs)
+
+            arg.__init_subclass__ = classmethod(__init_subclass__)
+        return arg
+
+    def closure_still_reported(self):
+        def helper():
+            return super(Niece, self).method()  # [bad-super-call]
+        return helper()
