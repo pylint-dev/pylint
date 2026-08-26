@@ -105,3 +105,17 @@ async def func15():
     coro = inner()
     print("reachable")
     await coro
+
+
+def func16():
+    # https://github.com/pylint-dev/pylint/issues/11310
+    # Constructing a Quitter does not exit; only calling the exit/quit
+    # instances does.
+    import _sitebuiltins  # pylint: disable=import-outside-toplevel
+
+    commands = {
+        "exit": _sitebuiltins.Quitter("exit", ""),
+        "quit": _sitebuiltins.Quitter("quit", ""),
+    }
+    print("reachable")
+    return commands

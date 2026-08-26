@@ -2224,6 +2224,11 @@ def is_terminating_func(node: nodes.Call) -> bool:
 
     for inferred in inferred_funcs:
         if hasattr(inferred, "qname") and inferred.qname() in TERMINATING_FUNCS_QNAMES:
+            # Calling the _sitebuiltins.Quitter class constructs a Quitter
+            # instead of exiting; only calling an existing instance (the
+            # exit and quit builtins) terminates the program.
+            if isinstance(inferred, nodes.ClassDef):
+                continue
             return True
         match inferred:
             case astroid.BoundMethod(_proxied=astroid.UnboundMethod(_proxied=p)):

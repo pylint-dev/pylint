@@ -1,0 +1,5 @@
+Fix a false positive for ``unreachable`` after instantiating
+``_sitebuiltins.Quitter``: constructing a ``Quitter`` does not exit the
+program, only calling the ``exit`` / ``quit`` instances does.
+
+Closes #11310
