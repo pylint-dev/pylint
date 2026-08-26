@@ -209,12 +209,14 @@ def test_possible_exc_types_instance() -> None:
 
 def test_get_setters_property_with_non_function_attr() -> None:
     """Test get_setters_property when a class attribute sharing property name is not a function (#11287)."""
-    node = astroid.extract_node("""
+    node = astroid.extract_node(
+        """
     class C:
         prop = None
 
         @prop.setter
         def prop(self, value): #@
             raise Exception
-    """)
+    """
+    )
     assert utils.get_setters_property(node) is None
