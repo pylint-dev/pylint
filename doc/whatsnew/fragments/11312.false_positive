@@ -1,0 +1,5 @@
+Fix a false positive for ``unbalanced-tuple-unpacking`` when unpacking an
+exception's ``args``: astroid models ``BaseException.args`` as an empty tuple,
+but its actual length is unknown.
+
+Closes #11312

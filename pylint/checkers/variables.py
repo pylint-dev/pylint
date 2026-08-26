@@ -3121,6 +3121,15 @@ class VariablesChecker(BaseChecker):
         if isinstance(inferred, util.UninferableBase):
             return
         if (
+            isinstance(inferred, nodes.Tuple)
+            and not inferred.elts
+            and isinstance(inferred.parent, bases.Instance)
+            and inferred.parent._proxied.is_subtype_of("builtins.BaseException")
+        ):
+            # astroid models BaseException.args on an exception instance as
+            # an empty tuple; its actual length is unknown.
+            return
+        if (
             isinstance(inferred.parent, nodes.Arguments)
             and isinstance(node.value, nodes.Name)
             and node.value.name == inferred.parent.vararg

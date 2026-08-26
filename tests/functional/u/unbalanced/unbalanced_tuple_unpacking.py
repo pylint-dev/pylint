@@ -178,3 +178,17 @@ def main():
     _, _ = fruit(1, 2, 3)  # known false negative, requires better None comprehension in astroid
     _, _, _ = fruit(1, 2)  # known false negative, requires better None comprehension in astroid
     _, _, _ = fruit(1, 2, 3)
+
+
+def unpack_exception_args():
+    """No warning for BaseException.args: its length is unknown.
+
+    https://github.com/pylint-dev/pylint/issues/11312
+    """
+    try:
+        pass
+    except ValueError as exc:
+        (message,) = exc.args
+        first, second = exc.args
+        return message, first, second
+    return None
