@@ -211,6 +211,22 @@ def _is_part_of_assignment_target(node: nodes.NodeNG) -> bool:
     return False
 
 
+def _is_asynchronous_comprehension(comp: nodes.ListComp) -> bool:
+    """Check whether a comprehension would become an asynchronous generator.
+
+    That is the case when it uses ``async for``, or awaits anywhere but in its
+    outermost iterable, the only part evaluated outside of the generator.
+    """
+    if any(generator.is_async for generator in comp.generators):
+        return True
+
+    outermost_iterable = comp.generators[0].iter
+    return any(
+        node is not outermost_iterable and not outermost_iterable.parent_of(node)
+        for node in comp.nodes_of_class(nodes.Await)
+    )
+
+
 @dataclass
 class ConsiderUsingWithStack:
     """Stack for objects that may potentially trigger a R1732 message
@@ -1088,6 +1104,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 if isinstance(element, nodes.Call):
                     return
 
+                # ``dict([*pair_list for pair_list in pairs])`` (PEP 798)
+                # flattens its argument, so it is not equivalent to a
+                # key/value dict comprehension.
+                if isinstance(element, nodes.Starred):
+                    return
+
                 # If we have an `IfExp` here where both the key AND value
                 # are different, then don't raise the issue. See #5588
                 if (
@@ -1122,23 +1144,27 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             case _:
                 return
 
+        if _is_asynchronous_comprehension(comp):
+            # The generator expression would be an asynchronous generator,
+            # which none of these functions can consume.
+            return
+
         inside_comp = comp.as_string()[1:-1]  # remove square brackets '[]'
         if node.keywords:
             inside_comp = f"({inside_comp})"
             inside_comp += ", "
             inside_comp += ", ".join(kw.as_string() for kw in node.keywords)
-        if call_name in {"any", "all"}:
-            self.add_message(
-                "use-a-generator",
-                node=node,
-                args=(call_name, inside_comp),
-            )
-        else:
-            self.add_message(
-                "consider-using-generator",
-                node=node,
-                args=(call_name, inside_comp),
-            )
+        message_name = (
+            "use-a-generator"
+            if call_name in {"any", "all"}
+            else "consider-using-generator"
+        )
+        self.add_message(
+            message_name,
+            node=node,
+            args=(call_name, inside_comp),
+            confidence=HIGH,
+        )
 
     @utils.only_required_for_messages(
         "stop-iteration-return",
@@ -1167,16 +1193,20 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         match node:
             case nodes.Yield(
                 value=nodes.Name(name=name),
-                parent=nodes.Expr(parent=nodes.For(body=[_]) as loop_node),
-            ) if not isinstance(loop_node, nodes.AsyncFor):
+                parent=nodes.Expr(
+                    parent=nodes.For(
+                        target=nodes.AssignName(name=target_name),
+                        body=[_],
+                    ) as loop_node
+                ),
+            ) if (
+                not isinstance(loop_node, nodes.AsyncFor) and target_name == name
+            ):
                 pass
             case _:
                 # Avoid a false positive if the return value from `yield` is used,
                 # (such as via Assign, AugAssign, etc).
                 return
-
-        if loop_node.target.name != name:
-            return
 
         if isinstance(node.frame(), nodes.AsyncFunctionDef):
             return
@@ -1398,7 +1428,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         # Gather information for the suggestion
-        common_variable = sorted(list(common_variables))[0]
+        common_variable = min(common_variables)
         values = list(collections.OrderedDict.fromkeys(values))
         values.remove(common_variable)
         values_string = ", ".join(values) if len(values) != 1 else values[0] + ","
@@ -2430,14 +2460,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             start_val, confidence = self._get_start_value(start_arg)
             if start_val is None:
                 return False, confidence
-            return not start_val == 0, confidence
+            return start_val != 0, confidence
 
         for keyword in node.iter.keywords:
             if keyword.arg == "start":
                 start_val, confidence = self._get_start_value(keyword.value)
                 if start_val is None:
                     return False, confidence
-                return not start_val == 0, confidence
+                return start_val != 0, confidence
 
         return False, confidence
 

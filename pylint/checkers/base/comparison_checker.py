@@ -4,6 +4,8 @@
 
 """Comparison checker from the basic checker."""
 
+import math
+
 import astroid
 from astroid import nodes
 
@@ -20,6 +22,19 @@ TYPE_QNAME = "builtins.type"
 def _is_one_arg_pos_call(call: nodes.NodeNG) -> bool:
     """Is this a call with exactly 1 positional argument ?"""
     return isinstance(call, nodes.Call) and len(call.args) == 1 and not call.keywords
+
+
+def _same_attribute_chain(left: nodes.Attribute, right: nodes.Attribute) -> bool:
+    if left.attrname != right.attrname:
+        return False
+
+    match left.expr, right.expr:
+        case nodes.Name(name=left_name), nodes.Name(name=right_name):
+            return bool(left_name == right_name)
+        case nodes.Attribute() as left_attribute, nodes.Attribute() as right_attribute:
+            return _same_attribute_chain(left_attribute, right_attribute)
+        case _:
+            return False
 
 
 class ComparisonChecker(_BasicChecker):
@@ -77,7 +92,7 @@ class ComparisonChecker(_BasicChecker):
             "Comparison %s should be %s",
             "nan-comparison",
             "Used when an expression is compared to NaN "
-            "values like numpy.NaN and float('nan').",
+            "values like math.nan, numpy.nan or float('nan').",
         ),
     }
 
@@ -144,6 +159,8 @@ class ComparisonChecker(_BasicChecker):
         checking_for_absence: bool = False,
     ) -> None:
         def _is_float_nan(node: nodes.NodeNG) -> bool:
+            # ``float('nan')`` infers to an *instance* of float, which carries no
+            # value to inspect, so this branch has to stay shape-based.
             try:
                 match node:
                     case nodes.Call(args=[nodes.Const(value=str() as value)]) if (
@@ -151,17 +168,56 @@ class ComparisonChecker(_BasicChecker):
                     ):
                         return node.inferred()[0].pytype() == "builtins.float"  # type: ignore[no-any-return]
                 return False
-            except AttributeError:
+            except (AttributeError, astroid.InferenceError):
                 return False
 
-        def _is_numpy_nan(node: nodes.NodeNG) -> bool:
+        def _is_decimal_nan(node: nodes.NodeNG) -> bool:
+            # ``decimal`` NaNs compare just like float ones, but ``Decimal('nan')``
+            # is not inferable without the call being evaluated, hence the
+            # shape-based match on the callee name.
             match node:
-                case nodes.Attribute(attrname="NaN", expr=nodes.Name(name=name)):
+                case nodes.Call(
+                    func=nodes.Name(name="Decimal")
+                    | nodes.Attribute(attrname="Decimal"),
+                    args=[nodes.Const(value=str() as value)],
+                ):
+                    return value.lower() == "nan"
+            return False
+
+        def _is_inferred_nan(node: nodes.NodeNG) -> bool:
+            """Whether ``node`` infers to a NaN constant, e.g. ``math.nan``.
+
+            Only names and attributes are inferred: those are the shapes a NaN
+            constant can hide behind, and inferring every operand of every
+            comparison would be needlessly expensive.
+            """
+            if not isinstance(node, (nodes.Name, nodes.Attribute)):
+                return False
+            # ``math.inf`` also infers to a float constant, so the value itself
+            # has to be checked with ``isnan`` and not merely be 'special'.
+            match utils.safe_infer(node):
+                case nodes.Const(value=float() as value):
+                    return math.isnan(value)
+            return False
+
+        def _is_numpy_nan(node: nodes.NodeNG) -> bool:
+            # Purely syntactic on purpose: numpy need not be installed for the
+            # analysed code to be checked, in which case ``np.nan`` is
+            # uninferable. ``NaN``/``NAN`` were removed in numpy 2.0.
+            match node:
+                case nodes.Attribute(
+                    attrname="nan" | "NaN" | "NAN", expr=nodes.Name(name=name)
+                ):
                     return name in {"numpy", "np"}
             return False
 
         def _is_nan(node: nodes.NodeNG) -> bool:
-            return _is_float_nan(node) or _is_numpy_nan(node)
+            return (
+                _is_numpy_nan(node)
+                or _is_inferred_nan(node)
+                or _is_float_nan(node)
+                or _is_decimal_nan(node)
+            )
 
         nan_left = _is_nan(left_value)
         if not nan_left and not _is_nan(right_value):
@@ -245,6 +301,13 @@ class ComparisonChecker(_BasicChecker):
         ):
             left_operand = left_operand.name
             right_operand = right_operand.name
+        elif (
+            isinstance(left_operand, nodes.Attribute)
+            and isinstance(right_operand, nodes.Attribute)
+            and _same_attribute_chain(left_operand, right_operand)
+        ):
+            left_operand = left_operand.as_string()
+            right_operand = right_operand.as_string()
 
         if left_operand == right_operand:
             suggestion = f"{left_operand} {operator} {right_operand}"
@@ -273,19 +336,28 @@ class ComparisonChecker(_BasicChecker):
         if operator not in COMPARISON_OPERATORS:
             return
 
-        bare_callables = (nodes.FunctionDef, astroid.BoundMethod)
         left_operand, right_operand = node.left, node.ops[0][1]
         # this message should be emitted only when there is comparison of bare callable
         # with non bare callable.
         number_of_bare_callables = 0
         for operand in left_operand, right_operand:
             inferred = utils.safe_infer(operand)
+            # An unbound method on its own is not a bare callable here, but a
+            # bound method proxies the function it was built from, so unwrap it.
+            # This matters because a lambda assigned as a class attribute also
+            # infers to a ``BoundMethod``, and a ``Lambda`` has no
+            # ``decoratornames()`` and its ``body`` is a single expression
+            # instead of a list of statements.
+            while isinstance(inferred, astroid.BoundMethod):
+                inferred = inferred._proxied
+                if isinstance(inferred, astroid.UnboundMethod):
+                    inferred = inferred._proxied
+            if not isinstance(inferred, nodes.FunctionDef):
+                continue
             # Ignore callables that raise, as well as typing constants
             # implemented as functions (that raise via their decorator)
-            if (
-                isinstance(inferred, bare_callables)
-                and "typing._SpecialForm" not in inferred.decoratornames()
-                and not any(isinstance(x, nodes.Raise) for x in inferred.body)
+            if "typing._SpecialForm" not in inferred.decoratornames() and not any(
+                isinstance(x, nodes.Raise) for x in inferred.body
             ):
                 number_of_bare_callables += 1
         if number_of_bare_callables == 1:

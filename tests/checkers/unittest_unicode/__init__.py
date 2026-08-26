@@ -9,7 +9,7 @@ import pylint.interfaces
 import pylint.testutils
 
 CODEC_AND_MSG = [
-    ("utf-8", tuple()),
+    ("utf-8", ()),
     (
         "utf-16",
         (

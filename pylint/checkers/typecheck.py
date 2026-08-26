@@ -97,6 +97,13 @@ BUILTINS_IMPLICIT_RETURN_NONE = {
         "update",
     },
 }
+KNOWN_SIDE_EFFECTS_ONLY_FUNCTIONS = {
+    "reverse": "reversed",
+    "sort": "sorted",
+}
+"""Functions that only have side effects and return None, mapped to the
+equivalent function returning a new value that is often expected instead.
+"""
 
 
 class VERSION_COMPATIBLE_OVERLOAD:
@@ -241,7 +248,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "callable object.",
     ),
     "E1111": (
-        "Assigning result of a function call, where the function has no return",
+        "Assigning result of a function call, but %r returns None%s",
         "assignment-from-no-return",
         "Used when an assignment is done on a function call but the "
         "inferred function doesn't return anything.",
@@ -1017,6 +1024,21 @@ accessed. Python regular expressions are accepted.",
                 "a decorated function.",
             },
         ),
+        (
+            "known-side-effects-only-functions",
+            {
+                "default": tuple(
+                    f"{function}:{suggestion}"
+                    for function, suggestion in KNOWN_SIDE_EFFECTS_ONLY_FUNCTIONS.items()
+                ),
+                "type": "csv",
+                "metavar": "<function:suggestion>",
+                "help": "Couples of functions with side effects that are often believed "
+                "to return something and the equivalent function that does return "
+                "something, separated by a comma. Used to hint at the right function "
+                "to use in the 'assignment-from-no-return' message.",
+            },
+        ),
     )
 
     def open(self) -> None:
@@ -1025,6 +1047,12 @@ accessed. Python regular expressions are accepted.",
         self._py314_plus = py_version >= (3, 14)
         self._postponed_evaluation_enabled = False
         self._mixin_class_rgx = self.linter.config.mixin_class_rgx
+        # Build a mapping {'function': 'suggestion'}
+        self._known_side_effects_only_functions = dict(
+            function.split(":", maxsplit=1)
+            for function in self.linter.config.known_side_effects_only_functions
+            if ":" in function
+        )
 
     def visit_module(self, node: nodes.Module) -> None:
         self._postponed_evaluation_enabled = (
@@ -1314,7 +1342,10 @@ accessed. Python regular expressions are accepted.",
         # Handle builtins such as list.sort() or dict.update()
         if self._is_builtin_no_return(node):
             self.add_message(
-                "assignment-from-no-return", node=node, confidence=INFERENCE
+                "assignment-from-no-return",
+                node=node,
+                args=self._assignment_from_no_return_args(node.value),
+                confidence=INFERENCE,
             )
             return
 
@@ -1325,7 +1356,12 @@ accessed. Python regular expressions are accepted.",
             function_node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
         )
         if not return_nodes:
-            self.add_message("assignment-from-no-return", node=node)
+            self.add_message(
+                "assignment-from-no-return",
+                node=node,
+                args=self._assignment_from_no_return_args(node.value),
+                confidence=INFERENCE,
+            )
         else:
             for ret_node in return_nodes:
                 match ret_node.value:
@@ -1343,6 +1379,18 @@ accessed. Python regular expressions are accepted.",
         return (
             isinstance(function_node, nodes.AsyncFunctionDef)
             or utils.is_error(function_node)
+            # a body ending in an unconditional raise, with no return statement
+            # anywhere, never returns normally
+            or (
+                bool(function_node.body)
+                and isinstance(function_node.body[-1], nodes.Raise)
+                and not any(
+                    function_node.nodes_of_class(
+                        nodes.Return,
+                        skip_klass=(nodes.FunctionDef, nodes.Lambda),
+                    )
+                )
+            )
             or function_node.is_generator()
             or function_node.is_abstract(pass_is_abstract=False)
         )
@@ -1358,13 +1406,26 @@ accessed. Python regular expressions are accepted.",
                 )
         return False
 
+    def _assignment_from_no_return_args(self, call: nodes.Call) -> tuple[str, str]:
+        """Get the name of the called function and a hint about what to use instead."""
+        match call.func:
+            case nodes.Attribute(attrname=name) | nodes.Name(name=name):
+                pass
+            case _:
+                name = call.func.as_string()
+        suggestion = self._known_side_effects_only_functions.get(name)
+        hint = (
+            f", did you mean to use '{suggestion}(...)' instead?" if suggestion else ""
+        )
+        return name, hint
+
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:
         """Check a string is assigned to self.__name__."""
         # Check the left-hand side of the assignment is <something>.__name__
         lhs = node.targets[0]
         if not isinstance(lhs, nodes.AssignAttr):
             return
-        if not lhs.attrname == "__name__":
+        if lhs.attrname != "__name__":
             return
 
         # If the right-hand side is not a string
@@ -2404,25 +2465,37 @@ class IterableChecker(BaseChecker):
         for kwarg in node.kwargs:
             self._check_mapping(kwarg.value)
 
-    @only_required_for_messages("not-an-iterable")
-    def visit_listcomp(self, node: nodes.ListComp) -> None:
+    def _check_comprehension_generators(self, node: nodes.ComprehensionScope) -> None:
         for gen in node.generators:
             self._check_iterable(gen.iter, check_async=gen.is_async)
 
+    def _check_comprehension(
+        self, node: nodes.ListComp | nodes.SetComp | nodes.GeneratorExp
+    ) -> None:
+        self._check_comprehension_generators(node)
+        # PEP 798 unpacking: ``[*element for ... ]`` iterates the element too.
+        if isinstance(node.elt, nodes.Starred):
+            self._check_iterable(node.elt.value)
+
     @only_required_for_messages("not-an-iterable")
+    def visit_listcomp(self, node: nodes.ListComp) -> None:
+        self._check_comprehension(node)
+
+    @only_required_for_messages("not-an-iterable", "not-a-mapping")
     def visit_dictcomp(self, node: nodes.DictComp) -> None:
-        for gen in node.generators:
-            self._check_iterable(gen.iter, check_async=gen.is_async)
+        self._check_comprehension_generators(node)
+        # PEP 798 unpacking: ``{**element for ...}`` merges the element, which
+        # astroid represents with a ``DictUnpack`` key.
+        if isinstance(node.key, nodes.DictUnpack):
+            self._check_mapping(node.value)
 
     @only_required_for_messages("not-an-iterable")
     def visit_setcomp(self, node: nodes.SetComp) -> None:
-        for gen in node.generators:
-            self._check_iterable(gen.iter, check_async=gen.is_async)
+        self._check_comprehension(node)
 
     @only_required_for_messages("not-an-iterable")
     def visit_generatorexp(self, node: nodes.GeneratorExp) -> None:
-        for gen in node.generators:
-            self._check_iterable(gen.iter, check_async=gen.is_async)
+        self._check_comprehension(node)
 
 
 def register(linter: PyLinter) -> None:

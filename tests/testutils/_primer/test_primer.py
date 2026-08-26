@@ -26,7 +26,7 @@ CASES_PATH = HERE / "cases"
 
 # If you change this, also change DEFAULT_PYTHON in
 # ``.github/workflows/primer_comment.yaml``
-PRIMER_CURRENT_INTERPRETER = (3, 13)
+PRIMER_CURRENT_INTERPRETER = (3, 15)
 
 DEFAULT_ARGS = ["python tests/primer/__main__.py", "compare", "--commit=v2.14.2"]
 

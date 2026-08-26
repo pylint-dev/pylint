@@ -19,8 +19,12 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/lf.py|
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: v1.29.0
+    hooks:
+      - id: zizmor
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.16.0"
+    rev: "v0.16.4"
     hooks:
       - id: ruff-check
         args: ["--fix"]
@@ -38,7 +42,7 @@ repos:
         exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
   - repo: https://github.com/PyCQA/isort
-    rev: 9.0.0b1
+    rev: 9.0.0b5
     hooks:
       - id: isort
         exclude: doc/data/messages/
@@ -68,7 +72,11 @@ repos:
             doc/data/messages/t/trailing-comma-tuple/bad.py|
             doc/data/messages/t/trailing-newlines/bad.py|
             doc/data/messages/t/trailing-whitespace/bad.py|
-            doc/data/messages/u/unnecessary-semicolon/bad.py
+            doc/data/messages/u/unnecessary-semicolon/bad.py|
+            # black checks that it did not change the meaning of the code by
+            # parsing it with the interpreter it runs on, which cannot parse
+            # PEP 798 unpacking before Python 3.15
+            doc/data/messages/u/using-comprehension-unpacking-in-unsupported-version/bad.py
           )$
   - repo: https://github.com/Pierre-Sassoulas/black-disable-checker
     rev: v1.1.3
@@ -123,14 +131,14 @@ repos:
         files: ^(doc/whatsnew/fragments)
         exclude: doc/whatsnew/fragments/_.*.rst
   - repo: https://github.com/rstcheck/rstcheck
-    rev: "v6.2.5"
+    rev: "v6.3.0"
     hooks:
       - id: rstcheck
         args: ["--report-level=warning"]
         files: ^(doc/(.*/)*.*\.rst)
         additional_dependencies: ["Sphinx==7.4.3"]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.3.0
+    rev: v2.3.1
     hooks:
       - id: mypy
         name: mypy
@@ -165,10 +173,10 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.26.0"
+    rev: "v2.28.1"
     hooks:
       - id: pyproject-fmt
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.25
+    rev: "0.26"
     hooks:
       - id: validate-pyproject

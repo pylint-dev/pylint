@@ -74,11 +74,11 @@ def _check_functional_tests_structure(
         path: Path, violations: list[tuple[Path, int]]
     ) -> list[Path]:
         """Return directories and files from a directory and handles violations."""
-        files_without_leading_underscore = list(
+        files_without_leading_underscore = [
             p
             for p in path.iterdir()
             if not (p.stem.startswith("_") or (p.is_file() and p.suffix != ".py"))
-        )
+        ]
         if len(files_without_leading_underscore) > max_file_per_directory:
             violations.append((path, len(files_without_leading_underscore)))
         return files_without_leading_underscore
@@ -122,7 +122,7 @@ def _check_functional_tests_structure(
             directory_does_not_exists.append((file, possible_dir))
         # Exclude some directories as they follow a different structure
         if (
-            not len(file.parent.stem) == 1  # First letter sub-directories
+            len(file.parent.stem) != 1  # First letter sub-directories
             and file.parent.stem not in IGNORED_PARENT_DIRS
             and file.parent.parent.stem not in IGNORED_PARENT_PARENT_DIRS
         ):

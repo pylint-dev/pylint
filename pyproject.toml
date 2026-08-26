@@ -122,7 +122,7 @@ extend-exclude = [
   "tests/input/",
   "tests/regrtest_data/",
 ]
-lint.select = [
+lint.extend-select = [
   "B",   # bugbear
   "D",   # pydocstyle
   "E",   # pycodestyle
@@ -138,6 +138,7 @@ lint.select = [
 ]
 lint.ignore = [
   "B905",   # `zip()` without an explicit `strict=` parameter
+  "BLE001", # Do not catch blind exception: `Exception`
   "D100",   # Missing docstring in public module
   "D101",   # Missing docstring in public class
   "D102",   # Missing docstring in public method
@@ -149,6 +150,13 @@ lint.ignore = [
   "D205",   # 1 blank line required between summary line and description
   "D400",   # First line should end with a period
   "D401",   # First line of docstring should be in imperative mood
+  "DTZ003", # `datetime.datetime.utcnow()` used
+  "DTZ005", # `datetime.datetime.now()` called without a `tz` argument
+  "EXE001", # Shebang is present but file is not executable
+  "FLY002", # Consider f-string instead of string join
+  "ISC004", # Implicitly concatenated string in a collection literal
+  "LOG015", # `logging` call on the root logger
+  "PT031",  # `pytest.warns()` block should contain a single simple statement
   "PTH100", # `os.path.abspath()` should be replaced by `Path.resolve()`
   "PTH103", # `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
   "PTH107", # `os.remove()` should be replaced by `Path.unlink()`
@@ -166,6 +174,14 @@ lint.ignore = [
   "PTH207", # Replace `glob` with `Path.glob` or `Path.rglob`
   "PTH208", # Use `pathlib.Path.iterdir()` instead"
   "RUF012", # mutable default values in class attributes
+  "S102",   # Use of `exec` detected
+  "SIM102", # Use a single `if` statement instead of nested `if` statements
+  "SIM103", # Return the condition directly
+  "SIM114", # Combine `if` branches using logical `or` operator
+  "SIM115", # Use a context manager for opening files
+  "SIM117", # Use a single `with` statement with multiple contexts
+  "TRY004", # Prefer `TypeError` exception for invalid type
+  "YTT204", # `sys.version_info.minor` compared to integer
 ]
 lint.pydocstyle.convention = "pep257"
 

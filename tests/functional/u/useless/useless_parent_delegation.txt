@@ -23,3 +23,4 @@ useless-parent-delegation:360:4:360:15:UselessSuperPy3.useless:Useless parent or
 useless-parent-delegation:375:4:375:16:Ham.__init__:Useless parent or super() delegation in method '__init__':INFERENCE
 useless-parent-delegation:408:4:408:12:ReturnTypeSpecified.draw:Useless parent or super() delegation in method 'draw':INFERENCE
 useless-parent-delegation:415:4:415:12:ReturnTypeSame.draw:Useless parent or super() delegation in method 'draw':INFERENCE
+useless-parent-delegation:451:4:451:16:PlainObject.__init__:Useless parent or super() delegation in method '__init__':INFERENCE

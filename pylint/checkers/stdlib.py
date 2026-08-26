@@ -101,6 +101,26 @@ DEPRECATED_ARGUMENTS: dict[
         "argparse.ArgumentParser.add_argument_group": ((None, "prefix_chars"),),
         "threading.RLock": ((0, "x"),),
     },
+    (3, 15, 0): {
+        # 'hashlib' aliases 'new' to '__hash_new' when OpenSSL is available
+        # and to '__py_new' otherwise. Both are inferred for a call to
+        # 'hashlib.new', so listing both would report it twice.
+        "hashlib.__hash_new": ((None, "string"),),
+        "hashlib.blake2b": ((None, "string"),),
+        "hashlib.blake2s": ((None, "string"),),
+        "hashlib.md5": ((None, "string"),),
+        "hashlib.sha1": ((None, "string"),),
+        "hashlib.sha224": ((None, "string"),),
+        "hashlib.sha256": ((None, "string"),),
+        "hashlib.sha384": ((None, "string"),),
+        "hashlib.sha512": ((None, "string"),),
+        "hashlib.sha3_224": ((None, "string"),),
+        "hashlib.sha3_256": ((None, "string"),),
+        "hashlib.sha3_384": ((None, "string"),),
+        "hashlib.sha3_512": ((None, "string"),),
+        "hashlib.shake_128": ((None, "string"),),
+        "hashlib.shake_256": ((None, "string"),),
+    },
 }
 
 DEPRECATED_DECORATORS: DeprecationDict = {
@@ -263,7 +283,6 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
         },
         (3, 11, 0): {
             "importlib.resources.contents",
-            "locale.getdefaultlocale",
             "locale.resetlocale",
             "re.template",
             "unittest.findTestCases",
@@ -309,6 +328,10 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "symtable.Class.get_methods",
             "sys._clear_type_cache",
             "sysconfig.expand_makefile_vars",
+        },
+        (3, 15, 0): {
+            "http.cookies.BaseCookie.js_output",
+            "http.cookies.Morsel.js_output",
         },
     },
 }
@@ -427,6 +450,27 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
             "._UnionGenericAlias",
         },
     },
+    (3, 15, 0): {
+        # The abstract nodes, instantiating them is deprecated
+        "ast": {
+            "AST",
+            "boolop",
+            "cmpop",
+            "excepthandler",
+            "expr",
+            "expr_context",
+            "mod",
+            "operator",
+            "pattern",
+            "stmt",
+            "type_ignore",
+            "type_param",
+            "unaryop",
+        },
+        "webbrowser": {
+            "MacOSXOSAScript",
+        },
+    },
 }
 
 
@@ -448,6 +492,34 @@ DEPRECATED_ATTRIBUTES: DeprecationDict = {
         "tarfile.TarFile.tarfile",
         "traceback.TracebackException.exc_type",
         "typing.AnyStr",
+    },
+    (3, 15, 0): {
+        "imaplib.IMAP4.file",
+        # The version attributes of the standard library, use 'sys.version_info'
+        "argparse.__version__",
+        "csv.__version__",
+        "ctypes.__version__",
+        "ctypes.macholib.__version__",
+        "decimal.__version__",
+        "http.server.__version__",
+        "imaplib.__version__",
+        "ipaddress.__version__",
+        "json.__version__",
+        "logging.__date__",
+        "logging.__version__",
+        "optparse.__version__",
+        "platform.__version__",
+        "re.__version__",
+        "socketserver.__version__",
+        "tabnanny.__version__",
+        "tarfile.version",
+        "tkinter.font.__version__",
+        "tkinter.ttk.__version__",
+        "wsgiref.simple_server.__version__",
+        "xml.etree.ElementTree.VERSION",
+        "xml.sax.expatreader.version",
+        "xml.sax.handler.version",
+        "zlib.__version__",
     },
 }
 
@@ -866,19 +938,18 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
         if mode_arg:
             mode_arg = utils.safe_infer(mode_arg)
-            if (
-                func_name in OPEN_FILES_MODE
-                and isinstance(mode_arg, nodes.Const)
-                and not _check_mode_str(mode_arg.value)
-            ):
-                self.add_message(
-                    "bad-open-mode",
-                    node=node,
-                    # avoid a boolean context on the constant ``bool(NotImplemented)``
-                    # raises a TypeError on Python >= 3.14
-                    args=str(mode_arg.value),
-                    confidence=confidence,
-                )
+            if func_name in OPEN_FILES_MODE:
+                if not isinstance(mode_arg, nodes.Const):
+                    return  # mode may be binary - don't guess
+                if not _check_mode_str(mode_arg.value):
+                    self.add_message(
+                        "bad-open-mode",
+                        node=node,
+                        # avoid a boolean context on the constant ``bool(NotImplemented)``
+                        # raises a TypeError on Python >= 3.14
+                        args=str(mode_arg.value),
+                        confidence=confidence,
+                    )
 
         if not mode_arg or (
             isinstance(mode_arg, nodes.Const) and "b" not in str(mode_arg.value)
