@@ -1,4 +1,0 @@
-Fix a false positive for :ref:`unspecified-encoding` when an ``open`` call uses a mode
-argument that cannot be inferred.
-
-Closes #10201
