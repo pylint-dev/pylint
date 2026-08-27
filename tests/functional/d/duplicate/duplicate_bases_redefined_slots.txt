@@ -1,0 +1,2 @@
+duplicate-bases:11:0:11:12:Basket:Duplicate bases for class 'Basket':UNDEFINED
+duplicate-bases:17:0:17:17:SmallBasket:Duplicate bases for class 'SmallBasket':UNDEFINED

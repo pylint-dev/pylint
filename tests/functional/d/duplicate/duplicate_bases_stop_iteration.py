@@ -15,3 +15,13 @@ def fruits():
     """Raising the class is what sends the checker looking at the MRO."""
     yield "banana"
     raise BasketEmpty()
+
+
+class NoMoreFruit(StopIteration, StopIteration):  # [duplicate-bases]
+    """A StopIteration subclass that cannot be built either."""
+
+
+def more_fruits():
+    """Losing the MRO does not lose the bases, so the message survives."""
+    yield "banana"
+    raise NoMoreFruit()  # [stop-iteration-return]
