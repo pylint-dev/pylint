@@ -100,7 +100,7 @@ class LambdaExpressionChecker(BaseChecker):
 
 
 def _lambda_scope_is_required(node: nodes.Call) -> bool:
-    """Whether inlining this directly called lambda would not compile.
+    """Whether removing this directly called lambda would not compile.
 
     A comprehension carrying an assignment expression is a SyntaxError when its
     containing scope is a class body (PEP 572). The lambda supplies a function
@@ -109,7 +109,7 @@ def _lambda_scope_is_required(node: nodes.Call) -> bool:
 
     Only a comprehension that would land in the class body itself counts. One
     nested inside a further lambda or function keeps a scope of its own after
-    the inlining, so the call around it is still reported.
+    the removal, so the call around it is still reported.
     """
     if not isinstance(node.frame(), nodes.ClassDef):
         return False
