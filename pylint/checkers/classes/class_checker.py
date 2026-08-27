@@ -36,6 +36,8 @@ from pylint.checkers.utils import (
     node_frame_class,
     only_required_for_messages,
     safe_infer,
+    safe_mro,
+    safe_slots,
     unimplemented_abstract_methods,
     uninferable_final_decorators,
 )
@@ -548,7 +550,7 @@ def _has_same_layout_slots(
         # value that is not a class definition.
         return False
     if isinstance(inferred, nodes.ClassDef):
-        other_slots = inferred.slots()
+        other_slots = safe_slots(inferred)
         if other_slots is None:
             # A class without ``__slots__`` anywhere in its mro has a
             # different layout, which CPython rejects at runtime too.
@@ -1778,7 +1780,7 @@ a metaclass class method.",
         ancestors_slots_names = {
             slot.value
             for ancestor in node.local_attr_ancestors("__slots__")
-            for slot in ancestor.slots() or []
+            for slot in safe_slots(ancestor) or []
         }
 
         # Slots which are common to `node` and its parent classes
@@ -1937,19 +1939,19 @@ a metaclass class method.",
         # what will happen when assigning to an attribute.
         if any(
             base.locals.get("__setattr__")
-            for base in klass.mro()
+            for base in safe_mro(klass)
             if base.qname() != "builtins.object"
         ):
             return
 
         # If 'typing.Generic' is a base of bases of klass, the cached version
         # of 'slots()' might have been evaluated incorrectly, thus deleted cache entry.
-        if any(base.qname() == "typing.Generic" for base in klass.mro()):
+        if any(base.qname() == "typing.Generic" for base in safe_mro(klass)):
             cache = getattr(klass, "__cache", None)
             if cache and cache.get(klass.slots) is not None:
                 del cache[klass.slots]
 
-        slots = klass.slots()
+        slots = safe_slots(klass)
         if slots is None:
             return
         # If any ancestor doesn't use slots, the slots

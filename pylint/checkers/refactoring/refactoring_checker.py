@@ -1089,7 +1089,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     ) -> bool:
         """Return True if the exception node in argument inherit from StopIteration."""
         stopiteration_qname = f"{utils.EXCEPTIONS_MODULE}.StopIteration"
-        return any(_class.qname() == stopiteration_qname for _class in exc.mro())
+        # A class that lost its MRO still knows its bases, and they are all this
+        # lookup needs, so ``ancestors()`` keeps the message the MRO cannot give.
+        ancestors = utils.safe_mro(exc) or exc.ancestors()
+        return any(_class.qname() == stopiteration_qname for _class in ancestors)
 
     def _check_consider_using_comprehension_constructor(self, node: nodes.Call) -> None:
         match node:

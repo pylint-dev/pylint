@@ -14,7 +14,7 @@ import sys
 from collections.abc import Iterable
 from enum import Enum, auto
 from re import Pattern
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import bases, nodes, util
@@ -639,8 +639,7 @@ class NameChecker(_BasicChecker):
             return True
         if isinstance(inferred_assign_type, bases.Instance):
             if "EnumMeta" in {
-                ancestor.name
-                for ancestor in cast(InferenceResult, inferred_assign_type).mro()
+                ancestor.name for ancestor in utils.safe_mro(inferred_assign_type)
             }:
                 return True
             # The functional syntax `X = TypedDict("X", {...})` defines a new type,

@@ -1,0 +1,3 @@
+duplicate-bases:10:0:10:17:BasketEmpty:Duplicate bases for class 'BasketEmpty':UNDEFINED
+duplicate-bases:20:0:20:17:NoMoreFruit:Duplicate bases for class 'NoMoreFruit':UNDEFINED
+stop-iteration-return:27:4:27:23:more_fruits:Do not raise StopIteration in generator, use return statement instead:INFERENCE
