@@ -42,7 +42,7 @@ repos:
         exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
   - repo: https://github.com/PyCQA/isort
-    rev: 9.0.0b5
+    rev: 9.0.0
     hooks:
       - id: isort
         exclude: doc/data/messages/
