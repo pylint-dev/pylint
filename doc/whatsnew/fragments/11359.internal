@@ -1,0 +1,8 @@
+The ``symlink_module`` functional test is now skipped on Windows. ``git`` sets
+``core.symlinks=false`` for a non-elevated Windows user and materialises
+``tests/functional/s/symlink/_binding/`` as regular files containing the link target,
+which pylint then lints as Python and reports ``syntax-error``. CI does not see this
+because its Windows runners materialise the symlink, so the suite was green there and
+red on an ordinary contributor's machine.
+
+Closes #11359
