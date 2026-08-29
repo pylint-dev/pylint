@@ -154,3 +154,16 @@ class AlabamaCousin(Child, Niece):
     def method(self):
         print("AlabamaCousin")
         super(Child, self).method()
+
+
+class SuperInNestedMethod:
+    """A nested function that becomes a method of another class, see #11313."""
+    def __call__(self, arg):
+        def __init_subclass__(cls, *args, **kwargs):
+            return super(arg, cls).__init_subclass__(*args, **kwargs)
+
+        def helper():
+            return super(Empty, self).__call__(arg)  # [bad-super-call]
+
+        arg.__init_subclass__ = classmethod(__init_subclass__)
+        return helper()
