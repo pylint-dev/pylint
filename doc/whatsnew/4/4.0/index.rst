@@ -76,7 +76,7 @@ to your liking.
 
 What's new in Pylint 4.0.8?
 ---------------------------
-Release date: 2026-08-27
+Release date: 2026-08-29
 
 
 False Positives Fixed
