@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 from astroid import nodes
 
-from pylint.checkers import BaseChecker
+from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import only_required_for_messages
 
 if TYPE_CHECKING:
@@ -40,17 +40,22 @@ class EllipsisChecker(BaseChecker):
            For example: A function consisting of an ellipsis followed by a
            return statement on the next line.
         """
-        if (
-            node.pytype() == "builtins.Ellipsis"
-            and isinstance(node.parent, nodes.Expr)
-            and (
-                (
-                    isinstance(node.parent.parent, (nodes.ClassDef, nodes.FunctionDef))
-                    and node.parent.parent.doc_node
-                )
-                or len(node.parent.parent.body) > 1
-            )
+        if node.pytype() != "builtins.Ellipsis" or not isinstance(
+            node.parent, nodes.Expr
         ):
+            return
+
+        scope = node.parent.parent
+        if (
+            isinstance(scope, nodes.FunctionDef)
+            and utils.is_function_body_ellipsis(scope)
+            and utils.is_protocol_class(scope.parent)
+        ):
+            return
+
+        if (
+            isinstance(scope, (nodes.ClassDef, nodes.FunctionDef)) and scope.doc_node
+        ) or len(scope.body) > 1:
             self.add_message("unnecessary-ellipsis", node=node)
 
 
