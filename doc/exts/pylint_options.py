@@ -122,6 +122,9 @@ def _create_checker_section(
 
         # Start adding the option to the toml example
         if option.optdict.get("hide_from_config_file"):
+            checker_string += (
+                "**This option is only available on the command line.**\n\n\n"
+            )
             continue
 
         # Get current value of option
@@ -221,11 +224,11 @@ def build_options_page(app: Sphinx | None) -> None:
 
     Documentation is written in ReST format.
     """
-    # Create linter, register all checkers and extensions and get all options
-    # Build the argument parser without executing Run, which would start linting.
+    # ``_make_run_options`` only stores the uninitialized ``Run`` instance in
+    # callback action kwargs. The callbacks are never invoked while generating
+    # this page, so the instance is not dereferenced here.
     run = object.__new__(Run)
-    linter = PyLinter(_make_run_options(run), option_groups=Run.option_groups)
-    run.linter = linter
+    linter = PyLinter(_make_run_options(run))
     _register_all_checkers_and_extensions(linter)
 
     options = _get_all_options(linter)

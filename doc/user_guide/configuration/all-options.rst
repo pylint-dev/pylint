@@ -67,6 +67,9 @@ Standard Checkers
 **Default:**  ``None``
 
 
+**This option is only available on the command line.**
+
+
 .. _errors-only-option:
 
 --errors-only
@@ -74,6 +77,9 @@ Standard Checkers
 *In error mode, messages with a category besides ERROR or FATAL are suppressed, and no reports are done by default. Error mode is compatible with disabling specific errors.*
 
 **Default:**  ``None``
+
+
+**This option is only available on the command line.**
 
 
 .. _evaluation-option:
@@ -157,6 +163,9 @@ Standard Checkers
 **Default:**  ``None``
 
 
+**This option is only available on the command line.**
+
+
 .. _generate-rcfile-option:
 
 --generate-rcfile
@@ -164,6 +173,9 @@ Standard Checkers
 *Generate a sample configuration file according to the current configuration. You can put other options before this one to get them in the generated configuration.*
 
 **Default:**  ``None``
+
+
+**This option is only available on the command line.**
 
 
 .. _generate-toml-config-option:
@@ -175,6 +187,9 @@ Standard Checkers
 **Default:**  ``None``
 
 
+**This option is only available on the command line.**
+
+
 .. _help-msg-option:
 
 --help-msg
@@ -182,6 +197,9 @@ Standard Checkers
 *Display a help message for the given message id and exit. The value may be a comma separated list of message ids.*
 
 **Default:**  ``None``
+
+
+**This option is only available on the command line.**
 
 
 .. _ignore-option:
@@ -256,6 +274,9 @@ Standard Checkers
 **Default:**  ``None``
 
 
+**This option is only available on the command line.**
+
+
 .. _list-extensions-option:
 
 --list-extensions
@@ -263,6 +284,9 @@ Standard Checkers
 *List available extensions.*
 
 **Default:**  ``None``
+
+
+**This option is only available on the command line.**
 
 
 .. _list-groups-option:
@@ -274,6 +298,9 @@ Standard Checkers
 **Default:**  ``None``
 
 
+**This option is only available on the command line.**
+
+
 .. _list-msgs-option:
 
 --list-msgs
@@ -283,6 +310,9 @@ Standard Checkers
 **Default:**  ``None``
 
 
+**This option is only available on the command line.**
+
+
 .. _list-msgs-enabled-option:
 
 --list-msgs-enabled
@@ -290,6 +320,9 @@ Standard Checkers
 *Display a list of what messages are enabled, disabled and non-emittable with the given configuration.*
 
 **Default:**  ``None``
+
+
+**This option is only available on the command line.**
 
 
 .. _load-plugins-option:
@@ -310,6 +343,9 @@ Standard Checkers
 **Default:**  ``None``
 
 
+**This option is only available on the command line.**
+
+
 .. _msg-template-option:
 
 --msg-template
@@ -326,6 +362,9 @@ Standard Checkers
 *Specify an output file.*
 
 **Default:**  ``None``
+
+
+**This option is only available on the command line.**
 
 
 .. _output-format-option:
@@ -371,6 +410,9 @@ Standard Checkers
 *Specify a configuration file to load.*
 
 **Default:**  ``None``
+
+
+**This option is only available on the command line.**
 
 
 .. _recursive-option:
@@ -425,6 +467,9 @@ Standard Checkers
 *In verbose mode, extra non-checker-related info will be displayed.*
 
 **Default:**  ``None``
+
+
+**This option is only available on the command line.**
 
 
 
