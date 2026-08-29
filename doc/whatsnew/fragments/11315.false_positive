@@ -1,5 +1,0 @@
-Fix false positives for :ref:`bad-string-format-type` when the argument is an
-instance of a subclass of ``int``, ``float`` or ``str``, such as ``bool`` or an
-``IntEnum`` member formatted with ``%d``.
-
-Closes #11315
