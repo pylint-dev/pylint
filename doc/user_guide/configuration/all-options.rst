@@ -58,6 +58,30 @@ Standard Checkers
 **Default:**  ``()``
 
 
+.. _enable-all-extensions-option:
+
+--enable-all-extensions
+"""""""""""""""""""""""
+*Load and enable all available extensions. Use --list-extensions to see a list all available extensions.*
+
+**Default:**  ``None``
+
+
+**This option is only available on the command line.**
+
+
+.. _errors-only-option:
+
+--errors-only
+"""""""""""""
+*In error mode, messages with a category besides ERROR or FATAL are suppressed, and no reports are done by default. Error mode is compatible with disabling specific errors.*
+
+**Default:**  ``None``
+
+
+**This option is only available on the command line.**
+
+
 .. _evaluation-option:
 
 --evaluation
@@ -130,6 +154,54 @@ Standard Checkers
 **Default:**  ``False``
 
 
+.. _full-documentation-option:
+
+--full-documentation
+""""""""""""""""""""
+*Generate pylint's full documentation.*
+
+**Default:**  ``None``
+
+
+**This option is only available on the command line.**
+
+
+.. _generate-rcfile-option:
+
+--generate-rcfile
+"""""""""""""""""
+*Generate a sample configuration file according to the current configuration. You can put other options before this one to get them in the generated configuration.*
+
+**Default:**  ``None``
+
+
+**This option is only available on the command line.**
+
+
+.. _generate-toml-config-option:
+
+--generate-toml-config
+""""""""""""""""""""""
+*Generate a sample configuration file according to the current configuration. You can put other options before this one to get them in the generated configuration. The config is in the .toml format.*
+
+**Default:**  ``None``
+
+
+**This option is only available on the command line.**
+
+
+.. _help-msg-option:
+
+--help-msg
+""""""""""
+*Display a help message for the given message id and exit. The value may be a comma separated list of message ids.*
+
+**Default:**  ``None``
+
+
+**This option is only available on the command line.**
+
+
 .. _ignore-option:
 
 --ignore
@@ -166,6 +238,15 @@ Standard Checkers
 **Default:**  ``()``
 
 
+.. _init-hook-option:
+
+--init-hook
+"""""""""""
+*Python code to execute, usually for sys.path manipulation such as pygtk.require().*
+
+**Default:**  ``None``
+
+
 .. _jobs-option:
 
 --jobs
@@ -184,6 +265,66 @@ Standard Checkers
 **Default:**  ``100``
 
 
+.. _list-conf-levels-option:
+
+--list-conf-levels
+""""""""""""""""""
+*Generate pylint's confidence levels.*
+
+**Default:**  ``None``
+
+
+**This option is only available on the command line.**
+
+
+.. _list-extensions-option:
+
+--list-extensions
+"""""""""""""""""
+*List available extensions.*
+
+**Default:**  ``None``
+
+
+**This option is only available on the command line.**
+
+
+.. _list-groups-option:
+
+--list-groups
+"""""""""""""
+*List pylint's message groups.*
+
+**Default:**  ``None``
+
+
+**This option is only available on the command line.**
+
+
+.. _list-msgs-option:
+
+--list-msgs
+"""""""""""
+*Display a list of all pylint's messages divided by whether they are emittable with the given interpreter.*
+
+**Default:**  ``None``
+
+
+**This option is only available on the command line.**
+
+
+.. _list-msgs-enabled-option:
+
+--list-msgs-enabled
+"""""""""""""""""""
+*Display a list of what messages are enabled, disabled and non-emittable with the given configuration.*
+
+**Default:**  ``None``
+
+
+**This option is only available on the command line.**
+
+
 .. _load-plugins-option:
 
 --load-plugins
@@ -193,6 +334,18 @@ Standard Checkers
 **Default:**  ``()``
 
 
+.. _long-help-option:
+
+--long-help
+"""""""""""
+*Show more verbose help.*
+
+**Default:**  ``None``
+
+
+**This option is only available on the command line.**
+
+
 .. _msg-template-option:
 
 --msg-template
@@ -200,6 +353,18 @@ Standard Checkers
 *Template used to display messages. This is a python new-style format string used to format the message information. See doc for all details.*
 
 **Default:** ``""``
+
+
+.. _output-option:
+
+--output
+""""""""
+*Specify an output file.*
+
+**Default:**  ``None``
+
+
+**This option is only available on the command line.**
 
 
 .. _output-format-option:
@@ -236,6 +401,18 @@ Standard Checkers
 *Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
 
 **Default:**  ``sys.version_info[:2]``
+
+
+.. _rcfile-option:
+
+--rcfile
+""""""""
+*Specify a configuration file to load.*
+
+**Default:**  ``None``
+
+
+**This option is only available on the command line.**
 
 
 .. _recursive-option:
@@ -283,6 +460,18 @@ Standard Checkers
 **Default:**  ``False``
 
 
+.. _verbose-option:
+
+--verbose
+"""""""""
+*In verbose mode, extra non-checker-related info will be displayed.*
+
+**Default:**  ``None``
+
+
+**This option is only available on the command line.**
+
+
 
 .. raw:: html
 
@@ -327,6 +516,8 @@ Standard Checkers
    ignore-patterns = ["^\\.#"]
 
    ignored-modules = []
+
+   # init-hook =
 
    jobs = 1
 
