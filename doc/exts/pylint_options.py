@@ -18,7 +18,8 @@ from sphinx.application import Sphinx
 from pylint.checkers import initialize as initialize_checkers
 from pylint.checkers.base_checker import BaseChecker
 from pylint.extensions import initialize as initialize_extensions
-from pylint.lint import PyLinter
+from pylint.lint import PyLinter, Run
+from pylint.lint.base_options import _make_run_options
 from pylint.typing import OptionDict
 from pylint.utils import get_rst_title
 from pylint.utils.utils import _unquote
@@ -221,7 +222,10 @@ def build_options_page(app: Sphinx | None) -> None:
     Documentation is written in ReST format.
     """
     # Create linter, register all checkers and extensions and get all options
-    linter = PyLinter()
+    # Build the argument parser without executing Run, which would start linting.
+    run = object.__new__(Run)
+    linter = PyLinter(_make_run_options(run), option_groups=Run.option_groups)
+    run.linter = linter
     _register_all_checkers_and_extensions(linter)
 
     options = _get_all_options(linter)
