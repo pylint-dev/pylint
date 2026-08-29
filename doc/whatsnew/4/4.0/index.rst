@@ -74,6 +74,80 @@ to your liking.
 
 .. towncrier release notes start
 
+What's new in Pylint 4.0.8?
+---------------------------
+Release date: 2026-08-29
+
+
+False Positives Fixed
+---------------------
+
+- Fix a false positive for :ref:`unspecified-encoding` when an ``open`` call uses a mode
+  argument that cannot be inferred.
+
+  Closes #10201 (`#10201 <https://github.com/pylint-dev/pylint/issues/10201>`_)
+
+- Fix a false positive for ``invalid-name`` (C0103) on names assigned in an
+  ``if __name__ == "__main__":`` block. Such a block reads like a script body, so
+  a name there is now accepted if it matches either the constant or the variable
+  naming style.
+
+  Closes #10766 (`#10766 <https://github.com/pylint-dev/pylint/issues/10766>`_)
+
+- Fix false positives for :ref:`invalid-str-returned`, :ref:`invalid-repr-returned`,
+  :ref:`invalid-format-returned`, :ref:`invalid-bytes-returned`, :ref:`invalid-hash-returned`,
+  :ref:`invalid-index-returned`, :ref:`invalid-length-returned`,
+  :ref:`invalid-length-hint-returned`, :ref:`invalid-getnewargs-returned` and
+  :ref:`invalid-getnewargs-ex-returned` when the returned value is an instance of a
+  subclass of the expected builtin type, such as ``self`` in a ``str`` subclass or a
+  ``namedtuple``.
+
+  Closes #11306 (`#11306 <https://github.com/pylint-dev/pylint/issues/11306>`_)
+
+- Fix false positives for :ref:`bad-string-format-type` when the argument is an
+  instance of a subclass of ``int``, ``float`` or ``str``, such as ``bool`` or an
+  ``IntEnum`` member formatted with ``%d``.
+
+  Closes #11315 (`#11315 <https://github.com/pylint-dev/pylint/issues/11315>`_)
+
+
+
+False Negatives Fixed
+---------------------
+
+- ``redundant-unittest-assert`` now also flags ``assertEqual`` and ``assertNotEqual``
+  when both compared values are constants, e.g. ``self.assertEqual(5, 5)``.
+
+  Closes #11321 (`#11321 <https://github.com/pylint-dev/pylint/issues/11321>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix a crash in the ``docparams`` extension when a raised name does not infer to an exception, such as ``raise sum`` or ``raise some_module``. Such objects have no ``ancestors()``, which aborted the whole file with an ``astroid-error`` fatal message.
+
+  Closes #11228 (`#11228 <https://github.com/pylint-dev/pylint/issues/11228>`_)
+
+- Fix a crash in the ``use-yield-from`` checker (``AttributeError: 'Subscript' object has no attribute 'name'``) when a loop target is a subscript, attribute, or tuple.
+
+  Closes #11286 (`#11286 <https://github.com/pylint-dev/pylint/issues/11286>`_)
+
+- Fix a crash in the ``docparams`` extension (``AttributeError: 'AssignName' object has no attribute 'decorators'``) when a class has non-function attributes sharing the name of a property setter.
+
+  Closes #11287 (`#11287 <https://github.com/pylint-dev/pylint/issues/11287>`_)
+
+
+
+Other Changes
+-------------
+
+- Upgrade the ``isort`` upper bound so ``isort`` 9 can be installed alongside pylint.
+
+  Closes #11351 (`#11351 <https://github.com/pylint-dev/pylint/issues/11351>`_)
+
+
+
 What's new in Pylint 4.0.7?
 ---------------------------
 Release date: 2026-08-09
