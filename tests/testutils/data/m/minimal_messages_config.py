@@ -5,6 +5,7 @@ This file is tested in ``test_minimal_messages_config_enabled`` and
 ``test_minimal_messages_config_excluded_file``.
 """
 
-f = open("foo.txt")  # [consider-using-with, unspecified-encoding]
+f = open("foo.txt")  # [consider-using-with]
+# -1:<3.15: [unspecified-encoding]
 
 print("%d" % 1)  # [consider-using-f-string]

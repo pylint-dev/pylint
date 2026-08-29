@@ -38,12 +38,13 @@ class PyreverseConfig(
         show_stdlib: bool = False,
         module_names: bool | None = None,
         only_classnames: bool = False,
+        no_signatures: bool = False,
         output_format: str = "dot",
         colorized: bool = False,
         max_color_depth: int = 2,
         max_depth: int | None = None,
         color_palette: tuple[str, ...] = DEFAULT_COLOR_PALETTE,
-        ignore_list: tuple[str, ...] = tuple(),
+        ignore_list: tuple[str, ...] = (),
         project: str = "",
         output_directory: str = "",
     ) -> None:
@@ -62,6 +63,7 @@ class PyreverseConfig(
         self.show_stdlib = show_stdlib
         self.module_names = module_names
         self.only_classnames = only_classnames
+        self.no_signatures = no_signatures
         self.output_format = output_format
         self.colorized = colorized
         self.max_depth = max_depth

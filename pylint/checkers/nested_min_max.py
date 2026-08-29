@@ -72,6 +72,11 @@ class NestedMinMaxChecker(BaseChecker):
                 # Allow: max(max([[1, 2, 3], [4, 5, 6]]))
                 # Meaning, redundant call only if parent max call has more than 1 arg.
                 and len(arg.parent.args) > 1
+                # An inner call carrying keyword arguments (e.g. ``key=`` or
+                # ``default=``) must not be flattened: the keyword would be
+                # silently dropped and the suggested call would change the
+                # result, e.g. ``max(a, max(b, c, key=k))``.
+                and not arg.keywords
             )
         ]
 
@@ -124,7 +129,7 @@ class NestedMinMaxChecker(BaseChecker):
                     fixed_node.args = [
                         *fixed_node.args[:idx],
                         splat_node,
-                        *fixed_node.args[idx + 1 : idx],
+                        *fixed_node.args[idx + 1 :],
                     ]
         func_name = (
             node.func.attrname

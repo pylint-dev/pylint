@@ -13,6 +13,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 from __future__ import annotations
 
+import re
 import tokenize
 from functools import reduce
 from re import Match
@@ -30,6 +31,17 @@ from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragm
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
+
+# Trailing pragmas from other tooling, discounted from line length like Pylint's own (see #10172).
+_IGNORED_PRAGMA_RGX = re.compile(
+    r"[ \t]*#[ \t]*"
+    r"(?:"
+    r"type:[ \t]*ignore(?:\[[^\]\n]*\])?"  # mypy
+    r"|pyright:[ \t]*ignore(?:\[[^\]\n]*\])?"  # pyright
+    r"|noqa\b(?::[ \t\w,]*)?"  # flake8 / ruff
+    r"|pragma:[ \t]*no[ \t]?(?:cover|branch)"  # coverage.py
+    r")"
+)
 
 _KEYWORD_TOKENS = {
     "assert",
@@ -92,7 +104,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "C0321": (
         "More than one statement on a single line",
         "multiple-statements",
-        "Used when more than on statement are found on the same line.",
+        "Used when more than one statement is found on the same line.",
         {"scope": WarningScope.NODE},
     ),
     "C0325": (
@@ -181,6 +193,18 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 "default": r"^\s*(# )?<?https?://\S+>?$",
                 "help": (
                     "Regexp for a line that is allowed to be longer than the limit."
+                ),
+            },
+        ),
+        (
+            "ignore-pattern-in-long-lines",
+            {
+                "type": "regexp",
+                "metavar": "<regexp>",
+                "default": None,
+                "help": (
+                    "Regexp for a part of a line that will not be counted when "
+                    "calculating the line length."
                 ),
             },
         ),
@@ -343,9 +367,18 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     if found_and_or:
                         return
                     if keyword_token == "in":
-                        # This special case was added in https://github.com/pylint-dev/pylint/pull/4948
-                        # but it could be removed in the future. Avoid churn for now.
-                        return
+                        # Parentheses around a tuple after ``in`` are required, so
+                        # they were given a blanket pass in pull request #4948.
+                        # Parentheses around a single literal (e.g. ``x in ("a")``)
+                        # are still superfluous, so report only those and leave
+                        # anything more complex untouched to avoid the false
+                        # positives #4948 guarded against.
+                        single_literal = i == start + 3 and tokens[start + 2].type in {
+                            tokenize.STRING,
+                            tokenize.NUMBER,
+                        }
+                        if not single_literal:
+                            return
                     self.add_message(
                         "superfluous-parens", line=line_num, args=keyword_token
                     )
@@ -438,9 +471,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     if check_equal:
                         check_equal = False
                         self.check_indent_level(line, indents[-1], line_num)
-
-            if tok_type == tokenize.NUMBER and string.endswith("l"):
-                self.add_message("lowercase-l-suffix", line=line_num)
 
             if string in _KEYWORD_TOKENS:
                 self._check_keyword_parentheses(tokens, idx)
@@ -605,11 +635,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     def remove_pylint_option_from_lines(options_pattern_obj: Match[str]) -> str:
         """Remove the `# pylint ...` pattern from lines."""
         lines = options_pattern_obj.string
-        purged_lines = (
+        return (
             lines[: options_pattern_obj.start(1)].rstrip()
             + lines[options_pattern_obj.end(1) :]
         )
-        return purged_lines
 
     @staticmethod
     def is_line_length_check_activated(pylint_pattern_match_object: Match[str]) -> bool:
@@ -699,6 +728,15 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 checker_off = True
             # The 'pylint: disable whatever' should not be taken into account for line length count
             lines = self.remove_pylint_option_from_lines(mobj)
+
+        # Trailing pragmas from other tooling (``# type: ignore``, ``# noqa``,
+        # ``# pragma: no cover``, ...) should not be taken into account for the
+        # line length count either.
+        lines = _IGNORED_PRAGMA_RGX.sub("", lines)
+
+        ignore_pattern_in_long_lines = self.linter.config.ignore_pattern_in_long_lines
+        if ignore_pattern_in_long_lines:
+            lines = ignore_pattern_in_long_lines.sub("", lines)
 
         # here we re-run specific_splitlines since we have filtered out pylint options above
         for offset, line in enumerate(self.specific_splitlines(lines)):

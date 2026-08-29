@@ -3,81 +3,82 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 from __future__ import annotations
 
-import json
-from pathlib import Path, PurePosixPath
+from collections.abc import Callable
+from pathlib import PurePosixPath
 
-from pylint.reporters.json_reporter import OldJsonExport
-from pylint.testutils._primer.primer_command import (
-    PackageData,
-    PackageMessages,
-    PrimerCommand,
+from pylint.reporters.json_reporter import JSONMessage
+from pylint.testutils._primer.comparator import (
+    ChangedMessage,
+    Comparator,
+    message_diff,
 )
+from pylint.testutils._primer.primer_command import PrimerCommand
 
 MAX_GITHUB_COMMENT_LENGTH = 65536
 
 
+def _format_messages(
+    messages: list[JSONMessage],
+    source_link: Callable[[JSONMessage], str],
+) -> str:
+    """Format a list of messages as a numbered body for a ``<details>`` block."""
+    body = ""
+    for count, msg in enumerate(messages, 1):
+        body += (
+            f"{count}) {msg['symbol']}:\n*{msg['message']}*\n" f"{source_link(msg)}\n"
+        )
+    return body
+
+
+def _format_suppression_false_positives(
+    messages: list[JSONMessage],
+    source_link: Callable[[JSONMessage], str],
+    action: str,
+) -> str:
+    """Fuse each ``suppressed-message`` into a single false-positive line.
+
+    A message a user had to disable is a false positive, and its
+    ``Suppressed 'x' (from line n)`` bookkeeping carries everything needed:
+    the symbol, the user's pragma line and the emission location.
+    """
+    body = ""
+    for count, msg in enumerate(messages, 1):
+        symbol = msg["message"].removeprefix("Suppressed ").rsplit(" (from line ", 1)[0]
+        body += (
+            f"{count}) False positive for {symbol} {action} at\n{source_link(msg)}\n"
+        )
+    return body
+
+
+def _details_section(title: str, body: str) -> str:
+    # Blank line after <details> required for GitHub markdown rendering.
+    return f"{title}\n\n<details>\n\n{body}</details>\n\n"
+
+
 class CompareCommand(PrimerCommand):
     def run(self) -> None:
-        if self.config.batches is None:
-            main_data = self._load_json(self.config.base_file)
-            pr_data = self._load_json(self.config.new_file)
-        else:
-            main_data = {}
-            pr_data = {}
-            for idx in range(self.config.batches):
-                main_data.update(
-                    self._load_json(
-                        self.config.base_file.replace("BATCHIDX", "batch" + str(idx))
-                    )
-                )
-                pr_data.update(
-                    self._load_json(
-                        self.config.new_file.replace("BATCHIDX", "batch" + str(idx))
-                    )
-                )
-
-        missing_messages_data, new_messages_data = self._cross_reference(
-            main_data, pr_data
+        comparator = Comparator.from_json(
+            self.config.base_file, self.config.new_file, self.config.batches
         )
-        comment = self._create_comment(missing_messages_data, new_messages_data)
+        comment = self._create_comment(comparator)
         with open(self.primer_directory / "comment.txt", "w", encoding="utf-8") as f:
             f.write(comment)
 
-    @staticmethod
-    def _cross_reference(
-        main_data: PackageMessages, pr_data: PackageMessages
-    ) -> tuple[PackageMessages, PackageMessages]:
-        missing_messages_data: PackageMessages = {}
-        for package, data in main_data.items():
-            package_missing_messages: list[OldJsonExport] = []
-            for message in data["messages"]:
-                try:
-                    pr_data[package]["messages"].remove(message)
-                except ValueError:
-                    package_missing_messages.append(message)
-            missing_messages_data[package] = PackageData(
-                commit=pr_data[package]["commit"], messages=package_missing_messages
-            )
-        return missing_messages_data, pr_data
-
-    @staticmethod
-    def _load_json(file_path: Path | str) -> PackageMessages:
-        with open(file_path, encoding="utf-8") as f:
-            result: PackageMessages = json.load(f)
-        return result
-
-    def _create_comment(
-        self, all_missing_messages: PackageMessages, all_new_messages: PackageMessages
-    ) -> str:
+    def _create_comment(self, comparator: Comparator) -> str:
         comment = ""
-        for package, missing_messages in all_missing_messages.items():
+        for diff in comparator:
             if len(comment) >= MAX_GITHUB_COMMENT_LENGTH:
                 break
-            new_messages = all_new_messages[package]
-            if not missing_messages["messages"] and not new_messages["messages"]:
-                continue
-            comment += self._create_comment_for_package(
-                package, new_messages, missing_messages
+            package = diff.package
+            url = self.packages[package].url
+            assert not url.endswith(
+                ".git"
+            ), "You don't need the .git at the end of the github url."
+            source_link = self._source_link_for(package, diff.new["commit"])
+            comment += f"\n**Effect on [{package}]({url}):**\n\n"
+            comment += self._format_changed_messages(diff.changed, source_link)
+            comment += self._format_diff_messages(
+                diff.new["messages"], diff.missing["messages"], source_link
             )
         comment = (
             f"🤖 **Effect of this PR on checked open source code:** 🤖\n\n{comment}"
@@ -89,70 +90,99 @@ class CompareCommand(PrimerCommand):
         )
         return self._truncate_comment(comment)
 
-    def _create_comment_for_package(
-        self, package: str, new_messages: PackageData, missing_messages: PackageData
-    ) -> str:
-        comment = f"\n\n**Effect on [{package}]({self.packages[package].url}):**\n"
-        # Create comment for new messages
-        count = 1
-        astroid_errors = 0
-        new_non_astroid_messages = ""
-        if new_messages["messages"]:
-            print("Now emitted:")
-        for message in new_messages["messages"]:
-            filepath = str(
-                PurePosixPath(message["path"]).relative_to(
-                    self.packages[package].clone_directory
-                )
-            )
-            # Existing astroid errors may still show up as "new" because the timestamp
-            # in the message is slightly different.
-            if message["symbol"] == "astroid-error":
-                astroid_errors += 1
-            else:
-                new_non_astroid_messages += (
-                    f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-                    f"{self.packages[package].url}/blob/{new_messages['commit']}/{filepath}#L{message['line']}\n"
-                )
-                print(message)
-                count += 1
+    def _source_link_for(
+        self, package: str, commit: str
+    ) -> Callable[[JSONMessage], str]:
+        clone_dir = self.packages[package].clone_directory
+        url = self.packages[package].url
 
+        def _link(msg: JSONMessage) -> str:
+            filepath = str(PurePosixPath(msg["path"]).relative_to(clone_dir))
+            return f"{url}/blob/{commit}/{filepath}#L{msg['line']}"
+
+        return _link
+
+    def _format_changed_messages(
+        self,
+        changed: list[ChangedMessage],
+        source_link: Callable[[JSONMessage], str],
+    ) -> str:
+        if not changed:
+            return ""
+        print("Changed:")
+        body = ""
+        for count, change in enumerate(changed, 1):
+            print(change.new)
+            body += (
+                f"{count}) [{change.new['symbol']}]({source_link(change.new)}):\n"
+                f"{message_diff(change)}\n"
+            )
+        return _details_section("Changed messages:", body)
+
+    def _format_diff_messages(
+        self,
+        new_messages: list[JSONMessage],
+        missing_messages: list[JSONMessage],
+        source_link: Callable[[JSONMessage], str],
+    ) -> str:
+        """Format new and removed messages, classifying suppression bookkeeping.
+
+        A message a user had to disable is a false positive: a removed
+        ``suppressed-message`` means such a false positive is no longer
+        emitted, a new one means a false positive is emitted (again) despite
+        the user's disable.  The comparator already dropped the
+        ``useless-suppression`` echo about the same pragma.
+        """
+        if new_messages:
+            print("Now emitted:")
+            for message in new_messages:
+                print(message)
+        if missing_messages:
+            print("No longer emitted:")
+            for message in missing_messages:
+                print(message)
+
+        astroid_errors = [m for m in new_messages if m["symbol"] == "astroid-error"]
+        fixed_fp = [m for m in missing_messages if m["symbol"] == "suppressed-message"]
+        reintroduced_fp = [
+            m for m in new_messages if m["symbol"] == "suppressed-message"
+        ]
+        other_new = [
+            m
+            for m in new_messages
+            if m["symbol"] not in {"astroid-error", "suppressed-message"}
+        ]
+        other_missing = [
+            m for m in missing_messages if m["symbol"] != "suppressed-message"
+        ]
+
+        out = ""
         if astroid_errors:
-            comment += (
-                f'{astroid_errors} "astroid error(s)" were found. '
+            out += (
+                f'{len(astroid_errors)} "astroid error(s)" were found. '
                 "Please open the GitHub Actions log to see what failed or crashed.\n\n"
             )
-        if new_non_astroid_messages:
-            comment += (
-                "The following messages are now emitted:\n\n<details>\n\n"
-                + new_non_astroid_messages
-                + "\n</details>\n\n"
+        if fixed_fp:
+            out += _details_section(
+                "🎉 Fixed false positives:",
+                _format_suppression_false_positives(fixed_fp, source_link, "removed"),
             )
-
-        # Create comment for missing messages
-        count = 1
-        if missing_messages["messages"]:
-            comment += "The following messages are no longer emitted:\n\n<details>\n\n"
-            print("No longer emitted:")
-        for message in missing_messages["messages"]:
-            comment += f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-            filepath = str(
-                PurePosixPath(message["path"]).relative_to(
-                    self.packages[package].clone_directory
-                )
+        if reintroduced_fp:
+            out += _details_section(
+                "⚠️ Reintroduced false positives:",
+                _format_suppression_false_positives(
+                    reintroduced_fp, source_link, "(disabled by user) reintroduced"
+                ),
             )
-            assert not self.packages[package].url.endswith(
-                ".git"
-            ), "You don't need the .git at the end of the github url."
-            comment += (
-                f"{self.packages[package].url}"
-                f"/blob/{new_messages['commit']}/{filepath}#L{message['line']}\n"
+        if other_new:
+            out += _details_section(
+                "New messages:", _format_messages(other_new, source_link)
             )
-            count += 1
-            print(message)
-        if missing_messages:
-            comment += "\n</details>\n\n"
-        return comment
+        if other_missing:
+            out += _details_section(
+                "Removed messages:", _format_messages(other_missing, source_link)
+            )
+        return out
 
     def _truncate_comment(self, comment: str) -> str:
         """GitHub allows only a set number of characters in a comment."""
@@ -164,11 +194,32 @@ class CompareCommand(PrimerCommand):
                 f"*This comment was truncated because GitHub allows only"
                 f" {MAX_GITHUB_COMMENT_LENGTH} characters in a comment.*"
             )
+            # Reserve space for the ellipsis, the suffix and the potential
+            # closing tags for a code fence and a <details> block.
+            suffix = f"\n{truncation_information}\n\n"
+            ellipsis = "\n...\n"
+            code_fence = "```\n"
+            closing_tag = "</details>\n"
             max_len = (
                 MAX_GITHUB_COMMENT_LENGTH
                 - len(hash_information)
-                - len(truncation_information)
+                - len(suffix)
+                - len(ellipsis)
+                - len(code_fence)
+                - len(closing_tag)
             )
-            comment = f"{comment[:max_len - 10]}...\n\n{truncation_information}\n\n"
+            # Cut at the last line break before the limit so the comment ends
+            # with complete lines (links and diff lines contain no space to
+            # cut at); fall back to a hard cut inside a very long line.
+            cut_point = comment.rfind("\n", 0, max_len)
+            if cut_point <= 0:
+                cut_point = max_len
+            comment = comment[:cut_point] + ellipsis
+            # Close any code fence or <details> tag left open by the cut.
+            if comment.count("```") % 2:
+                comment += code_fence
+            if comment.count("<details>") > comment.count("</details>"):
+                comment += closing_tag
+            comment += suffix
         comment += hash_information
         return comment

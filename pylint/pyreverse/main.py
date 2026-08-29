@@ -201,6 +201,17 @@ OPTIONS: Options = (
         },
     ),
     (
+        "no-signatures",
+        {
+            "action": "store_true",
+            "default": False,
+            "group": OPTIONS_GROUPS["DISPLAY"],
+            "help": (
+                "Show method names without parameter lists or return type annotations."
+            ),
+        },
+    ),
+    (
         "colorized",
         {
             "dest": "colorized",

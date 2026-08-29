@@ -1,0 +1,3 @@
+``wrong-import-position`` now exempts ``try``, ``if``, ``with``, and ``match`` blocks from marking the import boundary. Fixed ``async def`` not being detected as an import boundary. Pragma on non-import lines now suppresses following imports until the next non-import.
+
+Closes #10589

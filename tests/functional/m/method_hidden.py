@@ -2,6 +2,7 @@
 # pylint: disable=unused-private-member
 """check method hiding ancestor attribute
 """
+from functools import cached_property
 import functools as ft
 import something_else as functools  # pylint: disable=import-error
 
@@ -123,6 +124,12 @@ class CachedChild(Parent):
 
     @functools.cached_property
     def _protected_two(self):
+        pass
+
+
+class CachedChildFromImport(Parent):
+    @cached_property
+    def _protected(self):
         pass
 
 

@@ -1,0 +1,8 @@
+Fix a false negative for ``abstract-method`` where a concrete subclass
+inheriting from an abstract class (without redeclaring ``abc.ABC`` or
+``ABCMeta``) was treated as abstract and silently exempted from the check.
+A class is now only considered abstract when it opts in explicitly, via
+direct ``abc.ABC`` inheritance, ``metaclass=ABCMeta``, an
+``@abstractmethod`` defined on the class, or being a ``Protocol``.
+
+Closes #7950

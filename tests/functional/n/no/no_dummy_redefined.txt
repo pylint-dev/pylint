@@ -1,1 +1,1 @@
-redefined-outer-name:11:4:11:9:clobbering:Redefining name 'value' from outer scope (line 6):UNDEFINED
+redefined-outer-name:12:4:12:9:clobbering:Redefining name 'value' from outer scope (line 7):UNDEFINED

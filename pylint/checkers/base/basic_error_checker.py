@@ -313,6 +313,13 @@ class BasicErrorChecker(_BasicChecker):
         if isinstance(node.parent, (nodes.List, nodes.Tuple, nodes.Set, nodes.Dict)):
             # PEP 448 unpacking.
             return
+        if (
+            isinstance(node.parent, (nodes.ListComp, nodes.SetComp, nodes.GeneratorExp))
+            and node.parent.elt is node
+        ):
+            # PEP 798 unpacking in comprehensions (Python 3.15+), e.g.
+            # ``[*L for L in lists]``.
+            return
 
         stmt = node.statement()
         if not isinstance(stmt, nodes.Assign):
@@ -544,9 +551,9 @@ class BasicErrorChecker(_BasicChecker):
             self.add_message(
                 "useless-else-on-loop",
                 node=node,
-                # This is not optimal, but the line previous
-                # to the first statement in the else clause
-                # will usually be the one that contains the else:.
+                # The else keyword has no AST node; the line before
+                # the first statement in the else clause is the best
+                # approximation of its location.
                 line=node.orelse[0].lineno - 1,
             )
 
@@ -640,6 +647,9 @@ class BasicErrorChecker(_BasicChecker):
                     ):
                         return
 
+            dummy_variables_rgx = self.linter.config.dummy_variables_rgx
+            if dummy_variables_rgx and dummy_variables_rgx.match(node.name):
+                return
             self.add_message(
                 "function-redefined",
                 node=node,

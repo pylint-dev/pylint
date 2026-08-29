@@ -10,7 +10,13 @@ extend-exclude = [
     "messages/b/bare-name-capture-pattern/bad.py",
     "messages/s/star-needs-assignment-target/bad.py",
     "messages/i/invalid-star-assignment-target/bad.py",
+    "messages/u/using-exception-groups-in-unsupported-version/bad.py",
+    "messages/u/using-generic-type-syntax-in-unsupported-version/bad.py",
 ]
+
+# The examples showing off the newest syntax need the most recent grammar
+[per-file-target-version]
+"messages/u/using-comprehension-unpacking-in-unsupported-version/bad.py" = "py315"
 
 [lint]
 ignore = []

@@ -413,6 +413,18 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "messages.",
             },
         ),
+        (
+            "files",
+            {
+                "type": "csv",
+                "default": [],
+                "help": "The files to lint. The flag can also be omitted as pylint will "
+                "try to lint any file passed as argument. This can be used to set files "
+                "to a directory in a configuration file and invoke pylint by only typing "
+                "pylint on the command line. Any file passed as argument will overwrite any "
+                "file set in the configuration file.",
+            },
+        ),
     )
 
 
@@ -555,7 +567,7 @@ def _make_run_options(self: Run) -> Options:
                 "short": "E",
                 "help": "In error mode, messages with a category besides "
                 "ERROR or FATAL are suppressed, and no reports are done by default. "
-                "Error mode is compatible with disabling specific errors. ",
+                "Error mode is compatible with disabling specific errors.",
                 "hide_from_config_file": True,
             },
         ),

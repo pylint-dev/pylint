@@ -9,9 +9,10 @@ import copy
 import itertools
 import tokenize
 from collections.abc import Iterator
+from dataclasses import dataclass, field
 from functools import cached_property, reduce
 from re import Pattern
-from typing import TYPE_CHECKING, Any, NamedTuple, TypeAlias, cast
+from typing import TYPE_CHECKING, Any, TypeAlias, cast
 
 import astroid
 from astroid import bases, nodes, objects
@@ -20,7 +21,7 @@ from astroid.util import UninferableBase
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.base.basic_error_checker import _loop_exits_early
-from pylint.checkers.utils import node_frame_class
+from pylint.checkers.utils import node_frame_class, truncated_dict_suggestion
 from pylint.interfaces import HIGH, INFERENCE, Confidence
 
 if TYPE_CHECKING:
@@ -210,14 +211,31 @@ def _is_part_of_assignment_target(node: nodes.NodeNG) -> bool:
     return False
 
 
-class ConsiderUsingWithStack(NamedTuple):
+def _is_asynchronous_comprehension(comp: nodes.ListComp) -> bool:
+    """Check whether a comprehension would become an asynchronous generator.
+
+    That is the case when it uses ``async for``, or awaits anywhere but in its
+    outermost iterable, the only part evaluated outside of the generator.
+    """
+    if any(generator.is_async for generator in comp.generators):
+        return True
+
+    outermost_iterable = comp.generators[0].iter
+    return any(
+        node is not outermost_iterable and not outermost_iterable.parent_of(node)
+        for node in comp.nodes_of_class(nodes.Await)
+    )
+
+
+@dataclass
+class ConsiderUsingWithStack:
     """Stack for objects that may potentially trigger a R1732 message
     if they are not used in a ``with`` block later on.
     """
 
-    module_scope: dict[str, nodes.NodeNG] = {}
-    class_scope: dict[str, nodes.NodeNG] = {}
-    function_scope: dict[str, nodes.NodeNG] = {}
+    module_scope: dict[str, nodes.NodeNG] = field(default_factory=dict)
+    class_scope: dict[str, nodes.NodeNG] = field(default_factory=dict)
+    function_scope: dict[str, nodes.NodeNG] = field(default_factory=dict)
 
     def __iter__(self) -> Iterator[dict[str, nodes.NodeNG]]:
         yield from (self.function_scope, self.class_scope, self.module_scope)
@@ -1071,7 +1089,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     ) -> bool:
         """Return True if the exception node in argument inherit from StopIteration."""
         stopiteration_qname = f"{utils.EXCEPTIONS_MODULE}.StopIteration"
-        return any(_class.qname() == stopiteration_qname for _class in exc.mro())
+        # A class that lost its MRO still knows its bases, and they are all this
+        # lookup needs, so ``ancestors()`` keeps the message the MRO cannot give.
+        ancestors = utils.safe_mro(exc) or exc.ancestors()
+        return any(_class.qname() == stopiteration_qname for _class in ancestors)
 
     def _check_consider_using_comprehension_constructor(self, node: nodes.Call) -> None:
         match node:
@@ -1084,6 +1105,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         match name:
             case "dict":
                 if isinstance(element, nodes.Call):
+                    return
+
+                # ``dict([*pair_list for pair_list in pairs])`` (PEP 798)
+                # flattens its argument, so it is not equivalent to a
+                # key/value dict comprehension.
+                if isinstance(element, nodes.Starred):
                     return
 
                 # If we have an `IfExp` here where both the key AND value
@@ -1120,23 +1147,27 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             case _:
                 return
 
+        if _is_asynchronous_comprehension(comp):
+            # The generator expression would be an asynchronous generator,
+            # which none of these functions can consume.
+            return
+
         inside_comp = comp.as_string()[1:-1]  # remove square brackets '[]'
         if node.keywords:
             inside_comp = f"({inside_comp})"
             inside_comp += ", "
             inside_comp += ", ".join(kw.as_string() for kw in node.keywords)
-        if call_name in {"any", "all"}:
-            self.add_message(
-                "use-a-generator",
-                node=node,
-                args=(call_name, inside_comp),
-            )
-        else:
-            self.add_message(
-                "consider-using-generator",
-                node=node,
-                args=(call_name, inside_comp),
-            )
+        message_name = (
+            "use-a-generator"
+            if call_name in {"any", "all"}
+            else "consider-using-generator"
+        )
+        self.add_message(
+            message_name,
+            node=node,
+            args=(call_name, inside_comp),
+            confidence=HIGH,
+        )
 
     @utils.only_required_for_messages(
         "stop-iteration-return",
@@ -1165,16 +1196,20 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         match node:
             case nodes.Yield(
                 value=nodes.Name(name=name),
-                parent=nodes.Expr(parent=nodes.For(body=[_]) as loop_node),
-            ) if not isinstance(loop_node, nodes.AsyncFor):
+                parent=nodes.Expr(
+                    parent=nodes.For(
+                        target=nodes.AssignName(name=target_name),
+                        body=[_],
+                    ) as loop_node
+                ),
+            ) if (
+                not isinstance(loop_node, nodes.AsyncFor) and target_name == name
+            ):
                 pass
             case _:
                 # Avoid a false positive if the return value from `yield` is used,
                 # (such as via Assign, AugAssign, etc).
                 return
-
-        if loop_node.target.name != name:
-            return
 
         if isinstance(node.frame(), nodes.AsyncFunctionDef):
             return
@@ -1396,7 +1431,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         # Gather information for the suggestion
-        common_variable = sorted(list(common_variables))[0]
+        common_variable = min(common_variables)
         values = list(collections.OrderedDict.fromkeys(values))
         values.remove(common_variable)
         values_string = ", ".join(values) if len(values) != 1 else values[0] + ","
@@ -1732,18 +1767,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     @staticmethod
     def _dict_literal_suggestion(node: nodes.Call) -> str:
         """Return a suggestion of reasonable length."""
-        elements: list[str] = []
-        for keyword in node.keywords:
-            if len(", ".join(elements)) >= 64:
-                break
-            if keyword not in node.kwargs:
-                elements.append(f'"{keyword.arg}": {keyword.value.as_string()}')
-        for keyword in node.kwargs:
-            if len(", ".join(elements)) >= 64:
-                break
-            elements.append(f"**{keyword.value.as_string()}")
-        suggestion = ", ".join(elements)
-        return f"{{{suggestion}{', ... '  if len(suggestion) > 64 else ''}}}"
+
+        def _elements() -> Iterator[str]:
+            for keyword in node.keywords:
+                if keyword not in node.kwargs:
+                    yield f'"{keyword.arg}": {keyword.value.as_string()}'
+            for keyword in node.kwargs:
+                yield f"**{keyword.value.as_string()}"
+
+        return truncated_dict_suggestion(_elements())
 
     def _name_to_concatenate(self, node: nodes.NodeNG) -> str | None:
         """Try to extract the name used in a concatenation loop."""
@@ -1857,36 +1889,40 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             case _:
                 return
         if expr_list == target_list and expr_list:
-            args: tuple[str] | None = None
-            inferred = utils.safe_infer(node.iter)
-            match (node.parent, inferred):
-                case [nodes.DictComp(), objects.DictItems()]:
-                    args = (f"dict({node.iter.func.expr.as_string()})",)
-                case [nodes.ListComp(), nodes.List()]:
-                    args = (f"list({node.iter.as_string()})",)
-                case [nodes.SetComp(), nodes.Set()]:
-                    args = (f"set({node.iter.as_string()})",)
-            if args:
-                self.add_message(
-                    "unnecessary-comprehension", node=node.parent, args=args
-                )
-                return
-
-            match node.parent:
-                case nodes.DictComp():
-                    func = "dict"
-                case nodes.ListComp():
-                    func = "list"
-                case nodes.SetComp():
-                    func = "set"
-                case _:  # pragma: no cover
-                    raise AssertionError
-
             self.add_message(
                 "unnecessary-comprehension",
                 node=node.parent,
-                args=(f"{func}({node.iter.as_string()})",),
+                args=self._unnecessary_comprehension_suggestion(node),
             )
+
+    @staticmethod
+    def _unnecessary_comprehension_suggestion(
+        node: nodes.Comprehension,
+    ) -> tuple[str]:
+        """Build the replacement suggested by ``unnecessary-comprehension``."""
+        inferred = utils.safe_infer(node.iter)
+        match (node.parent, inferred):
+            case [nodes.DictComp(), objects.DictItems()]:
+                return (f"dict({node.iter.func.expr.as_string()})",)
+            case [nodes.DictComp(), nodes.Dict()]:
+                # Iterating a dict yields its keys, so the comprehension
+                # rebuilds a dict from them; ``dict(d)`` would just copy ``d``
+                # and is the wrong suggestion (see #8256).
+                return (f"dict({node.iter.as_string()}.keys())",)
+            case [nodes.ListComp(), nodes.List()]:
+                return (f"list({node.iter.as_string()})",)
+            case [nodes.SetComp(), nodes.Set()]:
+                return (f"set({node.iter.as_string()})",)
+        match node.parent:
+            case nodes.DictComp():
+                func = "dict"
+            case nodes.ListComp():
+                func = "list"
+            case nodes.SetComp():
+                func = "set"
+            case _:  # pragma: no cover
+                raise AssertionError
+        return (f"{func}({node.iter.as_string()})",)
 
     @staticmethod
     def _is_and_or_ternary(node: nodes.NodeNG | None) -> bool:
@@ -2020,7 +2056,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 if utils.is_terminating_func(node):
                     return True
                 return any(
-                    isinstance(maybe_func, (nodes.FunctionDef, bases.BoundMethod))
+                    isinstance(
+                        maybe_func,
+                        (nodes.FunctionDef, bases.BoundMethod, bases.UnboundMethod),
+                    )
                     and self._is_function_def_never_returning(maybe_func)
                     for maybe_func in utils.infer_all(node.func)
                 )
@@ -2061,12 +2100,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False
 
     def _is_function_def_never_returning(
-        self, node: nodes.FunctionDef | astroid.BoundMethod
+        self,
+        node: nodes.FunctionDef | astroid.BoundMethod | astroid.UnboundMethod,
     ) -> bool:
         """Return True if the function never returns, False otherwise.
 
         Args:
-            node (nodes.FunctionDef or astroid.BoundMethod): function definition node to be analyzed.
+            node (nodes.FunctionDef, astroid.BoundMethod, or astroid.UnboundMethod):
+                function definition node to be analyzed.
 
         Returns:
             bool: True if the function never returns, False otherwise.
@@ -2422,14 +2463,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             start_val, confidence = self._get_start_value(start_arg)
             if start_val is None:
                 return False, confidence
-            return not start_val == 0, confidence
+            return start_val != 0, confidence
 
         for keyword in node.iter.keywords:
             if keyword.arg == "start":
                 start_val, confidence = self._get_start_value(keyword.value)
                 if start_val is None:
                     return False, confidence
-                return not start_val == 0, confidence
+                return start_val != 0, confidence
 
         return False, confidence
 

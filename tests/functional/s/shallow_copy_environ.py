@@ -35,3 +35,7 @@ copy.copy(x=os.environ)  # [shallow-copy-environ]
 copy.copy(**{"x": os.environ})  # [shallow-copy-environ]
 copy.copy(**{"y": os.environ})  # [unexpected-keyword-arg]
 copy.copy(y=os.environ)  # [no-value-for-parameter, unexpected-keyword-arg]
+
+# Keys that are not string constants must not crash the checker
+copy.copy(**{-1: 1})
+copy.copy(**{None: 1})

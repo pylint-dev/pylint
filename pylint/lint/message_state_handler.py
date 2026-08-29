@@ -6,15 +6,13 @@ from __future__ import annotations
 
 import tokenize
 from collections import defaultdict
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 from pylint import exceptions, interfaces
 from pylint.constants import (
-    MSG_STATE_CONFIDENCE,
-    MSG_STATE_SCOPE_CONFIG,
-    MSG_STATE_SCOPE_MODULE,
     MSG_TYPES,
     MSG_TYPES_LONG,
+    MessageDisableReason,
 )
 from pylint.interfaces import HIGH
 from pylint.message import MessageDefinition
@@ -28,6 +26,9 @@ from pylint.utils.pragma_parser import (
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
+
+
+CONTROL_PRAGMAS = frozenset({"disable", "disable-next", "enable"})
 
 
 class _MessageStateHandler:
@@ -256,24 +257,22 @@ class _MessageStateHandler:
         print("\nNon-emittable messages with current interpreter:")
         for msg_def in non_emittable:
             print(f"  {msg_def.symbol} ({msg_def.msgid})")
-        print("")
+        print()
 
     def _get_message_state_scope(
         self,
         msgid: str,
-        line: int | None = None,
-        confidence: interfaces.Confidence | None = None,
-    ) -> Literal[0, 1, 2] | None:
-        """Returns the scope at which a message was enabled/disabled."""
-        if confidence is None:
-            confidence = interfaces.UNDEFINED
+        line: int | None,
+        confidence: interfaces.Confidence,
+    ) -> MessageDisableReason | None:
+        """Return the scope at which the message was disabled / filtered."""
         if confidence.name not in self.linter.config.confidence:
-            return MSG_STATE_CONFIDENCE  # type: ignore[return-value] # mypy does not infer Literal correctly
+            return MessageDisableReason.CONFIDENCE
         try:
             if line in self.linter.file_state._module_msgs_state[msgid]:
-                return MSG_STATE_SCOPE_MODULE  # type: ignore[return-value]
+                return MessageDisableReason.MODULE
         except (KeyError, TypeError):
-            return MSG_STATE_SCOPE_CONFIG  # type: ignore[return-value]
+            return MessageDisableReason.CONFIG
         return None
 
     def _is_one_message_enabled(self, msgid: str, line: int | None) -> bool:
@@ -350,7 +349,7 @@ class _MessageStateHandler:
 
         See func_block_disable_msg.py test case for expected behaviour.
         """
-        control_pragmas = {"disable", "disable-next", "enable"}
+        self._pragma_lineno = {}
         prev_line = None
         saw_newline = True
         seen_newline = True
@@ -395,7 +394,7 @@ class _MessageStateHandler:
                         )
                     for msgid in pragma_repr.messages:
                         # Add the line where a control pragma was encountered.
-                        if pragma_repr.action in control_pragmas:
+                        if pragma_repr.action in CONTROL_PRAGMAS:
                             self._pragma_lineno[msgid] = start[0]
 
                         if (pragma_repr.action, msgid) == ("disable", "all"):

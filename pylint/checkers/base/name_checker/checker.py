@@ -40,10 +40,12 @@ _BadNamesTuple = tuple[nodes.NodeNG, str, str, interfaces.Confidence]
 # Default patterns for name types that do not have styles
 DEFAULT_PATTERNS = {
     "typevar": re.compile(
-        r"^_{0,2}(?!T[A-Z])(?:[A-Z]+|(?:[A-Z]+[a-z]+)+(?:T)?(?<!Type))(?:_co(?:ntra)?)?$"
+        r"^_{0,2}(?!T[A-Z])(?:[A-Z]+|(?:[A-Z]+[a-z0-9]+)+(?:T)?(?<!Type))(?:_co(?:ntra)?)?$"
     ),
-    "paramspec": re.compile(r"^_{0,2}(?:[A-Z]+|(?:[A-Z]+[a-z]+)+(?:P)?(?<!Type))$"),
-    "typevartuple": re.compile(r"^_{0,2}(?:[A-Z]+|(?:[A-Z]+[a-z]+)+(?:Ts)?(?<!Type))$"),
+    "paramspec": re.compile(r"^_{0,2}(?:[A-Z]+|(?:[A-Z]+[a-z0-9]+)+(?:P)?(?<!Type))$"),
+    "typevartuple": re.compile(
+        r"^_{0,2}(?:[A-Z]+|(?:[A-Z]+[a-z0-9]+)+(?:Ts)?(?<!Type))$"
+    ),
     "typealias": re.compile(
         r"^_{0,2}(?!T[A-Z]|Type)[A-Z]+[a-z0-9]+(?:[A-Z][a-z0-9]+)*$"
     ),
@@ -109,6 +111,42 @@ def _redefines_import(node: nodes.AssignName) -> bool:
                     return True
             elif name == node.name:
                 return True
+    return False
+
+
+def _is_dunder_main_test(test: nodes.NodeNG) -> bool:
+    """Detect a ``__name__ == "__main__"`` comparison (in either order)."""
+    if not isinstance(test, nodes.Compare) or [op for op, _ in test.ops] != ["=="]:
+        return False
+    operands = [test.left, test.ops[0][1]]
+    has_name = any(
+        isinstance(operand, nodes.Name) and operand.name == "__name__"
+        for operand in operands
+    )
+    has_main = any(
+        isinstance(operand, nodes.Const) and operand.value == "__main__"
+        for operand in operands
+    )
+    return has_name and has_main
+
+
+def _in_dunder_main_block(node: nodes.AssignName) -> bool:
+    """Detect that the given node is assigned in an
+    ``if __name__ == "__main__":`` block.
+
+    Returns True if the node is in the body of such a block, False otherwise.
+    """
+    child = node
+    parent = node.parent
+    while parent is not None and not isinstance(parent, nodes.Module):
+        if (
+            isinstance(parent, nodes.If)
+            and _is_dunder_main_test(parent.test)
+            and child in parent.body
+        ):
+            return True
+        child = parent
+        parent = parent.parent
     return False
 
 
@@ -373,7 +411,9 @@ class NameChecker(_BasicChecker):
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         self._check_name("class", node.name, node)
         for attr, anodes in node.instance_attrs.items():
-            if not any(node.instance_attr_ancestors(attr)):
+            if not any(
+                node.instance_attr_ancestors(attr)
+            ) and not utils.is_assign_name_annotated_with(anodes[0], "Final"):
                 self._check_name("attr", attr, anodes[0])
 
     @utils.only_required_for_messages("disallowed-name", "invalid-name")
@@ -448,7 +488,9 @@ class NameChecker(_BasicChecker):
                 )
 
                 # Check TypeVar's and TypeAliases assigned alone or in tuple assignment
-                if isinstance(node.parent, nodes.Assign):
+                if isinstance(node.parent, nodes.Assign) and isinstance(
+                    assign_type.targets[0], nodes.AssignName
+                ):
                     if typevar_node_type := self._assigns_typevar(assign_type.value):
                         self._check_name(
                             typevar_node_type, assign_type.targets[0].name, node
@@ -484,12 +526,12 @@ class NameChecker(_BasicChecker):
                         )
                         return
 
-                # Check classes (TypeVar's are classes so they need to be excluded first)
-                elif isinstance(inferred_assign_type, nodes.ClassDef):
-                    self._check_name("class", node.name, node)
-
                 elif inferred_assign_type in (None, util.Uninferable):
                     return
+
+                # Check classes (TypeVar's are classes so they need to be excluded first)
+                elif self._should_check_class_regex(inferred_assign_type):
+                    self._check_name("class", node.name, node)
 
                 # Don't emit if the name redefines an import in an ImportError except handler
                 # nor any other reassignment.
@@ -507,22 +549,39 @@ class NameChecker(_BasicChecker):
                     if not self._meets_exception_for_non_consts(
                         inferred_assign_type, node.name
                     ):
-                        self._check_name("const", node.name, node)
+                        node_type = (
+                            self._name_type_in_main_block(node)
+                            if _in_dunder_main_block(node)
+                            else "const"
+                        )
+                        self._check_name(node_type, node.name, node)
                 else:
                     node_type = "variable"
+                    iattrs = tuple(node.frame().igetattr(node.name))
                     if (
-                        (iattrs := tuple(node.frame().igetattr(node.name)))
-                        and util.Uninferable not in iattrs
-                        and len(iattrs) == 2
-                        and astroid.are_exclusive(*iattrs)
+                        util.Uninferable in iattrs
+                        and self._name_regexps["const"].match(node.name) is not None
+                    ):
+                        return
+                    # Do the exclusive assignment analysis on attrs, not iattrs.
+                    # iattrs locations could be anywhere (inference result).
+                    attrs = tuple(node.frame().getattr(node.name))
+                    if len(attrs) > 1 and all(
+                        astroid.are_exclusive(*combo)
+                        for combo in itertools.combinations(attrs, 2)
                     ):
                         node_type = "const"
-                    self._check_name(
-                        node_type,
-                        node.name,
-                        node,
-                        disallowed_check_only=redefines_import,
-                    )
+                    if not self._meets_exception_for_non_consts(
+                        inferred_assign_type, node.name
+                    ):
+                        if node_type == "const" and _in_dunder_main_block(node):
+                            node_type = self._name_type_in_main_block(node)
+                        self._check_name(
+                            node_type,
+                            node.name,
+                            node,
+                            disallowed_check_only=redefines_import,
+                        )
 
         # Check names defined in function scopes
         elif isinstance(frame, nodes.FunctionDef):
@@ -540,12 +599,30 @@ class NameChecker(_BasicChecker):
         elif isinstance(frame, nodes.ClassDef) and not any(
             frame.local_attr_ancestors(node.name)
         ):
-            if utils.is_enum_member(node) or utils.is_assign_name_annotated_with(
-                node, "Final"
-            ):
+            if utils.is_assign_name_annotated_with_class_var_typing_name(node, "Final"):
+                self._check_name("class_const", node.name, node)
+            elif utils.is_assign_name_annotated_with(node, "Final"):
+                if frame.is_dataclass:
+                    self._check_name("class_attribute", node.name, node)
+                else:
+                    self._check_name("class_const", node.name, node)
+            elif utils.is_enum_member(node):
                 self._check_name("class_const", node.name, node)
             else:
                 self._check_name("class_attribute", node.name, node)
+
+    def _name_type_in_main_block(self, node: nodes.AssignName) -> str:
+        """Name type to check a name assigned in an ``if __name__ == "__main__":``
+        block against.
+
+        Such a block reads like a script body, so a name there may legitimately
+        follow either the constant or the variable naming style. Returning the
+        style the name already conforms to lets both pass, and reports the name
+        against the variable style when it conforms to neither.
+        """
+        if self._name_regexps["const"].match(node.name) is not None:
+            return "const"
+        return "variable"
 
     def _meets_exception_for_non_consts(
         self, inferred_assign_type: InferenceResult | None, name: str
@@ -554,6 +631,29 @@ class NameChecker(_BasicChecker):
             return False
         regexp = self._name_regexps["variable"]
         return regexp.match(name) is not None
+
+    def _should_check_class_regex(
+        self, inferred_assign_type: InferenceResult | None
+    ) -> bool:
+        if isinstance(inferred_assign_type, nodes.ClassDef):
+            return True
+        if isinstance(inferred_assign_type, bases.Instance):
+            if "EnumMeta" in {
+                ancestor.name for ancestor in utils.safe_mro(inferred_assign_type)
+            }:
+                return True
+            # The functional syntax `X = TypedDict("X", {...})` defines a new type,
+            # and is inferred as an instance of `TypedDict` itself. Instantiating a
+            # `TypedDict` subclass only builds a value, so its name is not a class
+            # name.
+            if inferred_assign_type._proxied.name == "TypedDict":
+                return True
+        if (
+            isinstance(inferred_assign_type, nodes.FunctionDef)
+            and inferred_assign_type.qname() == "typing.Annotated"
+        ):
+            return True
+        return False
 
     def _recursive_check_names(self, args: list[nodes.AssignName]) -> None:
         """Check names in a possibly recursive list <arg>."""
@@ -697,6 +797,8 @@ class NameChecker(_BasicChecker):
 
         name_arg = None
         for kw in keywords:
+            if not isinstance(kw.value, nodes.Const):
+                continue
             if variance == TypeVarVariance.double_variant:
                 pass
             elif kw.arg == "covariant" and kw.value.value:
@@ -711,8 +813,7 @@ class NameChecker(_BasicChecker):
                     if variance != TypeVarVariance.covariant
                     else TypeVarVariance.double_variant
                 )
-
-            if kw.arg == "name" and isinstance(kw.value, nodes.Const):
+            if kw.arg == "name":
                 name_arg = kw.value.value
 
         if name_arg is None and args and isinstance(args[0], nodes.Const):

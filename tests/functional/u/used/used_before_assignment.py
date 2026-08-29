@@ -297,3 +297,19 @@ def conditional_import():
         os = None
     if os:
         pass
+
+
+def conditional_wildcard_import():  # pylint: disable=too-many-locals
+    if input():
+        from os.path import *  # pylint: disable=wildcard-import
+    else:
+        from os.path import *  # pylint: disable=wildcard-import
+    print(join("a", "b"))
+
+
+def conditional_wildcard_import_unresolvable():
+    if input():
+        x = 1
+    else:
+        from __nonexistent_module_xyz__ import *  # pylint: disable=wildcard-import, import-error
+    print(x)  # [possibly-used-before-assignment]

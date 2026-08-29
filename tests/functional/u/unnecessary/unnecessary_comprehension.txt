@@ -13,3 +13,4 @@ unnecessary-comprehension:48:0:48:26::Unnecessary use of a comprehension, use li
 unnecessary-comprehension:49:8:49:42::Unnecessary use of a comprehension, use dict(my_dict) instead.:UNDEFINED
 consider-using-dict-items:50:0:None:None::Consider iterating with .items():UNDEFINED
 unnecessary-comprehension:51:0:51:25::Unnecessary use of a comprehension, use set(my_set) instead.:UNDEFINED
+unnecessary-comprehension:56:0:56:39::Unnecessary use of a comprehension, use dict(DICT_WITH_TUPLE_KEYS.keys()) instead.:UNDEFINED

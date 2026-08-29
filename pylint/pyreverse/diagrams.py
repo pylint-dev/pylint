@@ -7,13 +7,16 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import astroid
 from astroid import nodes, objects, util
 
 from pylint.checkers.utils import decorated_with_property, in_type_checking_block
 from pylint.pyreverse.utils import FilterMixIn, get_annotation_label
+
+if TYPE_CHECKING:
+    from pylint.pyreverse.inspector import Linker
 
 
 class Figure:
@@ -82,10 +85,11 @@ class ClassDiagram(Figure, FilterMixIn):
 
     TYPE = "class"
 
-    def __init__(self, title: str, mode: str) -> None:
+    def __init__(self, title: str, mode: str, linker: Linker) -> None:
         FilterMixIn.__init__(self, mode)
         Figure.__init__(self)
         self.title = title
+        self.linker = linker
         # TODO: Specify 'Any' after refactor of `DiagramEntity`
         self.objects: list[Any] = []
         self.relationships: dict[str, list[Relationship]] = {}
@@ -121,6 +125,7 @@ class ClassDiagram(Figure, FilterMixIn):
     def get_attrs(self, node: nodes.ClassDef) -> list[str]:
         """Return visible attributes, possibly with class name."""
         attrs = []
+        info = self.linker.class_info[node]
 
         # Collect functions decorated with @property
         properties = {
@@ -131,8 +136,8 @@ class ClassDiagram(Figure, FilterMixIn):
         }
 
         # Add instance attributes to properties
-        for attr_name, attr_type in list(node.locals_type.items()) + list(
-            node.instance_attrs_type.items()
+        for attr_name, attr_type in list(info.locals_type.items()) + list(
+            info.instance_attrs_type.items()
         ):
             if attr_name not in properties:
                 properties[attr_name] = attr_type
@@ -223,6 +228,7 @@ class ClassDiagram(Figure, FilterMixIn):
         """Extract relationships between nodes in the diagram."""
         for obj in self.classes():
             node = obj.node
+            info = self.linker.class_info[node]
             obj.attrs = self.get_attrs(node)
             obj.methods = self.get_methods(node)
             obj.shape = "class"
@@ -241,7 +247,7 @@ class ClassDiagram(Figure, FilterMixIn):
             # Process in priority order: Composition > Aggregation > Association
 
             # 1. Composition links (highest priority)
-            for name, values in list(node.compositions_type.items()):
+            for name, values in list(info.compositions_type.items()):
                 if not self.show_attr(name):
                     continue
                 for value in values:
@@ -251,7 +257,7 @@ class ClassDiagram(Figure, FilterMixIn):
                     processed_attrs.add(name)
 
             # 2. Aggregation links (medium priority)
-            for name, values in list(node.aggregations_type.items()):
+            for name, values in list(info.aggregations_type.items()):
                 if not self.show_attr(name) or name in processed_attrs:
                     continue
                 for value in values:
@@ -261,8 +267,8 @@ class ClassDiagram(Figure, FilterMixIn):
                     processed_attrs.add(name)
 
             # 3. Association links (lowest priority)
-            associations = node.associations_type.copy()
-            for name, values in node.locals_type.items():
+            associations = info.associations_type.copy()
+            for name, values in info.locals_type.items():
                 if name not in associations:
                     associations[name] = values
 
@@ -331,14 +337,15 @@ class PackageDiagram(ClassDiagram):
         """Add dependencies created by from-imports."""
         mod_name = node.root().name
         package = self.module(mod_name).node
+        info = self.linker.module_info[package]
 
-        if from_module in package.depends:
+        if from_module in info.depends:
             return
 
         if not in_type_checking_block(node):
-            package.depends.append(from_module)
-        elif from_module not in package.type_depends:
-            package.type_depends.append(from_module)
+            info.depends.append(from_module)
+        elif from_module not in info.type_depends:
+            info.type_depends.append(from_module)
 
     def extract_relationships(self) -> None:
         """Extract relationships between nodes in the diagram."""
@@ -352,15 +359,16 @@ class PackageDiagram(ClassDiagram):
                 continue
         for package_obj in self.modules():
             package_obj.shape = "package"
+            info = self.linker.module_info[package_obj.node]
             # dependencies
-            for dep_name in package_obj.node.depends:
+            for dep_name in info.depends:
                 try:
                     dep = self.get_module(dep_name, package_obj.node)
                 except KeyError:
                     continue
                 self.add_relationship(package_obj, dep, "depends")
 
-            for dep_name in package_obj.node.type_depends:
+            for dep_name in info.type_depends:
                 try:
                     dep = self.get_module(dep_name, package_obj.node)
                 except KeyError:  # pragma: no cover

@@ -1,0 +1,3 @@
+``dangerous-default-value`` now detects mutable default values in ``typing.NamedTuple`` field definitions.
+
+Closes #3716

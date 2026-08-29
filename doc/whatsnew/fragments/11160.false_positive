@@ -1,0 +1,4 @@
+Fix a false positive for ``protected-access`` when a protected member is
+accessed through ``self.__class__``, which is now treated like ``type(self)``.
+
+Closes #11160

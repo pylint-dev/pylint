@@ -1,5 +1,5 @@
 """Testing inconsistent returns involving typing.NoReturn annotations."""
-# pylint: disable=missing-docstring, invalid-name
+# pylint: disable=missing-docstring, invalid-name, too-few-public-methods
 
 import sys
 import typing
@@ -103,6 +103,21 @@ class ClassUnderTest:
             return n
         except ValueError:
             self._falsely_no_return_method()
+
+
+# https://github.com/pylint-dev/pylint/issues/9692
+class ClassWithNoReturnMethod:
+    def raise_instance_method(self) -> NoReturn:
+        raise RuntimeError
+
+def bug_pylint_9692(obj):
+    """Every return is consistent because raise_instance_method is annotated
+    NoReturn, even when called as an unbound method via the class.
+    """
+    if __name__:
+        return None
+    ClassWithNoReturnMethod.raise_instance_method(obj)
+
 
 # https://github.com/pylint-dev/pylint/issues/7565
 def never_is_handled_like_noreturn(arg: typing.Union[int, str]) -> int:

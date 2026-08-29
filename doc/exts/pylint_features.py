@@ -30,13 +30,11 @@ def builder_inited(app: Sphinx | None) -> None:
     features = os.path.join(base_path, "doc", "user_guide", "checkers", "features.rst")
     with open(features, "w", encoding="utf-8") as stream:
         stream.write(get_rst_title("Pylint features", "="))
-        stream.write(
-            """
+        stream.write("""
 .. This file is auto-generated. Make any changes to the associated
 .. docs extension in 'doc/exts/pylint_features.py'.
 
-"""
-        )
+""")
         print_full_documentation(linter, stream, False)
 
 

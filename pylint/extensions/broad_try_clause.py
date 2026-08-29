@@ -64,9 +64,7 @@ class BroadTryClauseChecker(checkers.BaseChecker):
                 f"try clause contains {try_clause_statements} statements, expected at"
                 f" most {self.linter.config.max_try_statements}"
             )
-            self.add_message(
-                "too-many-try-statements", node.lineno, node=node, args=msg
-            )
+            self.add_message("too-many-try-statements", node=node, args=msg)
 
 
 def register(linter: PyLinter) -> None:

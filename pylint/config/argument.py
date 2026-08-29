@@ -229,7 +229,6 @@ class _StoreArgument(_BaseStoreArgument):
     https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
     """
 
-    # pylint: disable-next=too-many-arguments
     def __init__(
         self,
         *,
@@ -307,7 +306,6 @@ class _DeprecationArgument(_Argument):
     https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
     """
 
-    # pylint: disable-next=too-many-arguments
     def __init__(
         self,
         *,
@@ -397,7 +395,6 @@ class _StoreOldNamesArgument(_DeprecationArgument):
     https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
     """
 
-    # pylint: disable-next=too-many-arguments
     def __init__(
         self,
         *,
@@ -435,7 +432,6 @@ class _StoreNewNamesArgument(_DeprecationArgument):
     https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
     """
 
-    # pylint: disable-next=too-many-arguments
     def __init__(
         self,
         *,

@@ -350,3 +350,89 @@ def yield_in_for_loop(a=None, b=None, c=None):  # [too-complex]
             yield elt
     if c is not None:
         yield c
+
+
+try:  # [too-complex]
+    # McCabe rating: 5
+    if True:
+        pass
+    else:
+        pass
+except TypeA:
+    pass
+except TypeB:
+    pass
+
+
+match avg:  # [too-complex]
+    # McCabe rating: 4
+    # pylint: disable=bare-name-capture-pattern
+    case avg if avg < 0.3:
+        avg_grade = "F"
+    case avg if avg < 0.7:
+        avg_grade = "E+"
+    case _:
+        avg_grade = "A"
+
+
+def non_exhaustive_match(value):  # [too-complex]
+    """McCabe rating: 3
+
+    No case may apply: the fall-through path counts, as an if/elif would."""
+    match value:
+        case 1:
+            result = "one"
+        case 2:
+            result = "two"
+    return result
+
+
+def match_capture_name(value):  # [too-complex]
+    """McCabe rating: 3
+
+    An unguarded capture name always matches, no other case is tried."""
+    # pylint: disable=bare-name-capture-pattern
+    match value:
+        case 1:
+            result = "one"
+        case something_else:
+            result = str(something_else)
+    return result
+
+
+def match_guarded_wildcard(value):  # [too-complex]
+    """McCabe rating: 3
+
+    A guarded wildcard can fail to match: the fall-through path counts."""
+    match value:
+        case 1:
+            result = "one"
+        case _ if value > 0:
+            result = "positive"
+    return result
+
+
+class PropertyAccessors:  # pylint: disable=too-few-public-methods
+    """Only the last definition of a given name is rated: the deleter
+    hides the more complex getter and setter."""
+
+    @property
+    def attribute(self):
+        """McCabe rating: 2 (not reported: hidden by the deleter)"""
+        if self._attribute is None:
+            raise ValueError("not set")
+        return self._attribute
+
+    @attribute.setter
+    def attribute(self, value):
+        """McCabe rating: 3 (not reported: hidden by the deleter)"""
+        if value is None:
+            raise ValueError("cannot unset")
+        if not isinstance(value, int):
+            value = int(value)
+        self._attribute = value
+
+    @attribute.deleter
+    def attribute(self):  # [too-complex]
+        """McCabe rating: 1"""
+        self._attribute = None

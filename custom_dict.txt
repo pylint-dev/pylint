@@ -24,6 +24,7 @@ asynccontextmanager
 attr
 attrib
 attrname
+attrs
 backport
 BaseChecker
 basename
@@ -40,6 +41,7 @@ boundmethod
 builtins
 bw
 callables
+callee
 cardinality
 cd
 cfg
@@ -56,6 +58,7 @@ classobj
 CLI
 cls
 cmp
+cnode
 codebase
 codec
 codecs
@@ -142,8 +145,10 @@ grey
 guido's
 gv
 hashable
+hashlib
 hmac
 html
+iattrs
 idgeneratormixin
 ifexpr
 igetattr
@@ -198,6 +203,7 @@ mapfile
 mapreduce
 maxsize
 maxsplit
+mccabe
 mcs
 mermaidjs
 metaclass
@@ -226,6 +232,7 @@ mymodule
 mypy
 namedtuple
 namespace
+NaN
 newsfile
 newstyle
 nl
@@ -274,6 +281,7 @@ pylintrc
 pyproject
 pypy
 pyreverse
+pyright
 pytest
 qname
 rawcheckers
@@ -284,6 +292,7 @@ readlines
 recognise
 recurse
 recurses
+recursing
 redef
 reportid
 rgx
@@ -350,6 +359,7 @@ tomlkit
 toplevel
 towncrier
 tp
+traceback
 truthey
 truthness
 truthy
@@ -364,6 +374,7 @@ uid
 uml
 un
 unary
+unboundmethod
 unflattens
 unhandled
 unicode

@@ -157,3 +157,8 @@ class A:
 A.var = 2
 if A.var:
     ...
+
+
+i: int
+if i:  # pylint: disable=used-before-assignment
+    pass

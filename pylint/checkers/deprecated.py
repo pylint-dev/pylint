@@ -106,12 +106,13 @@ class DeprecatedMixin(BaseChecker):
             # Calling entry point for deprecation check logic.
             self.check_deprecated_method(node, inferred)
 
-            if (
+            if (  # pylint: disable=too-many-boolean-expressions
                 isinstance(inferred, nodes.FunctionDef)
                 and inferred.qname() == "builtins.__import__"
                 and len(node.args) == 1
                 and (mod_path_node := utils.safe_infer(node.args[0]))
                 and isinstance(mod_path_node, nodes.Const)
+                and isinstance(mod_path_node.value, str)
             ):
                 self.check_deprecated_module(node, mod_path_node.value)
 
@@ -158,6 +159,8 @@ class DeprecatedMixin(BaseChecker):
         basename = get_import_name(node, node.modname)
         assert basename is not None, "Module name should not be None"
         self.check_deprecated_module(node, basename)
+        if isinstance(node.parent, nodes.If) and utils.is_sys_guard(node.parent):
+            return
         class_names = (name for name, _ in node.names)
         self.check_deprecated_class(node, basename, class_names)
 

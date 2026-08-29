@@ -2,4 +2,4 @@
 # pylint: disable=unused-import,undefined-variable,import-error
 if x:
     import os
-import y  # [wrong-import-position]
+import y

@@ -117,6 +117,13 @@ def test_no_return():
 
 test_no_return(internal_arg=2)  # [unexpected-keyword-arg]
 
+# Test that we don't crash when infer_call_result raises InferenceError
+@callable
+def test_callable_decorator():
+    pass
+
+
+test_callable_decorator(a=lambda: None)  # [unexpected-keyword-arg]
 
 def ambiguous_func1(arg1):
     print(arg1)

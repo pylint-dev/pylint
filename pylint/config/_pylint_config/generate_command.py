@@ -4,7 +4,6 @@
 
 """Everything related to the 'pylint-config generate' command."""
 
-
 from __future__ import annotations
 
 from io import StringIO

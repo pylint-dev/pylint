@@ -34,6 +34,11 @@ HVACModeT = TypeVar("HVACModeT")
 TodoT = TypeVar("TodoT")
 TypeT = TypeVar("TypeT")
 _IPAddress = TypeVar("_IPAddress")
+
+# Names containing digits
+Ec2T = TypeVar("Ec2T")
+S3BucketT = TypeVar("S3BucketT")
+Utf8T = TypeVar("Utf8T")
 CALLABLE_T = TypeVar("CALLABLE_T")  # [invalid-name]
 DeviceType = TypeVar("DeviceType")  # [invalid-name]
 IPAddressU = TypeVar("IPAddressU")  # [invalid-name]
@@ -69,12 +74,14 @@ P = ParamSpec("P")
 _P = ParamSpec("_P")
 GoodNameP = ParamSpec("GoodNameP")
 badName = ParamSpec("badName")  # [invalid-name]
+Ec2P = ParamSpec("Ec2P")
 
 # -- typing_extensions.ParamSpec --
 P = te.ParamSpec("P")
 _P = te.ParamSpec("_P")
 GoodNameP = te.ParamSpec("GoodNameP")
 badName = te.ParamSpec("badName")  # [invalid-name]
+Ec2P = te.ParamSpec("Ec2P")
 
 
 # # -- typing.TypeVarTuple (TODO 3.11+) --
@@ -89,3 +96,4 @@ Ts = te.TypeVarTuple("Ts")
 _Ts = te.TypeVarTuple("_Ts")
 GoodNameTs = te.TypeVarTuple("GoodNameTs")
 badName = te.TypeVarTuple("badName")  # >=3.11:[invalid-name]
+S3Ts = te.TypeVarTuple("S3Ts")

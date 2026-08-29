@@ -119,3 +119,29 @@ for k in D:  # [consider-using-dict-items]
 for var in os.environ.keys():  # [consider-iterating-dictionary]
     if var.startswith("foo_"):
         del os.environ[var]  # index lookup necessary here, do not emit error
+
+
+# Crash regression: a non-name loop target (an attribute or a subscript) must not
+# crash the checker. https://github.com/pylint-dev/pylint/issues/10099
+# The ``other[index]`` subscript in the body is required to reach the code path
+# that crashed (``node.target.name`` is only read once the slice is a plain name);
+# do not remove it or this stops covering the bug.
+class Walker:
+    def __init__(self):
+        self.current = None
+
+    def loop_into_attribute(self, other, index):
+        for self.current in D:  # no crash, no message
+            print(other[index])
+
+    def loop_into_attribute_keys(self, other, index):
+        for self.current in D.keys():  # [consider-iterating-dictionary]
+            print(other[index])
+
+    def comprehension_into_attribute(self, other, index):
+        return [other[index] for self.current in D]  # no crash, no message
+
+
+def loop_into_subscript(out, other, index):
+    for out["k"] in D:  # no crash, no message
+        print(other[index])

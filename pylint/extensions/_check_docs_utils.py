@@ -11,7 +11,7 @@ import re
 from collections.abc import Iterable
 
 import astroid
-from astroid import nodes
+from astroid import bases, nodes
 from astroid.util import UninferableBase
 
 from pylint.checkers import utils
@@ -150,7 +150,12 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
         return {
             exc
             for exc in exceptions
-            if not utils.node_ignores_exception(node, exc.name)
+            # Inference is not restricted to exception classes: ``raise sum``
+            # infers to a FunctionDef and ``raise os`` to a Module, neither of
+            # which implements ``ancestors()``. ``Instance`` is kept because it
+            # proxies ``name`` and ``ancestors`` to the class it wraps.
+            if isinstance(exc, (nodes.ClassDef, bases.Instance))
+            and not utils.node_ignores_exception(node, exc.name)
         }
     except astroid.InferenceError:
         return set()
@@ -279,7 +284,7 @@ class Docstring:
         r"""
         For\s+the\s+(other)?\s*parameters\s*,\s+see
         """,
-        re.X | re.S,
+        re.VERBOSE | re.DOTALL,
     )
 
     supports_yields: bool = False
@@ -370,7 +375,7 @@ class SphinxDocstring(Docstring):
         \s*                       # whitespace
         :                         # final colon
         """
-    re_param_in_docstring = re.compile(re_param_raw, re.X | re.S)
+    re_param_in_docstring = re.compile(re_param_raw, re.VERBOSE | re.DOTALL)
 
     re_type_raw = rf"""
         :type                           # Sphinx keyword
@@ -379,14 +384,16 @@ class SphinxDocstring(Docstring):
         \s*                             # whitespace
         :                               # final colon
         """
-    re_type_in_docstring = re.compile(re_type_raw, re.X | re.S)
+    re_type_in_docstring = re.compile(re_type_raw, re.VERBOSE | re.DOTALL)
 
     re_property_type_raw = rf"""
         :type:                      # Sphinx keyword
         \s+                         # whitespace
         {re_multiple_simple_type}   # type declaration
         """
-    re_property_type_in_docstring = re.compile(re_property_type_raw, re.X | re.S)
+    re_property_type_in_docstring = re.compile(
+        re_property_type_raw, re.VERBOSE | re.DOTALL
+    )
 
     re_raise_raw = rf"""
         :                               # initial colon
@@ -399,7 +406,7 @@ class SphinxDocstring(Docstring):
         \s*                             # whitespace
         :                               # final colon
         """
-    re_raise_in_docstring = re.compile(re_raise_raw, re.X | re.S)
+    re_raise_in_docstring = re.compile(re_raise_raw, re.VERBOSE | re.DOTALL)
 
     re_rtype_in_docstring = re.compile(r":rtype:")
 
@@ -491,19 +498,20 @@ class EpytextDocstring(SphinxDocstring):
     """
 
     re_param_in_docstring = re.compile(
-        SphinxDocstring.re_param_raw.replace(":", "@", 1), re.X | re.S
+        SphinxDocstring.re_param_raw.replace(":", "@", 1), re.VERBOSE | re.DOTALL
     )
 
     re_type_in_docstring = re.compile(
-        SphinxDocstring.re_type_raw.replace(":", "@", 1), re.X | re.S
+        SphinxDocstring.re_type_raw.replace(":", "@", 1), re.VERBOSE | re.DOTALL
     )
 
     re_property_type_in_docstring = re.compile(
-        SphinxDocstring.re_property_type_raw.replace(":", "@", 1), re.X | re.S
+        SphinxDocstring.re_property_type_raw.replace(":", "@", 1),
+        re.VERBOSE | re.DOTALL,
     )
 
     re_raise_in_docstring = re.compile(
-        SphinxDocstring.re_raise_raw.replace(":", "@", 1), re.X | re.S
+        SphinxDocstring.re_raise_raw.replace(":", "@", 1), re.VERBOSE | re.DOTALL
     )
 
     re_rtype_in_docstring = re.compile(
@@ -514,7 +522,7 @@ class EpytextDocstring(SphinxDocstring):
         )
         :                       # final colon
         """,
-        re.X | re.S,
+        re.VERBOSE | re.DOTALL,
     )
 
     re_returns_in_docstring = re.compile(r"@returns?:")
@@ -554,12 +562,12 @@ class GoogleDocstring(Docstring):
 
     re_param_section = re.compile(
         _re_section_template.format(r"(?:Args|Arguments|Parameters)"),
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_keyword_param_section = re.compile(
         _re_section_template.format(r"Keyword\s(?:Args|Arguments|Parameters)"),
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_param_line = re.compile(
@@ -571,11 +579,11 @@ class GoogleDocstring(Docstring):
             [)] )? \s* :                # optional type declaration
         \s*  (.*)                       # beginning of optional description
     """,
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_raise_section = re.compile(
-        _re_section_template.format(r"Raises"), re.X | re.S | re.M
+        _re_section_template.format(r"Raises"), re.VERBOSE | re.DOTALL | re.MULTILINE
     )
 
     re_raise_line = re.compile(
@@ -583,11 +591,11 @@ class GoogleDocstring(Docstring):
         \s*  ({re_multiple_type}) \s* :  # identifier
         \s*  (.*)                        # beginning of optional description
     """,
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_returns_section = re.compile(
-        _re_section_template.format(r"Returns?"), re.X | re.S | re.M
+        _re_section_template.format(r"Returns?"), re.VERBOSE | re.DOTALL | re.MULTILINE
     )
 
     re_returns_line = re.compile(
@@ -595,7 +603,7 @@ class GoogleDocstring(Docstring):
         \s* ({re_multiple_type}:)?        # identifier
         \s* (.*)                          # beginning of description
     """,
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_property_returns_line = re.compile(
@@ -603,11 +611,11 @@ class GoogleDocstring(Docstring):
         ^{re_multiple_type}:           # identifier
         \s* (.*)                       # Summary line / description
     """,
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_yields_section = re.compile(
-        _re_section_template.format(r"Yields?"), re.X | re.S | re.M
+        _re_section_template.format(r"Yields?"), re.VERBOSE | re.DOTALL | re.MULTILINE
     )
 
     re_yields_line = re_returns_line
@@ -818,34 +826,30 @@ class NumpyDocstring(GoogleDocstring):
 
     re_param_section = re.compile(
         _re_section_template.format(r"(?:Args|Arguments|Parameters)"),
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
-    re_default_value = r"""((['"]\w+\s*['"])|(\d+)|(True)|(False)|(None))"""
-
     re_param_line = re.compile(
-        rf"""
-        \s*  (?P<param_name>\*{{0,2}}\w+)(\s?(:|\n)) # identifier with potential asterisks
-        \s*
-        (?P<param_type>
-         (
-          ({GoogleDocstring.re_multiple_type})      # default type declaration
-          (,\s+optional)?                           # optional 'optional' indication
-         )?
-         (
-          {{({re_default_value},?\s*)+}}            # set of default values
-         )?
-         (?:$|\n)
+        r"""
+        \s*  (?P<param_name>
+            \*{0,2}\w+                              # first identifier (with optional asterisks)
+            (?:\s*,\s*\*{0,2}\w+)*                  # additional identifiers (NumPy "a, b : type" idiom)
+        )
+        (?:
+            [ \t]* : [ \t]*                         # colon separator
+            (?P<param_type>[^\n]*?)                 # any type expression up to end of line
+            [ \t]*
         )?
-        (
-         \s* (?P<param_desc>.*)                     # optional description
+        (?:\n|$)                                    # end of the name/type line
+        (?:
+            \s* (?P<param_desc>.*)                  # optional description
         )?
     """,
-        re.X | re.S,
+        re.VERBOSE | re.DOTALL,
     )
 
     re_raise_section = re.compile(
-        _re_section_template.format(r"Raises"), re.X | re.S | re.M
+        _re_section_template.format(r"Raises"), re.VERBOSE | re.DOTALL | re.MULTILINE
     )
 
     re_raise_line = re.compile(
@@ -853,11 +857,11 @@ class NumpyDocstring(GoogleDocstring):
         \s* ({GoogleDocstring.re_type})$   # type declaration
         \s* (.*)                           # optional description
     """,
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_returns_section = re.compile(
-        _re_section_template.format(r"Returns?"), re.X | re.S | re.M
+        _re_section_template.format(r"Returns?"), re.VERBOSE | re.DOTALL | re.MULTILINE
     )
 
     re_returns_line = re.compile(
@@ -866,11 +870,11 @@ class NumpyDocstring(GoogleDocstring):
         ({GoogleDocstring.re_multiple_type})$   # type declaration
         \s* (.*)                                # optional description
     """,
-        re.X | re.S | re.M,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
 
     re_yields_section = re.compile(
-        _re_section_template.format(r"Yields?"), re.X | re.S | re.M
+        _re_section_template.format(r"Yields?"), re.VERBOSE | re.DOTALL | re.MULTILINE
     )
 
     re_yields_line = re_returns_line
@@ -889,33 +893,25 @@ class NumpyDocstring(GoogleDocstring):
             if not match:
                 continue
 
-            # check if parameter has description only
-            re_only_desc = re.match(r"\s*(\*{0,2}\w+)\s*:?\n\s*\w*$", entry)
-            if re_only_desc:
-                param_name = match.group("param_name")
-                param_desc = match.group("param_type")
-                param_type = None
-            else:
-                param_name = match.group("param_name")
-                param_type = match.group("param_type")
-                param_desc = match.group("param_desc")
-                # The re_param_line pattern needs to match multi-line which removes the ability
-                # to match a single line description like 'arg : a number type.'
-                # We are not trying to determine whether 'a number type' is correct typing
-                # but we do accept it as typing as it is in the place where typing
-                # should be
-                if param_type is None and re.match(r"\s*(\*{0,2}\w+)\s*:.+$", entry):
-                    param_type = param_desc
-                # If the description is "" but we have a type description
-                # we consider the description to be the type
-                if not param_desc and param_type:
-                    param_desc = param_type
+            raw_names = match.group("param_name")
+            param_type = match.group("param_type")
+            param_desc = match.group("param_desc")
+            # If a single-line entry only has typing after the colon (no
+            # description on a following line), accept the typing as the
+            # description too — we are not trying to determine whether
+            # "a number type" is correct typing but we do accept it as typing
+            # as it is in the place where typing should be.
+            if not param_desc and param_type:
+                param_desc = param_type
 
-            if param_type:
-                params_with_type.add(param_name)
+            # NumPy style permits documenting multiple identifiers per entry,
+            # e.g. ``a, b : array-like``. Apply the type/description to each.
+            for param_name in re.split(r"\s*,\s*", raw_names):
+                if param_type:
+                    params_with_type.add(param_name)
 
-            if param_desc:
-                params_with_doc.add(param_name)
+                if param_desc:
+                    params_with_doc.add(param_name)
 
         return params_with_doc, params_with_type
 

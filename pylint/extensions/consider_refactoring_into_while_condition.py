@@ -83,7 +83,6 @@ class ConsiderRefactorIntoWhileConditionChecker(checkers.BaseChecker):
         self.add_message(
             "consider-refactoring-into-while-condition",
             node=node,
-            line=node.lineno,
             args=(msg, node.test.as_string()),
             confidence=HIGH,
         )

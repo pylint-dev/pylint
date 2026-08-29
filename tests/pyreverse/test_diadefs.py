@@ -134,14 +134,12 @@ def test_default_values() -> None:
 
 class TestShowOptions:
     def test_show_stdlib(self) -> None:
-        example = extract_node(
-            '''
+        example = extract_node('''
             import collections
 
             class CustomDict(collections.OrderedDict):
                 """docstring"""
-            '''
-        )
+            ''')
 
         config = PyreverseConfig()
         args: Sequence[str] = []
@@ -157,12 +155,10 @@ class TestShowOptions:
         assert ancestors[0].name == "OrderedDict"
 
     def test_show_builtin(self) -> None:
-        example = extract_node(
-            '''
+        example = extract_node('''
             class CustomError(Exception):
                 """docstring"""
-            '''
-        )
+            ''')
 
         config = PyreverseConfig()
         args: Sequence[str] = []
@@ -455,7 +451,7 @@ def test_get_leaf_nodes(generator_factory: GeneratorFactory) -> None:
         "pkg.subpkg2.module2",
         "pkg.subpkg1.module1.submodule",
     ]
-    corr = set(["pkg.subpkg2.module2", "pkg.subpkg1.module1.submodule"])
+    corr = {"pkg.subpkg2.module2", "pkg.subpkg1.module1.submodule"}
 
     generator = generator_factory(args=specified_packeges)
     assert len(corr.difference(generator.get_leaf_nodes())) == 0

@@ -21,8 +21,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
 
     def test_kwargs_and_position_only(self) -> None:
         """Even the new position only and keyword only should be found."""
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
                 def name(
                     ok,
                     not_økay,
@@ -35,8 +34,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
                     kw_arg_not_økay,
                 ):
                     ...
-            """
-        )
+            """)
         assert isinstance(node, nodes.FunctionDef)
         arguments = node.args
 
@@ -240,11 +238,6 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
                 id="from_okay_module_import_bad_as_good_and_bad",
             ),
             pytest.param(
-                "from foo.bar import functiøn as good, bäd",
-                "bäd",
-                id="from_okay_module_import_bad_as_good_and_bad",
-            ),
-            pytest.param(
                 "from foo.bar import functiøn as good, *",
                 # We still have functiøn within our namespace and could detect this
                 # But to do this properly we would need to check all `*` imports
@@ -261,7 +254,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
         """We expect that for everything that user can change there is a message."""
         node = astroid.extract_node(f"{import_statement} #@")
 
-        expected_msgs: Iterable[pylint.testutils.MessageTest] = tuple()
+        expected_msgs: Iterable[pylint.testutils.MessageTest] = ()
 
         if wrong_name:
             expected_msgs = (

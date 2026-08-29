@@ -1,0 +1,3 @@
+Fix a false positive ``relative-beyond-top-level`` error when linting specific files in namespace packages in parallel mode by augmenting ``sys.path`` before loading plugins and expanding files consistently for parallel workers.
+
+Closes #10794

@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-import _string  # pylint: disable=wrong-import-order # Ruff and Isort disagree about the order here
+import _string
 import builtins
 import fnmatch
 import itertools
@@ -238,7 +238,13 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
 SINGLETON_VALUES = {True, False, None}
 
 TERMINATING_FUNCS_QNAMES = frozenset(
-    {"_sitebuiltins.Quitter", "sys.exit", "posix._exit", "nt._exit"}
+    {
+        "_sitebuiltins.Quitter",
+        "sys.exit",
+        "posix._exit",
+        "nt._exit",
+        "unittest.case.TestCase.fail",
+    }
 )
 
 
@@ -750,9 +756,11 @@ def infer_kwarg_from_call(call_node: nodes.Call, keyword: str) -> nodes.Name | N
     for arg in call_node.kwargs:
         inferred = safe_infer(arg.value)
         if isinstance(inferred, nodes.Dict):
-            for item in inferred.items:
-                if item[0].value == keyword:
-                    return item[1]
+            for key, value in inferred.items:
+                # Keys can be any expression (or None for '**' unpacking),
+                # only string constants can name a keyword argument.
+                if isinstance(key, nodes.Const) and key.value == keyword:
+                    return value
 
     return None
 
@@ -796,8 +804,10 @@ def error_of_type(
     return handler.catch(expected_errors)  # type: ignore[no-any-return]
 
 
-def decorated_with_property(node: nodes.FunctionDef) -> bool:
+def decorated_with_property(node: nodes.NodeNG) -> bool:
     """Detect if the given function node is decorated with a property."""
+    if not isinstance(node, nodes.FunctionDef):
+        return False
     if not node.decorators:
         return False
     for decorator in node.decorators.nodes:
@@ -1168,9 +1178,14 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
         if meta.name == "ABCMeta" and meta.root().name in ABC_MODULES:
             return True
 
-    for ancestor in node.ancestors():
-        if ancestor.name == "ABC" and ancestor.root().name in ABC_MODULES:
-            # abc.ABC inheritance
+    # As well as direct abc.ABC inheritance
+    for base in node.bases:
+        inferred_base = safe_infer(base)
+        if (
+            isinstance(inferred_base, nodes.ClassDef)
+            and inferred_base.root().name in ABC_MODULES
+            and inferred_base.name == "ABC"
+        ):
             return True
 
     for method in node.methods():
@@ -1478,6 +1493,36 @@ def has_known_bases(
     return True
 
 
+def safe_mro(node: nodes.ClassDef | bases.Instance) -> list[nodes.ClassDef]:
+    """Return the MRO of ``node``, or an empty list if it does not have one.
+
+    Duplicate or inconsistent bases leave a class without a usable MRO, and
+    ``mro()`` raises instead of returning one. A caller that only walks the MRO
+    to look something up can treat that as "no ancestors" rather than let the
+    error abort the whole file.
+    """
+    try:
+        # ``Instance`` proxies the call, so it is only typed through ``__getattr__``
+        mro: list[nodes.ClassDef] = node.mro()
+    except astroid.MroError:
+        return []
+    return mro
+
+
+def safe_slots(node: nodes.ClassDef) -> list[nodes.Const] | None:
+    """Return the slots of ``node``, or None if it does not have a usable MRO.
+
+    ``slots()`` walks the MRO internally, so it gives up on exactly the classes
+    ``safe_mro`` has nothing to return for. It raises ``NotImplementedError``
+    rather than the ``MroError`` underneath. A class without a usable MRO gets
+    the same answer as a class that defines no slot at all.
+    """
+    try:
+        return node.slots()  # type: ignore[no-any-return]
+    except NotImplementedError:
+        return None
+
+
 def is_none(node: nodes.NodeNG) -> bool:
     match node:
         case None | nodes.Const(value=None) | nodes.Name(value="None"):
@@ -1616,13 +1661,7 @@ def is_node_in_type_annotation_context(node: nodes.NodeNG) -> bool:
         match parent_node:
             case nodes.AnnAssign(annotation=ann) if ann == current_node:
                 return True
-            case nodes.Arguments() if current_node in (
-                *parent_node.annotations,
-                *parent_node.posonlyargs_annotations,
-                *parent_node.kwonlyargs_annotations,
-                parent_node.varargannotation,
-                parent_node.kwargannotation,
-            ):
+            case nodes.Arguments() if current_node in parent_node.get_annotations():
                 return True
             case nodes.FunctionDef(returns=ret) if ret == current_node:
                 return True
@@ -1756,6 +1795,22 @@ def is_assign_name_annotated_with(node: nodes.AssignName, typing_name: str) -> b
     return False
 
 
+def is_assign_name_annotated_with_class_var_typing_name(
+    node: nodes.AssignName, typing_name: str
+) -> bool:
+    if not is_assign_name_annotated_with(node, "ClassVar"):
+        return False
+    annotation = node.parent.annotation
+    if isinstance(annotation, nodes.Subscript):
+        annotation = annotation.slice
+        if isinstance(annotation, nodes.Subscript):
+            annotation = annotation.value
+    match annotation:
+        case nodes.Name(name=n) | nodes.Attribute(attrname=n) if n == typing_name:
+            return True
+    return False
+
+
 def get_iterating_dictionary_name(node: nodes.For | nodes.Comprehension) -> str | None:
     """Get the name of the dictionary which keys are being iterated over on
     a ``nodes.For`` or ``nodes.Comprehension`` node.
@@ -1843,28 +1898,50 @@ def is_sys_guard(node: nodes.If) -> bool:
     return False
 
 
+def _is_node_in_same_scope(
+    candidate: nodes.NodeNG, node_scope: nodes.LocalsDictNodeNG
+) -> bool:
+    if isinstance(candidate, (nodes.ClassDef, nodes.FunctionDef)):
+        return candidate.parent is not None and candidate.parent.scope() is node_scope
+    return candidate.scope() is node_scope
+
+
+def _is_reassigned_relative_to_current(
+    node: nodes.NodeNG, varname: str, before: bool
+) -> bool:
+    """Check if the given variable name is reassigned in the same scope relative to
+    the current node.
+    """
+    node_scope = node.scope()
+    node_lineno = node.lineno
+    if node_lineno is None:
+        return False
+    for a in node_scope.nodes_of_class(
+        (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
+    ):
+        if a.name == varname and a.lineno is not None:
+            if before:
+                if a.lineno < node_lineno:
+                    if _is_node_in_same_scope(a, node_scope):
+                        return True
+            elif a.lineno > node_lineno:
+                if _is_node_in_same_scope(a, node_scope):
+                    return True
+    return False
+
+
 def is_reassigned_before_current(node: nodes.NodeNG, varname: str) -> bool:
     """Check if the given variable name is reassigned in the same scope before the
     current node.
     """
-    return any(
-        a.name == varname and a.lineno < node.lineno
-        for a in node.scope().nodes_of_class(
-            (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
-        )
-    )
+    return _is_reassigned_relative_to_current(node, varname, before=True)
 
 
 def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
     """Check if the given variable name is reassigned in the same scope after the
     current node.
     """
-    return any(
-        a.name == varname and a.lineno > node.lineno
-        for a in node.scope().nodes_of_class(
-            (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
-        )
-    )
+    return _is_reassigned_relative_to_current(node, varname, before=False)
 
 
 def is_deleted_after_current(node: nodes.NodeNG, varname: str) -> bool:
@@ -1922,7 +1999,7 @@ def get_node_first_ancestor_of_type(
     """Return the first parent node that is any of the provided types (or None)."""
     for ancestor in node.node_ancestors():
         if isinstance(ancestor, ancestor_type):
-            return ancestor  # type: ignore[no-any-return]
+            return ancestor
     return None
 
 
@@ -2172,41 +2249,44 @@ def is_terminating_func(node: nodes.Call) -> bool:
         node.parent, nodes.Lambda
     ):
         return False
-
     try:
-        for inferred in node.func.infer():
-            if (
-                hasattr(inferred, "qname")
-                and inferred.qname() in TERMINATING_FUNCS_QNAMES
-            ):
-                return True
-            match inferred:
-                case astroid.BoundMethod(_proxied=astroid.UnboundMethod(_proxied=p)):
-                    # Unwrap to get the actual function node object
-                    inferred = p
-            if (  # pylint: disable=too-many-boolean-expressions
-                isinstance(inferred, nodes.FunctionDef)
-                and (
-                    not isinstance(inferred, nodes.AsyncFunctionDef)
-                    or isinstance(node.parent, nodes.Await)
-                )
-                and isinstance(inferred.returns, nodes.Name)
-                and (inferred_func := safe_infer(inferred.returns))
-                and hasattr(inferred_func, "qname")
-                and inferred_func.qname()
-                in (
-                    *TYPING_NEVER,
-                    *TYPING_NORETURN,
-                    # In Python 3.7 - 3.8, NoReturn is alias of '_SpecialForm'
-                    # "typing._SpecialForm",
-                    # But 'typing.Any' also inherits _SpecialForm
-                    # See #9751
-                )
-            ):
-                return True
+        inferred_funcs = list(node.func.infer())
     except (StopIteration, astroid.InferenceError):
-        pass
+        return False
 
+    for inferred in inferred_funcs:
+        if isinstance(inferred, nodes.ClassDef):
+            # Instantiating a class never terminates, even if the class is
+            # ``_sitebuiltins.Quitter`` (``exit``/``quit`` are instances of it).
+            continue
+        if hasattr(inferred, "qname") and inferred.qname() in TERMINATING_FUNCS_QNAMES:
+            return True
+        match inferred:
+            case astroid.BoundMethod(_proxied=astroid.UnboundMethod(_proxied=p)):
+                # Unwrap to get the actual function node object
+                inferred = p
+        if is_overload_stub(inferred):
+            continue
+        if (  # pylint: disable=too-many-boolean-expressions
+            isinstance(inferred, nodes.FunctionDef)
+            and (
+                not isinstance(inferred, nodes.AsyncFunctionDef)
+                or isinstance(node.parent, nodes.Await)
+            )
+            and isinstance(inferred.returns, (nodes.Name, nodes.Attribute))
+            and (inferred_func := safe_infer(inferred.returns))
+            and hasattr(inferred_func, "qname")
+            and inferred_func.qname()
+            in (
+                *TYPING_NEVER,
+                *TYPING_NORETURN,
+                # In Python 3.7 - 3.8, NoReturn is alias of '_SpecialForm'
+                # "typing._SpecialForm",
+                # But 'typing.Any' also inherits _SpecialForm
+                # See #9751
+            )
+        ):
+            return True
     return False
 
 
@@ -2312,3 +2392,22 @@ def is_enum_member(node: nodes.AssignName) -> bool:
     if members is None:
         return False
     return node.name in [name_obj.name for value, name_obj in members[0].items]
+
+
+def truncated_dict_suggestion(elements: Iterable[str]) -> str:
+    """Build a truncated dict literal suggestion from string elements.
+
+    Collects elements until the joined string exceeds 64 chars, then
+    appends ``', ... '`` to signal truncation.  Used by both
+    ``dict-init-mutate`` and ``use-dict-literal`` checkers.
+
+    Accepts an iterator so callers can avoid materializing a full list
+    when the dict is large.
+    """
+    kept: list[str] = []
+    for element in elements:
+        if kept and len(", ".join(kept)) >= 64:
+            break
+        kept.append(element)
+    suggestion = ", ".join(kept)
+    return f"{{{suggestion}{', ... ' if len(suggestion) > 64 else ''}}}"

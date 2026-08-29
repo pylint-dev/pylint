@@ -1,0 +1,5 @@
+digraph "classes" {
+rankdir=BT
+charset="utf-8"
+"method_annotation_no_signatures.Monkey" [color="black", fontcolor="black", label=<{Monkey|<br ALIGN="LEFT"/>|eat()<br ALIGN="LEFT"/>jump()<br ALIGN="LEFT"/>munch()<br ALIGN="LEFT"/>scream()<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+}

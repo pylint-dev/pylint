@@ -15,6 +15,8 @@ Pylint checkers can provide three set of features:
 
 Below is a list of all checkers and their features.
 
+.. _async-checker:
+
 Async checker
 ~~~~~~~~~~~~~
 
@@ -31,6 +33,8 @@ Async checker Messages
   emitted when using Python < 3.5.
 
 
+.. _bad-chained-comparison-checker:
+
 Bad-Chained-Comparison checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -43,6 +47,8 @@ Bad-Chained-Comparison checker Messages
   comparisons that belong to different semantic groups ("<" does not mean the
   same thing as "is", chaining them in "0 < x is None" is probably a mistake).
 
+
+.. _basic-checker:
 
 Basic checker
 ~~~~~~~~~~~~~
@@ -188,7 +194,7 @@ Basic checker Messages
   a try...finally block: the exceptions raised in the try clause will be
   silently swallowed instead of being re-raised.
 :nan-comparison (W0177): *Comparison %s should be %s*
-  Used when an expression is compared to NaN values like numpy.NaN and
+  Used when an expression is compared to NaN values like math.nan, numpy.nan or
   float('nan').
 :assert-on-tuple (W0199): *Assert called on a populated tuple. Did you mean 'assert x,y'?*
   A call of assert on a tuple will always evaluate to true if the tuple is not
@@ -244,6 +250,8 @@ Basic checker Reports
 ^^^^^^^^^^^^^^^^^^^^^
 :RP0101: Statistics by type
 
+
+.. _classes-checker:
 
 Classes checker
 ~~~~~~~~~~~~~~~
@@ -402,6 +410,8 @@ Classes checker Messages
   an unexpected reason. Please report this kind if you don't make sense of it.
 
 
+.. _dataclass-checker:
+
 Dataclass checker
 ~~~~~~~~~~~~~~~~~
 
@@ -413,6 +423,8 @@ Dataclass checker Messages
   The dataclasses.field() specifier should only be used as the value of an
   assignment within a dataclass, or within the make_dataclass() function.
 
+
+.. _design-checker:
 
 Design checker
 ~~~~~~~~~~~~~~
@@ -452,6 +464,8 @@ Design checker Messages
 :too-many-positional-arguments (R0917): *Too many positional arguments (%s/%s)*
   Used when a function has too many positional arguments.
 
+
+.. _exceptions-checker:
 
 Exceptions checker
 ~~~~~~~~~~~~~~~~~~
@@ -527,6 +541,8 @@ Exceptions checker Messages
   unrelated errors are hidden.
 
 
+.. _format-checker:
+
 Format checker
 ~~~~~~~~~~~~~~
 
@@ -553,7 +569,7 @@ Format checker Messages
 :trailing-newlines (C0305): *Trailing newlines*
   Used when there are trailing blank lines in a file.
 :multiple-statements (C0321): *More than one statement on a single line*
-  Used when more than on statement are found on the same line.
+  Used when more than one statement is found on the same line.
 :superfluous-parens (C0325): *Unnecessary parens after %r keyword*
   Used when a single item in parentheses follows an if, for, or other keyword.
 :mixed-line-endings (C0327): *Mixed line endings LF and CRLF*
@@ -561,6 +577,8 @@ Format checker Messages
 :unexpected-line-ending-format (C0328): *Unexpected line ending format. There is '%s' while it should be '%s'.*
   Used when there is different newline than expected.
 
+
+.. _imports-checker:
 
 Imports checker
 ~~~~~~~~~~~~~~~
@@ -619,6 +637,8 @@ Imports checker Reports
 :RP0402: Modules dependencies graph
 
 
+.. _lambda-expressions-checker:
+
 Lambda-Expressions checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -633,6 +653,8 @@ Lambda-Expressions checker Messages
   Used when a lambda expression is directly called rather than executing its
   contents inline.
 
+
+.. _logging-checker:
 
 Logging checker
 ~~~~~~~~~~~~~~~
@@ -676,6 +698,8 @@ Logging checker Messages
   formatting as normal.
 
 
+.. _match_statements-checker:
+
 Match Statements checker
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -702,6 +726,8 @@ Match Statements checker Messages
   skip the `__match_args__` lookup.
 
 
+.. _method_args-checker:
+
 Method Args checker
 ~~~~~~~~~~~~~~~~~~~
 
@@ -721,6 +747,8 @@ Method Args checker Messages
   indefinitely).
 
 
+.. _metrics-checker:
+
 Metrics checker
 ~~~~~~~~~~~~~~~
 
@@ -730,6 +758,8 @@ Metrics checker Reports
 ^^^^^^^^^^^^^^^^^^^^^^^
 :RP0701: Raw metrics
 
+
+.. _miscellaneous-checker:
 
 Miscellaneous checker
 ~~~~~~~~~~~~~~~~~~~~~
@@ -745,6 +775,8 @@ Miscellaneous checker Messages
 :use-symbolic-message-instead (I0023):
   Used when a message is enabled or disabled by id.
 
+
+.. _modified_iteration-checker:
 
 Modified Iteration checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -765,6 +797,8 @@ Modified Iteration checker Messages
   use a copy of the list.
 
 
+.. _nested_min_max-checker:
+
 Nested Min Max checker
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -775,6 +809,8 @@ Nested Min Max checker Messages
 :nested-min-max (W3301): *Do not use nested call of '%s'; it's possible to do '%s' instead*
   Nested calls ``min(1, min(2, 3))`` can be rewritten as ``min(1, 2, 3)``.
 
+
+.. _newstyle-checker:
 
 Newstyle checker
 ~~~~~~~~~~~~~~~~
@@ -787,6 +823,8 @@ Newstyle checker Messages
   Used when another argument than the current class is given as first argument
   of the super builtin.
 
+
+.. _nonascii-checker-checker:
 
 Nonascii-Checker checker
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -812,6 +850,8 @@ Nonascii-Checker checker Messages
   programming in English, then there should be no need for non ASCII characters
   in Python Names. If not you can simply disable this check.
 
+
+.. _refactoring-checker:
 
 Refactoring checker
 ~~~~~~~~~~~~~~~~~~~
@@ -996,6 +1036,8 @@ Refactoring checker Messages
   string, or an empty sequence) the code will not be equivalent.
 
 
+.. _similarities-checker:
+
 Similarities checker
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -1015,6 +1057,8 @@ Similarities checker Reports
 :RP0801: Duplication
 
 
+.. _spelling-checker:
+
 Spelling checker
 ~~~~~~~~~~~~~~~~
 
@@ -1031,6 +1075,8 @@ Spelling checker Messages
 :invalid-characters-in-docstring (C0403): *Invalid characters %r in a docstring*
   Used when a word in docstring cannot be checked by enchant.
 
+
+.. _stdlib-checker:
 
 Stdlib checker
 ~~~~~~~~~~~~~~
@@ -1059,7 +1105,8 @@ Stdlib checker Messages
 :redundant-unittest-assert (W1503): *Redundant use of %s with constant value %r*
   The first argument of assertTrue and assertFalse is a condition. If a
   constant is passed as parameter, that condition will be always true. In this
-  case a warning should be emitted.
+  case a warning should be emitted. The same applies to assertEqual and
+  assertNotEqual when both compared values are constants.
 :bad-thread-instantiation (W1506): *threading.Thread needs the target function*
   The warning is emitted when a threading.Thread class is instantiated without
   the target function being passed as a kwarg or as a second argument. By
@@ -1085,7 +1132,8 @@ Stdlib checker Messages
 :unspecified-encoding (W1514): *Using open without explicitly specifying an encoding*
   It is better to specify an encoding when opening documents. Using the system
   default implicitly can create problems on other operating systems. See
-  https://peps.python.org/pep-0597/
+  https://peps.python.org/pep-0597/ This message can't be emitted when using
+  Python >= 3.15.
 :forgotten-debug-statement (W1515): *Leaving functions creating breakpoints in production code is not recommended*
   Calls to breakpoint(), sys.breakpointhook() and pdb.set_trace() should be
   removed from code that is not actively being debugged.
@@ -1106,6 +1154,8 @@ Stdlib checker Messages
 :deprecated-attribute (W4906): *Using deprecated attribute %r*
   The attribute is marked as deprecated and will be removed in the future.
 
+
+.. _string-checker:
 
 String checker
 ~~~~~~~~~~~~~~
@@ -1194,6 +1244,8 @@ String checker Messages
   are Unicode by default.
 
 
+.. _threading-checker:
+
 Threading checker
 ~~~~~~~~~~~~~~~~~
 
@@ -1205,6 +1257,8 @@ Threading checker Messages
   Used when a new lock instance is created by using with statement which has no
   effect. Instead, an existing instance should be used to acquire lock.
 
+
+.. _typecheck-checker:
 
 Typecheck checker
 ~~~~~~~~~~~~~~~~~
@@ -1219,7 +1273,7 @@ Typecheck checker Messages
   Used when a variable is accessed for a nonexistent member.
 :not-callable (E1102): *%s is not callable*
   Used when an object being called has been inferred to a non callable object.
-:assignment-from-no-return (E1111): *Assigning result of a function call, where the function has no return*
+:assignment-from-no-return (E1111): *Assigning result of a function call, but %r returns None%s*
   Used when an assignment is done on a function call but the inferred function
   doesn't return anything.
 :no-value-for-parameter (E1120): *No value for argument %s in %s call*
@@ -1308,6 +1362,8 @@ Typecheck checker Messages
   performed by introspecting living objects in run-time.
 
 
+.. _unicode_checker-checker:
+
 Unicode Checker checker
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1350,6 +1406,8 @@ Unicode Checker checker Messages
   https://peps.python.org/pep-0008/#source-file-encoding
 
 
+.. _unnecessary-dunder-call-checker:
+
 Unnecessary-Dunder-Call checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1361,6 +1419,8 @@ Unnecessary-Dunder-Call checker Messages
   Used when a dunder method is manually called instead of using the
   corresponding function/method/operator.
 
+
+.. _unnecessary_ellipsis-checker:
 
 Unnecessary Ellipsis checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1374,6 +1434,8 @@ Unnecessary Ellipsis checker Messages
   code consisting of an ellipsis is unnecessary if there is a docstring on the
   preceding line or if there is a statement in the same scope.
 
+
+.. _unsupported_version-checker:
 
 Unsupported Version checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1400,7 +1462,12 @@ Unsupported Version checker Messages
 :using-positional-only-args-in-unsupported-version (W2606): *Positional-only arguments are not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.8 and pylint
   encounters positional-only arguments.
+:using-comprehension-unpacking-in-unsupported-version (W2607): *Unpacking in comprehensions is not supported by all versions included in the py-version setting*
+  Used when the py-version set by the user is lower than 3.15 and pylint
+  encounters the ``*`` or ``**`` unpacking added by PEP 798 in a comprehension.
 
+
+.. _variables-checker:
 
 Variables checker
 ~~~~~~~~~~~~~~~~~

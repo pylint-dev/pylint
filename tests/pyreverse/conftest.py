@@ -92,7 +92,6 @@ def get_project() -> GetProjectCallable:
             return func(modname)
 
         with augmented_sys_path([discover_package_path(module, [])]):
-            project = project_from_files([module], _astroid_wrapper, project_name=name)
-        return project
+            return project_from_files([module], _astroid_wrapper, project_name=name)
 
     return _get_project

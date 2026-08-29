@@ -58,6 +58,10 @@ name = "Upgrade the contributors list"
 cmd = "python3 script/create_contributor_list.py"
 
 [[before_commit]]
+name = "Update primer commit pins to latest"
+cmd = "python3 script/update_primer_commits.py"
+
+[[before_commit]]
 name = "Apply pre-commit"
 cmd = "pre-commit run --all-files||echo 'Hack so this command does not fail'"
 

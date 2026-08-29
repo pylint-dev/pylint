@@ -35,35 +35,31 @@ class UnittestLinter(PyLinter):
         # TODO: Make node non optional
         node: nodes.NodeNG | None = None,
         args: Any = None,
-        confidence: Confidence | None = None,
+        confidence: Confidence = UNDEFINED,
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
     ) -> None:
         """Add a MessageTest to the _messages attribute of the linter class."""
-        # If confidence is None we set it to UNDEFINED as well in PyLinter
-        if confidence is None:
-            confidence = UNDEFINED
-
         # Look up "location" data of node if not yet supplied
         if node:
             if node.position:
-                if not line:
+                if line is None:
                     line = node.position.lineno
-                if not col_offset:
+                if col_offset is None:
                     col_offset = node.position.col_offset
-                if not end_lineno:
+                if end_lineno is None:
                     end_lineno = node.position.end_lineno
-                if not end_col_offset:
+                if end_col_offset is None:
                     end_col_offset = node.position.end_col_offset
             else:
-                if not line:
+                if line is None:
                     line = node.fromlineno
-                if not col_offset:
+                if col_offset is None:
                     col_offset = node.col_offset
-                if not end_lineno:
+                if end_lineno is None:
                     end_lineno = node.end_lineno
-                if not end_col_offset:
+                if end_col_offset is None:
                     end_col_offset = node.end_col_offset
 
         self._messages.append(

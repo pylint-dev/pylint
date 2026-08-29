@@ -1,0 +1,26 @@
+🤖 **Effect of this PR on checked open source code:** 🤖
+
+
+**Effect on [astroid](https://github.com/pylint-dev/astroid):**
+
+Changed messages:
+
+<details>
+
+1) [possibly-used-before-assignment](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/wcs.py#L3072):
+confidence: `HIGH` → `INFERENCE`
+
+```diff
+- Using variable 'orig_key' before assignment
++ Possibly using variable 'orig_key' before assignment
+  ^^^^^^^^^^
+```
+
+messageId: `E0601` → `E0606`
+
+symbol: `used-before-assignment` → `possibly-used-before-assignment`
+
+type: `error` → `warning`
+</details>
+
+*This comment was generated for commit v2.14.2*

@@ -98,6 +98,16 @@ def _is_from_future_import(stmt: nodes.ImportFrom, name: str) -> bool | None:
     return None
 
 
+def _wildcard_import_binds(stmt: nodes.ImportFrom, name: str) -> bool:
+    """Check if the name is exported by a `from X import *` statement."""
+    if not any(node_name[0] == "*" for node_name in stmt.names):
+        return False
+    try:
+        return name in stmt.do_import_module(stmt.modname).wildcard_import_names()
+    except astroid.AstroidBuildingError:
+        return False
+
+
 def _get_unpacking_extra_info(node: nodes.Assign, inferred: InferenceResult) -> str:
     """Return extra information to add to the message for unpacking-non-sequence
     and unbalanced-tuple/dict-unpacking errors.
@@ -149,6 +159,10 @@ def _detect_global_scope(
                 class B(C): ...
         class C: ...
     """
+    if defframe.lineno is None:
+        # ``defframe`` is a synthetic node, such as a dataclass-generated
+        # ``__init__``, so it has no source position to order against.
+        return False
     def_scope = scope = None
     if frame and frame.parent:
         scope = frame.parent.scope()
@@ -203,7 +217,7 @@ def _detect_global_scope(
 def _infer_name_module(node: nodes.Import, name: str) -> Generator[InferenceResult]:
     context = astroid.context.InferenceContext()
     context.lookupname = name
-    return node.infer(context, asname=False)  # type: ignore[no-any-return]
+    return node.infer(context)  # type: ignore[no-any-return]
 
 
 def _fix_dot_imports(
@@ -720,7 +734,14 @@ scope_type : {self.scope_type}
                 only_search_else = False
                 continue
             val = inferred.value
-            only_search_if = only_search_if or (val != NotImplemented and val)
+            if val is NotImplemented:
+                # ``bool(NotImplemented)`` raises ``TypeError`` on Python 3.14+
+                # (and warned since 3.9). ``NotImplemented`` is the only value
+                # ``Const`` carries whose truthiness is undefined, so treat it
+                # like a non-``Const`` inference: we can't tell which branch runs.
+                only_search_else = False
+                continue
+            only_search_if = only_search_if or bool(val)
             only_search_else = only_search_else and not val
 
         # Only search else branch when test condition is inferred to be false
@@ -730,10 +751,10 @@ scope_type : {self.scope_type}
         # Search both if and else branches
         if_branch_handles = self._branch_handles_name(name, node.body)
         else_branch_handles = self._branch_handles_name(name, node.orelse)
-        if if_branch_handles ^ else_branch_handles:
+        if if_branch_handles and else_branch_handles:
+            self.names_defined_under_one_branch_only.discard(name)
+        elif if_branch_handles ^ else_branch_handles:
             self.names_defined_under_one_branch_only.add(name)
-        elif name in self.names_defined_under_one_branch_only:
-            self.names_defined_under_one_branch_only.remove(name)
         return if_branch_handles and else_branch_handles
 
     def _branch_handles_name(self, name: str, body: Iterable[nodes.NodeNG]) -> bool:
@@ -957,11 +978,17 @@ scope_type : {self.scope_type}
                 for child_named_expr in node.nodes_of_class(nodes.NamedExpr)
             ):
                 return True
-        if isinstance(node, (nodes.Import, nodes.ImportFrom)) and any(
-            (node_name[1] and node_name[1] == name)
-            or (node_name[0] == name)
-            or (node_name[0].startswith(name + "."))
-            for node_name in node.names
+        if isinstance(node, (nodes.Import, nodes.ImportFrom)) and (
+            any(
+                (node_name[1] and node_name[1] == name)
+                or (node_name[0] == name)
+                or (node_name[0].startswith(name + "."))
+                for node_name in node.names
+            )
+            or (
+                isinstance(node, nodes.ImportFrom)
+                and _wildcard_import_binds(node, name)
+            )
         ):
             return True
         if isinstance(node, nodes.With) and any(
@@ -2162,11 +2189,10 @@ class VariablesChecker(BaseChecker):
         # Check if we have starred nodes.
         if any(isinstance(target, nodes.Starred) for target in targets):
             return
-
         try:
-            inferred = utils.safe_infer(node.value)
-            if inferred is not None:
-                self._check_unpacking(inferred, node, targets)
+            inferred = node.value.inferred()
+            if inferred is not None and len(inferred) == 1:
+                self._check_unpacking(inferred[0], node, targets)
         except astroid.InferenceError:
             return
 
@@ -2211,13 +2237,7 @@ class VariablesChecker(BaseChecker):
         in_annotation_or_default_or_decorator = False
         if isinstance(frame, nodes.FunctionDef) and node.statement() is frame:
             in_annotation_or_default_or_decorator = (
-                (
-                    node in frame.args.annotations
-                    or node in frame.args.posonlyargs_annotations
-                    or node in frame.args.kwonlyargs_annotations
-                    or node is frame.args.varargannotation
-                    or node is frame.args.kwargannotation
-                )
+                node in frame.args.get_annotations()
                 or frame.args.parent_of(node)
                 or (frame.decorators and frame.decorators.parent_of(node))
                 or (
@@ -3230,8 +3250,7 @@ class VariablesChecker(BaseChecker):
         if isinstance(assigned, util.UninferableBase):
             return
         if assigned.pytype() not in {"builtins.list", "builtins.tuple"}:
-            line, col = assigned.tolineno, assigned.col_offset
-            self.add_message("invalid-all-format", line=line, col_offset=col, node=node)
+            self.add_message("invalid-all-format", node=assigned)
             return
         for elt in getattr(assigned, "elts", ()):
             try:
@@ -3292,6 +3311,8 @@ class VariablesChecker(BaseChecker):
                     and name == "annotations"
                     and node.modname == "__future__"
                 ):
+                    continue
+                if self._is_name_ignored(node, name):
                     continue
                 self.add_message("unused-variable", args=(name,), node=node)
 
@@ -3388,27 +3409,29 @@ class VariablesChecker(BaseChecker):
 
     def _check_metaclasses(self, node: nodes.Module | nodes.FunctionDef) -> None:
         """Update consumption analysis for metaclasses."""
-        consumed: list[tuple[Consumption, str]] = []
+        consumed: list[tuple[NamesConsumer, str, list[nodes.NodeNG]]] = []
 
         for child_node in node.get_children():
             if isinstance(child_node, nodes.ClassDef):
                 consumed.extend(self._check_classdef_metaclasses(child_node, node))
 
-        # Pop the consumed items, in order to avoid having
-        # unused-import and unused-variable false positives
-        for scope_locals, name in consumed:
-            scope_locals.pop(name, None)
+        # Mark the consumed items properly so they move from to_consume
+        # to consumed, avoiding unused-import/unused-variable false positives
+        # while still allowing subsequent references to resolve.
+        for consumer, name, found_nodes in consumed:
+            if name in consumer.to_consume:
+                consumer.mark_as_consumed(name, found_nodes)
 
     def _check_classdef_metaclasses(
         self,
         klass: nodes.ClassDef,
         parent_node: nodes.Module | nodes.FunctionDef,
-    ) -> list[tuple[Consumption, str]]:
+    ) -> list[tuple[NamesConsumer, str, list[nodes.NodeNG]]]:
         if not klass._metaclass:
             # Skip if this class doesn't use explicitly a metaclass, but inherits it from ancestors
             return []
 
-        consumed: list[tuple[Consumption, str]] = []
+        consumed: list[tuple[NamesConsumer, str, list[nodes.NodeNG]]] = []
         metaclass = klass.metaclass()
         name = ""
         match klass._metaclass:
@@ -3416,9 +3439,10 @@ class VariablesChecker(BaseChecker):
                 # bind name
                 pass
             case nodes.Attribute(expr=attr):
-                while not isinstance(attr, nodes.Name):
+                while isinstance(attr, nodes.Attribute):
                     attr = attr.expr
-                name = attr.name
+                if isinstance(attr, nodes.Name):
+                    name = attr.name
             case nodes.Call(func=nodes.Name(name=name)):
                 # bind name
                 pass
@@ -3434,7 +3458,7 @@ class VariablesChecker(BaseChecker):
                 found_nodes = scope_locals.get(name, [])
                 for found_node in found_nodes:
                     if found_node.lineno <= klass.lineno:
-                        consumed.append((scope_locals, name))
+                        consumed.append((to_consume, name, found_nodes))
                         found = True
                         break
             # Check parent scope
@@ -3444,7 +3468,8 @@ class VariablesChecker(BaseChecker):
                     found = True
                     break
         if (
-            not found
+            name
+            and not found
             and not metaclass
             and not (
                 name in nodes.Module.scope_attrs

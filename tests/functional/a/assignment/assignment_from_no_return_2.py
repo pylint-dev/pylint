@@ -33,6 +33,7 @@ A = func_implicit_return_none()  # [assignment-from-none]
 
 lst = [3, 2]
 A = lst.sort()  # [assignment-from-no-return]
+B = lst.reverse()  # [assignment-from-no-return]
 my_dict = {3: 2}
 B = my_dict.update({2: 1})  # [assignment-from-no-return]
 my_set = set()

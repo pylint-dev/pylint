@@ -1,0 +1,14 @@
+Sped up the ``duplicate-code`` checker.  When run inside pylint the
+checker now reuses the already-parsed AST instead of re-parsing every
+file like it has to do when launched via ``symilar``, and it uses a
+rolling hash window with caching across file pairs. Additionally, a
+quadratic blow-up in the hash-matching phase is avoided by switching
+algorithm at a threshold, which previously caused the checker to hang
+on files with many repeated lines.
+
+Speedup scales with codebase size from 1.5x on small projects
+(~10k lines), to 20x on large ones (500k+ lines). Memory usage also
+drops 12-27%. Codebases that previously hung or were OOM-killed could
+now complete.
+
+Refs #10881

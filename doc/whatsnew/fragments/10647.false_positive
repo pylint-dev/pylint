@@ -1,3 +1,0 @@
-Fix false-positive for ``bare-name-capture-pattern`` if a case guard is used.
-
-Closes #10647

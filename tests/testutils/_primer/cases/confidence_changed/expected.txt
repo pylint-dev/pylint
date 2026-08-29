@@ -1,0 +1,14 @@
+🤖 **Effect of this PR on checked open source code:** 🤖
+
+
+**Effect on [astroid](https://github.com/pylint-dev/astroid):**
+
+Changed messages:
+
+<details>
+
+1) [dangerous-default-value](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/inference.py#L42):
+confidence: `UNDEFINED` → `HIGH`
+</details>
+
+*This comment was generated for commit v2.14.2*

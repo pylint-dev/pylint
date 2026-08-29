@@ -16,7 +16,7 @@ from astroid import nodes
 from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
-from pylint.interfaces import Confidence
+from pylint.interfaces import UNDEFINED, Confidence
 from pylint.message.message_definition import MessageDefinition
 from pylint.typing import (
     ExtraMessageOptions,
@@ -107,6 +107,13 @@ class BaseChecker(_ArgumentsProvider):
         if module:
             # Provide anchor to link against
             result += f".. _{module}:\n\n"
+        else:
+            # Provide anchor to link against, so the documentation can point at
+            # a checker instead of at one of the messages it happens to raise.
+            # Only for the checkers shipped by default, since an extension can
+            # extend one of them and reuse its name, as 'mccabe' does with
+            # 'design', and two identical anchors are an error.
+            result += f".. _{self.name}-checker:\n\n"
         result += f"{get_rst_title(checker_title, '~')}\n"
         if module:
             result += f"This checker is provided by ``{module}``.\n"
@@ -145,7 +152,7 @@ class BaseChecker(_ArgumentsProvider):
         line: int | None = None,
         node: nodes.NodeNG | None = None,
         args: Any = None,
-        confidence: Confidence | None = None,
+        confidence: Confidence = UNDEFINED,
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
@@ -188,10 +195,10 @@ class BaseChecker(_ArgumentsProvider):
             default_scope = WarningScope.NODE
         options: ExtraMessageOptions = {}
         if len(msg_tuple) == 4:
-            (msg, symbol, descr, msg_options) = msg_tuple
+            msg, symbol, descr, msg_options = msg_tuple
             options = ExtraMessageOptions(**msg_options)
         elif len(msg_tuple) == 3:
-            (msg, symbol, descr) = msg_tuple
+            msg, symbol, descr = msg_tuple
         else:
             error_msg = """Messages should have a msgid, a symbol and a description. Something like this :
 

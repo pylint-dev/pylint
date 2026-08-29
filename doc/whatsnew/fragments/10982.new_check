@@ -1,0 +1,5 @@
+Add ``using-comprehension-unpacking-in-unsupported-version`` (W2607), emitted when
+the code uses the unpacking in comprehensions added by PEP 798 while
+``py-version`` still includes a Python version that cannot compile it.
+
+Refs #10982
