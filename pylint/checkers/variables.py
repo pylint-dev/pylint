@@ -3540,8 +3540,8 @@ class VariablesChecker(BaseChecker):
             parent = parent.parent
         if isinstance(parent, nodes.Subscript):
             origin = next(parent.get_children(), None)
-            if origin is not None and utils.is_typing_member(
-                origin, ("Annotated", "Literal")
+            if origin is not None and utils.is_module_member(
+                origin, "typing.Annotated", "typing.Literal"
             ):
                 return
 
