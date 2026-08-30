@@ -40,7 +40,7 @@ dependencies = [
   # Also upgrade test-min dependency group and requirements_test_min.txt.
   # Pinned to dev of second minor update to allow editable installs and fix primer issues,
   # see https://github.com/pylint-dev/astroid/issues/1341
-  "astroid>=4.2.0b5,<=4.3",
+  "astroid>=4.2.0b5,<=4.3.1",
   "colorama>=0.4.5; sys_platform=='win32'",
   # Python 3.15 support has not been released yet, so we pin to a specific commit that supports it.
   "dill @ git+https://github.com/uqfoundation/dill@2308ffb0d0c605b9c050fa4c9fd5793d65c67022 ; python_version>='3.15'",
@@ -91,7 +91,7 @@ docs = [
 # Configuration for the build system
 test-min = [
   # Base test dependencies
-  "astroid==4.2.0b5",                   # Pinned to a specific version for tests
+  "astroid==4.3.1",                   # Pinned to a specific version for tests
   "py~=1.11.0",
   "pytest>=8.4,<10",
   "pytest-benchmark~=5.1",
