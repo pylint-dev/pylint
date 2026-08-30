@@ -365,7 +365,15 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     if i == start + 2:
                         return
                     if found_and_or:
-                        return
+                        # ``and``/``or`` have lower precedence than ``not`` and
+                        # any binary operator, so the parentheses are required in
+                        # e.g. ``not (a and b)`` or ``(a or b) in c``. They are
+                        # superfluous only when they wrap the entire statement
+                        # expression, e.g. ``if (a and b):`` (#10084).
+                        if keyword_token == "not":
+                            return
+                        if tokens[i + 1].string in {")", "]", "}", "in"}:
+                            return
                     if keyword_token == "in":
                         # Parentheses around a tuple after ``in`` are required, so
                         # they were given a blanket pass in pull request #4948.
