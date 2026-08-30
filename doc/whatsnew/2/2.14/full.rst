@@ -244,7 +244,7 @@ Release date: 2022-06-01
 * Pylint can now be installed with an extra-require called ``spelling`` (``pip install pylint[spelling]``).
   This will add ``pyenchant`` to pylint's dependencies. You will still need to install the
   requirements for ``pyenchant`` (the ``enchant`` library and any dictionaries) yourself. You will also
-  need to set the ``spelling-dict`` option.
+  need to set the :ref:`spelling-dict <spelling-dict-option>` option.
 
   Refs #6462
 
@@ -420,8 +420,8 @@ Release date: 2022-06-01
 
   Closes #5608
 
-* The ``ignore-mixin-members`` option has been deprecated. You should now use the new
-  ``ignored-checks-for-mixins`` option.
+* The :ref:`ignore-mixin-members <ignore-mixin-members-option>` option has been deprecated. You should now use the new
+  :ref:`ignored-checks-for-mixins <ignored-checks-for-mixins-option>` option.
 
   Closes #5205
 
@@ -477,7 +477,7 @@ Release date: 2022-06-01
 
 * Pylint now expands the user path (i.e. ``~`` to ``home/yusef/``) and expands environment variables (i.e. ``home/$USER/$project``
   to ``home/yusef/pylint`` for ``USER=yusef`` and ``project=pylint``) for pyreverse's ``output-directory``,
-  ``import-graph``, ``ext-import-graph``,  ``int-import-graph`` options, and the spell checker's ``spelling-private-dict-file``
+  :ref:`import-graph <import-graph-option>`, :ref:`ext-import-graph <ext-import-graph-option>`,  :ref:`int-import-graph <int-import-graph-option>` options, and the spell checker's :ref:`spelling-private-dict-file <spelling-private-dict-file-option>`
   option.
 
   Refs #6493

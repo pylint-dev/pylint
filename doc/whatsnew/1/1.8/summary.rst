@@ -309,7 +309,7 @@ Other Changes
 * In case of ``--output-format=json``, the dictionary returned holds a new key-value pair.
   The key is ``message-id`` and the value the message id.
 
-* Spelling checker has a new configuration parameter ``max-spelling-suggestions``, which
+* Spelling checker has a new configuration parameter :ref:`max-spelling-suggestions <max-spelling-suggestions-option>`, which
   affects maximum count of suggestions included in emitted message.
 
 * The **:ref:`invalid-name`** check contains the name of the template that caused the failure.
@@ -349,7 +349,7 @@ Other Changes
 
 * The Python 3 porting checker respects disabled checkers found in the config file.
 
-* Modules, classes, or methods consist of compound statements that exceed the ``docstring-min-length``
+* Modules, classes, or methods consist of compound statements that exceed the :ref:`docstring-min-length <docstring-min-length-option>`
   are now correctly emitting ``missing-docstring``
 
 * Fix no ``wrong-import-order`` message emitted on ordering of first and third party libraries.

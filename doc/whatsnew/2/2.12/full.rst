@@ -13,11 +13,11 @@ Release date: 2021-11-25
 
   Closes #5342
 
-* Specified that the ``ignore-paths`` option considers ``\`` to represent a
+* Specified that the :ref:`ignore-paths <ignore-paths-option>` option considers ``\`` to represent a
   windows directory delimiter instead of a regular expression escape
   character.
 
-* Fixed a crash with the ``ignore-paths`` option when invoking the option
+* Fixed a crash with the :ref:`ignore-paths <ignore-paths-option>` option when invoking the option
   via the command line.
 
   Closes #5437
@@ -64,7 +64,7 @@ Release date: 2021-11-24
 
   Closes #4982
 
-* Add ability to add ``end_line`` and ``end_column`` to the ``--msg-template`` option.
+* Add ability to add ``end_line`` and ``end_column`` to the :ref:`--msg-template <msg-template-option>` option.
   With the standard ``TextReporter`` this will add the line and column number of the
   end of a node to the output of Pylint. If these numbers are unknown, they are represented
   by an empty string.
@@ -105,7 +105,7 @@ Release date: 2021-11-24
 * The functional test runner now supports the option ``min_pyver_end_position`` to control on which python
   versions the ``end_lineno`` and ``end_column`` attributes should be checked. The default value is 3.8.
 
-* Fix ``accept-no-yields-doc`` and ``accept-no-return-doc`` not allowing missing ``yield`` or
+* Fix :ref:`accept-no-yields-doc <accept-no-yields-doc-option>` and :ref:`accept-no-return-doc <accept-no-return-doc-option>` not allowing missing ``yield`` or
   ``return`` documentation when a docstring is partially correct
 
   Closes #5223
@@ -173,9 +173,9 @@ Release date: 2021-11-24
   ``use-implicit-booleaness-not-comparison``.
 
 * Created new ``UnsupportedVersionChecker`` checker class that includes checks for features
-  not supported by all versions indicated by a ``py-version``.
+  not supported by all versions indicated by a :ref:`py-version <py-version-option>`.
 
-  * Added ``using-f-string-in-unsupported-version`` checker. Issued when ``py-version``
+  * Added ``using-f-string-in-unsupported-version`` checker. Issued when :ref:`py-version <py-version-option>`
     is set to a version that does not support f-strings (< 3.6)
 
 * Fix ``useless-super-delegation`` false positive when default keyword argument is a variable.
@@ -184,7 +184,7 @@ Release date: 2021-11-24
 
   Closes #5150
 
-* Use ``py-version`` setting for alternative union syntax check (PEP 604),
+* Use :ref:`py-version <py-version-option>` setting for alternative union syntax check (PEP 604),
   instead of the Python interpreter version.
 
 * Subclasses of ``dict`` are regarded as reversible by the ``bad-reversed-sequence`` checker
@@ -192,7 +192,7 @@ Release date: 2021-11-24
 
   Closes #4981
 
-* Support configuring mixin class pattern via ``mixin-class-rgx``
+* Support configuring mixin class pattern via :ref:`mixin-class-rgx <mixin-class-rgx-option>`
 
 * Added new checker ``use-implicit-booleaness-not-comparison``: Emitted when
   collection literal comparison is being used to check for emptiness.
@@ -217,7 +217,7 @@ Release date: 2021-11-24
 
   Closes #3031
 
-* Normalize the input to the ``ignore-paths`` option to allow both Posix and
+* Normalize the input to the :ref:`ignore-paths <ignore-paths-option>` option to allow both Posix and
   Windows paths
 
   Closes #5194
@@ -229,17 +229,17 @@ Release date: 2021-11-24
 * ``self-cls-assignment`` now also considers tuple assignment
 
 * Fix ``missing-function-docstring`` not being able to check ``__init__`` and other
-  magic methods even if the ``no-docstring-rgx`` setting was set to do so
+  magic methods even if the :ref:`no-docstring-rgx <no-docstring-rgx-option>` setting was set to do so
 
-* Added ``using-final-decorator-in-unsupported-version`` checker. Issued when ``py-version``
+* Added ``using-final-decorator-in-unsupported-version`` checker. Issued when :ref:`py-version <py-version-option>`
   is set to a version that does not support ``typing.final`` (< 3.8)
 
-* Added configuration option ``exclude-too-few-public-methods`` to allow excluding
-  classes from the ``min-public-methods`` checker.
+* Added configuration option :ref:`exclude-too-few-public-methods <exclude-too-few-public-methods-option>` to allow excluding
+  classes from the :ref:`min-public-methods <min-public-methods-option>` checker.
 
   Closes #3370
 
-* The ``--jobs`` parameter now fallbacks to 1 if the host operating system does not
+* The :ref:`--jobs <jobs-option>` parameter now fallbacks to 1 if the host operating system does not
   have functioning shared semaphore implementation.
 
   Closes #5216
@@ -254,7 +254,7 @@ Release date: 2021-11-24
 
 * Moved ``misplaced-comparison-constant`` to its own extension ``comparison_placement``.
   This checker was opinionated and now no longer a default. It can be reactived by adding
-  ``pylint.extensions.comparison_placement`` to ``load-plugins`` in your config.
+  ``pylint.extensions.comparison_placement`` to :ref:`load-plugins <load-plugins-option>` in your config.
 
   Closes #1064
 
@@ -284,7 +284,7 @@ Release date: 2021-11-24
 
   Closes #2479
 
-* Don't emit ``consider-using-f-string`` if ``py-version`` is set to Python < ``3.6``.
+* Don't emit ``consider-using-f-string`` if :ref:`py-version <py-version-option>` is set to Python < ``3.6``.
   ``f-strings`` were added in Python ``3.6``
 
   Closes #5019

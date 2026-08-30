@@ -21,8 +21,8 @@ Release date: 2021-03-29
 
 * Introduce logic for checking deprecated attributes in DeprecationMixin.
 
-* Reduce usage of blacklist/whitelist terminology. Notably, ``extension-pkg-allow-list`` is an
-  alternative to ``extension-pkg-whitelist`` and the message ``blacklisted-name`` is now emitted as
+* Reduce usage of blacklist/whitelist terminology. Notably, :ref:`extension-pkg-allow-list <extension-pkg-allow-list-option>` is an
+  alternative to :ref:`extension-pkg-whitelist <extension-pkg-whitelist-option>` and the message ``blacklisted-name`` is now emitted as
   ``disallowed-name``. The previous names are accepted to maintain backward compatibility.
 
 * Move deprecated checker to ``DeprecatedMixin``
@@ -47,7 +47,7 @@ Release date: 2021-03-29
 
   Closes #4149
 
-* Add ``allowed-redefined-builtins`` option for fine tuning ``redefined-builtin`` check.
+* Add :ref:`allowed-redefined-builtins <allowed-redefined-builtins-option>` option for fine tuning ``redefined-builtin`` check.
 
   Closes #3263
 
@@ -63,7 +63,7 @@ Release date: 2021-03-29
 
   Closes #3167
 
-* Add ``--class-const-naming-style`` for Enum constants and class variables annotated
+* Add :ref:`--class-const-naming-style <class-const-naming-style-option>` for Enum constants and class variables annotated
   with ``typing.ClassVar``
 
   Closes #4181
@@ -82,7 +82,7 @@ Release date: 2021-03-29
 
 * Improve check if class is subscriptable PEP585
 
-* Fix documentation and filename handling of --import-graph
+* Fix documentation and filename handling of :ref:`--import-graph <import-graph-option>`
 
 * Fix false-positive for ``unused-import`` on class keyword arguments
 
@@ -208,7 +208,7 @@ Release date: 2021-02-21
 
   Closes #3584
 
-* Adds option ``check-protected-access-in-special-methods`` in the ClassChecker to activate/deactivate
+* Adds option :ref:`check-protected-access-in-special-methods <check-protected-access-in-special-methods-option>` in the ClassChecker to activate/deactivate
   ``protected-access`` message emission for single underscore prefixed attribute in special methods.
 
   Closes #3120
@@ -228,7 +228,7 @@ Release date: 2021-02-21
 
 * Fix a crash when a specified config file does not exist
 
-* Add support to ``ignored-argument-names`` in DocstringParameterChecker and adds ``useless-param-doc`` and ``useless-type-doc`` messages.
+* Add support to :ref:`ignored-argument-names <ignored-argument-names-option>` in DocstringParameterChecker and adds ``useless-param-doc`` and ``useless-type-doc`` messages.
 
   Closes #3800
 
@@ -274,7 +274,7 @@ Release date: 2021-02-21
 
   Closes #3314
 
-* ``generated-members`` now matches the qualified name of members
+* :ref:`generated-members <generated-members-option>` now matches the qualified name of members
 
   Closes #2498
 

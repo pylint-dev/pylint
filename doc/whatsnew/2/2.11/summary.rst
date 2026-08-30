@@ -14,7 +14,7 @@ The ``CodeStyleChecker`` also got some love, check it out if you're not already
 using it.
 
 We fixed some long standing bugs, false positives, or false negatives and
-we added small quality of life options like ``min-similarity-lines`` that
+we added small quality of life options like :ref:`min-similarity-lines <min-similarity-lines-option>` that
 disable the duplication check when set to 0.
 
 Under the hood the code for both pylint and astroid is progressively more typed,
@@ -64,7 +64,7 @@ CodeStyleChecker
 Other Changes
 =============
 
-* Added ``py-version`` config key (if ``[MAIN]`` section). Used for version dependent checks.
+* Added :ref:`py-version <py-version-option>` config key (if ``[MAIN]`` section). Used for version dependent checks.
   Will default to whatever Python version pylint is executed with.
 
 * The ``invalid-name`` message is now more detailed when using multiple naming style regexes.
@@ -99,7 +99,7 @@ Other Changes
 
 * Extended ``consider-using-in`` check to work for attribute access.
 
-* Setting ``min-similarity-lines`` to 0 now makes the similarty checker stop checking for duplicate code
+* Setting :ref:`min-similarity-lines <min-similarity-lines-option>` to 0 now makes the similarty checker stop checking for duplicate code
 
   Closes #4901
 

@@ -48,7 +48,7 @@ With implicit namespace packages
 --------------------------------
 
 If the analyzed sources use implicit namespace packages (PEP 420), the source root(s) should
-be specified using the ``--source-roots`` option. Otherwise, the package names are
+be specified using the :ref:`--source-roots <source-roots-option>` option. Otherwise, the package names are
 detected incorrectly, since implicit namespace packages don't contain an ``__init__.py``.
 
 Globbing support
@@ -75,7 +75,7 @@ message symbols, first use ``--disable=all`` then
 ``--enable=<symbol>`` with ``<symbol>`` being a comma-separated list of checker
 names and message symbols. See the list of available features for a
 description of provided checkers with their functionalities.
-The ``--disable`` and ``--enable`` options can be used with comma-separated lists
+The :ref:`--disable <disable-option>` and :ref:`--enable <enable-option>` options can be used with comma-separated lists
 mixing checkers, message ids and categories like ``-d C,W,no-error,design``
 
 It is possible to disable all messages with ``--disable=all``. This is

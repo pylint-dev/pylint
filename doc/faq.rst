@@ -44,9 +44,9 @@ bound. The new default score formula is ::
     max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))
 
 If your project contains a configuration file created by an earlier version of
-Pylint, you can set ``evaluation`` to the above expression to get the new
+Pylint, you can set :ref:`evaluation <evaluation-option>` to the above expression to get the new
 behavior. Likewise, since negative values are still technically supported,
-``evaluation`` can be set to a version of the above expression that does not
+:ref:`evaluation <evaluation-option>` can be set to a version of the above expression that does not
 enforce a floor of zero.
 
 How do I avoid getting unused argument warnings for API I do not control?
@@ -121,9 +121,9 @@ isort_ and flake8-import-order_: ungrouped-imports, wrong-import-order
 How do I avoid "access to undefined member" messages in my mixin classes?
 -------------------------------------------------------------------------
 
-You should add the ``no-member`` message to your ``ignored-checks-for-mixins`` option
+You should add the ``no-member`` message to your :ref:`ignored-checks-for-mixins <ignored-checks-for-mixins-option>` option
 and name your mixin class with a name which ends with "Mixin" or "mixin" (default)
-or change the default value by changing the ``mixin-class-rgx`` option.
+or change the default value by changing the :ref:`mixin-class-rgx <mixin-class-rgx-option>` option.
 
 Where is the persistent data stored to compare between successive runs?
 -----------------------------------------------------------------------

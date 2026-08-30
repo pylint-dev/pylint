@@ -100,7 +100,7 @@ What's New in Pylint 0.26.0?
 ============================
 Release date: 2012-10-05
 
-* #106534: add --ignore-imports option to code similarity checking
+* #106534: add :ref:`--ignore-imports <ignore-imports-option>` option to code similarity checking
   and 'symilar' command line tool (patch by Ry4an Brase)
 
 * #104571: check for anomalous backslash escape, introducing new
@@ -115,7 +115,7 @@ Release date: 2012-10-05
 * #4685: check for consistency of a module's __all__ variable,
   introducing new E0603 message
 
-* #105337: allow custom reporter in output-format (patch by Kevin Jing Qiu)
+* #105337: allow custom reporter in :ref:`output-format <output-format-option>` (patch by Kevin Jing Qiu)
 
 * #104420: check for protocol completeness and avoid false R0903
   (patch by Peter Hammond)
@@ -164,7 +164,7 @@ Release date: 2012-07-17
 * #87192: fix crash when decorators are accessed through more than one dot
   (for instance @a.b is fine, @a.b.c crash)
 
-* #88914: fix parsing of --generated-members options, leading to crash
+* #88914: fix parsing of :ref:`--generated-members <generated-members-option>` options, leading to crash
   when using a regexp value set
 
 * fix potential crashes with utils.safe_infer raising InferenceError
@@ -214,7 +214,7 @@ What's New in Pylint 0.24.0?
 ============================
 Release date: 2011-07-18
 
-* #69738: add regular expressions support for "generated-members"
+* #69738: add regular expressions support for ":ref:`generated-members <generated-members-option>`"
 
 * ids of logging and string_format checkers have been changed:
   logging: 65 -> 12, string_format: 99 -> 13
@@ -233,7 +233,7 @@ Release date: 2011-07-18
 
 * #70495: absolute imports fail depending on module path (patch by Jacek Konieczny)
 
-* #22273: Fix --ignore option documentation to match reality
+* #22273: Fix :ref:`--ignore <ignore-option>` option documentation to match reality
 
 
 What's New in Pylint 0.23.0?
@@ -289,7 +289,7 @@ Release date: 2010-08-26
 
 * fix #36193: import checker raise exception on cyclic import
 
-* fix #28796: regression in --generated-members introduced pylint 0.20
+* fix #28796: regression in :ref:`--generated-members <generated-members-option>` introduced pylint 0.20
 
 * some documentation cleanups
 
@@ -310,10 +310,10 @@ Release date: 2010-05-11
 
 * command line updated (closes #9774, #9787, #9992, #22962):
 
-* all enable-* / disable-* options have been merged into --enable / --disable
+* all enable-* / disable-* options have been merged into :ref:`--enable <enable-option>` / :ref:`--disable <disable-option>`
 
 * BACKWARD INCOMPATIBLE CHANGE: short name of --errors-only becomes -E, -e being
-  affected to --enable
+  affected to :ref:`--enable <enable-option>`
 
 * pylint --help output much simplified, with --long-help available to get the
   complete one
@@ -516,8 +516,8 @@ Release date: 2008-09-10
 * fix #2473: invoking pylint on __init__.py (hopefully)
 
 * typecheck: acquired-members option has been dropped in favor of the more
-  generic generated-members option. If the zope option is set, the behaviour
-  is now to add some default values to generated-members.
+  generic :ref:`generated-members <generated-members-option>` option. If the zope option is set, the behaviour
+  is now to add some default values to :ref:`generated-members <generated-members-option>`.
 
 * Flymake integration: added bin/epylint and elisp/pylint-flymake.el
 
@@ -647,7 +647,7 @@ Release date: 2006-08-10
 * usability changes:
 
     * parseable, html and color options are now handled by a single
-      output-format option
+      :ref:`output-format <output-format-option>` option
 
     * enable-<checkerid> and disable-all options are now handled by
       two (exclusive) enable-checker and disable-checker options
@@ -728,11 +728,11 @@ Release date: 2006-03-06
 
 * change in the base checker:
 
-    - checks module level and instance attribute names (new const-rgx
-      and attr-rgx configuration option) (implements #10209  and
+    - checks module level and instance attribute names (new :ref:`const-rgx <const-rgx-option>`
+      and :ref:`attr-rgx <attr-rgx-option>` configuration option) (implements #10209  and
       #10440)
     - list comprehension and generator expression variables have their
-      own regular expression  (the inlinevar-rgx option) (implements
+      own regular expression  (the :ref:`inlinevar-rgx <inlinevar-rgx-option>` option) (implements
       #9146)
     - the C0101 check with its min-name-length option has
       been removed (this can be specified in the regxp after all...)
@@ -742,7 +742,7 @@ Release date: 2006-03-06
       C0112 respectively
     - new W0104 message on statement without effect
 
-* regexp support for dummy-variables (dummy-variables-rgx option
+* regexp support for dummy-variables (:ref:`dummy-variables-rgx <dummy-variables-rgx-option>` option
   replace dummy-variables) (implements #10027)
 
 * better global statement handling, see W0602, W0603, W0604 messages
@@ -765,7 +765,7 @@ Release date: 2006-01-10
   style / new style classes usage problems (rely on astng 0.14 new
   style detection feature)
 
-* new 'load-plugins' options to load additional pylint plugins (usable
+* new ':ref:`load-plugins <load-plugins-option>`' options to load additional pylint plugins (usable
   from the command line or from a configuration file) (implements
   #10031)
 
@@ -831,7 +831,7 @@ Release date: 2005-10-21
 * print a warning (W0212) for methods that could be a function
   (implements #9100)
 
-* new --defining-attr-methods option on classes checker
+* new :ref:`--defining-attr-methods <defining-attr-methods-option>` option on classes checker
 
 * new --acquired-members option on the classes checker, used when
   --zope=yes to avoid false positive on acquired attributes (listed
@@ -869,10 +869,10 @@ Release date: 2005-05-27
 * WARNING: pylint is no longer a logilab subpackage. Users may have to
   manually remove the old logilab/pylint directory.
 
-* introduce a new --additional-builtins option to handle user defined
+* introduce a new :ref:`--additional-builtins <additional-builtins-option>` option to handle user defined
   builtins
 
-* --reports option has now -r as short alias, and -i for --include-ids
+* :ref:`--reports <reports-option>` option has now -r as short alias, and -i for --include-ids
 
 * fix a bug in the variables checker which may causing some false
   positives when variables are defined and used within the same
@@ -940,7 +940,7 @@ Release date: 2005-02-16
 * fix false positive on W0706 ("identifier used to raise an exception
   assigned to...")
 
-* fix interpretation of ``\t`` as value for the indent-string
+* fix interpretation of ``\t`` as value for the :ref:`indent-string <indent-string-option>`
   configuration variable
 
 * fix --rcfile so that --rcfile=pylintrc (only --rcfile pylintrc was
@@ -1055,7 +1055,7 @@ Release date: 2004-05-10
 
 * some basic handling of metaclasses
 
-* no-docstring-rgx apply now on classes too
+* :ref:`no-docstring-rgx <no-docstring-rgx-option>` apply now on classes too
 
 * new option to specify a different regexp for methods than for
   functions
@@ -1134,7 +1134,7 @@ Release date: 2003-11-20
   useful when you're using zope Interface implementation in your project
 
 * base checker checks for disallowed builtins call (controlled by the
-  bad-functions option) and for use of * and **
+  :ref:`bad-functions <bad-functions-option>` option) and for use of * and **
 
 * format checker checks for use of <> and "l" as long int marker
 
@@ -1149,7 +1149,7 @@ Release date: 2003-11-20
 * can take multiple modules or files as argument
 
 * new options command line options : --disable-msg, --enable-msg,
-  --help-msg, --include-ids, --reports, --disable-report, --cache-size
+  --help-msg, --include-ids, :ref:`--reports <reports-option>`, --disable-report, --cache-size
 
 * --version shows the version of the python interpreter
 

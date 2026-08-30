@@ -106,7 +106,7 @@ New checkers
 * A new check ``preferred-module`` was added.
 
   This check is emitted when ``pylint`` finds an imported module that has a
-  preferred replacement listed in ``preferred-modules``.
+  preferred replacement listed in :ref:`preferred-modules <preferred-modules-option>`.
 
   For example, you can set the preferred modules as ``xml:defusedxml,json:ujson``
   to make ``pylint`` suggest using ``defusedxml`` instead of ``xml``
@@ -120,7 +120,7 @@ New checkers
 
   You can enable this extension using ``--load-plugins=pylint.extensions.broad_try_clause``
   and you can configure the amount of statements in a try statement using
-  ``--max-try-statements``.
+  :ref:`--max-try-statements <max-try-statements-option>`.
 
 
 Other Changes
@@ -157,8 +157,8 @@ Other Changes
 
     assert len(x), message
 
-* A file is now read from stdin if the ``--from-stdin`` flag is used on the
-  command line. In addition to the ``--from-stdin`` flag a (single) file
+* A file is now read from stdin if the :ref:`--from-stdin <from-stdin-option>` flag is used on the
+  command line. In addition to the :ref:`--from-stdin <from-stdin-option>` flag a (single) file
   name needs to be specified on the command line, which is needed for the
   report.
 
@@ -188,7 +188,7 @@ The following does not trigger a ``missing-return-doc`` anymore ::
         """
         return ["hi", "bye"] #@
 
-* ``signature-mutators`` CLI and config option was added.
+* :ref:`signature-mutators <signature-mutators-option>` CLI and config option was added.
 
 With this option, users can choose to ignore ``too-many-function-args``, ``unexpected-keyword-arg``,
 and ``no-value-for-parameter`` for functions decorated with decorators that change
@@ -205,9 +205,9 @@ would mean that ``no-value-for-parameter`` would not be raised for::
 * Allow the option of f-strings as a valid logging string formatting method.
 
 ``logging-fstring--interpolation`` has been merged into
-``logging-format-interpolation`` to allow the ``logging-format-style`` option
+``logging-format-interpolation`` to allow the :ref:`logging-format-style <logging-format-style-option>` option
 to control which logging string format style is valid.
-To allow this, a new ``fstr`` value is valid for the ``logging-format-style``
+To allow this, a new ``fstr`` value is valid for the :ref:`logging-format-style <logging-format-style-option>`
 option.
 
 * ``--list-msgs-enabled`` command was added.

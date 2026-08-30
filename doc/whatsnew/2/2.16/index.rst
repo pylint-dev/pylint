@@ -146,11 +146,11 @@ Release date: 2023-02-01
 Changes requiring user actions
 ------------------------------
 
-- The ``accept-no-raise-doc`` option related to ``missing-raises-doc`` will now
+- The :ref:`accept-no-raise-doc <accept-no-raise-doc-option>` option related to ``missing-raises-doc`` will now
   be correctly taken into account all the time.
 
   Pylint will no longer raise :ref:`missing-raises-doc` (W9006) when no exceptions are
-  documented and accept-no-raise-doc is true (issue #7208).
+  documented and :ref:`accept-no-raise-doc <accept-no-raise-doc-option>` is true (issue #7208).
   If you were expecting :ref:`missing-raises-doc` errors to be raised in that case,
   you
   will now have to add ``accept-no-raise-doc=no`` in your configuration to keep
@@ -169,13 +169,13 @@ New Features
 
   Closes #5362 (`#5362 <https://github.com/pylint-dev/pylint/issues/5362>`_)
 
-- Added configuration option ``clear-cache-post-run`` to support server-like
+- Added configuration option :ref:`clear-cache-post-run <clear-cache-post-run-option>` to support server-like
   usage.
   Use this flag if you expect the linted files to be altered between runs.
 
   Refs #5401 (`#5401 <https://github.com/pylint-dev/pylint/issues/5401>`_)
 
-- Add ``--allow-reexport-from-package`` option to configure the
+- Add :ref:`--allow-reexport-from-package <allow-reexport-from-package-option>` option to configure the
   ``useless-import-alias`` check not to emit a warning if a name
   is reexported from a package.
 
@@ -270,7 +270,7 @@ Extensions
 
 - Added ``bad-dunder-name`` extension check, which flags bad or misspelled
   dunder methods.
-  You can use the ``good-dunder-names`` option to allow specific dunder names.
+  You can use the :ref:`good-dunder-names <good-dunder-names-option>` option to allow specific dunder names.
 
   Closes #3038 (`#3038 <https://github.com/pylint-dev/pylint/issues/3038>`_)
 
@@ -278,7 +278,7 @@ Extensions
   which flags ``x = x + 1`` to simplify to ``x += 1``.
   This check is disabled by default. To use it, load the code style extension
   with ``load-plugins=pylint.extensions.code_style`` and add
-  ``consider-using-augmented-assign`` in the ``enable`` option.
+  ``consider-using-augmented-assign`` in the :ref:`enable <enable-option>` option.
 
   Closes #3391 (`#3391 <https://github.com/pylint-dev/pylint/issues/3391>`_)
 
@@ -379,7 +379,7 @@ False Positives Fixed
 
 - Fix the message for ``unnecessary-dunder-call`` for ``__aiter__`` and
   ``__aneext__``. Also
-  only emit the warning when ``py-version`` >= 3.10.
+  only emit the warning when :ref:`py-version <py-version-option>` >= 3.10.
 
   Closes #7529 (`#7529 <https://github.com/pylint-dev/pylint/issues/7529>`_)
 
@@ -575,7 +575,7 @@ Other Bug Fixes
 
 - ``missing-return-doc``, ``missing-raises-doc`` and ``missing-yields-doc`` now
   respect
-  the ``no-docstring-rgx`` option.
+  the :ref:`no-docstring-rgx <no-docstring-rgx-option>` option.
 
   Closes #4743 (`#4743 <https://github.com/pylint-dev/pylint/issues/4743>`_)
 
@@ -588,7 +588,7 @@ Other Bug Fixes
 
   Closes #5478 (`#5478 <https://github.com/pylint-dev/pylint/issues/5478>`_)
 
-- Using custom braces in ``msg-template`` will now work properly.
+- Using custom braces in :ref:`msg-template <msg-template-option>` will now work properly.
 
   Closes #5636 (`#5636 <https://github.com/pylint-dev/pylint/issues/5636>`_)
 
@@ -693,7 +693,7 @@ Other Bug Fixes
 
   Closes #7528 (`#7528 <https://github.com/pylint-dev/pylint/issues/7528>`_)
 
-- Use ``py-version`` to determine if a message should be emitted for messages
+- Use :ref:`py-version <py-version-option>` to determine if a message should be emitted for messages
   defined with ``max-version`` or ``min-version``.
 
   Closes #7569 (`#7569 <https://github.com/pylint-dev/pylint/issues/7569>`_)
@@ -729,7 +729,7 @@ Other Bug Fixes
 
   Closes #7742 (`#7742 <https://github.com/pylint-dev/pylint/issues/7742>`_)
 
-- Fix ``valid-metaclass-classmethod-first-arg`` default config value from "cls"
+- Fix :ref:`valid-metaclass-classmethod-first-arg <valid-metaclass-classmethod-first-arg-option>` default config value from "cls"
   to "mcs"
   which would cause both a false-positive and false-negative.
 
@@ -817,7 +817,7 @@ Other Changes
 - Add ``default_enabled`` option to optional message dict. Provides an option
   to disable a checker message by default.
   To use a disabled message, the user must enable it explicitly by adding the
-  message to the ``enable`` option.
+  message to the :ref:`enable <enable-option>` option.
 
   Refs #7629 (`#7629 <https://github.com/pylint-dev/pylint/issues/7629>`_)
 
@@ -833,7 +833,7 @@ Other Changes
 
   Closes #7737 (`#7737 <https://github.com/pylint-dev/pylint/issues/7737>`_)
 
-- Adds test for existing preferred-modules configuration functionality.
+- Adds test for existing :ref:`preferred-modules <preferred-modules-option>` configuration functionality.
 
   Refs #7957 (`#7957 <https://github.com/pylint-dev/pylint/issues/7957>`_)
 

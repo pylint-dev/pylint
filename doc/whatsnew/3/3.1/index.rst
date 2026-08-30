@@ -48,13 +48,13 @@ Release date: 2024-02-25
 New Features
 ------------
 
-- Skip ``consider-using-join`` check for non-empty separators if an ``suggest-join-with-non-empty-separator`` option is set to ``no``.
+- Skip ``consider-using-join`` check for non-empty separators if an :ref:`suggest-join-with-non-empty-separator <suggest-join-with-non-empty-separator-option>` option is set to ``no``.
 
   Closes #8701 (`#8701 <https://github.com/pylint-dev/pylint/issues/8701>`_)
 
 - Discover ``.pyi`` files when linting.
 
-  These can be ignored with the ``ignore-patterns`` setting.
+  These can be ignored with the :ref:`ignore-patterns <ignore-patterns-option>` setting.
 
   Closes #9097 (`#9097 <https://github.com/pylint-dev/pylint/issues/9097>`_)
 
