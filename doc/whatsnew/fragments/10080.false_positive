@@ -1,0 +1,3 @@
+Fix a false positive for :ref:`using-constant-test` when testing a value unpacked from a generator.
+
+Closes #10080
