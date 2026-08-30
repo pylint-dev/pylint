@@ -60,22 +60,29 @@ DYNAMICALLY_DEFINED_OPTIONS: dict[str, dict[str, str]] = {
 }
 
 
-_COLLIDING_EXTENSION_NAMES: frozenset[str] = frozenset({"design"})
+def _colliding_checker_names(linter: PyLinter) -> frozenset[str]:
+    """Names registered by more than one checker (core + extension reuse,
+    e.g. ``design`` / ``pylint.extensions.mccabe``).
+
+    Computed from the live
+    linter so future collisions are handled without hardcoding.
+    """
+    counts: dict[str, int] = {}
+    for checker in linter.get_checkers():
+        counts[checker.name] = counts.get(checker.name, 0) + 1
+    return frozenset(name for name, count in counts.items() if count > 1)
 
 
-def _get_colliding_extension_names() -> frozenset[str]:
-    """Return checker names that collide between core and extension registries."""
-    return _COLLIDING_EXTENSION_NAMES
-
-
-def _get_options_anchor(name: str, module: str | None) -> str:
+def _get_options_anchor(
+    name: str, module: str | None, colliding: frozenset[str]
+) -> str:
     """Return the ``-options`` anchor base for a checker.
 
     Non-colliding checkers keep ``{name}-options``. A colliding
     extension checker uses ``{module}-options`` so anchors stay in sync.
     The function is the only place ``f"{module}-options"`` is spelled.
     """
-    if module and name in _get_colliding_extension_names():
+    if module and name in colliding:
         return f"{module}-options"
     return f"{name}-options"
 
@@ -89,6 +96,7 @@ def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
 def _get_all_options(linter: PyLinter) -> OptionsDataDict:
     """Get all options registered to a linter and return the data."""
     all_options: OptionsDataDict = defaultdict(list)
+    colliding = _colliding_checker_names(linter)
     for checker in sorted(linter.get_checkers()):
         for option_name, option_info in checker.options:
             changes_to_do = DYNAMICALLY_DEFINED_OPTIONS.get(option_name, {})
@@ -105,7 +113,7 @@ def _get_all_options(linter: PyLinter) -> OptionsDataDict:
             # their own section (``pylint.extensions.mccabe-options``) instead
             # of merging into the core ``design-options`` section (#9174).
             if is_extension:
-                anchor = _get_options_anchor(checker.name, module)
+                anchor = _get_options_anchor(checker.name, module, colliding)
                 key = anchor[: -len("-options")]
             else:
                 key = checker.name

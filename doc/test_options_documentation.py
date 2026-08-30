@@ -36,26 +36,53 @@ from pylint.typing import (  # noqa: E402  # pylint: disable=wrong-import-positi
 
 
 def test_colliding_extension_names_contains_design() -> None:
-    colliding = pylint_options._get_colliding_extension_names()
+    linter = PyLinter()
+    pylint_options._register_all_checkers_and_extensions(linter)
+    colliding = pylint_options._colliding_checker_names(linter)
     assert "design" in colliding
-    # Today only ``design`` (core vs mccabe) collides.
-    assert colliding == frozenset({"design"})
+    # Non-colliding extensions must NOT appear in the set.
+    assert "dunder" not in colliding
+
+
+def test_builder_inited_detects_collision_with_core_loaded() -> None:
+    """``builder_inited`` must load core checkers so collision detection sees both
+    ``design`` (core) and ``design`` (mccabe ext), producing the correct module-based
+    anchor ``pylint.extensions.mccabe-options``.
+    """
+    from pylint.checkers import initialize as initialize_checkers
+
+    linter = PyLinter()
+    initialize_checkers(linter)
+    linter.load_plugin_modules(["pylint.extensions.mccabe"])
+    colliding = pylint_options._colliding_checker_names(linter)
+    assert "design" in colliding
+    assert (
+        pylint_options._get_options_anchor(
+            "design", "pylint.extensions.mccabe", colliding
+        )
+        == "pylint.extensions.mccabe-options"
+    )
 
 
 def test_get_options_anchor_single_source_of_truth() -> None:
     get_anchor = pylint_options._get_options_anchor
+    colliding = frozenset({"design"})
     # Colliding extension -> module-based anchor.
     assert (
-        get_anchor("design", "pylint.extensions.mccabe")
+        get_anchor("design", "pylint.extensions.mccabe", colliding)
         == "pylint.extensions.mccabe-options"
     )
     # Core checker (module is None) keeps name-based anchor even when colliding.
-    assert get_anchor("design", None) == "design-options"
+    assert get_anchor("design", None, colliding) == "design-options"
     # Non-colliding extensions keep name-based anchors.
-    assert get_anchor("dunder", "pylint.extensions.dunder") == "dunder-options"
-    assert get_anchor("typing", "pylint.extensions.typing") == "typing-options"
     assert (
-        get_anchor("broad_try_clause", "pylint.extensions.broad_try_clause")
+        get_anchor("dunder", "pylint.extensions.dunder", colliding) == "dunder-options"
+    )
+    assert (
+        get_anchor("typing", "pylint.extensions.typing", colliding) == "typing-options"
+    )
+    assert (
+        get_anchor("broad_try_clause", "pylint.extensions.broad_try_clause", colliding)
         == "broad_try_clause-options"
     )
 
