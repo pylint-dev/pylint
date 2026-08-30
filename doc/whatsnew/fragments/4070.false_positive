@@ -1,0 +1,4 @@
+Fix ``no-member`` false positives for generated members accessed from within a
+``typing.NamedTuple`` subclass.
+
+Closes #4070
