@@ -1,0 +1,176 @@
+name: Benchmark
+
+on:
+  pull_request:
+    paths:
+      - "pylint/**"
+      - "tests/benchmark/**"
+      - "requirements*"
+    branches:
+      - main
+  push:
+    tags:
+      - "v*"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CACHE_VERSION: 5
+  KEY_PREFIX: venv
+  DEFAULT_PYTHON: "3.13"
+
+permissions:
+  contents: read
+
+jobs:
+  # Run on PRs: compare main vs PR, upload comment artifact
+  benchmark-compare:
+    if: github.event_name == 'pull_request'
+    name: Compare benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out PR code
+        uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+        id: python
+        uses: actions/setup-python@v6.2.0
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
+
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@v5.0.3
+        with:
+          path: venv
+          key: >-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
+            'requirements_test.txt', 'requirements_test_min.txt',
+            'requirements_test_pre_commit.txt') }}
+
+      - name: Create Python virtual environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install --upgrade --requirement requirements_test.txt
+
+      # Run benchmarks on main
+      - name: Check out main
+        run: git checkout ${{ github.event.pull_request.base.sha }}
+
+      - name: Run benchmarks on main
+        run: |
+          . venv/bin/activate
+          pip install . --no-deps --force-reinstall
+          pytest --exitfirst \
+            --benchmark-only \
+            --benchmark-save=main \
+            --benchmark-group-by="group" \
+            --benchmark-sort=name \
+            tests/benchmark/
+
+      # Run benchmarks on PR
+      - name: Check out PR
+        run: git checkout ${{ github.event.pull_request.head.sha }}
+
+      - name: Run benchmarks on PR
+        run: |
+          . venv/bin/activate
+          pip install . --no-deps --force-reinstall
+          pytest --exitfirst \
+            --benchmark-only \
+            --benchmark-save=pr \
+            --benchmark-group-by="group" \
+            --benchmark-sort=name \
+            tests/benchmark/
+
+      # Compare
+      - name: Find benchmark JSON files
+        id: find-json
+        run: |
+          echo "base=$(find .benchmarks -name '*_main.json' | head -1)" >> "$GITHUB_OUTPUT"
+          echo "pr=$(find .benchmarks -name '*_pr.json' | head -1)" >> "$GITHUB_OUTPUT"
+
+      - name: Compare benchmarks
+        run: |
+          . venv/bin/activate
+          python tests/benchmark/compare.py \
+            --base "${{ steps.find-json.outputs.base }}" \
+            --pr "${{ steps.find-json.outputs.pr }}" \
+            --output benchmark_comment.md
+
+      - name: Save PR number
+        run: echo ${{ github.event.pull_request.number }} > pr_number.txt
+
+      - name: Upload benchmark comment
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: benchmark_result
+          path: |
+            benchmark_comment.md
+            pr_number.txt
+
+  # Run on tags: save benchmark data permanently
+  benchmark-release:
+    if: github.event_name == 'push'
+    name: Benchmark release ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6.0.2
+
+      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+        id: python
+        uses: actions/setup-python@v6.2.0
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
+
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@v5.0.3
+        with:
+          path: venv
+          key: >-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
+            'requirements_test.txt', 'requirements_test_min.txt',
+            'requirements_test_pre_commit.txt') }}
+
+      - name: Create Python virtual environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install --upgrade --requirement requirements_test.txt
+
+      - name: Run benchmarks
+        run: |
+          . venv/bin/activate
+          pip install . --no-deps
+          pytest --exitfirst \
+            --benchmark-only \
+            --benchmark-autosave \
+            --benchmark-save-data \
+            --benchmark-group-by="group" \
+            --benchmark-sort=name \
+            tests/benchmark/
+
+      - name: Upload benchmark artifact
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: benchmark-${{ github.ref_name }}
+          include-hidden-files: true
+          path: .benchmarks/
+          retention-days: 0
