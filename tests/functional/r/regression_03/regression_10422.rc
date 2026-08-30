@@ -1,0 +1,3 @@
+[MAIN]
+disable = all
+enable = not-callable
