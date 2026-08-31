@@ -20,11 +20,11 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    rev: v1.29.0
+    rev: v1.30.0
     hooks:
       - id: zizmor
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.16.4"
+    rev: "v0.16.5"
     hooks:
       - id: ruff-check
         args: ["--fix"]
@@ -42,7 +42,7 @@ repos:
         exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
   - repo: https://github.com/PyCQA/isort
-    rev: 9.0.0
+    rev: 9.0.1
     hooks:
       - id: isort
         exclude: doc/data/messages/
@@ -173,7 +173,7 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.28.1"
+    rev: "v2.29.0"
     hooks:
       - id: pyproject-fmt
   - repo: https://github.com/abravalheri/validate-pyproject
