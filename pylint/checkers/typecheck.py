@@ -1206,7 +1206,7 @@ accessed. Python regular expressions are accepted.",
 
             try:
                 attr_nodes = owner.getattr(node.attrname)
-            except AttributeError:
+            except (AttributeError, astroid.InferenceError):
                 continue
             except astroid.DuplicateBasesError:
                 continue
