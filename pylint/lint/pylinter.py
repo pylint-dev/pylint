@@ -670,21 +670,49 @@ class PyLinter(
                 os.path.join(something, "__init__.py")
             ):
                 skip_subtrees: list[str] = []
-                for root, _, files in os.walk(something):
+                for root, dirnames, files in os.walk(something, topdown=True):
+
+                    # Caution: use of `list(dirnames)` is required to avoid
+                    # iteration issue. We have to have two tests in the loop.
+                    for dirname in list(dirnames):
+                        # First, check just the directory basename. We don't
+                        # pass ignore_paths, as those should still be scanned
+                        # for context needed for processing other files.
+                        if _is_ignored_file(
+                            dirname,
+                            self.config.ignore,
+                            self.config.ignore_patterns,
+                            [],
+                        ):
+                            dirnames.remove(dirname)
+                            continue
+
+                        # Next, check the path of the directory against ignore
+                        # and ignore_patterns, just in case the user specified
+                        # values which match the path, contrary to the
+                        # documentation. Again, we don't pass ignore_paths, as
+                        # those should still be scanned for context needed for
+                        # processing other files.
+                        if _is_ignored_file(
+                            os.path.join(root, dirname),
+                            self.config.ignore,
+                            self.config.ignore_patterns,
+                            [],
+                        ):
+                            dirnames.remove(dirname)
+
+                    # This is almost dead code, since we will not be adding any
+                    # entries to skip_subtrees once we finish the updates to the
+                    # package yield block.
                     if any(root.startswith(s) for s in skip_subtrees):
                         # Skip subtree of already discovered package.
                         continue
 
-                    if _is_ignored_file(
-                        root,
-                        self.config.ignore,
-                        self.config.ignore_patterns,
-                        self.config.ignore_paths,
-                    ):
-                        skip_subtrees.append(root + os.sep)
-                        continue
-
                     if "__init__.py" in files:
+                        # We yield this package, but do not need or even want to
+                        # traverse into it.
+                        # for dirname in list(dirnames):
+                        #    dirnames.remove(dirname)
                         skip_subtrees.append(root + os.sep)
                         yield root
                     else:
@@ -692,6 +720,12 @@ class PyLinter(
                             os.path.join(root, file)
                             for file in files
                             if file.endswith((".py", ".pyi"))
+                            and not _is_ignored_file(
+                                file,
+                                self.config.ignore,
+                                self.config.ignore_patterns,
+                                [],
+                            )
                         )
             else:
                 yield something
