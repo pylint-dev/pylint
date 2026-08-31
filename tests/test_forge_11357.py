@@ -2,10 +2,11 @@
 
 See: https://github.com/pylint-dev/pylint/issues/11357
 """
-import pytest
-from pylint.testutils import CheckerTestCase, MessageTest, set_config
-from pylint.extensions.typing import TypingChecker
+
 import astroid
+
+from pylint.extensions.typing import TypingChecker
+from pylint.testutils import CheckerTestCase, set_config
 
 
 class TestTypingCheckerEmptyGenerator(CheckerTestCase):
