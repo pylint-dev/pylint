@@ -645,7 +645,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                         if not isinstance(other, nodes.Import):
                             continue
                         for other_name, other_alias in other.names:
-                            if other_alias is not None or not other_name.startswith(prefix):
+                            if other_alias is not None or not other_name.startswith(
+                                prefix
+                            ):
                                 continue
                             self.add_message(
                                 "implicit-reimport",
