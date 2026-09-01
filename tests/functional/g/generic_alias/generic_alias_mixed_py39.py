@@ -1,6 +1,6 @@
 """Test generic alias support with mix of typing.py and stdlib types (PY39+)."""
 # flake8: noqa
-# pylint: disable=missing-docstring,pointless-statement
+# pylint: disable=missing-docstring,pointless-statement,implicit-reimport
 # pylint: disable=too-few-public-methods,multiple-statements,line-too-long
 import collections
 import collections.abc

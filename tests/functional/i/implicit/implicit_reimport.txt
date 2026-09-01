@@ -1,0 +1,2 @@
+implicit-reimport:6:0:6:14::Import 'logging' is unnecessary, as 'logging.config' implicitly imports it:HIGH
+implicit-reimport:10:0:10:9::Import 'os' is unnecessary, as 'os.path' implicitly imports it:HIGH

@@ -1,5 +1,5 @@
 """Test PEP 585 works as expected, starting with Python 3.9"""
-# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation,wrong-import-position,ungrouped-imports,unused-variable,unnecessary-direct-lambda-call
+# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation,wrong-import-position,ungrouped-imports,unused-variable,unnecessary-direct-lambda-call,implicit-reimport
 import collections
 import dataclasses
 import typing

@@ -25,7 +25,7 @@ class SomeClass:
 
 from never import __all__
 
-# pylint: disable=wrong-import-order,ungrouped-imports,reimported
+# pylint: disable=wrong-import-order,ungrouped-imports,reimported,implicit-reimport
 import typing
 from typing import TYPE_CHECKING
 import typing as t

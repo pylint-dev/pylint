@@ -3,6 +3,7 @@ https://github.com/pylint-dev/pylint/issues/3507
 False-positive 'isinstance-second-argument-not-valid-type'
 for typing aliases in 'isinstance' calls.
 """
+# pylint: disable=implicit-reimport
 import collections
 import collections.abc
 import typing

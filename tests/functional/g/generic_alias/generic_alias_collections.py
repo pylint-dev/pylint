@@ -1,6 +1,6 @@
 """Test generic alias support for stdlib types (added in PY39)."""
 # flake8: noqa
-# pylint: disable=missing-docstring,pointless-statement
+# pylint: disable=missing-docstring,pointless-statement,implicit-reimport
 # pylint: disable=too-few-public-methods,multiple-statements,line-too-long
 import abc
 import collections

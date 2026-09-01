@@ -3,7 +3,7 @@
 Previously disabling ungrouped-imports would always lead to useless-suppression.
 """
 # pylint: enable=useless-suppression
-# pylint: disable=unused-import, wrong-import-order
+# pylint: disable=unused-import, wrong-import-order, implicit-reimport
 
 import logging.config
 import os.path

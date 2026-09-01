@@ -317,6 +317,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "shadowed-import",
         "Used when a module is aliased with a name that shadows another import.",
     ),
+    "W0417": (
+        "Import %r is unnecessary, as %r implicitly imports it",
+        "implicit-reimport",
+        "Used when importing a submodule also imports its parent module.",
+    ),
 }
 
 
@@ -466,6 +471,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         BaseChecker.__init__(self, linter)
         self.import_graph: defaultdict[str, set[str]] = defaultdict(set)
         self._imports_stack: list[tuple[ImportNode, str]] = []
+        self._scope_imports: dict[int, tuple[nodes.NodeNG, list[ImportNode]]] = {}
         self._non_import_nodes: list[nodes.NodeNG] = []
         self._module_pkg: dict[Any, Any] = (
             {}
@@ -543,9 +549,11 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     def visit_module(self, node: nodes.Module) -> None:
         """Store if current module is a package, i.e. an __init__ file."""
         self._current_module_package = node.package
+        self._scope_imports = {}
 
     def visit_import(self, node: nodes.Import) -> None:
         """Triggered when an import statement is seen."""
+        self._record_scope_import(node)
         self._check_reimport(node)
         self._check_import_as_rename(node)
         self._check_toplevel(node)
@@ -571,6 +579,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         """Triggered when a from statement is seen."""
+        self._record_scope_import(node)
         basename = node.modname
         imported_module = self._get_imported_module(node, basename)
         absolute_name = get_import_name(node, basename)
@@ -598,12 +607,56 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self._add_imported_module(node, imported_module.name)
 
     def leave_module(self, node: nodes.Module) -> None:
+        self._check_implicit_reimports()
         # Skip the expensive isort-based classification when no
         # import-ordering message is enabled (e.g. only cyclic-import).
         if any(self.linter.is_message_enabled(m) for m in ISORT_MESSAGES):
             self.isort_leave_module(node)
         self._imports_stack = []
+        self._scope_imports = {}
         self._non_import_nodes = []
+
+    def _record_scope_import(self, node: ImportNode) -> None:
+        frame = node.frame()
+        imports = self._scope_imports.setdefault(id(frame), (frame, []))[1]
+        imports.append(node)
+
+    def _check_implicit_reimports(self) -> None:
+        if not self.linter.is_message_enabled("implicit-reimport"):
+            return
+
+        for _, imports in self._scope_imports.values():
+            for node in imports:
+                if not isinstance(node, nodes.Import):
+                    continue
+
+                # ``import package`` is only redundant when a later import
+                # binds the parent package name as well.  An aliased dotted
+                # import (``import package.submodule as submodule``) binds
+                # only the alias and therefore must not trigger this check.
+                for imported_name, alias in node.names:
+                    if alias or "." in imported_name:
+                        continue
+
+                    prefix = f"{imported_name}."
+                    for other in imports:
+                        if other is node or astroid.are_exclusive(other, node):
+                            continue
+                        if not isinstance(other, nodes.Import):
+                            continue
+                        for other_name, other_alias in other.names:
+                            if other_alias is not None or not other_name.startswith(prefix):
+                                continue
+                            self.add_message(
+                                "implicit-reimport",
+                                node=node,
+                                args=(imported_name, other_name),
+                                confidence=HIGH,
+                            )
+                            break
+                        else:
+                            continue
+                        break
 
     def isort_leave_module(self, node: nodes.Module) -> None:
         # Check imports are grouped by category (standard, 3rd party, local)

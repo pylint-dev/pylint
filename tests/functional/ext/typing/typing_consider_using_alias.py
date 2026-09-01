@@ -4,7 +4,7 @@
 With 'from __future__ import annotations' present.
 """
 
-# pylint: disable=missing-docstring,invalid-name,unused-argument,line-too-long,unnecessary-direct-lambda-call
+# pylint: disable=missing-docstring,invalid-name,unused-argument,line-too-long,unnecessary-direct-lambda-call,implicit-reimport
 
 # Disabled because of a bug with pypy 3.8 see
 # https://github.com/pylint-dev/pylint/pull/7918#issuecomment-1352737369
