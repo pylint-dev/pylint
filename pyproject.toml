@@ -58,7 +58,9 @@ optional-dependencies.spelling = [ "pyenchant~=3.2" ]
 optional-dependencies.testutils = [ "gitpython>3" ]
 urls."Bug Tracker" = "https://github.com/pylint-dev/pylint/issues"
 urls."Discord Server" = "https://discord.com/invite/Egy6P8AMB5"
-urls."Docs: Contributor Guide" = "https://pylint.readthedocs.io/en/latest/development_guide/contributor_guide/index.html"
+urls."Docs: Contributor Guide" = """\
+  https://pylint.readthedocs.io/en/latest/development_guide/contributor_guide/index.html\
+  """
 urls."Docs: User Guide" = "https://pylint.readthedocs.io/en/latest/"
 urls."Source Code" = "https://github.com/pylint-dev/pylint"
 urls."What's New" = "https://pylint.readthedocs.io/en/latest/whatsnew/4/"
