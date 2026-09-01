@@ -1,0 +1,3 @@
+Added the ``implicit-reimport`` warning for redundant parent-package imports when an unaliased submodule import already binds the parent package.
+
+Closes #9873
