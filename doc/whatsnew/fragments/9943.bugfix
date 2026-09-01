@@ -1,0 +1,3 @@
+Directory arguments are now discovered in deterministic order.
+
+Refs #9943
