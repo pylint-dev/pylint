@@ -1506,8 +1506,8 @@ a metaclass class method.",
             for ancestor in klass.ancestors():
                 if node.name in ancestor.instance_attrs and is_attr_private(node.name):
                     return
-                for obj in ancestor.lookup(node.name)[1]:
-                    if isinstance(obj, nodes.FunctionDef):
+                for obj in ancestor.locals.get(node.name, ()):
+                    if isinstance(obj, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
                         return
             args = (overridden.root().name, overridden.fromlineno)
             self.add_message("method-hidden", args=args, node=node)

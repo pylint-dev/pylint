@@ -1,0 +1,3 @@
+Fix an uncaught ``StatementMissing`` crash in ``class_checker`` when checking ``method-hidden`` on a method whose name matches a builtin without being defined on an ancestor class.
+
+Closes #11361
