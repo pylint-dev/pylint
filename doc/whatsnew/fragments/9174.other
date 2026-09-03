@@ -1,0 +1,3 @@
+``--max-complexity`` from ``pylint.extensions.mccabe`` now has its own extension section in ``all-options.rst``.
+
+Closes #9174
