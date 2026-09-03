@@ -91,5 +91,3 @@ def test_method_hidden_ancestor_attribute_builtin_name(linter: PyLinter) -> None
     assert isinstance(method_node2, nodes.FunctionDef)
     checker.visit_functiondef(method_node2)
     assert not any(msg.symbol == "method-hidden" for msg in linter.reporter.messages)
-
-
