@@ -436,8 +436,9 @@ class NameChecker(_BasicChecker):
             node,
             confidence,
         )
-        # Check argument names
-        args = node.args.args
+        # Check argument names. `Arguments.arguments` covers every parameter kind:
+        # positional-only, positional-or-keyword, *args, keyword-only and **kwargs.
+        args = node.args.arguments
         if args is not None:
             self._recursive_check_names(args)
 
