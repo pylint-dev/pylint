@@ -1,0 +1,6 @@
+Fix a false positive for ``used-before-assignment`` (E0601) when a PEP 695
+type-parameter bound or default forward-references a name defined later in the
+module (e.g. ``class Container[T: Item]`` with ``Item`` defined afterwards).
+Such bounds are lazily evaluated, so the reference is valid at runtime.
+
+Closes #11115
