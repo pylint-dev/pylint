@@ -42,6 +42,7 @@ class PlantUmlPrinter(Printer):
             self.emit(f'BackgroundColor {theme_colors["bgcolor"]}')
             self.emit(f'BorderColor {theme_colors["color"]}')
             self.emit(f'FontColor {theme_colors["fontcolor"]}')
+            self.emit(f'AttributeFontColor {theme_colors["fontcolor"]}')
             self.emit(f'ArrowColor {theme_colors["color"]}')
             self._dec_indent()
             self.emit("}")

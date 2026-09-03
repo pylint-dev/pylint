@@ -29,6 +29,16 @@ def test_plantuml_printer_dark_theme_emits_skinparam_block() -> None:
     assert "FontColor #e0e0e0" in joined
 
 
+def test_plantuml_printer_dark_theme_sets_attribute_font_color() -> None:
+    """FontColor only styles the class name; method/attribute text inside the
+    class box is styled separately by AttributeFontColor and must also be set
+    for the dark theme, or it defaults to unreadable black.
+    """
+    printer = PlantUmlPrinter(title="unittest", theme="dark")
+    joined = "".join(printer.lines)
+    assert "AttributeFontColor #e0e0e0" in joined
+
+
 def test_plantuml_printer_fontcolor_override_takes_precedence_over_theme() -> None:
     printer = PlantUmlPrinter(title="unittest", theme="dark")
     printer.emit_node(

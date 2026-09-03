@@ -4,6 +4,7 @@ skinparam class {
   BackgroundColor #1e1e1e
   BorderColor #e0e0e0
   FontColor #e0e0e0
+  AttributeFontColor #e0e0e0
   ArrowColor #e0e0e0
 }
 set namespaceSeparator none
