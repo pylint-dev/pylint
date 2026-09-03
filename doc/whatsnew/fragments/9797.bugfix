@@ -1,0 +1,3 @@
+Fix a crash in ``pyreverse`` when a requested class cannot be inferred.
+
+Closes #9797
