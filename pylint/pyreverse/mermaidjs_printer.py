@@ -119,13 +119,10 @@ class HTMLMermaidJSPrinter(MermaidJSPrinter):
     HTML_OPEN_BOILERPLATE = """<html>
   <body>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-      <div class="mermaid">
-    """
-    HTML_CLOSE_BOILERPLATE = """
-       </div>
+    <div class="mermaid">"""
+    HTML_CLOSE_BOILERPLATE = """</div>
   </body>
-</html>
-"""
+</html>"""
     GRAPH_INDENT_LEVEL = 4
 
     MERMAID_THEMES: dict[str, str] = {"dark": "dark"}
@@ -136,10 +133,19 @@ class HTMLMermaidJSPrinter(MermaidJSPrinter):
             self._inc_indent()
         mermaid_theme = self.MERMAID_THEMES.get(self.theme)
         if mermaid_theme:
-            self.emit(f"%%{{init: {{'theme': '{mermaid_theme}'}}}}%%")
+            # Mermaid's frontmatter parser requires the `---` delimiters and
+            # `config:` key to be unindented, regardless of the diagram's own
+            # indent level, so emit this block at column 0.
+            indent, self._indent = self._indent, ""
+            self.emit("---")
+            self.emit("config:")
+            self.emit(f"  theme: {mermaid_theme}")
+            self.emit("---")
+            self._indent = indent
         super()._open_graph()
 
     def _close_graph(self) -> None:
+        super()._close_graph()
         for _ in range(self.GRAPH_INDENT_LEVEL):
             self._dec_indent()
         self.emit(self.HTML_CLOSE_BOILERPLATE)
