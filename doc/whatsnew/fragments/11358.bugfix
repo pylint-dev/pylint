@@ -1,0 +1,3 @@
+``collections.abc.Callable`` and ``collections.abc.Buffer`` no longer count towards ``too-many-ancestors``. Every other abstract base class in ``collections.abc`` was already ignored, so a class deriving from ``Callable`` was charged for an ancestor while an otherwise identical class deriving from ``Iterable`` was not.
+
+Refs #11358
