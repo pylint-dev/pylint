@@ -1210,6 +1210,13 @@ accessed. Python regular expressions are accepted.",
                 continue
             except astroid.DuplicateBasesError:
                 continue
+            except astroid.InferenceError:
+                # Metaclass attribute lookup can fail to infer any of the statements
+                # it finds, e.g. when the attribute was assigned through a for-loop
+                # target such as `for SomeClass.attr in ...`. InferenceError is a
+                # sibling of NotFoundError rather than a subclass, so it is not
+                # covered below. Nothing can be concluded about this owner, so move on.
+                continue
             except astroid.NotFoundError:
                 # Avoid false positive in case a decorator supplies member.
                 if (
