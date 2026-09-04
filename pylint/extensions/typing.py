@@ -280,6 +280,10 @@ class TypingChecker(BaseChecker):
                 in {"_collections_abc.Generator", "_collections_abc.AsyncGenerator"}
             )
             and isinstance(node.slice, nodes.Tuple)
+            # An empty subscript such as `Generator[()]` has no elements, and
+            # `all()` over the empty `elts[1:]` is vacuously true, so without this
+            # guard the suggestion below would index `elts[0]` and raise IndexError.
+            and node.slice.elts
             and all(
                 (isinstance(el, nodes.Const) and el.value is None)
                 for el in node.slice.elts[1:]

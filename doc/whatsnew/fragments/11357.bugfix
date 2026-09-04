@@ -1,0 +1,7 @@
+Fix a crash in the ``unnecessary-default-type-args`` check when a ``Generator`` or
+``AsyncGenerator`` is subscripted with an empty tuple, such as ``Generator[()]``.
+The empty subscript produced an empty ``Tuple`` slice, and ``all()`` over the empty
+remainder was vacuously true, so the suggestion built afterwards indexed the first
+element and raised ``IndexError``.
+
+Closes #11357
