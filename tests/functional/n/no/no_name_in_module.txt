@@ -12,3 +12,4 @@ no-name-in-module:54:4:54:27::No name 'emit' in module 'collections':UNDEFINED
 no-name-in-module:71:8:71:32::No name 'emit2' in module 'collections':UNDEFINED
 no-name-in-module:76:0:76:34::No name 'lala' in module 'functional.n.no.no_self_argument':UNDEFINED
 no-name-in-module:77:0:77:39::No name 'bla' in module 'functional.n.no.no_self_argument':UNDEFINED
+no-name-in-module:108:4:108:46::No name 'not_guarded_at_all' in module 'collections':UNDEFINED

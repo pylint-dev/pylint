@@ -1,0 +1,4 @@
+A version guard no longer has to spell out ``sys.version_info`` literally to be
+recognized as one.
+
+Refs #11293

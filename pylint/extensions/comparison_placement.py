@@ -13,12 +13,12 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
+from pylint.checkers.utils import REVERSED_COMPS
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-REVERSED_COMPS = {"<": ">", "<=": ">=", ">": "<", ">=": "<="}
-COMPARISON_OPERATORS = frozenset(("==", "!=", "<", ">", "<=", ">="))
+COMPARISON_OPERATORS = frozenset(REVERSED_COMPS)
 
 
 class MisplacedComparisonConstantChecker(BaseChecker):
