@@ -1,0 +1,5 @@
+The pre-commit integration documentation now explains how to confine pylint to a
+git ``pre-push`` hook with the ``stages`` option, instead of running it on every
+commit.
+
+Closes #9924
