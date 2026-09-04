@@ -1,0 +1,6 @@
+Fix a crash in the ``no-member`` check when a class attribute is bound by a for-loop
+target, such as ``for SomeClass.attr in ...``. Metaclass attribute lookup could fail to
+infer the resulting ``AssignAttr`` and raise ``InferenceError``, which is a sibling of
+``NotFoundError`` rather than a subclass and so was not handled alongside it.
+
+Closes #11356
