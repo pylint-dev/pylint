@@ -1,0 +1,6 @@
+Fixed a false positive ``invalid-name`` for type aliases annotated with
+``TypeAlias`` nested inside a ``TYPE_CHECKING`` block.
+
+Fixed by upgrading astroid to 4.3.0.
+
+Closes #11013
