@@ -552,6 +552,13 @@ def _emit_no_member(
                 return False
         node_origin, parent = parent, parent.parent
 
+    # PEP 695 TypeAliasType attributes (Issue #10091, #9885)
+    if (
+        node.attrname in utils.TYPE_ALIAS_ATTRIBUTES
+        and utils.get_typealias(node.expr) is not None
+    ):
+        return False
+
     return True
 
 
