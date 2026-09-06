@@ -6,7 +6,7 @@ Release date: 2013-08-06
 
 * Add check for the use of 'exec' function
 
-* New --msg-template option to control output, deprecating "msvc" and
+* New :ref:`--msg-template <msg-template-option>` option to control output, deprecating "msvc" and
   "parseable" output formats as well as killing ``--include-ids`` and ``--symbols``
   options
 
@@ -86,7 +86,7 @@ Release date: 2013-08-06
 
   Closes Logilab #107788
 
-* Fix spelling of max-branchs option, now max-branches
+* Fix spelling of max-branchs option, now :ref:`max-branches <max-branches-option>`
 
 * Added a new base class and interface for checkers that work on the
   tokens rather than the syntax, and only tokenize the input file

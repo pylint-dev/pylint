@@ -21,7 +21,7 @@ New checkers
 
   Closes #2558
 
-* We added a new option ``check-str-concat-over-line-jumps`` to check
+* We added a new option :ref:`check-str-concat-over-line-jumps <check-str-concat-over-line-jumps-option>` to check
   ``implicit-str-concat-in-sequence`` over multiple lines.
 
 

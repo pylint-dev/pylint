@@ -19,7 +19,7 @@ pylint the ``--output-format=<value>`` option. Possible values are:
 * ``github``: `GitHub action messages <https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions>`_
 
 Multiple output formats can be used at the same time by passing
-a comma-separated list of formats to ``--output-format``.
+a comma-separated list of formats to :ref:`--output-format <output-format-option>`.
 This output can be redirected to a file by giving a filename after a colon.
 
 For example, to save a json report to ``somefile.json`` and print
@@ -81,8 +81,8 @@ A few other examples:
 
     {path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
 
-The ``--msg-template`` option can only be combined with text-based reporters (``--output-format`` either unspecified or one of: parseable, colorized or msvs).
-If both ``--output-format`` and ``--msg-template`` are specified, the ``--msg-template`` option will take precedence over the default line format defined by the reporter class.
+The :ref:`--msg-template <msg-template-option>` option can only be combined with text-based reporters (:ref:`--output-format <output-format-option>` either unspecified or one of: parseable, colorized or msvs).
+If both :ref:`--output-format <output-format-option>` and :ref:`--msg-template <msg-template-option>` are specified, the :ref:`--msg-template <msg-template-option>` option will take precedence over the default line format defined by the reporter class.
 
 If ``end_line`` or ``end_column`` are ``None``, they will be represented as an empty string
 by the default ``TextReporter``.

@@ -238,7 +238,7 @@ Release date: 2015-11-29
 
 * Don't emit :ref:`import-error` for ignored modules. PyLint will not emit import
   errors for any import which is, or is a subpackage of, a module in
-  the ignored-modules list.
+  the :ref:`ignored-modules <ignored-modules-option>` list.
 
   Closes #223
 
@@ -274,11 +274,11 @@ Release date: 2015-11-29
 
   Closes #449
 
-* --jobs can be used with --load-plugins now.
+* :ref:`--jobs <jobs-option>` can be used with :ref:`--load-plugins <load-plugins-option>` now.
 
   Closes #456
 
-* Improve the performance of --jobs when dealing only with a package name.
+* Improve the performance of :ref:`--jobs <jobs-option>` when dealing only with a package name.
 
   Closes #479
 
@@ -303,7 +303,7 @@ Release date: 2015-11-29
 * Fix a false positive for :ref:`bad-reversed-sequence`, when a subclass
   of a ``dict`` provides a __reversed__ method.
 
-* Change the default no-docstring-rgx so :ref:`missing-docstring` isn't
+* Change the default :ref:`no-docstring-rgx <no-docstring-rgx-option>` so :ref:`missing-docstring` isn't
   emitted for private functions.
 
 * Don't emit :ref:`redefined-outer-name` for __future__ directives.
@@ -372,7 +372,7 @@ Release date: 2015-11-29
 
 * Don't emit :ref:`attribute-defined-outside-init` and :ref:`access-member-before-definition`
   for mixin classes. Actual errors can occur in mixin classes, but this is
-  controlled by the ignore-mixin-members option.
+  controlled by the :ref:`ignore-mixin-members <ignore-mixin-members-option>` option.
 
   Closes #412.
 
@@ -482,11 +482,11 @@ Release date: 2015-11-29
 
   Closes #581.
 
-* ignored-classes option can work with qualified names (ignored-classes=optparse.Values)
+* :ref:`ignored-classes <ignored-classes-option>` option can work with qualified names (ignored-classes=optparse.Values)
 
   Closes #297
 
-* ignored-modules can work with qualified names as well as with Unix pattern
+* :ref:`ignored-modules <ignored-modules-option>` can work with qualified names as well as with Unix pattern
   matching for recursive ignoring.
 
   Closes #244
@@ -503,7 +503,7 @@ Release date: 2015-11-29
   Closes #541.
 
 * --generate-rcfile generates by default human readable symbols
-  for the --disable option.
+  for the :ref:`--disable <disable-option>` option.
 
   Closes #608.
 
@@ -518,7 +518,7 @@ Release date: 2015-11-29
 
   The reason behind this removal is the fact that it's a specialized
   flag and there are solutions for the original problem:
-  use --generated-members with the members that causes problems
+  use :ref:`--generated-members <generated-members-option>` with the members that causes problems
   when using Zope or add AST transforms tailored to the zope
   project.
 
@@ -571,7 +571,7 @@ Release date: 2015-11-29
   Using abbreviations for CLI options was never considered to be
   a feature of pylint, this fact being only a side effect of using optparse.
   As this was the case, using --load-plugin or other abbreviation
-  for --load-plugins never actually worked, while it also didn't raise
+  for :ref:`--load-plugins <load-plugins-option>` never actually worked, while it also didn't raise
   an error.
 
   Closes #424.

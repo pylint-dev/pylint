@@ -42,9 +42,9 @@ Release date: 2020-08-20
 
   Closes #3383
 
-* Fix ``fail-under`` not accepting floats
+* Fix :ref:`fail-under <fail-under-option>` not accepting floats
 
-* Fix a bug with ``ignore-docstrings`` ignoring all lines in a module
+* Fix a bug with :ref:`ignore-docstrings <ignore-docstrings-option>` ignoring all lines in a module
 
 * Fix ``pre-commit`` config that could lead to undetected duplicate lines of code
 
@@ -54,7 +54,7 @@ Release date: 2020-08-20
 
 * Add ``raise-missing-from`` check for exceptions that should have a cause.
 
-* Support both isort 4 and isort 5. If you have pinned isort 4 in your project requirements, nothing changes. If you use isort 5, though, note that the ``known-standard-library`` option is not interpreted the same in isort 4 and isort 5 (see the migration guide in isort documentation for further details). For compatibility's sake for most pylint users, the ``known-standard-library`` option in pylint now maps to ``extra-standard-library`` in isort 5. If you really want what ``known-standard-library`` now means in isort 5, you must disable the ``wrong-import-order`` check in pylint and run isort manually with a proper isort configuration file.
+* Support both isort 4 and isort 5. If you have pinned isort 4 in your project requirements, nothing changes. If you use isort 5, though, note that the :ref:`known-standard-library <known-standard-library-option>` option is not interpreted the same in isort 4 and isort 5 (see the migration guide in isort documentation for further details). For compatibility's sake for most pylint users, the :ref:`known-standard-library <known-standard-library-option>` option in pylint now maps to ``extra-standard-library`` in isort 5. If you really want what :ref:`known-standard-library <known-standard-library-option>` now means in isort 5, you must disable the ``wrong-import-order`` check in pylint and run isort manually with a proper isort configuration file.
 
   Closes #3722
 

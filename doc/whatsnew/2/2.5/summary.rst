@@ -60,15 +60,15 @@ Other Changes
 
 * Add new ``good-names-rgx`` and ``bad-names-rgx`` to enable permitting or disallowing of names via regular expressions
 
-  To enable better handling of permitted/disallowed names, we added two new config options: good-names-rgxs: a comma-
-  separated list of regexes, that if a name matches will be exempt from naming-checking. bad-names-rgxs: a comma-
+  To enable better handling of permitted/disallowed names, we added two new config options: :ref:`good-names-rgxs <good-names-rgxs-option>`: a comma-
+  separated list of regexes, that if a name matches will be exempt from naming-checking. :ref:`bad-names-rgxs <bad-names-rgxs-option>`: a comma-
   separated list of regexes, that if a name matches will be always marked as a disallowed name.
 
 * Mutable ``collections.*`` are now flagged as dangerous defaults.
 
-* Add new ``--fail-under`` flag for setting the threshold for the score to fail overall tests. If the score is over the fail-under threshold, pylint will complete SystemExit with value 0 to indicate no errors.
+* Add new :ref:`--fail-under <fail-under-option>` flag for setting the threshold for the score to fail overall tests. If the score is over the :ref:`fail-under <fail-under-option>` threshold, pylint will complete SystemExit with value 0 to indicate no errors.
 
-* Added a new option ``notes-rgx`` to make fixme warnings more flexible. Now either ``notes`` or ``notes-rgx`` option can be used to detect fixme warnings.
+* Added a new option :ref:`notes-rgx <notes-rgx-option>` to make fixme warnings more flexible. Now either :ref:`notes <notes-option>` or :ref:`notes-rgx <notes-rgx-option>` option can be used to detect fixme warnings.
 
 * Non-ASCII characters are now allowed by ``invalid-name``.
 
@@ -94,5 +94,5 @@ Other Changes
 The ``logging-fstring-interpolation`` message has been brought back to allow
 multiple types of string formatting to be used.
 The type of formatting to use is chosen through enabling and disabling messages
-rather than through the logging-format-style option.
-The fstr value of the logging-format-style option is not valid.
+rather than through the :ref:`logging-format-style <logging-format-style-option>` option.
+The fstr value of the :ref:`logging-format-style <logging-format-style-option>` option is not valid.

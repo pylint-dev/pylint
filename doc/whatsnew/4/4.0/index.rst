@@ -36,10 +36,10 @@ for additional fixes, features, and performance improvements applicable to pylin
 
 - Handling of ``invalid-name`` at the module level was patchy. Now,
   module-level constants that are reassigned are treated as variables and checked
-  against ``--variable-rgx`` rather than ``--const-rgx``. Module-level lists,
+  against :ref:`--variable-rgx <variable-rgx-option>` rather than :ref:`--const-rgx <const-rgx-option>`. Module-level lists,
   sets, and objects can pass against either regex.
 
-Here, ``LIMIT`` is reassigned, so pylint only uses ``--variable-rgx``:
+Here, ``LIMIT`` is reassigned, so pylint only uses :ref:`--variable-rgx <variable-rgx-option>`:
 
 .. code-block:: python
 
@@ -57,7 +57,7 @@ evident that this assignment happens only once:
     else:
         LIMIT = 500  # exclusive assignment: uses const regex, no warning
 
-Lists, sets, and objects still pass against either ``const-rgx`` or ``variable-rgx``
+Lists, sets, and objects still pass against either :ref:`const-rgx <const-rgx-option>` or :ref:`variable-rgx <variable-rgx-option>`
 even if reassigned, but are no longer completely skipped:
 
 .. code-block:: python
@@ -159,7 +159,7 @@ False Positives Fixed
 - Fix a false positive for ``invalid-name`` when a module-level variable is assigned
   an instance of a ``TypedDict`` subclass. Such a name is a value, not a type
   definition, so it is now checked against the constant or variable regex instead
-  of ``class-rgx``.
+  of :ref:`class-rgx <class-rgx-option>`.
 
   Closes #11231 (`#11231 <https://github.com/pylint-dev/pylint/issues/11231>`_)
 
@@ -242,7 +242,7 @@ False Positives Fixed
   Closes #6663 (`#6663 <https://github.com/pylint-dev/pylint/issues/6663>`_)
 
 - Fix a false positive for ``invalid-name`` (C0103) where the default
-  ``typevar-rgx`` rejected ``TypeVar`` names containing digits, such as
+  :ref:`typevar-rgx <typevar-rgx-option>` rejected ``TypeVar`` names containing digits, such as
   ``Ec2T``.
 
   Closes #8499 (`#8499 <https://github.com/pylint-dev/pylint/issues/8499>`_)
@@ -257,10 +257,10 @@ False Positives Fixed
   Closes #9833 (`#9833 <https://github.com/pylint-dev/pylint/issues/9833>`_)
 
 - Fix a false positive for ``function-redefined`` (E0102) when reusing names that
-  match ``dummy-variables-rgx`` (such as ``_``), which is common for
+  match :ref:`dummy-variables-rgx <dummy-variables-rgx-option>` (such as ``_``), which is common for
   ``pytest-bdd`` step definitions. This restores the behavior from before pylint
   4.0.0; as a consequence the false negative fixed in #9894 is reintroduced for
-  functions whose name matches ``dummy-variables-rgx``.
+  functions whose name matches :ref:`dummy-variables-rgx <dummy-variables-rgx-option>`.
 
   Closes #10665 (`#10665 <https://github.com/pylint-dev/pylint/issues/10665>`_)
 
@@ -270,8 +270,8 @@ False Positives Fixed
   Closes #10823 (`#10823 <https://github.com/pylint-dev/pylint/issues/10823>`_)
 
 - Fix a false positive for ``unused-variable`` where global variables matching
-  ``dummy-variables-rgx`` were still reported as unused when
-  ``allow-global-unused-variables`` was disabled.
+  :ref:`dummy-variables-rgx <dummy-variables-rgx-option>` were still reported as unused when
+  :ref:`allow-global-unused-variables <allow-global-unused-variables-option>` was disabled.
 
   Closes #10890 (`#10890 <https://github.com/pylint-dev/pylint/issues/10890>`_)
 
@@ -420,7 +420,7 @@ Other Bug Fixes
 
   Closes #10801 (`#10801 <https://github.com/pylint-dev/pylint/issues/10801>`_)
 
-- Fixed dynamic color mapping for "fail-on" messages when using multiple reporter/output formats.
+- Fixed dynamic color mapping for ":ref:`fail-on <fail-on-option>`" messages when using multiple reporter/output formats.
 
   Closes #10825 (`#10825 <https://github.com/pylint-dev/pylint/issues/10825>`_)
 
@@ -456,7 +456,7 @@ Release date: 2025-11-13
 False Positives Fixed
 ---------------------
 
-- Add Enum dunder methods ``_generate_next_value_``, ``_missing_``, ``_numeric_repr_``, ``_add_alias_``, and ``_add_value_alias_`` to the list passed to ``--good-dunder-names``.
+- Add Enum dunder methods ``_generate_next_value_``, ``_missing_``, ``_numeric_repr_``, ``_add_alias_``, and ``_add_value_alias_`` to the list passed to :ref:`--good-dunder-names <good-dunder-names-option>`.
 
   Closes #10435 (`#10435 <https://github.com/pylint-dev/pylint/issues/10435>`_)
 
@@ -540,7 +540,7 @@ False Positives Fixed
   Closes #10647 (`#10647 <https://github.com/pylint-dev/pylint/issues/10647>`_)
 
 - Check enums created with the ``Enum()`` functional syntax to pass against the
-  ``--class-rgx`` for the :ref:`invalid-name` check, like other enums.
+  :ref:`--class-rgx <class-rgx-option>` for the :ref:`invalid-name` check, like other enums.
 
   Closes #10660 (`#10660 <https://github.com/pylint-dev/pylint/issues/10660>`_)
 
@@ -555,11 +555,11 @@ Breaking Changes
 ----------------
 
 - ``invalid-name`` now distinguishes module-level constants that are assigned only once
-  from those that are reassigned and now applies ``--variable-rgx`` to the latter. Values
+  from those that are reassigned and now applies :ref:`--variable-rgx <variable-rgx-option>` to the latter. Values
   other than literals (lists, sets, objects) can pass against either the constant or
   variable regexes (e.g. "LOGGER" or "logger" but not "LoGgEr").
 
-  Remember that ``--good-names`` or ``--good-names-rgxs`` can be provided to explicitly
+  Remember that :ref:`--good-names <good-names-option>` or :ref:`--good-names-rgxs <good-names-rgxs-option>` can be provided to explicitly
   allow good names.
 
   Closes #3585 (`#3585 <https://github.com/pylint-dev/pylint/issues/3585>`_)
@@ -638,7 +638,7 @@ New Features
 
   Closes #9357 (`#9357 <https://github.com/pylint-dev/pylint/issues/9357>`_)
 
-- colorized reporter now colorizes messages/categories that have been configured as ``fail-on`` in red inverse.
+- colorized reporter now colorizes messages/categories that have been configured as :ref:`fail-on <fail-on-option>` in red inverse.
   This makes it easier to quickly find the errors that are causing pylint CI job failures.
 
   Closes #9898 (`#9898 <https://github.com/pylint-dev/pylint/issues/9898>`_)
@@ -753,7 +753,7 @@ False Negatives Fixed
   Refs #9667 (`#9667 <https://github.com/pylint-dev/pylint/issues/9667>`_)
 
 - Check module-level constants with type annotations for ``invalid-name``.
-  Remember to adjust ``const-naming-style`` or ``const-rgx`` to your liking.
+  Remember to adjust :ref:`const-naming-style <const-naming-style-option>` or :ref:`const-rgx <const-rgx-option>` to your liking.
 
   Closes #9770 (`#9770 <https://github.com/pylint-dev/pylint/issues/9770>`_)
 

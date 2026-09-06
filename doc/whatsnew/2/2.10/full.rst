@@ -54,7 +54,7 @@ Release date: 2021-08-20
 
   Closes #4775
 
-* Added ``ignored-parents`` option to the design checker to ignore specific
+* Added :ref:`ignored-parents <ignored-parents-option>` option to the design checker to ignore specific
   classes from the ``too-many-ancestors`` check (R0901).
 
   Fixes part of #3057
@@ -63,7 +63,7 @@ Release date: 2021-08-20
 
   Closes #3826
 
-* Improved the Similarity checker performance. Fix issue with ``--min-similarity-lines`` used with ``--jobs``.
+* Improved the Similarity checker performance. Fix issue with :ref:`--min-similarity-lines <min-similarity-lines-option>` used with :ref:`--jobs <jobs-option>`.
 
   Closes #4120
   Closes #4118
@@ -173,7 +173,7 @@ Release date: 2021-08-20
 
 * Allow ``true`` and ``false`` values in ``pylintrc`` for better compatibility with ``toml`` config.
 
-* Class methods' signatures are ignored the same way as functions' with similarities "ignore-signatures" option enabled
+* Class methods' signatures are ignored the same way as functions' with similarities ":ref:`ignore-signatures <ignore-signatures-option>`" option enabled
 
   Closes #4653
 

@@ -63,7 +63,7 @@ Release date: 2021-04-24
 
   Closes #3891
 
-* Apply ``const-naming-style`` to module constants annotated with
+* Apply :ref:`const-naming-style <const-naming-style-option>` to module constants annotated with
   ``typing.Final``
 
 * The packaging is now done via setuptools exclusively. ``doc``, ``tests``, ``man``, ``elisp`` and ``Changelog`` are

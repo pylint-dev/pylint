@@ -1,5 +1,5 @@
 Fix a false positive for ``unused-variable`` where global variables matching
-``dummy-variables-rgx`` were still reported as unused when
-``allow-global-unused-variables`` was disabled.
+:ref:`dummy-variables-rgx <dummy-variables-rgx-option>` were still reported as unused when
+:ref:`allow-global-unused-variables <allow-global-unused-variables-option>` was disabled.
 
 Closes #10890

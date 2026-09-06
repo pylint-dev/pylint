@@ -62,7 +62,7 @@ False Positives Fixed
 Other Bug Fixes
 ---------------
 
-- Using custom braces in ``msg-template`` will now work properly.
+- Using custom braces in :ref:`msg-template <msg-template-option>` will now work properly.
 
   Closes #5636 (`#5636 <https://github.com/pylint-dev/pylint/issues/5636>`_)
 
@@ -275,7 +275,7 @@ False Positives Fixed
 
 - Fix the message for ``unnecessary-dunder-call`` for ``__aiter__`` and
   ``__anext__``. Also
-  only emit the warning when ``py-version`` >= 3.10.
+  only emit the warning when :ref:`py-version <py-version-option>` >= 3.10.
 
   Closes #7529 (`#7529 <https://github.com/pylint-dev/pylint/issues/7529>`_)
 
@@ -387,7 +387,7 @@ Release date: 2022-09-07
 
   Closes #4354 (`#4354 <https://github.com/pylint-dev/pylint/issues/4354>`_)
 - ``missing-return-doc``, ``missing-raises-doc`` and ``missing-yields-doc`` now respect
-  the ``no-docstring-rgx`` option.
+  the :ref:`no-docstring-rgx <no-docstring-rgx-option>` option.
 
   Closes #4743 (`#4743 <https://github.com/pylint-dev/pylint/issues/4743>`_)
 - Don't crash on ``OSError`` in config file discovery.

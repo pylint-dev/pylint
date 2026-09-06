@@ -68,7 +68,7 @@ False Positives Fixed
 
   Closes #9668 (`#9668 <https://github.com/pylint-dev/pylint/issues/9668>`_)
 
-- Fix false positive for :ref:`missing-raises-doc` and :ref:`missing-yield-doc` when the method length is less than docstring-min-length.
+- Fix false positive for :ref:`missing-raises-doc` and :ref:`missing-yield-doc` when the method length is less than :ref:`docstring-min-length <docstring-min-length-option>`.
 
   Refs #10104 (`#10104 <https://github.com/pylint-dev/pylint/issues/10104>`_)
 
@@ -305,7 +305,7 @@ Changes requiring user actions
 - We migrated ``symilar`` to argparse, from getopt, so the error and help output changed
   (for the better). We exit with 2 instead of sometime 1, sometime 2. The error output
   is not captured by the runner anymore. It's not possible to use a value for the
-  boolean options anymore (``--ignore-comments 1`` should become ``--ignore-comments``).
+  boolean options anymore (``--ignore-comments 1`` should become :ref:`--ignore-comments <ignore-comments-option>`).
 
   Refs #9731 (`#9731 <https://github.com/pylint-dev/pylint/issues/9731>`_)
 
@@ -334,17 +334,17 @@ New Checks
 
 - Add :ref:`using-exception-groups-in-unsupported-version` and
   :ref:`using-generic-type-syntax-in-unsupported-version` for uses of Python 3.11+ or
-  3.12+ features on lower supported versions provided with ``--py-version``.
+  3.12+ features on lower supported versions provided with :ref:`--py-version <py-version-option>`.
 
   Closes #9791 (`#9791 <https://github.com/pylint-dev/pylint/issues/9791>`_)
 
 - Add :ref:`using-assignment-expression-in-unsupported-version` for uses of ``:=`` (walrus operator)
-  on Python versions below 3.8 provided with ``--py-version``.
+  on Python versions below 3.8 provided with :ref:`--py-version <py-version-option>`.
 
   Closes #9820 (`#9820 <https://github.com/pylint-dev/pylint/issues/9820>`_)
 
 - Add :ref:`using-positional-only-args-in-unsupported-version` for uses of positional-only args on
-  Python versions below 3.8 provided with ``--py-version``.
+  Python versions below 3.8 provided with :ref:`--py-version <py-version-option>`.
 
   Closes #9823 (`#9823 <https://github.com/pylint-dev/pylint/issues/9823>`_)
 

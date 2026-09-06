@@ -28,7 +28,7 @@ Release date: 2017-04-13
 
 * Don't emit by default :ref:`no-member` if we have opaque inference objects in the inference results
 
-  This is controlled through the new flag ignore-on-opaque-inference, which is by
+  This is controlled through the new flag :ref:`ignore-on-opaque-inference <ignore-on-opaque-inference-option>`, which is by
   default True. The inference can return  multiple potential results while
   evaluating a Python object, but some branches might not be evaluated, which
   results in partial inference. In that case, it might be useful to still emit
@@ -142,11 +142,11 @@ Release date: 2017-04-13
 
   Fixes part of #975
 
-* ignored-argument-names is now used for ignoring arguments for :ref:`unused-variable` check.
+* :ref:`ignored-argument-names <ignored-argument-names-option>` is now used for ignoring arguments for :ref:`unused-variable` check.
 
   This option was used for ignoring arguments when computing the correct number of arguments
   a function should have, but for handling the arguments with regard
-  to :ref:`unused-variable` check, dummy-variables-rgx was used instead. Now, ignored-argument-names
+  to :ref:`unused-variable` check, :ref:`dummy-variables-rgx <dummy-variables-rgx-option>` was used instead. Now, :ref:`ignored-argument-names <ignored-argument-names-option>`
   is used for its original purpose and also for ignoring the matched arguments for
   the :ref:`unused-variable` check. This offers a better control of what should be ignored
   and how.
@@ -322,7 +322,7 @@ Release date: 2017-04-13
 
   Closes #572
 
-* Added a new switch ``single-line-class-stmt`` to allow single-line declaration
+* Added a new switch :ref:`single-line-class-stmt <single-line-class-stmt-option>` to allow single-line declaration
   of empty class bodies.
 
   Closes #738
@@ -331,11 +331,11 @@ Release date: 2017-04-13
 
   Closes #1031
 
-* Let the user modify msg-template when Pylint is called from a Python script
+* Let the user modify :ref:`msg-template <msg-template-option>` when Pylint is called from a Python script
 
   Closes #1269
 
-* Imports checker supports new switch ``allow-wildcard-with-all`` which disables
+* Imports checker supports new switch :ref:`allow-wildcard-with-all <allow-wildcard-with-all-option>` which disables
   warning on wildcard import when imported module defines ``__all__`` variable.
 
   Closes #831

@@ -64,7 +64,7 @@ Release date: 2015-03-11
 
 * Add support for editable installations.
 
-* The HTML output accepts the ``--msg-template`` option. Patch by
+* The HTML output accepts the :ref:`--msg-template <msg-template-option>` option. Patch by
   Dan Goldsmith.
 
 * Add 'map-builtin-not-iterating' (replacing 'implicit-map-evaluation'),
@@ -79,8 +79,8 @@ Release date: 2015-03-11
 
   Closes #299
 
-* Add support for combining the Python 3 checker mode with the --jobs
-  flag (--py3k and --jobs).
+* Add support for combining the Python 3 checker mode with the :ref:`--jobs <jobs-option>`
+  flag (--py3k and :ref:`--jobs <jobs-option>`).
 
   Closes #467
 
@@ -156,10 +156,10 @@ Release date: 2014-11-23
   By default, only C extensions from the stdlib will be loaded
   into the active Python interpreter for inspection, because they
   can run arbitrary code on import. The option
-  ``--extension-pkg-whitelist`` can be used to specify modules
+  :ref:`--extension-pkg-whitelist <extension-pkg-whitelist-option>` can be used to specify modules
   or packages that are safe to load.
 
-* Change default max-line-length to 100 rather than 80
+* Change default :ref:`max-line-length <max-line-length-option>` to 100 rather than 80
 
 * Drop BaseRawChecker class which were only there for backward
   compatibility for a while now
@@ -183,13 +183,13 @@ Release date: 2014-11-23
 
 * Add new checker for finding spelling errors. New messages:
   :ref:`wrong-spelling-in-comment`, :ref:`wrong-spelling-in-docstring`.
-  New options: spelling-dict, spelling-ignore-words.
+  New options: :ref:`spelling-dict <spelling-dict-option>`, :ref:`spelling-ignore-words <spelling-ignore-words-option>`.
 
 * Add new '-j' option for running checks in sub-processes.
 
 * Added new checks for line endings if they are mixed (LF vs CRLF)
   or if they are not as expected. New messages: :ref:`mixed-line-endings`,
-  :ref:`unexpected-line-ending-format`. New option: expected-line-ending-format.
+  :ref:`unexpected-line-ending-format`. New option: :ref:`expected-line-ending-format <expected-line-ending-format-option>`.
 
 * :ref:`dangerous-default-value` no longer evaluates the value of the arguments,
   which could result in long error messages or sensitive data being leaked.
@@ -302,7 +302,7 @@ Release date: 2014-11-23
   Closes #291
 
 * Add support for customising callback identifiers, by adding a new
-  '--callbacks' command line option.
+  ':ref:`--callbacks <callbacks-option>`' command line option.
 
   Closes #326
 
@@ -344,7 +344,7 @@ Release date: 2014-11-23
 
   Closes #359
 
-* Fix for regression: '{path}' was no longer accepted in '--msg-template'.
+* Fix for regression: '{path}' was no longer accepted in ':ref:`--msg-template <msg-template-option>`'.
 
 * Report the percentage of all messages, not just for errors and warnings.
 
@@ -366,7 +366,7 @@ Release date: 2014-11-23
 * Warn in Python 2 when a non-floor division operation is found without
   a corresponding ``from __future__ import division``.
 
-* Add a new option, 'exclude-protected', for excluding members
+* Add a new option, ':ref:`exclude-protected <exclude-protected-option>`', for excluding members
   from the :ref:`protected-access` warning.
 
   Closes #48

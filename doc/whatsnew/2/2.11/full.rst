@@ -24,7 +24,7 @@ Release date: 2021-09-16
 
   Closes #4776
 
-* Added ``py-version`` config key (if ``[MASTER]`` section). Used for version dependent checks.
+* Added :ref:`py-version <py-version-option>` config key (if ``[MASTER]`` section). Used for version dependent checks.
   Will default to whatever Python version pylint is executed with.
 
 * ``CodeStyleChecker``: Added ``consider-using-assignment-expr``: Emitted when an assignment is directly followed by an if statement
@@ -74,7 +74,7 @@ Release date: 2021-09-16
 
 * Extended ``consider-using-in`` check to work for attribute access.
 
-* Setting ``min-similarity-lines`` to 0 now makes the similarty checker stop checking for duplicate code
+* Setting :ref:`min-similarity-lines <min-similarity-lines-option>` to 0 now makes the similarty checker stop checking for duplicate code
 
   Closes #4901
 

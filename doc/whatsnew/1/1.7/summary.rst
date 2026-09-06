@@ -592,7 +592,7 @@ Other Changes
 
 * We don't emit by default ``no-member`` if we have opaque inference objects in the inference results
 
-  This is controlled through the new flag ``--ignore-on-opaque-inference``, which is by
+  This is controlled through the new flag :ref:`--ignore-on-opaque-inference <ignore-on-opaque-inference-option>`, which is by
   default True. The inference can return  multiple potential results while
   evaluating a Python object, but some branches might not be evaluated, which
   results in partial inference. In that case, it might be useful to still emit
@@ -608,12 +608,12 @@ Other Changes
   interpreter, leading to false positives when analysed. By default, this is false, you
   can enable the analysis for both branches using this flag.
 
-* ``ignored-argument-names`` option is now used for ignoring arguments
+* :ref:`ignored-argument-names <ignored-argument-names-option>` option is now used for ignoring arguments
   for :ref:`unused-variable` check.
 
   This option was used for ignoring arguments when computing the correct number of arguments
   a function should have, but for handling the arguments with regard
-  to :ref:`unused-variable` check, dummy-variables-rgx was used instead. Now, ignored-argument-names
+  to :ref:`unused-variable` check, :ref:`dummy-variables-rgx <dummy-variables-rgx-option>` was used instead. Now, :ref:`ignored-argument-names <ignored-argument-names-option>`
   is used for its original purpose and also for ignoring the matched arguments for
   the :ref:`unused-variable` check. This offers a better control of what should be ignored
   and how.
@@ -621,12 +621,12 @@ Other Changes
   which means that the option now appears under the ``[VARIABLES]`` section inside
   the configuration file.
 
-* A new option was added, ``redefining-builtins-modules``, for controlling the modules
+* A new option was added, :ref:`redefining-builtins-modules <redefining-builtins-modules-option>`, for controlling the modules
   which can redefine builtins, such as six.moves and future.builtins.
 
-* A new option was added, ``ignore-patterns``, which is used for building a
+* A new option was added, :ref:`ignore-patterns <ignore-patterns-option>`, which is used for building a
   ignore list of directories and files matching the regex patterns, similar to the
-  ``ignore`` option.
+  :ref:`ignore <ignore-option>` option.
 
 
 * The reports are now disabled by default, as well as the information category
@@ -736,10 +736,10 @@ Other Changes
     $ pylint a.py
     E: 8,10: Instance of 'Contribution' has no 'email' member; maybe 'mail'?
 
-  The behaviour is controlled through the ``--missing-member-hint`` option.
-  Other options that come with this change are ``--missing-member-max-choices``
+  The behaviour is controlled through the :ref:`--missing-member-hint <missing-member-hint-option>` option.
+  Other options that come with this change are :ref:`--missing-member-max-choices <missing-member-max-choices-option>`
   for choosing the total number of choices that should be picked in this
-  situation and ``--missing-member-hint-distance``, which specifies a metric
+  situation and :ref:`--missing-member-hint-distance <missing-member-hint-distance-option>`, which specifies a metric
   for computing the distance between the names (this is based on Levenshtein
   distance, which means the lower the number, the more pickier the algorithm
   will be).
@@ -782,7 +782,7 @@ Other Changes
   being disabled by default. They can be enabled through:
   ``--load-plugins=pylint.extensions.redefined_variable_type,pylint.extensions.bad_builtin``
 
-  * Imports checker supports new switch ``allow-wildcard-with-all`` which disables
+  * Imports checker supports new switch :ref:`allow-wildcard-with-all <allow-wildcard-with-all-option>` which disables
     warning on wildcard import when imported module defines ``__all__`` variable.
 
 * ``differing-param-doc`` is now used for the differing part of the old ``missing-param-doc``,
@@ -883,13 +883,13 @@ Bug fixes
 * ``unused-variable`` checker has new functionality of warning about unused
   variables in global module namespace. Since globals in module namespace
   may be a part of exposed API, this check is disabled by default. For
-  enabling it, set ``allow-global-unused-variables`` option to false.
+  enabling it, set :ref:`allow-global-unused-variables <allow-global-unused-variables-option>` option to false.
 
 * Fix a false-positive ``logging-format-interpolation`` message, when format
   specifications are used in formatted string. In general, these operations
   are not always convertible to old-style formatting used by logging module.
 
-* Added a new switch ``single-line-class-stmt`` to allow single-line declaration
+* Added a new switch :ref:`single-line-class-stmt <single-line-class-stmt-option>` to allow single-line declaration
   of empty class bodies (as seen in the example below). Pylint won't emit a
   ``multiple-statements`` message when this option is enabled.
 

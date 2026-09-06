@@ -136,7 +136,7 @@ Release date: 2020-04-27
 
   Closes #3308
 
-* Add 'notes-rgx' option, to be used for fixme check.
+* Add ':ref:`notes-rgx <notes-rgx-option>`' option, to be used for fixme check.
 
   Closes #2874
 
@@ -161,7 +161,7 @@ Release date: 2020-04-27
 
   Closes #3386
 
-* Add ``dummy-variables-rgx`` option for ``_redeclared-assigned-name`` check.
+* Add :ref:`dummy-variables-rgx <dummy-variables-rgx-option>` option for ``_redeclared-assigned-name`` check.
 
   Closes #3341
 
@@ -209,7 +209,7 @@ Release date: 2020-04-27
 
   Closes #2503
 
-* Add a --fail-under <score> flag, also configurable in a .pylintrc file. If the final score is more than the specified score, it's considered a success and pylint exits with exitcode 0. Otherwise, it's considered a failure and pylint exits with its current exitcode based on the messages issued.
+* Add a :ref:`--fail-under <fail-under-option>` <score> flag, also configurable in a .pylintrc file. If the final score is more than the specified score, it's considered a success and pylint exits with exitcode 0. Otherwise, it's considered a failure and pylint exits with its current exitcode based on the messages issued.
 
   Closes #2242
 
@@ -316,7 +316,7 @@ Release date: 2020-04-27
 
   Clean up the setup.py file, resolving a number of warnings around it.
 
-* Handle SyntaxError in files passed via ``--from-stdin`` option
+* Handle SyntaxError in files passed via :ref:`--from-stdin <from-stdin-option>` option
 
   Pylint no longer outputs a traceback, if a file, read from stdin,
   contains a syntaxerror.

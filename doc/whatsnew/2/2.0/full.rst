@@ -51,7 +51,7 @@ Release date: 2018-07-15
 
   Closes #2186
 
-* Add ``--ignore-none`` flag to control if pylint should warn about ``no-member`` where the owner is None
+* Add :ref:`--ignore-none <ignore-none-option>` flag to control if pylint should warn about ``no-member`` where the owner is None
 
 * Fix a false positive related to ``too-many-arguments`` and bounded ``__get__`` methods
 
@@ -126,7 +126,7 @@ Release date: 2018-07-15
 
   Closes #2083
 
-* Add ``--exit-zero`` option for continuous integration scripts to more
+* Add :ref:`--exit-zero <exit-zero-option>` option for continuous integration scripts to more
   easily call Pylint in environments that abort when a program returns a
   non-zero (error) status code.
 
@@ -374,7 +374,7 @@ Release date: 2018-07-15
 
   Closes #2022
 
-* Expand ignored-argument-names include starred arguments and keyword arguments
+* Expand :ref:`ignored-argument-names <ignored-argument-names-option>` include starred arguments and keyword arguments
 
   Closes #2214
 

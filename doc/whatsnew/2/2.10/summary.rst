@@ -89,7 +89,7 @@ Other Changes
 
 * Added ``time.clock`` to deprecated functions/methods for python 3.3
 
-* Added ``ignored-parents`` option to the design checker to ignore specific
+* Added :ref:`ignored-parents <ignored-parents-option>` option to the design checker to ignore specific
   classes from the ``too-many-ancestors`` check (R0901).
 
 * Don't emit ``no-member`` error if guarded behind if statement.
@@ -127,6 +127,6 @@ Other Changes
 * Fixed bug with ``cell-var-from-loop`` checker: it no longer has false negatives when
   both ``unused-variable`` and ``used-before-assignment`` are disabled.
 
-* Class methods' signatures are now ignored the same way as functions' with similarities "ignore-signatures" option enabled
+* Class methods' signatures are now ignored the same way as functions' with similarities ":ref:`ignore-signatures <ignore-signatures-option>`" option enabled
 
   Closes #4653

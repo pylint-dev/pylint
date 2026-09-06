@@ -13,7 +13,7 @@ like ``use-maxsplit-arg``, some consensual style warnings like
 We're aiming to reduce pylint noise for first time users and making some
 new checks optional is a step in that direction. In order to do that we
 created an optional code style checker that can be loaded using
-``pylint.extensions.code_style`` with the ``load-plugins`` options.
+``pylint.extensions.code_style`` with the :ref:`load-plugins <load-plugins-option>` options.
 More than ever, if as a veteran you want the most checks you can possibly get,
 `you should check the list of pylint extensions. <https://pylint.readthedocs.io/en/latest/user_guide/checkers/extensions.html#optional-checkers>`_.
 
@@ -71,20 +71,20 @@ Other Changes
 
 * The output messages for ``arguments-differ`` error message have been customized based on the different error cases.
 
-* New option ``--fail-on=<msg ids>`` to return non-zero exit codes regardless of ``fail-under`` value.
+* New option ``--fail-on=<msg ids>`` to return non-zero exit codes regardless of :ref:`fail-under <fail-under-option>` value.
 
 * A new error called ``arguments-renamed`` has been created, which identifies any changes at the parameter names
   of overridden functions. It aims to separate the functionality of ``arguments-differ``.
 
 * Fix incompatibility with Python 3.6.0 caused by ``typing.Counter`` and ``typing.NoReturn`` usage
 
-* Allow comma-separated list in ``output-format`` and separate output files for
+* Allow comma-separated list in :ref:`output-format <output-format-option>` and separate output files for
   each specified format.  Each output file can be defined after a semicolon for example : ``--output-format=json:myfile.json,colorized``
 
 * The ``using-constant-test`` checker now detects constant tests consisting of list literals
   like ``[]`` and ``[1, 2, 3]``.
 
-* ``ignore-paths`` configuration directive has been added. Defined regex patterns are matched against file path.
+* :ref:`ignore-paths <ignore-paths-option>` configuration directive has been added. Defined regex patterns are matched against file path.
 
 * Added handling of floating point values when parsing configuration from pyproject.toml
 

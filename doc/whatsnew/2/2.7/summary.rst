@@ -15,7 +15,7 @@ New checkers
 
 * Add ``nan-comparison`` check for comparison of NaN values
 
-* Add support to ``ignored-argument-names`` in DocstringParameterChecker and
+* Add support to :ref:`ignored-argument-names <ignored-argument-names-option>` in DocstringParameterChecker and
   adds ``useless-param-doc`` and ``useless-type-doc`` messages.
 
 * Add ``empty-comment`` check for empty comments.
@@ -37,7 +37,7 @@ Other Changes
 
 * Fix bug that lead to duplicate messages when using ``--jobs 2`` or more.
 
-* Adds option ``check-protected-access-in-special-methods`` in the ClassChecker to activate/deactivate
+* Adds option :ref:`check-protected-access-in-special-methods <check-protected-access-in-special-methods-option>` in the ClassChecker to activate/deactivate
   ``protected-access`` message emission for single underscore prefixed attribute in special methods.
 
 * ``inconsistent-return-statements`` message is now emitted if one of ``try/except`` statement
@@ -51,6 +51,6 @@ Other Changes
 
 * Fixes duplicate code detection for --jobs=2+
 
-* New option ``allowed-redefined-builtins`` defines variable names allowed to shadow builtins.
+* New option :ref:`allowed-redefined-builtins <allowed-redefined-builtins-option>` defines variable names allowed to shadow builtins.
 
 * Improved protected access checks to allow access inside class methods

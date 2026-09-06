@@ -22,7 +22,7 @@ configuration overrides. For all other options, Pylint will use its default valu
 
     The internals that create the configuration files fall back to the default values if
     no other value was given. This means that some values depend on the interpreter that
-    was used to generate the file. Most notably ``py-version`` which defaults to the
+    was used to generate the file. Most notably :ref:`py-version <py-version-option>` which defaults to the
     current interpreter.
 
 .. toctree::

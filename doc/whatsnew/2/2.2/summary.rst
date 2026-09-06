@@ -13,7 +13,7 @@ New checkers
 * ``duplicate-string-formatting-argument`` was added for detecting duplicate string
   formatting arguments that should be passed instead as named arguments.
 
-* ``logging-format-style`` is a new option for the logging checker for usage of
+* :ref:`logging-format-style <logging-format-style-option>` is a new option for the logging checker for usage of
   str.format() style format strings in calls to loggers.
 
   It accepts two options: ``--logging-format-style=old`` for using `%` style formatting,

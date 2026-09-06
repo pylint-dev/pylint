@@ -173,7 +173,7 @@ Release date: 2017-12-15
   Closes #1409
 
  * Fix ``missing-docstring`` false negatives when modules, classes, or methods
-   consist of compound statements that exceed the ``docstring-min-length``
+   consist of compound statements that exceed the :ref:`docstring-min-length <docstring-min-length-option>`
 
 * Fix ``useless-else-on-loop`` false positives when break statements are
   deeply nested inside loop.
