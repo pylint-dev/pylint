@@ -13,11 +13,10 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 from __future__ import annotations
 
-import decimal
 import math
 import re
 import tokenize
-from decimal import Decimal, localcontext
+from decimal import Decimal, DecimalTuple
 from functools import reduce
 from re import Match
 from typing import TYPE_CHECKING, Literal
@@ -66,6 +65,16 @@ _KEYWORD_TOKENS = {
 _JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
 
 
+def _decimal_g_format(value: Decimal, precision: int) -> str:
+    """Format a Decimal with g-specifier via float conversion.
+
+    Decimal's g-format preserves its internal exponent representation
+    (e.g. Decimal('1E+1') formats as '1e+1' instead of '10').
+    Converting to float first normalises the value.
+    """
+    return f"{float(value):.{precision}g}"
+
+
 class NumberFormatterHelper:
 
     @classmethod
@@ -78,50 +87,57 @@ class NumberFormatterHelper:
         pep515: bool = True,
     ) -> str:
         dec_number = Decimal(original_string)
-        sig_figs = len(dec_number.as_tuple().digits)
+        dec_tuple = dec_number.as_tuple()
+        sig_figs = len(dec_tuple.digits)
 
         suggested: set[str] = set()
         if scientific:
-            suggested.add(cls.to_standard_scientific_notation(dec_number, sig_figs))
+            suggested.add(
+                cls.to_standard_scientific_notation(dec_number, sig_figs, dec_tuple)
+            )
         if engineering:
-            suggested.add(cls.to_standard_engineering_notation(dec_number, sig_figs))
+            suggested.add(
+                cls.to_standard_engineering_notation(dec_number, sig_figs, dec_tuple)
+            )
         if pep515:
             s = cls.to_standard_underscore_grouping(number)
             if s is not None:
                 suggested.add(s)
-        if not suggested:
-            # Fallback when no formatter could produce a suggestion (e.g.
-            # pep515-only mode with a number too large for underscore grouping)
-            suggested.add(cls.to_standard_scientific_notation(dec_number, sig_figs))
+            elif not suggested:
+                # No other suggestion so we're in pep515-only mode but the number is
+                # too large for underscore grouping so we fall back to scientific notation
+                suggested.add(
+                    cls.to_standard_scientific_notation(dec_number, sig_figs, dec_tuple)
+                )
         return "' or '".join(sorted(suggested))
 
     @classmethod
-    def to_standard_scientific_notation(cls, dec_number: Decimal, sig_figs: int) -> str:
-        if dec_number == 0:
+    def to_standard_scientific_notation(
+        cls,
+        dec_number: Decimal,
+        sig_figs: int,
+        dec_tuple: DecimalTuple | None = None,
+    ) -> str:
+        if not dec_number:
             return "0.0"
-        if dec_number == Decimal("Infinity") or dec_number == Decimal("-Infinity"):
+        if dec_number.is_infinite():
             return "math.inf"
 
         exponent = dec_number.adjusted()
 
         if exponent == 0:
-            base_str = f"{float(dec_number):.{min(sig_figs, 15)}g}"
+            base_str = _decimal_g_format(dec_number, min(sig_figs, 15))
             if "." not in base_str:
                 base_str += ".0"
             return base_str
 
-        with localcontext() as ctx:
-            ctx.prec = 50
-            try:
-                base_value = dec_number / (Decimal(10) ** exponent)
-            except decimal.Overflow:
-                # Extreme exponents (e.g. 1e12_000_000) overflow Decimal arithmetic.
-                # Compute base directly from the Decimal tuple to avoid division.
-                sign, digits, _ = dec_number.as_tuple()
-                base_value = Decimal((sign, digits, -len(digits) + 1))
-        # Cap at 15 significant digits (float precision limit) to avoid
-        # g-format switching to scientific notation for intermediate values.
-        base_str = f"{float(base_value):.{min(sig_figs, 15)}g}"
+        # Compute base by shifting the decimal tuple instead of dividing
+        if dec_tuple is None:
+            dec_tuple = dec_number.as_tuple()
+        base_value = Decimal(
+            (dec_tuple.sign, dec_tuple.digits, -len(dec_tuple.digits) + 1)
+        )
+        base_str = _decimal_g_format(base_value, min(sig_figs, 15))
 
         if "." not in base_str and "e" not in base_str.lower():
             base_str += ".0"
@@ -130,43 +146,36 @@ class NumberFormatterHelper:
 
     @classmethod
     def to_standard_engineering_notation(
-        cls, dec_number: Decimal, sig_figs: int
+        cls,
+        dec_number: Decimal,
+        sig_figs: int,
+        dec_tuple: DecimalTuple | None = None,
     ) -> str:
-        if dec_number == 0:
+        if not dec_number:
             return "0.0"
-        if dec_number == Decimal("Infinity") or dec_number == Decimal("-Infinity"):
+        if dec_number.is_infinite():
             return "math.inf"
 
         exponent = dec_number.adjusted()
 
-        remainder = exponent % 3
+        # Round exponent down to nearest multiple of 3.
+        # Python's % always returns non-negative for positive divisor,
+        # so this works for both positive and negative exponents.
+        exp_value = exponent - (exponent % 3)
 
-        if exponent < 0:
-            adjustment = 3 - ((-exponent) % 3)
-            if adjustment == 3:
-                adjustment = 0
-            exp_value = exponent - adjustment
-        elif remainder != 0:
-            exp_value = exponent - remainder
-        else:
-            exp_value = exponent
-
-        with localcontext() as ctx:
-            ctx.prec = 50
-            try:
-                base_value = dec_number / (Decimal(10) ** exp_value)
-            except decimal.Overflow:
-                # Extreme exponents (e.g. 1e12_000_000) overflow Decimal arithmetic.
-                # Compute base directly from the Decimal tuple to avoid division.
-                sign, digits, _ = dec_number.as_tuple()
-                shift = exponent - exp_value
-                base_value = Decimal((sign, digits, -len(digits) + 1 + shift))
+        # Compute base by shifting the decimal tuple instead of dividing,
+        # which avoids 'localcontext()' overhead and handles extreme exponents.
+        if dec_tuple is None:
+            dec_tuple = dec_number.as_tuple()
+        shift = exponent - exp_value
+        base_value = Decimal(
+            (dec_tuple.sign, dec_tuple.digits, -len(dec_tuple.digits) + 1 + shift)
+        )
 
         # Use at least 3 significant digits to prevent g-format from switching
-        # to scientific notation (engineering base is always < 1000), and cap
-        # at 15 (float precision limit).
+        # to scientific notation (engineering base is always < 1000).
         precision = max(min(sig_figs, 15), 3)
-        base_str = f"{float(base_value):.{precision}g}"
+        base_str = _decimal_g_format(base_value, precision)
 
         if "." not in base_str and "e" not in base_str.lower():
             base_str += ".0"
@@ -177,28 +186,19 @@ class NumberFormatterHelper:
 
     @classmethod
     def to_standard_underscore_grouping(cls, number: float) -> str | None:
-        if number in (math.inf, -math.inf):
+        if math.isinf(number):
             return "math.inf"
-        number_str = format(Decimal(str(number)), "f")
+        number_str = str(number)
+        if "e" in number_str or "E" in number_str:
+            number_str = format(Decimal(number_str), "f")
         if "." not in number_str:
             number_str += ".0"
         int_part, dec_part = number_str.split(".")
         # For very large or very small expanded numbers, underscore
         # grouping isn't useful — let scientific/engineering handle it.
-        abs_int_part = int_part.lstrip("-")
-        if len(abs_int_part) > 16 or len(dec_part) > 16:
+        if len(int_part) > 16 or len(dec_part) > 16:
             return None
-        grouped_int_part = ""
-        for i, digit in enumerate(reversed(int_part)):
-            if i > 0 and i % 3 == 0:
-                grouped_int_part = "_" + grouped_int_part
-            grouped_int_part = digit + grouped_int_part
-        grouped_dec_part = ""
-        for i, digit in enumerate(dec_part):
-            if i > 0 and i % 3 == 0:
-                grouped_dec_part += "_"
-            grouped_dec_part += digit
-        return f"{grouped_int_part}.{grouped_dec_part}"
+        return f"{cls._group_right(int_part)}.{cls._group_left(dec_part)}"
 
     @classmethod
     def to_standard_non_decimal_grouping(
@@ -209,12 +209,25 @@ class NumberFormatterHelper:
         digits = clean[prefix_length:]
         if len(digits) <= group_size:
             return f"{prefix}{digits}"
-        grouped = ""
-        for i, digit in enumerate(reversed(digits)):
-            if i > 0 and i % group_size == 0:
-                grouped = "_" + grouped
-            grouped = digit + grouped
-        return f"{prefix}{grouped}"
+        return f"{prefix}{cls._group_right(digits, group_size)}"
+
+    @staticmethod
+    def _group_right(s: str, size: int = 3) -> str:
+        """Group digits with underscores from the right: '1234567' -> '1_234_567'."""
+        # s cannot be a negative number as tokenization separates the unary operator
+        remainder = len(s) % size
+        parts = [s[:remainder]] if remainder else []
+        for i in range(remainder, len(s), size):
+            parts.append(s[i : i + size])
+        return "_".join(parts)
+
+    @staticmethod
+    def _group_left(s: str, size: int = 3) -> str:
+        """Group digits with underscores from the left: '123456' -> '123_456'."""
+        parts = []
+        for i in range(0, len(s), size):
+            parts.append(s[i : i + size])
+        return "_".join(parts)
 
 
 MSGS: dict[str, MessageDefinitionTuple] = {
@@ -783,9 +796,8 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             )
 
         if value == 0:
-            # 0 is a special case because it is used very often, and float approximation
-            # being what they are it needs to be special cased anyway for scientific and
-            # engineering notation when checking if a number is under 1/threshold
+            # Zero is special-cased: it is below any threshold and
+            # 1/threshold comparisons are meaningless for it.
             if string not in {"0", "0.0", "0."}:
                 add_bad_notation_message("is an unconventional zero literal")
             return None
@@ -801,8 +813,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         )
         if not (has_underscore or has_exponent):
             if should_not_be_checked_because_of_threshold:
-                # This number is free style, we do not have to check it, unless it's
-                # written complexly, then it could be badly written
+                # Plain number below threshold — nothing to flag.
                 return None
             threshold = self.linter.config.number_notation_threshold
             dec_threshold = Decimal(str(threshold))
