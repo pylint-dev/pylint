@@ -1,0 +1,2 @@
+Fix a false positive for ``declare-non-slot`` when a class variable is
+annotated with ``ClassVar`` without an initial value.
