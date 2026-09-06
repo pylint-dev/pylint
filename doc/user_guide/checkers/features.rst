@@ -576,16 +576,23 @@ Format checker Messages
   Used when there are mixed (LF and CRLF) newline signs in a file.
 :unexpected-line-ending-format (C0328): *Unexpected line ending format. There is '%s' while it should be '%s'.*
   Used when there is different newline than expected.
-:bad-number-notation (C0329): *'%s' %s, and it should be written as '%s' instead*
-  Emitted when a number is written in a non-standard notation. The three
+:bad-float-notation (C0329): *'%s' %s, and it should be written as '%s' instead*
+  Emitted when a float literal is written in a non-standard notation. The three
   allowed notations above the threshold are the scientific notation, the
   engineering notation, and the underscore grouping notation defined in PEP
-  515.
-:bad-float-precision (C0330): *'%s' %s, and it should be written as '%s' instead*
-  Emitted when a float literal cannot be represented faithfully by float64 —
+  515. Rewriting a float is a matter of taste that reviewers legitimately
+  disagree about, so this one is off by default. Integer literals are covered
+  by 'bad-integer-notation' instead.
+:bad-integer-notation (C0331): *'%s' %s, and it should be written as '%s' instead*
+  Emitted when a large integer literal is a hard-to-read run of digits for lack
+  of the underscore grouping defined in PEP 515, or when it groups its digits
+  the wrong way. Applies to every base. Float literals are covered by 'bad-
+  float-notation' instead.
+:bad-float-precision (C0332): *'%s' %s, and it should be written as '%s' instead*
+  Emitted when a float literal cannot be represented faithfully by float64: it
   overflows to infinity, underflows to zero, or has more significant digits
   than the ~15 digit float guarantee. Independent of the notation form checked
-  by 'bad-number-notation'.
+  by 'bad-float-notation'.
 
 
 .. _imports-checker:

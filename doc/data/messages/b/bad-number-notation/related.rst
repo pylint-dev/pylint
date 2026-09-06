@@ -1,1 +1,0 @@
-- `PEP 515 <https://docs.python.org/3/library/string.html#formatstrings>`_
