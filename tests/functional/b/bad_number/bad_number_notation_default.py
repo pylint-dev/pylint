@@ -65,13 +65,6 @@ not_that_small_plain = 0.001
 # Large numbers that should suggest underscore grouping (no near-duplicate exponential)
 large_plain = 1541455200.0  # [bad-number-notation]
 large_round = 1000000.0  # [bad-number-notation]
-# More than 15 significant digits: suggest decimal.Decimal
-many_sig_figs = 486787299458.15656  # [bad-number-notation]
-# Underflow to zero in float — flagged for value-fidelity even when form is valid
-tiny_underflow = 1e-1000  # [bad-number-notation]
-tiny_underflow_2 = 1.5e-500  # [bad-number-notation]
-# Overflow to infinity in float — flagged similarly
-huge_overflow = 1.5e500  # [bad-number-notation]
 
 one_only = 1e6
 correct_1 = 4.53e7
@@ -118,8 +111,10 @@ result = function_with_sci(20.0e4, 10.0e7)
 
 valid_underscore_int = 1_000_000
 valid_underscore_float = 1_000_000.12345
-valid_underscore_float_exp = 123_000_000.12345e12_000_000 # [bad-number-notation]
-valid_underscore_float_exp_cap = 123_000_000.12345E123_000_000 # [bad-number-notation]
+#+1: [bad-number-notation,bad-float-precision]
+valid_underscore_float_exp = 123_000_000.12345e12_000_000
+#+1: [bad-number-notation,bad-float-precision]
+valid_underscore_float_exp_cap = 123_000_000.12345E123_000_000
 
 valid_underscore_octal = 0o123_456  # correctly grouped by 3, below threshold
 invalid_underscore_hexa = 0x12c_456  # [bad-number-notation]
