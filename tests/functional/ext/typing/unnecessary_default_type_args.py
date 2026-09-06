@@ -15,3 +15,9 @@ c3: ca.Generator[int]
 d1: ca.AsyncGenerator[int, str]
 d2: ca.AsyncGenerator[int, None]  # [unnecessary-default-type-args]
 d3: ca.AsyncGenerator[int]
+
+# https://github.com/pylint-dev/pylint/issues/11357
+e1: ca.Generator[()]
+e2: ca.AsyncGenerator[()]
+e3: t.Generator[()]
+e4: t.AsyncGenerator[()]
