@@ -13,9 +13,11 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 from __future__ import annotations
 
+import decimal
 import math
 import re
 import tokenize
+from decimal import Decimal, localcontext
 from functools import reduce
 from re import Match
 from typing import TYPE_CHECKING, Literal
@@ -62,6 +64,168 @@ _KEYWORD_TOKENS = {
     ":=",
 }
 _JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
+
+
+class FloatFormatterHelper:
+
+    @classmethod
+    def standardize(
+        cls,
+        number: float,
+        original_string: str,
+        scientific: bool = True,
+        engineering: bool = True,
+        pep515: bool = True,
+    ) -> str:
+        dec_number = Decimal(original_string)
+        sig_figs = len(dec_number.as_tuple().digits)
+
+        suggested = set()
+        if scientific:
+            suggested.add(cls.to_standard_scientific_notation(dec_number, sig_figs))
+        if engineering:
+            suggested.add(cls.to_standard_engineering_notation(dec_number, sig_figs))
+        if pep515:
+            suggested.add(cls.to_standard_underscore_grouping(number))
+        return "' or '".join(sorted(suggested))
+
+    @classmethod
+    def to_standard_or_engineering_base(cls, number: float) -> tuple[str, str]:
+        """Calculate scientific notation components (base, exponent) for a number.
+
+        Returns a tuple (base, exponent) where:
+        - base is a number between 1 and 10 (or exact 0)
+        - exponent is the power of 10 needed to represent the original number
+        """
+        if number == 0:
+            return "0", "0"
+        if number == math.inf:
+            return "math.inf", "0"
+        exponent = math.floor(math.log10(abs(number)))
+        if exponent == 0:
+            return str(number), "0"
+        base_value = number / (10**exponent)
+        # 15 significant digits because if we add more precision then
+        # we get into rounding errors territory
+        base_str = f"{base_value:.15g}".rstrip("0").rstrip(".")
+        exp_str = str(exponent)
+        return base_str, exp_str
+
+    @classmethod
+    def to_standard_scientific_notation(cls, dec_number: Decimal, sig_figs: int) -> str:
+        if dec_number == 0:
+            return "0.0"
+        if dec_number == Decimal("Infinity") or dec_number == Decimal("-Infinity"):
+            return "math.inf"
+
+        exponent = dec_number.adjusted()
+
+        if exponent == 0:
+            base_str = f"{float(dec_number):.{min(sig_figs, 15)}g}"
+            if "." not in base_str:
+                base_str += ".0"
+            return base_str
+
+        with localcontext() as ctx:
+            ctx.prec = 50
+            try:
+                base_value = dec_number / (Decimal(10) ** exponent)
+            except decimal.Overflow:
+                # Extreme exponents (e.g. 1e12_000_000) overflow Decimal arithmetic;
+                # fall back to float-based computation.
+                base, exp_str = cls.to_standard_or_engineering_base(float(dec_number))
+                return f"{base}e{exp_str}" if exp_str != "0" else base
+        # Cap at 15 significant digits (float precision limit) to avoid
+        # g-format switching to scientific notation for intermediate values.
+        base_str = f"{float(base_value):.{min(sig_figs, 15)}g}"
+
+        if "." not in base_str and "e" not in base_str.lower():
+            base_str += ".0"
+
+        return f"{base_str}e{exponent}"
+
+    @classmethod
+    def to_standard_engineering_notation(
+        cls, dec_number: Decimal, sig_figs: int
+    ) -> str:
+        if dec_number == 0:
+            return "0.0"
+        if dec_number == Decimal("Infinity") or dec_number == Decimal("-Infinity"):
+            return "math.inf"
+
+        exponent = dec_number.adjusted()
+
+        remainder = exponent % 3
+
+        with localcontext() as ctx:
+            ctx.prec = 50
+            try:
+                if exponent < 0:
+                    adjustment = 3 - ((-exponent) % 3)
+                    if adjustment == 3:
+                        adjustment = 0
+                    exp_value = exponent - adjustment
+                    base_value = dec_number / (Decimal(10) ** exp_value)
+                elif remainder != 0:
+                    exp_value = exponent - remainder
+                    base_value = dec_number / (Decimal(10) ** exp_value)
+                else:
+                    exp_value = exponent
+                    base_value = dec_number / (Decimal(10) ** exponent)
+            except decimal.Overflow:
+                # Extreme exponents overflow Decimal arithmetic; fall back to
+                # float-based scientific notation.
+                base, exp_str = cls.to_standard_or_engineering_base(float(dec_number))
+                return f"{base}e{exp_str}" if exp_str != "0" else base
+
+        # Use at least 3 significant digits to prevent g-format from switching
+        # to scientific notation (engineering base is always < 1000), and cap
+        # at 15 (float precision limit).
+        precision = max(min(sig_figs, 15), 3)
+        base_str = f"{float(base_value):.{precision}g}"
+
+        if "." not in base_str and "e" not in base_str.lower():
+            base_str += ".0"
+
+        if exp_value != 0:
+            return f"{base_str}e{exp_value}"
+        return base_str
+
+    @classmethod
+    def to_standard_underscore_grouping(cls, number: float) -> str:
+        number_str = str(number)
+        if "e" in number_str or "E" in number_str:
+            # python itself want to display this as exponential there's no reason to
+            # not use exponential notation for very small number even for strict
+            # underscore grouping notation
+            return number_str
+        if "." in number_str:
+            int_part, dec_part = number_str.split(".")
+        else:
+            int_part = number_str
+            dec_part = "0"
+        grouped_int_part = ""
+        for i, digit in enumerate(reversed(int_part)):
+            if i > 0 and i % 3 == 0:
+                grouped_int_part = "_" + grouped_int_part
+            grouped_int_part = digit + grouped_int_part
+        return f"{grouped_int_part}.{dec_part}"
+
+    @classmethod
+    def to_standard_non_decimal_grouping(
+        cls, string: str, group_size: int, prefix_length: int = 2
+    ) -> str:
+        clean = string.replace("_", "")
+        prefix = clean[:prefix_length].lower() if prefix_length else ""
+        digits = clean[prefix_length:]
+        if len(digits) <= group_size:
+            return f"{prefix}{digits}"
+        grouped = ""
+        for i, digit in enumerate(reversed(digits)):
+            if i > 0 and i % group_size == 0:
+                grouped = "_" + grouped
+            grouped = digit + grouped
+        return f"{prefix}{grouped}"
 
 
 MSGS: dict[str, MessageDefinitionTuple] = {
@@ -288,7 +452,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             {
                 # default big enough to not trigger on pixel perfect web design
                 # on big screen
-                "default": "1e8",
+                "default": "1e6",
                 "type": "float",
                 "metavar": "<float>",
                 "help": (
@@ -307,7 +471,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 "type": "yn",
                 "metavar": "<y or n>",
                 "help": "Only allow engineering notation for float literals with "
-                "absolute value bigger than 'float-notation-threshold' or smaller"
+                "absolute value bigger than 'float-notation-threshold' or smaller "
                 "than the inverse of 'float-notation-threshold'.",
             },
         ),
@@ -318,7 +482,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 "type": "yn",
                 "metavar": "<y or n>",
                 "help": "Only allow scientific notation for float literals with "
-                "absolute value bigger than 'float-notation-threshold' or smaller"
+                "absolute value bigger than 'float-notation-threshold' or smaller "
                 "than the inverse of 'float-notation-threshold'.",
             },
         ),
@@ -348,19 +512,17 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 "can be set to True at a time."
             )
         self.all_float_notation_allowed = number_of_strict_float_notation == 0
-        if (
-            self.linter.config.float_notation_threshold < 10
-            and self.linter.config.strict_scientific_notation
-        ):
-            raise ValueError(
-                "'float-notation-threshold' must be at least 10 "
-                "when 'strict-scientific-notation' is enabled, got "
-                f"{self.linter.config.float_notation_threshold}."
-            )
-        if self.linter.config.float_notation_threshold < 1000:
+        if self.linter.config.strict_scientific_notation:
+            if self.linter.config.float_notation_threshold < 10:
+                raise ValueError(
+                    "'float-notation-threshold' must be at least 10 "
+                    "when 'strict-scientific-notation' is enabled, got "
+                    f"{self.linter.config.float_notation_threshold}."
+                )
+        elif self.linter.config.float_notation_threshold < 1000:
             raise ValueError(
                 "'float-notation-threshold' must be at least 1000 "
-                f"when 'strict-scientific-notation' is disabled, got "
+                "when 'strict-scientific-notation' is disabled, got "
                 f"{self.linter.config.float_notation_threshold}."
             )
 
@@ -557,14 +719,9 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             if tok_type == tokenize.NUMBER:
                 if (
                     self.linter.is_message_enabled("bad-float-notation")
-                    # You don't deserve a linter if you mix non-decimal notation and
-                    # exponential or underscore,
-                    and "x" not in string  # not a hexadecimal
-                    and "o" not in string  # not an octal
-                    and "j" not in string  # not a complex
-                    and "b" not in string  # not a binary
+                    and "j" not in string  # complex number, not handled
                 ):
-                    self._check_bad_float_notation(line_num, start, string)
+                    self._check_number_notation(line_num, start, string)
 
             if string in _KEYWORD_TOKENS:
                 self._check_keyword_parentheses(tokens, idx)
@@ -592,111 +749,35 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         if line_num == last_blank_line_num and line_num > 0:
             self.add_message("trailing-newlines", line=line_num)
 
-    @classmethod
-    def to_standard_or_engineering_base(cls, number: float) -> tuple[str, str]:
-        """Calculate scientific notation components (base, exponent) for a number.
-
-        Returns a tuple (base, exponent) where:
-        - base is a number between 1 and 10 (or exact 0)
-        - exponent is the power of 10 needed to represent the original number
-        """
-        if number == 0:
-            return "0", "0"
-        if number == math.inf:
-            return "math.inf", "0"
-        exponent = math.floor(math.log10(abs(number)))
-        if exponent == 0:
-            return str(number), "0"
-        base_value = number / (10**exponent)
-        # 15 significant digits because if we add more precision then
-        # we get into rounding errors territory
-        base_str = f"{base_value:.15g}".rstrip("0").rstrip(".")
-        exp_str = str(exponent)
-        return base_str, exp_str
-
-    @classmethod
-    def to_standard_scientific_notation(cls, number: float) -> str:
-        base, exp = cls.to_standard_or_engineering_base(number)
-        if base == "math.inf":
-            return "math.inf"
-        if exp != "0":
-            return f"{base}e{int(exp)}"
-        if "." in base:
-            return base
-        return f"{base}.0"
-
-    @classmethod
-    def to_understandable_time(cls, number: float) -> str:
-        if number % 3600 != 0:
-            return ""  # Not a suspected time
-        parts: list[int] = [3600]
-        number //= 3600
-        for divisor in (
-            24,
-            7,
-            365,
-        ):
-            if number % divisor == 0:
-                parts.append(divisor)
-                number //= divisor
-        remainder = int(number)
-        if remainder != 1:
-            parts.append(remainder)
-        return " * ".join([str(p) for p in parts])
-
-    @classmethod
-    def to_standard_engineering_notation(cls, number: float) -> str:
-        base, exp = cls.to_standard_or_engineering_base(number)
-        if base == "math.inf":
-            return "math.inf"
-        exp_value = int(exp)
-        remainder = exp_value % 3
-        # For negative exponents, the adjustment is different
-        if exp_value < 0:
-            # For negative exponents, we need to round down to the next multiple of 3
-            # e.g., -5 should go to -6, so we get 3 - ((-5) % 3) = 3 - 1 = 2
-            adjustment = 3 - ((-exp_value) % 3)
-            if adjustment == 3:
-                adjustment = 0
-            exp_value = exp_value - adjustment
-            base_value = float(base) * (10**adjustment)
-        elif remainder != 0:
-            # For positive exponents, keep the existing logic
-            exp_value = exp_value - remainder
-            base_value = float(base) * (10**remainder)
-        else:
-            base_value = float(base)
-        base = str(base_value).rstrip("0").rstrip(".")
-        if exp_value != 0:
-            return f"{base}e{exp_value}"
-        if "." in base:
-            return base
-        return f"{base}.0"
-
-    @classmethod
-    def to_standard_underscore_grouping(cls, number: float) -> str:
-        number_str = str(number)
-        if "e" in number_str or "E" in number_str:
-            # python itself want to display this as exponential there's no reason to
-            # not use exponential notation for very small number even for strict
-            # underscore grouping notation
-            return number_str
-        if "." in number_str:
-            int_part, dec_part = number_str.split(".")
-        else:
-            int_part = number_str
-            dec_part = "0"
-        grouped_int_part = ""
-        for i, digit in enumerate(reversed(int_part)):
-            if i > 0 and i % 3 == 0:
-                grouped_int_part = "_" + grouped_int_part
-            grouped_int_part = digit + grouped_int_part
-        return f"{grouped_int_part}.{dec_part}"
+    def _check_number_notation(
+        self, line_num: int, start: tuple[int, int], string: str
+    ) -> None:
+        match string[1:2].lower():
+            case "x":
+                self._check_non_decimal_notation(
+                    line_num, start, string, 4, r"[0-9a-fA-F]", "hex digits"
+                )
+            case "b":
+                self._check_non_decimal_notation(
+                    line_num, start, string, 4, r"[01]", "binary digits"
+                )
+            case "o":
+                self._check_non_decimal_notation(
+                    line_num, start, string, 3, r"[0-7]", "octal digits"
+                )
+            case _ if "." in string or "e" in string or "E" in string:
+                self._check_bad_float_notation(line_num, start, string)
+            case _:
+                self._check_non_decimal_notation(
+                    line_num, start, string, 3, r"[0-9]", "digits", "", 0
+                )
 
     def _check_bad_float_notation(  # pylint: disable=too-many-locals
         self, line_num: int, start: tuple[int, int], string: str
     ) -> None:
-        value = float(string)
+
+        has_exponent = "e" in string or "E" in string
+        value = float(string.replace("_", ""))
         engineering = (
             self.all_float_notation_allowed
             or self.linter.config.strict_engineering_notation
@@ -710,42 +791,34 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             or self.linter.config.strict_underscore_notation
         )
 
-        def raise_bad_float_notation(
-            reason: str, time_suggestion: bool = False
-        ) -> None:
-            suggested = set()
-            if scientific:
-                suggested.add(self.to_standard_scientific_notation(value))
-            if engineering:
-                suggested.add(self.to_standard_engineering_notation(value))
-            if pep515:
-                suggested.add(self.to_standard_underscore_grouping(value))
-            if time_suggestion:
-                maybe_a_time = self.to_understandable_time(value)
-                if maybe_a_time:
-                    suggested.add(maybe_a_time)
+        def raise_bad_float_notation(reason: str) -> None:
+            suggestion = FloatFormatterHelper.standardize(
+                value,
+                string,
+                scientific,
+                engineering,
+                pep515,
+            )
             return self.add_message(
                 "bad-float-notation",
-                args=(string, reason, "' or '".join(sorted(suggested))),
                 line=line_num,
-                end_lineno=line_num,
                 col_offset=start[1],
+                end_lineno=line_num,
                 end_col_offset=start[1] + len(string),
+                args=(string, reason, suggestion),
                 confidence=HIGH,
             )
 
-        if string in {"0", "0.0"}:
+        if string in {"0", "0.0", "0."}:
             # 0 is a special case because it is used very often, and float approximation
             # being what they are it needs to be special cased anyway for scientific and
             # engineering notation when checking if a number is under 1/threshold
             return None
         has_underscore = "_" in string
-        has_exponent = "e" in string or "E" in string
         should_be_written_simply = (
             1 <= value < 10 and self.linter.config.strict_scientific_notation
         ) or 1 <= value < 1000
         is_written_complexly = has_underscore or has_exponent
-        # print(f"Checking {string} line {line_num}")
         if should_be_written_simply and is_written_complexly:
             # If the value does not deserve a complex notation then write it in a simple way.
             # The threshold is guaranteed to be higher than those value.
@@ -754,13 +827,12 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
 
         abs_value = abs(value)
         under_threshold = abs_value < self.linter.config.float_notation_threshold
-        should_not_be_checked_because_of_threshold = (
-            under_threshold  # under threshold
-            and (  # use scientific or engineering notation and under 1/threshold
-                self.linter.config.strict_underscore_notation
-                or abs_value != 0
-                or abs_value >= 1 / self.linter.config.float_notation_threshold
-            )
+        should_not_be_checked_because_of_threshold = under_threshold and (
+            # Underscore notation doesn't need to check close-to-zero values
+            self.linter.config.strict_underscore_notation
+            # For scientific/engineering: also skip if not in the close-to-zero range
+            # (values like 0.00012e-26 that are < 1/threshold should still be checked)
+            or abs_value >= 1 / self.linter.config.float_notation_threshold
         )
         if not is_written_complexly:
             if should_not_be_checked_because_of_threshold:
@@ -768,17 +840,21 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 # written complexly, then it could be badly written
                 return None
             threshold = self.linter.config.float_notation_threshold
-            close_to_zero_threshold = self.to_standard_scientific_notation(
-                1 / threshold
+            dec_threshold = Decimal(str(threshold))
+            dec_close = Decimal(str(1 / threshold))
+            close_to_zero_threshold = (
+                FloatFormatterHelper.to_standard_scientific_notation(
+                    dec_close, len(dec_close.as_tuple().digits)
+                )
             )
-            threshold = self.to_standard_scientific_notation(threshold)
+            threshold = FloatFormatterHelper.to_standard_scientific_notation(
+                dec_threshold, len(dec_threshold.as_tuple().digits)
+            )
             if under_threshold:
                 return raise_bad_float_notation(
                     f"is smaller than {close_to_zero_threshold}"
                 )
-            return raise_bad_float_notation(
-                f"is bigger than {threshold}", time_suggestion=True
-            )
+            return raise_bad_float_notation(f"is bigger than {threshold}")
         if has_exponent:
             if self.linter.config.strict_underscore_notation or has_underscore:
                 # If we have exponent it means it's not proper underscore
@@ -787,7 +863,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 )
             base_as_str, exponent_as_str = string.lower().split("e")
             base = float(base_as_str)
-            # print("\tBase:", base, "Exponent:", exponent_as_str)
             wrong_scientific_notation = not (1 <= base < 10)
             if (
                 self.linter.config.strict_scientific_notation
@@ -833,6 +908,61 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     "has underscores that are not delimiting packs of three digits"
                 )
         return None
+
+    def _check_non_decimal_notation(
+        self,
+        line_num: int,
+        start: tuple[int, int],
+        string: str,
+        group_size: int,
+        digit_pattern: str,
+        group_name: str,
+        prefix_pattern: str = "0[a-zA-Z]_?",
+        prefix_length: int = 2,
+    ) -> None:
+        has_underscore = "_" in string
+        value = int(string.replace("_", ""), 0)
+        if has_underscore:
+            pattern = rf"^{prefix_pattern}{digit_pattern}{{1,{group_size}}}(_{digit_pattern}{{{group_size}}})*$"
+            if not re.match(pattern, string):
+                suggestion = FloatFormatterHelper.to_standard_non_decimal_grouping(
+                    string, group_size, prefix_length
+                )
+                self.add_message(
+                    "bad-float-notation",
+                    line=line_num,
+                    col_offset=start[1],
+                    end_lineno=line_num,
+                    end_col_offset=start[1] + len(string),
+                    args=(
+                        string,
+                        f"has underscores that are not grouping {group_name} by {group_size}",
+                        suggestion,
+                    ),
+                    confidence=HIGH,
+                )
+        elif value >= self.linter.config.float_notation_threshold:
+            suggestion = FloatFormatterHelper.to_standard_non_decimal_grouping(
+                string, group_size, prefix_length
+            )
+            threshold = self.linter.config.float_notation_threshold
+            dec_threshold = Decimal(str(threshold))
+            threshold_str = FloatFormatterHelper.to_standard_scientific_notation(
+                dec_threshold, len(dec_threshold.as_tuple().digits)
+            )
+            self.add_message(
+                "bad-float-notation",
+                line=line_num,
+                col_offset=start[1],
+                end_lineno=line_num,
+                end_col_offset=start[1] + len(string),
+                args=(
+                    string,
+                    f"is bigger than {threshold_str}",
+                    suggestion,
+                ),
+                confidence=HIGH,
+            )
 
     def _check_line_ending(self, line_ending: str, line_num: int) -> None:
         # check if line endings are mixed
