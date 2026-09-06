@@ -1,16 +1,16 @@
 # pylint: disable=missing-docstring,invalid-name
 
 # Bad: underscores in wrong positions
-wrong_grouping_1 = 0x12c_456  # [bad-float-notation]
-wrong_grouping_2 = 0xDE_AD_BE_EF  # [bad-float-notation]
-wrong_grouping_3 = 0x123_4567_89  # [bad-float-notation]
-wrong_grouping_4 = 0xABCDE_F  # [bad-float-notation]
-wrong_grouping_5 = 0xA_B  # [bad-float-notation]
+wrong_grouping_1 = 0x12c_456  # [bad-number-notation]
+wrong_grouping_2 = 0xDE_AD_BE_EF  # [bad-number-notation]
+wrong_grouping_3 = 0x123_4567_89  # [bad-number-notation]
+wrong_grouping_4 = 0xABCDE_F  # [bad-number-notation]
+wrong_grouping_5 = 0xA_B  # [bad-number-notation]
 
 # Bad: above threshold without underscore grouping (threshold is 1e6 = 1_000_000)
-big_hex_no_grouping = 0xDEADBEEF  # [bad-float-notation]
-big_hex_no_grouping_2 = 0x1234567890ABCDEF  # [bad-float-notation]
-big_hex_no_grouping_3 = 0xF4240  # [bad-float-notation]
+big_hex_no_grouping = 0xDEADBEEF  # [bad-number-notation]
+big_hex_no_grouping_2 = 0x1234567890ABCDEF  # [bad-number-notation]
+big_hex_no_grouping_3 = 0xF4240  # [bad-number-notation]
 
 # Good: properly grouped by 4
 proper_grouping_1 = 0xDEAD_BEEF

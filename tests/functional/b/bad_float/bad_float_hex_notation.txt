@@ -1,8 +1,0 @@
-bad-float-notation:4:19:4:28::'0x12c_456' has underscores that are not grouping hex digits by 4, and it should be written as '0x12_c456' instead:HIGH
-bad-float-notation:5:19:5:32::'0xDE_AD_BE_EF' has underscores that are not grouping hex digits by 4, and it should be written as '0xDEAD_BEEF' instead:HIGH
-bad-float-notation:6:19:6:32::'0x123_4567_89' has underscores that are not grouping hex digits by 4, and it should be written as '0x1_2345_6789' instead:HIGH
-bad-float-notation:7:19:7:28::'0xABCDE_F' has underscores that are not grouping hex digits by 4, and it should be written as '0xAB_CDEF' instead:HIGH
-bad-float-notation:8:19:8:24::'0xA_B' has underscores that are not grouping hex digits by 4, and it should be written as '0xAB' instead:HIGH
-bad-float-notation:11:22:11:32::'0xDEADBEEF' is bigger than 1.0e6, and it should be written as '0xDEAD_BEEF' instead:HIGH
-bad-float-notation:12:24:12:42::'0x1234567890ABCDEF' is bigger than 1.0e6, and it should be written as '0x1234_5678_90AB_CDEF' instead:HIGH
-bad-float-notation:13:24:13:31::'0xF4240' is bigger than 1.0e6, and it should be written as '0xF_4240' instead:HIGH
