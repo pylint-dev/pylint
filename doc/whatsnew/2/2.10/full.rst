@@ -55,7 +55,7 @@ Release date: 2021-08-20
   Closes #4775
 
 * Added ``ignored-parents`` option to the design checker to ignore specific
-  classes from the ``too-many-ancestors`` check (R0901).
+  classes from the :ref:`too-many-ancestors <too-many-ancestors>` check.
 
   Fixes part of #3057
 
@@ -179,4 +179,4 @@ Release date: 2021-08-20
 
 * Improve performance when inferring ``Call`` nodes, by utilizing caching.
 
-* Improve error message for :ref:`invalid-metaclass` when the node is an Instance.
+* Improve error message for :ref:`invalid-metaclass <invalid-metaclass>` when the node is an Instance.

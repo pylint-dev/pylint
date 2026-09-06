@@ -98,17 +98,17 @@ of pylint is not easy; we also discourage the use of the ``-j`` option if this m
 Which messages should I disable to avoid duplicates if I use other popular linters ?
 ------------------------------------------------------------------------------------
 
-pycodestyle_: bad-indentation, bare-except, line-too-long, missing-final-newline, multiple-statements, singleton-comparison, trailing-newlines, trailing-whitespace, unnecessary-negation, unnecessary-semicolon, wrong-import-position
+pycodestyle_: :ref:`bad-indentation <bad-indentation>`, :ref:`bare-except <bare-except>`, :ref:`line-too-long <line-too-long>`, :ref:`missing-final-newline <missing-final-newline>`, :ref:`multiple-statements <multiple-statements>`, :ref:`singleton-comparison <singleton-comparison>`, :ref:`trailing-newlines <trailing-newlines>`, :ref:`trailing-whitespace <trailing-whitespace>`, :ref:`unnecessary-negation <unnecessary-negation>`, :ref:`unnecessary-semicolon <unnecessary-semicolon>`, :ref:`wrong-import-position <wrong-import-position>`
 
-pyflakes_: undefined-variable, unused-import, unused-variable
+pyflakes_: :ref:`undefined-variable <undefined-variable>`, :ref:`unused-import <unused-import>`, :ref:`unused-variable <unused-variable>`
 
-mccabe_: too-many-branches
+mccabe_: :ref:`too-many-branches <too-many-branches>`
 
-pydocstyle_: missing-module-docstring, missing-class-docstring, missing-function-docstring
+pydocstyle_: :ref:`missing-module-docstring <missing-module-docstring>`, :ref:`missing-class-docstring <missing-class-docstring>`, :ref:`missing-function-docstring <missing-function-docstring>`
 
-pep8-naming_: invalid-name, bad-classmethod-argument, bad-mcs-classmethod-argument, no-self-argument
+pep8-naming_: :ref:`invalid-name <invalid-name>`, :ref:`bad-classmethod-argument <bad-classmethod-argument>`, :ref:`bad-mcs-classmethod-argument <bad-mcs-classmethod-argument>`, :ref:`no-self-argument <no-self-argument>`
 
-isort_ and flake8-import-order_: ungrouped-imports, wrong-import-order
+isort_ and flake8-import-order_: :ref:`ungrouped-imports <ungrouped-imports>`, :ref:`wrong-import-order <wrong-import-order>`
 
 .. _`pycodestyle`: https://github.com/PyCQA/pycodestyle
 .. _`pyflakes`: https://github.com/PyCQA/pyflakes

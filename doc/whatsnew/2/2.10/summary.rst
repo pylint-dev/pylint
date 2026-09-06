@@ -90,7 +90,7 @@ Other Changes
 * Added ``time.clock`` to deprecated functions/methods for python 3.3
 
 * Added ``ignored-parents`` option to the design checker to ignore specific
-  classes from the ``too-many-ancestors`` check (R0901).
+  classes from the :ref:`too-many-ancestors <too-many-ancestors>` check.
 
 * Don't emit ``no-member`` error if guarded behind if statement.
 
