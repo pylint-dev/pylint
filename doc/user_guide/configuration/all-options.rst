@@ -1269,6 +1269,15 @@ Standard Checkers
 **Default:** ``""``
 
 
+.. _float-notation-threshold-option:
+
+--float-notation-threshold
+""""""""""""""""""""""""""
+*Threshold for float literals to be expected to be written using the scientific, engineering or underscore notation. If the absolute value of a float literal is greater than this value (or smaller than the inverse of this value for scientific and engineering notation), it will be checked.*
+
+**Default:**  ``1e8``
+
+
 .. _ignore-long-lines-option:
 
 --ignore-long-lines
@@ -1341,6 +1350,33 @@ Standard Checkers
 **Default:**  ``False``
 
 
+.. _strict-engineering-notation-option:
+
+--strict-engineering-notation
+"""""""""""""""""""""""""""""
+*Only allow engineering notation for float literals with absolute value bigger than 'float-notation-threshold' or smallerthan the inverse of 'float-notation-threshold'.*
+
+**Default:**  ``False``
+
+
+.. _strict-scientific-notation-option:
+
+--strict-scientific-notation
+""""""""""""""""""""""""""""
+*Only allow scientific notation for float literals with absolute value bigger than 'float-notation-threshold' or smallerthan the inverse of 'float-notation-threshold'.*
+
+**Default:**  ``False``
+
+
+.. _strict-underscore-notation-option:
+
+--strict-underscore-notation
+""""""""""""""""""""""""""""
+*Only allow underscore notation for float literals bigger than 'float-notation-threshold'.*
+
+**Default:**  ``False``
+
+
 
 .. raw:: html
 
@@ -1354,6 +1390,8 @@ Standard Checkers
    [tool.pylint.format]
    # Possible choices: ['', 'LF', 'CRLF']
    expected-line-ending-format = ""
+
+   float-notation-threshold = 100000000.0
 
    ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
 
@@ -1370,6 +1408,12 @@ Standard Checkers
    single-line-class-stmt = false
 
    single-line-if-stmt = false
+
+   strict-engineering-notation = false
+
+   strict-scientific-notation = false
+
+   strict-underscore-notation = false
 
 
 
