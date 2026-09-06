@@ -280,6 +280,7 @@ class TypingChecker(BaseChecker):
                 in {"_collections_abc.Generator", "_collections_abc.AsyncGenerator"}
             )
             and isinstance(node.slice, nodes.Tuple)
+            and node.slice.elts
             and all(
                 (isinstance(el, nodes.Const) and el.value is None)
                 for el in node.slice.elts[1:]
