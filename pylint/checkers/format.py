@@ -16,6 +16,7 @@ from __future__ import annotations
 import math
 import re
 import tokenize
+from collections import Counter
 from decimal import Decimal, DecimalTuple
 from functools import reduce
 from re import Match
@@ -76,13 +77,18 @@ _GROUPING_PATTERNS: dict[str, re.Pattern[str]] = {
 _FLOAT_UNDERSCORE_PATTERN: re.Pattern[str] = re.compile(
     r"^\d{1,3}(_\d{3})*\.?(\d{3}(_\d{3})*(_\d{1,2})?|\d*)([eE]-?\d{0,3}(_\d{3})*)?$"
 )
+# A float literal written in exponent form, e.g. "0.0000013e-23". Hex
+# literals ("0x1e4") can't match: the pattern has no room for the prefix.
+_EXPONENT_LITERAL: re.Pattern[str] = re.compile(
+    r"^(?:\d[\d_]*)?(?:\.[\d_]*)?[eE](?P<exponent>[-+]?[\d_]+)$"
+)
 _NOTATION_STYLES: frozenset[str] = frozenset(
     {"scientific", "engineering", "underscore"}
 )
 
 
 class _NumberContext(NamedTuple):
-    """Per-literal state shared by bad-number-notation branch handlers."""
+    """Per-literal state shared by bad-float-notation branch handlers."""
 
     line_num: int
     start: tuple[int, int]
@@ -197,8 +203,8 @@ class NumberFormatterHelper:
         elif value == 0:
             suggested.add("0.0")
         else:
-            # Precision loss only — repr() gives Python's shortest round-trip
-            # decimal, i.e. exactly what float will store at runtime.
+            # Precision loss only: the built-in representation is Python's
+            # shortest round-trip decimal, exactly what float stores at runtime.
             rounded = repr(value)
             if "_" in original_string or force_grouping:
                 rounded = cls._regroup(rounded)
@@ -421,18 +427,32 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     ),
     "C0329": (
         "'%s' %s, and it should be written as '%s' instead",
-        "bad-number-notation",
-        "Emitted when a number is written in a non-standard notation. The three "
-        "allowed notations above the threshold are the scientific notation, the "
-        "engineering notation, and the underscore grouping notation defined in PEP 515.",
+        "bad-float-notation",
+        "Emitted when a float literal is written in a non-standard notation. The "
+        "three allowed notations above the threshold are the scientific notation, "
+        "the engineering notation, and the underscore grouping notation defined in "
+        "PEP 515. Rewriting a float is a matter of taste that reviewers legitimately "
+        "disagree about, so this one is off by default. Integer literals are "
+        "covered by 'bad-integer-notation' instead.",
+        {"default_enabled": False},
     ),
-    "C0330": (
+    # C0330 is not free: it belonged to the deleted 'bad-continuation' and
+    # reusing it would silently shadow that deletion record.
+    "C0331": (
+        "'%s' %s, and it should be written as '%s' instead",
+        "bad-integer-notation",
+        "Emitted when a large integer literal is a hard-to-read run of digits for "
+        "lack of the underscore grouping defined in PEP 515, or when it groups its "
+        "digits the wrong way. Applies to every base. Float literals are covered by "
+        "'bad-float-notation' instead.",
+    ),
+    "C0332": (
         "'%s' %s, and it should be written as '%s' instead",
         "bad-float-precision",
         "Emitted when a float literal cannot be represented faithfully by "
-        "float64 — overflows to infinity, underflows to zero, or has more "
+        "float64: it overflows to infinity, underflows to zero, or has more "
         "significant digits than the ~15 digit float guarantee. Independent "
-        "of the notation form checked by 'bad-number-notation'.",
+        "of the notation form checked by 'bad-float-notation'.",
     ),
 }
 
@@ -587,7 +607,22 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             },
         ),
         (
-            "number-notation-threshold",
+            "integer-notation-threshold",
+            {
+                # A million: the point where a run of digits stops being
+                # countable at a glance. Same switch point as '%g'.
+                "default": 1_000_000,
+                "type": "int",
+                "metavar": "<int>",
+                "help": (
+                    "Threshold above which an integer literal is expected to group "
+                    "its digits with PEP 515 underscores. Integers whose existing "
+                    "grouping is wrong are flagged whatever their size."
+                ),
+            },
+        ),
+        (
+            "float-notation-threshold",
             {
                 # default big enough to not trigger on pixel perfect web design
                 # on big screen
@@ -595,23 +630,23 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 "type": "float",
                 "metavar": "<float>",
                 "help": (
-                    "Threshold for number literals to be expected to be written "
+                    "Threshold for float literals to be expected to be written "
                     "using the scientific, engineering or underscore notation."
-                    " If the absolute value of a number literal is greater than this "
+                    " If the absolute value of a float literal is greater than this "
                     "value (or smaller than the inverse of this value for scientific "
                     "and engineering notation), it will be checked."
                 ),
             },
         ),
         (
-            "number-notation-style",
+            "float-notation-style",
             {
                 "type": "csv",
                 "metavar": "<style[,style...]>",
                 "default": (),
                 "help": (
-                    "Allowed notation styles for number literals above "
-                    "'number-notation-threshold'. Comma-separated list of "
+                    "Allowed notation styles for float literals above "
+                    "'float-notation-threshold'. Comma-separated list of "
                     "'scientific', 'engineering', and/or 'underscore' "
                     "(PEP 515). Empty (default) accepts any of the three; "
                     "list a subset to restrict accepted forms."
@@ -619,17 +654,34 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             },
         ),
         (
-            "suggest-int-underscore",
+            "float-notation-min-gain",
             {
-                "default": False,
+                "default": 0,
+                "type": "int",
+                "metavar": "<int>",
+                "help": (
+                    "Number of characters a suggestion must save before a plain "
+                    "float literal outside 'float-notation-threshold' is flagged. "
+                    "0 (default) always flags it, for projects that want one "
+                    "consistent notation. Raise it to 1 to only rewrite floats "
+                    "when the rewrite is actually shorter, or higher to only catch "
+                    "the big wins. Literals that already use a notation and use it "
+                    "wrongly are flagged whatever this is set to."
+                ),
+            },
+        ),
+        (
+            "allow-aligned-exponents",
+            {
+                "default": True,
                 "type": "yn",
                 "metavar": "<y or n>",
                 "help": (
-                    "Suggest PEP 515 underscore grouping for integer literals "
-                    "above 'number-notation-threshold' that don't already use "
-                    "underscores. Applies to all bases (decimal, hex, octal, "
-                    "binary). Integers with existing but incorrect underscore "
-                    "grouping are always flagged regardless of this option."
+                    "Allow a float to keep a non-standard mantissa when another "
+                    "float on the same statement shares its exponent. Writing a "
+                    "value and its uncertainty on one exponent (1.3806488e-23 "
+                    "alongside 0.0000013e-23) shows their relative precision at a "
+                    "glance, and is deliberate rather than sloppy."
                 ),
             },
         ),
@@ -652,12 +704,22 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     def open(self) -> None:
         self._lines: dict[int, str] = {}
         self._visited_lines: dict[int, Literal[1, 2]] = {}
-        if self.linter.is_message_enabled("bad-number-notation"):
-            allowed_styles = set(self.linter.config.number_notation_style or ())
+        # Physical line number -> exponents used by the float literals of the
+        # statement that line belongs to. Rebuilt per module in process_tokens.
+        self._statement_exponents: dict[int, Counter[int]] = {}
+        if self.linter.is_message_enabled("bad-integer-notation"):
+            dec_int_threshold = Decimal(self.linter.config.integer_notation_threshold)
+            self._integer_threshold_str = (
+                NumberFormatterHelper.to_standard_scientific_notation(
+                    dec_int_threshold, len(dec_int_threshold.as_tuple().digits)
+                )
+            )
+        if self.linter.is_message_enabled("bad-float-notation"):
+            allowed_styles = set(self.linter.config.float_notation_style or ())
             unknown = allowed_styles - _NOTATION_STYLES
             if unknown:
                 raise ValueError(
-                    f"'number-notation-style' got unknown value(s) "
+                    f"'float-notation-style' got unknown value(s) "
                     f"{sorted(unknown)!r}; expected any of "
                     f"{sorted(_NOTATION_STYLES)!r}."
                 )
@@ -672,20 +734,20 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             # 1000 since their canonical form needs three-digit groups.
             scientific_only = allowed_styles == {"scientific"}
             min_threshold = 10 if scientific_only else 1000
-            if self.linter.config.number_notation_threshold < min_threshold:
+            if self.linter.config.float_notation_threshold < min_threshold:
                 if scientific_only:
                     explanation = (
-                        " when 'number-notation-style' restricts to 'scientific'"
+                        " when 'float-notation-style' restricts to 'scientific'"
                     )
                 else:
                     explanation = ""
                 raise ValueError(
-                    f"'number-notation-threshold' must be at least "
+                    f"'float-notation-threshold' must be at least "
                     f"{min_threshold}{explanation}, got "
-                    f"{self.linter.config.number_notation_threshold}."
+                    f"{self.linter.config.float_notation_threshold}."
                 )
             # Pre-format threshold strings used in messages.
-            threshold = self.linter.config.number_notation_threshold
+            threshold = self.linter.config.float_notation_threshold
             dec_threshold = Decimal(str(threshold))
             self._threshold_str = NumberFormatterHelper.to_standard_scientific_notation(
                 dec_threshold, len(dec_threshold.as_tuple().digits)
@@ -835,6 +897,13 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         indents = [0]
         check_equal = False
         line_num = 0
+        # Only pay for this when something will actually read it.
+        self._statement_exponents = (
+            self._map_statement_exponents(tokens)
+            if self.linter.config.allow_aligned_exponents
+            and self.linter.is_message_enabled("bad-float-notation")
+            else {}
+        )
         self._lines = {}
         self._visited_lines = {}
         self._last_line_ending: str | None = None
@@ -916,6 +985,36 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         if line_num == last_blank_line_num and line_num > 0:
             self.add_message("trailing-newlines", line=line_num)
 
+    def _map_statement_exponents(
+        self, tokens: list[tokenize.TokenInfo]
+    ) -> dict[int, Counter[int]]:
+        """Map every physical line to the exponents used across its statement.
+
+        A statement, not a line: ``tokenize`` emits NEWLINE only at the end of a
+        logical line, so a call or a list spread over several physical lines
+        shares one counter and its aligned literals still see each other.
+        """
+        per_line: dict[int, Counter[int]] = {}
+        exponents: Counter[int] = Counter()
+        number_lines: list[int] = []
+        for token in tokens:
+            if token.type == tokenize.NUMBER:
+                match = _EXPONENT_LITERAL.match(token.string)
+                if match:
+                    exponents[int(match.group("exponent").replace("_", ""))] += 1
+                number_lines.append(token.start[0])
+            elif token.type == tokenize.NEWLINE:
+                for number_line in number_lines:
+                    per_line[number_line] = exponents
+                exponents = Counter()
+                number_lines = []
+        return per_line
+
+    def _has_aligned_sibling(self, line_num: int, exponent: str) -> bool:
+        """Is another float on this statement written on the same exponent?"""
+        exponents = self._statement_exponents.get(line_num)
+        return exponents is not None and exponents[int(exponent)] > 1
+
     def _check_number_notation(
         self, line_num: int, start: tuple[int, int], string: str
     ) -> None:
@@ -925,30 +1024,33 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         is_float = string[1:2].lower() not in ("x", "b", "o") and (
             "." in string or "e" in string or "E" in string
         )
-        if self.linter.is_message_enabled("bad-number-notation"):
-            match string[1:2].lower():
-                case "x":
-                    self._check_non_decimal_notation(
-                        line_num, start, string, "hex", 4, "hex digits"
-                    )
-                case "b":
-                    self._check_non_decimal_notation(
-                        line_num, start, string, "binary", 4, "binary digits"
-                    )
-                case "o":
-                    self._check_non_decimal_notation(
-                        line_num, start, string, "octal", 3, "octal digits"
-                    )
-                case _ if is_float:
-                    self._check_bad_number_notation(line_num, start, string)
-                case _:
-                    self._check_non_decimal_notation(
-                        line_num, start, string, "decimal", 3, "digits", 0
-                    )
-        if is_float and self.linter.is_message_enabled("bad-float-precision"):
-            self._check_bad_float_precision(line_num, start, string)
+        if is_float:
+            if self.linter.is_message_enabled("bad-float-notation"):
+                self._check_bad_float_notation(line_num, start, string)
+            if self.linter.is_message_enabled("bad-float-precision"):
+                self._check_bad_float_precision(line_num, start, string)
+            return
+        if not self.linter.is_message_enabled("bad-integer-notation"):
+            return
+        match string[1:2].lower():
+            case "x":
+                self._check_bad_integer_notation(
+                    line_num, start, string, "hex", 4, "hex digits"
+                )
+            case "b":
+                self._check_bad_integer_notation(
+                    line_num, start, string, "binary", 4, "binary digits"
+                )
+            case "o":
+                self._check_bad_integer_notation(
+                    line_num, start, string, "octal", 3, "octal digits"
+                )
+            case _:
+                self._check_bad_integer_notation(
+                    line_num, start, string, "decimal", 3, "digits", 0
+                )
 
-    def _check_bad_number_notation(
+    def _check_bad_float_notation(
         self, line_num: int, start: tuple[int, int], string: str
     ) -> None:
         has_exponent = "e" in string or "E" in string
@@ -960,7 +1062,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         # of real-world literals. Skip the Decimal/sig_figs/loses-value
         # machinery since no message would fire anyway.
         if not (has_exponent or has_underscore):
-            threshold = self.linter.config.number_notation_threshold
+            threshold = self.linter.config.float_notation_threshold
             abs_value = abs(value)
             if abs_value < threshold and (
                 self.underscore_only or abs_value >= 1 / threshold
@@ -992,7 +1094,9 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         else:
             self._handle_underscore_form(ctx)
 
-    def _emit_bad_notation(self, ctx: _NumberContext, reason: str) -> None:
+    def _emit_bad_notation(
+        self, ctx: _NumberContext, reason: str, apply_min_gain: bool = False
+    ) -> None:
         # Group the mantissa with underscores when the source already did,
         # or when ``suggest-mantissa-underscore`` is set. Sources that mix
         # exponent + underscore are excluded either way: pylint flags the
@@ -1009,8 +1113,16 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         )
         if suggestion == ctx.string.lower():
             return
+        # A literal that isn't attempting any notation yet is only worth
+        # rewriting if the rewrite pays for itself; 'float-notation-min-gain'
+        # says by how much. 0 disables the trade-off and always rewrites.
+        min_gain = self.linter.config.float_notation_min_gain
+        if apply_min_gain and min_gain > 0:
+            shortest = min(len(form) for form in suggestion.split("' or '"))
+            if len(ctx.string) - shortest < min_gain:
+                return
         self.add_message(
-            "bad-number-notation",
+            "bad-float-notation",
             line=ctx.line_num,
             col_offset=ctx.start[1],
             end_lineno=ctx.line_num,
@@ -1030,19 +1142,21 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         """Flag plain literals (no exponent, no underscore) outside the threshold
         band.
         """
-        threshold = self.linter.config.number_notation_threshold
+        # A literal in the allowed band already returned from the fast path in
+        # _check_bad_float_notation, so it is out of band by the time it lands here.
+        threshold = self.linter.config.float_notation_threshold
         abs_value = abs(ctx.value)
         under_threshold = abs_value < threshold
-        # Underscore notation doesn't care about the close-to-zero range; for
-        # scientific/engineering we also skip when the value is in [1/threshold, threshold].
-        if under_threshold and (self.underscore_only or abs_value >= 1 / threshold):
-            return
         if under_threshold:
             self._emit_bad_notation(
-                ctx, f"is smaller than {self._close_to_zero_threshold_str}"
+                ctx,
+                f"is smaller than {self._close_to_zero_threshold_str}",
+                apply_min_gain=True,
             )
         else:
-            self._emit_bad_notation(ctx, f"is greater than {self._threshold_str}")
+            self._emit_bad_notation(
+                ctx, f"is at least {self._threshold_str}", apply_min_gain=True
+            )
 
     def _handle_exponent_form(self, ctx: _NumberContext) -> None:
         """Check exponent literals against the allowed scientific/engineering forms."""
@@ -1063,6 +1177,12 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             self.engineering_allowed and eng_form_ok
         ):
             return  # at least one allowed form accepts the literal
+        if self.linter.config.allow_aligned_exponents and self._has_aligned_sibling(
+            ctx.line_num, exponent_as_str
+        ):
+            # A value and its uncertainty share an exponent so the reader can
+            # see their relative precision; the odd mantissa is the point.
+            return
         # Pick reason wording: scientific phrasing when scientific is allowed
         # but engineering isn't; engineering phrasing otherwise (covers
         # engineering-only, scientific+engineering, or all three allowed).
@@ -1118,9 +1238,9 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         clean = string.replace("_", "")
         value = float(clean)
         dec_number = Decimal(clean)
-        # Round-trip predicate: float represents the literal faithfully iff
-        # ``str(float)`` parses back to the same Decimal value. Captures
-        # overflow, underflow, and precision loss in one check.
+        # Round-trip predicate: float represents the literal faithfully when,
+        # and only when, ``str(float)`` parses back to the same Decimal value.
+        # That covers overflow, underflow and precision loss in one check.
         if Decimal(str(value)) == dec_number:
             return
         if math.isinf(value):
@@ -1148,7 +1268,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             confidence=HIGH,
         )
 
-    def _check_non_decimal_notation(
+    def _check_bad_integer_notation(
         self,
         line_num: int,
         start: tuple[int, int],
@@ -1165,7 +1285,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             # ('00', '000', '0_0', ...). Prefixed zeros ('0x00', '0b00') can
             # be intentional padding so we don't flag them.
             self.add_message(
-                "bad-number-notation",
+                "bad-integer-notation",
                 line=line_num,
                 col_offset=start[1],
                 end_lineno=line_num,
@@ -1180,7 +1300,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     string, group_size, prefix_length
                 )
                 self.add_message(
-                    "bad-number-notation",
+                    "bad-integer-notation",
                     line=line_num,
                     col_offset=start[1],
                     end_lineno=line_num,
@@ -1192,22 +1312,19 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     ),
                     confidence=HIGH,
                 )
-        elif (
-            self.linter.config.suggest_int_underscore
-            and value >= self.linter.config.number_notation_threshold
-        ):
+        elif value >= self.linter.config.integer_notation_threshold:
             suggestion = NumberFormatterHelper.to_standard_non_decimal_grouping(
                 string, group_size, prefix_length
             )
             self.add_message(
-                "bad-number-notation",
+                "bad-integer-notation",
                 line=line_num,
                 col_offset=start[1],
                 end_lineno=line_num,
                 end_col_offset=start[1] + len(string),
                 args=(
                     string,
-                    f"is greater than {self._threshold_str}",
+                    f"is at least {self._integer_threshold_str}",
                     suggestion,
                 ),
                 confidence=HIGH,

@@ -9,4 +9,4 @@ with ``decimal.Decimal("...")`` so the source value is preserved when
 the loss matters.
 
 Notation form (scientific vs. engineering vs. underscore grouping) is a
-separate concern handled by ``bad-number-notation``.
+separate concern handled by ``bad-float-notation``.

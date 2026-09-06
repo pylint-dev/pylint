@@ -1,0 +1,7 @@
+bad-integer-notation:4:20:4:22::'00' is an unconventional zero literal, and it should be written as '0' instead:HIGH
+bad-integer-notation:5:22:5:25::'000' is an unconventional zero literal, and it should be written as '0' instead:HIGH
+bad-integer-notation:6:22:6:25::'0_0' is an unconventional zero literal, and it should be written as '0' instead:HIGH
+bad-integer-notation:13:19:13:27::'1_23_456' has underscores that are not grouping digits by 3, and it should be written as '123_456' instead:HIGH
+bad-integer-notation:14:22:14:29::'1234567' is at least 1.0e6, and it should be written as '1_234_567' instead:HIGH
+bad-integer-notation:16:23:16:30::'1000000' is at least 1.0e6, and it should be written as '1_000_000' instead:HIGH
+bad-integer-notation:22:26:22:35::'0x12c_456' has underscores that are not grouping hex digits by 4, and it should be written as '0x12_c456' instead:HIGH

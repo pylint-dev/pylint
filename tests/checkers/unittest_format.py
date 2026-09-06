@@ -261,6 +261,8 @@ class TestIgnoredToolPragmas(CheckerTestCase):
         for msg, code in cases:
             with self.assertAddsMessages(msg):
                 self.checker.process_tokens(_tokenize_str(code + "\n"))
+
+
 @pytest.mark.parametrize(
     "value,expected_scientific,expected_engineering,expected_underscore,expected_decimal",
     [
@@ -422,6 +424,21 @@ def test_to_standard_non_decimal_grouping(
     ), f"Non-decimal grouping mismatch: expected {expected!r}, got {result!r}"
 
 
+def _float_notation_checker(style: tuple[str, ...], threshold: float) -> FormatChecker:
+    """A checker whose float notation options are set and message enabled.
+
+    ``bad-float-notation`` is off by default, and ``open`` only validates the
+    options of the checks that are actually running.
+    """
+    linter = lint.PyLinter()
+    checker = FormatChecker(linter)
+    linter.register_checker(checker)
+    linter.enable("bad-float-notation")
+    linter.config.float_notation_style = style
+    linter.config.float_notation_threshold = threshold
+    return checker
+
+
 @pytest.mark.parametrize(
     "style,threshold,match",
     [
@@ -432,12 +449,10 @@ def test_to_standard_non_decimal_grouping(
         (("scientific",), 9, "must be at least 10"),
     ],
 )
-def test_number_notation_threshold_too_low(
+def test_float_notation_threshold_too_low(
     style: tuple[str, ...], threshold: int, match: str
 ) -> None:
-    checker = FormatChecker(lint.PyLinter())
-    checker.linter.config.number_notation_style = style
-    checker.linter.config.number_notation_threshold = threshold
+    checker = _float_notation_checker(style, threshold)
     with pytest.raises(ValueError, match=match):
         checker.open()
 
@@ -450,9 +465,16 @@ def test_number_notation_threshold_too_low(
         (("baz", "qux"), r"got unknown value\(s\) \['baz', 'qux'\]"),
     ],
 )
-def test_number_notation_style_unknown(style: tuple[str, ...], match: str) -> None:
-    checker = FormatChecker(lint.PyLinter())
-    checker.linter.config.number_notation_style = style
-    checker.linter.config.number_notation_threshold = 1e6
+def test_float_notation_style_unknown(style: tuple[str, ...], match: str) -> None:
+    checker = _float_notation_checker(style, 1e6)
     with pytest.raises(ValueError, match=match):
         checker.open()
+
+
+def test_float_notation_options_unvalidated_when_disabled() -> None:
+    """A bad float option can't break a run that never reads it."""
+    linter = lint.PyLinter()
+    checker = FormatChecker(linter)
+    linter.register_checker(checker)
+    linter.config.float_notation_style = ("nonsense",)
+    checker.open()  # bad-float-notation is off by default: no ValueError
