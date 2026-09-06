@@ -7,10 +7,10 @@ wrong_grouping_3 = 0x123_4567_89  # [bad-number-notation]
 wrong_grouping_4 = 0xABCDE_F  # [bad-number-notation]
 wrong_grouping_5 = 0xA_B  # [bad-number-notation]
 
-# Bad: above threshold without underscore grouping (threshold is 1e6 = 1_000_000)
-big_hex_no_grouping = 0xDEADBEEF  # [bad-number-notation]
-big_hex_no_grouping_2 = 0x1234567890ABCDEF  # [bad-number-notation]
-big_hex_no_grouping_3 = 0xF4240  # [bad-number-notation]
+# Not flagged by default: above threshold but suggest-int-underscore is off
+big_hex_no_grouping = 0xDEADBEEF
+big_hex_no_grouping_2 = 0x1234567890ABCDEF
+big_hex_no_grouping_3 = 0xF4240
 
 # Good: properly grouped by 4
 proper_grouping_1 = 0xDEAD_BEEF

@@ -1,3 +1,4 @@
-There's 2 options associated with this message:
+There's 3 options associated with this message:
 - ``number-notation-style``: can be left empty (allow all three, the default), ``scientific``, ``engineering``, or ``underscore``
 - ``number-notation-threshold`` (default to 1e6)
+- ``suggest-int-underscore`` (default no): suggest PEP 515 underscore grouping for integer literals above the threshold
