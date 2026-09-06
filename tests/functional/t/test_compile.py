@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, unused-variable, pointless-statement, too-few-public-methods
+# pylint: disable=missing-docstring, unused-variable, pointless-statement, too-few-public-methods, bad-number-notation
 
 class WrapperClass:
     def method(self):

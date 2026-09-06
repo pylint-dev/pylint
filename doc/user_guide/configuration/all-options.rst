@@ -1269,15 +1269,6 @@ Standard Checkers
 **Default:** ``""``
 
 
-.. _float-notation-threshold-option:
-
---float-notation-threshold
-""""""""""""""""""""""""""
-*Threshold for float literals to be expected to be written using the scientific, engineering or underscore notation. If the absolute value of a float literal is greater than this value (or smaller than the inverse of this value for scientific and engineering notation), it will be checked.*
-
-**Default:**  ``1e8``
-
-
 .. _ignore-long-lines-option:
 
 --ignore-long-lines
@@ -1332,6 +1323,24 @@ Standard Checkers
 **Default:**  ``1000``
 
 
+.. _number-notation-style-option:
+
+--number-notation-style
+"""""""""""""""""""""""
+*Enforce a specific notation for number literals above 'number-notation-threshold'. Choices: empty (allow all standard notations), 'scientific', 'engineering', or 'underscore' (PEP 515).*
+
+**Default:** ``""``
+
+
+.. _number-notation-threshold-option:
+
+--number-notation-threshold
+"""""""""""""""""""""""""""
+*Threshold for number literals to be expected to be written using the scientific, engineering or underscore notation. If the absolute value of a number literal is greater than this value (or smaller than the inverse of this value for scientific and engineering notation), it will be checked.*
+
+**Default:**  ``1e6``
+
+
 .. _single-line-class-stmt-option:
 
 --single-line-class-stmt
@@ -1350,33 +1359,6 @@ Standard Checkers
 **Default:**  ``False``
 
 
-.. _strict-engineering-notation-option:
-
---strict-engineering-notation
-"""""""""""""""""""""""""""""
-*Only allow engineering notation for float literals with absolute value bigger than 'float-notation-threshold' or smallerthan the inverse of 'float-notation-threshold'.*
-
-**Default:**  ``False``
-
-
-.. _strict-scientific-notation-option:
-
---strict-scientific-notation
-""""""""""""""""""""""""""""
-*Only allow scientific notation for float literals with absolute value bigger than 'float-notation-threshold' or smallerthan the inverse of 'float-notation-threshold'.*
-
-**Default:**  ``False``
-
-
-.. _strict-underscore-notation-option:
-
---strict-underscore-notation
-""""""""""""""""""""""""""""
-*Only allow underscore notation for float literals bigger than 'float-notation-threshold'.*
-
-**Default:**  ``False``
-
-
 
 .. raw:: html
 
@@ -1391,8 +1373,6 @@ Standard Checkers
    # Possible choices: ['', 'LF', 'CRLF']
    expected-line-ending-format = ""
 
-   float-notation-threshold = 100000000.0
-
    ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
 
    # ignore-pattern-in-long-lines =
@@ -1405,15 +1385,14 @@ Standard Checkers
 
    max-module-lines = 1000
 
+   # Possible choices: ['', 'scientific', 'engineering', 'underscore']
+   number-notation-style = ""
+
+   number-notation-threshold = 1000000.0
+
    single-line-class-stmt = false
 
    single-line-if-stmt = false
-
-   strict-engineering-notation = false
-
-   strict-scientific-notation = false
-
-   strict-underscore-notation = false
 
 
 
