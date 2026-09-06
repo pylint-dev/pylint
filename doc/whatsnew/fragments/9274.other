@@ -1,0 +1,6 @@
+Clarify related ``no-else-*`` messages so they say that only the first ``elif``
+after the reported branch should change. Expand the ``no-else-return``
+documentation to explain later branches and when retaining an ``elif`` chain
+can better communicate an exhaustive decision.
+
+Closes #9274
