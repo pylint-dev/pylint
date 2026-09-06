@@ -167,3 +167,22 @@ class SuperInNestedMethod:
 
         arg.__init_subclass__ = classmethod(__init_subclass__)
         return helper()
+
+
+class SuperInNestedScopes:
+    """The object given to super() can be bound in any scope nested in the method."""
+    def __call__(self, arg):
+        # The same pattern as above, through a lambda
+        arg.__init_subclass__ = classmethod(lambda cls: super(arg, cls).__init_subclass__())
+
+        # The parameter belongs to an intermediate function
+        def outer(cls):
+            def inner():
+                return super(arg, cls).__init_subclass__()
+            return inner
+
+        # super(type(x), x) recurses whatever the class, still reported
+        def __init_subclass__(cls):
+            return super(type(cls), cls).__init_subclass__()  # [bad-super-call]
+
+        return outer, __init_subclass__
