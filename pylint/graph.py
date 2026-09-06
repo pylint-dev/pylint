@@ -274,11 +274,10 @@ def _get_longest_path_item(
     Prioritize the number of symbols (``a``, ``b``, ``c``), break ties with the total
     number of nodes in the path, and break further ties alphabetically.
     """
-    return sorted(
+    return max(
         items,
-        reverse=True,
         key=lambda x: (symbols_in_longest_path[x], nodes_in_longest_path[x], str(x)),
-    )[0]
+    )
 
 
 def _get_path(
