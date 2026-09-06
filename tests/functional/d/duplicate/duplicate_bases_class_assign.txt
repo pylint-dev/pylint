@@ -1,0 +1,2 @@
+duplicate-bases:14:0:14:12:Basket:Duplicate bases for class 'Basket':UNDEFINED
+assigning-non-slot:27:8:27:22:Bowl.become_a_basket:Assigning to attribute '__class__' not defined in class slots:INFERENCE

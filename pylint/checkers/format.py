@@ -729,9 +729,9 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             # The 'pylint: disable whatever' should not be taken into account for line length count
             lines = self.remove_pylint_option_from_lines(mobj)
 
-        # Trailing pragmas from other tooling (``# type: ignore``, ``# noqa``,
-        # ``# pragma: no cover``, ...) should not be taken into account for the
-        # line length count either.
+        # Trailing pragmas from other tooling (``type: ignore`` for mypy, ``noqa``
+        # for flake8, ``pragma: no cover`` for coverage, ...) should not be taken
+        # into account for the line length count either.
         lines = _IGNORED_PRAGMA_RGX.sub("", lines)
 
         ignore_pattern_in_long_lines = self.linter.config.ignore_pattern_in_long_lines

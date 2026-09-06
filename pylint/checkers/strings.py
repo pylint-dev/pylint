@@ -227,15 +227,16 @@ def arg_matches_format_type(
         # All types can be printed with %s, %r and %a
         return True
     if isinstance(arg_type, astroid.Instance):
-        match arg_type.pytype():
-            case "builtins.str":
-                return format_type == "c"
-            case "builtins.float":
-                # ``i`` and ``u`` accept a float at runtime (truncated like ``d``)
-                return format_type in "diueEfFgGn%"
-            case "builtins.int":
-                # Integers allow all types
-                return True
+        # Subclasses behave like their builtin base: ``bool`` and ``IntEnum``
+        # members format like ``int``, a ``float`` subclass like ``float``.
+        if arg_type.is_subtype_of("builtins.str"):
+            return format_type == "c"
+        if arg_type.is_subtype_of("builtins.int"):
+            # Integers allow all types
+            return True
+        if arg_type.is_subtype_of("builtins.float"):
+            # ``i`` and ``u`` accept a float at runtime (truncated like ``d``)
+            return format_type in "diueEfFgGn%"
         return False
     return True
 

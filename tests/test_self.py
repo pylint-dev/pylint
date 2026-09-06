@@ -1484,9 +1484,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             # pytest is including directory HERE/regrtest_data to sys.path which causes
             # astroid to believe that directory is a package.
             sys.path = [
-                path
-                for path in sys.path
-                if not os.path.basename(path) == "regrtest_data"
+                path for path in sys.path if os.path.basename(path) != "regrtest_data"
             ]
             with _test_cwd():
                 os.chdir(join(HERE, "regrtest_data", "directory", "subdirectory"))
@@ -1501,9 +1499,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             # pytest is including directory HERE/regrtest_data to sys.path which causes
             # astroid to believe that directory is a package.
             sys.path = [
-                path
-                for path in sys.path
-                if not os.path.basename(path) == "regrtest_data"
+                path for path in sys.path if os.path.basename(path) != "regrtest_data"
             ]
             with _test_cwd():
                 os.chdir(join(HERE, "regrtest_data", "directory"))

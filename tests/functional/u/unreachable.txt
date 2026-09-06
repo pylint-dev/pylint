@@ -10,3 +10,4 @@ unreachable:75:4:75:15:func11:Unreachable code:INFERENCE
 unreachable:81:4:81:15:func12:Unreachable code:INFERENCE
 unreachable:90:4:90:24:func13:Unreachable code:INFERENCE
 unreachable:98:4:98:24:func14:Unreachable code:INFERENCE
+unreachable:117:4:117:24:func_quitter_instantiation:Unreachable code:INFERENCE

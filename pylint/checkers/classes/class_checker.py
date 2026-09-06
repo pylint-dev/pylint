@@ -36,6 +36,8 @@ from pylint.checkers.utils import (
     node_frame_class,
     only_required_for_messages,
     safe_infer,
+    safe_mro,
+    safe_slots,
     unimplemented_abstract_methods,
     uninferable_final_decorators,
 )
@@ -50,6 +52,10 @@ _AccessNodes: TypeAlias = nodes.Attribute | nodes.AssignAttr
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
 BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
+# Special methods that build or configure the class itself. A subclass routinely
+# takes different arguments there without breaking substitutability, because
+# callers name the concrete class instead of going through the base one.
+CONSTRUCTOR_METHODS = {"__new__", "__init__", "__init_subclass__", "__post_init__"}
 ASTROID_TYPE_COMPARATORS = {
     nodes.Const: lambda a, b: a.value == b.value,
     nodes.ClassDef: lambda a, b: a.qname == b.qname,
@@ -378,13 +384,18 @@ def _different_parameters(
     if kwarg_lost or vararg_lost:
         output_messages += ["Variadics removed in"]
 
-    if original.name in PYMETHODS:
-        # Ignore the difference for special methods. If the parameter
-        # numbers are different, then that is going to be caught by
-        # unexpected-special-method-signature.
-        # If the names are different, it doesn't matter, since they can't
-        # be used as keyword arguments anyway.
+    if original.name in CONSTRUCTOR_METHODS:
+        # Ignore every difference for the constructor family, overriding those
+        # with another signature is idiomatic.
         output_messages.clear()
+    elif original.name in PYMETHODS:
+        # For the other special methods, only keep the difference in the number
+        # of parameters. If the names are different, it doesn't matter, since
+        # they can't be used as keyword arguments anyway, and losing variadics
+        # is fine as long as the remaining parameters still match.
+        output_messages[:] = [
+            message for message in output_messages if "Number" in message
+        ]
 
     return output_messages
 
@@ -548,7 +559,7 @@ def _has_same_layout_slots(
         # value that is not a class definition.
         return False
     if isinstance(inferred, nodes.ClassDef):
-        other_slots = inferred.slots()
+        other_slots = safe_slots(inferred)
         if other_slots is None:
             # A class without ``__slots__`` anywhere in its mro has a
             # different layout, which CPython rejects at runtime too.
@@ -1353,23 +1364,26 @@ a metaclass class method.",
             if attr in parent_setattr_names:
                 continue
 
+            # If the attribute was set by a call made in any of the defining
+            # methods, then it is initialized after all: don't emit for any of
+            # the assignments.
+            if any(
+                _called_in_methods(node.frame(), cnode, defining_methods)
+                for node in filtered_nodes
+            ):
+                continue
+
             for node in filtered_nodes:
-                if node.frame().name not in defining_methods:
-                    # If the attribute was set by a call in any
-                    # of the defining methods, then don't emit
-                    # the warning.
-                    if _called_in_methods(node.frame(), cnode, defining_methods):
-                        continue
-                    self.add_message(
-                        "attribute-defined-outside-init", args=attr, node=node
-                    )
+                self.add_message("attribute-defined-outside-init", args=attr, node=node)
 
     def _defined_in_parent_init(
         self, cnode: nodes.ClassDef, attr: str, defining_methods: Sequence[str]
     ) -> bool:
-        # check attribute is defined in a parent's defining method
+        # check attribute is defined in a parent's defining method, either
+        # directly or in a method called from a defining method
         return any(
             node.frame().name in defining_methods
+            or _called_in_methods(node.frame(), parent, defining_methods)
             for parent in cnode.instance_attr_ancestors(attr)
             for node in parent.instance_attrs[attr]
         )
@@ -1775,7 +1789,7 @@ a metaclass class method.",
         ancestors_slots_names = {
             slot.value
             for ancestor in node.local_attr_ancestors("__slots__")
-            for slot in ancestor.slots() or []
+            for slot in safe_slots(ancestor) or []
         }
 
         # Slots which are common to `node` and its parent classes
@@ -1876,7 +1890,7 @@ a metaclass class method.",
         self._check_invalid_class_object(node)
 
     def _check_invalid_class_object(self, node: nodes.AssignAttr) -> None:
-        if not node.attrname == "__class__":
+        if node.attrname != "__class__":
             return
         if isinstance(node.parent, (nodes.Tuple, nodes.List)):
             assign_node = node.parent.parent
@@ -1934,19 +1948,19 @@ a metaclass class method.",
         # what will happen when assigning to an attribute.
         if any(
             base.locals.get("__setattr__")
-            for base in klass.mro()
+            for base in safe_mro(klass)
             if base.qname() != "builtins.object"
         ):
             return
 
         # If 'typing.Generic' is a base of bases of klass, the cached version
         # of 'slots()' might have been evaluated incorrectly, thus deleted cache entry.
-        if any(base.qname() == "typing.Generic" for base in klass.mro()):
+        if any(base.qname() == "typing.Generic" for base in safe_mro(klass)):
             cache = getattr(klass, "__cache", None)
             if cache and cache.get(klass.slots) is not None:
                 del cache[klass.slots]
 
-        slots = klass.slots()
+        slots = safe_slots(klass)
         if slots is None:
             return
         # If any ancestor doesn't use slots, the slots

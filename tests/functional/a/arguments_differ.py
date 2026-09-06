@@ -368,3 +368,30 @@ class InitSubclassParent:
 class InitSubclassChild(InitSubclassParent):
     def __init_subclass__(cls, /, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
+
+
+# A special method called through the base class keeps the same
+# number of parameters:
+class CallParent:
+    def __call__(self, arg1, arg2):
+        ...
+
+class CallChild(CallParent):
+    def __call__(self, arg1, arg2, arg3):  # [arguments-differ]
+        ...
+
+
+# ... but widening it with variadics is fine, every base call still works:
+class CallChildWithVarargs(CallParent):
+    def __call__(self, *args):
+        ...
+
+
+# Exclude `__new__` from the check:
+class NewParent:
+    def __new__(cls, arg1):
+        return object.__new__(cls)
+
+class NewChild(NewParent):
+    def __new__(cls, arg1, arg2):
+        return object.__new__(cls)

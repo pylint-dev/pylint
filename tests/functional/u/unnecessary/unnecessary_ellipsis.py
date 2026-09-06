@@ -2,7 +2,7 @@
 
 # pylint: disable=missing-docstring, too-few-public-methods, invalid-name, unused-argument, comparison-of-constants
 
-from typing import List, overload, Union
+from typing import List, overload, Protocol, Union
 
 # Ellipsis and preceding statement
 try:
@@ -129,3 +129,16 @@ def func2(val1, val2):
 
 
 assert "x" != ...
+
+
+class ProtocolInterface(Protocol):
+    def value(self) -> int:
+        """Return a value."""
+        ...
+
+
+class ProtocolWithImplementation(Protocol):
+    def value(self) -> int:
+        """Return a value."""
+        ...  # [unnecessary-ellipsis]
+        return 1

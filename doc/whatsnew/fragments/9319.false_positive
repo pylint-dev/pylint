@@ -1,0 +1,4 @@
+Fix a false positive for :ref:`unnecessary-ellipsis` when an ellipsis is the
+sole body statement of a method defined on a ``Protocol``.
+
+Closes #9319

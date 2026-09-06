@@ -8,3 +8,4 @@ bad-string-format-type:38:0:38:23::Argument 'builtins.list' does not match forma
 bad-string-format-type:41:0:41:11::Argument 'builtins.str' does not match format type 'd':UNDEFINED
 bad-string-format-type:42:0:42:22::Argument 'builtins.str' does not match format type 'd':UNDEFINED
 bad-string-format-type:46:0:46:29::Argument 'builtins.str' does not match format type 'd':UNDEFINED
+bad-string-format-type:75:0:75:29::Argument 'functional.b.bad_string_format_type.MyFloat' does not match format type 'x':UNDEFINED

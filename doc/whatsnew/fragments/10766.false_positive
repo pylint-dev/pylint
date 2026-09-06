@@ -1,0 +1,6 @@
+Fix a false positive for ``invalid-name`` (C0103) on names assigned in an
+``if __name__ == "__main__":`` block. Such a block reads like a script body, so
+a name there is now accepted if it matches either the constant or the variable
+naming style.
+
+Closes #10766

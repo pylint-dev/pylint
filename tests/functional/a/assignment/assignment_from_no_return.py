@@ -29,6 +29,8 @@ class Class:
 
 
 VALUE = some_func() # [assignment-from-no-return]
+FUNCTIONS = [some_func]
+VALUE_FROM_SUBSCRIPT = FUNCTIONS[0]()  # [assignment-from-no-return]
 
 
 class Parent:
