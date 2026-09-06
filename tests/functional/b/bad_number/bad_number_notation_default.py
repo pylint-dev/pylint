@@ -47,7 +47,9 @@ zero_only = 0e10  # [bad-number-notation]
 zero_int = 0
 zero_float = 0.0
 zero_float_v2 = 0.
-annoying_zero_int = 00
+annoying_zero_int = 00  # [bad-number-notation]
+annoying_zero_int_2 = 000  # [bad-number-notation]
+annoying_zero_int_3 = 0_0  # [bad-number-notation]
 annoying_zero_float = 00.0 # [bad-number-notation]
 zero_trailing = 0.00  # [bad-number-notation]
 zero_trailing_2 = 0.000  # [bad-number-notation]
@@ -65,6 +67,11 @@ large_plain = 1541455200.0  # [bad-number-notation]
 large_round = 1000000.0  # [bad-number-notation]
 # More than 15 significant digits: suggest decimal.Decimal
 many_sig_figs = 486787299458.15656  # [bad-number-notation]
+# Underflow to zero in float — flagged for value-fidelity even when form is valid
+tiny_underflow = 1e-1000  # [bad-number-notation]
+tiny_underflow_2 = 1.5e-500  # [bad-number-notation]
+# Overflow to infinity in float — flagged similarly
+huge_overflow = 1.5e500  # [bad-number-notation]
 
 one_only = 1e6
 correct_1 = 4.53e7
