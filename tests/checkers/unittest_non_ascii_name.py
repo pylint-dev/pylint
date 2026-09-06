@@ -238,11 +238,6 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
                 id="from_okay_module_import_bad_as_good_and_bad",
             ),
             pytest.param(
-                "from foo.bar import functiøn as good, bäd",
-                "bäd",
-                id="from_okay_module_import_bad_as_good_and_bad",
-            ),
-            pytest.param(
                 "from foo.bar import functiøn as good, *",
                 # We still have functiøn within our namespace and could detect this
                 # But to do this properly we would need to check all `*` imports
@@ -259,7 +254,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
         """We expect that for everything that user can change there is a message."""
         node = astroid.extract_node(f"{import_statement} #@")
 
-        expected_msgs: Iterable[pylint.testutils.MessageTest] = tuple()
+        expected_msgs: Iterable[pylint.testutils.MessageTest] = ()
 
         if wrong_name:
             expected_msgs = (

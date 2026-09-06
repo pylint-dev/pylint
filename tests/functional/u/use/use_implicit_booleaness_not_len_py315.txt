@@ -1,0 +1,1 @@
+use-implicit-booleaness-not-len:3:3:3:28::Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH

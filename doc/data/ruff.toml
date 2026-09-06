@@ -14,6 +14,10 @@ extend-exclude = [
     "messages/u/using-generic-type-syntax-in-unsupported-version/bad.py",
 ]
 
+# The examples showing off the newest syntax need the most recent grammar
+[per-file-target-version]
+"messages/u/using-comprehension-unpacking-in-unsupported-version/bad.py" = "py315"
+
 [lint]
 ignore = []
 select = ["E501", "I"]

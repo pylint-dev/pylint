@@ -1,0 +1,4 @@
+``comparison-with-itself`` now detects repeated attribute chains such as
+``object.attribute == object.attribute``.
+
+Closes #10713

@@ -105,3 +105,13 @@ async def func15():
     coro = inner()
     print("reachable")
     await coro
+
+
+def func_quitter_instantiation():
+    """Instantiating ``_sitebuiltins.Quitter`` does not exit, only calling it does."""
+    import _sitebuiltins  # pylint: disable=import-outside-toplevel
+
+    quitter = _sitebuiltins.Quitter("exit", "")
+    print(quitter)
+    quitter()
+    print("unreachable")  # [unreachable]

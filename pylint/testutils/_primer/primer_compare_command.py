@@ -30,6 +30,26 @@ def _format_messages(
     return body
 
 
+def _format_suppression_false_positives(
+    messages: list[JSONMessage],
+    source_link: Callable[[JSONMessage], str],
+    action: str,
+) -> str:
+    """Fuse each ``suppressed-message`` into a single false-positive line.
+
+    A message a user had to disable is a false positive, and its
+    ``Suppressed 'x' (from line n)`` bookkeeping carries everything needed:
+    the symbol, the user's pragma line and the emission location.
+    """
+    body = ""
+    for count, msg in enumerate(messages, 1):
+        symbol = msg["message"].removeprefix("Suppressed ").rsplit(" (from line ", 1)[0]
+        body += (
+            f"{count}) False positive for {symbol} {action} at\n{source_link(msg)}\n"
+        )
+    return body
+
+
 def _details_section(title: str, body: str) -> str:
     # Blank line after <details> required for GitHub markdown rendering.
     return f"{title}\n\n<details>\n\n{body}</details>\n\n"
@@ -57,9 +77,8 @@ class CompareCommand(PrimerCommand):
             source_link = self._source_link_for(package, diff.new["commit"])
             comment += f"\n**Effect on [{package}]({url}):**\n\n"
             comment += self._format_changed_messages(diff.changed, source_link)
-            comment += self._format_new_messages(diff.new["messages"], source_link)
-            comment += self._format_missing_messages(
-                diff.missing["messages"], source_link
+            comment += self._format_diff_messages(
+                diff.new["messages"], diff.missing["messages"], source_link
             )
         comment = (
             f"🤖 **Effect of this PR on checked open source code:** 🤖\n\n{comment}"
@@ -100,55 +119,70 @@ class CompareCommand(PrimerCommand):
             )
         return _details_section("Changed messages:", body)
 
-    def _format_new_messages(
+    def _format_diff_messages(
         self,
-        messages: list[JSONMessage],
+        new_messages: list[JSONMessage],
+        missing_messages: list[JSONMessage],
         source_link: Callable[[JSONMessage], str],
     ) -> str:
-        if not messages:
-            return ""
-        print("Now emitted:")
-        astroid_errors = 0
-        fixed_fp: list[JSONMessage] = []
-        other_new: list[JSONMessage] = []
-        for message in messages:
-            print(message)
-            if message["symbol"] == "astroid-error":
-                astroid_errors += 1
-            elif message["symbol"] == "useless-suppression":
-                fixed_fp.append(message)
-            else:
-                other_new.append(message)
+        """Format new and removed messages, classifying suppression bookkeeping.
+
+        A message a user had to disable is a false positive: a removed
+        ``suppressed-message`` means such a false positive is no longer
+        emitted, a new one means a false positive is emitted (again) despite
+        the user's disable.  The comparator already dropped the
+        ``useless-suppression`` echo about the same pragma.
+        """
+        if new_messages:
+            print("Now emitted:")
+            for message in new_messages:
+                print(message)
+        if missing_messages:
+            print("No longer emitted:")
+            for message in missing_messages:
+                print(message)
+
+        astroid_errors = [m for m in new_messages if m["symbol"] == "astroid-error"]
+        fixed_fp = [m for m in missing_messages if m["symbol"] == "suppressed-message"]
+        reintroduced_fp = [
+            m for m in new_messages if m["symbol"] == "suppressed-message"
+        ]
+        other_new = [
+            m
+            for m in new_messages
+            if m["symbol"] not in {"astroid-error", "suppressed-message"}
+        ]
+        other_missing = [
+            m for m in missing_messages if m["symbol"] != "suppressed-message"
+        ]
 
         out = ""
         if astroid_errors:
             out += (
-                f'{astroid_errors} "astroid error(s)" were found. '
+                f'{len(astroid_errors)} "astroid error(s)" were found. '
                 "Please open the GitHub Actions log to see what failed or crashed.\n\n"
             )
         if fixed_fp:
             out += _details_section(
-                "🎉 Fixed false positives:", _format_messages(fixed_fp, source_link)
+                "🎉 Fixed false positives:",
+                _format_suppression_false_positives(fixed_fp, source_link, "removed"),
+            )
+        if reintroduced_fp:
+            out += _details_section(
+                "⚠️ Reintroduced false positives:",
+                _format_suppression_false_positives(
+                    reintroduced_fp, source_link, "(disabled by user) reintroduced"
+                ),
             )
         if other_new:
             out += _details_section(
                 "New messages:", _format_messages(other_new, source_link)
             )
+        if other_missing:
+            out += _details_section(
+                "Removed messages:", _format_messages(other_missing, source_link)
+            )
         return out
-
-    def _format_missing_messages(
-        self,
-        messages: list[JSONMessage],
-        source_link: Callable[[JSONMessage], str],
-    ) -> str:
-        if not messages:
-            return ""
-        print("No longer emitted:")
-        for message in messages:
-            print(message)
-        return _details_section(
-            "Removed messages:", _format_messages(messages, source_link)
-        )
 
     def _truncate_comment(self, comment: str) -> str:
         """GitHub allows only a set number of characters in a comment."""

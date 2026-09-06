@@ -1,0 +1,1 @@
+unnecessary-comprehension:6:9:6:28::Unnecessary use of a comprehension, use list(NESTED) instead.:UNDEFINED

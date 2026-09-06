@@ -1,0 +1,4 @@
+[main]
+# PEP 686 makes UTF-8 the default encoding in Python 3.15, so the message
+# only applies to code that still supports an earlier version.
+py-version=3.14

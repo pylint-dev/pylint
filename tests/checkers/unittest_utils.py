@@ -610,3 +610,75 @@ def test_is_terminating_func_overload_with_noreturn_implementation() -> None:
 """)
     result = utils.is_terminating_func(node)
     assert result is True
+
+
+def test_safe_mro_returns_the_ancestors_of_a_usable_class() -> None:
+    """A class whose bases resolve gets its real MRO back."""
+    node = astroid.extract_node("""
+    class Base:
+        pass
+
+    class Child(Base):  #@
+        pass
+    """)
+    assert [ancestor.name for ancestor in utils.safe_mro(node)] == [
+        "Child",
+        "Base",
+        "object",
+    ]
+
+
+def test_safe_mro_returns_nothing_for_duplicate_bases() -> None:
+    """Duplicate bases leave the class without an MRO, so there is nothing to walk."""
+    node = astroid.extract_node("""
+    class Duplicates(str, str):  #@
+        pass
+    """)
+    assert utils.safe_mro(node) == []
+
+
+def test_safe_mro_returns_nothing_for_inconsistent_bases() -> None:
+    """Bases that cannot be put in a consistent order are the other way to lose it."""
+    node = astroid.extract_node("""
+    class First:
+        pass
+
+    class Second(First):
+        pass
+
+    class Inconsistent(First, Second):  #@
+        pass
+    """)
+    assert utils.safe_mro(node) == []
+
+
+def test_safe_slots_returns_the_slots_of_a_usable_class() -> None:
+    """A class whose bases resolve gets its real slots back."""
+    node = astroid.extract_node("""
+    class Basket:  #@
+        __slots__ = ("fruit",)
+    """)
+    slots = utils.safe_slots(node)
+    assert slots is not None
+    assert [slot.value for slot in slots] == ["fruit"]
+
+
+def test_safe_slots_returns_nothing_for_duplicate_bases() -> None:
+    """Duplicate bases leave the class without an MRO, so its slots are unknowable."""
+    node = astroid.extract_node("""
+    class Basket(list, list):  #@
+        __slots__ = ("fruit",)
+    """)
+    assert utils.safe_slots(node) is None
+
+
+def test_safe_slots_returns_nothing_for_inconsistent_bases() -> None:
+    """Bases that cannot be put in a consistent order are the other way to lose them."""
+    node = astroid.extract_node("""
+    class Str(str):
+        pass
+
+    class Inconsistent(str, Str):  #@
+        __slots__ = ("label",)
+    """)
+    assert utils.safe_slots(node) is None

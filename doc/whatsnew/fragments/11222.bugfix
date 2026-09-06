@@ -1,0 +1,4 @@
+Fix a crash when a call unpacks a dictionary whose keys are not string
+constants, e.g. ``copy.copy(**{-1: 1})``.
+
+Closes #11222

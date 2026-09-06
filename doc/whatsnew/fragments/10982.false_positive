@@ -1,0 +1,10 @@
+Fix false positives for the Python 3.15 syntax added by PEP 798, unpacking in
+comprehensions:
+
+- ``star-needs-assignment-target`` (E0114) was emitted for the unpacked element
+  of a comprehension, e.g. ``[*sub for sub in lists]``.
+- ``consider-using-dict-comprehension`` (R1717) was emitted for
+  ``dict([*pairs for pairs in nested])``, which flattens its argument and is
+  therefore not equivalent to a key/value dict comprehension.
+
+Refs #10982

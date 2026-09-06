@@ -6,9 +6,9 @@ import collections.tutu  # [no-name-in-module]
 from collections import toto  # [no-name-in-module]
 toto.yo()
 
-from xml.etree import ElementTree
-ElementTree.nonexistent_function()  # [no-member]
-ElementTree.another.nonexistent.function()  # [no-member]
+from xml.etree import ElementPath
+ElementPath.nonexistent_function()  # [no-member]
+ElementPath.another.nonexistent.function()  # [no-member]
 
 
 import sys

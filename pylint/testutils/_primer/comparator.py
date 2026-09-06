@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections import defaultdict
 from collections.abc import Callable, Hashable, Iterator
 from difflib import SequenceMatcher
@@ -93,6 +94,111 @@ def _is_symbol_rename(old: JSONMessage, new: JSONMessage) -> bool:
     return ratio >= SYMBOL_RENAME_SIMILARITY_THRESHOLD
 
 
+def _mirrored_suppressed_message(useless_suppression: JSONMessage) -> tuple[str, str]:
+    """The (path, message) of the ``suppressed-message`` mirroring this pragma.
+
+    ``Useless suppression of 'no-member'`` emitted on line 321 mirrors the
+    message reported as ``Suppressed 'no-member' (from line 321)``.
+    """
+    symbol = useless_suppression["message"].removeprefix("Useless suppression of ")
+    return (
+        useless_suppression["path"],
+        f"Suppressed {symbol} (from line {useless_suppression['line']})",
+    )
+
+
+def _drop_useless_suppression_echoes(
+    old_residuals: list[JSONMessage], new_residuals: list[JSONMessage]
+) -> tuple[list[JSONMessage], list[JSONMessage]]:
+    """Drop a ``useless-suppression`` coupled with a ``suppressed-message``.
+
+    Both describe the same pragma: when a false positive under a disable is
+    fixed, the run loses the ``suppressed-message`` and gains a
+    ``useless-suppression``; when one is reintroduced, the reverse happens.
+    The ``suppressed-message`` side carries all the information (suppressed
+    symbol, pragma line, emission location), so it is kept — whichever side it
+    is on — and the ``useless-suppression`` echo about the same pragma is
+    dropped.
+    """
+
+    def keep(
+        messages: list[JSONMessage], opposite: list[JSONMessage]
+    ) -> list[JSONMessage]:
+        suppressed = {
+            (m["path"], m["message"])
+            for m in opposite
+            if m["symbol"] == "suppressed-message"
+        }
+        return [
+            m
+            for m in messages
+            if m["symbol"] != "useless-suppression"
+            or _mirrored_suppressed_message(m) not in suppressed
+        ]
+
+    return keep(old_residuals, new_residuals), keep(new_residuals, old_residuals)
+
+
+_LOCALLY_DISABLED_SUBJECT = re.compile(
+    r"^Locally disabling ([a-z0-9-]+) \([A-Z]\d{4}\)$"
+)
+_USELESS_SUPPRESSION_SUBJECT = re.compile(r"^Useless suppression of '([a-z0-9-]+)'$")
+
+
+def _pragma_subject(message: JSONMessage) -> str | None:
+    """The symbol a ``locally-disabled`` / ``useless-suppression`` is about.
+
+    ``Locally disabling no-member (E1101)`` and ``Useless suppression of
+    'no-member'`` both talk about ``no-member`` rather than reporting it.
+    Returns None for any other message, and for a text that does not have the
+    exact expected shape, so that an unrecognized variant is reported rather
+    than silently dropped.
+    """
+    patterns = {
+        "locally-disabled": _LOCALLY_DISABLED_SUBJECT,
+        "useless-suppression": _USELESS_SUPPRESSION_SUBJECT,
+    }
+    pattern = patterns.get(message["symbol"])
+    if pattern is None:
+        return None
+    match = pattern.match(message["message"])
+    return match.group(1) if match else None
+
+
+def _drop_pragmas_about_new_symbols(
+    final_new: list[JSONMessage],
+    symbols_on_main: frozenset[str],
+    pragma_lines_on_main: frozenset[tuple[str, int]],
+) -> list[JSONMessage]:
+    """Drop pragma bookkeeping that only appeared because a symbol is new.
+
+    A package pragma disabling a whole category, such as the ``# pylint:
+    disable=W,C,R`` that parser generators write into their output, silently
+    grows to cover every message a PR adds to that category.  Each one then
+    reports a ``locally-disabled`` (the pragma now covers it) and a
+    ``useless-suppression`` (it was not going to be emitted anyway), in every
+    file carrying such a pragma.  None of that says anything about the PR: the
+    package source is pinned, so the pragma is unchanged and only the set of
+    message ids it expands to moved.
+
+    Both conditions are required.  The symbol must be absent from the whole
+    main run, meaning this PR introduced, renamed or newly enabled it, and the
+    same pragma must already have reported on main, proving it pre-existed
+    rather than being a genuine new finding at that line.
+
+    Only bookkeeping is dropped.  What the new message really emits is
+    untouched, and so is ``suppressed-message``, which reports a new check
+    firing on code that happens to be disabled -- a genuine finding.
+    """
+    return [
+        message
+        for message in final_new
+        if (subject := _pragma_subject(message)) is None
+        or subject in symbols_on_main
+        or (message["path"], message["line"]) not in pragma_lines_on_main
+    ]
+
+
 def _pair_residuals(
     old_residuals: list[JSONMessage], new_residuals: list[JSONMessage]
 ) -> tuple[list[ChangedMessage], list[JSONMessage], list[JSONMessage]]:
@@ -118,6 +224,14 @@ def _pair_residuals(
         old_residuals,
         new_residuals,
         key=lambda m: (m["symbol"], m["path"], m["obj"]),
+        # Suppression bookkeeping is tied to a pragma whose line can't change
+        # between the two runs (the package commit is pinned): two
+        # useless-suppression at different lines are different pragmas, and a
+        # suppressed-message can only "move" (a checker anchored the message
+        # to another node) while keeping the exact same text, pragma line
+        # included.
+        accept=lambda old, new: old["symbol"] != "useless-suppression"
+        and (old["symbol"] != "suppressed-message" or old["message"] == new["message"]),
     )
     paired_by_location, missing, new = _pair_by_key(
         missing,
@@ -230,6 +344,24 @@ class Comparator:
     def __init__(self, main_data: PackageMessages, pr_data: PackageMessages) -> None:
         self._main_data = main_data
         self._pr_data = pr_data
+        # Every symbol the main run knows about, across all packages: the ones
+        # it emitted, and the ones it only mentions in pragma bookkeeping.
+        # Anything outside of it is a symbol this PR brought with it.
+        self._symbols_on_main = frozenset(
+            symbol
+            for data in main_data.values()
+            for message in data["messages"]
+            for symbol in (message["symbol"], _pragma_subject(message))
+            if symbol is not None
+        )
+        # Where main already reported pragma bookkeeping. A pragma listed here
+        # pre-exists the PR, since the checked package commit is pinned.
+        self._pragma_lines_on_main = frozenset(
+            (message["path"], message["line"])
+            for data in main_data.values()
+            for message in data["messages"]
+            if _pragma_subject(message) is not None
+        )
 
     @staticmethod
     def from_json(
@@ -268,11 +400,28 @@ class Comparator:
                 except ValueError:
                     residual_old.append(message)
 
+            # A suppression state change of one pragma is reported on both
+            # sides at once: drop the useless-suppression side so the event is
+            # only reported once, through the suppressed-message (which
+            # carries the suppressed symbol, the pragma line and the emission
+            # location).
+            residual_old, pr_messages = _drop_useless_suppression_echoes(
+                residual_old, pr_messages
+            )
+
             # Second pass: pair residuals by symbol then by location to
             # detect *changed* messages (same warning, different line/text,
             # or a symbol rename at the same source position).
             paired, final_missing, final_new = _pair_residuals(
                 residual_old, pr_messages
+            )
+
+            # A category-wide disable in the package grows to cover every
+            # message a PR adds to that category, which says nothing about
+            # the PR. Done after pairing so an altered pragma message is still
+            # reported as a change.
+            final_new = _drop_pragmas_about_new_symbols(
+                final_new, self._symbols_on_main, self._pragma_lines_on_main
             )
 
             if not final_missing and not final_new and not paired:

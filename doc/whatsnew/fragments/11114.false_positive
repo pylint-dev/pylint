@@ -1,0 +1,5 @@
+Fix a false positive for ``assignment-from-no-return`` when the called function's
+body ends in an unconditional ``raise``, such as ``pathlib.Path.readlink()`` on
+platforms without symlink support.
+
+Closes #11114

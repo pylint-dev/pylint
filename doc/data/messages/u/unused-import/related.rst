@@ -1,1 +1,1 @@
-- :ref:`--init-import <variables-options>`
+- :ref:`--init-import <init-import-option>`

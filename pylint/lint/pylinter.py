@@ -562,7 +562,7 @@ class PyLinter(
                         self.fail_on_symbols.append(msg.symbol)
 
     def any_fail_on_issues(self) -> bool:
-        return any(x in self.fail_on_symbols for x in self.stats.by_msg.keys())
+        return any(x in self.fail_on_symbols for x in self.stats.by_msg)
 
     def pass_fail_on_config_to_color_reporter(self) -> None:
         """Pass fail_on symbol configuration to colorized text reporter."""
