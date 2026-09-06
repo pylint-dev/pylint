@@ -1,3 +1,2 @@
 bad-number-notation:4:19:4:28::'0o12_3456' has underscores that are not grouping octal digits by 3, and it should be written as '0o123_456' instead:HIGH
 bad-number-notation:5:19:5:28::'0o1234_56' has underscores that are not grouping octal digits by 3, and it should be written as '0o123_456' instead:HIGH
-bad-number-notation:8:10:8:19::'0o3641100' is bigger than 1.0e6, and it should be written as '0o3_641_100' instead:HIGH

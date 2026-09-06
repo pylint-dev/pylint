@@ -1359,6 +1359,15 @@ Standard Checkers
 **Default:**  ``False``
 
 
+.. _suggest-int-underscore-option:
+
+--suggest-int-underscore
+""""""""""""""""""""""""
+*Suggest PEP 515 underscore grouping for integer literals above 'number-notation-threshold' that don't already use underscores. Applies to all bases (decimal, hex, octal, binary). Integers with existing but incorrect underscore grouping are always flagged regardless of this option.*
+
+**Default:**  ``False``
+
+
 
 .. raw:: html
 
@@ -1393,6 +1402,8 @@ Standard Checkers
    single-line-class-stmt = false
 
    single-line-if-stmt = false
+
+   suggest-int-underscore = false
 
 
 

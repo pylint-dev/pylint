@@ -49,11 +49,20 @@ zero_float = 0.0
 zero_float_v2 = 0.
 annoying_zero_int = 00
 annoying_zero_float = 00.0 # [bad-number-notation]
+zero_trailing = 0.00  # [bad-number-notation]
+zero_trailing_2 = 0.000  # [bad-number-notation]
+zero_exponent = 0e0  # [bad-number-notation]
+zero_float_exponent = 0.0e0  # [bad-number-notation]
+negative_zero_trailing = -0.00  # [bad-number-notation]
 
 # Very small floats written without exponent should be flagged when
 # below 1/threshold
 very_small_plain = 0.0000001  # [bad-number-notation]
 not_that_small_plain = 0.001
+
+# Large numbers that should suggest underscore grouping (no near-duplicate exponential)
+large_plain = 1541455200.0  # [bad-number-notation]
+large_round = 1000000.0  # [bad-number-notation]
 
 one_only = 1e6
 correct_1 = 4.53e7
@@ -140,6 +149,6 @@ for i in range(10):
     print("Let's not be really annoying.")
 
 bad_int_grouping = 1_23_456  # [bad-number-notation]
-big_int_no_grouping = 1234567  # [bad-number-notation]
+big_int_no_grouping = 1234567
 valid_small_int = 999
 valid_grouped_int = 1_000_000
