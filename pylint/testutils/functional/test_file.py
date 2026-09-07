@@ -103,6 +103,15 @@ class FunctionalTestFile:
 
     @property
     def expected_output(self) -> str:
+        output, _ = self._resolve_expected_output()
+        return output
+
+    @property
+    def expected_output_is_fallback(self) -> bool:
+        _, is_fallback = self._resolve_expected_output()
+        return is_fallback
+
+    def _resolve_expected_output(self) -> tuple[str, bool]:
         files = [
             p.stem
             for p in Path(self._directory).glob(f"{split(self.base)[-1]}.[0-9]*.txt")
@@ -115,8 +124,11 @@ class FunctionalTestFile:
         for opt in sorted(output_options, reverse=True):
             if _CURRENT_VERSION >= opt:
                 str_opt = "".join([str(s) for s in opt])
-                return join(self._directory, f"{self.base}.{str_opt}.txt")
-        return join(self._directory, self.base + ".txt")
+                return (
+                    join(self._directory, f"{self.base}.{str_opt}.txt"),
+                    _CURRENT_VERSION != opt,
+                )
+        return join(self._directory, self.base + ".txt"), False
 
     @property
     def source(self) -> str:
