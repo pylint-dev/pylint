@@ -28,6 +28,7 @@ from pylint.checkers.utils import (
     get_import_name,
     in_type_checking_block,
     is_from_fallback_block,
+    is_lazy_import,
     is_module_ignored,
     is_sys_guard,
     node_ignores_exception,
@@ -239,6 +240,14 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "relative-beyond-top-level",
         "Used when a relative import tries to access too many levels "
         "in the current package.",
+    ),
+    "E0403": (
+        "Lazy import is not allowed %s",
+        "invalid-lazy-import",
+        "Emitted when a PEP 810 ``lazy`` import is used where Python forbids "
+        "it: inside a function, a class body or a ``try`` statement, or as a "
+        "wildcard import. This is a SyntaxError.",
+        {"minversion": (3, 15)},
     ),
     "R0401": (
         "Cyclic import (%s)",
@@ -549,6 +558,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self._check_reimport(node)
         self._check_import_as_rename(node)
         self._check_toplevel(node)
+        self._check_lazy_import(node)
 
         names = [name for name, _ in node.names]
         if len(names) >= 2:
@@ -583,6 +593,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self._check_same_line_imports(node)
         self._check_reimport(node, basename=basename, level=node.level)
         self._check_toplevel(node)
+        self._check_lazy_import(node)
 
         if isinstance(node.parent, nodes.Module):
             # Allow imports nested
@@ -683,6 +694,42 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     visit_asyncfunctiondef = visit_classdef = visit_for = visit_while = (
         visit_functiondef
     )
+
+    def _check_lazy_import(self, node: ImportNode) -> None:
+        """Check that a PEP 810 lazy import is in a position Python allows.
+
+        Python only accepts a lazy import at module level, outside of any
+        ``try`` statement, and never as a wildcard import. ``ast`` parses the
+        rejected forms, so pylint has to report them itself.
+        """
+        if not is_lazy_import(node):
+            return
+
+        if isinstance(node, nodes.ImportFrom) and any(
+            name == "*" for name, _ in node.names
+        ):
+            self.add_message(
+                "invalid-lazy-import",
+                node=node,
+                args="as a wildcard import",
+                confidence=HIGH,
+            )
+            return
+
+        for ancestor in node.node_ancestors():
+            match ancestor:
+                case nodes.FunctionDef() | nodes.AsyncFunctionDef():
+                    context = "inside a function"
+                case nodes.ClassDef():
+                    context = "inside a class body"
+                case nodes.Try() | nodes.TryStar():
+                    context = "inside a try statement"
+                case _:
+                    continue
+            self.add_message(
+                "invalid-lazy-import", node=node, args=context, confidence=HIGH
+            )
+            return
 
     def _check_misplaced_future(self, node: nodes.ImportFrom) -> None:
         basename = node.modname
