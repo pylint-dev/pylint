@@ -1,0 +1,3 @@
+[testoptions]
+# On Windows, git clones without symlink privileges materialize this symlink as a text file
+exclude_platforms=win32
