@@ -756,9 +756,11 @@ def infer_kwarg_from_call(call_node: nodes.Call, keyword: str) -> nodes.Name | N
     for arg in call_node.kwargs:
         inferred = safe_infer(arg.value)
         if isinstance(inferred, nodes.Dict):
-            for item in inferred.items:
-                if item[0].value == keyword:
-                    return item[1]
+            for key, value in inferred.items:
+                # Keys can be any expression (or None for '**' unpacking),
+                # only string constants can name a keyword argument.
+                if isinstance(key, nodes.Const) and key.value == keyword:
+                    return value
 
     return None
 
@@ -802,8 +804,10 @@ def error_of_type(
     return handler.catch(expected_errors)  # type: ignore[no-any-return]
 
 
-def decorated_with_property(node: nodes.FunctionDef) -> bool:
+def decorated_with_property(node: nodes.NodeNG) -> bool:
     """Detect if the given function node is decorated with a property."""
+    if not isinstance(node, nodes.FunctionDef):
+        return False
     if not node.decorators:
         return False
     for decorator in node.decorators.nodes:
@@ -1487,6 +1491,36 @@ def has_known_bases(
             return False
     klass._all_bases_known = True
     return True
+
+
+def safe_mro(node: nodes.ClassDef | bases.Instance) -> list[nodes.ClassDef]:
+    """Return the MRO of ``node``, or an empty list if it does not have one.
+
+    Duplicate or inconsistent bases leave a class without a usable MRO, and
+    ``mro()`` raises instead of returning one. A caller that only walks the MRO
+    to look something up can treat that as "no ancestors" rather than let the
+    error abort the whole file.
+    """
+    try:
+        # ``Instance`` proxies the call, so it is only typed through ``__getattr__``
+        mro: list[nodes.ClassDef] = node.mro()
+    except astroid.MroError:
+        return []
+    return mro
+
+
+def safe_slots(node: nodes.ClassDef) -> list[nodes.Const] | None:
+    """Return the slots of ``node``, or None if it does not have a usable MRO.
+
+    ``slots()`` walks the MRO internally, so it gives up on exactly the classes
+    ``safe_mro`` has nothing to return for. It raises ``NotImplementedError``
+    rather than the ``MroError`` underneath. A class without a usable MRO gets
+    the same answer as a class that defines no slot at all.
+    """
+    try:
+        return node.slots()  # type: ignore[no-any-return]
+    except NotImplementedError:
+        return None
 
 
 def is_none(node: nodes.NodeNG) -> bool:
@@ -2221,6 +2255,10 @@ def is_terminating_func(node: nodes.Call) -> bool:
         return False
 
     for inferred in inferred_funcs:
+        if isinstance(inferred, nodes.ClassDef):
+            # Instantiating a class never terminates, even if the class is
+            # ``_sitebuiltins.Quitter`` (``exit``/``quit`` are instances of it).
+            continue
         if hasattr(inferred, "qname") and inferred.qname() in TERMINATING_FUNCS_QNAMES:
             return True
         match inferred:
@@ -2235,7 +2273,7 @@ def is_terminating_func(node: nodes.Call) -> bool:
                 not isinstance(inferred, nodes.AsyncFunctionDef)
                 or isinstance(node.parent, nodes.Await)
             )
-            and isinstance(inferred.returns, nodes.Name)
+            and isinstance(inferred.returns, (nodes.Name, nodes.Attribute))
             and (inferred_func := safe_infer(inferred.returns))
             and hasattr(inferred_func, "qname")
             and inferred_func.qname()

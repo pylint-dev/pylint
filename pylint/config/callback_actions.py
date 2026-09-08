@@ -26,6 +26,9 @@ if TYPE_CHECKING:
 class _CallbackAction(argparse.Action):
     """Custom callback action."""
 
+    def reset(self) -> None:
+        """Reset state retained while parsing one source of arguments."""
+
     @abc.abstractmethod
     def __call__(
         self,
@@ -411,6 +414,9 @@ class _EnableAction(_XableAction):
 class _OutputFormatAction(_AccessLinterObjectAction):
     """Callback action for setting the output format."""
 
+    def reset(self) -> None:
+        self._reporter_names: list[str] = []
+
     def __call__(
         self,
         parser: argparse.ArgumentParser,
@@ -422,7 +428,8 @@ class _OutputFormatAction(_AccessLinterObjectAction):
         assert isinstance(
             values[0], str
         ), "'output-format' should be a comma separated string of reporters"
-        self.linter._load_reporters(values[0])
+        self._reporter_names.append(values[0])
+        self.linter._load_reporters(",".join(self._reporter_names))
 
 
 class _AccessParserAction(_CallbackAction):

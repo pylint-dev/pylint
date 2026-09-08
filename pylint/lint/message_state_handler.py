@@ -28,6 +28,9 @@ if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
 
+CONTROL_PRAGMAS = frozenset({"disable", "disable-next", "enable"})
+
+
 class _MessageStateHandler:
     """Class that handles message disabling & enabling and processing of inline
     pragma's.
@@ -254,7 +257,7 @@ class _MessageStateHandler:
         print("\nNon-emittable messages with current interpreter:")
         for msg_def in non_emittable:
             print(f"  {msg_def.symbol} ({msg_def.msgid})")
-        print("")
+        print()
 
     def _get_message_state_scope(
         self,
@@ -346,7 +349,7 @@ class _MessageStateHandler:
 
         See func_block_disable_msg.py test case for expected behaviour.
         """
-        control_pragmas = {"disable", "disable-next", "enable"}
+        self._pragma_lineno = {}
         prev_line = None
         saw_newline = True
         seen_newline = True
@@ -391,7 +394,7 @@ class _MessageStateHandler:
                         )
                     for msgid in pragma_repr.messages:
                         # Add the line where a control pragma was encountered.
-                        if pragma_repr.action in control_pragmas:
+                        if pragma_repr.action in CONTROL_PRAGMAS:
                             self._pragma_lineno[msgid] = start[0]
 
                         if (pragma_repr.action, msgid) == ("disable", "all"):

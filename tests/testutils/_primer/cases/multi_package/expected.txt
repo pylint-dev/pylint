@@ -20,21 +20,11 @@ Moved from `100:0`-`100:15` to `105:0`-`105:15`.
 
 **Effect on [astropy](https://github.com/astropy/astropy):**
 
-New messages:
+🎉 Fixed false positives:
 
 <details>
 
-1) locally-disabled:
-*Locally disabling looping-through-iterator (W4801)*
-https://github.com/astropy/astropy/blob/1fb40bc1f22f176254ef583065aa155f53f3b414/astropy/coordinates/angles/angle_parsetab.py#L14
-</details>
-
-Removed messages:
-
-<details>
-
-1) useless-suppression:
-*Useless suppression of 'looping-through-iterator'*
+1) False positive for 'looping-through-iterator' removed at
 https://github.com/astropy/astropy/blob/1fb40bc1f22f176254ef583065aa155f53f3b414/astropy/coordinates/angles/angle_parsetab.py#L14
 </details>
 

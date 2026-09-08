@@ -567,7 +567,7 @@ def _make_run_options(self: Run) -> Options:
                 "short": "E",
                 "help": "In error mode, messages with a category besides "
                 "ERROR or FATAL are suppressed, and no reports are done by default. "
-                "Error mode is compatible with disabling specific errors. ",
+                "Error mode is compatible with disabling specific errors.",
                 "hide_from_config_file": True,
             },
         ),

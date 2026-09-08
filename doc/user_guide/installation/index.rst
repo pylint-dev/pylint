@@ -6,6 +6,7 @@ Pylint can be installed:
 - :ref:`As a command line tool <installation>`
 - :ref:`Integrated in your editor/ide <ide-integration>`
 - :ref:`As a pre-commit hook <pre-commit-integration>`
+- :ref:`With a linter aggregator <linter-aggregators>`
 - :ref:`For multiple python interpreters in your continuous integration <continuous-integration>`
 
 .. toctree::
@@ -16,6 +17,7 @@ Pylint can be installed:
    command_line_installation.rst
    ide_integration/index
    pre-commit-integration.rst
+   linter-aggregators.rst
    with-multiple-interpreters.rst
    badge
    upgrading_pylint.rst

@@ -36,6 +36,21 @@
         "messageId": "I0011",
         "confidence": "UNDEFINED",
         "absolutePath": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py"
+      },
+      {
+        "type": "info",
+        "module": "astropy.coordinates.angles.angle_parsetab",
+        "obj": "",
+        "line": 14,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py",
+        "symbol": "useless-suppression",
+        "message": "Useless suppression of 'looping-through-iterator'",
+        "messageId": "I0021",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py"
       }
     ]
   }

@@ -313,6 +313,13 @@ class BasicErrorChecker(_BasicChecker):
         if isinstance(node.parent, (nodes.List, nodes.Tuple, nodes.Set, nodes.Dict)):
             # PEP 448 unpacking.
             return
+        if (
+            isinstance(node.parent, (nodes.ListComp, nodes.SetComp, nodes.GeneratorExp))
+            and node.parent.elt is node
+        ):
+            # PEP 798 unpacking in comprehensions (Python 3.15+), e.g.
+            # ``[*L for L in lists]``.
+            return
 
         stmt = node.statement()
         if not isinstance(stmt, nodes.Assign):

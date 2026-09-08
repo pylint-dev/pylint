@@ -54,3 +54,22 @@ def test_format(my_input_value, my_other_input_value):
     print("%d %s" % (my_input_value, my_other_input_value))
     to_be_formatted = (my_input_value, my_other_input_value)
     print("%d %s" % to_be_formatted)
+
+
+# Subclasses of the builtin types format like their base type
+# pylint: disable=wrong-import-position, missing-class-docstring, expression-not-assigned
+import enum
+
+
+class Color(enum.IntEnum):
+    RED = 1
+
+
+class MyFloat(float):
+    pass
+
+
+"%i" % True
+"%d %x" % (Color.RED, Color.RED)
+"%f %d" % (MyFloat(1.5), MyFloat(1.5))
+"%x %s" % (MyFloat(1.5), "a")  # [bad-string-format-type]

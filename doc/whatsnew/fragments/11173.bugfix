@@ -1,0 +1,3 @@
+Fix a crash in ``consider-using-dict-items`` when the ``for`` loop or comprehension target is an attribute or a subscript (e.g. ``for self.key in d``) rather than a simple variable name.
+
+Closes #11173

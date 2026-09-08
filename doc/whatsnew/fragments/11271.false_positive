@@ -1,0 +1,3 @@
+Treat ``typing.NoReturn`` and ``typing.Never`` the same as ``NoReturn`` / ``Never`` when deciding that a call never returns.
+
+Closes #11271

@@ -16,3 +16,9 @@ class NotDuplicates(Alpha, str):
 
 
 print(Duplicates.__mro__)
+
+
+# The name checker asks whether this is an enum member, which used to walk an
+# MRO the duplicate bases leave unusable and abort the whole file.
+INSTANCE = Duplicates()
+print(INSTANCE)

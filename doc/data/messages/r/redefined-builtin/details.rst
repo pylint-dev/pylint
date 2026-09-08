@@ -1,4 +1,4 @@
-The :ref:`allowed-redefined-builtins <variables-options>` option lets you specify names that are permitted to shadow built-ins.
+The :ref:`--allowed-redefined-builtins <allowed-redefined-builtins-option>` option lets you specify names that are permitted to shadow built-ins.
 
 However, this option is not effective for redefinitions at the module level or for global variables. For example:
 

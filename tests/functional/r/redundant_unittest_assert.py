@@ -41,3 +41,40 @@ class RegressionWithArgs(unittest.TestCase):
 
     def test(self):
         self.run()
+
+
+@unittest.skip("don't run this")
+class ConstantComparisons(unittest.TestCase):
+    '''assertEqual and assertNotEqual have a fixed outcome when both operands are constants.'''
+
+    def test_constants(self):
+        # +1:[redundant-unittest-assert]
+        self.assertEqual(5, 5)
+        # +1:[redundant-unittest-assert]
+        self.assertEqual(5, 6)
+        # +1:[redundant-unittest-assert]
+        self.assertNotEqual('a', 'a', 'with a message')
+        # +1:[redundant-unittest-assert]
+        self.assertEqual(None, None)
+
+    def test_runtime_values(self):
+        some_var = 5
+        self.assertEqual(some_var, 5)
+        self.assertNotEqual(5, some_var)
+
+    def test_unsupported_operands(self):
+        self.assertEqual([1], [1])
+        self.assertEqual((1,), (1,))
+        self.assertEqual(1 + 1, 2)
+        self.assertIs(5, 5)
+        self.assertEqual(first=5, second=5)
+
+
+class NotATestCase:
+    '''Methods that only share a name with unittest assertions are left alone.'''
+
+    def assertEqual(self, first, second):  # pylint: disable=invalid-name
+        return first == second
+
+    def check(self):
+        self.assertEqual(5, 5)
