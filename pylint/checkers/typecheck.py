@@ -1924,8 +1924,8 @@ accessed. Python regular expressions are accepted.",
             # Ignore descriptor instances
             if "__get__" in inferred_call.locals:
                 return
-            # NamedTuple instances are callable
-            if inferred_call.qname() == "typing.NamedTuple":
+            # These instances are callable despite not exposing __call__ in astroid.
+            if inferred_call.qname() in {"builtins.function", "typing.NamedTuple"}:
                 return
 
         self.add_message("not-callable", node=node, args=node.func.as_string())
