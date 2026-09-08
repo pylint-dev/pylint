@@ -28,3 +28,5 @@ consider-using-f-string:119:8:119:19:assignment_bad:Formatting a regular string 
 consider-using-f-string:120:8:120:19:assignment_bad:Formatting a regular string which could be an f-string:UNDEFINED
 consider-using-f-string:121:8:121:22:assignment_bad:Formatting a regular string which could be an f-string:UNDEFINED
 consider-using-f-string:122:8:122:19:assignment_bad:Formatting a regular string which could be an f-string:UNDEFINED
+consider-using-f-string:149:11:149:15:format_method_references:Formatting a regular string which could be an f-string:UNDEFINED
+consider-using-f-string:150:10:150:14:format_method_references:Formatting a regular string which could be an f-string:UNDEFINED
