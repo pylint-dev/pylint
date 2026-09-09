@@ -51,6 +51,41 @@ If the analyzed sources use implicit namespace packages (PEP 420), the source ro
 be specified using the ``--source-roots`` option. Otherwise, the package names are
 detected incorrectly, since implicit namespace packages don't contain an ``__init__.py``.
 
+.. _finding_imported_modules:
+
+Finding the imported modules
+----------------------------
+
+Pylint does not run the code it analyzes, but it needs to find the modules
+that the code imports in order to check them: ``import-error``,
+``no-name-in-module``, ``no-member`` and most inference-based checks depend on
+it. Modules are looked up the way the interpreter running pylint would look
+them up: in the current working directory, in the directories listed in
+``PYTHONPATH`` and in the ``site-packages`` of that interpreter.
+
+The simplest way to make the dependencies of a project available is therefore
+to install pylint in the same environment as the project, for example in its
+virtual environment, and to run it from there::
+
+    python -m pylint mypackage
+
+When pylint has to run with another interpreter, the directories to search can
+be added to ``sys.path`` before the analysis starts with the ``init-hook``
+option, which takes Python code::
+
+    pylint --init-hook='import sys; sys.path.append("/path/to/venv/lib/python3.12/site-packages")' mypackage
+
+or, in the configuration file:
+
+.. code-block:: toml
+
+    [tool.pylint.main]
+    init-hook = 'import sys; sys.path.append("/path/to/venv/lib/python3.12/site-packages")'
+
+Modules that still cannot be found are reported with ``import-error``. The
+``ignored-modules`` option silences that message, as well as the checks of the
+members of the module, for the modules it lists.
+
 Globbing support
 ----------------
 

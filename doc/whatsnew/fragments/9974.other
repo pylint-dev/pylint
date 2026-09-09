@@ -1,0 +1,5 @@
+Document how pylint finds the modules that the analyzed code imports, and how to
+point it at the dependencies of a project with ``init-hook`` when it cannot run
+from the project's environment.
+
+Closes #9974

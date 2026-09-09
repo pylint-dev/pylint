@@ -49,6 +49,13 @@ behavior. Likewise, since negative values are still technically supported,
 ``evaluation`` can be set to a version of the above expression that does not
 enforce a floor of zero.
 
+Pylint reports ``import-error`` for packages that are installed. Why?
+---------------------------------------------------------------------
+
+Pylint looks for imported modules with the interpreter it runs under, so it has to
+run from the environment where the dependencies of your project are installed, or be
+told where to look. See :ref:`finding_imported_modules`.
+
 How do I avoid getting unused argument warnings for API I do not control?
 -------------------------------------------------------------------------
 
