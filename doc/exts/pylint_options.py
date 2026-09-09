@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import re
-from collections import defaultdict
+from collections import Counter, defaultdict
 from inspect import getmodule
 from pathlib import Path
 from typing import NamedTuple
@@ -67,9 +67,7 @@ def _colliding_checker_names(linter: PyLinter) -> frozenset[str]:
     Computed from the live
     linter so future collisions are handled without hardcoding.
     """
-    counts: dict[str, int] = {}
-    for checker in linter.get_checkers():
-        counts[checker.name] = counts.get(checker.name, 0) + 1
+    counts = Counter(checker.name for checker in linter.get_checkers())
     return frozenset(name for name, count in counts.items() if count > 1)
 
 
@@ -112,9 +110,8 @@ def _get_all_options(linter: PyLinter) -> OptionsDataDict:
             # Colliding extension checkers are keyed by module so they get
             # their own section (``pylint.extensions.mccabe-options``) instead
             # of merging into the core ``design-options`` section (#9174).
-            if is_extension:
-                anchor = _get_options_anchor(checker.name, module, colliding)
-                key = anchor[: -len("-options")]
+            if is_extension and checker.name in colliding:
+                key = module
             else:
                 key = checker.name
             all_options[key].append(
