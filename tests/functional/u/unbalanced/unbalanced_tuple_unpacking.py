@@ -163,6 +163,16 @@ D, *_ = my_function("12")
 # https://github.com/pylint-dev/pylint/issues/5998
 x, y, z = (1, 2)  # [unbalanced-tuple-unpacking]
 
+
+def unpack_exception_args():
+    try:
+        pass
+    except ValueError as exc:
+        (message,) = exc.args
+        first, second = exc.args
+        return message, first, second
+    return None
+
 # https://github.com/pylint-dev/pylint/issues/7710
 # Using a lot of args, so we have a high probability to still trigger the problem if
 # we add arguments to our unittest command later
