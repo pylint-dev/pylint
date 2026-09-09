@@ -1,0 +1,7 @@
+The suggestion of :ref:`nested-min-max` now splats the argument of an inner call
+that has a single argument, e.g. ``min(lo, hi, *elements)`` for
+``min(lo, hi, min(elements))``. A single-argument ``min()`` or ``max()`` only
+accepts an iterable, so the previous suggestion, ``min(lo, hi, elements)``,
+raised ``TypeError`` whenever the argument could not be inferred.
+
+Closes #9923

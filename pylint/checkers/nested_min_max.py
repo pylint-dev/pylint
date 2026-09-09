@@ -91,6 +91,10 @@ class NestedMinMaxChecker(BaseChecker):
             return
 
         fixed_node = copy.copy(node)
+        # The argument of an inner call with a single argument, ``min(x)``, is
+        # necessarily an iterable, so it has to be splatted in the suggestion
+        # whether or not it can be inferred as one.
+        single_arguments: set[int] = set()
         while len(redundant_calls) > 0:
             for i, arg in enumerate(fixed_node.args):
                 # Exclude any calls with generator expressions as there is no
@@ -101,6 +105,8 @@ class NestedMinMaxChecker(BaseChecker):
                     return
 
                 if arg in redundant_calls:
+                    if len(arg.args) == 1:
+                        single_arguments.add(id(arg.args[0]))
                     fixed_node.args = (
                         fixed_node.args[:i] + arg.args + fixed_node.args[i + 1 :]
                     )
@@ -109,8 +115,10 @@ class NestedMinMaxChecker(BaseChecker):
             redundant_calls = self.get_redundant_calls(fixed_node, inferred)
 
         for idx, arg in enumerate(fixed_node.args):
-            if not isinstance(arg, nodes.Const):
-                if self._is_splattable_expression(arg):
+            if not isinstance(arg, (nodes.Const, nodes.Starred)):
+                if id(arg) in single_arguments or self._is_splattable_expression(
+                    arg
+                ):
                     splat_node = nodes.Starred(
                         ctx=Context.Load,
                         lineno=arg.lineno,

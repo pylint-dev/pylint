@@ -75,3 +75,15 @@ max(1, max(5, 3), key=abs)  # [nested-min-max]
 LIST3 = [1, 2, 3]
 max(max(LIST3), 5, 7)  # [nested-min-max]
 max(4, max(LIST3), 7)  # [nested-min-max]
+
+# An inner call with a single argument only works on an iterable, so that
+# argument has to be splatted even when it cannot be inferred (see #9923).
+def bounds(lo, hi, elements):
+    """The suggested call must not compare ``lo`` with a list."""
+    return (
+        orig_min(lo, hi, orig_min(elements)),  # [nested-min-max]
+        max(lo, hi, max(elements)),  # [nested-min-max]
+    )
+
+
+max(1, max(*LIST3))  # [nested-min-max]
