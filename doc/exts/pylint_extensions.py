@@ -17,6 +17,7 @@ import sphinx
 from sphinx.application import Sphinx
 
 from pylint.checkers import BaseChecker
+from pylint.checkers import initialize as initialize_checkers
 from pylint.constants import MAIN_CHECKER_NAME
 from pylint.lint import PyLinter
 from pylint.typing import MessageDefinitionTuple, OptionDict, ReportsCallable
@@ -58,6 +59,7 @@ def builder_inited(app: Sphinx | None) -> None:
         sys.exit("No Pylint extensions found?")
 
     linter = PyLinter()
+    initialize_checkers(linter)
     linter.load_plugin_modules(modules)
 
     extensions_doc = os.path.join(
@@ -79,13 +81,16 @@ def builder_inited(app: Sphinx | None) -> None:
             "section of your ``.pylintrc``, for example::\n"
         )
         stream.write(
-            "\n    load-plugins=pylint.extensions.docparams,"
-            "pylint.extensions.docstyle\n\n"
+            "\n    load-plugins=pylint.extensions.docparams,pylint.extensions.docstyle\n\n"
         )
 
         # Print checker documentation to stream
         by_checker = get_plugins_info(linter, doc_files)
+        # Keep pylint core free of doc/exts imports.
+        from pylint_options import _colliding_checker_names, _get_options_anchor
+
         max_len = len(by_checker)
+        colliding = _colliding_checker_names(linter)
         for i, checker_information in enumerate(sorted(by_checker.items())):
             checker, information = checker_information
             j = -1
@@ -93,6 +98,9 @@ def builder_inited(app: Sphinx | None) -> None:
             if i == max_len - 1:
                 # Remove the \n\n at the end of the file
                 j = -3
+            options_anchor = _get_options_anchor(
+                checker.name, information["module"], colliding
+            )
             print(
                 checker.get_full_documentation(
                     msgs=information["msgs"],
@@ -101,6 +109,7 @@ def builder_inited(app: Sphinx | None) -> None:
                     doc=information["doc"],
                     module=information["module"],
                     show_options=False,
+                    options_anchor=options_anchor,
                 )[:j],
                 file=stream,
             )

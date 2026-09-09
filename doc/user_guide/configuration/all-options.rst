@@ -1105,15 +1105,6 @@ Standard Checkers
 **Default:**  ``12``
 
 
-.. _max-complexity-option:
-
---max-complexity
-""""""""""""""""
-*McCabe complexity cyclomatic threshold*
-
-**Default:**  ``10``
-
-
 .. _max-locals-option:
 
 --max-locals
@@ -1199,8 +1190,6 @@ Standard Checkers
    max-bool-expr = 5
 
    max-branches = 12
-
-   max-complexity = 10
 
    max-locals = 15
 
@@ -2290,6 +2279,39 @@ Extensions
 
    [tool.pylint.deprecated_builtins]
    bad-functions = ["map", "filter"]
+
+
+
+.. raw:: html
+
+   </details>
+
+
+.. _pylint.extensions.mccabe-options:
+
+``Design`` **Checker** (``pylint.extensions.mccabe``)
+-----------------------------------------------------
+.. _max-complexity-option:
+
+--max-complexity
+""""""""""""""""
+*McCabe complexity cyclomatic threshold*
+
+**Default:**  ``10``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.design]
+   max-complexity = 10
 
 
 

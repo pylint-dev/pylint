@@ -101,6 +101,7 @@ class BaseChecker(_ArgumentsProvider):
         doc: str | None = None,
         module: str | None = None,
         show_options: bool = True,
+        options_anchor: str | None = None,
     ) -> str:
         result = ""
         checker_title = f"{self.name.replace('_', ' ').title()} checker"
@@ -129,7 +130,8 @@ class BaseChecker(_ArgumentsProvider):
                 result += get_rst_title(f"{checker_title} Options", "^")
                 result += f"{get_rst_section(None, options_list)}\n"
             else:
-                result += f"See also :ref:`{self.name} checker's options' documentation <{self.name}-options>`\n\n"
+                anchor = options_anchor or f"{self.name}-options"
+                result += f"See also :ref:`{self.name} checker's options' documentation <{anchor}>`\n\n"
         if msgs:
             result += get_rst_title(f"{checker_title} Messages", "^")
             for msgid, msg in sorted(
