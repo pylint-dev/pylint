@@ -50,3 +50,44 @@ def test_setattr_names_in_defining_methods_ignores_metaclass() -> None:
     assert isinstance(meta, nodes.ClassDef) and isinstance(plain, nodes.ClassDef)
     assert _setattr_names_in_defining_methods(meta, ("__init__",)) == set()
     assert _setattr_names_in_defining_methods(plain, ("__init__",)) == {"banana"}
+
+
+def test_method_hidden_ancestor_attribute_builtin_name(linter: PyLinter) -> None:
+    """Regression test for issue 11361: StatementMissing when checking method-hidden
+
+    with a method name matching a builtin on an ancestor without that method.
+    """
+    checker = ClassChecker(linter)
+    checker.open()
+    linter.set_current_module("my_mod")
+    module = astroid.parse("""
+        class C:
+            def __init__(self):
+                self.help = None
+
+        class D(C):
+            def help(self):
+                pass
+        """)
+    method_node = module.body[1].body[0]
+    assert isinstance(method_node, nodes.FunctionDef)
+    checker.visit_functiondef(method_node)
+    assert any(msg.symbol == "method-hidden" for msg in linter.reporter.messages)
+
+    # When ancestor also defines the method, overriding it is allowed
+    linter.reporter.messages.clear()
+    module2 = astroid.parse("""
+        class C:
+            def __init__(self):
+                self.help = None
+            def help(self):
+                pass
+
+        class D(C):
+            def help(self):
+                pass
+        """)
+    method_node2 = module2.body[1].body[0]
+    assert isinstance(method_node2, nodes.FunctionDef)
+    checker.visit_functiondef(method_node2)
+    assert not any(msg.symbol == "method-hidden" for msg in linter.reporter.messages)
