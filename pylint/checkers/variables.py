@@ -2424,6 +2424,18 @@ class VariablesChecker(BaseChecker):
                         a is defnode.value for a in node.node_ancestors()
                     )
                 elif (
+                    isinstance(defnode, nodes.NamedExpr)
+                    and frame is defframe
+                    and stmt is defstmt
+                    and VariablesChecker._is_defined_in_comprehension_condition(
+                        defnode, node
+                    )
+                ):
+                    # ``[b for x in it if (b := f(x))]``: the condition of a
+                    # comprehension is evaluated before its element, and before
+                    # the clauses that follow it
+                    maybe_before_assign = False
+                elif (
                     isinstance(defframe, nodes.ClassDef)
                     and defnode in defframe.type_params
                 ):
@@ -2432,6 +2444,45 @@ class VariablesChecker(BaseChecker):
                     maybe_before_assign = False
 
         return maybe_before_assign, annotation_return, use_outer_definition
+
+    @staticmethod
+    def _is_defined_in_comprehension_condition(
+        defnode: nodes.NamedExpr, node: nodes.Name
+    ) -> bool:
+        """Check that ``defnode`` is in an ``if`` of a comprehension and ``node``
+        in a part of that comprehension evaluated afterwards: its element (or key
+        and value), or a ``for`` or ``if`` clause that follows the condition.
+        """
+        comprehension = utils.get_node_first_ancestor_of_type(
+            defnode, nodes.Comprehension
+        )
+        if comprehension is None:
+            return False
+        defining_index = next(
+            (
+                index
+                for index, condition in enumerate(comprehension.ifs)
+                if condition is defnode or condition.parent_of(defnode)
+            ),
+            None,
+        )
+        if defining_index is None:
+            return False
+        scope = comprehension.parent
+        if not isinstance(scope, nodes.ComprehensionScope):
+            return False
+        generators = scope.generators
+        evaluated_afterwards: list[nodes.NodeNG] = [
+            *comprehension.ifs[defining_index + 1 :],
+            *generators[generators.index(comprehension) + 1 :],
+        ]
+        if isinstance(scope, nodes.DictComp):
+            evaluated_afterwards += [scope.key, scope.value]
+        else:
+            evaluated_afterwards.append(scope.elt)
+        return any(
+            part is node or part.parent_of(node) for part in evaluated_afterwards
+        )
 
     @staticmethod
     def _maybe_used_and_assigned_at_once(defstmt: _base_nodes.Statement) -> bool:

@@ -1,0 +1,1 @@
+used-before-assignment:40:7:40:12::Using variable 'early' before assignment:HIGH

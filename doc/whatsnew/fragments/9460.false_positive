@@ -1,0 +1,7 @@
+Fix a false positive for :ref:`used-before-assignment` when a name is bound by an
+assignment expression in the ``if`` of a comprehension and used in its element (or
+key and value) or in a later ``for`` or ``if`` clause, as in
+``[service for port in ports if (service := lookup(port))]``. The condition of a
+comprehension is evaluated before those parts.
+
+Closes #9460
