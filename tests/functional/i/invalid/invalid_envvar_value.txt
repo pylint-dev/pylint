@@ -1,31 +1,63 @@
-invalid-envvar-value:30:0:30:15::os.getenv does not support builtins.bytes type argument:UNDEFINED
-invalid-envvar-value:32:0:32:12::os.getenv does not support builtins.NoneType type argument:UNDEFINED
-invalid-envvar-value:33:0:33:16::os.getenv does not support builtins.list type argument:UNDEFINED
-invalid-envvar-value:34:0:34:34::os.getenv does not support builtins.bytes type argument:UNDEFINED
-invalid-envvar-value:35:0:35:39::os.getenv does not support builtins.bytes type argument:UNDEFINED
-invalid-envvar-value:36:0:36:33::os.getenv does not support builtins.list type argument:UNDEFINED
-invalid-envvar-value:37:0:37:33::os.getenv does not support builtins.NoneType type argument:UNDEFINED
-invalid-envvar-value:41:0:41:26::os.getenv does not support builtins.bytes type argument:UNDEFINED
-invalid-envvar-value:43:0:43:23::os.getenv does not support builtins.NoneType type argument:UNDEFINED
-invalid-envvar-value:44:0:44:27::os.getenv does not support builtins.list type argument:UNDEFINED
-invalid-envvar-value:45:0:45:45::os.getenv does not support builtins.bytes type argument:UNDEFINED
-invalid-envvar-value:46:0:46:44::os.getenv does not support builtins.list type argument:UNDEFINED
-invalid-envvar-value:47:0:47:44::os.getenv does not support builtins.NoneType type argument:UNDEFINED
-invalid-envvar-value:50:0:50:19::os.getenv does not support builtins.bytes type argument:UNDEFINED
-invalid-envvar-value:52:0:52:16::os.getenv does not support builtins.NoneType type argument:UNDEFINED
-invalid-envvar-value:53:0:53:20::os.getenv does not support builtins.list type argument:UNDEFINED
-invalid-envvar-value:54:0:54:38::os.getenv does not support builtins.bytes type argument:UNDEFINED
-invalid-envvar-value:55:0:55:37::os.getenv does not support builtins.list type argument:UNDEFINED
-invalid-envvar-value:56:0:56:37::os.getenv does not support builtins.NoneType type argument:UNDEFINED
-invalid-envvar-default:60:0:60:18::os.getenv default type is builtins.list. Expected str or None.:UNDEFINED
-invalid-envvar-default:62:0:62:22::os.getenv default type is builtins.bytes. Expected str or None.:UNDEFINED
-invalid-envvar-default:63:0:63:41::os.getenv default type is builtins.list. Expected str or None.:UNDEFINED
-invalid-envvar-default:66:0:66:42::os.getenv default type is builtins.bytes. Expected str or None.:UNDEFINED
-invalid-envvar-default:69:0:69:26::os.getenv default type is builtins.list. Expected str or None.:UNDEFINED
-invalid-envvar-default:71:0:71:30::os.getenv default type is builtins.bytes. Expected str or None.:UNDEFINED
-invalid-envvar-default:72:0:72:49::os.getenv default type is builtins.list. Expected str or None.:UNDEFINED
-invalid-envvar-default:75:0:75:50::os.getenv default type is builtins.bytes. Expected str or None.:UNDEFINED
-invalid-envvar-default:79:0:79:36::os.getenv default type is builtins.bytes. Expected str or None.:UNDEFINED
-invalid-envvar-default:80:0:80:36::os.getenv default type is builtins.list. Expected str or None.:UNDEFINED
-invalid-envvar-default:81:0:81:53::os.getenv default type is builtins.list. Expected str or None.:UNDEFINED
-invalid-envvar-default:84:0:84:54::os.getenv default type is builtins.bytes. Expected str or None.:UNDEFINED
+invalid-envvar-value:31:0:31:15::os.getenv does not support builtins.bytes type argument:UNDEFINED
+invalid-envvar-value:33:0:33:12::os.getenv does not support builtins.NoneType type argument:UNDEFINED
+invalid-envvar-value:34:0:34:16::os.getenv does not support builtins.list type argument:UNDEFINED
+invalid-envvar-value:35:0:35:34::os.getenv does not support builtins.bytes type argument:UNDEFINED
+invalid-envvar-value:36:0:36:39::os.getenv does not support builtins.bytes type argument:UNDEFINED
+invalid-envvar-value:37:0:37:33::os.getenv does not support builtins.list type argument:UNDEFINED
+invalid-envvar-value:38:0:38:33::os.getenv does not support builtins.NoneType type argument:UNDEFINED
+invalid-envvar-value:42:0:42:26::os.getenv does not support builtins.bytes type argument:UNDEFINED
+invalid-envvar-value:44:0:44:23::os.getenv does not support builtins.NoneType type argument:UNDEFINED
+invalid-envvar-value:45:0:45:27::os.getenv does not support builtins.list type argument:UNDEFINED
+invalid-envvar-value:46:0:46:45::os.getenv does not support builtins.bytes type argument:UNDEFINED
+invalid-envvar-value:47:0:47:44::os.getenv does not support builtins.list type argument:UNDEFINED
+invalid-envvar-value:48:0:48:44::os.getenv does not support builtins.NoneType type argument:UNDEFINED
+invalid-envvar-value:51:0:51:19::os.getenv does not support builtins.bytes type argument:UNDEFINED
+invalid-envvar-value:53:0:53:16::os.getenv does not support builtins.NoneType type argument:UNDEFINED
+invalid-envvar-value:54:0:54:20::os.getenv does not support builtins.list type argument:UNDEFINED
+invalid-envvar-value:55:0:55:38::os.getenv does not support builtins.bytes type argument:UNDEFINED
+invalid-envvar-value:56:0:56:37::os.getenv does not support builtins.list type argument:UNDEFINED
+invalid-envvar-value:57:0:57:37::os.getenv does not support builtins.NoneType type argument:UNDEFINED
+invalid-envvar-default:63:0:63:18::os.getenv default type is builtins.list. Expected str or None.:UNDEFINED
+invalid-envvar-default:65:0:65:22::os.getenv default type is builtins.bytes. Expected str or None.:UNDEFINED
+invalid-envvar-default:66:0:66:41::os.getenv default type is builtins.list. Expected str or None.:UNDEFINED
+invalid-envvar-default:69:0:69:42::os.getenv default type is builtins.bytes. Expected str or None.:UNDEFINED
+invalid-envvar-default:74:0:74:26::os.getenv default type is builtins.list. Expected str or None.:UNDEFINED
+invalid-envvar-default:76:0:76:30::os.getenv default type is builtins.bytes. Expected str or None.:UNDEFINED
+invalid-envvar-default:77:0:77:49::os.getenv default type is builtins.list. Expected str or None.:UNDEFINED
+invalid-envvar-default:80:0:80:50::os.getenv default type is builtins.bytes. Expected str or None.:UNDEFINED
+invalid-envvar-default:86:0:86:36::os.getenv default type is builtins.bytes. Expected str or None.:UNDEFINED
+invalid-envvar-default:87:0:87:36::os.getenv default type is builtins.list. Expected str or None.:UNDEFINED
+invalid-envvar-default:88:0:88:53::os.getenv default type is builtins.list. Expected str or None.:UNDEFINED
+invalid-envvar-default:91:0:91:54::os.getenv default type is builtins.bytes. Expected str or None.:UNDEFINED
+invalid-envvar-value:95:0:95:23::os.environ.get does not support builtins.bytes type argument:UNDEFINED
+invalid-envvar-value:97:0:97:20::os.environ.get does not support builtins.NoneType type argument:UNDEFINED
+invalid-envvar-value:98:0:98:24::os.environ.get does not support builtins.list type argument:UNDEFINED
+invalid-envvar-value:99:0:99:42::os.environ.get does not support builtins.bytes type argument:UNDEFINED
+invalid-envvar-value:100:0:100:47::os.environ.get does not support builtins.bytes type argument:UNDEFINED
+invalid-envvar-value:101:0:101:41::os.environ.get does not support builtins.list type argument:UNDEFINED
+invalid-envvar-value:102:0:102:41::os.environ.get does not support builtins.NoneType type argument:UNDEFINED
+invalid-envvar-value:106:0:106:34::os.environ.get does not support builtins.bytes type argument:UNDEFINED
+invalid-envvar-value:108:0:108:31::os.environ.get does not support builtins.NoneType type argument:UNDEFINED
+invalid-envvar-value:109:0:109:35::os.environ.get does not support builtins.list type argument:UNDEFINED
+invalid-envvar-value:110:0:110:53::os.environ.get does not support builtins.bytes type argument:UNDEFINED
+invalid-envvar-value:111:0:111:52::os.environ.get does not support builtins.list type argument:UNDEFINED
+invalid-envvar-value:112:0:112:52::os.environ.get does not support builtins.NoneType type argument:UNDEFINED
+invalid-envvar-value:115:0:115:27::os.environ.get does not support builtins.bytes type argument:UNDEFINED
+invalid-envvar-value:117:0:117:24::os.environ.get does not support builtins.NoneType type argument:UNDEFINED
+invalid-envvar-value:118:0:118:28::os.environ.get does not support builtins.list type argument:UNDEFINED
+invalid-envvar-value:119:0:119:46::os.environ.get does not support builtins.bytes type argument:UNDEFINED
+invalid-envvar-value:120:0:120:45::os.environ.get does not support builtins.list type argument:UNDEFINED
+invalid-envvar-value:121:0:121:45::os.environ.get does not support builtins.NoneType type argument:UNDEFINED
+invalid-envvar-default:127:0:127:26::os.environ.get default type is builtins.list. Expected str or None.:UNDEFINED
+invalid-envvar-default:129:0:129:30::os.environ.get default type is builtins.bytes. Expected str or None.:UNDEFINED
+invalid-envvar-default:130:0:130:49::os.environ.get default type is builtins.list. Expected str or None.:UNDEFINED
+invalid-envvar-default:133:0:133:50::os.environ.get default type is builtins.bytes. Expected str or None.:UNDEFINED
+invalid-envvar-default:138:0:138:34::os.environ.get default type is builtins.list. Expected str or None.:UNDEFINED
+invalid-envvar-default:140:0:140:38::os.environ.get default type is builtins.bytes. Expected str or None.:UNDEFINED
+invalid-envvar-default:141:0:141:57::os.environ.get default type is builtins.list. Expected str or None.:UNDEFINED
+invalid-envvar-default:144:0:144:58::os.environ.get default type is builtins.bytes. Expected str or None.:UNDEFINED
+invalid-envvar-default:150:0:150:44::os.environ.get default type is builtins.bytes. Expected str or None.:UNDEFINED
+invalid-envvar-default:151:0:151:44::os.environ.get default type is builtins.list. Expected str or None.:UNDEFINED
+invalid-envvar-default:152:0:152:61::os.environ.get default type is builtins.list. Expected str or None.:UNDEFINED
+invalid-envvar-default:155:0:155:62::os.environ.get default type is builtins.bytes. Expected str or None.:UNDEFINED
+invalid-envvar-default:156:0:156:62::os.environ.get default type is builtins.bytes. Expected str or None.:UNDEFINED

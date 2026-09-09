@@ -1,0 +1,3 @@
+Fix false negative for `invalid-envvar-default` to detect `os.environ.get`.
+
+Closes #10092
