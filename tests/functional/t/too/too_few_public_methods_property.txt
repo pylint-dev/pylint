@@ -1,0 +1,3 @@
+too-few-public-methods:34:0:34:16:Descriptor:Too few public methods (1/2):UNDEFINED
+too-few-public-methods:48:0:48:13:OnlyOne:Too few public methods (1/2):UNDEFINED
+too-few-public-methods:52:0:52:21:PlainAttributes:Too few public methods (0/2):UNDEFINED

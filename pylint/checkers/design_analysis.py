@@ -11,10 +11,11 @@ from collections import defaultdict
 from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
-from astroid import nodes
+from astroid import bases, nodes, objects
+from astroid.exceptions import AttributeInferenceError
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import is_enum, only_required_for_messages
+from pylint.checkers.utils import is_enum, only_required_for_messages, safe_infer
 from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
 
@@ -235,6 +236,50 @@ def _count_boolean_expressions(bool_op: nodes.BoolOp) -> int:
     return nb_bool_expr
 
 
+def _is_property_or_descriptor(node: nodes.NodeNG) -> bool:
+    """Check if the node is a ``property`` object or an instance of a descriptor."""
+    inferred = safe_infer(node)
+    if isinstance(inferred, objects.Property):
+        return True
+    if not isinstance(inferred, bases.Instance) or isinstance(inferred, nodes.NodeNG):
+        return False
+    try:
+        inferred.getattr("__get__")
+    except AttributeInferenceError:
+        return False
+    return True
+
+
+def _count_public_descriptors(node: nodes.ClassDef) -> int:
+    """Count the public class attributes that are properties or descriptors.
+
+    ``name = property(getter)`` and ``name = Descriptor()`` expose the same
+    interface as a method decorated with ``@property``, which counts as a
+    public method.
+    """
+    counted: set[str] = set()
+    for klass in (node, *node.ancestors()):
+        for name, values in klass.locals.items():
+            if name.startswith("_") or name in counted:
+                continue
+            for value in values:
+                if not isinstance(value, nodes.AssignName):
+                    continue
+                assignment = value.parent
+                if (
+                    isinstance(assignment, (nodes.Assign, nodes.AnnAssign))
+                    # Properties and descriptors are created by a call, or
+                    # aliased; there is no point inferring literals.
+                    and isinstance(
+                        assignment.value, (nodes.Call, nodes.Name, nodes.Attribute)
+                    )
+                    and _is_property_or_descriptor(assignment.value)
+                ):
+                    counted.add(name)
+                    break
+    return len(counted)
+
+
 def _count_methods_in_class(node: nodes.ClassDef) -> int:
     all_methods = sum(1 for method in node.methods() if not method.name.startswith("_"))
     # Special methods count towards the number of public methods,
@@ -242,7 +287,7 @@ def _count_methods_in_class(node: nodes.ClassDef) -> int:
     for method in node.mymethods():
         if SPECIAL_OBJ.search(method.name) and method.name != "__init__":
             all_methods += 1
-    return all_methods
+    return all_methods + _count_public_descriptors(node)
 
 
 def _get_parents_iter(

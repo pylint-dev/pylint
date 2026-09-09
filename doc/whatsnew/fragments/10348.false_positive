@@ -1,0 +1,6 @@
+Fix a false positive for :ref:`too-few-public-methods` when a class defines its
+public interface through properties or descriptors assigned in the class body,
+such as ``name = property(getter)`` or ``name = Descriptor()``. They now count as
+public methods, like a method decorated with ``@property`` already did.
+
+Closes #10348
