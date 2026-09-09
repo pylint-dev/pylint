@@ -1,4 +1,5 @@
-assignment-from-no-return:26:8:26:34:Class.some_other_method:Assigning result of a function call, but 'some_method' returns None:INFERENCE
-assignment-from-no-return:31:0:31:19::Assigning result of a function call, but 'some_func' returns None:INFERENCE
-assignment-from-no-return:33:0:33:37::Assigning result of a function call, but 'FUNCTIONS[0]' returns None:INFERENCE
-assignment-from-none:107:0:107:37::Assigning result of a function call, where the function returns None:UNDEFINED
+assignment-from-no-return:29:8:29:34:Class.some_other_method:Assigning result of a function call, but 'some_method' returns None:INFERENCE
+assignment-from-no-return:34:0:34:19::Assigning result of a function call, but 'some_func' returns None:INFERENCE
+assignment-from-no-return:36:0:36:37::Assigning result of a function call, but 'FUNCTIONS[0]' returns None:INFERENCE
+assignment-from-none:110:0:110:37::Assigning result of a function call, where the function returns None:UNDEFINED
+assignment-from-no-return:145:8:145:59:BlahUser.do_thing_with_blah:Assigning result of a function call, but 'really_returns_nothing' returns None:INFERENCE

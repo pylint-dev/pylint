@@ -1,5 +1,8 @@
 # pylint: disable=missing-docstring, invalid-name, too-few-public-methods
 
+from dataclasses import dataclass
+from typing import Protocol
+
 
 def some_func():
     pass
@@ -105,3 +108,39 @@ def early_return_then_raise(value):
 
 
 maybe = early_return_then_raise(None)  # [assignment-from-none]
+
+
+# Methods of a Protocol and functions whose body is only ``...`` are stubs
+# declaring what to implement, not functions returning nothing.
+# Regression test for https://github.com/pylint-dev/pylint/issues/9080
+class Blah(Protocol):
+    """A protocol"""
+
+    def do_thing(self) -> str:
+        """Declares the method without implementing it"""
+        ...
+
+
+class Overridable:
+    """A base class whose method is meant to be overridden"""
+
+    def do_thing(self): ...
+
+    def really_returns_nothing(self):
+        """A body that does something and returns None"""
+        print(self)
+
+
+@dataclass
+class BlahUser:
+    """Holds a protocol implementation and a base class instance"""
+
+    blah: Blah
+    overridable: Overridable
+
+    def do_thing_with_blah(self):
+        """No message for the stubs, one for the real method"""
+        value = self.blah.do_thing()
+        other = self.overridable.do_thing()
+        nothing = self.overridable.really_returns_nothing()  # [assignment-from-no-return]
+        return value, other, nothing

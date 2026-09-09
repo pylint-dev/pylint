@@ -1,0 +1,5 @@
+Fix a false positive for :ref:`assignment-from-no-return` when the called function
+is a method of a ``Protocol`` or has a body consisting only of ``...``: such stubs
+declare a method to implement rather than returning nothing.
+
+Closes #9080

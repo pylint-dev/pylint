@@ -1393,6 +1393,9 @@ accessed. Python regular expressions are accepted.",
             )
             or function_node.is_generator()
             or function_node.is_abstract(pass_is_abstract=False)
+            # a stub, declaring a method to implement rather than returning nothing
+            or utils.is_function_body_ellipsis(function_node)
+            or utils.is_protocol_class(function_node.parent)
         )
 
     @staticmethod
