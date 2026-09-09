@@ -128,3 +128,31 @@ class TestClassWithInitAndNew:
 class TestClassWithOnlyNew:
     def __new__(cls, argA, argB): # [unused-argument, unused-argument]
         return object.__new__(cls)
+
+
+# Modified on 2026-09-09: cover generated dataclass initializers (issue #9843).
+from dataclasses import dataclass
+
+
+@dataclass
+class DataWithGeneratedInit:
+    arg: int
+
+    def __new__(cls, *args, **kwargs):
+        return super().__new__(cls)
+
+
+@dataclass()
+class DataWithCalledDecorator:
+    arg: int
+
+    def __new__(cls, arg):
+        return super().__new__(cls)
+
+
+@dataclass(init=False)
+class DataWithoutGeneratedInit:
+    arg: int
+
+    def __new__(cls, *args, **kwargs):  # [unused-argument, unused-argument]
+        return super().__new__(cls)
