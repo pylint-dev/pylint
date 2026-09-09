@@ -2450,7 +2450,8 @@ class VariablesChecker(BaseChecker):
         defnode: nodes.NamedExpr, node: nodes.Name
     ) -> bool:
         """Check that ``defnode`` is in an ``if`` of a comprehension and ``node``
-        in a part of that comprehension evaluated afterwards: its element (or key
+        in a part of that comprehension evaluated afterwards: its element (or key.
+
         and value), or a ``for`` or ``if`` clause that follows the condition.
         """
         comprehension = utils.get_node_first_ancestor_of_type(
