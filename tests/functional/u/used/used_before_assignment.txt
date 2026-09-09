@@ -15,6 +15,4 @@ used-before-assignment:192:10:192:18::Using variable 'ALL_DONE' before assignmen
 used-before-assignment:203:6:203:24::Using variable 'NOT_ALWAYS_DEFINED' before assignment:INFERENCE
 used-before-assignment:239:10:239:11::Using variable 'x' before assignment:CONTROL_FLOW
 possibly-used-before-assignment:253:10:253:15:__:Possibly using variable 'fail1' before assignment:CONTROL_FLOW
-used-before-assignment:267:18:267:19:outer_.inner_try:Using variable 'a' before assignment:HIGH
-used-before-assignment:278:18:278:19:outer_.inner_while:Using variable 'a' before assignment:HIGH
 possibly-used-before-assignment:315:10:315:11:conditional_wildcard_import_unresolvable:Possibly using variable 'x' before assignment:CONTROL_FLOW

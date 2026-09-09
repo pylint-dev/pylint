@@ -1,0 +1,5 @@
+Fix a false positive for :ref:`used-before-assignment` when a ``nonlocal``
+declaration is nested in a block of the function, such as a ``try``, ``while`` or
+``with``, rather than at its top level.
+
+Closes #9689

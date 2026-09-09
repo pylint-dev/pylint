@@ -163,3 +163,43 @@ def nonlocal_after_bad_usage_fail():
         num = num + 1  # [used-before-assignment]
         nonlocal num
     inner()
+
+
+def nonlocal_in_nested_blocks():
+    """https://github.com/pylint-dev/pylint/issues/9689
+
+    The declaration can be nested in a block of the function.
+    """
+    num = 1
+
+    def inner_with():
+        with open("file.txt", encoding="utf-8") as handle:
+            nonlocal num
+            print(num, handle)
+            num = 2
+
+    def inner_try_in_if():
+        try:
+            if num:
+                nonlocal num
+                print(num)
+                num = 2
+        finally:
+            pass
+
+    inner_with()
+    inner_try_in_if()
+
+
+def nonlocal_only_in_nested_function_fail():
+    """A declaration in a nested function does not apply to its parent."""
+    num = 1
+
+    def inner():
+        def deeper():
+            nonlocal num
+            num = 3
+        deeper()
+        print(num)  # [used-before-assignment]
+        num = 2
+    inner()

@@ -332,15 +332,20 @@ def _is_before(node: nodes.NodeNG, reference_node: nodes.NodeNG) -> bool:
 
 
 def _is_nonlocal_name(node: nodes.Name, frame: nodes.LocalsDictNodeNG) -> bool:
-    """Checks if name node has a nonlocal declaration in the given frame."""
+    """Checks if name node has a nonlocal declaration in the given frame.
+
+    The declaration can be nested in a block of the frame, such as a ``try``,
+    ``while`` or ``with``, but not in another scope.
+    """
     if not isinstance(frame, nodes.FunctionDef):
         return False
 
     return any(
-        isinstance(stmt, nodes.Nonlocal)
-        and node.name in stmt.names
-        and _is_before(stmt, node)
-        for stmt in frame.body
+        node.name in stmt.names and _is_before(stmt, node)
+        for stmt in frame.nodes_of_class(
+            nodes.Nonlocal,
+            skip_klass=(nodes.FunctionDef, nodes.Lambda, nodes.ClassDef),
+        )
     )
 
 
