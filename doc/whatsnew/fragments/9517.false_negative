@@ -1,0 +1,7 @@
+:ref:`missing-timeout` is now also emitted for the request methods of a
+``requests.Session`` (``session.get(url)``, ``session.post(url)``, ...), which
+default to no timeout like the module-level ``requests.get()`` and friends. The
+``timeout-methods`` option now lists them, and bound methods are matched against
+that option in general.
+
+Closes #9517

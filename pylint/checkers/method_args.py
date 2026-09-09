@@ -56,11 +56,20 @@ class MethodArgsChecker(BaseChecker):
                     "requests.api.post",
                     "requests.api.put",
                     "requests.api.request",
+                    "requests.sessions.Session.delete",
+                    "requests.sessions.Session.get",
+                    "requests.sessions.Session.head",
+                    "requests.sessions.Session.options",
+                    "requests.sessions.Session.patch",
+                    "requests.sessions.Session.post",
+                    "requests.sessions.Session.put",
+                    "requests.sessions.Session.request",
+                    "requests.sessions.Session.send",
                 ),
                 "type": "csv",
                 "metavar": "<comma separated list>",
                 "help": "List of qualified names (i.e., library.method) which require a timeout parameter "
-                "e.g. 'requests.api.get,requests.api.post'",
+                "e.g. 'requests.api.get,requests.sessions.Session.get'",
             },
         ),
     )
@@ -84,7 +93,13 @@ class MethodArgsChecker(BaseChecker):
             inferred
             and not call_site.has_invalid_keywords()
             and isinstance(
-                inferred, (nodes.FunctionDef, nodes.ClassDef, bases.UnboundMethod)
+                inferred,
+                (
+                    nodes.FunctionDef,
+                    nodes.ClassDef,
+                    bases.UnboundMethod,
+                    bases.BoundMethod,
+                ),
             )
             and inferred.qname() in self.linter.config.timeout_methods
         ):

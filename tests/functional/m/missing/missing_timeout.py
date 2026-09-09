@@ -81,5 +81,34 @@ post("http://localhost", timeout=10)
 put("http://localhost", timeout=10)
 request("call", "http://localhost", timeout=10)
 
-KWARGS_TIMEOUT = {'timeout': 10}
+KWARGS_TIMEOUT = {"timeout": 10}
 post("http://localhost", **KWARGS_TIMEOUT)
+
+# requests.Session methods
+SESSION = requests.Session()
+SESSION.delete("http://localhost")  # [missing-timeout]
+SESSION.get("http://localhost")  # [missing-timeout]
+SESSION.head("http://localhost")  # [missing-timeout]
+SESSION.options("http://localhost")  # [missing-timeout]
+SESSION.patch("http://localhost")  # [missing-timeout]
+SESSION.post("http://localhost")  # [missing-timeout]
+SESSION.put("http://localhost")  # [missing-timeout]
+SESSION.request("call", "http://localhost")  # [missing-timeout]
+SESSION.send(requests.Request("GET", "http://localhost").prepare())  # [missing-timeout]
+requests.Session().get("http://localhost")  # [missing-timeout]
+
+with requests.Session() as session:
+    session.get("http://localhost")  # [missing-timeout]
+    session.get("http://localhost", timeout=10)
+
+SESSION.delete("http://localhost", timeout=10)
+SESSION.get("http://localhost", timeout=10)
+SESSION.head("http://localhost", timeout=10)
+SESSION.options("http://localhost", timeout=10)
+SESSION.patch("http://localhost", timeout=10)
+SESSION.post("http://localhost", timeout=10)
+SESSION.put("http://localhost", timeout=10)
+SESSION.request("call", "http://localhost", timeout=10)
+SESSION.send(requests.Request("GET", "http://localhost").prepare(), timeout=10)
+KWARGS_WITH_TIMEOUT = {"timeout": 10}
+SESSION.get("http://localhost", **KWARGS_WITH_TIMEOUT)
