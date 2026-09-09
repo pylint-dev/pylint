@@ -117,7 +117,7 @@ class HTMLMermaidJSPrinter(MermaidJSPrinter):
     """
 
     HTML_OPEN_BOILERPLATE = """<html>
-  <body>
+  <body{body_attributes}>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <div class="mermaid">"""
     HTML_CLOSE_BOILERPLATE = """</div>
@@ -126,9 +126,17 @@ class HTMLMermaidJSPrinter(MermaidJSPrinter):
     GRAPH_INDENT_LEVEL = 4
 
     MERMAID_THEMES: dict[str, str] = {"dark": "dark"}
+    # A Mermaid theme only styles the diagram, not the page holding it, so the
+    # background has to be set separately or a dark diagram is rendered on the
+    # browser's default white page.
+    THEME_BACKGROUNDS: dict[str, str] = {"dark": "#1e1e1e"}
 
     def _open_graph(self) -> None:
-        self.emit(self.HTML_OPEN_BOILERPLATE)
+        background = self.THEME_BACKGROUNDS.get(self.theme, "")
+        body_attributes = (
+            f' style="background-color: {background}"' if background else ""
+        )
+        self.emit(self.HTML_OPEN_BOILERPLATE.format(body_attributes=body_attributes))
         for _ in range(self.GRAPH_INDENT_LEVEL):
             self._inc_indent()
         mermaid_theme = self.MERMAID_THEMES.get(self.theme)

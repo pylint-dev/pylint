@@ -24,6 +24,21 @@ def test_html_mermaidjs_printer_dark_theme_emits_frontmatter() -> None:
     assert "config:\n" in printer.lines
 
 
+def test_html_mermaidjs_printer_light_theme_has_no_body_background() -> None:
+    printer = HTMLMermaidJSPrinter(title="unittest")
+    assert any("<body>" in line for line in printer.lines)
+
+
+def test_html_mermaidjs_printer_dark_theme_sets_body_background() -> None:
+    """A Mermaid theme only styles the diagram, so without a page background
+    the dark diagram would be rendered on the browser's default white page.
+    """
+    printer = HTMLMermaidJSPrinter(title="unittest", theme="dark")
+    assert any(
+        '<body style="background-color: #1e1e1e">' in line for line in printer.lines
+    )
+
+
 def test_html_mermaidjs_printer_close_graph_dedents_class_diagram_block() -> None:
     printer = HTMLMermaidJSPrinter(title="unittest")
     printer._close_graph()
