@@ -1,0 +1,5 @@
+Fix a crash (``RecursionError``) when a class has a base that infers to one of
+its own subclasses, typically a base bound under ``TYPE_CHECKING`` to the
+subclass and to something else otherwise.
+
+Closes #9190

@@ -64,6 +64,7 @@ def Equals(expected: str) -> Callable[[str], bool]:
         ([join(REGR_DATA, "decimal_inference.py")], Equals("")),
         ([join(REGR_DATA, "absimp", "string.py")], Equals("")),
         ([join(REGR_DATA, "bad_package")], lambda x: "Unused import missing" in x),
+        ([join(REGR_DATA, "type_checking_base_cycle")], Equals("")),
     ],
 )
 def test_package(

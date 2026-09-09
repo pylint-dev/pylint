@@ -1480,6 +1480,10 @@ def has_known_bases(
         return klass._all_bases_known  # type: ignore[no-any-return]
     except AttributeError:
         pass
+    # Mark the class before looking at its bases: when a base infers to a
+    # subclass of the class (typically a base chosen under ``TYPE_CHECKING``),
+    # the recursion below would otherwise come back to it indefinitely.
+    klass._all_bases_known = False
     for base in klass.bases:
         result = safe_infer(base, context=context)
         if (
