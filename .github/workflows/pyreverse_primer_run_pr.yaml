@@ -37,18 +37,19 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v6.2.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache/restore@v5.0.4
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: venv
           key: >-
@@ -65,7 +66,7 @@ jobs:
           pip install --upgrade --requirement requirements_test.txt
       - name: Save Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5.0.4
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: venv
           key: >-
@@ -75,7 +76,7 @@ jobs:
             'requirements_test_pre_commit.txt') }}
       - name: Download last main run info
         id: download-main-run
-        uses: actions/github-script@v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require('fs');
@@ -150,7 +151,7 @@ jobs:
           echo "commitstring=$output" >> $GITHUB_OUTPUT
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache/restore@v5.0.4
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: tests/.pylint_primer_tests/
           key: >-
@@ -163,7 +164,7 @@ jobs:
           python tests/primer/pyreverse_primer.py prepare --clone
       - name: Save projects cache
         if: steps.cache-projects.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5.0.4
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: tests/.pylint_primer_tests/
           key: >-
@@ -178,33 +179,37 @@ jobs:
         run: |
           . venv/bin/activate
           git rev-parse HEAD > pr_head.txt
-          git checkout ${{ github.event.pull_request.base.sha }} -- pylint/pyreverse
+          git checkout "${PR_BASE_SHA}" -- pylint/pyreverse
           pip install . --no-deps
           python tests/primer/pyreverse_primer.py run --type=main
           MAIN_OUTPUT=pyreverse_output_${{ env.DEFAULT_PYTHON }}_main.txt
           cp tests/.pyreverse_primer_tests/$MAIN_OUTPUT $MAIN_OUTPUT
           git reset --hard "$(cat pr_head.txt)"
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
       - name: Pull main
         if: steps.download-main-run.outputs.has-main-artifact == 'true'
         run: |
           git config user.email "primer@example.com"
           git config user.name "Pylint Primer"
-          git pull origin ${{ steps.download-main-run.outputs.result }} \
+          git pull origin "${MAIN_RUN_REF}" \
           --no-edit --no-commit --no-rebase
+        env:
+          MAIN_RUN_REF: ${{ steps.download-main-run.outputs.result }}
       - name: Run pyreverse primer
         run: |
           . venv/bin/activate
           pip install . --no-deps
           python tests/primer/pyreverse_primer.py run --type=pr
       - name: Upload output of PR
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pyreverse_primer_output_pr
           path:
             tests/.pyreverse_primer_tests/pyreverse_output_${{ env.DEFAULT_PYTHON
             }}_pr.txt
       - name: Upload output of main
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pyreverse_primer_output_main
           path: pyreverse_output_${{ env.DEFAULT_PYTHON }}_main.txt
@@ -213,9 +218,11 @@ jobs:
           . venv/bin/activate
           PR_OUTPUT=tests/.pyreverse_primer_tests/pyreverse_output_${{ env.DEFAULT_PYTHON }}_pr.txt
           python tests/primer/pyreverse_primer.py compare \
-          --commit=${{ github.event.pull_request.head.sha }} \
+          --commit=${PR_HEAD_SHA} \
           --base-file=pyreverse_output_${{ env.DEFAULT_PYTHON }}_main.txt \
           --new-file=$PR_OUTPUT
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       - name: Add comparison to run summary
         run: |
           cat tests/.pyreverse_primer_tests/comment.txt >> $GITHUB_STEP_SUMMARY
@@ -223,7 +230,7 @@ jobs:
         run: |
           echo ${{ github.event.pull_request.number }} | tee pr_number.txt
       - name: Upload PR number
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pr_number
           path: pr_number.txt

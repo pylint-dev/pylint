@@ -33,16 +33,18 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v6.2.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
       - name: Restore Python virtual environment cache
         id: cache-venv
-        uses: actions/cache/restore@v5.0.4
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: venv
           key: >-
@@ -59,7 +61,7 @@ jobs:
           pip install --upgrade --requirement requirements_test.txt
       - name: Save Python virtual environment to cache
         if: steps.cache-venv.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5.0.4
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: venv
           key: >-
@@ -76,7 +78,7 @@ jobs:
           echo "commitstring=$output" >> $GITHUB_OUTPUT
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache/restore@v5.0.4
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: tests/.pylint_primer_tests/
           key: >-
@@ -89,14 +91,14 @@ jobs:
           python tests/primer/pyreverse_primer.py prepare --clone
       - name: Save projects cache
         if: steps.cache-projects.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5.0.4
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: tests/.pylint_primer_tests/
           key: >-
             ${{ runner.os }}-${{ env.DEFAULT_PYTHON }}-${{
             steps.commitstring.outputs.commitstring }}-pyreverse-primer
       - name: Upload commit string
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pyreverse_primer_commitstring
           path:
@@ -107,7 +109,7 @@ jobs:
           pip install . --no-deps
           python tests/primer/pyreverse_primer.py run --type=main
       - name: Upload output
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pyreverse_primer_output_main
           path:

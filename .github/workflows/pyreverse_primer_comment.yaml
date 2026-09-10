@@ -1,3 +1,7 @@
+# This is the primer job that creates the comment on the PR
+# It needs to trigger on workflow_run instead of pull_request
+# as we need repository wide access to create a comment
+
 name: Pyreverse Primer / Comment
 
 on:
@@ -23,16 +27,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v6.2.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v5.0.4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: venv
           key: >-
@@ -42,7 +48,7 @@ jobs:
             'requirements_test_pre_commit.txt') }}
       - name: Download outputs
         id: download-outputs
-        uses: actions/github-script@v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require('fs');
@@ -76,7 +82,7 @@ jobs:
       - name: Check label state
         id: check-label
         if: steps.download-outputs.outputs.found == 'true'
-        uses: actions/github-script@v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require('fs');
@@ -94,12 +100,14 @@ jobs:
         run: |
           . venv/bin/activate
           python tests/primer/pyreverse_primer.py compare \
-          --commit=${{ github.event.workflow_run.head_sha }} \
+          --commit=${GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA} \
           --base-file=pyreverse_output_${{ env.DEFAULT_PYTHON }}_main.txt \
           --new-file=pyreverse_output_${{ env.DEFAULT_PYTHON }}_pr.txt
+        env:
+          GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
       - name: Create or update comment
         if: steps.check-label.outputs.has-label == 'true'
-        uses: actions/github-script@v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require('fs');
