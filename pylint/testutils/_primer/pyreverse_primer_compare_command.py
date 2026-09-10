@@ -9,6 +9,7 @@ from collections.abc import Iterator
 from difflib import unified_diff
 from pathlib import Path
 
+from pylint.testutils._primer.comparator import iter_common_keys
 from pylint.testutils._primer.primer_comment import (
     MAX_GITHUB_COMMENT_LENGTH,
     truncate_comment,
@@ -121,7 +122,7 @@ class CompareCommand(PyreversePrimerCommand):
         base_data: PyreversePrimerOutput,
         new_data: PyreversePrimerOutput,
     ) -> Iterator[tuple[str, PyreverseTargetData, PyreverseTargetData]]:
-        for target_name in sorted(base_data):
+        for target_name in iter_common_keys(base_data, new_data):
             base_target_data = base_data[target_name]
             new_target_data = new_data[target_name]
             if base_target_data == new_target_data:

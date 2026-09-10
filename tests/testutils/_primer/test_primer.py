@@ -17,7 +17,7 @@ from _pytest.capture import CaptureFixture
 from pylint.constants import IS_PYPY
 from pylint.reporters.json_reporter import JSONMessage
 from pylint.testutils._primer import PackageToLint
-from pylint.testutils._primer.comparator import PackageDiff
+from pylint.testutils._primer.comparator import PackageDiff, iter_common_keys
 from pylint.testutils._primer.primer import Primer
 from pylint.testutils._primer.primer_compare_command import CompareCommand
 
@@ -248,3 +248,10 @@ class TestPrimer:
         # rstrip so the expected.txt can end with a newline
         assert content == expected.rstrip("\n")
         return content
+
+
+def test_iter_common_keys_skips_added_and_removed() -> None:
+    base = {"kept": {"commit": "aaa"}, "removed": {"commit": "aaa"}}
+    new = {"kept": {"commit": "aaa"}, "added": {"commit": "aaa"}}
+    assert list(iter_common_keys(base, new)) == ["kept"]
+    assert list(iter_common_keys({}, {})) == []

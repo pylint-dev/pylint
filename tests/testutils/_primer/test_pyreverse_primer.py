@@ -19,6 +19,7 @@ import pytest
 from _pytest.capture import CaptureFixture
 
 from pylint.testutils._primer.pyreverse_primer import PyreversePrimer
+from pylint.testutils._primer.pyreverse_primer_command import PyreversePrimerOutput
 from pylint.testutils._primer.pyreverse_primer_compare_command import CompareCommand
 from pylint.testutils._primer.pyreverse_primer_run_command import RunCommand
 from pylint.testutils._primer.pyreverse_primer_target import PyreversePrimerTarget
@@ -325,3 +326,32 @@ def test_get_diagram_path_raises_for_unexpected_output_count(
         match=f"Expected exactly one pyreverse diagram for target 'classdef', got {diagram_count}.",
     ):
         RunCommand._get_diagram_path(tmp_path, "classdef")
+
+
+def test_iter_changes_skips_added_and_removed() -> None:
+    diagram = "classDiagram\n"
+    base: PyreversePrimerOutput = {
+        "astroid/kept": {
+            "commit": COMMIT,
+            "output_file": "Kept.mmd",
+            "diagram": diagram,
+        },
+        "astroid/removed": {
+            "commit": COMMIT,
+            "output_file": "Removed.mmd",
+            "diagram": diagram,
+        },
+    }
+    new: PyreversePrimerOutput = {
+        "astroid/added": {
+            "commit": COMMIT,
+            "output_file": "Added.mmd",
+            "diagram": diagram,
+        },
+        "astroid/kept": {
+            "commit": COMMIT,
+            "output_file": "Kept.mmd",
+            "diagram": diagram,
+        },
+    }
+    assert list(CompareCommand._iter_changes(base, new)) == []
