@@ -645,6 +645,27 @@ def _check_is_function_def(obj: Any) -> None:
         raise ValueError
 
 
+def _is_subscripted_class_call(node: nodes.Call, called: Any) -> bool:
+    """Check if the call targets a subscripted class, e.g. ``SomeClass[str]()``.
+
+    Subscripting a class evaluates to the class itself, or to a generic alias
+    instantiating it, so such a call target is callable. However, subscripting a
+    class whose metaclass defines ``__getitem__`` is inferred through that method,
+    and astroid infers the ``self`` returned by the ``typing`` brain's
+    ``Meta.__getitem__`` as an *instance* of the subscripted class, which is not
+    callable. Only the instance of the subscripted class itself is ignored here:
+    the subscription of anything else keeps being checked.
+    """
+    if not isinstance(node.func, nodes.Subscript):
+        return False
+
+    if not isinstance(called, astroid.Instance):
+        return False
+
+    subscripted = safe_infer(node.func.value)
+    return isinstance(subscripted, nodes.ClassDef) and called._proxied is subscripted
+
+
 def _determine_callable(
     callable_obj: nodes.NodeNG,
 ) -> tuple[CallableObjects, int, str]:
@@ -1910,6 +1931,11 @@ accessed. Python regular expressions are accepted.",
         # Handle uninferable calls
         if not inferred_call or inferred_call.callable():
             self._check_uninferable_call(node)
+            return
+
+        # Ignore calls on subscripted classes, they are always callable:
+        # ``SomeClass[str]`` is the class itself or a generic alias.
+        if _is_subscripted_class_call(node, inferred_call):
             return
 
         if not isinstance(inferred_call, astroid.Instance):

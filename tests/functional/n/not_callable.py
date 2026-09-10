@@ -243,3 +243,13 @@ ATTRIBUTES = {
 
 for key, (name, validate) in ATTRIBUTES.items():
     name = validate(1)
+
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/10042.
+# Subscripting a class yields the class itself (or a generic alias
+# instantiating it), which is callable, so do not emit `not-callable`.
+class SubscriptedGeneric(typing.IO[str]):
+    """Subclass of a subscripted generic class."""
+
+
+SubscriptedGeneric[str]()
