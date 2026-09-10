@@ -254,4 +254,4 @@ def test_iter_common_keys_skips_added_and_removed() -> None:
     base = {"kept": {"commit": "aaa"}, "removed": {"commit": "aaa"}}
     new = {"kept": {"commit": "aaa"}, "added": {"commit": "aaa"}}
     assert list(iter_common_keys(base, new)) == ["kept"]
-    assert list(iter_common_keys({}, {})) == []
+    assert not list(iter_common_keys({}, {}))

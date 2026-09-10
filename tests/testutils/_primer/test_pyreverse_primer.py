@@ -344,7 +344,7 @@ def test_iter_changes_ignores_commit_only_move() -> None:
             "diagram": "classDiagram\n",
         }
     }
-    assert list(CompareCommand._iter_changes(base, new)) == []
+    assert not list(CompareCommand._iter_changes(base, new))
 
 
 def test_iter_changes_skips_added_and_removed() -> None:
@@ -373,7 +373,7 @@ def test_iter_changes_skips_added_and_removed() -> None:
             "diagram": diagram,
         },
     }
-    assert list(CompareCommand._iter_changes(base, new)) == []
+    assert not list(CompareCommand._iter_changes(base, new))
 
 
 def test_create_comment_ignores_commit_only_change(tmp_path: Path) -> None:
