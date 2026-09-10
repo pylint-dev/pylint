@@ -106,7 +106,10 @@ def _get_first_import(
         if first.scope() is node.scope() and first.fromlineno > node.fromlineno:
             continue
         if isinstance(first, nodes.Import):
-            if any(fullname == iname[0] for iname in first.names):
+            # A relative "from . import x" (level >= 1) targets a different
+            # module than an absolute "import x" of the same name, even
+            # though they share a bare name (see #11353).
+            if not level and any(fullname == iname[0] for iname in first.names):
                 found = True
                 break
             for imported_name, imported_alias in first.names:
