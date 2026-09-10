@@ -68,6 +68,11 @@ class CompareCommand(PyreversePrimerCommand):
     ) -> str:
         target = self.targets[target_name]
         package = self.packages[target.package]
+        if base_target_data["commit"] != new_target_data["commit"]:
+            print(
+                f"Upstream commit moved for '{target_name}': "
+                f"'{base_target_data['commit']}' → '{new_target_data['commit']}'."
+            )
         diff = self._diagram_diff(
             base_target_data["diagram"],
             new_target_data["diagram"],
@@ -125,7 +130,10 @@ class CompareCommand(PyreversePrimerCommand):
         for target_name in iter_common_keys(base_data, new_data):
             base_target_data = base_data[target_name]
             new_target_data = new_data[target_name]
-            if base_target_data == new_target_data:
+            if (
+                base_target_data["diagram"] == new_target_data["diagram"]
+                and base_target_data["output_file"] == new_target_data["output_file"]
+            ):
                 continue
             yield target_name, base_target_data, new_target_data
 

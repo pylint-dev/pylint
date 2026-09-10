@@ -18,6 +18,7 @@ from unittest.mock import Mock, patch
 import pytest
 from _pytest.capture import CaptureFixture
 
+from pylint.testutils._primer.package_to_lint import PackageToLint
 from pylint.testutils._primer.pyreverse_primer import PyreversePrimer
 from pylint.testutils._primer.pyreverse_primer_command import PyreversePrimerOutput
 from pylint.testutils._primer.pyreverse_primer_compare_command import CompareCommand
@@ -328,6 +329,24 @@ def test_get_diagram_path_raises_for_unexpected_output_count(
         RunCommand._get_diagram_path(tmp_path, "classdef")
 
 
+def test_iter_changes_ignores_commit_only_move() -> None:
+    base: PyreversePrimerOutput = {
+        "astroid/classdef": {
+            "commit": "aaa",
+            "output_file": "ClassDef.mmd",
+            "diagram": "classDiagram\n",
+        }
+    }
+    new: PyreversePrimerOutput = {
+        "astroid/classdef": {
+            "commit": "bbb",
+            "output_file": "ClassDef.mmd",
+            "diagram": "classDiagram\n",
+        }
+    }
+    assert list(CompareCommand._iter_changes(base, new)) == []
+
+
 def test_iter_changes_skips_added_and_removed() -> None:
     diagram = "classDiagram\n"
     base: PyreversePrimerOutput = {
@@ -355,3 +374,65 @@ def test_iter_changes_skips_added_and_removed() -> None:
         },
     }
     assert list(CompareCommand._iter_changes(base, new)) == []
+
+
+def test_create_comment_ignores_commit_only_change(tmp_path: Path) -> None:
+    command = CompareCommand(tmp_path, {}, {}, Namespace(commit="deadbeef"))
+    base: PyreversePrimerOutput = {
+        "astroid/classdef": {
+            "commit": "aaa",
+            "output_file": "ClassDef.mmd",
+            "diagram": "classDiagram\n",
+        }
+    }
+    new: PyreversePrimerOutput = {
+        "astroid/classdef": {
+            "commit": "bbb",
+            "output_file": "ClassDef.mmd",
+            "diagram": "classDiagram\n",
+        }
+    }
+    comment = command._create_comment(base, new)
+    assert "no effect" in comment
+
+
+def test_create_comment_prints_commit_drift(
+    tmp_path: Path, capsys: CaptureFixture[str]
+) -> None:
+    command = CompareCommand(
+        tmp_path,
+        {
+            "astroid": PackageToLint(
+                url="https://github.com/pylint-dev/astroid",
+                branch="main",
+                directories=["astroid"],
+                commit=COMMIT,
+            )
+        },
+        {
+            "astroid/classdef": PyreversePrimerTarget(
+                package="astroid",
+                class_name="astroid.nodes.scoped_nodes.scoped_nodes.ClassDef",
+                path="astroid",
+            )
+        },
+        Namespace(commit="deadbeef"),
+    )
+    base: PyreversePrimerOutput = {
+        "astroid/classdef": {
+            "commit": "aaa",
+            "output_file": "ClassDef.mmd",
+            "diagram": "classDiagram\n",
+        }
+    }
+    new: PyreversePrimerOutput = {
+        "astroid/classdef": {
+            "commit": "bbb",
+            "output_file": "ClassDef.mmd",
+            "diagram": "classDiagram\n  class New {\n  }\n",
+        }
+    }
+    comment = command._create_comment(base, new)
+    assert "Diagram diff" in comment
+    captured = capsys.readouterr()
+    assert "aaa" in captured.out and "bbb" in captured.out
