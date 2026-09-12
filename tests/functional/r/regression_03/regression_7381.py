@@ -8,8 +8,8 @@ Chaining more than two ``|`` operands should not trigger
 unsupported-binary-operation, whether the operands are flags of a nested enum or
 instances reached through a subscript.
 
-Pylint now requires Python 3.10 or later, where the branch behind this false
-positive returns early, so the snippet is clean on every pylint from 2.13 on.
+Pylint requires Python 3.10 or later, where the branch behind this false
+positive returns early.
 """
 
 # pylint: disable=missing-docstring,too-few-public-methods

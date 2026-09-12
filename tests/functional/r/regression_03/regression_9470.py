@@ -5,8 +5,6 @@
 """Regression test for https://github.com/pylint-dev/pylint/issues/9470
 
 ``random.choices`` should not trigger no-member.
-
-Clean on every pylint from 2.13 on, the oldest version that runs on Python 3.12.
 """
 
 # pylint: disable=missing-module-docstring,invalid-name

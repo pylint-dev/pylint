@@ -8,8 +8,7 @@ An attribute defined in the ``__init__`` of a ``Generic`` base class is known to
 the subclass, so assigning it there is neither attribute-defined-outside-init nor
 access-member-before-definition.
 
-Clean on every pylint from 2.13 on, the oldest version that runs on Python
-3.12. The report was specific to Python 3.6.
+The report was specific to Python 3.6.
 """
 
 # pylint: disable=missing-docstring,too-few-public-methods

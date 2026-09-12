@@ -5,8 +5,6 @@
 """Regression test for https://github.com/pylint-dev/pylint/issues/4608
 
 '-x if x is not None else None' should not trigger invalid-unary-operand-type.
-
-Reproducible up to pylint 3.3; fixed in pylint 4.0.0.
 """
 
 # pylint: disable=missing-docstring,invalid-name

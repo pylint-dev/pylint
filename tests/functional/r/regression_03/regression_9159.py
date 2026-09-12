@@ -6,9 +6,6 @@
 
 ``typing.Self`` return type of a ``classmethod`` override should narrow to
 the subclass when chained off ``B.f1().f2()``.
-
-Regressed in pylint 3.0.0 and still present in pylint 4.0.5; fixed by astroid
-4.1.0.
 """
 
 # pylint: disable=missing-docstring,too-few-public-methods

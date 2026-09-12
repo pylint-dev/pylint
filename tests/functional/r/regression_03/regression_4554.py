@@ -5,8 +5,6 @@
 """Regression test for https://github.com/pylint-dev/pylint/issues/4554
 
 'os.path.join(*a)' where 'a' is a populated list should not trigger no-value-for-parameter.
-
-Reproducible on pylint 2.15; fixed in pylint 3.0.0.
 """
 
 # pylint: disable=missing-docstring

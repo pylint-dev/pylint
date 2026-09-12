@@ -5,8 +5,6 @@
 """Regression test for https://github.com/pylint-dev/pylint/issues/3603
 
 Class differently defined in if/else branches should not trigger unexpected-keyword-arg.
-
-Reproducible up to pylint 3.1; fixed in pylint 3.3.0.
 """
 
 # pylint: disable=missing-docstring,too-few-public-methods

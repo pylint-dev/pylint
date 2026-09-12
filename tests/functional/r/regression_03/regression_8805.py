@@ -5,8 +5,6 @@
 """Regression test for https://github.com/pylint-dev/pylint/issues/8805
 
 zipimport.ZipImportError should not trigger no-member.
-
-Reproducible on pylint 2.13; fixed in pylint 2.15.0.
 """
 
 # pylint: disable=missing-docstring,pointless-statement

@@ -5,8 +5,6 @@
 """Regression test for https://github.com/pylint-dev/pylint/issues/7350
 
 Nested try with exhaustive raise should not trigger used-before-assignment.
-
-Reproducible up to pylint 2.15; fixed in pylint 3.0.0.
 """
 
 # pylint: disable=missing-docstring,bare-except

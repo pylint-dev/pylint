@@ -6,8 +6,6 @@
 
 Calling a value taken from a container that also holds ``None`` should not
 trigger not-callable when the call is guarded by an ``is not None`` check.
-
-Reproducible up to pylint 2.14; fixed in pylint 2.15.0.
 """
 
 # pylint: disable=missing-docstring,too-few-public-methods

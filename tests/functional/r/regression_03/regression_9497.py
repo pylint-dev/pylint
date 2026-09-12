@@ -5,9 +5,6 @@
 """Regression test for https://github.com/pylint-dev/pylint/issues/9497
 
 datetime.datetime non-existent member should be detected by no-member.
-
-The missing member went unreported up to pylint 2.15; detected from pylint
-3.0.0 on.
 """
 
 import datetime

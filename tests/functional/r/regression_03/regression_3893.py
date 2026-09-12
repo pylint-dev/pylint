@@ -5,8 +5,6 @@
 """Regression test for https://github.com/pylint-dev/pylint/issues/3893
 
 Class chosen by loop equality should not trigger unexpected-keyword-arg.
-
-Reproducible up to pylint 3.1; fixed in pylint 3.3.0.
 """
 
 # pylint: disable=missing-docstring,too-few-public-methods,too-many-arguments,too-many-positional-arguments

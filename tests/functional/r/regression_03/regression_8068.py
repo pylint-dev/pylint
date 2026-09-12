@@ -5,8 +5,6 @@
 """Regression test for https://github.com/pylint-dev/pylint/issues/8068
 
 del self._m[:] after conditional None init should not trigger unsupported-delete-operation.
-
-Reproducible up to pylint 3.3; fixed in pylint 4.0.0.
 """
 
 # pylint: disable=missing-docstring,too-few-public-methods

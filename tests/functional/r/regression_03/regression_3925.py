@@ -5,8 +5,6 @@
 """Regression test for https://github.com/pylint-dev/pylint/issues/3925
 
 Destructuring 'a, b = f or (None, None)' should not trigger not-callable.
-
-Reproducible up to pylint 3.3; fixed in pylint 4.0.0.
 """
 
 # pylint: disable=missing-docstring

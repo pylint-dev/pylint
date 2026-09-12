@@ -5,8 +5,6 @@
 """Regression test for https://github.com/pylint-dev/pylint/issues/9722
 
 Multi-level property subclass should not trigger comparison-with-callable.
-
-Reproducible up to pylint 3.1; fixed in pylint 3.3.0.
 """
 
 # pylint: disable=missing-docstring,too-few-public-methods,invalid-name

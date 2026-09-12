@@ -7,8 +7,7 @@
 An inherited descriptor should not trigger assigning-non-slot, including on an
 instance returned by a method annotated with the subclass.
 
-Regressed in pylint 3.0.0 and still present in pylint 4.0.5; fixed by astroid
-4.1.0. Only the last block reproduces it.
+Only the last block reproduces the false positive.
 """
 
 # pylint: disable=missing-docstring,too-few-public-methods,unused-argument,invalid-name

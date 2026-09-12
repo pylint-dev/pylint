@@ -6,8 +6,6 @@
 
 A value built by a conditional expression and then narrowed with
 ``is not None`` should not trigger unsubscriptable-object.
-
-Clean on every pylint from 2.13 on, the oldest version that runs on Python 3.12.
 """
 
 # pylint: disable=missing-docstring
