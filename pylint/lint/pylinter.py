@@ -670,7 +670,8 @@ class PyLinter(
                 os.path.join(something, "__init__.py")
             ):
                 skip_subtrees: list[str] = []
-                for root, _, files in os.walk(something):
+                for root, directories, files in os.walk(something):
+                    directories.sort()
                     if any(root.startswith(s) for s in skip_subtrees):
                         # Skip subtree of already discovered package.
                         continue
@@ -688,6 +689,7 @@ class PyLinter(
                         skip_subtrees.append(root + os.sep)
                         yield root
                     else:
+                        files.sort()
                         yield from (
                             os.path.join(root, file)
                             for file in files
