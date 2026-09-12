@@ -666,27 +666,38 @@ class PyLinter(
         Returns iterator of paths to discovered modules and packages.
         """
         for something in files_or_modules:
-            if os.path.isdir(something) and not os.path.isfile(
-                os.path.join(something, "__init__.py")
-            ):
-                skip_subtrees: list[str] = []
-                for root, _, files in os.walk(something):
-                    if any(root.startswith(s) for s in skip_subtrees):
-                        # Skip subtree of already discovered package.
-                        continue
-
+            if os.path.isdir(something):
+                package_directories: set[str] = set()
+                for root, dirnames, files in os.walk(something, topdown=True):
                     if _is_ignored_file(
                         root,
                         self.config.ignore,
                         self.config.ignore_patterns,
                         self.config.ignore_paths,
                     ):
-                        skip_subtrees.append(root + os.sep)
+                        dirnames.clear()
                         continue
 
+                    dirnames[:] = [
+                        dirname
+                        for dirname in dirnames
+                        if not _is_ignored_file(
+                            os.path.join(root, dirname),
+                            self.config.ignore,
+                            self.config.ignore_patterns,
+                            self.config.ignore_paths,
+                        )
+                    ]
+                    dirnames.sort()
+
                     if "__init__.py" in files:
-                        skip_subtrees.append(root + os.sep)
-                        yield root
+                        package_directory = os.path.normpath(root)
+                        if (
+                            os.path.dirname(package_directory)
+                            not in package_directories
+                        ):
+                            yield root
+                        package_directories.add(package_directory)
                     else:
                         yield from (
                             os.path.join(root, file)
