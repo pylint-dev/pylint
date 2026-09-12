@@ -1,0 +1,6 @@
+[MAIN]
+load-plugins = pylint.extensions.type_annotations
+
+[MESSAGES CONTROL]
+disable = missing-param-type-annotation
+enable = missing-return-type-annotation
