@@ -151,7 +151,9 @@ repos:
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]
-        exclude: (tests(/\w*)*data/|.github/FUNDING.yml)
+        # Functional test files are expected pyreverse output compared verbatim
+        # against the generated file, so reformatting them breaks the tests.
+        exclude: (tests(/\w*)*/functional/|tests(/\w*)*data/|.github/FUNDING.yml)
   - repo: https://github.com/DanielNoord/pydocstringformatter
     rev: v1.0.0
     hooks:

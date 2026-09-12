@@ -107,27 +107,53 @@ class MermaidJSPrinter(Printer):
 
 
 class HTMLMermaidJSPrinter(MermaidJSPrinter):
-    """Printer for MermaidJS diagrams wrapped in a html boilerplate."""
+    """Printer for MermaidJS diagrams wrapped in a html boilerplate.
+
+    Since the output is a standalone HTML document, it is safe to set a
+    Mermaid theme on the diagram itself: unlike ``MermaidJSPrinter``, whose
+    raw diagram syntax is meant to be embedded in a page that may already
+    define its own Mermaid theme, there is no surrounding page whose theme
+    could be unexpectedly overridden here.
+    """
 
     HTML_OPEN_BOILERPLATE = """<html>
-  <body>
+  <body{body_attributes}>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-      <div class="mermaid">
-    """
-    HTML_CLOSE_BOILERPLATE = """
-       </div>
+    <div class="mermaid">"""
+    HTML_CLOSE_BOILERPLATE = """</div>
   </body>
-</html>
-"""
+</html>"""
     GRAPH_INDENT_LEVEL = 4
 
+    MERMAID_THEMES: dict[str, str] = {"dark": "dark"}
+    # A Mermaid theme only styles the diagram, not the page holding it, so the
+    # background has to be set separately or a dark diagram is rendered on the
+    # browser's default white page.
+    THEME_BACKGROUNDS: dict[str, str] = {"dark": "#1e1e1e"}
+
     def _open_graph(self) -> None:
-        self.emit(self.HTML_OPEN_BOILERPLATE)
+        background = self.THEME_BACKGROUNDS.get(self.theme, "")
+        body_attributes = (
+            f' style="background-color: {background}"' if background else ""
+        )
+        self.emit(self.HTML_OPEN_BOILERPLATE.format(body_attributes=body_attributes))
         for _ in range(self.GRAPH_INDENT_LEVEL):
             self._inc_indent()
+        mermaid_theme = self.MERMAID_THEMES.get(self.theme)
+        if mermaid_theme:
+            # Mermaid's frontmatter parser requires the `---` delimiters and
+            # `config:` key to be unindented, regardless of the diagram's own
+            # indent level, so emit this block at column 0.
+            indent, self._indent = self._indent, ""
+            self.emit("---")
+            self.emit("config:")
+            self.emit(f"  theme: {mermaid_theme}")
+            self.emit("---")
+            self._indent = indent
         super()._open_graph()
 
     def _close_graph(self) -> None:
+        super()._close_graph()
         for _ in range(self.GRAPH_INDENT_LEVEL):
             self._dec_indent()
         self.emit(self.HTML_CLOSE_BOILERPLATE)
