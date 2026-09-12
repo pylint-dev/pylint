@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,invalid-name,undefined-variable,too-few-public-methods
+# pylint: disable=missing-docstring,invalid-name,undefined-variable,too-few-public-methods,wrong-import-position
 
 a1 = 2
 if a1:  # [consider-using-assignment-expr]
@@ -161,4 +161,25 @@ if A.var:
 
 i: int
 if i:  # pylint: disable=used-before-assignment
+    pass
+
+
+# -----
+# Constants (all caps or Final annotation) should not trigger consider-using-assignment-expr
+CONST = 1
+if CONST:
+    pass
+
+_PRIVATE_CONST = 2
+if _PRIVATE_CONST:
+    pass
+
+from typing import Final
+
+FINAL_VAR: Final = 3
+if FINAL_VAR:
+    pass
+
+final_lower: Final[int] = 4
+if final_lower:
     pass
