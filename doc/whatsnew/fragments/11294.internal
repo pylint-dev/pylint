@@ -1,0 +1,5 @@
+New function ``pylint.checkers.utils.is_module_member`` permits checking whether a
+node is a member of a module, through the various import syntaxes and aliases. The
+``typing`` checks that each rolled their own version of that question now share it.
+
+Refs #11294

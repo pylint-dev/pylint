@@ -344,6 +344,185 @@ def test_get_node_last_lineno_combined() -> None:
     assert utils.get_node_last_lineno(node) == 11
 
 
+def test_is_module_member() -> None:
+    """Only the asked-for member, however the module is spelled."""
+    code = astroid.extract_node("""
+    import os
+    import sys
+    import sys as system
+    from sys import version_info
+    from sys import version_info as vi
+    from django import VERSION as version_info_of_a_library
+
+    sys.version_info  #@
+    system.version_info  #@
+    version_info  #@
+    vi  #@
+
+    sys.version_info[0]  #@
+    sys.version_info.major  #@
+    sys.hexversion  #@
+    os.version_info  #@
+    version_info_of_a_library  #@
+    """)
+    assert isinstance(code, list) and len(code) == 9
+
+    for spelling in code[:4]:
+        assert (
+            utils.is_module_member(spelling, "sys.version_info") is True
+        ), spelling.as_string()
+
+    for lookalike in code[4:]:
+        assert (
+            utils.is_module_member(lookalike, "sys.version_info") is False
+        ), lookalike.as_string()
+
+
+def test_is_module_member_several_members() -> None:
+    """Any of the members asked for counts, and nothing else does."""
+    code = astroid.extract_node("""
+    import sys
+    from sys import hexversion
+
+    sys.version_info  #@
+    sys.hexversion  #@
+    hexversion  #@
+
+    sys.maxsize  #@
+    """)
+    assert isinstance(code, list) and len(code) == 4
+
+    for member in code[:3]:
+        assert (
+            utils.is_module_member(member, "sys.version_info", "sys.hexversion") is True
+        ), member.as_string()
+
+    assert (
+        utils.is_module_member(code[3], "sys.version_info", "sys.hexversion") is False
+    ), code[3].as_string()
+
+
+def test_uninferable_final_decorators() -> None:
+    """A `typing.final` decorator is reported only when it cannot be inferred.
+
+    `unsupported_version` reaches for this only after `safe_infer` came up empty,
+    which needs the name to have more than one possible value.
+    """
+    module = astroid.parse("""
+    from typing import final
+    if unknown_condition:
+        final = something_else
+
+    @final
+    def ambiguous():
+        pass
+
+    @typing.final
+    def not_even_imported():
+        pass
+    """)
+    ambiguous, not_even_imported = module.body[-2], module.body[-1]
+
+    assert utils.uninferable_final_decorators(ambiguous.decorators) == [
+        ambiguous.decorators.nodes[0]
+    ]
+    assert not utils.uninferable_final_decorators(not_even_imported.decorators)
+
+
+def test_is_module_member_needs_a_qualified_name() -> None:
+    """A bare member name would silently match nothing, so it is refused.
+
+    ``"version_info".rpartition(".")`` leaves an empty module name, which no
+    import can bind, so the mistake has to be loud rather than a missed message.
+    """
+    code = astroid.extract_node("""
+    import sys
+
+    sys.version_info  #@
+    """)
+
+    with pytest.raises(ValueError, match="is not a qualified name"):
+        utils.is_module_member(code, "version_info")
+
+
+def test_is_module_member_aliases() -> None:
+    """An alias is followed, and never taken at face value.
+
+    What the import brings in and what it binds the result to are two different
+    names, so a module or a member wearing the other one's name is not it.
+    """
+    code = astroid.extract_node("""
+    import sys as system
+    from sys import version_info as vi
+
+    import os as sys
+    import sys as version_info
+    from sys import maxsize as version_info
+    from os import sep as version_info
+
+    system.version_info  #@
+    vi  #@
+
+    sys.version_info  #@
+    version_info  #@
+    """)
+    assert isinstance(code, list) and len(code) == 4
+
+    # `import sys as system`, then `from sys import version_info as vi`.
+    assert utils.is_module_member(code[0], "sys.version_info") is True
+    assert utils.is_module_member(code[1], "sys.version_info") is True
+
+    # `sys` is really `os` here, and `version_info` is really `sys.maxsize`.
+    assert utils.is_module_member(code[2], "sys.version_info") is False
+    assert utils.is_module_member(code[3], "sys.version_info") is False
+
+
+def test_is_module_member_dotted_module() -> None:
+    """A module reached through a dotted name is resolved by inference.
+
+    ``os.path`` is deliberately not the example: it infers to ``posixpath`` or
+    to ``ntpath`` depending on the platform, so it is not its own module.
+    """
+    code = astroid.extract_node("""
+    import xml.etree.ElementTree
+
+    xml.etree.ElementTree.parse  #@
+    xml.etree.ElementTree.does_not_matter  #@
+    xml.etree.parse  #@
+    """)
+    assert isinstance(code, list) and len(code) == 3
+
+    assert utils.is_module_member(code[0], "xml.etree.ElementTree.parse") is True
+    # The right module, a member it does not have.
+    assert utils.is_module_member(code[1], "xml.etree.ElementTree.parse") is False
+    # The right member name, hanging off a different module.
+    assert utils.is_module_member(code[2], "xml.etree.ElementTree.parse") is False
+
+
+def test_is_module_member_shadowed_module() -> None:
+    """A class named after a module reads like it and is not it."""
+    code = astroid.extract_node("""
+    class sys:
+        version_info = (3, 12)
+
+    sys.version_info  #@
+    """)
+    assert utils.is_module_member(code, "sys.version_info") is False
+
+
+def test_is_module_member_import_in_a_block() -> None:
+    """The import binding the module need not be at module level."""
+    code = astroid.extract_node("""
+    try:
+        import sys
+    except ImportError:
+        sys = None
+
+    sys.version_info  #@
+    """)
+    assert utils.is_module_member(code, "sys.version_info") is True
+
+
 def test_if_sys_guard() -> None:
     code = astroid.extract_node("""
     import sys
@@ -383,6 +562,103 @@ def test_if_sys_guard() -> None:
 
     assert isinstance(code[5], nodes.If)
     assert utils.is_sys_guard(code[5]) is False
+
+
+def test_if_sys_guard_alternative_spellings() -> None:
+    """A version guard is recognized however the version is spelled."""
+    code = astroid.extract_node("""
+    import sys
+    import sys as system
+    from sys import version_info
+    from sys import version_info as vi
+    from sys import hexversion
+    from six import PY2
+
+    if version_info >= (3, 8):  #@
+        pass
+
+    if vi[:2] >= (3, 8):  #@
+        pass
+
+    if system.version_info >= (3, 8):  #@
+        pass
+
+    if sys.version_info.major >= 3:  #@
+        pass
+
+    if (3, 8) <= sys.version_info:  #@
+        pass
+
+    if hexversion >= 0x030800F0:  #@
+        pass
+
+    if sys.version_info >= (3, 8) and sys.platform == "linux":  #@
+        pass
+
+    if not sys.version_info >= (3, 8):  #@
+        pass
+
+    if PY2:  #@
+        pass
+    """)
+    assert isinstance(code, list) and len(code) == 9
+
+    for guard in code:
+        assert isinstance(guard, nodes.If)
+        assert utils.is_sys_guard(guard) is True, guard.as_string()
+
+
+def test_if_sys_guard_lookalikes() -> None:
+    """Something that merely reads like a version check is not a guard."""
+    code = astroid.extract_node("""
+    import os
+    import sys
+    import os as compat
+    from django import VERSION as version_info
+
+    if sys.some_other_function > (3, 8):  #@
+        pass
+
+    if version_info >= (3, 8):  #@
+        pass
+
+    if compat.PY2:  #@
+        pass
+
+    if os.version_info >= (3, 8):  #@
+        pass
+
+    if os.getenv("PY2"):  #@
+        pass
+
+    if sys.platform == "linux":  #@
+        pass
+    """)
+    assert isinstance(code, list) and len(code) == 6
+
+    for not_a_guard in code:
+        assert isinstance(not_a_guard, nodes.If)
+        assert utils.is_sys_guard(not_a_guard) is False, not_a_guard.as_string()
+
+
+def test_if_sys_guard_shadowed_sys() -> None:
+    """A local class named sys reads exactly like the module and is not it."""
+    code = astroid.extract_node("""
+    class sys:
+        version_info = (3, 12)
+        hexversion = 0x030C00F0
+
+    if sys.version_info >= (3, 8):  #@
+        pass
+
+    if sys.hexversion >= 0x030800F0:  #@
+        pass
+    """)
+    assert isinstance(code, list) and len(code) == 2
+
+    for not_a_guard in code:
+        assert isinstance(not_a_guard, nodes.If)
+        assert utils.is_sys_guard(not_a_guard) is False, not_a_guard.as_string()
 
 
 def test_if_typing_guard() -> None:
@@ -446,7 +722,7 @@ def test_is_empty_literal() -> None:
     assert not utils.is_empty_str_literal(not_empty_string_node.value)
 
 
-def test_is_typing_member() -> None:
+def test_is_module_member_typing() -> None:
     code = astroid.extract_node("""
     from typing import Literal as Lit, Set as Literal
     import typing as t
@@ -456,16 +732,28 @@ def test_is_typing_member() -> None:
     t.Literal #@
     """)
 
-    assert not utils.is_typing_member(code[0], ("Literal",))
-    assert utils.is_typing_member(code[1], ("Literal",))
-    assert utils.is_typing_member(code[2], ("Literal",))
+    assert not utils.is_module_member(code[0], "typing.Literal")
+    assert utils.is_module_member(code[1], "typing.Literal")
+    assert utils.is_module_member(code[2], "typing.Literal")
 
     code = astroid.extract_node("""
     Literal #@
     typing.Literal #@
     """)
-    assert not utils.is_typing_member(code[0], ("Literal",))
-    assert not utils.is_typing_member(code[1], ("Literal",))
+    assert not utils.is_module_member(code[0], "typing.Literal")
+    assert not utils.is_module_member(code[1], "typing.Literal")
+
+
+def test_is_typing_member_is_deprecated() -> None:
+    """It still answers, but is_module_member is the one to call now."""
+    code = astroid.extract_node("""
+    from typing import Literal
+
+    Literal #@
+    """)
+
+    with pytest.warns(DeprecationWarning, match="is_typing_member has been deprecated"):
+        assert utils.is_typing_member(code, ("Literal",)) is True
 
 
 def test_is_reassigned_after_current_requires_isinstance_check() -> None:

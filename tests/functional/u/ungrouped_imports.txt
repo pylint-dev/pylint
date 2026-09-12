@@ -3,3 +3,4 @@ ungrouped-imports:11:4:11:13::Imports from package os are not grouped:UNDEFINED
 ungrouped-imports:17:0:17:30::Imports from package astroid are not grouped:UNDEFINED
 ungrouped-imports:19:4:19:27::Imports from package logging are not grouped:UNDEFINED
 ungrouped-imports:20:0:20:24::Imports from package os are not grouped:UNDEFINED
+ungrouped-imports:49:4:49:26::Imports from package os are not grouped:UNDEFINED
