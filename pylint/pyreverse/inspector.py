@@ -150,7 +150,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         # resolve instance attributes
         for assignattrs in tuple(node.instance_attrs.values()):
             for assignattr in assignattrs:
-                if not isinstance(assignattr, nodes.Unknown):
+                if not isinstance(assignattr, (nodes.Unknown, nodes.EmptyNode)):
                     self.compositions_handler.handle(assignattr, node, info)
                     self.handle_assignattr_type(assignattr, info)
 
