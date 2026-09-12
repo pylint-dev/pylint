@@ -1335,6 +1335,10 @@ def supports_getitem(value: nodes.NodeNG, node: nodes.NodeNG) -> bool:
             node
         ):
             return True
+    if isinstance(node, nodes.Subscript):
+        ta = get_typealias(node.value)
+        if ta is not None and bool(ta.type_params):
+            return True
     return _supports_protocol(value, _supports_getitem_protocol)
 
 
@@ -1668,6 +1672,70 @@ def is_node_in_type_annotation_context(node: nodes.NodeNG) -> bool:
         current_node, parent_node = parent_node, parent_node.parent
         if isinstance(parent_node, nodes.Module):
             return False
+
+
+TYPE_ALIAS_ATTRIBUTES = frozenset(
+    {
+        "__name__",
+        "__type_params__",
+        "__parameters__",
+        "__value__",
+        "__doc__",
+        "__module__",
+    }
+)
+
+
+def get_typealias(node: nodes.NodeNG) -> nodes.TypeAlias | None:
+    """Return the TypeAlias node defining the given node, if any."""
+    if isinstance(node, nodes.TypeAlias):
+        return node
+    if isinstance(node, nodes.Subscript):
+        return get_typealias(node.value)
+    if isinstance(node, nodes.Name):
+        try:
+            _, assigns = node.lookup(node.name)
+        except (AstroidError, AttributeError):
+            return None
+        for assign in assigns:
+            if isinstance(assign, nodes.AssignName):
+                assign_type = assign.assign_type()
+                if isinstance(assign_type, nodes.TypeAlias):
+                    return assign_type
+            elif isinstance(assign, nodes.ImportFrom):
+                try:
+                    mod = assign.do_import_module()
+                except AstroidError:
+                    continue
+                for real_name, alias in assign.names:
+                    as_name = alias or real_name
+                    if as_name == node.name:
+                        try:
+                            stmts = mod.getattr(real_name)
+                        except (AstroidError, AttributeError):
+                            continue
+                        for s in stmts:
+                            if hasattr(s, "assign_type") and isinstance(
+                                s.assign_type(), nodes.TypeAlias
+                            ):
+                                return s.assign_type()
+    elif isinstance(node, nodes.Attribute):
+        try:
+            inferred_owners = node.expr.infer()
+        except AstroidError:
+            return None
+        for owner in inferred_owners:
+            if hasattr(owner, "getattr"):
+                try:
+                    stmts = owner.getattr(node.attrname)
+                except (AstroidError, AttributeError):
+                    continue
+                for s in stmts:
+                    if hasattr(s, "assign_type") and isinstance(
+                        s.assign_type(), nodes.TypeAlias
+                    ):
+                        return s.assign_type()
+    return None
 
 
 def is_node_in_pep695_type_context(node: nodes.NodeNG) -> nodes.NodeNG | None:

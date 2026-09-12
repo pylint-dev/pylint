@@ -1,0 +1,7 @@
+Fix false positive ``no-member`` (E1101) when accessing ``typing.TypeAliasType``
+attributes (such as ``__value__``, ``__type_params__``, and ``__parameters__``)
+on PEP 695 type aliases, and fix false positive ``unsubscriptable-object``
+(E1136) on generic type aliases.
+
+Closes #10091
+Closes #9885

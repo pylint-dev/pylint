@@ -1,0 +1,2 @@
+no-member:30:6:30:28::Class 'str' has no 'nonexistent_attr' member:INFERENCE
+unsubscriptable-object:33:6:33:17::Value 'SimpleAlias' is unsubscriptable:UNDEFINED
