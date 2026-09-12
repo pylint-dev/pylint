@@ -554,6 +554,38 @@ def _check_mode_str(mode: Any) -> bool:
     return True
 
 
+def _infer_mode_arg(mode_arg: nodes.NodeNG) -> tuple[InferenceResult | None, bool]:
+    """Infer the mode argument of an ``open`` call.
+
+    Return the inferred node and whether it comes from a parameter default.
+    A mode that is a parameter of the enclosing function cannot be inferred from
+    the function body alone, but its default value is what the call uses unless
+    the caller overrides it, so fall back on that default before giving up.
+    """
+    inferred = utils.safe_infer(mode_arg)
+    if isinstance(inferred, util.UninferableBase):
+        # safe_infer hands back Uninferable itself when it is the only result.
+        inferred = None
+    if inferred is not None or not isinstance(mode_arg, nodes.Name):
+        return inferred, False
+    _, assignments = mode_arg.lookup(mode_arg.name)
+    if len(assignments) != 1:
+        return None, False
+    (parameter,) = assignments
+    if not isinstance(parameter, nodes.AssignName) or not isinstance(
+        parameter.parent, nodes.Arguments
+    ):
+        return None, False
+    try:
+        default = parameter.parent.default_value(mode_arg.name)
+    except astroid.NoDefault:
+        return None, False
+    inferred = utils.safe_infer(default)
+    if inferred is None or isinstance(inferred, util.UninferableBase):
+        return None, False
+    return inferred, True
+
+
 class StdlibChecker(DeprecatedMixin, BaseChecker):
     name = "stdlib"
 
@@ -949,8 +981,11 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             if mode_arg:
                 confidence = INFERENCE
 
+        mode_from_default = False
         if mode_arg:
-            mode_arg = utils.safe_infer(mode_arg)
+            mode_arg, mode_from_default = _infer_mode_arg(mode_arg)
+            if mode_from_default:
+                confidence = INFERENCE
             if func_name in OPEN_FILES_MODE:
                 if not isinstance(mode_arg, nodes.Const):
                     return  # mode may be binary - don't guess
@@ -967,7 +1002,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if not mode_arg or (
             isinstance(mode_arg, nodes.Const) and "b" not in str(mode_arg.value)
         ):
-            confidence = HIGH
+            confidence = INFERENCE if mode_from_default else HIGH
             try:
                 if open_module in PATHLIB_MODULE:
                     match node.func.attrname:
