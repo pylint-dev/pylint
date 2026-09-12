@@ -918,7 +918,9 @@ a metaclass class method.",
             match child:
                 case nodes.AnnAssign(
                     target=nodes.AssignName(name=name), value=None
-                ) if (name not in slot_names):
+                ) if name not in slot_names and not utils.is_assign_name_annotated_with(
+                    child.target, "ClassVar"
+                ):
                     self.add_message(
                         "declare-non-slot",
                         args=child.target.name,
