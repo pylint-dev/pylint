@@ -354,3 +354,12 @@ class MyClass(metaclass=Meta): # pylint: disable=too-few-public-methods
 MyClass(1, 2, 3, 4) # [too-many-function-args]
 MyClass(1, 2) # [no-value-for-parameter]
 MyClass(1, 2, 3)
+
+
+# https://github.com/pylint-dev/pylint/issues/8785
+# **kwargs unpacking should not suppress no-value-for-parameter
+import copy
+import os
+
+copy.copy(**{"y": os.environ})  # [unexpected-keyword-arg, no-value-for-parameter]
+copy.copy(y=os.environ)  # [no-value-for-parameter, unexpected-keyword-arg]
