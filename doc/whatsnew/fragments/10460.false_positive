@@ -1,0 +1,5 @@
+``ungrouped-imports`` no longer reports imports inside mutually exclusive
+OS guard branches (``if os.name == "nt":`` / ``if sys.platform == "win32":``),
+matching the existing behavior for ``sys.version_info`` guards.
+
+Closes #10460

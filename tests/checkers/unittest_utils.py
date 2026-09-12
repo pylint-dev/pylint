@@ -385,6 +385,52 @@ def test_if_sys_guard() -> None:
     assert utils.is_sys_guard(code[5]) is False
 
 
+def test_if_platform_guard() -> None:
+    code = astroid.extract_node("""
+    import os
+    if os.name == "nt":  #@
+        pass
+
+    if os.name != "posix":  #@
+        pass
+
+    if os.something_else:  #@
+        pass
+
+    import sys
+    if sys.platform == "win32":  #@
+        pass
+
+    if sys.platform != "linux":  #@
+        pass
+
+    if sys.platformish:  #@
+        pass
+
+    if sys.version_info > (3, 8):  #@
+        pass
+    """)
+    assert isinstance(code, list) and len(code) == 7
+
+    assert isinstance(code[0], nodes.If)
+    assert utils.is_platform_guard(code[0]) is True
+    assert isinstance(code[1], nodes.If)
+    assert utils.is_platform_guard(code[1]) is True
+
+    assert isinstance(code[2], nodes.If)
+    assert utils.is_platform_guard(code[2]) is False
+
+    assert isinstance(code[3], nodes.If)
+    assert utils.is_platform_guard(code[3]) is True
+    assert isinstance(code[4], nodes.If)
+    assert utils.is_platform_guard(code[4]) is True
+
+    assert isinstance(code[5], nodes.If)
+    assert utils.is_platform_guard(code[5]) is False
+    assert isinstance(code[6], nodes.If)
+    assert utils.is_platform_guard(code[6]) is False
+
+
 def test_if_typing_guard() -> None:
     code = astroid.extract_node("""
     import typing
