@@ -763,6 +763,12 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def visit_call(self, node: nodes.Call) -> None:
         """Visit a Call node."""
         self.check_deprecated_class_in_call(node)
+        if (
+            isinstance(node.func, nodes.Attribute)
+            and node.func.attrname in {"read_text", "write_text"}
+            and self._is_pathlib_expression(node.func.expr)
+        ):
+            self._check_open_call(node, "pathlib", node.func.attrname)
         for inferred in utils.infer_all(node.func):
             if isinstance(inferred, util.UninferableBase):
                 continue
@@ -928,6 +934,32 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "datetime.time",
         }:
             self.add_message("boolean-datetime", node=node)
+
+    @staticmethod
+    def _is_pathlib_expression(node: nodes.NodeNG) -> bool:
+        if isinstance(node, nodes.BinOp) and node.op == "/":
+            return any(
+                inferred.qname() in {"pathlib.Path", "pathlib._local.Path"}
+                for inferred in utils.infer_all(node.left)
+                if not isinstance(inferred, util.UninferableBase)
+            )
+
+        if isinstance(node, nodes.Name):
+            try:
+                _, assignments = node.lookup(node.name)
+            except astroid.InferenceError:
+                return False
+            return any(
+                isinstance(assignment.parent, nodes.AnnAssign)
+                and any(
+                    inferred.qname() in {"pathlib.Path", "pathlib._local.Path"}
+                    for inferred in utils.infer_all(assignment.parent.annotation)
+                    if not isinstance(inferred, util.UninferableBase)
+                )
+                for assignment in assignments
+            )
+
+        return False
 
     def _check_open_call(
         self, node: nodes.Call, open_module: str, func_name: str

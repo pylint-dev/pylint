@@ -13,29 +13,31 @@ unspecified-encoding:41:0:41:37::Using open without explicitly specifying an enc
 unspecified-encoding:50:5:50:22::Using open without explicitly specifying an encoding:HIGH
 unspecified-encoding:53:5:53:37::Using open without explicitly specifying an encoding:HIGH
 unspecified-encoding:57:5:57:48::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:66:0:66:26::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:67:0:67:39::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:68:0:68:50::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:75:0:75:35::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:76:0:76:50::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:77:0:77:61::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:81:0:81:21::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:82:0:82:25::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:83:0:83:25::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:84:0:84:39::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:149:0:149:23::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:152:0:152:28::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:155:0:155:26::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:158:0:158:35::Using open without explicitly specifying an encoding:HIGH
-bad-open-mode:161:0:161:25::"""None"" is not a valid mode for open.":HIGH
-unspecified-encoding:161:0:161:25::Using open without explicitly specifying an encoding:HIGH
-bad-open-mode:164:0:164:19::"""2"" is not a valid mode for open.":HIGH
-unspecified-encoding:164:0:164:19::Using open without explicitly specifying an encoding:HIGH
-bad-open-mode:176:0:176:24::"""5"" is not a valid mode for open.":INFERENCE
-unspecified-encoding:176:0:176:24::Using open without explicitly specifying an encoding:HIGH
-bad-open-mode:177:0:177:27::"""5"" is not a valid mode for open.":INFERENCE
-unspecified-encoding:177:0:177:27::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:180:5:180:29::Using open without explicitly specifying an encoding:INFERENCE
-unspecified-encoding:183:0:183:29::Using open without explicitly specifying an encoding:INFERENCE
-unspecified-encoding:186:0:186:44::Using open without explicitly specifying an encoding:INFERENCE
-unspecified-encoding:193:0:193:34::Using open without explicitly specifying an encoding:INFERENCE
+unspecified-encoding:64:0:64:31::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:66:0:66:13::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:69:0:69:26::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:70:0:70:39::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:71:0:71:50::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:78:0:78:35::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:79:0:79:50::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:80:0:80:61::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:84:0:84:21::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:85:0:85:25::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:86:0:86:25::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:87:0:87:39::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:152:0:152:23::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:155:0:155:28::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:158:0:158:26::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:161:0:161:35::Using open without explicitly specifying an encoding:HIGH
+bad-open-mode:164:0:164:25::"""None"" is not a valid mode for open.":HIGH
+unspecified-encoding:164:0:164:25::Using open without explicitly specifying an encoding:HIGH
+bad-open-mode:167:0:167:19::"""2"" is not a valid mode for open.":HIGH
+unspecified-encoding:167:0:167:19::Using open without explicitly specifying an encoding:HIGH
+bad-open-mode:179:0:179:24::"""5"" is not a valid mode for open.":INFERENCE
+unspecified-encoding:179:0:179:24::Using open without explicitly specifying an encoding:HIGH
+bad-open-mode:180:0:180:27::"""5"" is not a valid mode for open.":INFERENCE
+unspecified-encoding:180:0:180:27::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:183:5:183:29::Using open without explicitly specifying an encoding:INFERENCE
+unspecified-encoding:186:0:186:29::Using open without explicitly specifying an encoding:INFERENCE
+unspecified-encoding:189:0:189:44::Using open without explicitly specifying an encoding:INFERENCE
+unspecified-encoding:196:0:196:34::Using open without explicitly specifying an encoding:INFERENCE
