@@ -897,6 +897,7 @@ class BasicChecker(_BasicChecker):
                     # we assume it's a nested "with".
                     self.add_message("confusing-with-statement", node=node)
 
+    visit_asyncwith = visit_with
     def _check_self_assigning_variable(self, node: nodes.Assign) -> None:
         # Detect assigning to the same variable.
 
@@ -972,3 +973,5 @@ class BasicChecker(_BasicChecker):
     @utils.only_required_for_messages("redeclared-assigned-name")
     def visit_for(self, node: nodes.For) -> None:
         self._check_redeclared_assign_name([node.target])
+
+    visit_asyncfor = visit_for
