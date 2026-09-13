@@ -898,6 +898,7 @@ class BasicChecker(_BasicChecker):
                     self.add_message("confusing-with-statement", node=node)
 
     visit_asyncwith = visit_with
+
     def _check_self_assigning_variable(self, node: nodes.Assign) -> None:
         # Detect assigning to the same variable.
 
