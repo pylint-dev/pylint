@@ -16,7 +16,7 @@ or for every extension with :ref:`unsafe-load-any-extension <main-options>`::
    $ pylint --unsafe-load-any-extension=y
 
 Attributes missing from a C extension are reported as
-:ref:`c-extension-no-member`, so you can also disable that message alone.
+:ref:`c-extension-no-member <c-extension-no-member>`, so you can also disable that message alone.
 
 For attributes created at runtime, list them with
 :ref:`generated-members <typecheck-options>`::
