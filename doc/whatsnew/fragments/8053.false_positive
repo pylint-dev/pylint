@@ -1,0 +1,7 @@
+Fixed a false positive ``assigning-non-slot`` when assigning to an inherited
+descriptor through an instance returned by a method annotated with the
+subclass. This regressed in pylint 3.0.0.
+
+Fixed by upgrading astroid to 4.1.0.
+
+Closes #8053
