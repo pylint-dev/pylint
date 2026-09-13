@@ -879,6 +879,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for name in node.target.nodes_of_class(nodes.AssignName):
             self._check_redefined_argument_from_local(name)
 
+    visit_asyncfor = visit_for
+
     @utils.only_required_for_messages("redefined-argument-from-local")
     def visit_excepthandler(self, node: nodes.ExceptHandler) -> None:
         if node.name and isinstance(node.name, nodes.AssignName):
@@ -901,6 +903,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 continue
             for name in names.nodes_of_class(nodes.AssignName):
                 self._check_redefined_argument_from_local(name)
+
+    visit_asyncwith = visit_with
 
     def _check_superfluous_else(
         self,
