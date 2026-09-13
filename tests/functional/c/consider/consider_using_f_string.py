@@ -136,3 +136,15 @@ def invalid_format_string_good():
     print("{a[0] + a[1]}".format(a=[0, 1]))
     print("{".format(a=1))
     print("{".format(1))
+
+
+def format_method_references():
+    # Referencing .format in a positional argument is not a formatting call.
+    map("{:,d}".format, [1, 10, 100, 1000])
+    print("{}".format)
+    print("formatter:", "{}".format)
+    sorted([1, 10, 100], key="{}".format)
+
+    # Parentheses and callback arguments do not prevent checking actual calls.
+    print(("{}".format)(PARAM_1))  # [consider-using-f-string]
+    print("{}".format("{}".format))  # [consider-using-f-string]
