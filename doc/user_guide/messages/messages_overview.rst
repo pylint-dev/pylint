@@ -99,6 +99,7 @@ All messages in the error category:
    error/invalid-getnewargs-returned
    error/invalid-hash-returned
    error/invalid-index-returned
+   error/invalid-lazy-import
    error/invalid-length-hint-returned
    error/invalid-length-returned
    error/invalid-match-args-definition
@@ -376,6 +377,7 @@ All messages in the warning category:
    warning/using-f-string-in-unsupported-version
    warning/using-final-decorator-in-unsupported-version
    warning/using-generic-type-syntax-in-unsupported-version
+   warning/using-lazy-import-in-unsupported-version
    warning/using-positional-only-args-in-unsupported-version
    warning/while-used
    warning/wildcard-import

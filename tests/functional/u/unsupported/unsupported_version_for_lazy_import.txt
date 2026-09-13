@@ -1,0 +1,2 @@
+using-lazy-import-in-unsupported-version:3:0:3:22::Lazy imports are not supported by all versions included in the py-version setting:HIGH
+using-lazy-import-in-unsupported-version:4:0:4:29::Lazy imports are not supported by all versions included in the py-version setting:HIGH
