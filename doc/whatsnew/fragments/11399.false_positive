@@ -1,0 +1,7 @@
+Fix a false positive for :ref:`bad-exception-cause` when the bases of the class
+being raised from cannot be inferred, such as an exception deriving from a
+C extension class. :ref:`raising-non-exception` and
+:ref:`catching-non-exception` already guard the same ``inherit_from_std_ex``
+helper with ``has_known_bases``.
+
+Refs #11399
