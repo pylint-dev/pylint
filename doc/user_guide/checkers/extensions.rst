@@ -29,6 +29,7 @@ Pylint provides the following optional plugins:
 - :ref:`pylint.extensions.redefined_loop_name`
 - :ref:`pylint.extensions.redefined_variable_type`
 - :ref:`pylint.extensions.set_membership`
+- :ref:`pylint.extensions.type_annotations`
 - :ref:`pylint.extensions.typing`
 - :ref:`pylint.extensions.while_used`
 
@@ -657,6 +658,24 @@ Set Membership checker Messages
 :use-set-for-membership (R6201): *Consider using set for membership test*
   Membership tests are more efficient when performed on a lookup optimized
   datatype like ``sets``.
+
+
+.. _pylint.extensions.type_annotations:
+
+Type-Annotation checker
+~~~~~~~~~~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.type_annotations``.
+Verbatim name of the checker is ``type-annotation``.
+
+Type-Annotation checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:missing-return-type-annotation (C3801): *Missing return type annotation for function %r*
+  Used when a function or method does not have a return type annotation. Type
+  annotations improve code readability and help with static type checking.
+:missing-param-type-annotation (C3802): *Missing type annotation for parameter %r in function %r*
+  Used when a function or method parameter does not have a type annotation.
+  Type annotations improve code readability and help with static type checking.
 
 
 .. _pylint.extensions.typing:
