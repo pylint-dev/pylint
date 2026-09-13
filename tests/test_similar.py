@@ -15,6 +15,7 @@ import pytest
 
 from pylint.reporters.text import TextReporter
 from pylint.testutils._run import _Run as Run
+from pylint.testutils.reporter_for_tests import GenericTestReporter
 from pylint.testutils.utils import _patch_streams
 
 HERE = abspath(dirname(__file__))
@@ -265,6 +266,41 @@ class TestSymilarCodeChecker:
             exit=False,
         )
         assert not runner.linter.stats.by_msg
+
+    @staticmethod
+    def test_duplicate_code_module_attribution() -> None:
+        """R0801 should be attributed to a module with duplicates, not the last-checked one.
+
+        Regression test for https://github.com/pylint-dev/pylint/issues/2368
+        """
+        path = join(DATA, "2368")
+        reporter = GenericTestReporter()
+        # Pass files explicitly with the unrelated module last, so that current_name
+        # points to a file without duplication when close() fires.
+        Run(
+            [
+                join(path, "databaselib.py"),
+                join(path, "projectlib.py"),
+                join(path, "xmlgen.py"),
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--min-similarity-lines=4",
+            ],
+            reporter=reporter,
+            exit=False,
+        )
+        messages = reporter.messages
+        assert messages, "Expected at least one R0801 message"
+        for msg in messages:
+            assert msg.symbol == "duplicate-code"
+            # The message text contains "=={module_name}:[start:end]" for each
+            # involved module. The message's own .module must be one of them,
+            # but not the unrelated module.
+            involved = re.findall(r"==(\S+?):\[", msg.msg)
+            assert msg.module in involved, (
+                f"R0801 attributed to {msg.module!r} which is not in "
+                f"the involved modules {involved}"
+            )
 
     def test_conditional_imports(self) -> None:
         """Tests enabling ignore-imports with conditional imports works correctly."""
