@@ -456,6 +456,156 @@ def _is_enum_owner(owner: astroid.Instance | nodes.ClassDef) -> bool:
     }
 
 
+def _matches_expr(target: nodes.NodeNG, expr: nodes.NodeNG) -> bool:
+    if isinstance(target, nodes.Name) and isinstance(expr, nodes.Name):
+        return bool(target.name == expr.name)
+    if isinstance(target, nodes.Attribute) and isinstance(expr, nodes.Attribute):
+        return bool(
+            target.attrname == expr.attrname and _matches_expr(target.expr, expr.expr)
+        )
+    return False
+
+
+def _extract_classes_from_isinstance(arg: nodes.NodeNG) -> list[nodes.ClassDef]:
+    classes: list[nodes.ClassDef] = []
+    inferred = safe_infer(arg)
+    if isinstance(inferred, nodes.ClassDef):
+        classes.append(inferred)
+    elif isinstance(inferred, nodes.Tuple):
+        for elt in inferred.elts:
+            classes.extend(_extract_classes_from_isinstance(elt))
+    elif isinstance(inferred, bases.UnionType):
+        for side in (inferred.left, inferred.right):
+            classes.extend(_extract_classes_from_isinstance(side))
+    elif isinstance(arg, nodes.BinOp) and arg.op == "|":
+        for side in (arg.left, arg.right):
+            classes.extend(_extract_classes_from_isinstance(side))
+    return classes
+
+
+def _is_isinstance_guard(
+    test_node: nodes.Call,
+    expr: nodes.NodeNG,
+    owner: InferenceResult,
+    is_not: bool,
+) -> bool:
+    if len(test_node.args) != 2:
+        return False
+    target, classinfo = test_node.args
+    if not _matches_expr(target, expr):
+        return False
+    classes = _extract_classes_from_isinstance(classinfo)
+    if not classes:
+        return False
+    try:
+        matches = astroid.helpers.object_isinstance(owner, classes)
+    except (
+        astroid.exceptions.InferenceError,
+        astroid.exceptions.AstroidTypeError,
+        astroid.exceptions.MroError,
+    ):
+        return False
+    if matches is None or isinstance(matches, util.UninferableBase):
+        return False
+    return (not is_not and not matches) or (is_not and matches)
+
+
+def _is_hasattr_guard(
+    test_node: nodes.Call,
+    expr: nodes.NodeNG,
+    attrname: str,
+) -> bool:
+    if len(test_node.args) != 2:
+        return False
+    target, attr_arg = test_node.args
+    if not _matches_expr(target, expr):
+        return False
+    attr_name = safe_infer(attr_arg)
+    return isinstance(attr_name, nodes.Const) and attr_name.value == attrname
+
+
+def _is_guarded_by_condition(
+    condition: nodes.NodeNG,
+    node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr,
+    owner: InferenceResult,
+) -> bool:
+    if isinstance(condition, nodes.BoolOp):
+        if condition.op == "and":
+            return any(
+                _is_guarded_by_condition(val, node, owner) for val in condition.values
+            )
+        if condition.op == "or":
+            return all(
+                _is_guarded_by_condition(val, node, owner) for val in condition.values
+            )
+
+    inferred = safe_infer(condition)
+    if isinstance(inferred, nodes.Const) and inferred.bool_value() is False:
+        return True
+
+    expr = getattr(node, "expr", None)
+    if expr is None:
+        return False
+
+    is_not = False
+    test_node = condition
+    if isinstance(test_node, nodes.UnaryOp) and test_node.op == "not":
+        is_not = True
+        test_node = test_node.operand
+
+    if (
+        isinstance(test_node, nodes.Call)
+        and isinstance(test_node.func, nodes.Name)
+        and not test_node.keywords
+    ):
+        func_name = test_node.func.name
+        if func_name == "isinstance":
+            return _is_isinstance_guard(test_node, expr, owner, is_not)
+        if func_name == "hasattr" and not is_not:
+            return _is_hasattr_guard(test_node, expr, node.attrname)
+
+    return False
+
+
+def _is_guarded_by_and(
+    bool_op: nodes.BoolOp,
+    node_origin: nodes.NodeNG,
+    node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr,
+    owner: InferenceResult,
+) -> bool:
+    for value in bool_op.values:
+        if value is node_origin or value.parent_of(node_origin):
+            break
+        if _is_guarded_by_condition(value, node, owner):
+            return True
+    return False
+
+
+def _is_guarded_in_scope(
+    node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr,
+    owner: InferenceResult,
+) -> bool:
+    scope: nodes.NodeNG = node.scope()
+    node_origin: nodes.NodeNG = node
+    parent: nodes.NodeNG = node.parent
+    while parent != scope:
+        if (
+            isinstance(parent, nodes.If) and node_origin in parent.body
+        ) or (
+            isinstance(parent, nodes.IfExp) and node_origin == parent.body
+        ):
+            if _is_guarded_by_condition(parent.test, node, owner):
+                return True
+        elif (
+            isinstance(parent, nodes.BoolOp)
+            and parent.op == "and"
+            and _is_guarded_by_and(parent, node_origin, node, owner)
+        ):
+            return True
+        node_origin, parent = parent, parent.parent
+    return False
+
+
 def _emit_no_member(
     node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr,
     owner: InferenceResult,
@@ -474,7 +624,7 @@ def _emit_no_member(
         * the owner is a class and the name can be found in its metaclass.
         * The access node is protected by an except handler, which handles
           AttributeError, Exception or bare except.
-        * The node is guarded behind and `IF` or `IFExp` node
+        * The node is guarded behind an IF, IFExp, or boolean and node.
     """
     # pylint: disable = too-many-return-statements
     if node_ignores_exception(node, AttributeError):
@@ -529,28 +679,9 @@ def _emit_no_member(
         except astroid.NotFoundError:
             return True
 
-    # Don't emit no-member if guarded behind `IF` or `IFExp`
-    #   * Walk up recursively until if statement is found.
-    #   * Check if condition can be inferred as `Const`,
-    #       would evaluate as `False`,
-    #       and whether the node is part of the `body`.
-    #   * Continue checking until scope of node is reached.
-    scope: nodes.NodeNG = node.scope()
-    node_origin: nodes.NodeNG = node
-    parent: nodes.NodeNG = node.parent
-    while parent != scope:
-        if isinstance(parent, (nodes.If, nodes.IfExp)):
-            inferred = safe_infer(parent.test)
-            if (  # pylint: disable=too-many-boolean-expressions
-                isinstance(inferred, nodes.Const)
-                and inferred.bool_value() is False
-                and (
-                    (isinstance(parent, nodes.If) and node_origin in parent.body)
-                    or (isinstance(parent, nodes.IfExp) and node_origin == parent.body)
-                )
-            ):
-                return False
-        node_origin, parent = parent, parent.parent
+    # Don't emit no-member if guarded behind IF, IFExp, or boolean and
+    if _is_guarded_in_scope(node, owner):
+        return False
 
     return True
 
