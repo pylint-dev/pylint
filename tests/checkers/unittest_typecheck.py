@@ -79,8 +79,7 @@ class TestTypeChecker(CheckerTestCase):
             self.checker.visit_attribute(node)
 
     def test_contextmanager_generator_inference(self) -> None:
-        module = astroid.parse(
-            """
+        module = astroid.parse("""
             import sys
             from contextlib import contextmanager
             from io import StringIO
@@ -93,14 +92,12 @@ class TestTypeChecker(CheckerTestCase):
 
             with ctx2() as c2:
                 c2.getvalue()
-            """
-        )
+            """)
         node = module.body[-1].body[0].value.func
         with self.assertNoMessages():
             self.checker.visit_attribute(node)
 
-        module_no_annotation = astroid.parse(
-            """
+        module_no_annotation = astroid.parse("""
             import sys
             from contextlib import contextmanager
             from io import StringIO
@@ -112,15 +109,13 @@ class TestTypeChecker(CheckerTestCase):
 
             with ctx() as c:
                 c.getvalue()
-            """
-        )
+            """)
         node_no_annotation = module_no_annotation.body[-1].body[0].value.func
         with self.assertNoMessages():
             self.checker.visit_attribute(node_no_annotation)
 
     def test_contextmanager_generator_invalid_member(self) -> None:
-        module = astroid.parse(
-            """
+        module = astroid.parse("""
             from contextlib import contextmanager
             from io import StringIO
 
@@ -130,8 +125,7 @@ class TestTypeChecker(CheckerTestCase):
 
             with ctx() as c:
                 c.invalid_attr
-            """
-        )
+            """)
         node = module.body[-1].body[0].value
         with self.assertAddsMessages(
             MessageTest(
