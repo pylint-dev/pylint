@@ -147,3 +147,41 @@ class ChildHidingAncestorAttribute(Parent):
     @functools().cached_property
     def _protected(self):
         pass
+
+
+class BuiltinNameAncestor:
+    def __init__(self):
+        self.help = None
+        self.format = None
+
+
+class BuiltinNameChild(BuiltinNameAncestor):
+    def help(self):  # [method-hidden]
+        pass
+
+    def format(self):  # [method-hidden]
+        pass
+
+
+class BuiltinNameSameClass:
+    """``object`` is an implicit ancestor, so no base class is needed."""
+
+    def __init__(self):
+        self.license = 1
+
+    def license(self):  # [method-hidden]
+        return self.license
+
+
+def color():
+    """A module level function unrelated to the class below."""
+
+
+class ModuleFunctionNameAncestor:
+    def __init__(self):
+        self.color = None
+
+
+class ModuleFunctionNameChild(ModuleFunctionNameAncestor):
+    def color(self):  # [method-hidden]
+        pass
