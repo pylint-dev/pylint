@@ -16,6 +16,20 @@
     "branch": "main",
     "commit": "a0488ceab0436dd7fac738098b3ee0f05a485a15",
     "directories": ["astroid"],
+    "pyreverse_targets": {
+      "classdef": {
+        "class_name": "astroid.nodes.scoped_nodes.scoped_nodes.ClassDef",
+        "path": "astroid"
+      },
+      "functiondef": {
+        "class_name": "astroid.nodes.scoped_nodes.scoped_nodes.FunctionDef",
+        "path": "astroid"
+      },
+      "assignname": {
+        "class_name": "astroid.nodes.node_classes.AssignName",
+        "path": "astroid"
+      }
+    },
     "url": "https://github.com/pylint-dev/astroid",
     "pylintrc_relpath": "pylintrc"
   },

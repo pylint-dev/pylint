@@ -24,3 +24,8 @@ open(NAME, "Ut", encoding="utf-8")
 open(NAME, "Ubr")
 # Crashed with a TypeError on Python >= 3.14 (issue #11099)
 open(NAME, NotImplemented, encoding="utf-8")  # [bad-open-mode]
+
+
+def open_with_bad_default_mode(mode="rwx"):
+    """The default mode is what the call uses unless the caller overrides it."""
+    return open(NAME, mode, encoding="utf-8")  # [bad-open-mode]

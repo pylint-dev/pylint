@@ -55,13 +55,22 @@ To run only a specific test suite, use a pattern for the test filename
 Primer tests
 ------------
 
-Pylint also uses what we refer to as ``primer`` tests. These are tests that are run automatically
-in our Continuous Integration and check whether any changes in Pylint lead to crashes or fatal errors
-on the ``stdlib``, and also assess a pull request's impact on the linting of a selection of external
-repositories by posting the diff against ``pylint``'s current output as a comment.
+Pylint uses what we refer to as ``primer`` tests. These run automatically
+in our Continuous Integration and assess a pull request's impact by posting
+the diff against ``main`` as a comment on the pull request. There are two
+primers: the ``pylint`` primer, which checks for crashes on the ``stdlib``
+and lints a selection of external repositories, and the ``pyreverse``
+primer, which compares generated class diagrams for configured classes in
+those repositories.
 
-To run the primer test for the ``stdlib``, which only checks for crashes and fatal errors, you can add
-``--primer-stdlib`` to the pytest_ command. For example::
+You can find the latest list of repositories and any relevant code for these tests in the ``tests/primer``
+directory.
+
+Pylint primer
+~~~~~~~~~~~~~
+
+To run the primer test for the ``stdlib``, which only checks for crashes and fatal errors, add
+``--primer-stdlib`` to the pytest_ command::
 
     pytest -m primer_stdlib --primer-stdlib
 
@@ -71,18 +80,46 @@ run these commands::
     python tests/primer/__main__.py prepare --clone
     python tests/primer/__main__.py run --type=pr
 
-To fully simulate the process on Continuous Integration, you should then checkout ``main``, and
-then run these commands::
+To fully simulate the process on Continuous Integration, checkout ``main`` and run::
 
     python tests/primer/__main__.py run --type=main
-    python tests/primer/__main__.py compare
+    python tests/primer/__main__.py compare --base-file=<main output> --new-file=<pr output> --commit=<sha>
+
+The output files live in the ``tests/.pylint_primer_tests`` directory. On Continuous
+Integration the run is split into several batches (see the ``--batches`` option).
 
 The list of repositories is created on the basis of three criteria: 1) projects need to use a diverse
 range of language features, 2) projects need to be well maintained and 3) projects should not have a codebase
 that is too repetitive. This guarantees a good balance between speed of our CI and finding potential bugs.
 
-You can find the latest list of repositories and any relevant code for these tests in the ``tests/primer``
-directory.
+Pyreverse primer
+~~~~~~~~~~~~~~~~
+
+The ``pyreverse`` primer tracks class diagrams instead of messages: for each configured
+class it generates the diagram and posts the diff against ``main`` as a comment.
+On Continuous Integration it runs on pull requests that touch ``pyreverse`` code
+and carry the ``pyreverse`` label.
+
+Tracked diagrams are declared with ``pyreverse_targets`` in
+``tests/primer/packages_to_prime.json``. Each target names the class and the path
+to run ``pyreverse`` on::
+
+    "classdef": {
+        "class_name": "astroid.nodes.scoped_nodes.scoped_nodes.ClassDef",
+        "path": "astroid"
+    }
+
+To produce the output generated on Continuous Integration, run these commands::
+
+    python tests/primer/pyreverse_primer.py prepare --clone
+    python tests/primer/pyreverse_primer.py run --type=pr
+
+To fully simulate the process on Continuous Integration, checkout ``main`` and run::
+
+    python tests/primer/pyreverse_primer.py run --type=main
+    python tests/primer/pyreverse_primer.py compare --base-file=<main output> --new-file=<pr output> --commit=<sha>
+
+The output files live in the ``tests/.pyreverse_primer_tests`` directory.
 
 .. _pytest-cov: https://pypi.org/project/pytest-cov/
 .. _astroid: https://github.com/pylint-dev/astroid

@@ -194,3 +194,23 @@ class TestMissingSubmodule(CheckerTestCase):
             assert got == "E:  3: Undefined variable name 'missing' in __all__"
         finally:
             sys.path.pop(0)
+
+
+class TestShadowedModuleAlias(CheckerTestCase):
+    CHECKER_CLASS = variables.VariablesChecker
+
+    @staticmethod
+    def test_no_name_in_module_alias_shadowing() -> None:
+        """Regression test for https://github.com/pylint-dev/pylint/issues/10193.
+
+        No false `no-name-in-module` when an alias shadows its base module and
+        a function named `format` is called on the alias.
+        """
+        package_dir = os.path.join(REGR_DATA_DIR, "shadowed_module_alias")
+        sys.path.insert(0, package_dir)
+        try:
+            linter.check([os.path.join(package_dir, "main.py")])
+            assert isinstance(linter.reporter, GenericTestReporter)
+            assert linter.reporter.finalize().strip() == ""
+        finally:
+            sys.path.pop(0)
