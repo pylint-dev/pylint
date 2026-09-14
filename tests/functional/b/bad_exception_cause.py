@@ -22,6 +22,19 @@ def test():
     raise IndexError() from object() # [bad-exception-cause]
     raise IndexError() from unknown
 
+def unknown_bases():
+    """Don't emit when a base of the cause's class could not be inferred."""
+    from lala import bala  # pylint: disable=import-outside-toplevel
+
+    class MyException(bala):
+        """Whether this derives from BaseException cannot be determined."""
+
+    try:
+        pass
+    except MyException as exc:
+        raise IndexError from exc
+
+
 def function():
     """Function to be passed as exception"""
 
