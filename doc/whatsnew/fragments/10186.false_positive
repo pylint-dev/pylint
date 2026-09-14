@@ -1,0 +1,6 @@
+Fixed false positive ``arguments-differ`` and ``signature-differs`` for
+``typing.overload`` stubs in a subclass. Only the implementation is now
+compared to the overridden method.
+
+Closes #10186
+Closes #5264
