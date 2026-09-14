@@ -589,9 +589,7 @@ def _is_guarded_in_scope(
     node_origin: nodes.NodeNG = node
     parent: nodes.NodeNG = node.parent
     while parent != scope:
-        if (
-            isinstance(parent, nodes.If) and node_origin in parent.body
-        ) or (
+        if (isinstance(parent, nodes.If) and node_origin in parent.body) or (
             isinstance(parent, nodes.IfExp) and node_origin == parent.body
         ):
             if _is_guarded_by_condition(parent.test, node, owner):
