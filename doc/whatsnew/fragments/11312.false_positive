@@ -1,0 +1,4 @@
+Avoid emitting ``unbalanced-tuple-unpacking`` for ``BaseException.args``, whose
+length cannot be inferred from the exception instance.
+
+Closes #11312

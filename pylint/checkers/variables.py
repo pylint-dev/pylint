@@ -2189,12 +2189,30 @@ class VariablesChecker(BaseChecker):
         # Check if we have starred nodes.
         if any(isinstance(target, nodes.Starred) for target in targets):
             return
+        if self._is_exception_args(node.value):
+            # ``BaseException.args`` is populated at runtime and cannot be
+            # inferred from the exception instance alone.  Astroid models it
+            # as an empty tuple, which would make every unpacking look
+            # unbalanced even though the tuple length is unknown.
+            return
         try:
             inferred = node.value.inferred()
             if inferred is not None and len(inferred) == 1:
                 self._check_unpacking(inferred[0], node, targets)
         except astroid.InferenceError:
             return
+
+    @staticmethod
+    def _is_exception_args(value: nodes.NodeNG) -> bool:
+        if not isinstance(value, nodes.Attribute) or value.attrname != "args":
+            return False
+        try:
+            return any(
+                isinstance(inferred, astroid.ExceptionInstance)
+                for inferred in value.expr.inferred()
+            )
+        except astroid.InferenceError:
+            return False
 
     # listcomp have now also their scope
     def visit_listcomp(self, node: nodes.ListComp) -> None:
