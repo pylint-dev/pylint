@@ -108,6 +108,29 @@ def _wildcard_import_binds(stmt: nodes.ImportFrom, name: str) -> bool:
         return False
 
 
+def _inferred_return_of_stub(call: nodes.Call) -> InferenceResult | None:
+    """Infer the return type declared by the stub the call targets, if any.
+
+    A function whose body is only the ``...`` of a stub has no return statement,
+    so astroid infers its result as ``None``, even when it declares a return
+    type. The annotation describes the value at runtime, so use it instead.
+    """
+    called = utils.safe_infer(call.func)
+    if not isinstance(called, nodes.FunctionDef) or called.returns is None:
+        return None
+    if not utils.is_function_body_ellipsis(called):
+        return None
+    inferred = utils.safe_infer(called.returns)
+    if isinstance(inferred, nodes.Const) and isinstance(inferred.value, str):
+        # An unresolved string annotation: keep the previous behaviour rather
+        # than risking a false negative.
+        return None
+    if isinstance(inferred, nodes.ClassDef):
+        # The annotation names the class of the returned value.
+        return inferred.instantiate_class()
+    return inferred
+
+
 def _get_unpacking_extra_info(node: nodes.Assign, inferred: InferenceResult) -> str:
     """Return extra information to add to the message for unpacking-non-sequence
     and unbalanced-tuple/dict-unpacking errors.
@@ -3120,6 +3143,17 @@ class VariablesChecker(BaseChecker):
             return
         if isinstance(inferred, util.UninferableBase):
             return
+        if (
+            isinstance(inferred, nodes.Const)
+            and inferred.value is None
+            and isinstance(node.value, nodes.Call)
+        ):
+            # The call is inferred as returning ``None`` because the called
+            # function has no return statement; a stub, however, only declares
+            # its return type.
+            stub_return = _inferred_return_of_stub(node.value)
+            if stub_return is not None:
+                inferred = stub_return
         if (
             isinstance(inferred.parent, nodes.Arguments)
             and isinstance(node.value, nodes.Name)
