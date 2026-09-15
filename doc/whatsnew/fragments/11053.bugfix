@@ -1,0 +1,3 @@
+Fix a crash in the typecheck checker when accessing an attribute on a PEP 695 type parameter (e.g. ``T.a`` inside ``def f[T](): ...``).
+
+Closes #11053
