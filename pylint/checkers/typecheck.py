@@ -12,7 +12,7 @@ import operator
 import re
 import shlex
 import sys
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Iterator
 from functools import cached_property, lru_cache, singledispatch
 from re import Pattern
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
@@ -23,7 +23,7 @@ import astroid.exceptions
 import astroid.helpers
 import astroid.interpreter
 import astroid.modutils
-from astroid import arguments, bases, nodes, objects, util
+from astroid import arguments, bases, nodes, objects, protocols, util
 from astroid.exceptions import InferenceError
 from astroid.nodes import _base_nodes
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
@@ -111,6 +111,79 @@ class VERSION_COMPATIBLE_OVERLOAD:
 
 
 VERSION_COMPATIBLE_OVERLOAD_SENTINEL = VERSION_COMPATIBLE_OVERLOAD()
+
+
+def _infer_context_manager(
+    self: nodes.With,
+    mgr: nodes.NodeNG,
+    context: astroid.context.InferenceContext | None = None,
+) -> Iterator[InferenceResult]:
+    try:
+        inferred = next(mgr.infer(context=context))
+    except StopIteration as e:
+        raise InferenceError(node=mgr) from e
+
+    if isinstance(inferred, bases.Generator):
+        func = inferred.parent
+        if not func.decorators:
+            raise InferenceError(
+                "No decorators found on inferred generator %s", node=func
+            )
+        if not decorated_with(
+            func,
+            (
+                getattr(protocols, "_CONTEXTLIB_MGR", "contextlib.contextmanager"),
+                "contextlib.asynccontextmanager",
+            ),
+        ):
+            raise InferenceError(node=func)
+
+        yielded = False
+        try:
+            for yield_type in inferred.infer_yield_types():
+                yielded = True
+                yield yield_type
+        except (InferenceError, StopIteration):
+            pass
+
+        if (
+            isinstance(func, (nodes.FunctionDef, nodes.AsyncFunctionDef))
+            and func.returns
+        ):
+            ret = func.returns
+            if isinstance(ret, nodes.Subscript):
+                slice_node = (
+                    ret.slice.elts[0]
+                    if isinstance(ret.slice, nodes.Tuple) and ret.slice.elts
+                    else ret.slice
+                )
+                try:
+                    for ret_type in slice_node.infer(context=context):
+                        if isinstance(ret_type, nodes.ClassDef):
+                            yielded = True
+                            yield ret_type.instantiate_class()
+                        elif isinstance(ret_type, (nodes.Const, bases.Instance)):
+                            yielded = True
+                            yield ret_type
+                except InferenceError:
+                    pass
+
+        if not yielded:
+            raise InferenceError(node=func)
+    elif isinstance(inferred, bases.Instance):
+        try:
+            enter = next(inferred.igetattr("__enter__", context=context))
+        except (InferenceError, astroid.AttributeInferenceError, StopIteration) as exc:
+            raise InferenceError(node=inferred) from exc
+        if not isinstance(enter, bases.BoundMethod):
+            raise InferenceError(node=enter)
+        yield from enter.infer_call_result(self, context)
+    else:
+        raise InferenceError(node=mgr)
+
+
+if hasattr(protocols, "_infer_context_manager"):
+    protocols._infer_context_manager = _infer_context_manager
 
 
 def _is_owner_ignored(
