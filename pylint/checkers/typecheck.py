@@ -581,6 +581,20 @@ def _get_all_attribute_assignments(
 def _enum_has_attribute(
     owner: astroid.Instance | nodes.ClassDef, node: nodes.Attribute
 ) -> bool:
+    if utils.is_attribute_typed_annotation(owner, node.attrname):
+        return True
+
+    if isinstance(owner.parent, nodes.AnnAssign):
+        annotation = safe_infer(owner.parent.annotation)
+        if isinstance(annotation, nodes.ClassDef):
+            try:
+                annotated_owner = next(annotation.infer_call_result(annotation))
+                annotated_owner.getattr(node.attrname)
+            except (InferenceError, StopIteration):
+                pass
+            else:
+                return True
+
     if isinstance(owner, astroid.Instance):
         enum_def = next(
             (b.parent for b in owner.bases if isinstance(b.parent, nodes.ClassDef)),
