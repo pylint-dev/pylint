@@ -1,0 +1,6 @@
+Fix a false positive for ``not-callable`` when a class subscripted with a type
+parameter, such as ``SomeClass[str]()``, is instantiated. Subscripting a class
+evaluates to the class itself, or to a generic alias instantiating it, so the
+call target is always callable.
+
+Closes #10042
