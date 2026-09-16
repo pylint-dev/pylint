@@ -266,6 +266,84 @@ def _fix_dot_imports(
     return sorted(names.items(), key=lambda a: a[1].fromlineno)
 
 
+def _accessed_dotted_submodules(
+    node: nodes.Module, name: str, candidates: set[str]
+) -> set[str] | None:
+    """Find which of the dotted import paths in `candidates` (all bound to
+    the single local `name`, e.g. {'pkg.a', 'pkg.b'}) are reached by an
+    attribute access rooted at `name` (e.g. `pkg.a.thing()`) anywhere in
+    `node`.
+
+    Returns None if `name` is used anywhere in a way that isn't attributable
+    to one specific dotted import (a bare reference such as `x = pkg`), since
+    such a use may legitimately reach any of the sibling imports.
+    """
+    accessed: set[str] = set()
+    for use in node.nodes_of_class(nodes.Name):
+        if use.name != name:
+            continue
+        parent = use.parent
+        reached = None
+        if isinstance(parent, nodes.Attribute) and parent.expr is use:
+            attribute_path = f"{name}.{parent.attrname}"
+            for candidate in candidates:
+                if candidate == attribute_path or candidate.startswith(
+                    f"{attribute_path}."
+                ):
+                    reached = candidate
+                    break
+        if reached is None:
+            return None
+        accessed.add(reached)
+    return accessed
+
+
+def _recover_unreferenced_dotted_imports(
+    node: nodes.Module, not_consumed: Consumption
+) -> None:
+    """Restore a dotted-submodule import to `not_consumed` when it was only
+    dropped because a *sibling* import bound to the same local name was used.
+
+    `import pkg.a` and `import pkg.b` both bind the local name `pkg`, so using
+    either one (`pkg.a.thing()`) marks the whole name `pkg` as consumed and
+    hides an actually-unused sibling (`pkg.b`) from `not_consumed`, and thus
+    from `unused-import`.
+    """
+    for name, stmts in node.locals.items():
+        if name in not_consumed:
+            continue
+        dotted_imports = [
+            stmt
+            for stmt in stmts
+            if isinstance(stmt, nodes.Import)
+            and any(
+                alias is None and imported_name.startswith(f"{name}.")
+                for imported_name, alias in stmt.names
+            )
+        ]
+        if len(dotted_imports) < 2:
+            continue
+        candidates = {
+            imported_name
+            for stmt in dotted_imports
+            for imported_name, alias in stmt.names
+            if alias is None and imported_name.startswith(f"{name}.")
+        }
+        accessed = _accessed_dotted_submodules(node, name, candidates)
+        if not accessed:
+            continue
+        unreferenced = [
+            stmt
+            for stmt in dotted_imports
+            if not any(
+                alias is None and imported_name in accessed
+                for imported_name, alias in stmt.names
+            )
+        ]
+        if unreferenced:
+            not_consumed[name] = unreferenced
+
+
 def _find_frame_imports(name: str, frame: nodes.LocalsDictNodeNG) -> bool:
     """Detect imports in the frame, with the required *name*.
 
@@ -1467,7 +1545,7 @@ class VariablesChecker(BaseChecker):
         if not self.linter.config.init_import and node.package:
             return
 
-        self._check_imports(not_consumed)
+        self._check_imports(node, not_consumed)
         self._type_annotation_names = []
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
@@ -3317,7 +3395,8 @@ class VariablesChecker(BaseChecker):
                 self.add_message("unused-variable", args=(name,), node=node)
 
     # pylint: disable = too-many-branches
-    def _check_imports(self, not_consumed: Consumption) -> None:
+    def _check_imports(self, node: nodes.Module, not_consumed: Consumption) -> None:
+        _recover_unreferenced_dotted_imports(node, not_consumed)
         local_names = _fix_dot_imports(not_consumed)
         checked = set()
         unused_wildcard_imports: defaultdict[
