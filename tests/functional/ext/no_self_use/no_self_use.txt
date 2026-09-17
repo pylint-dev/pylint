@@ -1,3 +1,4 @@
 no-self-use:17:4:17:23:Toto.function_method:Method could be a function:INFERENCE
 no-self-use:25:4:25:35:Toto.async_function_method:Method could be a function:INFERENCE
 no-self-use:102:4:102:9:C.a:Method could be a function:INFERENCE
+no-self-use:177:12:177:28:Outer.outer_method.Inner.inner_method:Method could be a function:INFERENCE

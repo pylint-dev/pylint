@@ -162,3 +162,19 @@ class Foo4:
 
     def d():  # pylint: disable=no-method-argument
         ...
+
+
+class Outer:
+    """Regression test for a class defined inside a method (#3705)."""
+
+    def outer_method(self):
+        """this method is a real method since it accesses self"""
+        print(self.__class__)
+
+        class Inner:
+            """this method isn't a real method since it doesn't need self"""
+
+            def inner_method(self):  # [no-self-use]
+                return 1
+
+        return Inner()
