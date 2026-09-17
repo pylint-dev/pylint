@@ -260,3 +260,7 @@ class SubscriptedGeneric(typing.IO[str]):
 
 
 SubscriptedGeneric[str]()
+
+# Ordinary subscription results are still checked for callability.
+NON_CALLABLE_ITEMS = {"key": 1}
+NON_CALLABLE_ITEMS["key"]()  # [not-callable]
