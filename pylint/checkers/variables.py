@@ -270,7 +270,8 @@ def _accessed_dotted_submodules(
     node: nodes.Module, name: str, candidates: set[str]
 ) -> set[str] | None:
     """Find which of the dotted import paths in `candidates` (all bound to
-    the single local `name`, e.g. {'pkg.a', 'pkg.b'}) are reached by an
+    the single local `name`, e.g. {'pkg.a', 'pkg.b'}) are reached by an.
+
     attribute access rooted at `name` (e.g. `pkg.a.thing()`) anywhere in
     `node`.
 
