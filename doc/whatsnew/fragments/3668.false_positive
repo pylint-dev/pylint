@@ -1,0 +1,6 @@
+Fix a false positive for ``unnecessary-negation`` (C0117) when negating a
+comparison between dict views (``dict.keys()``/``dict.items()``), which like
+``set``/``frozenset`` support only a partial (subset/superset) ordering, so
+``not a.items() <= b.items()`` is not equivalent to ``a.items() > b.items()``.
+
+Closes #3668

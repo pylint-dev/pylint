@@ -59,6 +59,10 @@ def tolerated_statements():
         pass
     if not frozenset(something) <= 3:
         pass
+    if not {}.items() <= {}.items():
+        pass
+    if not {}.keys() <= {}.keys():
+        pass
 
 
 class Klass:
