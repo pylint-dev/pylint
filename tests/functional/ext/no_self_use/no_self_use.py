@@ -1,5 +1,6 @@
 # pylint: disable=too-few-public-methods,missing-docstring,invalid-name
 """test detection of method which could be a function"""
+import unittest
 from abc import ABC, abstractmethod
 from typing import Protocol, overload
 
@@ -164,17 +165,16 @@ class Foo4:
         ...
 
 
-class Outer:
-    """Regression test for a class defined inside a method (#3705)."""
+class MyTest(unittest.TestCase):
+    """Regression test using the reporter's exact shape (#3705)."""
 
-    def outer_method(self):
-        """this method is a real method since it accesses self"""
-        print(self.__class__)
+    def test_one(self, value):
+        """this method is a real method since self is used by assertRaises"""
 
-        class Inner:
-            """this method isn't a real method since it doesn't need self"""
+        with self.assertRaises(TypeError):
 
-            def inner_method(self):  # [no-self-use]
-                return 1
+            class _MySubClass:
+                """a locally defined subclass, as in the original report"""
 
-        return Inner()
+                def my_sub_method(self):  # [no-self-use]
+                    return value
