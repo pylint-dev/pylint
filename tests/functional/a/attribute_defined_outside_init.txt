@@ -5,3 +5,4 @@ attribute-defined-outside-init:134:8:134:43:PositionalOnlySetattr.later:Attribut
 attribute-defined-outside-init:148:8:148:49:ChildOfNonMethodDefiningParent.later:Attribute 'not_defined_by_parent' defined outside __init__:UNDEFINED
 attribute-defined-outside-init:166:8:166:39:ChildOfParentWithNestedSetattr.later:Attribute 'nested_attr' defined outside __init__:UNDEFINED
 attribute-defined-outside-init:174:8:174:35:TwoArgumentSetattr.later:Attribute 'two_arg' defined outside __init__:UNDEFINED
+attribute-defined-outside-init:264:8:264:18:ClassicPropertySetter.unrelated:Attribute 'stray' defined outside __init__:UNDEFINED
