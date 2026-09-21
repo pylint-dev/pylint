@@ -3,7 +3,7 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 import astroid
-from astroid import nodes
+from astroid import nodes, objects
 
 from pylint import checkers
 from pylint.checkers import utils
@@ -36,9 +36,10 @@ class NotChecker(checkers.BaseChecker):
     # Build the reverse direction by flipping the table instead of listing
     # every operator pair twice.
     reverse_op |= {value: key for key, value in reverse_op.items()}
-    # sets are not ordered, so for example "not set(LEFT_VALS) <= set(RIGHT_VALS)" is
-    # not equivalent to "set(LEFT_VALS) > set(RIGHT_VALS)"
-    skipped_nodes = (nodes.Set,)
+    # sets and set-like dict views (dict.keys()/dict.items()) are not totally ordered,
+    # so for example "not set(LEFT_VALS) <= set(RIGHT_VALS)" is not equivalent to
+    # "set(LEFT_VALS) > set(RIGHT_VALS)", and likewise for "{}.items() <= {}.items()".
+    skipped_nodes = (nodes.Set, objects.DictItems, objects.DictKeys)
     # 'builtins' py3, '__builtin__' py2
     skipped_classnames = [f"builtins.{qname}" for qname in ("set", "frozenset")]
 
