@@ -1328,6 +1328,11 @@ def supports_membership_test(value: nodes.NodeNG) -> bool:
 
 
 def supports_getitem(value: nodes.NodeNG, node: nodes.NodeNG) -> bool:
+    if _is_generic_protocol(value) and (
+        isinstance(value, nodes.ClassDef) or _is_type_alias(node.value)
+    ):
+        return True
+
     if isinstance(value, nodes.ClassDef):
         if _supports_protocol_method(value, CLASS_GETITEM_METHOD):
             return True
@@ -1727,6 +1732,44 @@ def is_protocol_class(cls: nodes.NodeNG) -> bool:
                     return True
         except astroid.InferenceError:
             continue
+    return False
+
+
+def _is_generic_protocol(value: nodes.NodeNG) -> bool:
+    """Return whether *value* is a generic protocol class or instance."""
+    if isinstance(value, astroid.BaseInstance):
+        value = value._proxied
+
+    if not is_protocol_class(value):
+        return False
+
+    return any(
+        isinstance(base, nodes.Subscript) and is_protocol_class(safe_infer(base.value))
+        for base in value.bases
+    )
+
+
+def _is_type_alias(node: nodes.NodeNG) -> bool:
+    """Return whether *node* refers to a value explicitly declared as a type alias."""
+    if not isinstance(node, nodes.Name):
+        return False
+
+    _, assignments = node.lookup(node.name)
+    for assignment in assignments:
+        if isinstance(assignment, nodes.TypeAlias):
+            return True
+
+        parent = assignment.parent
+        if not isinstance(parent, nodes.AnnAssign):
+            continue
+
+        inferred = safe_infer(parent.annotation)
+        if (
+            isinstance(inferred, nodes.ClassDef)
+            and inferred.qname() == "typing.TypeAlias"
+        ):
+            return True
+
     return False
 
 
