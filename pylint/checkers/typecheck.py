@@ -1206,10 +1206,13 @@ accessed. Python regular expressions are accepted.",
 
             try:
                 attr_nodes = owner.getattr(node.attrname)
-            except AttributeError:
+            except (AttributeError, astroid.DuplicateBasesError):
                 continue
-            except astroid.DuplicateBasesError:
-                continue
+            except astroid.InferenceError:
+                # Nothing is known about this owner, so it may have the
+                # attribute: judging the other inferred owners alone would
+                # emit a false positive, bail out as for opaque inference.
+                return
             except astroid.NotFoundError:
                 # Avoid false positive in case a decorator supplies member.
                 if (
