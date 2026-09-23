@@ -119,7 +119,7 @@ dynamic.version = { attr = "pylint.__pkginfo__.__version__" }
 # (for docstrings, strings and comments in particular).
 line-length = 115
 extend-exclude = [
-  "tests/**/data/",
+  "tests/**/*data/",
   "tests/**/functional/",
   "tests/input/",
   "tests/regrtest_data/",
@@ -249,6 +249,7 @@ module = [
   "mccabe",
   "pytest",
   "pytest_benchmark.*",
+  "pytest_remaster.*",
   "sphinx.*",
 ]
 ignore_missing_imports = true

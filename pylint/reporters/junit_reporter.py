@@ -105,7 +105,9 @@ class JUnitReporter(BaseReporter):
         testsuites_el = ET.Element("testsuites")
         total_tests = 0
         total_failures = 0
-        for suite_name, testsuite_el in self._testsuites.items():
+        # Lint order follows the file system walk, which differs between
+        # platforms, so sort the suites to keep the report stable.
+        for suite_name, testsuite_el in sorted(self._testsuites.items()):
             # Every suite is created either by ``on_set_current_module`` (which
             # records the module so it gets a passing testcase above) or by
             # ``handle_message`` (which appends a failing testcase), so a suite
@@ -126,10 +128,11 @@ class JUnitReporter(BaseReporter):
         testsuites_el.set("failures", str(total_failures))
         testsuites_el.set("disabled", "0")
         testsuites_el.set("time", "0")
-        tree = ET.ElementTree(testsuites_el)
-        ET.indent(tree, space="  ")
-        tree.write(self.out, encoding="unicode", xml_declaration=True)
-        print(file=self.out)
+        ET.indent(testsuites_el, space="  ")
+        # ``ElementTree.write`` would declare the locale encoding, not the
+        # encoding of ``self.out``, so write a fixed declaration instead.
+        print('<?xml version="1.0" encoding="utf-8"?>', file=self.out)
+        print(ET.tostring(testsuites_el, encoding="unicode"), file=self.out)
 
     def _get_testsuite(self, name: str) -> ET.Element:
         if name not in self._testsuites:

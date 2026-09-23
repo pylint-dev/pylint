@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites tests="1" errors="0" failures="1" disabled="0" time="0">
+  <testsuite name="standalone.py" tests="1" errors="0" failures="1" skipped="0" disabled="0" time="0">
+    <testcase name="standalone.py:7:2" classname="pylint" file="standalone.py" line="7" class="convention">
+      <failure type="convention" message="line-too-long">C0301:Line too long (100/80)
+standalone.py:7:2:</failure>
+      <system-out>standalone.py:7:2:</system-out>
+      <system-err>C0301:Line too long (100/80)
+standalone.py:7:2:</system-err>
+    </testcase>
+  </testsuite>
+</testsuites>
