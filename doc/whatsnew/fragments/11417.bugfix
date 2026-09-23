@@ -1,0 +1,8 @@
+Checkers registered for ``For`` and ``With`` now also run on ``async for`` and
+``async with``. The AST walker dispatches on the node's exact class name, so
+``visit_for`` never received an ``AsyncFor`` even though ``AsyncFor`` is a
+subclass of ``For``. This affects ``useless-else-on-loop``,
+``confusing-with-statement``, ``redeclared-assigned-name``,
+``too-many-nested-blocks`` and ``redefined-argument-from-local``.
+
+Closes #11417
