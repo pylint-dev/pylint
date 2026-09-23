@@ -83,7 +83,7 @@ persistent = true
 
 # Minimum Python version to use for version dependent checks. Will default to the
 # version used to run pylint.
-py-version = "3.12"
+py-version = "3.13"
 
 # Discover python modules and packages in the file system subtree.
 # recursive =
@@ -480,7 +480,9 @@ min-similarity-lines = 4
 max-spelling-suggestions = 4
 
 # Spelling dictionary name. Available dictionaries: en (aspell), en_AU (aspell),
-# en_CA (aspell), en_GB (aspell), en_US (aspell).
+# en_CA (aspell), en_GB (aspell), en_US (aspell), fr (hunspell), fr_BE
+# (hunspell), fr_CA (hunspell), fr_CH (hunspell), fr_FR (hunspell), fr_LU
+# (hunspell), fr_MC (hunspell).
 # spelling-dict =
 
 # List of comma separated words that should be considered directives if they

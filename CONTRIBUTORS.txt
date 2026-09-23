@@ -339,6 +339,7 @@ contributors:
 - Artem Yurchenko <artemyurchenko@zoho.com>
 - Alexander Kapshuna <kapsh@kap.sh>
 - Adam Parkin <pzelnip@users.noreply.github.com>
+- Anshul Singh <72524975+ekanshul@users.noreply.github.com>
 - 谭九鼎 <109224573@qq.com>
 - Łukasz Sznuk <ls@rdprojekt.pl>
 - zasca <gorstav@gmail.com>
@@ -363,6 +364,7 @@ contributors:
 - kyoto7250 <50972773+kyoto7250@users.noreply.github.com>
 - kriek <sylvain.ackermann@gmail.com>
 - kdestin <101366538+kdestin@users.noreply.github.com>
+- kdelay <kdelay20@gmail.com>
 - jaydesl <35102795+jaydesl@users.noreply.github.com>
 - jab <jab@users.noreply.github.com>
 - h1whelan <h1whelan@users.noreply.github.com>
@@ -427,11 +429,13 @@ contributors:
 - Stephen Longofono <8992396+SLongofono@users.noreply.github.com>
 - Stephane Odul <1504511+sodul@users.noreply.github.com>
 - Stanislav Levin <slev@altlinux.org>
+- Sparsh :) <76697238+SparshGarg999@users.noreply.github.com>
 - Sorin Sbarnea <ssbarnea@redhat.com>
 - Slavfox <slavfoxman@gmail.com>
 - Skip Montanaro <skip@pobox.com>
 - Sigurd Spieckermann <2206639+sisp@users.noreply.github.com>
 - Shiv Venkatasubrahmanyam <shvenkat@users.noreply.github.com>
+- Semih702 <semih702do@gmail.com>
 - Sebastian Müller <mueller.seb@posteo.de>
 - Sayyed Faisal Ali <80758388+C0DE-SLAYER@users.noreply.github.com>
 - Sasha Bagan <pnlbagan@gmail.com>
@@ -665,6 +669,7 @@ contributors:
 - Adrian Chirieac <chirieacam@gmail.com>
 - Aditya Gupta <adityagupta1089@users.noreply.github.com> (adityagupta1089)
   * Added ignore_signatures to duplicate checker
+- Adetunji Oludele Adebayo <cyber.adetunji@gmail.com>
 - Adam Tuft <73994535+adamtuft@users.noreply.github.com>
 - Adam Dangoor <adamdangoor@gmail.com>
 - 243f6a88 85a308d3 <33170174+243f6a8885a308d313198a2e037@users.noreply.github.com>

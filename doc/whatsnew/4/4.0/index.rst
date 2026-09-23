@@ -74,6 +74,94 @@ to your liking.
 
 .. towncrier release notes start
 
+What's new in Pylint 4.0.9?
+---------------------------
+Release date: 2026-09-23
+
+
+False Positives Fixed
+---------------------
+
+- Fixed a false positive for ``no-self-use`` on a method that only uses
+  ``self`` before a locally defined class (or other nested method), because
+  the checker's could-be-a-function tracking state was not restored after
+  visiting the nested method.
+
+  Closes #3705 (`#3705 <https://github.com/pylint-dev/pylint/issues/3705>`_)
+
+- Fix a false positive for :ref:`not-callable` when calling functions constructed with
+  ``types.FunctionType`` or ``types.LambdaType``.
+
+  Closes #7500 (`#7500 <https://github.com/pylint-dev/pylint/issues/7500>`_)
+
+- Fix a false positive for ``unnecessary-direct-lambda-call`` when a directly called
+  lambda in a class body wraps a comprehension containing an assignment expression.
+  PEP 572 makes that a ``SyntaxError`` without the lambda's scope, so following the
+  message produced code that would not compile.
+
+  Closes #9294 (`#9294 <https://github.com/pylint-dev/pylint/issues/9294>`_)
+
+- Fix a false positive for :ref:`unnecessary-ellipsis` when an ellipsis is the
+  sole body statement of a method defined on a ``Protocol``.
+
+  Closes #9319 (`#9319 <https://github.com/pylint-dev/pylint/issues/9319>`_)
+
+- Fix a false positive for :ref:`bad-exception-cause` when the bases of the class
+  being raised from cannot be inferred, such as an exception deriving from a
+  C extension class. :ref:`raising-non-exception` and
+  :ref:`catching-non-exception` already guard the same ``inherit_from_std_ex``
+  helper with ``has_known_bases``.
+
+  Refs #11399 (`#11399 <https://github.com/pylint-dev/pylint/issues/11399>`_)
+
+
+
+False Negatives Fixed
+---------------------
+
+- ``method-hidden`` is no longer silenced when the hidden method shares its name with
+  a builtin function or with a function defined at module level. Only members of the
+  ancestor classes themselves can excuse the method now.
+
+  Refs #11361 (`#11361 <https://github.com/pylint-dev/pylint/issues/11361>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix a block-scoped ``# pylint: disable=`` directive placed inside an ``if``
+  body leaking into sibling ``elif``/``else`` blocks for messages such as
+  ``stop-iteration-return``, which default to a line-based (rather than
+  node-based) message scope.
+
+  Closes #3136 (`#3136 <https://github.com/pylint-dev/pylint/issues/3136>`_)
+
+- Fix a false positive for ``declare-non-slot`` when a class variable is
+  annotated with ``ClassVar`` without an initial value.
+
+  Closes #9950 (`#9950 <https://github.com/pylint-dev/pylint/issues/9950>`_)
+
+- Fix a crash in the ``no-member`` checker when attribute lookup raises an
+  ``InferenceError``.
+
+  Closes #11356 (`#11356 <https://github.com/pylint-dev/pylint/issues/11356>`_)
+
+- Fix a crash in the ``unnecessary-default-type-args`` check when a ``Generator``
+  or ``AsyncGenerator`` subscript holds an empty tuple, such as ``Generator[()]``.
+
+  Closes #11357 (`#11357 <https://github.com/pylint-dev/pylint/issues/11357>`_)
+
+- Fix a crash in ``method-hidden`` when a method shadows a name that ``builtins``
+  binds to a node without a statement, such as ``help`` or ``license``. Every class
+  inherits from ``object``, which lives in the ``builtins`` module, so no base class
+  was needed to trigger it.
+
+  Closes #11361
+  Closes #8079 (`#11361 <https://github.com/pylint-dev/pylint/issues/11361>`_)
+
+
+
 What's new in Pylint 4.0.8?
 ---------------------------
 Release date: 2026-08-29
