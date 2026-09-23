@@ -99,9 +99,9 @@ contributors:
 - Gunung P. Wibisono <55311527+gunungpw@users.noreply.github.com>
 - Derek Gustafson <degustaf@gmail.com>
 - Cezar Elnazli <cezar.elnazli2@gmail.com>: deprecated-method
+- Julian Grimm <51880314+Julfried@users.noreply.github.com>
 - Joseph Young <80432516+jpy-git@users.noreply.github.com> (jpy-git)
 - Tim Martin <tim@asymptotic.co.uk>
-- Julian Grimm <51880314+Julfried@users.noreply.github.com>
 - Ollie <46904826+ollie-iterators@users.noreply.github.com>
 - Tushar Sadhwani <tushar.sadhwani000@gmail.com> (tusharsadhwani)
 - Nicolas Chauvat <nicolas.chauvat@logilab.fr>
@@ -138,6 +138,7 @@ contributors:
 - Eli Fine <ejfine@gmail.com> (eli88fine): Fixed false positive duplicate code warning for lines with symbols only
 - Émile Crater <emile@crater.logilab.fr>
 - Pavel Roskin <proski@gnu.org>
+- Hibi <hibin.m@gmail.com>
 - David Gilman <davidgilman1@gmail.com>
 - へーさん <hira9603859504@gmail.com>
 - Thomas Hisch <t.hisch@gmail.com>
@@ -154,6 +155,7 @@ contributors:
 - David Lindquist <dlindquist@google.com>: logging-format-interpolation warning.
 - Daniel Harding <dharding@gmail.com>
 - Anthony Truchet <anthony.truchet@logilab.fr>
+- Anshul Singh <72524975+ekanshul@users.noreply.github.com>
 - Alexander Todorov <atodorov@otb.bg>:
   * added new error conditions to 'bad-super-call',
   * Added new check for incorrect len(SEQUENCE) usage,
@@ -162,6 +164,7 @@ contributors:
   * Added new useless-return checker,
   * Added new try-except-raise checker
 - theirix <theirix@gmail.com>
+- kdelay <90545043+kdelay@users.noreply.github.com>
 - Téo Bouvard <teobouvard@gmail.com>
 - Sviatoslav Sydorenko <sviat@redhat.com>
 - Stavros Ntentos <133706+stdedos@users.noreply.github.com>
@@ -209,6 +212,7 @@ contributors:
 - James Addison <55152140+jayaddison@users.noreply.github.com>
 - Ionel Maries Cristian <contact@ionelmc.ro>
 - Gergely Kalmár <gergely.kalmar@logikal.jp>
+- Gali <42598207+Jokasa7@users.noreply.github.com>
 - Damien Baty <damien.baty@polyconseil.fr>
 - Benjamin Drung <benjamin.drung@profitbricks.com>: contributing Debian Developer
 - Anubhav <35621759+anubh-v@users.noreply.github.com>
@@ -217,13 +221,16 @@ contributors:
 - Alexey Pelykh <alexey.pelykh@gmail.com>
 - Alex Prabhat Bara <alexpbara@gmail.com>
 - Akshay Choudhary <153769403+Akshay9715@users.noreply.github.com>
+- Adetunji Oludele Adebayo <cyber.adetunji@gmail.com>
 - wtracy <afishionado@gmail.com>
+- udsy19 <71968569+udsy19@users.noreply.github.com>
 - jessebrennan <jesse@jesse.computer>
 - chohner <mail@chohner.com>
 - aatle <168398276+aatle@users.noreply.github.com>
 - Tiago Honorato <61059243+tiagohonorato@users.noreply.github.com>
 - Tankou <117810219+KoseiTanno@users.noreply.github.com>
 - Steven M. Vascellaro <svascellaro@gmail.com>
+- Sparsh :) <76697238+SparshGarg999@users.noreply.github.com>
 - Sai Asish Y <say.apm35@gmail.com>
 - Roger Sheu <78449574+rogersheu@users.noreply.github.com>
 - Robin Tweedie <70587124+robin-wayve@users.noreply.github.com>
@@ -277,16 +284,20 @@ contributors:
 - Zachary Wilkins-Olson <102660451+CodePapayas@users.noreply.github.com>
 - Wing Lian <wing.lian@gmail.com>
 - Wes Turner <westurner@google.com> (Google): added new check 'inconsistent-quotes'
+- Vincent Gao <gaobing1230@gmail.com>
 - Tyler Thieding <tyler@thieding.com>
 - Tobias Hernstig <30827238+thernstig@users.noreply.github.com>
 - Smixi <sismixx@hotmail.fr>
 - Simu Toni <simutoni@gmail.com>
 - Sergei Lebedev <185856+superbobry@users.noreply.github.com>
+- Semih702 <semih702do@gmail.com>
 - Scott Worley <scottworley@scottworley.com>
 - Saugat Pachhai <suagatchhetri@outlook.com>
+- Sanjay Santhanam <51058514+Sanjays2402@users.noreply.github.com>
 - Samuel FORESTIER <HorlogeSkynet@users.noreply.github.com>
 - Rémi Cardona <remi.cardona@polyconseil.fr>
 - Ryan Ozawa <ryan.ozawa21@gmail.com>
+- Roman Valov <roman.valov@gmail.com>
 - Raphael Gaschignard <raphael@makeleaps.com>
 - Ram Rachum <ram@rachum.com> (cool-RR)
 - Radostin Stoyanov <rst0git@users.noreply.github.com>
@@ -308,6 +319,7 @@ contributors:
 - Mads Kiilerich <mads@kiilerich.com>
 - Maarten ter Huurne <maarten@treewalker.org>
 - Lefteris Karapetsas <lefteris@refu.co>
+- Labib Bin Salam <98468420+Labib-Bin-Salam@users.noreply.github.com>
 - LCD 47 <lcd047@gmail.com>
 - Karl Hill <karlhillx@gmail.com>
 - Jérome Perrin <perrinjerome@gmail.com>
@@ -328,6 +340,7 @@ contributors:
 - Filipe Brandenburger <filbranden@google.com>
 - Fantix King <fantix@uchicago.edu> (UChicago)
 - Eric McDonald <221418+emcd@users.noreply.github.com>
+- Eljees <57435526+Eljees@users.noreply.github.com>
 - Elias Dorneles <eliasdorneles@gmail.com>: minor adjust to config defaults and docs
 - Elazrod56 <thomas.lf5629@gmail.com>
 - Edward K. Ream <edreamleo@gmail.com>
@@ -385,6 +398,7 @@ contributors:
 - glegoux <gilles.legoux@gmail.com>
 - gaurikholkar <f2013002@goa.bits-pilani.ac.in>
 - flyingbot91 <flyingbot91@gmx.com>
+- fly1d <zhanghui121383@gmail.com>
 - fly <fly@users.noreply.github.com>
 - fahhem <fahhem>
 - fadedDexofan <fadedDexofan@gmail.com>
@@ -392,8 +406,10 @@ contributors:
 - danields <danields761@gmail.com>
 - cosven <cosven@users.noreply.github.com>
 - cordis-dev <darius@adroiti.com>
+- chuenchen309 <48723787+chuenchen309@users.noreply.github.com>
 - cherryblossom <31467609+cherryblossom000@users.noreply.github.com>
 - bluesheeptoken <louis.fruleux1@gmail.com>
+- anchor <codeanqiang@gmail.com>
 - anatoly techtonik <techtonik@gmail.com>
 - amelenty <ada.melentyeva@gmail.com>
 - akirchhoff-modular <github-work@kirchhoff.digital>
@@ -412,10 +428,12 @@ contributors:
 - Yannack <yannack@users.noreply.github.com>
 - Yann Dirson <ydirson@free.fr>
 - Yang Yang <y4n9squared@gmail.com>
+- Yang Fan <2022112761@stu.hit.edu.cn>
 - Xi Shen <davidshen84@gmail.com>
 - Winston H <56998716+winstxnhdw@users.noreply.github.com>
 - Will Shanks <wsha@posteo.net>
 - Viorel Știrbu <viorels@gmail.com>: intern-builtin warning.
+- Vijay Biradar <72202814+iam-kira@users.noreply.github.com>
 - VictorT <victor.taix@gmail.com>
 - Victor Jiajunsu <16359131+jiajunsu@users.noreply.github.com>
 - ViRuSTriNiTy <cradle-of-mail@gmx.de>
@@ -451,17 +469,19 @@ contributors:
 - Shehab Sherif <shehabsheriftawfik@gmail.com>
 - Shane Smiskol <shane@smiskol.com>
 - Sebastian Müller <mueller.seb@posteo.de>
+- SeaStar Deng <37767638+DSeaStar@users.noreply.github.com>
 - Sayyed Faisal Ali <80758388+C0DE-SLAYER@users.noreply.github.com>
 - Sasha Bagan <pnlbagan@gmail.com>
 - Sardorbek Imomaliev <sardorbek.imomaliev@gmail.com>
 - Santiago Castro <bryant@montevideo.com.uy>
 - Samuel Freilich <sfreilich@google.com> (sfreilich)
+- Samarth D N <dnsam550@gmail.com>
 - Sam Vermeiren <88253337+PaaEl@users.noreply.github.com>
+- SaharYaz <160133063+SaharYaz@users.noreply.github.com>
 - Ryan McGuire <ryan@enigmacurry.com>
 - Ry4an Brase <ry4an-hg@ry4an.org>
 - Ruro <ruro.ruro@ya.ru>
 - Roshan Shetty <roshan.shetty2816@gmail.com>
-- Roman Valov <roman.valov@gmail.com>
 - Roman Ivanov <me@roivanov.com>
 - Robert Schweizer <robert_schweizer@gmx.de>
 - Reverb Chu <reverbc@users.noreply.github.com>
@@ -472,6 +492,7 @@ contributors:
 - Ranadheer Gorrepati <35244169+ranadheerg@users.noreply.github.com>
 - Ramon Saraiva <ramonsaraiva@gmail.com>
 - Ramiro Leal-Cavazos <ramiroleal050@gmail.com> (ramiro050): Fixed bug preventing pylint from working with Emacs tramp
+- Raiyan Zaman <77029110+rzaman8677@users.noreply.github.com>
 - RSTdefg <34202999+RSTdefg@users.noreply.github.com>
 - R. N. West <98110034+rnwst@users.noreply.github.com>
 - Qwiddle13 <32040075+Qwiddle13@users.noreply.github.com>
@@ -495,6 +516,7 @@ contributors:
 - Nir Soffer <nirsof@gmail.com>
 - Niko Wenselowski <niko@nerdno.de>
 - Nikita Sobolev <mail@sobolevn.me>
+- Nicolas Vuillamy <nicolas.vuillamy@gmail.com>
 - Nick Smith <clickthisnick@users.noreply.github.com>
 - Neowizard <Neowizard@users.noreply.github.com>
 - Ned Batchelder <ned@nedbatchelder.com>
@@ -534,13 +556,14 @@ contributors:
 - Louis Sautier <sautier.louis@gmail.com>
 - Lorena Buciu <46202743+lorena-b@users.noreply.github.com>
 - Logan Miller <14319179+komodo472@users.noreply.github.com>
-- Labib Bin Salam <98468420+Labib-Bin-Salam@users.noreply.github.com>
+- Lancy <297596661+lancy69@users.noreply.github.com>
 - Kári Tristan Helgason <kthelgason@gmail.com>
 - Kurian Benoy <70306694+kurianbenoy-aot@users.noreply.github.com>
 - Krzysztof Czapla <k.czapla68@gmail.com>
 - Kraig Brockschmidt <kraigbr@msn.com>
 - Kound <norman.freudenberg@posteo.de>
 - KotlinIsland <65446343+KotlinIsland@users.noreply.github.com>
+- Kotesh Kumar Yelamati <yelamatikoteshkumar@gmail.com>
 - Kosarchuk Sergey <sergeykosarchuk@gmail.com>
 - Konrad Weihmann <46938494+priv-kweihmann@users.noreply.github.com>
 - Kian Meng, Ang <kianmeng.ang@gmail.com>
@@ -590,6 +613,7 @@ contributors:
 - Harshil <37377066+harshil21@users.noreply.github.com>
 - Harry <harrymcwinters@gmail.com>
 - Gwanbin Park <bgb1028@gmail.com>
+- Guflly <145608489+Guflly@users.noreply.github.com>
 - Grégoire <96051754+gregoire-mullvad@users.noreply.github.com>
 - Grant Welch <gwelch925+github@gmail.com>
 - Giuseppe Valente <gvalente@arista.com>
@@ -599,10 +623,12 @@ contributors:
 - Fabio Natali <me@fabionatali.com>
 - Fabian Damken <fdamken+github@frisp.org>
 - Eric Froemling <ericfroemling@gmail.com>
+- Emre K. <110906681+kocaemre@users.noreply.github.com>
 - Emmanuel Chaudron <manu.chaud@hotmail.fr>
 - Elizabeth Bott <52465744+elizabethbott@users.noreply.github.com>
 - Ekin Dursun <ekindursun@gmail.com>
 - Eisuke Kawashima <e-kwsm@users.noreply.github.com>
+- Edward Rosten <edward.rosten@gmail.com>
 - Edgemaster <grand.edgemaster@gmail.com>
 - Eddie Darling <eddie.darling@genapsys.com>
 - Drew Risinger <drewrisinger@users.noreply.github.com>
@@ -617,6 +643,7 @@ contributors:
 - DetachHead <57028336+DetachHead@users.noreply.github.com>
 - Dennis Keck <26092524+fellhorn@users.noreply.github.com>
 - Denis Laxalde <denis.laxalde@logilab.fr>
+- David Pavlovschii <154081173+davidpavlovschi@users.noreply.github.com>
 - David Lawson <dmrlawson@gmail.com>
 - David Cain <davidjosephcain@gmail.com>
 - Danny Hermes <daniel.j.hermes@gmail.com>
@@ -632,9 +659,13 @@ contributors:
 - Cubicpath <Cubicpath@protonmail.com>
 - Craig Citro <craigcitro@gmail.com>
 - Cosmo <cosmo@cosmo.red>
+- Cohen Karnell <7363269+ckarnell@users.noreply.github.com>
 - Clément Schreiner <clement@mux.me>
 - Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 - Christopher Zurcher <zurcher@users.noreply.github.com>
+- ChrisJr404 <Sintation@gmail.com>
+- Chirag Gupta <103719146+chiruu12@users.noreply.github.com>
+- Chinmay Rawat <88652081+Chinmayrawat15@users.noreply.github.com>
 - ChandanChainani <chandan.chainani@ibm.com>
 - Carl Crowder <bitbucket@carlcrowder.com>: don't evaluate the value of arguments for 'dangerous-default-value'
 - Carey Metcalfe <carey@cmetcalfe.ca>: demoted `try-except-raise` from error to warning
@@ -694,6 +725,7 @@ contributors:
 - Adarsh Kumar <kumaradarsh.cse@gmail.com>
 - Adam Tuft <73994535+adamtuft@users.noreply.github.com>
 - Adam Dangoor <adamdangoor@gmail.com>
+- Abhishek Murthy <nateriver210@gmail.com>
 - 243f6a88 85a308d3 <33170174+243f6a8885a308d313198a2e037@users.noreply.github.com>
 
 
