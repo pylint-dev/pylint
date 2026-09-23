@@ -1,7 +1,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
-# Modified on 2026-09-09 to recognize generated class initializers.
+# Modified on 2026-09-09 to recognize generated class initialization methods.
 
 """Variables checkers for Python code."""
 
@@ -2837,7 +2837,7 @@ class VariablesChecker(BaseChecker):
                     for initializer in node.parent.locals.get("__init__", ())
                 )
             ):
-                # Include generated initializers, which are not children of the class.
+                # Include generated initialization methods stored outside the class body.
                 return
             self._check_unused_arguments(name, node, stmt, argnames, nonlocal_names)
         else:
