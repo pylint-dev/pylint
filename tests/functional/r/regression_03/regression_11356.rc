@@ -1,3 +1,8 @@
 [Messages Control]
 disable=all
 enable=no-member
+
+[testoptions]
+# On PyPy, collections.abc.GenericAlias is a plain class, not builtins.type,
+# so the loop below does not reach the metaclass lookup of ``C``.
+except_implementations=PyPy
