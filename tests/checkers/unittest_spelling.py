@@ -301,6 +301,70 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
+    def test_skip_sphinx_field_markers(self) -> None:
+        """The name, type and argument of a reST field are not prose (#10187)."""
+        stmt = astroid.extract_node(
+            "def func(argname, argname2):\n"
+            '    """Join two things.\n'
+            "\n"
+            "    :arg str argname: The first thing\n"
+            "    :param argname2: The second thing\n"
+            "    :type argname2: str\n"
+            "    :rtype: str\n"
+            "    :raises ValueError: When they do not join\n"
+            '    """\n'
+            "    return argname + argname2"
+        )
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_sphinx_field_description_is_still_checked(self) -> None:
+        """Only the marker is skipped, and the column points into the description."""
+        stmt = astroid.extract_node(
+            "def func(lenght):\n"
+            '    """Do it.\n'
+            "\n"
+            "    :param int lenght: The lenght\n"
+            '    """'
+        )
+        with self.assertAddsMessages(
+            MessageTest(
+                "wrong-spelling-in-docstring",
+                line=4,
+                args=(
+                    "lenght",
+                    "    :param int lenght: The lenght",
+                    "                           ^^^^^^",
+                    self._get_msg_suggestions("lenght"),
+                ),
+            )
+        ):
+            self.checker.visit_functiondef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_sphinx_role_at_line_start_is_not_a_field_marker(self) -> None:
+        stmt = astroid.extract_node(
+            'class ComentAbc(object):\n   """:class:`ComentAbc` has a bad coment"""\n   pass'
+        )
+        with self.assertAddsMessages(
+            MessageTest(
+                "wrong-spelling-in-docstring",
+                line=2,
+                args=(
+                    "coment",
+                    ":class:`ComentAbc` has a bad coment",
+                    "                             ^^^^^^",
+                    self._get_msg_suggestions("coment"),
+                ),
+            )
+        ):
+            self.checker.visit_classdef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
     def test_skip_sphinx_directives_2(self) -> None:
         stmt = astroid.extract_node(
             'class ComentAbc(object):\n   """This is :py:attr:`ComentAbc` with a bad coment"""\n   pass'
