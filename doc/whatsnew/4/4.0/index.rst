@@ -79,6 +79,22 @@ What's new in Pylint 4.0.9?
 Release date: 2026-09-23
 
 
+Security Fixes
+--------------
+
+- Someone without access to the configuration or the linted code, but with write
+  access to the cache directory (a predictable ``PYLINTHOME`` on a multi-user
+  host), can no longer write a crafted pickle that runs arbitrary code when pylint
+  reads its stats cache. The results cache is now stored as JSON instead of
+  pickle, which prevents code execution. If you cannot upgrade, do not point
+  ``PYLINTHOME`` to an untrusted, shared, or group-writable directory. The
+  default, ``~/.cache/pylint`` on Linux, is writable only by the user running
+  pylint. A CVE with the same information is pending.
+
+  Refs #11449 (`#11449 <https://github.com/pylint-dev/pylint/issues/11449>`_)
+
+
+
 False Positives Fixed
 ---------------------
 
