@@ -128,6 +128,10 @@
     "mails": ["6644187+moylop260@users.noreply.github.com", "moylop260@vauxoo.com"],
     "name": "Moisés López"
   },
+  "72524975+ekanshul@users.noreply.github.com": {
+    "mails": ["72524975+ekanshul@users.noreply.github.com"],
+    "name": "Anshul Singh"
+  },
   "74228962+tanvimoharir@users.noreply.github.com": {
     "comment": ": Fix for invalid toml config",
     "mails": ["74228962+tanvimoharir@users.noreply.github.com"],
@@ -141,6 +145,10 @@
   "88253337+PaaEl@users.noreply.github.com": {
     "mails": ["88253337+PaaEl@users.noreply.github.com"],
     "name": "Sam Vermeiren"
+  },
+  "90545043+kdelay@users.noreply.github.com": {
+    "mails": ["90545043+kdelay@users.noreply.github.com", "kdelay20@gmail.com"],
+    "name": "kdelay"
   },
   "95424144+allanc65@users.noreply.github.com": {
     "comment": " (allanc65)\n  * Fixed issue 5452, false positive missing-param-doc for multi-line Google-style params",

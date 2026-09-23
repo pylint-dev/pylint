@@ -12,6 +12,11 @@ wrap = false  # doesn't wrap links correctly if beginning with indentation
 # The table-style definition, although more concise, would be sorted alphabetically.
 # https://github.com/twisted/towncrier/issues/437
 [[tool.towncrier.type]]
+directory = "security"
+name = "Security Fixes"
+showcontent = true
+
+[[tool.towncrier.type]]
 directory = "breaking"
 name = "Breaking Changes"
 showcontent = true
