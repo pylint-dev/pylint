@@ -127,9 +127,17 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 
 
 def _last_token_on_line_is(tokens: TokenWrapper, line_end: int, token: str) -> bool:
-    return (line_end > 0 and tokens.token(line_end - 1) == token) or (
+    # Only an operator token counts. Since PEP 701 (Python 3.12) the text of an
+    # f-string is its own FSTRING_MIDDLE token, so ``f"{b};" \`` ends the line
+    # with a ``;`` that is string content, not a statement terminator.
+    return (
+        line_end > 0
+        and tokens.token(line_end - 1) == token
+        and tokens.type(line_end - 1) == tokenize.OP
+    ) or (
         line_end > 1
         and tokens.token(line_end - 2) == token
+        and tokens.type(line_end - 2) == tokenize.OP
         and tokens.type(line_end - 1) == tokenize.COMMENT
     )
 
