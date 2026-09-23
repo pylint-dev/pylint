@@ -28,5 +28,20 @@ class Format(FormatBase):
     DEFAULT = Payload(formatter=format_date)
 
 
+class AnnotatedFormat(enum.Enum):
+    DEFAULT: Payload = Payload(formatter=format_date)
+
+
+class FormatterMixin:
+    formatter: Callable[[datetime.date], str]
+
+
+class FormatWithMixin(FormatterMixin, enum.Enum):
+    DEFAULT = Payload(formatter=format_date)
+
+
 print(Format.DEFAULT(datetime.date(2026, 9, 13)))
+print(AnnotatedFormat.DEFAULT.formatter(datetime.date(2026, 9, 13)))
+print(FormatWithMixin.DEFAULT.formatter(datetime.date(2026, 9, 13)))
 print(Format.DEFAULT.missing)  # [no-member]
+print(AnnotatedFormat.DEFAULT.missing)  # [no-member]

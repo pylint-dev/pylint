@@ -590,7 +590,7 @@ def _enum_has_attribute(
             try:
                 annotated_owner = next(annotation.infer_call_result(annotation))
                 annotated_owner.getattr(node.attrname)
-            except (InferenceError, StopIteration):
+            except (InferenceError, StopIteration, astroid.AttributeInferenceError):
                 pass
             else:
                 return True
