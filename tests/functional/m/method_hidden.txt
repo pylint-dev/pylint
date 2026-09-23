@@ -1,7 +1,8 @@
-method-hidden:20:4:20:12:Cdef.abcd:An attribute defined in functional.m.method_hidden line 14 hides this method:UNDEFINED
-method-hidden:88:4:88:11:One.one:An attribute defined in functional.m.method_hidden line 86 hides this method:UNDEFINED
-method-hidden:116:4:116:18:Child._protected:An attribute defined in functional.m.method_hidden line 111 hides this method:UNDEFINED
-method-hidden:159:4:159:12:BuiltinNameChild.help:An attribute defined in functional.m.method_hidden line 154 hides this method:UNDEFINED
-method-hidden:162:4:162:14:BuiltinNameChild.format:An attribute defined in functional.m.method_hidden line 155 hides this method:UNDEFINED
-method-hidden:172:4:172:15:BuiltinNameSameClass.license:An attribute defined in functional.m.method_hidden line 170 hides this method:UNDEFINED
-method-hidden:186:4:186:13:ModuleFunctionNameChild.color:An attribute defined in functional.m.method_hidden line 182 hides this method:UNDEFINED
+method-hidden:21:4:21:12:Cdef.abcd:An attribute defined in functional.m.method_hidden line 15 hides this method:UNDEFINED
+method-hidden:89:4:89:11:One.one:An attribute defined in functional.m.method_hidden line 87 hides this method:UNDEFINED
+method-hidden:117:4:117:18:Child._protected:An attribute defined in functional.m.method_hidden line 112 hides this method:UNDEFINED
+method-hidden:160:4:160:12:BuiltinNameChild.help:An attribute defined in functional.m.method_hidden line 155 hides this method:UNDEFINED
+method-hidden:163:4:163:14:BuiltinNameChild.format:An attribute defined in functional.m.method_hidden line 156 hides this method:UNDEFINED
+method-hidden:173:4:173:15:BuiltinNameSameClass.license:An attribute defined in functional.m.method_hidden line 171 hides this method:UNDEFINED
+method-hidden:187:4:187:13:ModuleFunctionNameChild.color:An attribute defined in functional.m.method_hidden line 183 hides this method:UNDEFINED
+method-hidden:211:4:211:12:OverridesInitCallingSuper.func:An attribute defined in functional.m.method_hidden line 193 hides this method:UNDEFINED
