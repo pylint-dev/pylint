@@ -21,6 +21,7 @@ from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.base.basic_error_checker import _loop_exits_early
 from pylint.checkers.utils import node_frame_class
+from pylint.constants import WarningScope
 from pylint.interfaces import HIGH, INFERENCE, Confidence
 
 if TYPE_CHECKING:
@@ -321,6 +322,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "According to PEP479, the raise of StopIteration to end the loop of "
             "a generator may lead to hard to find bugs. This PEP specify that "
             "raise StopIteration has to be replaced by a simple return statement",
+            {"scope": WarningScope.NODE},
         ),
         "R1710": (
             "Either all return statements in a function should return an expression, "

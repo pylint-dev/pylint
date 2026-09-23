@@ -343,6 +343,27 @@ def test_enable_message_block(initialized_linter: PyLinter) -> None:
     assert fs._suppression_mapping["E1101", 110] == 109
 
 
+def test_enable_message_block_sibling_scope(initialized_linter: PyLinter) -> None:
+    """A disable in an ``if`` body must not leak into sibling elif/else blocks.
+
+    Regression test for https://github.com/pylint-dev/pylint/issues/3136.
+    """
+    linter = initialized_linter
+    linter.open()
+    filepath = join(REGRTEST_DATA_DIR, "func_block_disable_msg_scope_3136.py")
+    linter.set_current_module("func_block_disable_msg_scope_3136")
+    astroid = linter.get_ast(filepath, "func_block_disable_msg_scope_3136")
+    linter.file_state = FileState(
+        "func_block_disable_msg_scope_3136", linter.msgs_store, astroid
+    )
+    linter.process_tokens(tokenize_module(astroid))
+    # if-block: disabled by its own pragma (line 12)
+    assert not linter.is_message_enabled("R1708", 13)
+    # elif/else blocks: must still be enabled, the disable does not apply here
+    assert linter.is_message_enabled("R1708", 15)
+    assert linter.is_message_enabled("R1708", 17)
+
+
 def test_enable_by_symbol(initialized_linter: PyLinter) -> None:
     """Messages can be controlled by symbolic names.
 
