@@ -78,6 +78,66 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
+    def test_contextmanager_generator_inference(self) -> None:
+        module = astroid.parse("""
+            import sys
+            from contextlib import contextmanager
+            from io import StringIO
+            from collections.abc import Generator
+
+            @contextmanager
+            def ctx2() -> Generator[StringIO]:
+                sys.stderr = StringIO()
+                yield sys.stderr
+
+            with ctx2() as c2:
+                c2.getvalue()
+            """)
+        node = module.body[-1].body[0].value.func
+        with self.assertNoMessages():
+            self.checker.visit_attribute(node)
+
+        module_no_annotation = astroid.parse("""
+            import sys
+            from contextlib import contextmanager
+            from io import StringIO
+
+            @contextmanager
+            def ctx():
+                sys.stderr = StringIO()
+                yield sys.stderr
+
+            with ctx() as c:
+                c.getvalue()
+            """)
+        node_no_annotation = module_no_annotation.body[-1].body[0].value.func
+        with self.assertNoMessages():
+            self.checker.visit_attribute(node_no_annotation)
+
+    def test_contextmanager_generator_invalid_member(self) -> None:
+        module = astroid.parse("""
+            from contextlib import contextmanager
+            from io import StringIO
+
+            @contextmanager
+            def ctx():
+                yield StringIO()
+
+            with ctx() as c:
+                c.invalid_attr
+            """)
+        node = module.body[-1].body[0].value
+        with self.assertAddsMessages(
+            MessageTest(
+                "no-member",
+                node=node,
+                args=("Instance of", "StringIO", "invalid_attr", ""),
+                confidence=INFERENCE,
+            ),
+            ignore_position=True,
+        ):
+            self.checker.visit_attribute(node)
+
 
 class TestTypeCheckerOnDecorators(CheckerTestCase):
     """Tests for pylint.checkers.typecheck on decorated functions."""
