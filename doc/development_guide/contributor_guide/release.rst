@@ -13,8 +13,9 @@ patch release first. See ``Releasing a patch version``.**
 -  Write the ``Summary -- Release highlights`` in ``doc/whatsnew`` and
    upgrade the release date.
 -  Install the release dependencies:
-   ``pip3 install -r requirements_test.txt``. This pins the exact
-   ``astroid`` version used by the CI (see ``requirements_test_min.txt``).
+   ``pip3 install -e ".[testutils,spelling]" --group test --group dev``
+   (see :ref:`contributor_install`). This pins the exact ``astroid`` version used by the
+   CI (see the ``test-min`` dependency group in ``pyproject.toml``).
    Make sure this pinned version is the one installed before running
    ``tbump``: a different ``astroid`` produces different functional test
    output, which then gets committed into the release and breaks the CI.
@@ -102,8 +103,9 @@ We release patch versions when a crash or a bug is fixed on the main
 branch and has been cherry-picked on the maintenance branch.
 
 -  Install the release dependencies:
-   ``pip3 install -r requirements_test.txt``. This pins the exact
-   ``astroid`` version used by the CI (see ``requirements_test_min.txt``).
+   ``pip3 install -e ".[testutils,spelling]" --group test --group dev``
+   (see :ref:`contributor_install`). This pins the exact ``astroid`` version used by the
+   CI (see the ``test-min`` dependency group in ``pyproject.toml``).
    Make sure this pinned version is the one installed before running
    ``tbump``: a different ``astroid`` produces different functional test
    output, which then gets committed into the release and breaks the CI.

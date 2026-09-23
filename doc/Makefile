@@ -44,4 +44,4 @@ PIP = pip
 .PHONY html: install-dependencies
 install-dependencies:
 	@echo "Install dependencies"
-	cd ../ && $(PIP) install -r doc/requirements.txt
+	cd ../ && $(PIP) install --group docs

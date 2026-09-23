@@ -26,8 +26,10 @@ Clone and set up pylint development environment:
 - `cd pylint` -- enter directory
 - `python3 -m venv venv` -- create virtual environment
 - `source venv/bin/activate` -- activate virtual environment (Linux/Mac)
-- `pip install -r requirements_test_min.txt` -- install test dependencies (~30 seconds)
-- `pip install -e .` -- install pylint in editable mode (~30-60 seconds)
+- `python -m pip install --upgrade pip` -- see
+  `doc/development_guide/contributor_guide/tests/install.rst`
+- `pip install -e ".[testutils,spelling]" --group test-min` -- install pylint in
+  editable mode with its test dependencies (~60 seconds)
 
 ### Optional Setup Steps
 
@@ -190,7 +192,6 @@ script/                   # Development utility scripts
 - `tox.ini` -- Multi-environment testing configuration
 - `.pre-commit-config.yaml` -- Code quality checks configuration
 - `pylintrc` -- Pylint's own configuration
-- `requirements_test_min.txt` -- Minimal test dependencies
 - `.gitignore` do not add the 'venv' inside the .gitignore, don't commit the venv in the
   first place (humans add it to their global gitignore)
 

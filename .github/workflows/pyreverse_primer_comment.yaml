@@ -43,9 +43,8 @@ jobs:
           path: venv
           key: >-
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
-            'requirements_test.txt', 'requirements_test_min.txt',
-            'requirements_test_pre_commit.txt') }}
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml')
+            }}
       - name: Download outputs
         id: download-outputs
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0

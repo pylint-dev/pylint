@@ -6,14 +6,13 @@ sphinx:
   fail_on_warning: true
   configuration: doc/conf.py
 
-python:
-  install:
-    - requirements: doc/readthedoc_requirements.txt
-
 build:
   os: ubuntu-26.04
   tools:
     python: "3.14"
   jobs:
+    install:
+      - python -m pip install --upgrade pip
+      - python -m pip install -e . --group docs
     pre_build:
       - towncrier build --yes --date TBA

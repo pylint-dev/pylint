@@ -34,10 +34,8 @@ classifiers = [
   "Typing :: Typed",
 ]
 dynamic = [ "version" ]
-# All the dependencies of the project will be configured here, once pip fully supports PEP735
-# TODO: Remove all requirements.txt files and use this section instead once pip supports PEP735
 dependencies = [
-  # Also upgrade test-min dependency group and requirements_test_min.txt.
+  # Also upgrade the astroid pin in the test-min dependency group.
   # Pinned to dev of second minor update to allow editable installs and fix primer issues,
   # see https://github.com/pylint-dev/astroid/issues/1341
   "astroid>=4.3.1,<=4.4",
@@ -81,7 +79,7 @@ test = [
   "pytest-cov>=6.2,<8",
   "pytest-xdist~=3.8",
   "six",
-  "tox>=3",
+  "tox>=4.22",
   { include-group = "test-min" },
 ]
 docs = [
@@ -90,13 +88,25 @@ docs = [
   "sphinx-reredirects<1",
   "towncrier>=24.8,<27",
 ]
-# Configuration for the build system
+lint = [
+  # Unpinned on purpose: the versions that matter are the pre-commit hook revs
+  "bandit",
+  "black",
+  "flake8",
+  "flake8-typing-imports",
+  "isort",
+  "mypy",
+  "pre-commit",
+  "pyright",
+  "ruff",
+]
 test-min = [
   # Base test dependencies
   "astroid==4.3.1",                     # Pinned to a specific version for tests
   "py~=1.11.0",
   "pytest>=8.4,<10",
   "pytest-benchmark~=5.1",
+  "pytest-remaster~=0.1.0",
   "pytest-timeout~=2.4",
   "requests",
   "setuptools; python_version>='3.12'",

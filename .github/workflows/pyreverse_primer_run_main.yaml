@@ -11,7 +11,7 @@ on:
       - "tests/primer/pyreverse_primer.py"
       - "tests/primer/test_primer_stdlib.py"
       - "tests/pyreverse/**"
-      - "requirements*"
+      - "pyproject.toml"
       - ".github/workflows/pyreverse_primer*.yaml"
 
 concurrency:
@@ -49,16 +49,15 @@ jobs:
           path: venv
           key: >-
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
-            'requirements_test.txt', 'requirements_test_min.txt',
-            'requirements_test_pre_commit.txt') }}
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml')
+            }}
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
           python -m venv venv
           . venv/bin/activate
           python -m pip install --upgrade pip
-          pip install --upgrade --requirement requirements_test.txt
+          pip install --upgrade ".[testutils,spelling]" --group test --group dev
       - name: Save Python virtual environment to cache
         if: steps.cache-venv.outputs.cache-hit != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -66,9 +65,8 @@ jobs:
           path: venv
           key: >-
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
-            'requirements_test.txt', 'requirements_test_min.txt',
-            'requirements_test_pre_commit.txt') }}
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml')
+            }}
       - name: Get commit string
         id: commitstring
         run: |

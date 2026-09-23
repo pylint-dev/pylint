@@ -9,7 +9,7 @@ on:
     paths:
       - "pylint/**"
       - "tests/primer/**"
-      - "requirements*"
+      - "pyproject.toml"
       - ".github/workflows/**"
       # We ignore these specific files because they need to be changed
       # on 'main' and will always fail the PR run.
@@ -63,9 +63,8 @@ jobs:
           path: venv
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
-            'requirements_test.txt', 'requirements_test_min.txt',
-            'requirements_test_pre_commit.txt') }}
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml')
+            }}
       # Create environment must match step in 'Primer / Main'
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
@@ -73,7 +72,7 @@ jobs:
           python -m venv venv
           . venv/bin/activate
           python -m pip install --upgrade pip
-          pip install --upgrade --requirement requirements_test.txt
+          pip install --upgrade ".[testutils,spelling]" --group test --group dev
       # Save cached Python environment (explicit because cancel-in-progress: true)
       - name: Save Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
@@ -82,9 +81,8 @@ jobs:
           path: venv
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
-            'requirements_test.txt', 'requirements_test_min.txt',
-            'requirements_test_pre_commit.txt') }}
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml')
+            }}
       # The cached venv contains the pylint that was installed when the cache was
       # created, which can be stale or even broken if it was created on an earlier
       # (force-pushed away) commit of this PR. Reinstall from the current checkout
