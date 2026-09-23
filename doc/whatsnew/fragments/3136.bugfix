@@ -1,0 +1,6 @@
+Fix a block-scoped ``# pylint: disable=`` directive placed inside an ``if``
+body leaking into sibling ``elif``/``else`` blocks for messages such as
+``stop-iteration-return``, which default to a line-based (rather than
+node-based) message scope.
+
+Closes #3136
