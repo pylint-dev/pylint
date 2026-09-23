@@ -1,5 +1,0 @@
-``method-hidden`` is no longer silenced when the hidden method shares its name with
-a builtin function or with a function defined at module level. Only members of the
-ancestor classes themselves can excuse the method now.
-
-Refs #11361
