@@ -57,7 +57,7 @@ hint of what Pylint is going to ``pick on``: ::
     further processing.
 
 When Pylint is first run on a fresh piece of code, a common complaint is that it
-is too ``noisy``.  The default configuration enforce a lot of warnings.
+is too ``noisy``.  The default configuration enforces a lot of warnings.
 We'll use some of the options we noted above to make it suit your
 preferences a bit better.
 
