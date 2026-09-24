@@ -263,11 +263,24 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 }
 
 
-def _handle_force_color_no_color(
-    original_reporters: Sequence[BaseReporter],
-) -> list[reporters.BaseReporter]:
+def _read_color_env() -> tuple[bool, bool]:
+    """Return whether ``NO_COLOR`` and ``FORCE_COLOR`` are set and non-empty.
+
+    ``NO_COLOR`` wins when both are set.
     """
-    Check ``NO_COLOR`` and ``FORCE_COLOR``, and return the modified reporter list.
+    no_color = _is_env_set_and_non_empty(NO_COLOR)
+    force_color = _is_env_set_and_non_empty(FORCE_COLOR)
+    if no_color and force_color:
+        warnings.warn(WARN_BOTH_COLOR_SET, ReporterWarning, stacklevel=3)
+        force_color = False
+    return no_color, force_color
+
+
+def _handle_force_color_no_color(
+    reporter: BaseReporter, *, no_color: bool, force_color: bool
+) -> BaseReporter:
+    """Swap a reporter that writes to stdout according to ``NO_COLOR`` and
+    ``FORCE_COLOR``.
 
     Rules are presented in this table:
     +--------------+---------------+-----------------+------------------------------------------------------------+
@@ -283,49 +296,15 @@ def _handle_force_color_no_color(
     | unset        | unset         | /               | not colorized                                              |
     +--------------+---------------+-----------------+------------------------------------------------------------+
     """
-    no_color = _is_env_set_and_non_empty(NO_COLOR)
-    force_color = _is_env_set_and_non_empty(FORCE_COLOR)
-
-    if no_color and force_color:
-        warnings.warn(
-            WARN_BOTH_COLOR_SET,
-            ReporterWarning,
-            stacklevel=2,
-        )
-        force_color = False
-
-    final_reporters: list[BaseReporter] = []
-
-    for rep in original_reporters:
-        if (
-            no_color
-            and isinstance(rep, ColorizedTextReporter)
-            and rep.out.buffer is sys.stdout.buffer
-        ):
-            warnings.warn(
-                WARN_NO_COLOR_SET,
-                ReporterWarning,
-                stacklevel=2,
-            )
-            final_reporters.append(TextReporter())
-
-        elif (
-            force_color
-            # Need type explicit check here
-            and type(rep) is TextReporter  # pylint: disable=unidiomatic-typecheck
-            and rep.out.buffer is sys.stdout.buffer
-        ):
-            warnings.warn(
-                WARN_FORCE_COLOR_SET,
-                ReporterWarning,
-                stacklevel=2,
-            )
-            final_reporters.append(ColorizedTextReporter())
-
-        else:
-            final_reporters.append(rep)
-
-    return final_reporters
+    if no_color and isinstance(reporter, ColorizedTextReporter):
+        warnings.warn(WARN_NO_COLOR_SET, ReporterWarning, stacklevel=3)
+        return TextReporter()
+    # Subclasses of TextReporter (parseable, msvs) have their own format to keep
+    # pylint: disable-next=unidiomatic-typecheck
+    if force_color and type(reporter) is TextReporter:
+        warnings.warn(WARN_FORCE_COLOR_SET, ReporterWarning, stacklevel=3)
+        return ColorizedTextReporter()
+    return reporter
 
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
@@ -387,6 +366,8 @@ class PyLinter(
             self.set_reporter(reporter)
         else:
             self.set_reporter(TextReporter())
+        self._color_env: tuple[bool, bool] = (False, False)
+        """``NO_COLOR`` and ``FORCE_COLOR`` for the stdout reporter, set by ``Run``."""
         self._reporters: dict[str, type[reporters.BaseReporter]] = {}
         """Dictionary of possible but non-initialized reporters."""
 
@@ -514,23 +495,27 @@ class PyLinter(
             return
         sub_reporters = []
         output_files = []
+        no_color, force_color = self._color_env
         with contextlib.ExitStack() as stack:
             for reporter_name in reporter_names.split(","):
                 reporter_name, *reporter_output = reporter_name.split(":", 1)
 
                 reporter = self._load_reporter_by_name(reporter_name)
-                sub_reporters.append(reporter)
                 if reporter_output:
                     output_file = stack.enter_context(
                         open(reporter_output[0], "w", encoding="utf-8")
                     )
                     reporter.out = output_file
                     output_files.append(output_file)
+                else:
+                    # Only the reporter writing to stdout follows the environment
+                    reporter = _handle_force_color_no_color(
+                        reporter, no_color=no_color, force_color=force_color
+                    )
+                sub_reporters.append(reporter)
 
             # Extend the lifetime of all opened output files
             close_output_files = stack.pop_all().close
-
-        sub_reporters = _handle_force_color_no_color(sub_reporters)
 
         if len(sub_reporters) > 1 or output_files:
             self.set_reporter(

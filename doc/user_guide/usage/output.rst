@@ -31,16 +31,37 @@ a colorized report to stdout at the same time:
 
 Environment Variables
 ''''''''''''''''''''''''''''
-The colorization of the output can also be controlled through environment
-variables. The precedence for determining output format is as follows:
+The colorization of the report written to stdout can also be controlled through
+environment variables. Reports written to a file are never changed. The
+precedence for determining the output format is as follows:
 
-1. ``NO_COLOR``
-2. ``FORCE_COLOR``
+1. :envvar:`NO_COLOR`
+2. :envvar:`FORCE_COLOR`
 3. ``--output-format=...``
 
-Setting ``NO_COLOR`` (to any non-empty value) will disable colorized output,
-while ``FORCE_COLOR`` (to any non-empty value) will enable it, overriding the
-``--output-format`` option if specified.
+.. envvar:: NO_COLOR
+
+   When set to any non-empty value, a ``colorized`` report on stdout is
+   replaced by a ``text`` report. This removes every ANSI decoration, not
+   only the colors: bold, underline and inverse text are gone too.
+   See https://no-color.org.
+
+.. envvar:: FORCE_COLOR
+
+   When set to any non-empty value, a ``text`` report on stdout is replaced
+   by a ``colorized`` report, with all its decorations. Other text-based
+   formats such as ``parseable`` or ``msvs`` are kept as they are.
+   It is ignored when :envvar:`NO_COLOR` is also set.
+   See https://force-color.org.
+
+Pylint emits a warning when one of these variables overrides the
+``--output-format`` option, or when both are set.
+
+For example, to get a plain report even if ``colorized`` is in your
+configuration:
+::
+
+  NO_COLOR=1 pylint --output-format=colorized my_garden.py
 
 
 Custom message formats

@@ -2,33 +2,38 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
+# pylint: disable=redefined-outer-name,unidiomatic-typecheck
+
 from __future__ import annotations
 
-import io
 import os
-import sys
 from pathlib import Path
-from typing import Any, NamedTuple, NoReturn
+from typing import Any, NoReturn
 from unittest import mock
 from unittest.mock import patch
 
 import pytest
 from pytest import CaptureFixture
 
+from pylint import reporters
 from pylint.lint.pylinter import (
     FORCE_COLOR,
     MANAGER,
     NO_COLOR,
     WARN_BOTH_COLOR_SET,
+    WARN_FORCE_COLOR_SET,
+    WARN_NO_COLOR_SET,
     PyLinter,
-    _handle_force_color_no_color,
+    _read_color_env,
 )
-from pylint.reporters.text import ColorizedTextReporter, TextReporter
+from pylint.lint.run import Run
+from pylint.reporters import MultiReporter, ReporterWarning
+from pylint.reporters.text import (
+    ColorizedTextReporter,
+    ParseableTextReporter,
+    TextReporter,
+)
 from pylint.utils import FileState
-
-COLORIZED_REPORTERS = "colorized_reporters"
-TEXT_REPORTERS = "text_reporters"
-STDOUT_TEXT = "stdout"
 
 
 def raise_exception(*args: Any, **kwargs: Any) -> NoReturn:
@@ -87,99 +92,178 @@ def test_open_pylinter_prefer_stubs(linter: PyLinter) -> None:
         MANAGER.prefer_stubs = False
 
 
-class ReportersCombo(NamedTuple):
-    text_reporters: tuple[str, ...]
-    colorized_reporters: tuple[str, ...]
+@pytest.fixture
+def color_linter() -> PyLinter:
+    """A linter with the default reporters registered."""
+    linter = PyLinter()
+    reporters.initialize(linter)
+    return linter
 
 
-test_handle_force_color_no_color_reporters = (
-    ReportersCombo(("file", "stdout"), ()),
-    ReportersCombo(("file",), ("stdout",)),
-    ReportersCombo(("file",), ()),
-    ReportersCombo(("stdout",), ("file",)),
-    ReportersCombo(("stdout",), ()),
-    ReportersCombo((), ("file", "stdout")),
-    ReportersCombo((), ("file",)),
-    ReportersCombo((), ("stdout",)),
-)
+def _load_reporters(linter: PyLinter, reporter_names: str) -> None:
+    """Load reporters the way ``Run`` does, reading the color variables first."""
+    linter._color_env = _read_color_env()
+    linter._load_reporters(reporter_names)
 
 
-@pytest.mark.parametrize(
-    "no_color",
-    [True, False],
-    ids=lambda no_color: f"{no_color=}",
-)
-@pytest.mark.parametrize(
-    "force_color",
-    [True, False],
-    ids=lambda force_color: f"{force_color=}",
-)
-@pytest.mark.parametrize(
-    "text_reporters, colorized_reporters",
-    test_handle_force_color_no_color_reporters,
-    ids=repr,
-)
-def test_handle_force_color_no_color(
-    monkeypatch: pytest.MonkeyPatch,
-    recwarn: pytest.WarningsRecorder,
-    no_color: bool,
-    force_color: bool,
-    text_reporters: tuple[str],
-    colorized_reporters: tuple[str],
+def test_no_color_disables_colorized_on_stdout(
+    color_linter: PyLinter, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv(NO_COLOR, "1" if no_color else "")
-    monkeypatch.setenv(FORCE_COLOR, "1" if force_color else "")
+    monkeypatch.setenv(NO_COLOR, "1")
+    with pytest.warns(ReporterWarning, match=WARN_NO_COLOR_SET):
+        _load_reporters(color_linter, "colorized")
+    assert type(color_linter.reporter) is TextReporter
 
-    if STDOUT_TEXT in text_reporters or STDOUT_TEXT in colorized_reporters:
-        monkeypatch.setattr(sys, STDOUT_TEXT, io.TextIOWrapper(io.BytesIO()))
 
-    reporters = []
-    for reporter, group in (
-        (TextReporter, text_reporters),
-        (ColorizedTextReporter, colorized_reporters),
-    ):
-        for name in group:
-            if name == STDOUT_TEXT:
-                reporters.append(reporter())
-            if name == "file":
-                reporters.append(reporter(io.TextIOWrapper(io.BytesIO())))
+def test_no_color_keeps_text_on_stdout(
+    color_linter: PyLinter, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv(NO_COLOR, "1")
+    _load_reporters(color_linter, "text")
+    assert type(color_linter.reporter) is TextReporter
 
-    _handle_force_color_no_color(reporters)
 
-    if no_color and force_color:
-        # Both NO_COLOR and FORCE_COLOR are set; expecting a warning.
-        both_color_warning = [
-            idx
-            for idx, w in enumerate(recwarn.list)
-            if WARN_BOTH_COLOR_SET in str(w.message)
+def test_force_color_enables_colorized_on_stdout(
+    color_linter: PyLinter, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv(FORCE_COLOR, "1")
+    with pytest.warns(ReporterWarning, match=WARN_FORCE_COLOR_SET):
+        _load_reporters(color_linter, "text")
+    assert type(color_linter.reporter) is ColorizedTextReporter
+
+
+def test_force_color_keeps_colorized_on_stdout(
+    color_linter: PyLinter, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv(FORCE_COLOR, "1")
+    _load_reporters(color_linter, "colorized")
+    assert type(color_linter.reporter) is ColorizedTextReporter
+
+
+def test_force_color_keeps_other_text_formats(
+    color_linter: PyLinter, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv(FORCE_COLOR, "1")
+    with pytest.warns(DeprecationWarning, match="parseable output format"):
+        _load_reporters(color_linter, "parseable")
+    assert type(color_linter.reporter) is ParseableTextReporter
+
+
+def test_no_color_wins_over_force_color(
+    color_linter: PyLinter, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv(NO_COLOR, "1")
+    monkeypatch.setenv(FORCE_COLOR, "1")
+    with pytest.warns(ReporterWarning) as record:
+        _load_reporters(color_linter, "colorized")
+    assert [str(w.message) for w in record] == [
+        WARN_BOTH_COLOR_SET,
+        WARN_NO_COLOR_SET,
+    ]
+    assert type(color_linter.reporter) is TextReporter
+
+
+def test_empty_color_variables_are_ignored(
+    color_linter: PyLinter, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv(NO_COLOR, "")
+    monkeypatch.setenv(FORCE_COLOR, "")
+    _load_reporters(color_linter, "colorized")
+    assert type(color_linter.reporter) is ColorizedTextReporter
+    _load_reporters(color_linter, "text")
+    assert type(color_linter.reporter) is TextReporter
+
+
+@pytest.mark.parametrize("env_var", [NO_COLOR, FORCE_COLOR])
+def test_color_variables_ignore_reporters_writing_to_a_file(
+    color_linter: PyLinter,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    env_var: str,
+) -> None:
+    monkeypatch.setenv(env_var, "1")
+    _load_reporters(
+        color_linter,
+        f"colorized:{tmp_path / 'colorized.txt'},text:{tmp_path / 'text.txt'}",
+    )
+    assert isinstance(color_linter.reporter, MultiReporter)
+    try:
+        assert [type(r) for r in color_linter.reporter._sub_reporters] == [
+            ColorizedTextReporter,
+            TextReporter,
         ]
-        assert len(both_color_warning) == 1
-        recwarn.list.pop(both_color_warning[0])
+    finally:
+        color_linter.reporter.close_output_files()
 
-    if no_color:
-        # No ColorizedTextReporter expected to be connected to stdout.
-        assert all(
-            not isinstance(rep, ColorizedTextReporter)
-            for rep in reporters
-            if rep.out.buffer is sys.stdout.buffer
+
+def test_color_variables_only_change_the_stdout_reporter(
+    color_linter: PyLinter, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setenv(NO_COLOR, "1")
+    with pytest.warns(ReporterWarning, match=WARN_NO_COLOR_SET):
+        _load_reporters(
+            color_linter, f"colorized:{tmp_path / 'colorized.txt'},colorized"
         )
+    assert isinstance(color_linter.reporter, MultiReporter)
+    try:
+        assert [type(r) for r in color_linter.reporter._sub_reporters] == [
+            ColorizedTextReporter,
+            TextReporter,
+        ]
+    finally:
+        color_linter.reporter.close_output_files()
 
-        if STDOUT_TEXT in colorized_reporters:
-            assert len(recwarn.list) == 1  # expect a warning for overriding stdout
-        else:
-            assert len(recwarn.list) == 0  # no warning expected
-    elif force_color:
-        # No TextReporter expected to be connected to stdout.
-        # pylint: disable=unidiomatic-typecheck # Want explicit type check.
-        assert all(
-            type(rep) is not TextReporter
-            for rep in reporters
-            if rep.out.buffer is sys.stdout.buffer
-        )
 
-        if STDOUT_TEXT in text_reporters:
-            assert len(recwarn.list) == 1  # expect a warning for overriding stdout
-        else:
-            assert len(recwarn.list) == 0  # no warning expected
-    else:
-        assert len(recwarn.list) == 0  # no warning expected
+def test_pylinter_api_ignores_color_variables(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv(FORCE_COLOR, "1")
+    linter = PyLinter()
+    reporters.initialize(linter)
+    linter._load_reporters("text")
+    assert type(linter.reporter) is TextReporter
+
+
+@pytest.fixture
+def unused_import_args(tmp_path: Path) -> list[str]:
+    module = tmp_path / "unused.py"
+    module.write_text("import os\n", encoding="utf-8")
+    return [str(module), "--rcfile=/dev/null", "--disable=all", "--enable=W0611"]
+
+
+def test_run_force_color_colorizes_the_default_reporter(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: CaptureFixture[str],
+    unused_import_args: list[str],
+) -> None:
+    monkeypatch.setenv(FORCE_COLOR, "1")
+    with pytest.warns(ReporterWarning, match=WARN_FORCE_COLOR_SET):
+        run = Run(unused_import_args, exit=False)
+    assert type(run.linter.reporter) is ColorizedTextReporter
+    assert "\x1b[" in capsys.readouterr().out
+
+
+def test_run_color_variables_ignore_output_file(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: CaptureFixture[str],
+    unused_import_args: list[str],
+) -> None:
+    monkeypatch.setenv(FORCE_COLOR, "1")
+    output = tmp_path / "report.txt"
+    run = Run([*unused_import_args, f"--output={output}"], exit=False)
+    assert type(run.linter.reporter) is TextReporter
+    report = output.read_text(encoding="utf-8")
+    assert "unused-import" in report
+    assert "\x1b[" not in report
+    assert capsys.readouterr().out == ""
+
+
+def test_run_color_variables_ignore_given_reporter(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: CaptureFixture[str],
+    unused_import_args: list[str],
+) -> None:
+    monkeypatch.setenv(FORCE_COLOR, "1")
+    reporter = TextReporter()
+    run = Run(unused_import_args, reporter=reporter, exit=False)
+    assert run.linter.reporter is reporter
+    assert "\x1b[" not in capsys.readouterr().out
