@@ -743,10 +743,8 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             )
 
     def _check_for_preexec_fn_in_popen(self, node: nodes.Call) -> None:
-        if node.keywords:
-            for keyword in node.keywords:
-                if keyword.arg == "preexec_fn":
-                    self.add_message("subprocess-popen-preexec-fn", node=node)
+        if utils.find_call_argument(node, keyword="preexec_fn").value is not None:
+            self.add_message("subprocess-popen-preexec-fn", node=node)
 
     def _check_for_check_kw_in_run(self, node: nodes.Call) -> None:
         if utils.find_call_argument(node, keyword="check").is_absent:
