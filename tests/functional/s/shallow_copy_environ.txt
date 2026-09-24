@@ -3,6 +3,7 @@ shallow-copy-environ:17:0:17:18::Using copy.copy(os.environ). Use os.environ.cop
 no-value-for-parameter:32:0:32:11::No value for argument 'x' in function call:UNDEFINED
 shallow-copy-environ:34:0:34:23::Using copy.copy(os.environ). Use os.environ.copy() instead.:HIGH
 shallow-copy-environ:35:0:35:30::Using copy.copy(os.environ). Use os.environ.copy() instead.:INFERENCE
+no-value-for-parameter:36:0:36:30::No value for argument 'x' in function call:UNDEFINED
 unexpected-keyword-arg:36:0:36:30::Unexpected keyword argument 'y' in function call:UNDEFINED
 no-value-for-parameter:37:0:37:23::No value for argument 'x' in function call:UNDEFINED
 unexpected-keyword-arg:37:0:37:23::Unexpected keyword argument 'y' in function call:UNDEFINED
