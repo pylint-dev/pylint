@@ -226,7 +226,10 @@ def test_pylinter_api_ignores_color_variables(monkeypatch: pytest.MonkeyPatch) -
 def unused_import_args(tmp_path: Path) -> list[str]:
     module = tmp_path / "unused.py"
     module.write_text("import os\n", encoding="utf-8")
-    return [str(module), "--rcfile=/dev/null", "--disable=all", "--enable=W0611"]
+    # An empty rcfile instead of /dev/null, which does not exist on Windows
+    rcfile = tmp_path / "pylintrc"
+    rcfile.write_text("", encoding="utf-8")
+    return [str(module), f"--rcfile={rcfile}", "--disable=all", "--enable=W0611"]
 
 
 def test_run_force_color_colorizes_the_default_reporter(
