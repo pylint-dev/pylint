@@ -130,7 +130,7 @@ class TestClassWithOnlyNew:
         return object.__new__(cls)
 
 
-# Modified on 2026-09-09: cover generated dataclass initializers (issue #9843).
+# Regression tests for generated dataclass initializers (#9843).
 from dataclasses import dataclass
 
 
