@@ -307,7 +307,7 @@ def _handle_force_color_no_color(
     if no_color and isinstance(reporter, ColorizedTextReporter):
         warnings.warn(WARN_NO_COLOR_SET, ReporterWarning, stacklevel=3)
         return TextReporter()
-    # Subclasses of TextReporter (parseable, msvs) have their own format to keep
+    # Subclasses of TextReporter (parseable, Visual Studio) keep their own format
     # pylint: disable-next=unidiomatic-typecheck
     if force_color and type(reporter) is TextReporter:
         if explicit_format:
