@@ -2272,14 +2272,30 @@ a metaclass class method.",
                     # it's defined, it's accessed after the initial assignment
                     frame = defstmt.frame()
                     lno = defstmt.fromlineno
+                    accesses = list(nodes_lst)
                     for _node in nodes_lst:
+                        accessed_frame = _node.frame()
+                        if frame.name == "__init__" and isinstance(
+                            accessed_frame, nodes.FunctionDef
+                        ):
+                            accesses.extend(
+                                access
+                                for access in accessed.get(accessed_frame.name, [])
+                                if isinstance(access, nodes.Attribute)
+                                and isinstance(access.parent, nodes.Call)
+                                and access.parent.func is access
+                            )
+                    reported_nodes: set[_AccessNodes] = set()
+                    for _node in accesses:
                         if (
                             _node.frame() is frame
                             and _node.fromlineno < lno
+                            and _node not in reported_nodes
                             and not astroid.are_exclusive(
                                 _node.statement(), defstmt, excs
                             )
                         ):
+                            reported_nodes.add(_node)
                             self.add_message(
                                 "access-member-before-definition",
                                 node=_node,

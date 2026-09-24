@@ -1,0 +1,4 @@
+``access-member-before-definition`` is now emitted when a method accesses an
+attribute before it is defined by the calling method.
+
+Closes #11338

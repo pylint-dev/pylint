@@ -57,3 +57,57 @@ class AnnotatedAssignmentIsADefinition:
     def process(self):
         _ = self.widget  # [access-member-before-definition]
         self.widget: int = 5
+
+
+class AccessInCalledMethod:
+    def __init__(self, other):
+        str()
+        other.use_later()
+
+        def nested():
+            self.use_later()
+
+        self.use_later()  # [access-member-before-definition]
+        self.later = 1
+        nested()
+
+    def use_later(self):
+        return self.later + self.later
+
+
+class DefinedBeforeCalledMethod:
+    def __init__(self):
+        self.defined = 1
+        self.use_defined()
+
+    def use_defined(self):
+        return self.defined
+
+
+class AccessInLambda:
+    def __init__(self):
+        self.callback = lambda: self.later
+        self.later = 1
+
+
+class MethodReferenceIsNotCalled:
+    def __init__(self):
+        _ = self.use_later
+        self.later = 1
+
+    def use_later(self):
+        return self.later
+
+
+class StreamBase:
+    def body(self):
+        self.read()
+        self._stream = object()
+
+    def read(self):
+        return self._stream
+
+
+class StreamRequest(StreamBase):
+    def __init__(self):
+        self._stream = object()
