@@ -110,7 +110,7 @@ class FunctionalTestFile:
         output_options = [
             (int(version[0]), int(version[1:]))
             for s in files
-            if (version := s.rpartition(".")[2]).isalnum()
+            if (version := s.rpartition(".")[2]).isdigit()
         ]
         for opt in sorted(output_options, reverse=True):
             if _CURRENT_VERSION >= opt:

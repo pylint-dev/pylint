@@ -92,6 +92,12 @@ Second ``<test-file-name>.txt``, this will be the default for all other Python v
     This does only work if the code itself is parsable in all tested Python versions.
     For new syntax, use ``min_pyver`` / ``max_pyver`` instead.
 
+When the output only differs on PyPy, for example the column of a syntax error, add a
+``<test-file-name>.pypy.txt`` next to ``<test-file-name>.txt`` instead of excluding
+the test with ``except_implementations``. It combines with a version file:
+``<test-file-name>.314.pypy.txt`` is PyPy on ``>=3.14``. Running the test with
+``--remaster`` on PyPy rewrites the ``.pypy.txt`` file it compared against.
+
 **Functional test file locations**
 
 For existing checkers, new test cases should preferably be appended to the existing test file.

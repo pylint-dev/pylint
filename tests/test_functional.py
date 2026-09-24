@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import platform
 from collections.abc import Iterator
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -67,5 +68,10 @@ def test_functional(
         actual_output = lint_test.check_messages()
 
     golden_master.check(
-        lint_test.serialize_output(actual_output), test_file.expected_output
+        lint_test.serialize_output(actual_output),
+        test_file.expected_output,
+        # The version override (``<test>.312.txt``) is picked above, since it
+        # applies to every later version too. An output that differs on one
+        # implementation goes in ``<test>.pypy.txt`` or ``<test>.312.pypy.txt``.
+        dimensions={"implementation": platform.python_implementation().lower()},
     )
