@@ -1,0 +1,5 @@
+:ref:`subprocess-popen-preexec-fn`, :ref:`invalid-envvar-value` and
+:ref:`invalid-envvar-default` are now emitted when the argument is passed through
+``**`` unpacking of a dict, as in ``subprocess.Popen(cmd, **{"preexec_fn": work})``.
+
+Refs #11458

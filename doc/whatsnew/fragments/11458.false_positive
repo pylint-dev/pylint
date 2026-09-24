@@ -1,0 +1,6 @@
+:ref:`unspecified-encoding`, :ref:`subprocess-run-check` and
+:ref:`bad-thread-instantiation` are no longer emitted when the argument they look
+for may be passed through ``**`` unpacking, as in ``open(path, **options)``, or is
+passed in a ``**`` dict literal, as in ``subprocess.run(cmd, **{"check": True})``.
+
+Refs #11458
