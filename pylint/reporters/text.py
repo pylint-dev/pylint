@@ -233,7 +233,10 @@ class ColorizedTextReporter(TextReporter):
                 # pylint: disable=import-outside-toplevel
                 import colorama
 
-                self.out = colorama.AnsiToWin32(self.out)
+                # ``colorama`` strips the escape codes when the output is not a
+                # terminal (a CI log), which is what FORCE_COLOR asks to keep
+                strip = False if os.environ.get("FORCE_COLOR") else None
+                self.out = colorama.AnsiToWin32(self.out, strip=strip)
 
     def _get_decoration(self, msg_id: str) -> MessageStyle:
         """Returns the message style as defined in self.color_mapping."""

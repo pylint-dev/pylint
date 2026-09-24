@@ -6,7 +6,9 @@
 
 from __future__ import annotations
 
+import io
 import os
+import sys
 from pathlib import Path
 from typing import Any, NoReturn
 from unittest import mock
@@ -226,7 +228,7 @@ def test_pylinter_api_ignores_color_variables(monkeypatch: pytest.MonkeyPatch) -
 def unused_import_args(tmp_path: Path) -> list[str]:
     module = tmp_path / "unused.py"
     module.write_text("import os\n", encoding="utf-8")
-    # An empty rcfile instead of /dev/null, which does not exist on Windows
+    # An empty rcfile, as the Unix null device does not exist on Windows
     rcfile = tmp_path / "pylintrc"
     rcfile.write_text("", encoding="utf-8")
     return [str(module), f"--rcfile={rcfile}", "--disable=all", "--enable=W0611"]
@@ -282,3 +284,22 @@ def test_run_color_variables_ignore_given_reporter(
     run = Run(unused_import_args, reporter=reporter, exit=False)
     assert run.linter.reporter is reporter
     assert "\x1b[" not in capsys.readouterr().out
+
+
+@pytest.mark.parametrize(
+    "force_color, expected",
+    [("1", "\x1b[31mapple\x1b[0m"), ("", "apple")],
+    ids=["force_color", "no_force_color"],
+)
+def test_force_color_keeps_escape_codes_through_colorama(
+    monkeypatch: pytest.MonkeyPatch, force_color: str, expected: str
+) -> None:
+    """On Windows ``colorama`` strips escape codes written to a pipe, unless forced."""
+    pytest.importorskip("colorama")
+    monkeypatch.setattr(sys, "platform", "win32")
+    monkeypatch.delenv("TERM", raising=False)
+    monkeypatch.setenv(FORCE_COLOR, force_color)
+    output = io.StringIO()
+    reporter = ColorizedTextReporter(output)
+    reporter.out.write("\x1b[31mapple\x1b[0m")
+    assert output.getvalue() == expected

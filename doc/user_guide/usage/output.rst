@@ -49,7 +49,8 @@ precedence for determining the output format is as follows:
 .. envvar:: FORCE_COLOR
 
    When set to any non-empty value, a ``text`` report on stdout is replaced
-   by a ``colorized`` report, with all its decorations. Other text-based
+   by a ``colorized`` report, with all its decorations, even when stdout is
+   not a terminal (on Windows too). Other text-based
    formats such as ``parseable`` or ``msvs`` are kept as they are.
    It is ignored when :envvar:`NO_COLOR` is also set.
    See https://force-color.org.
