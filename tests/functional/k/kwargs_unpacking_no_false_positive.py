@@ -8,7 +8,7 @@ https://github.com/pylint-dev/pylint/pull/11002 against open-source code.
 They share a single shape: a callable with required parameters is invoked
 with ``**something``, and ``something`` is populated dynamically (forwarded
 ``**kwargs``, ``dict.update``, ``setdefault``, a loop, constant-keyed
-assignment, or an opaque external source). None of the calls below should
+assignment, or an opaque external source). None of these calls should
 emit ``no-value-for-parameter``.
 
 Each FP block is paired with a sibling call that exposes a genuinely
@@ -126,9 +126,42 @@ def opaque_options() -> dict[str, Any]:
 def via_opaque_dict() -> Point:
     options = opaque_options()
     options.pop("ignored")
+    # False positive unrelated to #8785: astroid does not model ``pop()``.
     return Point(**options)  # [unexpected-keyword-arg]
 
 
 # Paired violation: a direct call to ``needs_two`` missing ``b`` is still
 # caught.
 needs_two(a=1)  # [no-value-for-parameter]
+
+
+# 7. A dict literal is only trusted when every key is visible to pylint.
+OTHER = {"b": 2}
+
+
+def literal_with_known_unpack() -> int:
+    return needs_two(**{"a": 1, **OTHER})
+
+
+def literal_with_opaque_unpack(other: dict[str, int]) -> int:
+    return needs_two(**{"a": 1, **other})
+
+
+def literal_with_variable_key(key: str) -> int:
+    return needs_two(**{"a": 1, key: 2})
+
+
+def dict_comprehension(keys: list[str]) -> int:
+    return needs_two(**{key: 1 for key in keys})
+
+
+def literal_and_opaque(extra: dict[str, int]) -> int:
+    return needs_two(**{"a": 1}, **extra)
+
+
+def literal_and_forwarded(**kwargs: Any) -> int:
+    return needs_two(**{"a": 1}, **kwargs)
+
+
+def literal_and_unused_kwargs(**kwargs: Any) -> int:
+    return needs_two(**{"a": 1})  # [no-value-for-parameter]
