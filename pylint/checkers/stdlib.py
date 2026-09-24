@@ -965,21 +965,17 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         self, node: nodes.Call, open_module: str, func_name: str
     ) -> None:
         """Various checks for an open call."""
-        mode_arg = None
-        confidence = HIGH
-        try:
-            if open_module == "_io":
-                mode_arg = utils.get_argument_from_call(
-                    node, position=1, keyword="mode"
-                )
-            elif open_module in PATHLIB_MODULE:
-                mode_arg = utils.get_argument_from_call(
-                    node, position=0, keyword="mode"
-                )
-        except utils.NoSuchArgumentError:
-            mode_arg = utils.infer_kwarg_from_call(node, keyword="mode")
-            if mode_arg:
-                confidence = INFERENCE
+        if func_name in OPEN_FILES_MODE:
+            mode = utils.find_call_argument(
+                node, keyword="mode", position=1 if open_module == "_io" else 0
+            )
+            if not mode.is_known:
+                return  # mode may be binary - don't guess
+        else:
+            # read_text and write_text have no mode, they always use text
+            mode = utils.CallArgument(None)
+        mode_arg = mode.value
+        confidence = mode.confidence
 
         mode_from_default = False
         if mode_arg:
@@ -1003,36 +999,28 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             isinstance(mode_arg, nodes.Const) and "b" not in str(mode_arg.value)
         ):
             confidence = INFERENCE if mode_from_default else HIGH
-            try:
-                if open_module in PATHLIB_MODULE:
-                    match node.func.attrname:
-                        case "read_text":
-                            encoding_arg = utils.get_argument_from_call(
-                                node, position=0, keyword="encoding"
-                            )
-                        case "write_text":
-                            encoding_arg = utils.get_argument_from_call(
-                                node, position=1, keyword="encoding"
-                            )
-                        case _:
-                            encoding_arg = utils.get_argument_from_call(
-                                node, position=2, keyword="encoding"
-                            )
-                else:
-                    encoding_arg = utils.get_argument_from_call(
-                        node, position=3, keyword="encoding"
-                    )
-            except utils.NoSuchArgumentError:
-                encoding_arg = utils.infer_kwarg_from_call(node, keyword="encoding")
-                if encoding_arg:
-                    confidence = INFERENCE
-                else:
-                    self.add_message(
-                        "unspecified-encoding", node=node, confidence=confidence
-                    )
+            if open_module in PATHLIB_MODULE:
+                match node.func.attrname:
+                    case "read_text":
+                        encoding_position = 0
+                    case "write_text":
+                        encoding_position = 1
+                    case _:
+                        encoding_position = 2
+            else:
+                encoding_position = 3
+            encoding = utils.find_call_argument(
+                node, keyword="encoding", position=encoding_position
+            )
+            if encoding.is_absent:
+                self.add_message(
+                    "unspecified-encoding", node=node, confidence=confidence
+                )
+            if encoding.confidence == INFERENCE:
+                confidence = INFERENCE
 
-            if encoding_arg:
-                encoding_arg = utils.safe_infer(encoding_arg)
+            if encoding.value is not None:
+                encoding_arg = utils.safe_infer(encoding.value)
 
                 if isinstance(encoding_arg, nodes.Const) and encoding_arg.value is None:
                     self.add_message(
