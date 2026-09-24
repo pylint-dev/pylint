@@ -350,6 +350,15 @@ class NotUselessSuperPy3:
     def passing_keyword_only_with_modifications(self, first, *, second):
         return super().passing_keyword_only_with_modifications(first, second + 1)
 
+    def passing_keyword_only_with_modified_value(self, *, first=None):
+        return super().passing_keyword_only_with_modified_value(first=first or "default")
+
+    def passing_keyword_only_with_constant(self, *, first=None):
+        return super().passing_keyword_only_with_constant(first="default")
+
+    def passing_keyword_only_swapped(self, *, first, second):
+        return super().passing_keyword_only_swapped(first=second, second=first)
+
 
 class AlsoNotUselessSuperPy3(NotUselessSuperPy3):
     def not_passing_keyword_only(self, first, *, second="second"):
