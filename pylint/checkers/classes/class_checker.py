@@ -2215,6 +2215,49 @@ a metaclass class method.",
         except astroid.NotFoundError:
             return False
 
+    def _access_before_definition(
+        self,
+        node: _AccessNodes,
+        frame: nodes.LocalsDictNodeNG,
+        defstmt: nodes.NodeNG,
+        excs: tuple[str, ...],
+    ) -> _AccessNodes | None:
+        """Return the member access made before *defstmt*, if any."""
+        if node.frame() is frame:
+            if node.fromlineno < defstmt.fromlineno and not astroid.are_exclusive(
+                node.statement(), defstmt, excs
+            ):
+                return node
+            return None
+
+        accessed_frame = node.frame()
+        if not isinstance(accessed_frame, nodes.FunctionDef):
+            return None
+        for call in frame.nodes_of_class(nodes.Call):
+            if call.frame() is not frame:
+                continue
+            match call.func:
+                case nodes.Attribute(
+                    expr=instance, attrname=accessed_frame.name
+                ) as method:
+                    pass
+                case _:
+                    continue
+            inferred = safe_infer(method)
+            if not isinstance(inferred, astroid.BoundMethod):
+                continue
+            called = inferred._proxied
+            if isinstance(called, astroid.UnboundMethod):
+                called = called._proxied
+            if (
+                called is accessed_frame
+                and self._is_mandatory_method_param(instance)
+                and call.fromlineno < defstmt.fromlineno
+                and not astroid.are_exclusive(call.statement(), defstmt, excs)
+            ):
+                return method
+        return None
+
     def _check_accessed_members(
         self, node: nodes.ClassDef, accessed: dict[str, list[_AccessNodes]]
     ) -> None:
@@ -2272,19 +2315,19 @@ a metaclass class method.",
                     # it's defined, it's accessed after the initial assignment
                     frame = defstmt.frame()
                     lno = defstmt.fromlineno
+                    reported_nodes: set[_AccessNodes] = set()
                     for _node in nodes_lst:
-                        if (
-                            _node.frame() is frame
-                            and _node.fromlineno < lno
-                            and not astroid.are_exclusive(
-                                _node.statement(), defstmt, excs
-                            )
-                        ):
-                            self.add_message(
-                                "access-member-before-definition",
-                                node=_node,
-                                args=(attr, lno),
-                            )
+                        message_node = self._access_before_definition(
+                            _node, frame, defstmt, excs
+                        )
+                        if message_node is None or message_node in reported_nodes:
+                            continue
+                        reported_nodes.add(message_node)
+                        self.add_message(
+                            "access-member-before-definition",
+                            node=message_node,
+                            args=(attr, lno),
+                        )
 
     def _check_first_arg_for_type(
         self, node: nodes.FunctionDef, metaclass: bool
