@@ -22,7 +22,13 @@ from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.config.utils import _preprocess_options
 from pylint.constants import full_version
 from pylint.lint.base_options import _make_run_options
-from pylint.lint.pylinter import MANAGER, PyLinter
+from pylint.lint.pylinter import (
+    MANAGER,
+    PyLinter,
+    _handle_force_color_no_color,
+    _read_color_env,
+)
+from pylint.reporters import MultiReporter
 from pylint.reporters.base_reporter import BaseReporter
 
 
@@ -165,6 +171,8 @@ group are mutually exclusive.",
             _make_run_options(self),
             option_groups=self.option_groups,
         )
+        if reporter is None and not self._output:
+            linter._color_env = _read_color_env()
         # register standard checkers
         linter.load_default_plugins()
         # load command line plugins
@@ -178,6 +186,17 @@ group are mutually exclusive.",
         _config_initialization(
             linter, args, reporter, config_file=self._rcfile, verbose_mode=self.verbose
         )
+        # Without --output-format the default reporter never went through
+        # _load_reporters, which handles NO_COLOR / FORCE_COLOR otherwise
+        if not isinstance(linter.reporter, MultiReporter):
+            stdout_reporter = _handle_force_color_no_color(
+                linter.reporter,
+                no_color=linter._color_env[0],
+                force_color=linter._color_env[1],
+                explicit_format=False,
+            )
+            if stdout_reporter is not linter.reporter:
+                linter.set_reporter(stdout_reporter)
 
         # Handle the 'pylint-config' command
         if self._is_pylint_config:

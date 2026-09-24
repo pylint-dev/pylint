@@ -51,11 +51,13 @@ from pylint.lint.report_functions import (
     report_total_messages_stats,
 )
 from pylint.lint.utils import (
+    _is_env_set_and_non_empty,
     augmented_sys_path,
     get_fatal_error_message,
     prepare_crash_report,
 )
 from pylint.message import Message, MessageDefinition, MessageDefinitionStore
+from pylint.reporters import ReporterWarning
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.progress_reporters import ProgressReporter
 from pylint.reporters.text import ColorizedTextReporter, TextReporter
@@ -72,6 +74,13 @@ from pylint.typing import (
 from pylint.utils import ASTWalker, FileState, LinterStats, utils
 
 MANAGER = astroid.MANAGER
+
+NO_COLOR = "NO_COLOR"
+FORCE_COLOR = "FORCE_COLOR"
+
+WARN_FORCE_COLOR_SET = "FORCE_COLOR is set; ignoring `text` at stdout"
+WARN_NO_COLOR_SET = "NO_COLOR is set; ignoring `colorized` at stdout"
+WARN_BOTH_COLOR_SET = "Both NO_COLOR and FORCE_COLOR are set! (disabling colors)"
 
 
 class GetAstProtocol(Protocol):
@@ -254,6 +263,59 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 }
 
 
+def _read_color_env() -> tuple[bool, bool]:
+    """Return whether ``NO_COLOR`` and ``FORCE_COLOR`` are set and non-empty.
+
+    ``NO_COLOR`` wins when both are set.
+    """
+    no_color = _is_env_set_and_non_empty(NO_COLOR)
+    force_color = _is_env_set_and_non_empty(FORCE_COLOR)
+    if no_color and force_color:
+        warnings.warn(WARN_BOTH_COLOR_SET, ReporterWarning, stacklevel=3)
+        force_color = False
+    return no_color, force_color
+
+
+def _handle_force_color_no_color(
+    reporter: BaseReporter,
+    *,
+    no_color: bool,
+    force_color: bool,
+    explicit_format: bool = True,
+) -> BaseReporter:
+    """Swap a reporter that writes to stdout according to ``NO_COLOR`` and
+    ``FORCE_COLOR``.
+
+    Overriding an explicit ``--output-format`` warns, swapping the default
+    reporter does not: that is exactly what the variable asked for.
+
+    Rules are presented in this table:
+    +--------------+---------------+-----------------+------------------------------------------------------------+
+    | `NO_COLOR`   | `FORCE_COLOR` | `output-format` | Behavior                                                   |
+    +==============+===============+=================+============================================================+
+    | `bool: True` | `bool: True`  | colorized       | not colorized + warnings (override + inconsistent env var) |
+    | `bool: True` | `bool: True`  | /               | not colorized + warnings (inconsistent env var)            |
+    | unset        | `bool: True`  | colorized       | colorized                                                  |
+    | unset        | `bool: True`  | text            | colorized + warnings (override)                            |
+    | unset        | `bool: True`  | /               | colorized                                                  |
+    | `bool: True` | unset         | colorized       | not colorized + warnings (override)                        |
+    | `bool: True` | unset         | /               | not colorized                                              |
+    | unset        | unset         | colorized       | colorized                                                  |
+    | unset        | unset         | /               | not colorized                                              |
+    +--------------+---------------+-----------------+------------------------------------------------------------+
+    """
+    if no_color and isinstance(reporter, ColorizedTextReporter):
+        warnings.warn(WARN_NO_COLOR_SET, ReporterWarning, stacklevel=3)
+        return TextReporter()
+    # Subclasses of TextReporter (parseable, Visual Studio) keep their own format
+    # pylint: disable-next=unidiomatic-typecheck
+    if force_color and type(reporter) is TextReporter:
+        if explicit_format:
+            warnings.warn(WARN_FORCE_COLOR_SET, ReporterWarning, stacklevel=3)
+        return ColorizedTextReporter()
+    return reporter
+
+
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class PyLinter(
     _ArgumentsManager,
@@ -313,6 +375,8 @@ class PyLinter(
             self.set_reporter(reporter)
         else:
             self.set_reporter(TextReporter())
+        self._color_env: tuple[bool, bool] = (False, False)
+        """``NO_COLOR`` and ``FORCE_COLOR`` for the stdout reporter, set by ``Run``."""
         self._reporters: dict[str, type[reporters.BaseReporter]] = {}
         """Dictionary of possible but non-initialized reporters."""
 
@@ -440,18 +504,24 @@ class PyLinter(
             return
         sub_reporters = []
         output_files = []
+        no_color, force_color = self._color_env
         with contextlib.ExitStack() as stack:
             for reporter_name in reporter_names.split(","):
                 reporter_name, *reporter_output = reporter_name.split(":", 1)
 
                 reporter = self._load_reporter_by_name(reporter_name)
-                sub_reporters.append(reporter)
                 if reporter_output:
                     output_file = stack.enter_context(
                         open(reporter_output[0], "w", encoding="utf-8")
                     )
                     reporter.out = output_file
                     output_files.append(output_file)
+                else:
+                    # Only the reporter writing to stdout follows the environment
+                    reporter = _handle_force_color_no_color(
+                        reporter, no_color=no_color, force_color=force_color
+                    )
+                sub_reporters.append(reporter)
 
             # Extend the lifetime of all opened output files
             close_output_files = stack.pop_all().close
