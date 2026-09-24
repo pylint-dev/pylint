@@ -193,6 +193,7 @@ group are mutually exclusive.",
                 linter.reporter,
                 no_color=linter._color_env[0],
                 force_color=linter._color_env[1],
+                explicit_format=False,
             )
             if stdout_reporter is not linter.reporter:
                 linter.set_reporter(stdout_reporter)

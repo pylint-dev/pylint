@@ -54,8 +54,9 @@ precedence for determining the output format is as follows:
    It is ignored when :envvar:`NO_COLOR` is also set.
    See https://force-color.org.
 
-Pylint emits a warning when one of these variables overrides the
-``--output-format`` option, or when both are set.
+Pylint emits a warning when one of these variables overrides an
+``--output-format`` option given on the command line or in the configuration,
+or when both are set. Colorizing the default output is silent.
 
 For example, to get a plain report even if ``colorized`` is in your
 configuration:

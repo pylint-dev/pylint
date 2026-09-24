@@ -277,10 +277,17 @@ def _read_color_env() -> tuple[bool, bool]:
 
 
 def _handle_force_color_no_color(
-    reporter: BaseReporter, *, no_color: bool, force_color: bool
+    reporter: BaseReporter,
+    *,
+    no_color: bool,
+    force_color: bool,
+    explicit_format: bool = True,
 ) -> BaseReporter:
     """Swap a reporter that writes to stdout according to ``NO_COLOR`` and
     ``FORCE_COLOR``.
+
+    Overriding an explicit ``--output-format`` warns, swapping the default
+    reporter does not: that is exactly what the variable asked for.
 
     Rules are presented in this table:
     +--------------+---------------+-----------------+------------------------------------------------------------+
@@ -289,7 +296,8 @@ def _handle_force_color_no_color(
     | `bool: True` | `bool: True`  | colorized       | not colorized + warnings (override + inconsistent env var) |
     | `bool: True` | `bool: True`  | /               | not colorized + warnings (inconsistent env var)            |
     | unset        | `bool: True`  | colorized       | colorized                                                  |
-    | unset        | `bool: True`  | /               | colorized + warnings (override)                            |
+    | unset        | `bool: True`  | text            | colorized + warnings (override)                            |
+    | unset        | `bool: True`  | /               | colorized                                                  |
     | `bool: True` | unset         | colorized       | not colorized + warnings (override)                        |
     | `bool: True` | unset         | /               | not colorized                                              |
     | unset        | unset         | colorized       | colorized                                                  |
@@ -302,7 +310,8 @@ def _handle_force_color_no_color(
     # Subclasses of TextReporter (parseable, msvs) have their own format to keep
     # pylint: disable-next=unidiomatic-typecheck
     if force_color and type(reporter) is TextReporter:
-        warnings.warn(WARN_FORCE_COLOR_SET, ReporterWarning, stacklevel=3)
+        if explicit_format:
+            warnings.warn(WARN_FORCE_COLOR_SET, ReporterWarning, stacklevel=3)
         return ColorizedTextReporter()
     return reporter
 

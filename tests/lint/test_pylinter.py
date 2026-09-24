@@ -235,8 +235,20 @@ def test_run_force_color_colorizes_the_default_reporter(
     unused_import_args: list[str],
 ) -> None:
     monkeypatch.setenv(FORCE_COLOR, "1")
+    # No warning: the default output was not chosen by the user
+    run = Run(unused_import_args, exit=False)
+    assert type(run.linter.reporter) is ColorizedTextReporter
+    assert "\x1b[" in capsys.readouterr().out
+
+
+def test_run_force_color_warns_over_explicit_text_format(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: CaptureFixture[str],
+    unused_import_args: list[str],
+) -> None:
+    monkeypatch.setenv(FORCE_COLOR, "1")
     with pytest.warns(ReporterWarning, match=WARN_FORCE_COLOR_SET):
-        run = Run(unused_import_args, exit=False)
+        run = Run([*unused_import_args, "--output-format=text"], exit=False)
     assert type(run.linter.reporter) is ColorizedTextReporter
     assert "\x1b[" in capsys.readouterr().out
 
