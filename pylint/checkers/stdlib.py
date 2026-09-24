@@ -751,16 +751,12 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             self.add_message("subprocess-run-check", node=node, confidence=INFERENCE)
 
     def _check_shallow_copy_environ(self, node: nodes.Call) -> None:
-        confidence = HIGH
+        argument = utils.find_call_argument(node, keyword="x", position=0)
+        if argument.value is None:
+            return
+        confidence = argument.confidence
         try:
-            arg = utils.get_argument_from_call(node, position=0, keyword="x")
-        except utils.NoSuchArgumentError:
-            arg = utils.infer_kwarg_from_call(node, keyword="x")
-            if not arg:
-                return
-            confidence = INFERENCE
-        try:
-            inferred_args = arg.inferred()
+            inferred_args = argument.value.inferred()
         except astroid.InferenceError:
             return
         for inferred in inferred_args:
@@ -864,13 +860,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
                     # Check if there is a maxsize argument set to None in the call
                     if q_name in LRU_CACHE and isinstance(d_node, nodes.Call):
-                        try:
-                            arg = utils.get_argument_from_call(
-                                d_node, position=0, keyword="maxsize"
-                            )
-                        except utils.NoSuchArgumentError:
-                            arg = utils.infer_kwarg_from_call(d_node, "maxsize")
-
+                        arg = utils.find_call_argument(
+                            d_node, keyword="maxsize", position=0
+                        ).value
                         if not isinstance(arg, nodes.Const) or arg.value is not None:
                             break
 
