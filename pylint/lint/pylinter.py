@@ -1253,18 +1253,37 @@ class PyLinter(
                 if end_col_offset is None:
                     end_col_offset = node.end_col_offset
 
-        # should this message be displayed
-        if not self.is_message_enabled(message_definition.msgid, line, confidence):
-            self.file_state.handle_ignored_message(
-                self._get_message_state_scope(
-                    message_definition.msgid, line, confidence
-                ),
-                message_definition.msgid,
-                line,
-            )
-            return
+        # get module and object
+        if node is None:
+            module, obj = self.current_name, ""
+            abspath = self.current_file
+        else:
+            module, obj = utils.get_module_and_frameid(node)
+            abspath = node.root().file
 
-        # update stats
+        location = self._build_location(
+            abspath,
+            module or "",
+            obj,
+            line or 1,
+            col_offset,
+            end_lineno,
+            end_col_offset,
+        )
+        self._filter_and_emit(message_definition, args, confidence, location)
+
+    def _emit_message(
+        self,
+        message_definition: MessageDefinition,
+        args: Any | None,
+        confidence: interfaces.Confidence,
+        location: MessageLocationTuple,
+    ) -> None:
+        """Dispatch a fully-resolved :class:`Message` to the reporter.
+
+        Callers are responsible for filtering disabled messages out *before*
+        calling this.
+        """
         msg_cat = MSG_TYPES[message_definition.msgid[0]]
         self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
         self.stats.increase_single_message_count(msg_cat, 1)
@@ -1273,36 +1292,14 @@ class PyLinter(
             self.stats.by_msg[message_definition.symbol] += 1
         except KeyError:
             self.stats.by_msg[message_definition.symbol] = 1
-        # Interpolate arguments into message string
         msg = message_definition.msg
         if args is not None:
             msg %= args
-        # get module and object
-        if node is None:
-            module, obj = self.current_name, ""
-            abspath = self.current_file
-        else:
-            module, obj = utils.get_module_and_frameid(node)
-            abspath = node.root().file
-        if abspath is not None:
-            path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
-        else:
-            path = "configuration"
-        # add the message
         self.reporter.handle_message(
             Message(
                 message_definition.msgid,
                 message_definition.symbol,
-                MessageLocationTuple(
-                    abspath or "",
-                    path,
-                    module or "",
-                    obj,
-                    line or 1,
-                    col_offset or 0,
-                    end_lineno,
-                    end_col_offset,
-                ),
+                location,
                 msg,
                 confidence,
             )
@@ -1339,6 +1336,116 @@ class PyLinter(
                 end_lineno,
                 end_col_offset,
             )
+
+    def add_message_at_node(
+        self,
+        msgid: str,
+        node: nodes.NodeNG,
+        args: Any | None = None,
+        confidence: interfaces.Confidence = interfaces.UNDEFINED,
+    ) -> None:
+        """Fast path for emitting a message at an AST node.
+
+        Avoids binding the ``line``/``col_offset``/``end_lineno``/
+        ``end_col_offset`` parameters that ``add_message`` carries for
+        non-AST callers, and skips ``_add_one_message`` entirely so a
+        disabled message pays for nothing beyond the filter check.
+        """
+        # Derive location once. These are the same for every message_definition
+        # this msgid maps to (multiple definitions only happen for the rare
+        # ``old_names`` aliases).
+        pos = node.position
+        if pos is not None:
+            line = pos.lineno
+            col_offset = pos.col_offset
+            end_lineno = pos.end_lineno
+            end_col_offset = pos.end_col_offset
+        else:
+            line = node.fromlineno
+            col_offset = node.col_offset
+            end_lineno = node.end_lineno
+            end_col_offset = node.end_col_offset
+        module, obj = utils.get_module_and_frameid(node)
+        abspath = node.root().file
+        location = self._build_location(
+            abspath, module or "", obj, line, col_offset, end_lineno, end_col_offset
+        )
+        for message_definition in self.msgs_store.get_message_definitions(msgid):
+            self._filter_and_emit(message_definition, args, confidence, location)
+
+    def add_message_at_location(
+        self,
+        msgid: str,
+        *,
+        module: str,
+        filepath: str | None = None,
+        line: int | None = None,
+        col_offset: int | None = None,
+        end_lineno: int | None = None,
+        end_col_offset: int | None = None,
+        args: Any | None = None,
+        confidence: interfaces.Confidence = interfaces.UNDEFINED,
+    ) -> None:
+        """Add a message at an explicit location, instead of deriving the
+        location from an AST node.
+
+        Use this when the message logically belongs to a module/position
+        other than the one currently being processed (e.g. cross-module
+        findings like duplicate-code).
+        """
+        abspath = filepath if filepath is not None else self.current_file
+        location = self._build_location(
+            abspath, module, "", line or 1, col_offset, end_lineno, end_col_offset
+        )
+        for message_definition in self.msgs_store.get_message_definitions(msgid):
+            self._filter_and_emit(message_definition, args, confidence, location)
+
+    def _build_location(
+        self,
+        abspath: str | None,
+        module: str,
+        obj: str,
+        line: int,
+        col_offset: int | None,
+        end_lineno: int | None,
+        end_col_offset: int | None,
+    ) -> MessageLocationTuple:
+        """Assemble a :class:`MessageLocationTuple`, deriving ``path`` from ``abspath``."""
+        if abspath is not None:
+            path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
+        else:
+            path = "configuration"
+        return MessageLocationTuple(
+            abspath or "",
+            path,
+            module,
+            obj,
+            line,
+            col_offset or 0,
+            end_lineno,
+            end_col_offset,
+        )
+
+    def _filter_and_emit(
+        self,
+        message_definition: MessageDefinition,
+        args: Any | None,
+        confidence: interfaces.Confidence,
+        location: MessageLocationTuple,
+    ) -> None:
+        """Filter and emit one message at an already-built ``location``."""
+        if not self.is_message_enabled(
+            message_definition.msgid, location.line, confidence
+        ):
+            self.file_state.handle_ignored_message(
+                self._get_message_state_scope(
+                    message_definition.msgid, location.line, confidence
+                ),
+                message_definition.msgid,
+                location.line,
+            )
+            return
+        self._emit_message(message_definition, args, confidence, location)
 
     def add_ignored_message(
         self,
