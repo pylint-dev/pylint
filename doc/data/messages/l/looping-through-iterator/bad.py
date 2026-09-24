@@ -1,5 +1,4 @@
-# 1. Generator expressions are exhausted after one use
-gen = (x for x in range(3))
-for i in range(2):
-    for item in gen:  # [looping-through-iterator]
-        print(item)
+fruits = (name.upper() for name in ["apple", "banana"])
+for basket in ["red basket", "blue basket"]:
+    for fruit in fruits:  # [looping-through-iterator]
+        print(basket, fruit)

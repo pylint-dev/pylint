@@ -1,6 +1,4 @@
-# Materialize the iterator into a collection so it can be reused
-gen = (x for x in range(3))
-data = list(gen)
-for i in range(2):
-    for item in data:
-        print(item)
+fruits = [name.upper() for name in ["apple", "banana"]]
+for basket in ["red basket", "blue basket"]:
+    for fruit in fruits:
+        print(basket, fruit)

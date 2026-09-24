@@ -10,6 +10,7 @@ from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
+from pylint.checkers.base.basic_error_checker import _loop_exits_early
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -77,9 +78,13 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
     def visit_functiondef(self, _node: nodes.FunctionDef) -> None:
         self._scope_stack.append({})
 
+    visit_asyncfunctiondef = visit_functiondef
+
     @utils.only_required_for_messages("looping-through-iterator")
     def leave_functiondef(self, _node: nodes.FunctionDef) -> None:
         self._scope_stack.pop()
+
+    leave_asyncfunctiondef = leave_functiondef
 
     @utils.only_required_for_messages("looping-through-iterator")
     def visit_for(self, node: nodes.For) -> None:
@@ -119,7 +124,7 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
                 ):
                     is_iterator_definition = True
                 elif (
-                    hasattr(inferred_func, "qname")
+                    isinstance(inferred_func, (nodes.ClassDef, nodes.FunctionDef))
                     and inferred_func.qname()
                     in self.KNOWN_ITERATOR_PRODUCING_FUNCTION_QNAMES
                 ):
@@ -136,9 +141,8 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
 
     @utils.only_required_for_messages("looping-through-iterator")
     def visit_call(self, node: nodes.Call) -> None:
-        # When the user use 'next' it's easy to raise a false positive
-        # and the user usually know what they do so. the primer looked
-        # especially bad.
+        # ``next()`` is usually a deliberate, partial consumption: flagging
+        # it raised many false positives in the primer.
         if isinstance(node.func, nodes.Name) and node.func.name == "next":
             return
         for arg in node.args:
@@ -199,22 +203,43 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
             return
 
         inner_loop = ancestor_loops_of_usage[0]
-        enclosing_loop = ancestor_loops_of_usage[1]
-
         if inner_loop.orelse and self._has_direct_unconditional_exit(inner_loop.orelse):
             # ``for ... else: raise`` is a deliberate fail-fast cursor.
             return
 
-        if inner_loop not in enclosing_loop.body:
-            # The inner loop is nested under some other statement (e.g. an
-            # ``if``) rather than directly in the enclosing loop's body. Stay
-            # conservative and emit no message.
+        if _loop_exits_early(inner_loop) or any(
+            inner_loop.nodes_of_class(
+                nodes.Return, skip_klass=(nodes.FunctionDef, nodes.ClassDef)
+            )
+        ):
+            # The inner loop may stop before exhausting the iterator: either a
+            # cursor that resumes where it left off on the next pass, or a
+            # search that returns what it found.
             return
-        inner_loop_index = enclosing_loop.body.index(inner_loop)
-        statements_after_inner_loop = enclosing_loop.body[inner_loop_index + 1 :]
-        if self._has_direct_unconditional_exit(statements_after_inner_loop):
-            # The enclosing loop exits unconditionally after consuming the
-            # iterator, so it never re-enters with an exhausted iterator.
+
+        # Walk the repeating loops outward. A ``return`` or ``raise`` right after
+        # the nested loop leaves the function, so nothing re-runs. A ``break``
+        # only stops that one loop: the next repeating loop still re-enters it.
+        nested_loop = inner_loop
+        for repeating_loop in repeating_loops:
+            if nested_loop not in repeating_loop.body:
+                # The nested loop sits under some other statement (e.g. an
+                # ``if``) rather than directly in the repeating loop's body.
+                # Stay conservative and emit no message.
+                return
+            nested_loop_index = repeating_loop.body.index(nested_loop)
+            statements_after = repeating_loop.body[nested_loop_index + 1 :]
+            if any(
+                isinstance(stmt, (nodes.Return, nodes.Raise))
+                for stmt in statements_after
+            ):
+                return
+            if not any(isinstance(stmt, nodes.Break) for stmt in statements_after):
+                break
+            nested_loop = repeating_loop
+        else:
+            # Every repeating loop runs only once before the iterator is
+            # refreshed or the scope ends.
             return
 
         self.add_message(

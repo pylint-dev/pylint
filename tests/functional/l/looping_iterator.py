@@ -1,7 +1,7 @@
 """Functional tests for looping-through-iterator checker."""
 
 # pylint: disable=missing-docstring,import-outside-toplevel,unused-variable,
-# pylint: disable=unnecessary-comprehension,too-few-public-methods, trailing-whitespace
+# pylint: disable=unnecessary-comprehension,too-few-public-methods
 
 
 def generator_expression_global_scope():
@@ -304,29 +304,28 @@ def for_loop_with_unconditional_return():
         return None
 
 
-def warns_when_exit_is_only_conditional():
+def no_warning_inner_loop_under_if():
+    # The consuming loop only runs on the first pass. Loops nested under an
+    # ``if`` are not analyzed, so no message either way.
     my_iter = iter(range(10))
     for i in range(5):
         if i == 0:
-            # This inner loop exhausts the iterator on the first run.
             for item in my_iter:
                 print(item)
 
         if i == 4:
-            # This exit is conditional and doesn't prevent the bug
-            # on the second iteration (i=1).
             return
 
 
-def warns_stopiteration_is_caught_but_loop_continues():
+def false_negative_inner_loop_in_try_except():
+    # The second pass sees an exhausted iterator, but loops nested under a
+    # ``try`` are not analyzed.
     source_iter = iter(range(10))
     for i in range(2):
         try:
-            # On the first pass (i=0), this exhausts the iterator.
             for item in source_iter:
                 print(item)
         except StopIteration:
-            # The bug: we catch the error but don't exit the outer loop.
             print("Iterator finished, but loop continues...")
 
 
@@ -343,57 +342,73 @@ def warns_for_if_else_with_only_one_branch_exiting():
             print("Second pass, no break.")
 
 
-def warns_for_try_except_with_non_exiting_handler():
+def no_warning_return_after_inner_loop_in_try():
+    # The first pass exhausts the iterator then returns, so there is no
+    # second pass.
     my_iter = iter(range(10))
-    for i in range(2):  # Bug triggers on second iteration
+    for i in range(2):
         try:
             for item in my_iter:
                 if i > 0:
                     raise ValueError
-            return  # The 'try' block exits
+            return
         except ValueError:
-            # This handler does NOT exit, making the overall
-            # block unsafe, so a warning should be raised.
             print("Caught error, but continuing loop.")
 
 
-def warns_for_try_finally_without_exit():
+def false_negative_inner_loop_in_try_finally():
+    # The second pass sees an exhausted iterator, but loops nested under a
+    # ``try`` are not analyzed.
     my_iter = iter(range(10))
-    for i in range(2):  # The bug occurs on the second iteration (i=1)
+    for i in range(2):
         try:
-            # This inner loop exhausts the iterator on the first pass.
             for item in my_iter:
                 pass
         finally:
-            # This 'finally' block cleans up but does NOT exit the
-            # outer loop, so the warning should still be raised.
             print("Cleanup done.")
 
 
 def no_warning_return_inner_loop():
-    def my_func():
-        sources_iter = (1, 2, 3)
-        for output_field in sources_iter:
-            for source in sources_iter:  # This is a false positive
-                return output_field
+    sources_iter = (x for x in range(3))
+    for output_field in range(3):
+        for source in sources_iter:
+            return output_field
+
+
+def no_warning_conditional_return_inner_loop():
+    sources_iter = (x for x in range(3))
+    for output_field in range(3):
+        for source in sources_iter:
+            if source == output_field:
+                return source
+    return None
 
 
 def no_warning_break_inner_loop():
-    def my_func():
-        sources_iter = (1, 2, 3)
-        for output_field in sources_iter:
-            for source in sources_iter:
-                if source == 2:
-                    break
-                print(source)
+    # A cursor: each outer pass resumes where the previous one stopped.
+    sources_iter = (x for x in range(3))
+    for output_field in range(3):
+        for source in sources_iter:
+            if source == output_field:
+                break
+            print(source)
+
+
+def warning_break_in_loop_nested_in_inner_loop():
+    # The ``break`` belongs to the ``while`` loop, not to the consuming loop.
+    sources_iter = (x for x in range(3))
+    for output_field in range(3):
+        for source in sources_iter:  # [looping-through-iterator]
+            while True:
+                break
 
 
 def no_warning_break_outer_loop():
-    def my_func():
-        sources_iter = (1, 2, 3)
-        for output_field in sources_iter:
-            for source in sources_iter:  # This is a false positive
-                return output_field
+    sources_iter = (x for x in range(3))
+    for output_field in range(3):
+        for source in sources_iter:
+            print(source)
+        break
 
 
 def iter_on_list_inner_loop():
@@ -466,6 +481,43 @@ def three_level_nesting_redefined_in_grandparent_warns():
         for _j in range(2):
             for item in gen_ex:  # [looping-through-iterator]
                 print(item)
+
+
+def three_level_nesting_break_in_parent_warns():
+    # ``break`` only stops the middle loop: the outer loop re-enters it and the
+    # innermost loop then sees an exhausted iterator.
+    gen_ex = (x for x in range(3))
+    for _i in range(2):
+        for _j in range(2):
+            for item in gen_ex:  # [looping-through-iterator]
+                print(item)
+            break
+
+
+def three_level_nesting_break_in_parent_and_grandparent_is_safe():
+    gen_ex = (x for x in range(3))
+    for _i in range(2):
+        for _j in range(2):
+            for item in gen_ex:
+                print(item)
+            break
+        break
+
+
+def three_level_nesting_break_in_parent_redefined_in_grandparent_is_safe():
+    for _i in range(2):
+        gen_ex = (x for x in range(3))
+        for _j in range(2):
+            for item in gen_ex:
+                print(item)
+            break
+
+
+async def async_function_warns():
+    gen_ex = (x for x in range(3))
+    for _i in range(2):
+        for item in gen_ex:  # [looping-through-iterator]
+            print(item)
 
 
 def user_generator_function_warns():
