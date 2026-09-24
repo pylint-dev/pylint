@@ -147,8 +147,11 @@ class JUnitReporter(BaseReporter):
         print('<?xml version="1.0" encoding="utf-8"?>', file=self.out)
         # Markup is plain ASCII, so only message text and attribute values can
         # hold illegal characters: sanitizing the serialized XML covers both.
-        xml = ET.tostring(testsuites_el, encoding="unicode")
-        print(_escape_illegal_xml_chars(xml), file=self.out)
+        xml = _escape_illegal_xml_chars(ET.tostring(testsuites_el, encoding="unicode"))
+        # ``self.out`` may use any encoding (a Windows console, a C locale), so
+        # write non-ASCII characters as character references: pure ASCII output
+        # always matches the declaration and never fails to encode.
+        print(xml.encode("ascii", "xmlcharrefreplace").decode("ascii"), file=self.out)
 
     def _get_testsuite(self, name: str) -> ET.Element:
         if name not in self._testsuites:
