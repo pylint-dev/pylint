@@ -11,6 +11,7 @@ that consume JUnit XML test results.
 
 from __future__ import annotations
 
+import re
 import xml.etree.ElementTree as ET
 from collections import defaultdict
 from linecache import getline
@@ -22,6 +23,18 @@ from pylint.reporters.base_reporter import BaseReporter
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
     from pylint.reporters.ureports.nodes import Section
+
+# Characters that XML 1.0 forbids anywhere in a document, even escaped.
+# ``ElementTree`` writes them as they are, which makes the output invalid XML:
+# https://github.com/python/cpython/issues/49416
+_ILLEGAL_XML_CHARS = re.compile(
+    r"[^\u0009\u000a\u000d\u0020-\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]"
+)
+
+
+def _escape_illegal_xml_chars(text: str) -> str:
+    """Replace each character XML cannot hold with a visible ``#xNN`` code."""
+    return _ILLEGAL_XML_CHARS.sub(lambda match: f"#x{ord(match.group()):02X}", text)
 
 
 class JUnitReporter(BaseReporter):
@@ -132,7 +145,10 @@ class JUnitReporter(BaseReporter):
         # ``ElementTree.write`` would declare the locale encoding, not the
         # encoding of ``self.out``, so write a fixed declaration instead.
         print('<?xml version="1.0" encoding="utf-8"?>', file=self.out)
-        print(ET.tostring(testsuites_el, encoding="unicode"), file=self.out)
+        # Markup is plain ASCII, so only message text and attribute values can
+        # hold illegal characters: sanitizing the serialized XML covers both.
+        xml = ET.tostring(testsuites_el, encoding="unicode")
+        print(_escape_illegal_xml_chars(xml), file=self.out)
 
     def _get_testsuite(self, name: str) -> ET.Element:
         if name not in self._testsuites:
