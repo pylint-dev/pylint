@@ -4,3 +4,4 @@ no-name-in-module:33:0:33:49::No name 'syntax_error' in module 'functional.s.syn
 syntax-error:33:0:None:None::Cannot import 'functional.s.syntax.syntax_error' due to 'invalid syntax (functional.s.syntax.syntax_error, line 1)':HIGH
 multiple-imports:78:0:78:15::Multiple imports on one line (foo, bar):UNDEFINED
 import-error:96:4:96:15::Unable to import 'foo2':UNDEFINED
+import-error:140:8:140:29:shadowed_sys:Unable to import 'missing_module':UNDEFINED
