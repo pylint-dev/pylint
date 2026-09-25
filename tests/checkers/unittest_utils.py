@@ -11,6 +11,7 @@ import pytest
 from astroid import nodes
 
 from pylint.checkers import utils
+from pylint.interfaces import HIGH, INFERENCE
 
 
 @pytest.mark.parametrize(
@@ -58,6 +59,88 @@ def testGetArgumentFromCall() -> None:
         utils.get_argument_from_call(node, None, None)
     name = utils.get_argument_from_call(node, position=0)
     assert name.name == "a"
+
+
+@pytest.mark.parametrize(
+    "call",
+    [
+        "func(0, 1)",
+        "func(0, key=1)",
+        "func(*args, key=1)",
+        "func(0, 1, *args)",
+    ],
+)
+def test_find_call_argument_found_directly(call: str) -> None:
+    node = astroid.extract_node(call)
+    argument = utils.find_call_argument(node, keyword="key", position=1)
+    assert isinstance(argument.value, nodes.Const)
+    assert argument.value.value == 1
+    assert argument.confidence == HIGH
+
+
+@pytest.mark.parametrize(
+    "call",
+    [
+        'func(**{"key": 1})',
+        'func(**{"other": 0}, **{"key": 1})',
+        'func(**options, **{"key": 1})',
+        'func(*args, **{"key": 1})',
+    ],
+)
+def test_find_call_argument_found_through_unpacking(call: str) -> None:
+    node = astroid.extract_node(call)
+    argument = utils.find_call_argument(node, keyword="key", position=1)
+    assert isinstance(argument.value, nodes.Const)
+    assert argument.value.value == 1
+    assert argument.confidence == INFERENCE
+
+
+@pytest.mark.parametrize(
+    "call",
+    [
+        "func()",
+        "func(0)",
+        "func(0, other=1)",
+        'func(0, **{"other": 1})',
+        "func(0, **{})",
+    ],
+)
+def test_find_call_argument_absent(call: str) -> None:
+    node = astroid.extract_node(call)
+    argument = utils.find_call_argument(node, keyword="key", position=1)
+    assert argument.value is None
+    assert argument.is_known
+    assert argument.is_absent
+
+
+@pytest.mark.parametrize(
+    "call",
+    [
+        "func(*args)",
+        "func(0, *args)",
+        "func(**options)",
+        "func(**make_options())",
+        'func(**{"other": 1, **options})',
+        "func(**{name: 1})",
+        "func(**{name: 1 for name in names})",
+        'func(**{1: "key"})',
+        """
+        options = {"other": 1}
+        func(**options)  #@
+        """,
+    ],
+)
+def test_find_call_argument_unknown(call: str) -> None:
+    node = astroid.extract_node(call)
+    argument = utils.find_call_argument(node, keyword="key", position=1)
+    assert argument.value is None
+    assert not argument.is_known
+    assert not argument.is_absent
+
+
+def test_find_call_argument_keyword_only() -> None:
+    node = astroid.extract_node("func(*args)")
+    assert utils.find_call_argument(node, keyword="key").is_absent
 
 
 def test_error_of_type() -> None:

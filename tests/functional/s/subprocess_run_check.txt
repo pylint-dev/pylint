@@ -1,1 +1,4 @@
 subprocess-run-check:6:0:6:16::'subprocess.run' used without explicitly defining the value for 'check'.:INFERENCE
+subprocess-run-check:9:0:9:40::'subprocess.run' used without explicitly defining the value for 'check'.:INFERENCE
+subprocess-run-check:10:0:10:28::'subprocess.run' used without explicitly defining the value for 'check'.:INFERENCE
+subprocess-run-check:11:0:11:23::'subprocess.run' used without explicitly defining the value for 'check'.:INFERENCE

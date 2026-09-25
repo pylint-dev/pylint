@@ -82,3 +82,13 @@ getenv(key='TEST', default=function_returning_list())  # [invalid-envvar-default
 getenv(key='TEST', default=function_returning_none())
 getenv(key='TEST', default=function_returning_string())
 getenv(key='TEST', default=function_returning_bytes())  # [invalid-envvar-default]
+
+getenv(**{"key": b"TEST"})  # [invalid-envvar-value]
+getenv(**{"key": "TEST"})
+getenv("TEST", **{"default": b"value"})  # [invalid-envvar-default]
+getenv(**{"key": "TEST", "default": ["Crap"]})  # [invalid-envvar-default]
+getenv(**{"key": "TEST", "default": "value"})
+
+
+def getenv_with_opaque_options(options):
+    return getenv(**options)
