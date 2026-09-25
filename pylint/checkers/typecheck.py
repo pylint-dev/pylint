@@ -1699,6 +1699,8 @@ accessed. Python regular expressions are accepted.",
                 else:
                     # **kwargs can't assign to tuples.
                     pass
+            for kwparam in kwparams.values():
+                kwparam[1] = True
 
         # Check that any parameters without a default have been assigned
         # values.
