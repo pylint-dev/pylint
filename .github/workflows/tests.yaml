@@ -71,9 +71,7 @@ jobs:
         id: generate-python-key
         run: >-
           echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${ASTROID_SHA}-${{
-            hashFiles('pyproject.toml', 'requirements_test.txt',
-          'requirements_test_min.txt', 'requirements_test_pre_commit.txt') }}" >>
-          $GITHUB_OUTPUT
+            hashFiles('pyproject.toml') }}" >> $GITHUB_OUTPUT
         env:
           ASTROID_SHA: ${{ inputs.astroid_sha }}
       - &cache-python
@@ -91,7 +89,7 @@ jobs:
           python -m venv venv
           . venv/bin/activate
           python -m pip install --upgrade pip
-          pip install --upgrade --requirement requirements_test.txt
+          pip install --upgrade ".[testutils,spelling]" --group test --group dev
       - name: Install requested astroid SHA
         if: inputs.astroid_sha != ''
         run: |
@@ -214,7 +212,7 @@ jobs:
         id: generate-python-key
         run: >-
           echo "key=venv-${{ env.CACHE_VERSION }}-${env:ASTROID_SHA}-${{
-            hashFiles('pyproject.toml', 'requirements_test_min.txt')
+            hashFiles('pyproject.toml')
           }}" >> $env:GITHUB_OUTPUT
         env:
           ASTROID_SHA: ${{ inputs.astroid_sha }}
@@ -225,7 +223,7 @@ jobs:
           python -m venv venv
           . venv\\Scripts\\activate
           python -m pip install --upgrade pip
-          pip install --upgrade --requirement requirements_test_min.txt
+          pip install --upgrade ".[testutils,spelling]" --group test-min
       - name: Install requested astroid SHA
         if: inputs.astroid_sha != ''
         run: |

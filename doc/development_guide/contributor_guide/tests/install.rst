@@ -19,10 +19,11 @@ environment for testing, open a terminal and run::
     cd pylint
     python3 -m venv venv
     source venv/bin/activate
-    pip install -r requirements_test_min.txt
-    pip install -e .
+    python -m pip install --upgrade pip
+    pip install -e ".[testutils,spelling]" --group test-min
 
 This ensures your testing environment is similar to Pylint's testing environment on GitHub.
+The ``--group`` option needs pip 25.1 or newer, hence the pip upgrade.
 
 **Optionally** (Because there's an auto-fix if you open a merge request): We have
 pre-commit hooks which should take care of the autoformatting for you before each

@@ -18,7 +18,7 @@ if "%1" == "help" goto help
 REM Command options
 if "%1" == "install-dependencies" (
     echo Installing dependencies...
-    cd .. && pip install -r doc/requirements.txt
+    cd .. && pip install --group docs
     goto end
 )
 
