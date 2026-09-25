@@ -715,29 +715,6 @@ def _has_parent_of_type(
     return isinstance(parent, node_type)
 
 
-def _dict_keys_from_subscript_assignments(name_node: nodes.Name) -> set[str]:
-    """Return the constant string keys assigned to ``name`` via subscripts.
-
-    e.g. for ``someargs['c'] = 3`` with ``someargs`` a ``Name`` node, this
-    returns ``{"c"}``.
-    """
-    keys: set[str] = set()
-    scope = name_node.scope()
-    for assign in scope.nodes_of_class(nodes.Assign):
-        if assign.scope() is not scope:
-            continue
-        for target in assign.targets:
-            if (
-                isinstance(target, nodes.Subscript)
-                and isinstance(target.value, nodes.Name)
-                and target.value.name == name_node.name
-                and isinstance(target.slice, nodes.Const)
-                and isinstance(target.slice.value, str)
-            ):
-                keys.add(target.slice.value)
-    return keys
-
-
 def _no_context_variadic_keywords(node: nodes.Call, scope: nodes.Lambda) -> bool:
     statement = node.statement()
     variadics = []
@@ -1776,12 +1753,14 @@ accessed. Python regular expressions are accepted.",
         # 3. Match the **kwargs, if any.
         # CallSite unpacks literal ``**{...}`` operands into keyword_arguments
         # in step 2. We therefore only assume **kwargs covers the remaining
-        # named parameters when its full key set is not statically provable:
-        # the enclosing scope forwards a variadic kwarg without context
-        # (``def wrap(**kw): f(**kw)``), or at least one ``**operand`` is not
-        # a literal Dict (Name, Call, subscript, ...). A literal
+        # named and keyword-only parameters when its full key set is not
+        # statically provable: the enclosing scope forwards a variadic kwarg
+        # without context (``def wrap(**kw): f(**kw)``), or at least one
+        # ``**operand`` is not a literal Dict (Name, Call, subscript, ...).
+        # A name bound to a dict literal is not enough, the dict can be
+        # filled after its creation (``d["y"] = ...``, see #10029). A literal
         # ``f(**{"y": ...})`` keeps the gate closed and lets
-        # ``no-value-for-parameter`` fire (see #8785).
+        # ``no-value-for-parameter`` and ``missing-kwoa`` fire (see #8785).
         kwargs_might_supply_more = any(
             not isinstance(kw.value, nodes.Dict) for kw in node.kwargs
         )
@@ -1791,23 +1770,8 @@ accessed. Python regular expressions are accepted.",
             for i, [(name, _defval), _assigned] in enumerate(parameters):
                 if name is not None:
                     parameters[i] = (parameters[i][0], True)
-            # Keyword-only parameters can also be provided through a
-            # **kwargs dict whose keys are inferable.
-            for starred in node.kwargs:
-                if isinstance(starred.value, nodes.Name):
-                    for key in _dict_keys_from_subscript_assignments(starred.value):
-                        if key in kwparams:
-                            kwparams[key][1] = True
-                inferred = safe_infer(starred.value)
-                if not isinstance(inferred, nodes.Dict):
-                    continue
-                for key, _value in inferred.items:
-                    if (
-                        isinstance(key, nodes.Const)
-                        and isinstance(key.value, str)
-                        and key.value in kwparams
-                    ):
-                        kwparams[key.value][1] = True
+            for kwparam in kwparams.values():
+                kwparam[1] = True
 
         # Check that any parameters without a default have been assigned
         # values.

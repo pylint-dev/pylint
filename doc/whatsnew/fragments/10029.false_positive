@@ -1,3 +1,5 @@
-Fix false positive for ``missing-kwoa`` when keyword-only arguments are provided through a ``**kwargs`` dict whose keys are inferable (e.g. built up via subscript assignments like ``someargs["c"] = 3``).
+Fix a false positive for ``missing-kwoa`` when keyword-only arguments are passed
+through a ``**kwargs`` dictionary that is not a literal at the call site, for
+example one filled with ``options["key"] = value`` after its creation.
 
 Closes #10029
