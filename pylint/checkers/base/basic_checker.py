@@ -360,6 +360,15 @@ class BasicChecker(_BasicChecker):
         if emit:
             self.add_message("using-constant-test", node=test, confidence=INFERENCE)
         elif isinstance(inferred, const_nodes):
+            # Astroid infers names bound by unpacking a generator as the
+            # built-in generator class, even though they hold yielded values.
+            if (
+                isinstance(test, nodes.Name)
+                and isinstance(inferred, nodes.ClassDef)
+                and inferred.qname() == "builtins.generator"
+                and self._name_is_unpacked_from_generator(test)
+            ):
+                return
             # If the constant node is a FunctionDef or Lambda then
             # it may be an illicit function call due to missing parentheses
             call_inferred = None
@@ -378,6 +387,22 @@ class BasicChecker(_BasicChecker):
                     confidence=INFERENCE,
                 )
             self.add_message("using-constant-test", node=test, confidence=INFERENCE)
+
+    @staticmethod
+    def _name_is_unpacked_from_generator(test: nodes.Name) -> bool:
+        """Return whether ``test`` names a value unpacked from a generator."""
+        assignments = test.frame().lookup(test.name)[1]
+        for assignment in assignments:
+            if not isinstance(assignment, nodes.AssignName):
+                continue
+            statement = assignment.statement()
+            if (
+                isinstance(statement, nodes.Assign)
+                and assignment.parent is not statement
+                and isinstance(utils.safe_infer(statement.value), bases.Generator)
+            ):
+                return True
+        return False
 
     @staticmethod
     def _name_holds_generator(test: nodes.Name) -> tuple[bool, nodes.Call | None]:
