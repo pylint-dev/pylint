@@ -273,6 +273,32 @@ def remove_successive(all_couples: CplIndexToCplLines_T) -> None:
                 pass
 
 
+def _is_placeholder_stmt(stmt: nodes.NodeNG) -> bool:
+    """Check whether a statement is a trivial placeholder.
+
+    Placeholder statements (``pass``, ``...``, ``raise NotImplementedError``
+    and ``return NotImplemented``) are the conventional bodies of stubs and
+    abstract methods: duplication between them carries no copy-paste signal.
+    This deliberately differs from astroid's ``FunctionDef.is_abstract()``,
+    which relies on decorators and does not recognise ``...`` or
+    ``return NotImplemented`` bodies.
+    """
+    if isinstance(stmt, nodes.Pass):
+        return True
+    if isinstance(stmt, nodes.Expr):
+        return isinstance(stmt.value, nodes.Const) and stmt.value.value is Ellipsis
+    if isinstance(stmt, nodes.Raise):
+        exc = stmt.exc
+        if isinstance(exc, nodes.Call):
+            exc = exc.func
+        return isinstance(exc, nodes.Name) and exc.name == "NotImplementedError"
+    if isinstance(stmt, nodes.Return):
+        return (
+            isinstance(stmt.value, nodes.Name) and stmt.value.name == "NotImplemented"
+        )
+    return False
+
+
 def filter_noncode_lines(
     ls_1: LineSet,
     stindex_1: Index,
@@ -579,7 +605,9 @@ def stripped_lines(
     :param ignore_comments: if true, any comment in the lines collection is removed from the result
     :param ignore_docstrings: if true, any line that is a docstring is removed from the result
     :param ignore_imports: if true, any line that is an import is removed from the result
-    :param ignore_signatures: if true, any line that is part of a function signature is removed from the result
+    :param ignore_signatures: if true, any line that is part of a function signature is removed from the result;
+           functions whose body only contains placeholder statements (``pass``, ``...``,
+           ``raise NotImplementedError``, ``return NotImplemented``) are removed entirely
     :param line_enabled_callback: If called with "R0801" and a line number, a return value of False will disregard
            the line
     :param tree: pre-parsed AST; when provided the redundant astroid.parse() call is skipped
@@ -619,15 +647,15 @@ def stripped_lines(
                 return functions
 
             functions = _get_functions([], tree)
-            ignore_lines.update(
-                chain.from_iterable(
-                    range(
-                        func.lineno,
-                        func.body[0].lineno if func.body else func.tolineno + 1,
-                    )
-                    for func in functions
-                )
-            )
+            for func in functions:
+                if func.body and all(_is_placeholder_stmt(stmt) for stmt in func.body):
+                    # The whole function is a declarative stub with no
+                    # implementation to compare: ignore it entirely, not just
+                    # its signature. See https://github.com/pylint-dev/pylint/issues/7213
+                    end_lineno = func.tolineno + 1
+                else:
+                    end_lineno = func.body[0].lineno if func.body else func.tolineno + 1
+                ignore_lines.update(range(func.lineno, end_lineno))
 
     strippedlines = []
     docstring = None
@@ -756,7 +784,11 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
     IGNORE_COMMENTS_HELP = "Comments are removed from the similarity computation"
     IGNORE_DOCSTRINGS_HELP = "Docstrings are removed from the similarity computation"
     IGNORE_IMPORTS_HELP = "Imports are removed from the similarity computation"
-    IGNORE_SIGNATURES_HELP = "Signatures are removed from the similarity computation"
+    IGNORE_SIGNATURES_HELP = (
+        "Signatures are removed from the similarity computation. Functions "
+        "whose body only contains placeholder statements (pass, ..., raise "
+        "NotImplementedError, return NotImplemented) are removed entirely."
+    )
     # for available dict keys/values see the option parser 'add_option' method
     options: Options = (
         (
