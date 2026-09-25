@@ -90,3 +90,42 @@ def test_context_managers(**kw):
 
 
 test_context_managers(a=1)
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/10029
+# Keyword-only arguments may come from a **kwargs dict filled after its
+# creation. Astroid infers the dict as the literal it was created from, so
+# only a literal **{...} at the call site proves that a key is missing.
+def fun_with_kwargs(a, b, *, c, d, **kwargs):
+    """function with kwargs"""
+    return a + b + c + d
+
+
+someargs = {}
+someargs["c"] = 3
+someargs["d"] = 4
+someargs["e"] = 5
+someargs["f"] = 6
+rval = fun_with_kwargs(1, 2, **someargs)
+
+updated = {}
+updated.update(c=3, d=4)
+rval = fun_with_kwargs(1, 2, **updated)
+
+looped = {}
+for key in ("c", "d"):
+    looped[key] = 1
+rval = fun_with_kwargs(1, 2, **looped)
+
+
+def uses_module_level_dict():
+    return fun_with_kwargs(1, 2, **someargs)
+
+
+# The name may be rebound or mutated before the call, it is not proof.
+otherargs = {"e": 5}
+rval = fun_with_kwargs(1, 2, **otherargs)
+
+# A literal at the call site is the whole key set.
+rval = fun_with_kwargs(1, 2, **{"e": 5})  # [missing-kwoa, missing-kwoa]
+rval = fun_with_kwargs(1, 2, **{"c": 3, "e": 5})  # [missing-kwoa]
+rval = fun_with_kwargs(1, 2, **{"c": 3}, **someargs)
