@@ -11,3 +11,6 @@ superfluous-parens:76:0:None:None::Unnecessary parens after 'assert' keyword:UND
 superfluous-parens:77:0:None:None::Unnecessary parens after 'assert' keyword:UNDEFINED
 superfluous-parens:79:0:None:None::Unnecessary parens after '=' keyword:UNDEFINED
 superfluous-parens:87:0:None:None::Unnecessary parens after 'in' keyword:UNDEFINED
+superfluous-parens:99:0:None:None::Unnecessary parens after 'if' keyword:UNDEFINED
+superfluous-parens:101:0:None:None::Unnecessary parens after 'if' keyword:UNDEFINED
+superfluous-parens:103:0:None:None::Unnecessary parens after 'while' keyword:UNDEFINED
