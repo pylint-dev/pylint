@@ -1,0 +1,6 @@
+``arguments-differ`` now describes how the kinds of parameters differ (positional-only,
+positional-or-keyword, keyword-only) when the total number of parameters is unchanged,
+instead of the confusing "Number of parameters was X and is now X". Positional-only
+parameters are also now included in the reported counts.
+
+Closes #5793
