@@ -1,0 +1,3 @@
+Fix a false positive for :ref:`no-member` when chaining type narrowing checks in an ``if`` condition with ``and``.
+
+Closes #10784
