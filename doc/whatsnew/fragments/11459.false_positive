@@ -1,0 +1,5 @@
+Fix a false positive for :ref:`unnecessary-ellipsis` when an ellipsis is the
+sole body statement of a ``Protocol`` method defined inside a conditional block
+such as ``if TYPE_CHECKING:``.
+
+Closes #11459
