@@ -156,11 +156,14 @@ If a configuration is incorrect and should lead to a crash or warning being emit
 specify this by adding a ``.out`` file. This file should have the following name
 ``name_of_configuration_testfile.error_code.out``. So, if your test is called ``bad_configuration.toml``
 and should exit with exit code 2 the ``.out`` file should be named ``bad_configuration.2.out``.
-The content of the ``.out`` file should have a similar pattern as a normal Pylint output. Note that the
-module name should be ``{abspath}`` and the file name ``{relpath}``.
+You don't need to write its content: create the file empty and run the test, pytest-remaster_
+writes Pylint's output in it, with ``{abspath}`` and ``{relpath}`` in place of the path of the
+configuration file. When the output changes later, the test rewrites the file and fails, so you
+can review the change with ``git diff``.
 
 
 .. _tox: https://tox.wiki/en/latest/
 .. _pytest: https://docs.pytest.org/en/latest/
+.. _pytest-remaster: https://github.com/Pierre-Sassoulas/pytest-remaster
 .. _pytest-cov: https://pypi.org/project/pytest-cov/
 .. _astroid: https://github.com/pylint-dev/astroid
