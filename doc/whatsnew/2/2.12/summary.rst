@@ -101,7 +101,7 @@ Other Changes
   Closes #5178
 
 * Added configuration option ``exclude-too-few-public-methods`` to allow excluding
-  classes from the ``min-public-methods`` checker.
+  classes from the ``min-public-methods`` check.
 
   Closes #3370
 
