@@ -49,6 +49,9 @@ class BroadTryClauseChecker(checkers.BaseChecker):
     def _count_statements(
         self, node: nodes.For | nodes.If | nodes.Try | nodes.While | nodes.With
     ) -> int:
+        if len(node.body) == 1 and isinstance(node.body[0], nodes.Pass):
+            return 0
+
         statement_count = len(node.body)
 
         for body_node in node.body:
