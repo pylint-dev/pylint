@@ -2,7 +2,7 @@
 
 # pylint: disable=missing-docstring, too-few-public-methods, invalid-name, unused-argument, comparison-of-constants
 
-from typing import List, overload, Protocol, Union
+from typing import TYPE_CHECKING, List, overload, Protocol, Union
 
 # Ellipsis and preceding statement
 try:
@@ -142,3 +142,33 @@ class ProtocolWithImplementation(Protocol):
         """Return a value."""
         ...  # [unnecessary-ellipsis]
         return 1
+
+
+class ProtocolWithTypeChecking(Protocol):
+    if TYPE_CHECKING:
+        def static_only(self) -> int:
+            """A static-only protocol method."""
+            ...
+
+
+class ProtocolWithTypeCheckingAndImplementation(Protocol):
+    if TYPE_CHECKING:
+        def static_only(self) -> int:
+            """A static-only protocol method with implementation."""
+            ...  # [unnecessary-ellipsis]
+            return 1
+
+
+class NonProtocolWithTypeChecking:
+    if TYPE_CHECKING:
+        def static_only(self) -> int:
+            """A static-only method in normal class."""
+            ...  # [unnecessary-ellipsis]
+
+
+class ProtocolWithNestedCondition(Protocol):
+    if TYPE_CHECKING:
+        if TYPE_CHECKING:
+            def nested_method(self) -> int:
+                """A nested protocol method."""
+                ...
