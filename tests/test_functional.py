@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import platform
+import sys
 from collections.abc import Iterator
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -67,11 +68,38 @@ def test_functional(
     else:
         actual_output = lint_test.check_messages()
 
-    golden_master.check(
-        lint_test.serialize_output(actual_output),
-        test_file.expected_output,
-        # The version override (``<test>.312.txt``) is picked above, since it
-        # applies to every later version too. An output that differs on one
-        # implementation goes in ``<test>.pypy.txt`` or ``<test>.312.pypy.txt``.
-        dimensions={"implementation": platform.python_implementation().lower()},
-    )
+    output = lint_test.serialize_output(actual_output)
+    expected_output = test_file.expected_output
+    hint = _why_not_remastered(test_file, output)
+    try:
+        (GoldenMaster(remaster=False) if hint else golden_master).check(
+            output,
+            expected_output,
+            # The version file (``<test>.312.txt``) is picked above, since it
+            # applies to every later version too. An output that differs on one
+            # implementation goes in ``<test>.pypy.txt`` or ``<test>.312.pypy.txt``.
+            dimensions={"implementation": platform.python_implementation().lower()},
+        )
+    except pytest.fail.Exception as exc:
+        if not hint:
+            raise
+        pytest.fail(f"{exc}\n{hint}", pytrace=False)
+
+
+def _why_not_remastered(test_file: FunctionalTestFile, output: str) -> str:
+    """Explain why the expected output must not be rewritten, if it must not."""
+    expected_output = Path(test_file.expected_output)
+    current = "".join(str(v) for v in sys.version_info[:2])
+    if test_file.expected_output_is_fallback:
+        return (
+            f"{expected_output.name} is the expected output of an older Python"
+            " version, so it is not remastered from this one. Record this"
+            f" version's output in {test_file.base}.{current}.txt, or remaster"
+            " with the Python version the file was written for."
+        )
+    if not output and expected_output.name != f"{test_file.base}.txt":
+        return (
+            f"The output is now empty, but deleting {expected_output.name} would"
+            " make this version read another file: empty it by hand instead."
+        )
+    return ""
