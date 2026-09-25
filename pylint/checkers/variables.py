@@ -1532,7 +1532,13 @@ class VariablesChecker(BaseChecker):
         ):
             return
         globs = node.root().globals
+        type_params = {tp.name.name for tp in node.type_params}
         for name, stmt in node.items():
+            if name in type_params:
+                # PEP 695 type parameters are scoped to the function, so
+                # reusing a type-parameter name from an outer scope (e.g. a
+                # type alias) is intentional and should not be flagged.
+                continue
             if name in globs and not isinstance(stmt, nodes.Global):
                 definition = globs[name][0]
                 if (
