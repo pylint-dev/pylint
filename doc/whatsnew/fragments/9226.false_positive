@@ -1,0 +1,4 @@
+Fix a false positive for ``useless-parent-delegation`` when a keyword-only
+parameter is passed to the parent under the same keyword but with a different value.
+
+Closes #9226
