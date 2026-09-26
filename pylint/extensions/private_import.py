@@ -37,6 +37,7 @@ class PrivateImportChecker(BaseChecker):
         self.all_used_type_annotations: dict[str, bool] = {}
         self.populated_annotations = False
 
+    @utils.only_required_for_messages("import-private-name")
     def visit_module(self, _: nodes.Module) -> None:
         # Type annotations are collected per module, so that one module's
         # annotations do not decide the result for the next one.
