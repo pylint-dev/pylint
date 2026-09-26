@@ -148,6 +148,9 @@ class TokenWrapper:
     def __init__(self, tokens: list[tokenize.TokenInfo]) -> None:
         self._tokens = tokens
 
+    def __len__(self) -> int:
+        return len(self._tokens)
+
     def token(self, idx: int) -> str:
         return self._tokens[idx][1]
 
@@ -640,6 +643,31 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 self.add_message("line-too-long", line=i, args=(len(line), max_chars))
 
     @staticmethod
+    def _find_pragma_in_comments(
+        tokens: TokenWrapper, line_start: int, lineno: int
+    ) -> tuple[Match[str], int, int] | None:
+        """Find the first pylint pragma in a comment token of the physical line.
+
+        Anchoring the pragma regex on the raw line can match a '#' inside a
+        string literal, so only comment tokens are considered. The returned
+        span is relative to the physical line.
+        """
+        for idx in range(line_start, len(tokens)):
+            if tokens.start_line(idx) != lineno:
+                break
+            if tokens.type(idx) != tokenize.COMMENT:
+                continue
+            token_match = OPTION_PO.search(tokens.token(idx))
+            if token_match is not None:
+                base_col = tokens.start_col(idx)
+                return (
+                    token_match,
+                    base_col + token_match.start(1),
+                    base_col + token_match.end(1),
+                )
+        return None
+
+    @staticmethod
     def remove_pylint_option_from_lines(options_pattern_obj: Match[str]) -> str:
         """Remove the `# pylint ...` pattern from lines."""
         lines = options_pattern_obj.string
@@ -728,14 +756,30 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         if not potential_line_length_warning:
             return
 
-        # Line length check may be deactivated through `pylint: disable` comment
-        mobj = OPTION_PO.search(lines)
+        # Line length check may be deactivated through `pylint: disable` comment.
+        # Look for the pragma in comment tokens first: anchoring the regex on
+        # the raw lines can match a '#' inside a string literal and strip code
+        # together with the actual pragma (see issue #11440). Only if no comment
+        # token holds a pragma do we fall back to searching the raw lines, which
+        # keeps pragmas inside multi-line strings (e.g. docstrings) working.
+        pragma = self._find_pragma_in_comments(tokens, line_start, lineno)
         checker_off = False
-        if mobj:
-            if not self.is_line_length_check_activated(mobj):
+        if pragma is not None:
+            pragma_match, span_start, span_end = pragma
+            if not self.is_line_length_check_activated(pragma_match):
                 checker_off = True
             # The 'pylint: disable whatever' should not be taken into account for line length count
-            lines = self.remove_pylint_option_from_lines(mobj)
+            lines = lines[:span_start].rstrip() + lines[span_end:]
+        else:
+            # No comment token holds a pragma: fall back to searching the raw
+            # lines so that pragmas inside multi-line strings (e.g. docstrings)
+            # keep working as before.
+            mobj = OPTION_PO.search(lines)
+            if mobj:
+                if not self.is_line_length_check_activated(mobj):
+                    checker_off = True
+                # The 'pylint: disable whatever' should not be taken into account for line length count
+                lines = self.remove_pylint_option_from_lines(mobj)
 
         # Trailing pragmas from other tooling (``type: ignore`` for mypy, ``noqa``
         # for flake8, ``pragma: no cover`` for coverage, ...) should not be taken

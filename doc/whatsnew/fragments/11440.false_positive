@@ -1,0 +1,3 @@
+``useless-suppression`` is no longer wrongly reported when a
+``line-too-long`` disable pragma is preceded by a ``#`` inside a string
+literal on the same line.
