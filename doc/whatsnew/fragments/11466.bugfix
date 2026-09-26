@@ -1,0 +1,6 @@
+Fix ``import-private-name`` depending on the order of the checked files: type
+annotations are now collected for each module instead of only for the first
+module checked that contains an import. This removes a false positive on imports
+used only as annotations and a false negative on private imports used at runtime.
+
+Closes #11466
