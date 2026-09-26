@@ -1,0 +1,8 @@
+Fix a false negative for ``unused-import``: when a module imports two sibling
+submodules of the same package (e.g. ``import pkg.a`` and ``import pkg.b``),
+using one of them no longer hides the other one being unused. Both imports
+bind the same local name (``pkg``), so using either one used to mark the
+whole name as consumed, silently suppressing the warning for the sibling that
+was never referenced.
+
+Closes #2583
