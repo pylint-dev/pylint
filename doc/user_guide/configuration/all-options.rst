@@ -489,7 +489,7 @@ Standard Checkers
 
    confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
 
-   disable = ["bad-inline-option", "consider-using-augmented-assign", "deprecated-pragma", "file-ignored", "locally-disabled", "prefer-typing-namedtuple", "raw-checker-failed", "suppressed-message", "use-implicit-booleaness-not-comparison-to-string", "use-implicit-booleaness-not-comparison-to-zero", "use-symbolic-message-instead", "useless-suppression"]
+   disable = ["bad-float-notation", "bad-inline-option", "consider-using-augmented-assign", "deprecated-pragma", "file-ignored", "locally-disabled", "prefer-typing-namedtuple", "raw-checker-failed", "suppressed-message", "use-implicit-booleaness-not-comparison-to-string", "use-implicit-booleaness-not-comparison-to-zero", "use-symbolic-message-instead", "useless-suppression"]
 
    enable = []
 
@@ -1260,6 +1260,15 @@ Standard Checkers
 
 ``Format`` **Checker**
 ----------------------
+.. _allow-aligned-exponents-option:
+
+--allow-aligned-exponents
+"""""""""""""""""""""""""
+*Allow a float to keep a non-standard mantissa when another float on the same statement shares its exponent. Writing a value and its uncertainty on one exponent (1.3806488e-23 alongside 0.0000013e-23) shows their relative precision at a glance, and is deliberate rather than sloppy.*
+
+**Default:**  ``True``
+
+
 .. _expected-line-ending-format-option:
 
 --expected-line-ending-format
@@ -1267,6 +1276,33 @@ Standard Checkers
 *Expected format of line ending, e.g. empty (any line ending), LF or CRLF.*
 
 **Default:** ``""``
+
+
+.. _float-notation-min-gain-option:
+
+--float-notation-min-gain
+"""""""""""""""""""""""""
+*Number of characters a suggestion must save before a plain float literal outside 'float-notation-threshold' is flagged. 0 (default) always flags it, for projects that want one consistent notation. Raise it to 1 to only rewrite floats when the rewrite is actually shorter, or higher to only catch the big wins. Literals that already use a notation and use it wrongly are flagged whatever this is set to.*
+
+**Default:**  ``0``
+
+
+.. _float-notation-style-option:
+
+--float-notation-style
+""""""""""""""""""""""
+*Allowed notation styles for float literals above 'float-notation-threshold'. Comma-separated list of 'scientific', 'engineering', and/or 'underscore' (PEP 515). Empty (default) accepts any of the three; list a subset to restrict accepted forms.*
+
+**Default:**  ``()``
+
+
+.. _float-notation-threshold-option:
+
+--float-notation-threshold
+""""""""""""""""""""""""""
+*Threshold for float literals to be expected to be written using the scientific, engineering or underscore notation. If the absolute value of a float literal is greater than this value (or smaller than the inverse of this value for scientific and engineering notation), it will be checked.*
+
+**Default:**  ``1e6``
 
 
 .. _ignore-long-lines-option:
@@ -1305,6 +1341,15 @@ Standard Checkers
 **Default:**  ``"    "``
 
 
+.. _integer-notation-threshold-option:
+
+--integer-notation-threshold
+""""""""""""""""""""""""""""
+*Threshold above which an integer literal is expected to group its digits with PEP 515 underscores. Integers whose existing grouping is wrong are flagged whatever their size.*
+
+**Default:**  ``1000000``
+
+
 .. _max-line-length-option:
 
 --max-line-length
@@ -1341,6 +1386,15 @@ Standard Checkers
 **Default:**  ``False``
 
 
+.. _suggest-mantissa-underscore-option:
+
+--suggest-mantissa-underscore
+"""""""""""""""""""""""""""""
+*Always suggest PEP 515 underscore grouping in the mantissa of scientific / engineering / repr replacements, even when the source literal didn't use underscores. By default the grouping is preserved only if the source already used it.*
+
+**Default:**  ``False``
+
+
 
 .. raw:: html
 
@@ -1352,8 +1406,16 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.format]
+   allow-aligned-exponents = true
+
    # Possible choices: ['', 'LF', 'CRLF']
    expected-line-ending-format = ""
+
+   float-notation-min-gain = 0
+
+   float-notation-style = []
+
+   float-notation-threshold = 1000000.0
 
    ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
 
@@ -1363,6 +1425,8 @@ Standard Checkers
 
    indent-string = "    "
 
+   integer-notation-threshold = 1000000
+
    max-line-length = 100
 
    max-module-lines = 1000
@@ -1370,6 +1434,8 @@ Standard Checkers
    single-line-class-stmt = false
 
    single-line-if-stmt = false
+
+   suggest-mantissa-underscore = false
 
 
 
