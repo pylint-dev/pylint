@@ -682,3 +682,84 @@ def test_safe_slots_returns_nothing_for_inconsistent_bases() -> None:
         __slots__ = ("label",)
     """)
     assert utils.safe_slots(node) is None
+
+
+@pytest.mark.parametrize(
+    "code,expected",
+    [
+        (
+            """
+            class Example:
+                @property
+                def prop(self):  #@
+                    return 1
+            """,
+            True,
+        ),
+        (
+            """
+            import functools
+            class Example:
+                @functools.cached_property
+                def prop(self):  #@
+                    return 1
+            """,
+            True,
+        ),
+        (
+            """
+            import types
+            class Example:
+                @types.DynamicClassAttribute
+                def prop(self):  #@
+                    return 1
+            """,
+            True,
+        ),
+        (
+            """
+            import enum
+            class Example(enum.Enum):
+                A = enum.auto()
+                @property
+                def value(self):  #@
+                    return "val"
+            """,
+            True,
+        ),
+        (
+            """
+            class CustomProp(property):
+                pass
+            class Example:
+                @CustomProp
+                def prop(self):  #@
+                    return 1
+            """,
+            True,
+        ),
+        (
+            """
+            import types
+            class CustomDynamic(types.DynamicClassAttribute):
+                pass
+            class Example:
+                @CustomDynamic
+                def prop(self):  #@
+                    return 1
+            """,
+            True,
+        ),
+        (
+            """
+            class Example:
+                def method(self):  #@
+                    return 1
+            """,
+            False,
+        ),
+    ],
+)
+def test_decorated_with_property(code: str, expected: bool) -> None:
+    node = astroid.extract_node(code)
+    assert utils.decorated_with_property(node) is expected
