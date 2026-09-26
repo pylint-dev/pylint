@@ -187,6 +187,22 @@ class ForwardSlashChunker(Chunker):  # type: ignore[misc]
 
 CODE_FLANKED_IN_BACKTICK_REGEX = re.compile(r"(\s|^)(`{1,2})([^`]+)(\2)([^`]|$)")
 
+# A reST field marker opening a line: ``:param str name:``, ``:rtype:``. The
+# lookahead leaves out roles such as ``:class:`Foo```, which a backtick follows.
+SPHINX_FIELD_MARKER_REGEX = re.compile(r"^(\s*):[^:`\s][^:`]*:(?=\s|$)")
+
+
+def _strip_sphinx_field_marker(line: str) -> str:
+    """Blank out a reST field marker at the start of a docstring line.
+
+    The field name, type and argument name in a marker are markup and code,
+    not prose. The description after it is still checked, and the marker is
+    replaced by spaces so reported columns do not move.
+    """
+    return SPHINX_FIELD_MARKER_REGEX.sub(
+        lambda match: match.group(1) + " " * (match.end() - match.end(1)), line
+    )
+
 
 def _strip_code_flanked_in_backticks(line: str) -> str:
     """Alter line so code flanked in back-ticks is ignored.
@@ -357,6 +373,8 @@ class SpellingChecker(BaseTokenChecker):
             starts_with_comment = False
 
         line = _strip_code_flanked_in_backticks(line)
+        if msgid == "wrong-spelling-in-docstring":
+            line = _strip_sphinx_field_marker(line)
 
         for word, word_start_at in self.tokenizer(line.strip()):
             word_start_at += initial_space
