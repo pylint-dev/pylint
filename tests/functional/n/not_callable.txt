@@ -8,3 +8,4 @@ not-callable:67:0:67:13::PROP.test is not callable:UNDEFINED
 not-callable:68:0:68:13::PROP.custom is not callable:UNDEFINED
 not-callable:137:18:137:45::ClassWithProperty().value is not callable:UNDEFINED
 not-callable:202:0:202:16::get_number(10) is not callable:UNDEFINED
+not-callable:266:0:266:27::NON_CALLABLE_ITEMS['key'] is not callable:UNDEFINED

@@ -703,6 +703,26 @@ def _determine_callable(
     raise ValueError
 
 
+def _is_subscripted_class_call(node: nodes.Call, inferred_call: nodes.NodeNG) -> bool:
+    """Return whether a subscripted class is being instantiated.
+
+    Astroid can infer ``SomeClass[T]`` as an instance of ``SomeClass`` even
+    though the runtime value remains callable. Limit the exception to that
+    exact class so ordinary subscription results are still checked.
+    """
+    if not (
+        isinstance(node.func, nodes.Subscript)
+        and isinstance(inferred_call, astroid.Instance)
+    ):
+        return False
+
+    subscripted = safe_infer(node.func.value)
+    return (
+        isinstance(subscripted, nodes.ClassDef)
+        and inferred_call._proxied is subscripted
+    )
+
+
 def _has_parent_of_type(
     node: nodes.Call,
     node_type: nodes.Keyword | nodes.Starred,
@@ -1929,6 +1949,11 @@ accessed. Python regular expressions are accepted.",
 
         if not isinstance(inferred_call, astroid.Instance):
             self.add_message("not-callable", node=node, args=node.func.as_string())
+            return
+
+        # A class remains callable after subscription, even when astroid infers
+        # the subscription as an instance of that class.
+        if _is_subscripted_class_call(node, inferred_call):
             return
 
         # Don't emit if we can't make sure this object is callable.
