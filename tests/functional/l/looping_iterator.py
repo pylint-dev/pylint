@@ -557,3 +557,28 @@ def itertools_chain_object_global_scope():
     for _i in range(2):
         for item in chain_obj:  # [looping-through-iterator]
             print(item)
+
+
+def outer_loop_over_same_iterator_is_safe(iterable):
+    # The inner loop drains the iterator the outer loop is walking, so the
+    # outer loop stops right after: the inner loop never runs twice.
+    it = iter(iterable)
+    for first in it:
+        for item in it:
+            print(first, item)
+
+
+def outer_loop_over_same_iterator_inside_repeating_loop_warns(iterable):
+    it = iter(iterable)
+    for _i in range(2):
+        for first in it:  # [looping-through-iterator]
+            for item in it:
+                print(first, item)
+
+
+def loop_between_outer_and_inner_over_same_iterator_warns(iterable):
+    it = iter(iterable)
+    for first in it:
+        for _i in range(2):
+            for item in it:  # [looping-through-iterator]
+                print(first, item)

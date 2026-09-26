@@ -23,3 +23,5 @@ looping-through-iterator:519:20:519:26:async_function_warns:Iterator 'gen_ex' fr
 looping-through-iterator:531:20:531:23:user_generator_function_warns:Iterator 'gen' from an outer scope is reused or consumed in a nested loop.:HIGH
 looping-through-iterator:549:25:549:33:enumerate_object_global_scope:Iterator 'enum_obj' from an outer scope is reused or consumed in a nested loop.:HIGH
 looping-through-iterator:558:20:558:29:itertools_chain_object_global_scope:Iterator 'chain_obj' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:574:21:574:23:outer_loop_over_same_iterator_inside_repeating_loop_warns:Iterator 'it' from an outer scope is reused or consumed in a nested loop.:HIGH
+looping-through-iterator:583:24:583:26:loop_between_outer_and_inner_over_same_iterator_warns:Iterator 'it' from an outer scope is reused or consumed in a nested loop.:HIGH
