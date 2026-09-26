@@ -43,3 +43,9 @@ del sys, ElementTree, xml.etree.ElementTree, encoders, email.encoders
 
 from pandas._libs import algos as libalgos
 import pandas._libs.algos as algos  # [reimported]
+
+# https://github.com/pylint-dev/pylint/issues/11353
+# A relative import of a submodule that happens to share a bare name with an
+# unrelated absolute import is not a reimport of the same module.
+import json
+from . import json as my_json
