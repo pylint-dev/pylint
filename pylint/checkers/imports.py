@@ -1091,6 +1091,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         module_file = node.root().file
         context_name = node.root().name
         base = os.path.splitext(os.path.basename(module_file))[0]
+        original_importedmodname = importedmodname
 
         try:
             if isinstance(node, nodes.ImportFrom) and node.level:
@@ -1103,7 +1104,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             pass
 
         if context_name == importedmodname:
-            self.add_message("import-self", node=node)
+            if not self._imports_name_missing_from_own_module(
+                node, context_name, original_importedmodname
+            ):
+                self.add_message("import-self", node=node)
 
         elif not astroid.modutils.is_stdlib_module(importedmodname):
             # if this is not a package __init__ module
@@ -1124,6 +1128,33 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 "cyclic-import", line=node.lineno
             ) or in_type_checking_block(node):
                 self._excluded_edges[context_name].add(importedmodname)
+
+    @staticmethod
+    def _imports_name_missing_from_own_module(
+        node: ImportNode, context_name: str, original_importedmodname: str
+    ) -> bool:
+        """Detect ``from <this package> import <name>`` where ``<name>`` does not
+        actually exist anywhere in the current module.
+
+        ``astroid.modutils.get_module_part`` falls back to the enclosing package
+        whenever the imported name isn't itself an importable submodule, which
+        makes it collapse to ``context_name`` regardless of whether the name is a
+        real attribute (e.g. a class defined earlier in the same ``__init__.py``)
+        or altogether missing. Only the former is a genuine self-import.
+        """
+        if not isinstance(node, nodes.ImportFrom):
+            return False
+        prefix = f"{context_name}."
+        if not original_importedmodname.startswith(prefix):
+            return False
+        imported_name = original_importedmodname[len(prefix) :]
+        if not imported_name or "." in imported_name:
+            return False
+        bindings = node.root().locals.get(imported_name, [])
+        return bool(bindings) and all(
+            isinstance(binding, (nodes.Import, nodes.ImportFrom))
+            for binding in bindings
+        )
 
     def _check_preferred_module(self, node: ImportNode, mod_path: str) -> None:
         """Check if the module has a preferred replacement."""
