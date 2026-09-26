@@ -244,3 +244,38 @@ class SameNameHelperCall:
 
     def other_func(self):
         self.var1 = False
+
+
+class ClassicPropertySetter:
+    """Don't emit attribute-defined-outside-init for the setter of an
+    old-style, non-decorator ``property(fget, fset)`` call. See #3325.
+    """
+
+    def __init__(self, value):
+        self.value = value
+
+    def get_value(self):
+        return self._value
+
+    def set_value(self, value):
+        self._value = value
+
+    def unrelated(self):
+        self.stray = 1  # [attribute-defined-outside-init]
+
+    value = property(get_value, set_value)
+
+
+class ClassicPropertySetterKwargs:
+    """Same as above, using ``property(fget=..., fset=...)`` keywords."""
+
+    def __init__(self, value):
+        self.value = value
+
+    def get_value(self):
+        return self._value
+
+    def set_value(self, value):
+        self._value = value
+
+    value = property(fget=get_value, fset=set_value)

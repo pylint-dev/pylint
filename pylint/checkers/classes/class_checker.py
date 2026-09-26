@@ -423,6 +423,35 @@ def _has_data_descriptor(cls: nodes.ClassDef, attr: str) -> bool:
     return False
 
 
+def _is_classic_property_setter(func: nodes.FunctionDef) -> bool:
+    """Check if *func* is used as the ``fset`` argument of an old-style,
+    non-decorator ``property(fget, fset)`` call in its enclosing class body.
+    """
+    if not isinstance(func, nodes.FunctionDef):
+        return False
+    frame = func.parent
+    if not isinstance(frame, nodes.ClassDef):
+        return False
+    for node in frame.body:
+        if not isinstance(node, nodes.Assign) or not isinstance(node.value, nodes.Call):
+            continue
+        call = node.value
+        inferred_func = safe_infer(call.func)
+        if not (
+            isinstance(inferred_func, nodes.ClassDef)
+            and is_builtin_object(inferred_func)
+            and inferred_func.name == "property"
+        ):
+            continue
+        fset_arg: nodes.NodeNG | None = call.args[1] if len(call.args) > 1 else None
+        for keyword in call.keywords or ():
+            if keyword.arg == "fset":
+                fset_arg = keyword.value
+        if isinstance(fset_arg, nodes.Name) and fset_arg.name == func.name:
+            return True
+    return False
+
+
 def _called_in_methods(
     func: nodes.LocalsDictNodeNG,
     klass: nodes.ClassDef,
@@ -1344,7 +1373,9 @@ a metaclass class method.",
             # or if we have the attribute defined in a setter.
             frames = (node.frame() for node in filtered_nodes)
             if any(
-                frame.name in defining_methods or is_property_setter(frame)
+                frame.name in defining_methods
+                or is_property_setter(frame)
+                or _is_classic_property_setter(frame)
                 for frame in frames
             ):
                 continue
