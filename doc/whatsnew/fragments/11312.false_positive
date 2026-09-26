@@ -1,0 +1,6 @@
+Fixed a false positive ``unbalanced-tuple-unpacking`` when unpacking the ``args``
+of an exception.
+
+Fixed by upgrading astroid to 4.3.2.
+
+Closes #11312
