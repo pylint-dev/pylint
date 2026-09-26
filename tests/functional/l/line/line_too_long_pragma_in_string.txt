@@ -1,2 +1,2 @@
-line-too-long:14:0:None:None::Line too long (74/60):UNDEFINED
-line-too-long:21:0:None:None::Line too long (81/60):UNDEFINED
+line-too-long:15:0:None:None::Line too long (74/60):UNDEFINED
+line-too-long:22:0:None:None::Line too long (75/60):UNDEFINED

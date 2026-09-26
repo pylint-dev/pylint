@@ -3,6 +3,7 @@ line-too-long pragma handling.
 
 See issue #11440.
 """
+
 # pylint: disable=invalid-name
 
 # The '#' inside the string is not the pragma start: the
@@ -14,8 +15,8 @@ a1 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#bbbbbbbbbbbbbbbbbbbbbbbb"  # py
 a2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#bbbbbbbbbbbbbbbbbbbbbbbb"
 
 # A comment before the pragma is skipped over as before.
-b1 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"  # hello # pylint: disable=line-too-long
+b1 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"  # hello # pylint: disable=line-too-long
 
 # A comment without a pragma does not suppress anything.
 # +1: [line-too-long]
-b2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"  # hi
+b2 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"  # hi
