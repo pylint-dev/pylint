@@ -682,3 +682,14 @@ def test_safe_slots_returns_nothing_for_inconsistent_bases() -> None:
         __slots__ = ("label",)
     """)
     assert utils.safe_slots(node) is None
+
+
+def test_is_call_of_singledispatch_generic_function_lookup_error() -> None:
+    """A Name whose lookup() cannot resolve its enclosing scope is not a match."""
+    node = astroid.extract_node("""
+    def f(x=SOME_NAME): #@
+        pass
+    """)
+    default_name = node.args.defaults[0]
+    node.parent = None
+    assert utils.is_call_of_singledispatch_generic_function(default_name) is False

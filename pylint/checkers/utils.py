@@ -1585,6 +1585,47 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
     return False
 
 
+def is_call_of_singledispatch_generic_function(node: nodes.NodeNG) -> bool:
+    """Check if ``node`` is, or is assigned directly from, a call to a
+    function decorated with ``functools.singledispatch``.
+
+    The concrete implementation such a call dispatches to (and therefore its
+    return type) depends on the runtime type of its first argument, which is
+    picked among the registered overloads. Static inference has no way to
+    replicate that dispatch and can only see the generic function's own body,
+    so the inferred type of such a call cannot be trusted.
+    See https://github.com/pylint-dev/pylint/issues/2647.
+    """
+    singledispatch_qnames = (
+        "functools.singledispatch",
+        "singledispatch.singledispatch",
+    )
+
+    calls: list[nodes.Call] = []
+    if isinstance(node, nodes.Call):
+        calls.append(node)
+    elif isinstance(node, nodes.Name):
+        try:
+            _, assignments = node.lookup(node.name)
+        except AstroidError:
+            return False
+        for assignment in assignments:
+            parent = assignment.parent
+            if isinstance(parent, nodes.Assign) and isinstance(
+                parent.value, nodes.Call
+            ):
+                calls.append(parent.value)
+
+    for call in calls:
+        func = safe_infer(call.func)
+        if isinstance(func, nodes.FunctionDef) and decorated_with(
+            func, singledispatch_qnames
+        ):
+            return True
+
+    return False
+
+
 def find_inferred_fn_from_register(node: nodes.NodeNG) -> nodes.FunctionDef | None:
     # func.register are function calls or register attributes
     # when the function is annotated with types
