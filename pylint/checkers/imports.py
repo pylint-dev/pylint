@@ -1148,7 +1148,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         if not original_importedmodname.startswith(prefix):
             return False
         imported_name = original_importedmodname[len(prefix) :]
-        if not imported_name or "." in imported_name:
+        if not imported_name or "." in imported_name:  # pragma: no cover
+            # Unreachable via any real ``from ... import name`` statement:
+            # Python's grammar guarantees each imported name is a single,
+            # non-empty identifier. Kept as a defensive guard only.
             return False
         bindings = node.root().locals.get(imported_name, [])
         return bool(bindings) and all(
