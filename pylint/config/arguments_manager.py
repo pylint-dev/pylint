@@ -205,9 +205,46 @@ class _ArgumentsManager:
         """Loads the default values of all registered options."""
         self.config = self._arg_parser.parse_args([], self.config)
 
+    def _filter_flag_config_file_values(self, arguments: list[str]) -> list[str]:
+        """Honor the boolean value of valueless (``store_true``) options.
+
+        Valueless options are registered with ``nargs=0``, so ``argparse`` treats
+        ``--opt value`` as the flag being present (``True``) and drops ``value``.
+        A configuration file that writes ``opt = false`` must therefore not emit
+        the flag at all, while ``opt = true`` should emit it. See gh#8460.
+        """
+        flag_names: set[str] = set()
+        for action in self._arg_parser._actions:
+            if action.nargs == 0:
+                flag_names.update(
+                    option[2:]
+                    for option in action.option_strings
+                    if option.startswith("--")
+                )
+        falsy = {"false", "no", "n", "0"}
+        result: list[str] = []
+        index = 0
+        while index < len(arguments):
+            argument = arguments[index]
+            name = argument[2:] if argument.startswith("--") else None
+            if name in flag_names and index + 1 < len(arguments):
+                # A valueless option from a config file is always emitted as a
+                # "--opt value" pair. Drop the pair when the value is falsy so
+                # the flag is not set; keep the flag (drop its value) otherwise.
+                if arguments[index + 1].lower() in falsy:
+                    index += 2
+                    continue
+                result.append(argument)
+                index += 2
+                continue
+            result.append(argument)
+            index += 1
+        return result
+
     def _parse_configuration_file(self, arguments: list[str]) -> None:
         """Parse the arguments found in a configuration file into the namespace."""
         self._reset_callback_actions()
+        arguments = self._filter_flag_config_file_values(arguments)
         try:
             self.config, parsed_args = self._arg_parser.parse_known_args(
                 arguments, self.config
