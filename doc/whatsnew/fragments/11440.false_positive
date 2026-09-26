@@ -1,0 +1,3 @@
+Fixed a false positive for ``useless-suppression`` of ``line-too-long`` when a ``#`` inside a string literal comes before the ``# pylint: disable=line-too-long`` comment.
+
+Closes #11440
