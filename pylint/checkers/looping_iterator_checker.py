@@ -234,6 +234,15 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
                 for stmt in statements_after
             ):
                 return
+            if (
+                isinstance(repeating_loop.iter, nodes.Name)
+                and repeating_loop.iter.name == iterator_name
+            ):
+                # ``for a in it: for b in it:`` - the repeating loop walks the
+                # same iterator, so it stops once the nested loop drains it and
+                # never re-enters it. Reusing that repeating loop is reported
+                # on its own ``for`` statement.
+                return
             if not any(isinstance(stmt, nodes.Break) for stmt in statements_after):
                 break
             nested_loop = repeating_loop
