@@ -1,0 +1,2 @@
+invalid-slice-index:9:25:9:27::Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-step:19:27:19:28::Slice step cannot be 0:HIGH
