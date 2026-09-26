@@ -287,13 +287,11 @@ def test_toml_store_true_false_value_not_enabled(
     file must not enable the option (gh#8460).
     """
     config_file = tmp_path / "pyproject.toml"
-    config_file.write_text(
-        """
+    config_file.write_text("""
 [tool.pylint.main]
 exit-zero = false
 from-stdin = false
-"""
-    )
+""")
     runner = run_using_a_configuration_file(config_file, file_to_lint_path)
     assert runner.linter.config.exit_zero is False
     assert runner.linter.config.from_stdin is False
@@ -306,13 +304,11 @@ def test_toml_store_true_true_value_enabled(
     file must enable the option, while a sibling ``false`` stays disabled.
     """
     config_file = tmp_path / "pyproject.toml"
-    config_file.write_text(
-        """
+    config_file.write_text("""
 [tool.pylint.main]
 exit-zero = true
 from-stdin = false
-"""
-    )
+""")
     runner = run_using_a_configuration_file(config_file, file_to_lint_path)
     assert runner.linter.config.exit_zero is True
     assert runner.linter.config.from_stdin is False
