@@ -278,3 +278,41 @@ def test_files_option_overridden_by_files_flag() -> None:
         ["--rcfile", str(config_path), "--files", str(EMPTY_MODULE)], exit=False
     )
     assert runner.linter.config.files == [str(EMPTY_MODULE)]
+
+
+def test_toml_store_true_false_value_not_enabled(
+    tmp_path: Path, file_to_lint_path: str
+) -> None:
+    """A ``false`` value for a valueless (``store_true``) option in a TOML config
+    file must not enable the option (gh#8460).
+    """
+    config_file = tmp_path / "pyproject.toml"
+    config_file.write_text(
+        """
+[tool.pylint.main]
+exit-zero = false
+from-stdin = false
+"""
+    )
+    runner = run_using_a_configuration_file(config_file, file_to_lint_path)
+    assert runner.linter.config.exit_zero is False
+    assert runner.linter.config.from_stdin is False
+
+
+def test_toml_store_true_true_value_enabled(
+    tmp_path: Path, file_to_lint_path: str
+) -> None:
+    """A ``true`` value for a valueless (``store_true``) option in a TOML config
+    file must enable the option, while a sibling ``false`` stays disabled.
+    """
+    config_file = tmp_path / "pyproject.toml"
+    config_file.write_text(
+        """
+[tool.pylint.main]
+exit-zero = true
+from-stdin = false
+"""
+    )
+    runner = run_using_a_configuration_file(config_file, file_to_lint_path)
+    assert runner.linter.config.exit_zero is True
+    assert runner.linter.config.from_stdin is False
