@@ -3149,10 +3149,30 @@ class VariablesChecker(BaseChecker):
             case nodes.Const(value=str() | bytes()):
                 return len(value_node.value)
             case nodes.Subscript():
-                step = value_node.slice.step or 1
-                splice_range = (
-                    value_node.slice.upper.value - value_node.slice.lower.value
-                )
+                lower = value_node.slice.lower
+                upper = value_node.slice.upper
+                # Only compute the length when the bounds are numeric
+                # constants; anything else (a '#', a name, ...) in the slice
+                # would crash the arithmetic below (see issue #11472).
+                if not (
+                    isinstance(lower, nodes.Const)
+                    and isinstance(upper, nodes.Const)
+                    and isinstance(lower.value, (int, float))
+                    and isinstance(upper.value, (int, float))
+                ):
+                    return 1
+                splice_range = upper.value - lower.value
+                step_node = value_node.slice.step
+                if step_node is None:
+                    step: float = 1
+                elif (
+                    isinstance(step_node, nodes.Const)
+                    and isinstance(step_node.value, (int, float))
+                    and step_node.value
+                ):
+                    step = step_node.value
+                else:
+                    return 1
                 # RUF046 says the return of 'math.ceil' is always an int, mypy doesn't see it
                 return math.ceil(splice_range / step)  # type: ignore[no-any-return]
         return 1

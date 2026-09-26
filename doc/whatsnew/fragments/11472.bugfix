@@ -1,0 +1,5 @@
+A ``TypeError`` crash could occur when checking a ``for`` loop that
+iterates over a subscript with non-numeric constant bounds or a zero
+step, e.g. ``for a, b in {"k": [][0: ""]}.values():``.
+
+Closes #11472
