@@ -1,0 +1,6 @@
+Fix a crash in ``import-private-name`` when the value of an annotated assignment
+calls an expression that is not a name, such as ``x: str = ''().a``. Unwrapping
+the call assumed the callee was always a ``Name`` or an ``Attribute``, but it can
+be any node, e.g. a constant that astroid proxies to a class.
+
+Closes #11479

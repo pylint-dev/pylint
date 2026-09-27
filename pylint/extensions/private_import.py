@@ -244,8 +244,11 @@ class PrivateImportChecker(BaseChecker):
                     continue
             while isinstance(current_attribute, (nodes.Attribute, nodes.Call)):
                 if isinstance(current_attribute, nodes.Call):
+                    # The callee can be any expression, e.g. the ``''`` of ``''().a``,
+                    # whose astroid ``Const`` proxies to a ``ClassDef`` and has no
+                    # ``.expr``, so only unwrap it for attributes
                     current_attribute = current_attribute.func
-                if not isinstance(current_attribute, nodes.Name):
+                else:
                     current_attribute = current_attribute.expr
             if (
                 isinstance(current_attribute, nodes.Name)

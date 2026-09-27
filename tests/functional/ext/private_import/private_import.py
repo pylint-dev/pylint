@@ -140,3 +140,9 @@ from ..parent import _private
 
 from _private_module_x import some_name # [import-private-name]
 VAR = some_name
+
+# Test for https://github.com/pylint-dev/pylint/issues/11479
+# The callee of a call can be any expression, e.g. a literal, so unwrapping it
+# must not assume it is a Name or an Attribute
+from random import randint
+crash_var: str = ''().a  # pylint: disable=not-callable
