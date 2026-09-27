@@ -2639,7 +2639,9 @@ def _ancestors_to_call(
 def _calls_ancestor_init(
     init_node: nodes.FunctionDef, ancestor: nodes.ClassDef
 ) -> bool:
-    """Return True if `init_node` calls `ancestor`'s __init__, directly or via super()."""
+    """Return True if `init_node` calls `ancestor`'s __init__, directly or via
+    super().
+    """
     for call in init_node.nodes_of_class(nodes.Call):
         expr = call.func
         if not (isinstance(expr, nodes.Attribute) and expr.attrname == "__init__"):
