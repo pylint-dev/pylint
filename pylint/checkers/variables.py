@@ -3173,7 +3173,6 @@ class VariablesChecker(BaseChecker):
                     step = step_node.value
                 else:
                     return 1
-                # RUF046 says the return of 'math.ceil' is always an int, mypy doesn't see it
                 return math.ceil(splice_range / step)
         return 1
 
