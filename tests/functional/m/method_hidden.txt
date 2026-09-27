@@ -6,3 +6,4 @@ method-hidden:163:4:163:14:BuiltinNameChild.format:An attribute defined in funct
 method-hidden:173:4:173:15:BuiltinNameSameClass.license:An attribute defined in functional.m.method_hidden line 171 hides this method:UNDEFINED
 method-hidden:187:4:187:13:ModuleFunctionNameChild.color:An attribute defined in functional.m.method_hidden line 183 hides this method:UNDEFINED
 method-hidden:211:4:211:12:OverridesInitCallingSuper.func:An attribute defined in functional.m.method_hidden line 193 hides this method:UNDEFINED
+method-hidden:222:4:222:12:OverridesInitCallingAncestorExplicitly.func:An attribute defined in functional.m.method_hidden line 193 hides this method:UNDEFINED

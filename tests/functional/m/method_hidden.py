@@ -210,3 +210,14 @@ class OverridesInitCallingSuper(InitAssignsAttribute):
 
     def func(self, arg):  # [method-hidden]
         print(arg)
+
+
+class OverridesInitCallingAncestorExplicitly(InitAssignsAttribute):
+    """Calls the ancestor's `__init__` by name rather than via `super()`, so the
+    assignment does run and the method really is hidden."""
+
+    def __init__(self):
+        InitAssignsAttribute.__init__(self, None)
+
+    def func(self, arg):  # [method-hidden]
+        print(arg)
