@@ -1,0 +1,4 @@
+Fix ``--recursive`` discovery when the supplied directory is a package. Python
+files below non-package subdirectories are now linted as expected.
+
+Closes #9187
