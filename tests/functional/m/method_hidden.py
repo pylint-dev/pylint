@@ -221,3 +221,14 @@ class OverridesInitCallingAncestorExplicitly(InitAssignsAttribute):
 
     def func(self, arg):  # [method-hidden]
         print(arg)
+
+
+class OverridesInitCallingSomethingElse(InitAssignsAttribute):
+    """`__init__` calls something that is not an `__init__`, so the ancestor's
+    assignment still never runs and the method is not hidden."""
+
+    def __init__(self):
+        print("not an init call")
+
+    def func(self, arg):
+        print(arg)

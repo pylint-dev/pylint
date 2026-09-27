@@ -2651,10 +2651,10 @@ def _calls_ancestor_init(
                 return True
         try:
             for inferred in expr.expr.infer():
-                if isinstance(inferred, util.UninferableBase):
+                if isinstance(inferred, util.UninferableBase):  # pragma: no cover
                     continue
                 if inferred is ancestor:
                     return True
-        except astroid.InferenceError:
+        except astroid.InferenceError:  # pragma: no cover
             continue
     return False
