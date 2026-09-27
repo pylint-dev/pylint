@@ -3148,13 +3148,20 @@ class VariablesChecker(BaseChecker):
         match value_node:
             case nodes.Const(value=str() | bytes()):
                 return len(value_node.value)
-            case nodes.Subscript():
-                step = value_node.slice.step or 1
-                splice_range = (
-                    value_node.slice.upper.value - value_node.slice.lower.value
+            case nodes.Subscript(
+                slice=nodes.Slice(
+                    lower=nodes.Const(value=int() as lower),
+                    upper=nodes.Const(value=int() as upper),
+                    step=None | nodes.Const(value=int()) as step_node,
                 )
-                # RUF046 says the return of 'math.ceil' is always an int, mypy doesn't see it
-                return math.ceil(splice_range / step)  # type: ignore[no-any-return]
+            ):
+                # Only int bounds and an int or missing step are supported;
+                # anything else falls through to the default below.
+                step = 1 if step_node is None else step_node.value
+                if step == 0:
+                    return 1
+                splice_range = upper - lower
+                return math.ceil(splice_range / step)
         return 1
 
     @staticmethod
