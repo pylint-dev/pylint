@@ -1,0 +1,13 @@
+Finding the files to lint with ``--recursive=y`` is faster. Directories matching
+``ignore``, ``ignore-patterns`` or ``ignore-paths`` (such as ``.venv``, ``.git``
+or ``node_modules``) are no longer walked, and neither are the packages already
+found. In a checkout of pylint with its virtual environment, this step is about
+three times faster when ``.git``, ``.tox`` and ``.venv`` are ignored, and about
+twenty times faster when a large ignored tree is present.
+
+Directories and files are now also visited in sorted order, so the order in
+which files are linted no longer depends on the file system. The order of
+messages can change once for projects whose file system listed directories in
+another order.
+
+Closes #11005
