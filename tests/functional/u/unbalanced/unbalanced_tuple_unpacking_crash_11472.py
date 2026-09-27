@@ -35,3 +35,7 @@ for _a, _b in {"k": d[0]}.values():
 # Numeric bounds without an explicit step.
 for _a, _b in {"k": [][0:5]}.values():
     pass
+
+# A numeric step is used for the length estimate.
+for _a, _b in {"k": x[0:10:2]}.values():
+    pass
