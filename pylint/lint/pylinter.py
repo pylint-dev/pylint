@@ -739,37 +739,29 @@ class PyLinter(
             if os.path.isdir(something) and not os.path.isfile(
                 os.path.join(something, "__init__.py")
             ):
+                if _is_ignored_file(
+                    something,
+                    self.config.ignore,
+                    self.config.ignore_patterns,
+                    self.config.ignore_paths,
+                ):
+                    continue
                 skip_subtrees: list[str] = []
                 for root, dirnames, files in os.walk(something, topdown=True):
-
-                    # Caution: use of `list(dirnames)` is required to avoid
-                    # iteration issue. We have to have two tests in the loop.
-                    for dirname in list(dirnames):
-                        # First, check just the directory basename. We don't
-                        # pass ignore_paths, as those should still be scanned
-                        # for context needed for processing other files.
-                        if _is_ignored_file(
-                            dirname,
-                            self.config.ignore,
-                            self.config.ignore_patterns,
-                            [],
-                        ):
-                            dirnames.remove(dirname)
-                            continue
-
-                        # Next, check the path of the directory against ignore
-                        # and ignore_patterns, just in case the user specified
-                        # values which match the path, contrary to the
-                        # documentation. Again, we don't pass ignore_paths, as
-                        # those should still be scanned for context needed for
-                        # processing other files.
-                        if _is_ignored_file(
+                    # Prune ignored directories in place, so that os.walk does
+                    # not descend into them. The full path is needed for
+                    # ignore-paths, the basename is enough for ignore and
+                    # ignore-patterns and _is_ignored_file takes care of it.
+                    dirnames[:] = [
+                        dirname
+                        for dirname in dirnames
+                        if not _is_ignored_file(
                             os.path.join(root, dirname),
                             self.config.ignore,
                             self.config.ignore_patterns,
-                            [],
-                        ):
-                            dirnames.remove(dirname)
+                            self.config.ignore_paths,
+                        )
+                    ]
 
                     # os.walk yields entries in the order of the file system,
                     # sort them so that files are discovered in the same order

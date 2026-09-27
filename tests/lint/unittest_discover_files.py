@@ -210,7 +210,7 @@ def test_does_not_ignore_similarly_named_package(
         assert os_walk_visited.index(applications_path) < os_walk_visited.index(
             applications_api_path
         ), "os.walk() traversed the tree in an unexpected order..."
-    except AssertionError as e:
+    except AssertionError:
 
         # This is the critical part. Warn us and future folks that this is
         # otherwise a possible false pass caused by the fact that `os.warn()`
@@ -234,7 +234,7 @@ def test_does_not_ignore_similarly_named_package(
             print("Additional diagnostics are not available for this OS.")
 
         # Now, re-raise the assertion to cause the failure.
-        raise e
+        raise
 
 
 @pytest.mark.usefixtures("setup_test_file_tree")
@@ -334,8 +334,10 @@ def test_does_not_traverse_into_ignored_directories(
     # We need to do this, so that in the case of Windows, the os.sep value is
     # properly escaped.
     sep = re.escape(os.sep)
+    # Anchored at the end, the pattern matches the directory but none of the
+    # files below it, so the whole subtree must be skipped at the directory.
     initialized_linter.config.ignore_paths = [
-        re.compile(rf"a{sep}path{sep}ignored{sep}path")
+        re.compile(rf"src{sep}a{sep}path{sep}ignored{sep}path$")
     ]
 
     initialized_linter.config.ignore_patterns = (re.compile(r"^\.#"),)
@@ -369,17 +371,15 @@ def test_does_not_traverse_into_ignored_directories(
         results = tuple(initialized_linter._discover_files(["."]))
         mock_walk.assert_called_with(".", topdown=True)
 
-    # Assert that we got the correct results, including items specified in
-    # ignore_paths, which will still need to be scanned because they may contain
-    # info we need for checks of code elsewhere, but not items in ignore or
-    # ignore_patterns.
-    assert len(results) == 4
+    # Assert that we got the correct results, without items in ignore,
+    # ignore_patterns or ignore_paths.
+    assert len(results) == 3
     assert f".{os.sep}manage.py" not in results
     assert f".{os.sep}applications" not in results
     assert f".{os.sep}applications_api" in results
     assert (
         f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}path{os.sep}subdir-a{os.sep}file-a.py"
-        in results
+        not in results
     )
     assert (
         f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}not{os.sep}path{os.sep}subdir-b{os.sep}file-b.py"
@@ -399,8 +399,7 @@ def test_does_not_traverse_into_ignored_directories(
     )
 
     # Assert that we did not traverse into directories which match entries in
-    # ignore or ignored_patterns, but still traversed into directories
-    # specified by ignore_paths.
+    # ignore, ignore_patterns or ignore_paths.
     assert f".{os.sep}applications" not in os_walk_visited
     assert f".{os.sep}.venv" not in os_walk_visited
     assert f".{os.sep}.venv{os.sep}bin" not in os_walk_visited
@@ -409,11 +408,11 @@ def test_does_not_traverse_into_ignored_directories(
     assert f".{os.sep}node_modules{os.sep}node-package-b" not in os_walk_visited
     assert (
         f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}path"
-        in os_walk_visited
+        not in os_walk_visited
     )
     assert (
         f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}path{os.sep}subdir-a"
-        in os_walk_visited
+        not in os_walk_visited
     )
     assert (
         f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}not{os.sep}path{os.sep}subdir-b"
@@ -438,3 +437,15 @@ def test_does_not_traverse_into_ignored_directories(
         f".{os.sep}src{os.sep}path{os.sep}another{os.sep}path{os.sep}skip{os.sep}don't{os.sep}this{os.sep}subdir-d"
         in os_walk_visited
     )
+
+
+@pytest.mark.usefixtures("setup_test_file_tree")
+def test_ignored_argument_is_not_traversed(
+    initialized_linter: PyLinter,
+) -> None:
+    """A directory given as argument is skipped when it is ignored itself."""
+    initialized_linter.config.ignore = ["src"]
+    with mock.patch("os.walk") as mock_walk:
+        results = tuple(initialized_linter._discover_files(["src"]))
+    assert not results
+    mock_walk.assert_not_called()
