@@ -771,6 +771,11 @@ class PyLinter(
                         ):
                             dirnames.remove(dirname)
 
+                    # os.walk yields entries in the order of the file system,
+                    # sort them so that files are discovered in the same order
+                    # everywhere.
+                    dirnames.sort()
+
                     # This is almost dead code, since we will not be adding any
                     # entries to skip_subtrees once we finish the updates to the
                     # package yield block.
@@ -788,7 +793,7 @@ class PyLinter(
                     else:
                         yield from (
                             os.path.join(root, file)
-                            for file in files
+                            for file in sorted(files)
                             if file.endswith((".py", ".pyi"))
                             and not _is_ignored_file(
                                 file,
