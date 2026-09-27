@@ -18,3 +18,7 @@ for _a, _b in {"k": x[lo:hi]}.values():
 # +1: [invalid-slice-step]
 for _a, _b in {"k": x[0:10:0]}.values():
     pass
+
+# +1: [invalid-slice-index]
+for _a, _b in {"k": x[0:10:"a"]}.values():
+    pass
