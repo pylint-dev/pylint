@@ -3148,31 +3148,19 @@ class VariablesChecker(BaseChecker):
         match value_node:
             case nodes.Const(value=str() | bytes()):
                 return len(value_node.value)
-            case nodes.Subscript(slice=nodes.Slice()):
-                lower = value_node.slice.lower
-                upper = value_node.slice.upper
-                # Only compute the length when the bounds are numeric
-                # constants; anything else (a '#', a name, ...) in the slice
-                # would crash the arithmetic below (see issue #11472).
-                if not (
-                    isinstance(lower, nodes.Const)
-                    and isinstance(upper, nodes.Const)
-                    and isinstance(lower.value, (int, float))
-                    and isinstance(upper.value, (int, float))
-                ):
+            case nodes.Subscript(
+                slice=nodes.Slice(
+                    lower=nodes.Const(value=int() as lower),
+                    upper=nodes.Const(value=int() as upper),
+                    step=None | nodes.Const(value=int()) as step_node,
+                )
+            ):
+                # Only int bounds and an int or missing step are supported;
+                # anything else falls through to the default below.
+                step = 1 if step_node is None else step_node.value
+                if step == 0:
                     return 1
-                splice_range = upper.value - lower.value
-                step_node = value_node.slice.step
-                if step_node is None:
-                    step: float = 1
-                elif (
-                    isinstance(step_node, nodes.Const)
-                    and isinstance(step_node.value, (int, float))
-                    and step_node.value
-                ):
-                    step = step_node.value
-                else:
-                    return 1
+                splice_range = upper - lower
                 return math.ceil(splice_range / step)
         return 1
 
