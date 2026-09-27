@@ -40,6 +40,7 @@ from pylint.lint.base_options import _make_linter_options
 from pylint.lint.caching import load_results, save_results
 from pylint.lint.expand_modules import (
     _is_ignored_file,
+    _is_in_ignore_list_re,
     discover_package_path,
     expand_modules,
 )
@@ -735,6 +736,14 @@ class PyLinter(
 
         Returns iterator of paths to discovered modules and packages.
         """
+
+        def is_ignored_name(name: str) -> bool:
+            # os.walk already gives base names, unlike _is_ignored_file we do
+            # not need to resolve the absolute path to get one.
+            return name in self.config.ignore or _is_in_ignore_list_re(
+                name, self.config.ignore_patterns
+            )
+
         for something in files_or_modules:
             if os.path.isdir(something) and not os.path.isfile(
                 os.path.join(something, "__init__.py")
@@ -748,16 +757,13 @@ class PyLinter(
                     continue
                 for root, dirnames, files in os.walk(something, topdown=True):
                     # Prune ignored directories in place, so that os.walk does
-                    # not descend into them. The full path is needed for
-                    # ignore-paths, the basename is enough for ignore and
-                    # ignore-patterns and _is_ignored_file takes care of it.
+                    # not descend into them. ignore-paths needs the full path.
                     dirnames[:] = [
                         dirname
                         for dirname in dirnames
-                        if not _is_ignored_file(
-                            os.path.join(root, dirname),
-                            self.config.ignore,
-                            self.config.ignore_patterns,
+                        if not is_ignored_name(dirname)
+                        and not _is_in_ignore_list_re(
+                            os.path.normpath(os.path.join(root, dirname)),
                             self.config.ignore_paths,
                         )
                     ]
@@ -777,12 +783,7 @@ class PyLinter(
                             os.path.join(root, file)
                             for file in sorted(files)
                             if file.endswith((".py", ".pyi"))
-                            and not _is_ignored_file(
-                                file,
-                                self.config.ignore,
-                                self.config.ignore_patterns,
-                                [],
-                            )
+                            and not is_ignored_name(file)
                         )
             else:
                 yield something
