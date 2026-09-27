@@ -746,7 +746,6 @@ class PyLinter(
                     self.config.ignore_paths,
                 ):
                     continue
-                skip_subtrees: list[str] = []
                 for root, dirnames, files in os.walk(something, topdown=True):
                     # Prune ignored directories in place, so that os.walk does
                     # not descend into them. The full path is needed for
@@ -768,19 +767,10 @@ class PyLinter(
                     # everywhere.
                     dirnames.sort()
 
-                    # This is almost dead code, since we will not be adding any
-                    # entries to skip_subtrees once we finish the updates to the
-                    # package yield block.
-                    if any(root.startswith(s) for s in skip_subtrees):
-                        # Skip subtree of already discovered package.
-                        continue
-
                     if "__init__.py" in files:
-                        # We yield this package, but do not need or even want to
-                        # traverse into it.
-                        # for dirname in list(dirnames):
-                        #    dirnames.remove(dirname)
-                        skip_subtrees.append(root + os.sep)
+                        # The package is expanded as a whole later on, do not
+                        # descend into it.
+                        dirnames.clear()
                         yield root
                     else:
                         yield from (
