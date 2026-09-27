@@ -3148,7 +3148,7 @@ class VariablesChecker(BaseChecker):
         match value_node:
             case nodes.Const(value=str() | bytes()):
                 return len(value_node.value)
-            case nodes.Subscript():
+            case nodes.Subscript(slice=nodes.Slice()):
                 lower = value_node.slice.lower
                 upper = value_node.slice.upper
                 # Only compute the length when the bounds are numeric

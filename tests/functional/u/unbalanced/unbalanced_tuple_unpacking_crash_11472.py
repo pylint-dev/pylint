@@ -22,3 +22,12 @@ for _a, _b in {"k": x[0:10:0]}.values():
 # +1: [invalid-slice-index]
 for _a, _b in {"k": x[0:10:"a"]}.values():
     pass
+
+# Index-form subscripts are not slices: no crash, and the length falls
+# back to 1 (see the follow-up report on #11472).
+d = {"a": [1, 2]}
+for _a, _b in {"k": d["a"]}.values():
+    pass
+
+for _a, _b in {"k": d[0]}.values():
+    pass
