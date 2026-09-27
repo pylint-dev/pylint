@@ -580,8 +580,13 @@ class BasicChecker(_BasicChecker):
         # The lambda is necessary if it uses its parameter in the function it is
         # calling in the lambda's body
         # e.g. lambda foo: (func1 if foo else func2)(foo)
+        # or if a variable in the called expression is reassigned or deleted later
         for name in call.func.nodes_of_class(nodes.Name):
-            if name.lookup(name.name)[0] is node:
+            if (
+                name.lookup(name.name)[0] is node
+                or utils.is_reassigned_after_current(node, name.name)
+                or utils.is_deleted_after_current(node, name.name)
+            ):
                 return
 
         self.add_message("unnecessary-lambda", node=node)

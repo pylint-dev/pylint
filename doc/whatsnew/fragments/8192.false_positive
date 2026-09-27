@@ -1,0 +1,4 @@
+Fix false positives for :ref:`unnecessary-lambda` when a variable referenced in
+the called expression is assigned, reassigned, or deleted later in the same scope.
+
+Closes #8192
