@@ -31,3 +31,7 @@ for _a, _b in {"k": d["a"]}.values():
 
 for _a, _b in {"k": d[0]}.values():
     pass
+
+# Numeric bounds without an explicit step.
+for _a, _b in {"k": [][0:5]}.values():
+    pass
