@@ -45,7 +45,7 @@ Release date: 2021-07-20
 
   Closes #4687
 
-* Fix false-positive ``consider-using-with`` (R1732) if a ternary conditional is used together with ``with``
+* Fix false-positive :ref:`consider-using-with <consider-using-with>` if a ternary conditional is used together with ``with``
 
   Closes #4676
 
@@ -53,7 +53,7 @@ Release date: 2021-07-20
 
   Closes #4629
 
-* Fix false-positive ``consider-using-with`` (R1732) if ``contextlib.ExitStack`` takes care of calling the ``__exit__`` method
+* Fix false-positive :ref:`consider-using-with <consider-using-with>` if ``contextlib.ExitStack`` takes care of calling the ``__exit__`` method
 
   Closes #4654
 
@@ -79,7 +79,7 @@ Release date: 2021-07-20
 
   Closes #4715
 
-* Clarify documentation for :ref:`consider-using-from-import`
+* Clarify documentation for :ref:`consider-using-from-import <consider-using-from-import>`
 
 * Don't emit ``unreachable`` warning for empty generator functions
 
@@ -288,7 +288,7 @@ Release date: 2021-06-29
   Closes #585
 
 * Fix a crash when a plugin from the configuration could not be loaded and raise an error
-  :ref:`bad-plugin-value`' instead
+  :ref:`bad-plugin-value <bad-plugin-value>`' instead
 
   Closes #4555
 
