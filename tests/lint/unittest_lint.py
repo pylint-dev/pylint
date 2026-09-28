@@ -1139,9 +1139,15 @@ def test_unpacking_from_pyi_stub() -> None:
         ["--recursive", "y", join(REGRTEST_DATA_DIR, "uses_pyi_stub_unpacking.py")],
         exit=False,
     )
-    # No message for the stub returning a tuple, and still one for the stub
-    # returning an int.
-    assert run.linter.stats.by_msg == {"unpacking-non-sequence": 1}
+    # Only the shapes that genuinely are not unpackable still report:
+    #   declared_tuple               -> tuple[int, int, int]   unpacks cleanly
+    #   declared_int                 -> int                     not iterable
+    #   declared_class               -> Declared, iterable      unpacks cleanly
+    #   declared_unresolved          -> "NeverDefinedAnywhere"   nothing to infer
+    #   declared_without_annotation  -> no annotation at all    nothing to infer
+    #   declared_none                -> None                    not iterable
+    #   annotated_none               -> a real function, not a stub
+    assert run.linter.stats.by_msg == {"unpacking-non-sequence": 5}
 
 
 @pytest.mark.parametrize(
