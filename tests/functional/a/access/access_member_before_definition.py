@@ -111,3 +111,32 @@ class StreamBase:
 class StreamRequest(StreamBase):
     def __init__(self):
         self._stream = object()
+
+
+class NestedFunctionNamedLikeMethod:
+    def __init__(self):
+        self.helper()
+        self.later = 1
+
+    def helper(self):
+        return None
+
+    def run(self):
+        def helper():
+            return self.later
+
+        return helper()
+
+
+def identity(func):
+    return func
+
+
+class DecoratedCalledMethod:
+    def __init__(self):
+        self.use_later()  # [access-member-before-definition]
+        self.later = 1
+
+    @identity
+    def use_later(self):
+        return self.later

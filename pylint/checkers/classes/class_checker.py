@@ -2275,8 +2275,10 @@ a metaclass class method.",
                     accesses = list(nodes_lst)
                     for _node in nodes_lst:
                         accessed_frame = _node.frame()
-                        if frame.name == "__init__" and isinstance(
-                            accessed_frame, nodes.FunctionDef
+                        if (
+                            frame.name == "__init__"
+                            and isinstance(accessed_frame, nodes.FunctionDef)
+                            and accessed_frame.parent is node
                         ):
                             accesses.extend(
                                 access
