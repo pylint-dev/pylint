@@ -432,7 +432,8 @@ def test_if_sys_guard() -> None:
 
 
 def test_if_platform_guard() -> None:
-    code = astroid.extract_node("""
+    code = astroid.extract_node(
+        """
     import os
     if os.name == "nt":  #@
         pass
@@ -461,7 +462,8 @@ def test_if_platform_guard() -> None:
 
     if os.environ["HOME"] == "/root":  #@
         pass
-    """)
+    """
+    )
     assert isinstance(code, list) and len(code) == 9
 
     assert isinstance(code[0], nodes.If)
