@@ -1904,15 +1904,12 @@ def is_platform_guard(node: nodes.If) -> bool:
     These guards split imports by OS/environment; the branches are
     mutually exclusive so imports inside them cannot be grouped.
     """
-    if isinstance(node.test, nodes.Compare):
-        value = node.test.left
-        if isinstance(value, nodes.Subscript):
-            value = value.value
-        if isinstance(value, nodes.Attribute) and value.as_string() in {
-            "os.name",
-            "sys.platform",
-        }:
-            return True
+    match node.test:
+        case nodes.Compare(
+            left=(nodes.Attribute() as attr)
+            | nodes.Subscript(value=nodes.Attribute() as attr)
+        ):
+            return attr.as_string() in {"os.name", "sys.platform"}
     return False
 
 
