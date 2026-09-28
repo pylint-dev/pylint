@@ -1,0 +1,4 @@
+Add a regression test for the ``unsubscriptable-object`` false positive on instances
+of a generic class defining ``__class_getitem__``, which no longer reproduces.
+
+Closes #10360
