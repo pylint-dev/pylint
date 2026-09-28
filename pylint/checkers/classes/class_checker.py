@@ -2272,32 +2272,33 @@ a metaclass class method.",
                     # it's defined, it's accessed after the initial assignment
                     frame = defstmt.frame()
                     lno = defstmt.fromlineno
-                    accesses = list(nodes_lst)
+                    access_nodes: dict[_AccessNodes, None] = dict.fromkeys(nodes_lst)
                     for _node in nodes_lst:
-                        accessed_frame = _node.frame()
+                        method = _node.frame()
                         if (
                             frame.name == "__init__"
-                            and isinstance(accessed_frame, nodes.FunctionDef)
-                            and accessed_frame.parent is node
+                            and isinstance(method, nodes.FunctionDef)
+                            and method.parent is node
                         ):
-                            accesses.extend(
-                                access
-                                for access in accessed.get(accessed_frame.name, [])
-                                if isinstance(access, nodes.Attribute)
-                                and isinstance(access.parent, nodes.Call)
-                                and access.parent.func is access
+                            # A method called on self before the assignment does
+                            # not see the attribute either: its call sites in
+                            # __init__ stand in for the accesses made inside it.
+                            access_nodes.update(
+                                dict.fromkeys(
+                                    method_attr
+                                    for method_attr in accessed.get(method.name, ())
+                                    if isinstance(method_attr.parent, nodes.Call)
+                                    and method_attr.parent.func is method_attr
+                                )
                             )
-                    reported_nodes: set[_AccessNodes] = set()
-                    for _node in accesses:
+                    for _node in access_nodes:
                         if (
                             _node.frame() is frame
                             and _node.fromlineno < lno
-                            and _node not in reported_nodes
                             and not astroid.are_exclusive(
                                 _node.statement(), defstmt, excs
                             )
                         ):
-                            reported_nodes.add(_node)
                             self.add_message(
                                 "access-member-before-definition",
                                 node=_node,

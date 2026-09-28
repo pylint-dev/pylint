@@ -140,3 +140,34 @@ class DecoratedCalledMethod:
     @identity
     def use_later(self):
         return self.later
+
+
+class CalledMethodReadsTwoMembers:
+    def __init__(self):
+        self.use_both()  # [access-member-before-definition, access-member-before-definition]
+        self.first = 1
+        self.second = 2
+
+    def use_both(self):
+        return self.first + self.second
+
+
+class CalledMethodAssignsFirst:
+    def __init__(self):
+        self.setup()
+        self.later = 1
+
+    def setup(self):
+        self.later = 0
+        return self.later
+
+
+class CalledOutsideInit:
+    def reset(self):
+        self.use_later()
+
+    def __init__(self):
+        self.later = 1
+
+    def use_later(self):
+        return self.later
