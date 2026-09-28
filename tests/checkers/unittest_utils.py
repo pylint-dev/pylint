@@ -409,8 +409,14 @@ def test_if_platform_guard() -> None:
 
     if sys.version_info > (3, 8):  #@
         pass
+
+    if sys.platform[:3] == "win":  #@
+        pass
+
+    if os.environ["HOME"] == "/root":  #@
+        pass
     """)
-    assert isinstance(code, list) and len(code) == 7
+    assert isinstance(code, list) and len(code) == 9
 
     assert isinstance(code[0], nodes.If)
     assert utils.is_platform_guard(code[0]) is True
@@ -429,6 +435,11 @@ def test_if_platform_guard() -> None:
     assert utils.is_platform_guard(code[5]) is False
     assert isinstance(code[6], nodes.If)
     assert utils.is_platform_guard(code[6]) is False
+
+    assert isinstance(code[7], nodes.If)
+    assert utils.is_platform_guard(code[7]) is True
+    assert isinstance(code[8], nodes.If)
+    assert utils.is_platform_guard(code[8]) is False
 
 
 def test_if_typing_guard() -> None:
