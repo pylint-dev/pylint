@@ -331,6 +331,32 @@ def _is_before(node: nodes.NodeNG, reference_node: nodes.NodeNG) -> bool:
     return False
 
 
+def _is_assigned_in_comprehension_condition(
+    node: nodes.Name, defnode: nodes.NamedExpr
+) -> bool:
+    """Checks if node is used in the element of a comprehension whose condition
+    assigns it, e.g. ``[y for x in data if (y := f(x))]``.
+
+    The conditions of a comprehension are evaluated before its element.
+    Self-referencing assignments like ``(y := y)`` are excluded.
+    """
+    comprehension = utils.get_node_first_ancestor_of_type(defnode, nodes.Comprehension)
+    if comprehension is None or not any(
+        condition is defnode or condition.parent_of(defnode)
+        for condition in comprehension.ifs
+    ):
+        return False
+    if any(name.name == node.name for name in defnode.value.nodes_of_class(nodes.Name)):
+        return False
+    comprehension_scope = comprehension.parent
+    elements: tuple[nodes.NodeNG, ...]
+    if isinstance(comprehension_scope, nodes.DictComp):
+        elements = (comprehension_scope.key, comprehension_scope.value)
+    else:
+        elements = (comprehension_scope.elt,)
+    return any(element is node or element.parent_of(node) for element in elements)
+
+
 def _is_nonlocal_name(node: nodes.Name, frame: nodes.LocalsDictNodeNG) -> bool:
     """Checks if name node has a nonlocal declaration in the given frame."""
     if not isinstance(frame, nodes.FunctionDef):
@@ -2423,6 +2449,17 @@ class VariablesChecker(BaseChecker):
                     maybe_before_assign = defnode.value is node or any(
                         a is defnode.value for a in node.node_ancestors()
                     )
+                elif (
+                    isinstance(defnode, nodes.NamedExpr)
+                    and frame is defframe
+                    and defframe.parent_of(stmt)
+                    and stmt is defstmt
+                    and _is_assigned_in_comprehension_condition(node, defnode)
+                ):
+                    # Assigned in the condition of a comprehension and used in
+                    # its element, which is evaluated afterwards:
+                    # [y for x in data if (y := f(x))]
+                    maybe_before_assign = False
                 elif (
                     isinstance(defframe, nodes.ClassDef)
                     and defnode in defframe.type_params

@@ -313,3 +313,14 @@ def conditional_wildcard_import_unresolvable():
     else:
         from __nonexistent_module_xyz__ import *  # pylint: disable=wildcard-import, import-error
     print(x)  # [possibly-used-before-assignment]
+
+
+# The condition of a comprehension is evaluated before its element
+KNOWN = [
+    service for port in range(3) if
+    (service := str(port))
+]
+KNOWN_SET = {service_set for port in range(3) if (service_set := str(port))}
+KNOWN_DICT = {key: value for port in range(3) if (key := port) if (value := port)}
+KNOWN_NESTED = [[nested] for port in range(3) if (nested := port)]
+SELF_REFERENCING = [ref for port in range(3) if (ref := ref)]  # [used-before-assignment]
