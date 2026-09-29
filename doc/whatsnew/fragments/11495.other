@@ -1,5 +1,0 @@
-Pylint 4.1.0 could not be uploaded to PyPI, because it required an unreleased
-version of ``dill`` on Python 3.15, and PyPI refuses such a dependency. 4.1.1 is
-the first 4.1 release available on PyPI, see the 4.1.0 changes below.
-
-Refs #11495
