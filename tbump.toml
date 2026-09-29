@@ -66,6 +66,10 @@ name = "Apply pre-commit"
 cmd = "pre-commit run --all-files||echo 'Hack so this command does not fail'"
 
 [[before_commit]]
+name = "Write the GitHub release notes to release_notes.md (not committed)"
+cmd = '''awk -v v={new_version} 'FNR==1{{f=0}} /^What.s new in Pylint /{{f=($0=="What\047s new in Pylint " v "?")}} f' doc/whatsnew/*/*/index.rst | sed -E 's/ \((`#[0-9]+ <[^>]+>`_(, )?)+\)//; s/:ref:`([^`]+)`/``\1``/g' > release_notes.md'''
+
+[[before_commit]]
 name = "Confirm changes"
 cmd = "read -p 'Continue (y)? ' -n 1 -r; echo; [[ ! $REPLY =~ ^[Yy]$ ]] && exit 1 || exit 0"
 
