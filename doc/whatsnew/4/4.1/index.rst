@@ -47,6 +47,22 @@ for additional fixes, features, and performance improvements applicable to pylin
 
 .. towncrier release notes start
 
+What's new in Pylint 4.1.1?
+---------------------------
+Release date: 2026-09-29
+
+
+Other Changes
+-------------
+
+- Pylint 4.1.0 could not be uploaded to PyPI, because it required an unreleased
+  version of ``dill`` on Python 3.15, and PyPI refuses such a dependency. 4.1.1 is
+  the first 4.1 release available on PyPI, see the 4.1.0 changes below.
+
+  Refs #11495 (`#11495 <https://github.com/pylint-dev/pylint/issues/11495>`_)
+
+
+
 What's new in Pylint 4.1.0?
 ---------------------------
 Release date: 2026-09-29
