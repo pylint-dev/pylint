@@ -104,6 +104,17 @@ def create_new_newsfile_if_necessary(
     print("Adding new newsfile to git")
     check_call(["git", "add", new_newsfile])
 
+    # List it first in the table of contents of the major version
+    major_index = Path(f"doc/whatsnew/{major}/index.rst")
+    content = major_index.read_text(encoding="utf8")
+    first_entry = re.search(rf"^   {major}\.\d+/index$", content, flags=re.MULTILINE)
+    assert first_entry, f"No '{major}.x/index' entry in the toctree of {major_index}"
+    position = first_entry.start()
+    major_index.write_text(
+        f"{content[:position]}   {major}.{minor}/index\n{content[position:]}",
+        encoding="utf8",
+    )
+
 
 def patch_towncrier_toml(new_newsfile: str, version: str, dry_run: bool) -> None:
     file_content = TOWNCRIER_CONFIG_FILE.read_text(encoding="utf-8")
