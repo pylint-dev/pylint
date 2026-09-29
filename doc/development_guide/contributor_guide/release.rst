@@ -48,8 +48,8 @@ For example:
    example: ``v2.4.0``)
 -  Push the tag.
 -  Release the version on GitHub with the same name as the tag and copy
-   and paste the appropriate changelog in the description. This triggers
-   the PyPI release.
+   and paste ``release_notes.md``, written by ``tbump``, in the description.
+   This triggers the PyPI release.
 -  Create a ``maintenance/X.Y.x`` (For example: ``maintenance/2.4.x``
    from the ``v2.4.0`` tag.)
 -  Upgrade the pattern for the protected branches in the settings under
@@ -115,9 +115,8 @@ branch and has been cherry-picked on the maintenance branch.
    run the CI tests for this branch.
 -  Create and push the tag.
 -  Release the version on GitHub with the same name as the tag and copy
-   and paste the changelog from the ReadtheDoc generated documentation
-   from the pull request pipeline in the description. This triggers the
-   PyPI release.
+   and paste ``release_notes.md``, written by ``tbump``, in the description.
+   This triggers the PyPI release.
 -  Merge the ``maintenance/X.Y.x`` branch on the main branch. The main
    branch should have the changelog for ``X.Y-1.Z+1`` (For example
    ``v2.3.6``). This merge is required so ``pre-commit autoupdate``
