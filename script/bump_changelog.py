@@ -47,6 +47,18 @@ Summary -- Release highlights
 .. towncrier release notes start
 """
 
+WHATSNEW_INDEX = Path("doc/whatsnew/index.rst")
+MAJOR_INDEX_CONTENT_TEMPLATE = """{major}.x
+===
+
+This is the full list of change in pylint {major}.x minors, by categories.
+
+.. toctree::
+   :maxdepth: 2
+
+   {major}.{minor}/index
+"""
+
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -103,6 +115,31 @@ def create_new_newsfile_if_necessary(
     # tbump does not add and commit new files, so we add it ourselves
     print("Adding new newsfile to git")
     check_call(["git", "add", new_newsfile])
+
+    # List it first in the table of contents of the major version
+    major_index = Path(f"doc/whatsnew/{major}/index.rst")
+    if major_index.exists():
+        list_first_in_toctree(major_index, f"{major}.{minor}/index", rf"{major}\.\d+")
+        return
+
+    # The first release of a major version also needs the page of that major
+    print("Creating new major index:", major_index)
+    major_index.write_text(
+        MAJOR_INDEX_CONTENT_TEMPLATE.format(major=major, minor=minor), encoding="utf8"
+    )
+    check_call(["git", "add", str(major_index)])
+    list_first_in_toctree(WHATSNEW_INDEX, f"{major}/index", r"\d+")
+
+
+def list_first_in_toctree(index: Path, new_entry: str, entry_pattern: str) -> None:
+    """Insert 'new_entry' before the first '<entry_pattern>/index' entry of 'index'."""
+    content = index.read_text(encoding="utf8")
+    first_entry = re.search(rf"^   {entry_pattern}/index$", content, flags=re.MULTILINE)
+    assert first_entry, f"No '{entry_pattern}/index' entry in the toctree of {index}"
+    position = first_entry.start()
+    index.write_text(
+        f"{content[:position]}   {new_entry}\n{content[position:]}", encoding="utf8"
+    )
 
 
 def patch_towncrier_toml(new_newsfile: str, version: str, dry_run: bool) -> None:
