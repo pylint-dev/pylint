@@ -337,10 +337,11 @@ contributors:
 - Ben Green <benhgreen@icloud.com>
 - Batuhan Taskaya <batuhanosmantaskaya@gmail.com>
 - Artem Yurchenko <artemyurchenko@zoho.com>
+- Anshul Singh <72524975+ekanshul@users.noreply.github.com>
 - Alexander Kapshuna <kapsh@kap.sh>
 - Adam Parkin <pzelnip@users.noreply.github.com>
-- Anshul Singh <72524975+ekanshul@users.noreply.github.com>
 - 谭九鼎 <109224573@qq.com>
+- 周耕毅（Ryan Chou） <88779759+ryanchou1994@users.noreply.github.com>
 - Łukasz Sznuk <ls@rdprojekt.pl>
 - zasca <gorstav@gmail.com>
 - y2kbugger <y2kbugger@users.noreply.github.com>
