@@ -120,7 +120,18 @@ branch and has been cherry-picked on the maintenance branch.
 -  Merge the ``maintenance/X.Y.x`` branch on the main branch. The main
    branch should have the changelog for ``X.Y-1.Z+1`` (For example
    ``v2.3.6``). This merge is required so ``pre-commit autoupdate``
-   works for pylint.
+   works for pylint. Remove the news fragments the patch release already
+   consumed as part of the merge, otherwise git keeps main's copy and the
+   next minor release lists these fixes a second time:
+
+   .. code:: bash
+
+      git merge --no-commit origin/maintenance/X.Y.x
+      # Fragments deleted on the maintenance branch since the last merge
+      git log --diff-filter=D --name-only --format= HEAD..MERGE_HEAD -- doc/whatsnew/fragments \
+          | xargs -r git rm -q --ignore-unmatch
+      git commit
+
 -  Fix version conflicts properly, or bump the version to ``X.Y.0-devZ``
    (For example: ``2.4.0-dev6``) before pushing on the main branch
 -  Close the current milestone and create the new one (For example:
