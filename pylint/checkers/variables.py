@@ -2291,6 +2291,18 @@ class VariablesChecker(BaseChecker):
         maybe_before_assign = True
         annotation_return = False
         use_outer_definition = False
+        if (
+            defstmt is defframe
+            and isinstance(defstmt, (nodes.FunctionDef, nodes.ClassDef))
+            and isinstance(frame, nodes.ClassDef)
+            and defstmt.parent.frame() is frame
+        ):
+            # A ``def`` or ``class`` statement is its own frame, but it binds its
+            # name in the enclosing scope. When that scope is the class body of the
+            # node, treat the definition like any other assignment in the class
+            # body, so that a module-level or builtin name is still found by the
+            # lookup below.
+            defframe = frame
         if frame is not defframe:
             maybe_before_assign = _detect_global_scope(node, frame, defframe)
         elif defframe.parent is None:
