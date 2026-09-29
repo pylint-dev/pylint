@@ -1,0 +1,5 @@
+Fix a crash (``AttributeError: 'ClassDef' object has no attribute 'expr'``) in the
+``import-private-name`` extension when an annotated assignment's value is an
+attribute access on a call rooted at a non-``Name`` node, e.g. ``x: str = ''().a``.
+
+Closes #11479

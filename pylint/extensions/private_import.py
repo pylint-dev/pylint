@@ -238,7 +238,7 @@ class PrivateImportChecker(BaseChecker):
             while isinstance(current_attribute, (nodes.Attribute, nodes.Call)):
                 if isinstance(current_attribute, nodes.Call):
                     current_attribute = current_attribute.func
-                if not isinstance(current_attribute, nodes.Name):
+                elif isinstance(current_attribute, nodes.Attribute):
                     current_attribute = current_attribute.expr
             if (
                 isinstance(current_attribute, nodes.Name)
