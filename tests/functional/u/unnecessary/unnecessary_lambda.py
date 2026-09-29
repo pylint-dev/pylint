@@ -71,7 +71,7 @@ _ = lambda x: z(lambda y: x + y)(x)
 
 # foo does not yet exist, so replacing lambda x: foo.get(x) with
 # foo.get will raise NameError
-g = lambda x: foo.get(x)  # [unnecessary-lambda]  FALSE POSITIVE
+g = lambda x: foo.get(x)
 
 # an object is created and given the name 'foo'
 foo = {1: 2}
@@ -85,3 +85,18 @@ assert g(1) == 3
 del foo
 
 assert g(1) == 3  # NameError: name 'foo' is not defined
+
+
+def test_reassigned_in_func():
+    mapping = {"hello": 42}
+    callback = lambda k: mapping.get(k)
+    assert callback("hello") == 42
+    mapping = {"goodbye": 0}
+    assert callback("goodbye") == 0
+
+
+def test_deleted_in_func():
+    mapping = {"hello": 42}
+    callback = lambda k: mapping.get(k)
+    del mapping
+    return callback

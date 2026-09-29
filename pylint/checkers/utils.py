@@ -1927,7 +1927,11 @@ def _is_reassigned_relative_to_current(
     """Check if the given variable name is reassigned in the same scope relative to
     the current node.
     """
-    node_scope = node.scope()
+    node_scope = (
+        node.parent.scope()
+        if isinstance(node, nodes.Lambda) and node.parent is not None
+        else node.scope()
+    )
     node_lineno = node.lineno
     if node_lineno is None:
         return False
@@ -1963,9 +1967,14 @@ def is_deleted_after_current(node: nodes.NodeNG, varname: str) -> bool:
     """Check if the given variable name is deleted in the same scope after the current
     node.
     """
+    node_scope = (
+        node.parent.scope()
+        if isinstance(node, nodes.Lambda) and node.parent is not None
+        else node.scope()
+    )
     return any(
         getattr(target, "name", None) == varname and target.lineno > node.lineno
-        for del_node in node.scope().nodes_of_class(nodes.Delete)
+        for del_node in node_scope.nodes_of_class(nodes.Delete)
         for target in del_node.targets
     )
 
