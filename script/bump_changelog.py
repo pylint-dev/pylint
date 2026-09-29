@@ -28,6 +28,8 @@ NEW_VERSION_PATTERN = re.compile(rf"^{VERSION_PATTERN}$")
 # be part of the pattern. Matching only 'major.minor.patch' left the version
 # untouched, and towncrier then titled the new section with the stale version.
 TOWNCRIER_VERSION_PATTERN = re.compile(rf"version = \"{VERSION_PATTERN}\"")
+# The issues a fragment refers to, like 'Closes #123', possibly in the astroid repository
+ISSUE_PATTERN = re.compile(r"(?<![\w`/#<])(pylint-dev/astroid)?#(\d+)\b")
 
 NEWSFILE_CONTENT_TEMPLATE = """
 ***************************
@@ -75,6 +77,8 @@ def main() -> None:
     create_new_newsfile_if_necessary(new_newsfile, major, minor, args.dry_run)
     patch_towncrier_toml(new_newsfile, new_version, args.dry_run)
     build_changelog(suffix, args.dry_run)
+    if not suffix and not args.dry_run:
+        link_issues(Path(new_newsfile), new_version)
 
 
 def create_new_newsfile_if_necessary(
@@ -145,6 +149,22 @@ def build_changelog(suffix: str | None, dry_run: bool) -> None:
 
     print("Building changelog")
     check_call(["towncrier", "build", "--yes"])
+
+
+def link_issues(newsfile: Path, version: str) -> None:
+    """Link every issue of the new changelog section, towncrier only links the one
+    in the name of the fragment.
+    """
+    content = newsfile.read_text(encoding="utf8")
+    start = content.index(f"What's new in Pylint {version}?")
+    end = content.find("What's new in Pylint ", start + 1)
+    end = len(content) if end == -1 else end
+    section = ISSUE_PATTERN.sub(
+        lambda m: f"`{m[0]} <https://github.com/"
+        f"{m[1] or 'pylint-dev/pylint'}/issues/{m[2]}>`__",
+        content[start:end],
+    )
+    newsfile.write_text(content[:start] + section + content[end:], encoding="utf8")
 
 
 if __name__ == "__main__":
