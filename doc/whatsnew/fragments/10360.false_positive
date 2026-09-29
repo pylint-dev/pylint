@@ -1,3 +1,0 @@
-Fixed a false positive ``unsubscriptable-object`` on instances of a generic class defining ``__class_getitem__``.
-
-Closes #10360

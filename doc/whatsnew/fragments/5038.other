@@ -1,4 +1,0 @@
-Clarify how to choose the Python interpreter and ``py-version`` when linting a
-project that supports multiple Python versions.
-
-Closes #5038

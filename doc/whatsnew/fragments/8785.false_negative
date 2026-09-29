@@ -1,4 +1,0 @@
-``no-value-for-parameter`` is now emitted when a call unpacks a dictionary literal
-with ``**`` and that dictionary does not provide a required argument.
-
-Closes #8785
