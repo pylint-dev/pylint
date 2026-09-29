@@ -72,7 +72,7 @@ scripts.symilar = "pylint:run_symilar"
 
 [dependency-groups]
 dev = [
-  "contributors-txt>=1",
+  "contributors-txt>=1.1.3",
   "pre-commit",
   "tbump~=6.11.0",
 ]

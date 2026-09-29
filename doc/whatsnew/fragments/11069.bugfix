@@ -1,3 +1,0 @@
-Avoid crashing when enum member inference fails while checking enum subclasses.
-
-Closes #11069

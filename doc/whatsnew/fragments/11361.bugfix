@@ -1,7 +1,0 @@
-Fix a crash in ``method-hidden`` when a method shadows a name that ``builtins``
-binds to a node without a statement, such as ``help`` or ``license``. Every class
-inherits from ``object``, which lives in the ``builtins`` module, so no base class
-was needed to trigger it.
-
-Closes #11361
-Closes #8079

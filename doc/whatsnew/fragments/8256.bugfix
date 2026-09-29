@@ -1,6 +1,0 @@
-Fix the suggestion of ``unnecessary-comprehension`` for a dict comprehension
-that iterates a dict directly, e.g. ``{a: b for a, b in d}``. Iterating a dict
-yields its keys, so the suggestion is now ``dict(d.keys())`` instead of the
-incorrect ``dict(d)``, which would simply copy ``d``.
-
-Closes #8256

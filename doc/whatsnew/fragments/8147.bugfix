@@ -1,3 +1,0 @@
-Repeated ``--output-format`` options now write reports to every requested file instead of only the last one.
-
-Closes #8147
