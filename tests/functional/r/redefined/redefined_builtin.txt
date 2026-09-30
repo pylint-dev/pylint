@@ -1,3 +1,7 @@
 redefined-builtin:8:4:8:8:function:Redefining built-in 'type':UNDEFINED
 redefined-builtin:13:0:13:3::Redefining built-in 'map':UNDEFINED
 redefined-builtin:18:0:18:22::Redefining built-in 'open':UNDEFINED
+redefined-builtin:31:24:31:30:BaseHandler.log_error:Redefining built-in 'format':UNDEFINED
+redefined-builtin:39:8:39:12:Handler.log_error:Redefining built-in 'type':UNDEFINED
+redefined-builtin:44:24:44:28:DifferentArgument.log_error:Redefining built-in 'type':UNDEFINED
+redefined-builtin:49:15:49:21:standalone:Redefining built-in 'format':UNDEFINED
