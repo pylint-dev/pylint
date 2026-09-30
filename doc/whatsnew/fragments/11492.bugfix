@@ -1,0 +1,5 @@
+Fix a crash (``astroid-error``) when the class of a called attribute cannot
+be fully inferred, for example when the attribute is used as a ``with``
+statement target or inside a comprehension.
+
+Closes #11492
