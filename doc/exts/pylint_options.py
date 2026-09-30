@@ -68,8 +68,8 @@ def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
     initialize_extensions(linter)
 
 
-def _get_default_message_symbols(linter: PyLinter, *, enabled: bool) -> list[str]:
-    """Return built-in message symbols with the requested default state."""
+def _get_default_disabled_message_symbols(linter: PyLinter) -> list[str]:
+    """Return built-in message symbols disabled by default."""
     extension_message_ids = {
         message.msgid
         for checker in linter.get_checkers()
@@ -80,7 +80,7 @@ def _get_default_message_symbols(linter: PyLinter, *, enabled: bool) -> list[str
         message.symbol
         for message in linter.msgs_store.messages
         if message.msgid not in extension_message_ids
-        if message.default_enabled is enabled
+        if not message.default_enabled
     )
 
 
@@ -133,12 +133,13 @@ def _create_checker_section(
         checker_string += f"*{option.optdict.get('help')}*\n\n"
         default = option.optdict.get("default")
         # Message-control parser definitions retain empty tuple placeholders.
-        # Derive both effective defaults from built-in message metadata; the
-        # extensions registered for documentation are not loaded by default.
-        if option.name in {"disable", "enable"}:
-            default = _get_default_message_symbols(
-                linter, enabled=option.name == "enable"
-            )
+        # The disable default comes from built-in message metadata; extensions
+        # registered for documentation are not loaded by default. ``enable``
+        # remains empty because default-enabled messages are not user overrides.
+        if option.name == "disable":
+            default = _get_default_disabled_message_symbols(linter)
+        elif option.name == "enable":
+            default = []
         if default == "":
             checker_string += '**Default:** ``""``\n\n\n'
         else:
@@ -159,6 +160,9 @@ def _create_checker_section(
             value = _unquote(DYNAMICALLY_DEFINED_OPTIONS[option.name]["default"])
         except KeyError:
             value = getattr(linter.config, option.name.replace("-", "_"))
+
+        if option.name == "disable":
+            value = _get_default_disabled_message_symbols(linter)
 
         # Create a comment if the option has no value
         if value is None:
