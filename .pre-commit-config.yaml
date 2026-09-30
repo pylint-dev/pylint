@@ -135,6 +135,18 @@ repos:
         types: [text]
         files: ^(doc/whatsnew/fragments)
         exclude: doc/whatsnew/fragments/_.*.rst
+      - id: no-direct-dependency
+        # PyPI rejects a package with a dependency like 'name @ git+https://...'
+        name: No direct dependency in the package metadata
+        entry: >-
+          python3 -c "import sys, tomllib; project = tomllib.load(open('pyproject.toml',
+          'rb'))['project']; extras = project.get('optional-dependencies', {}).values();
+          deps = project.get('dependencies', []) + [d for e in extras for d in e];
+          direct = [d for d in deps if '@' in d.split(';')[0]]; print(*direct,
+          sep='\n'); sys.exit(bool(direct))"
+        language: system
+        files: ^pyproject\.toml$
+        pass_filenames: false
   - repo: https://github.com/rstcheck/rstcheck
     rev: "v6.3.0"
     hooks:
