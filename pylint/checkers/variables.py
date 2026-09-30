@@ -3463,14 +3463,20 @@ class VariablesChecker(BaseChecker):
                 scope_locals = to_consume.to_consume
                 found_nodes = scope_locals.get(name, [])
                 for found_node in found_nodes:
-                    if found_node.lineno <= klass.lineno:
+                    if (
+                        found_node.lineno is not None
+                        and found_node.lineno <= klass.lineno
+                    ):
                         consumed.append((to_consume, name, found_nodes))
                         found = True
                         break
             # Check parent scope
             nodes_in_parent_scope = parent_node.locals.get(name, [])
             for found_node_parent in nodes_in_parent_scope:
-                if found_node_parent.lineno <= klass.lineno:
+                if (
+                    found_node_parent.lineno is not None
+                    and found_node_parent.lineno <= klass.lineno
+                ):
                     found = True
                     break
         if (

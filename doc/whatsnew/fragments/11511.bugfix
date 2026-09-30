@@ -1,0 +1,3 @@
+Avoid crashing when a class uses a synthetic node without a source line as its metaclass.
+
+Closes #11511
