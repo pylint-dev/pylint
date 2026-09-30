@@ -66,3 +66,15 @@ class TestStdlibChecker(CheckerTestCase):
             """)
             with self.assertNoMessages():
                 self.checker.visit_call(node)
+
+    def test_call_on_node_without_module_root_no_crash(self) -> None:
+        """Regression test for issue 11491: calling a node whose inference result
+        has no parent module root does not raise AssertionError.
+        """
+        node = astroid.extract_node("""
+        class C:
+            pass
+        C.__bases__() #@
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
