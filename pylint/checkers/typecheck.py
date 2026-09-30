@@ -2111,23 +2111,12 @@ accessed. Python regular expressions are accepted.",
                         # Some inferred results (e.g. a TypeVar bound by a
                         # `type` statement) are not class-like nodes and have
                         # no ``getattr``: they can never be context managers,
-                        # so report ``not-context-manager`` just like results
-                        # without the methods.
-                        if isinstance(
-                            inferred,
-                            (
-                                nodes.ClassDef,
-                                nodes.FunctionDef,
-                                nodes.Lambda,
-                                nodes.Module,
-                                bases.BaseInstance,
-                            ),
-                        ):
-                            inferred_name = inferred.name
-                        else:
-                            inferred_name = inferred.pytype().rsplit(".", 1)[-1]
+                        # so report ``not-context-manager`` with the inferred
+                        # type's name instead of crashing.
                         self.add_message(
-                            "not-context-manager", node=node, args=(inferred_name,)
+                            "not-context-manager",
+                            node=node,
+                            args=(inferred.pytype().rsplit(".", 1)[-1],),
                         )
 
     @only_required_for_messages("invalid-unary-operand-type")
