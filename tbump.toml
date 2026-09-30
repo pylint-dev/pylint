@@ -31,7 +31,8 @@ cmd = "python tests/test_functional.py --update-functional-output"
 
 [[before_commit]]
 name = "Normalize file ending"
-cmd = "git add --renormalize ."
+# Staging the deletions first, or renormalize fails on a removed expected output
+cmd = "git add --update && git add --renormalize ."
 
 [[before_commit]]
 name = "Upgrade changelog"
