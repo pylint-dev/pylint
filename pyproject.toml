@@ -40,7 +40,7 @@ dependencies = [
   # Also upgrade test-min dependency group and requirements_test_min.txt.
   # Pinned to dev of second minor update to allow editable installs and fix primer issues,
   # see https://github.com/pylint-dev/astroid/issues/1341
-  "astroid>=4.3.2,<=4.4",
+  "astroid>=4.3.3,<=4.4",
   "colorama>=0.4.5; sys_platform=='win32'",
   "dill>=0.2; python_version<'3.11'",
   "dill>=0.3.6; python_version>='3.11'",
@@ -92,7 +92,7 @@ docs = [
 test-min = [
   # Base test dependencies
   # Pinned to a specific version for tests
-  "astroid==4.3.2",
+  "astroid==4.3.3",
   # PyPI rejects a git dependency in the published metadata, so the dill commit
   # supporting Python 3.15 is only pinned for the tests until it is released.
   "dill @ git+https://github.com/uqfoundation/dill@2308ffb0d0c605b9c050fa4c9fd5793d65c67022 ; python_version>='3.15'",
