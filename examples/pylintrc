@@ -100,7 +100,7 @@ prefer-stubs=no
 
 # Minimum Python version to use for version dependent checks. Will default to
 # the version used to run pylint.
-py-version=3.12
+py-version=3.10
 
 # Discover python modules and packages in the file system subtree.
 recursive=no
@@ -555,8 +555,8 @@ min-similarity-lines=4
 # Limits count of emitted suggestions for spelling mistakes.
 max-spelling-suggestions=4
 
-# Spelling dictionary name. Available dictionaries: en (aspell), en_AU
-# (aspell), en_CA (aspell), en_GB (aspell), en_US (aspell).
+# Spelling dictionary name. No available dictionaries : You need to install
+# both the python package and the system dependency for enchant to work.
 spelling-dict=
 
 # List of comma separated words that should be considered directives if they

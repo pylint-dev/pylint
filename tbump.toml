@@ -44,11 +44,13 @@ cmd = "tox -e docs||echo 'Hack so this command does not fail'"
 
 [[before_commit]]
 name = "Upgrade the pylintrc examples"
-cmd = "pylint --rcfile=/dev/null --generate-rcfile > examples/pylintrc"
+# Independent of the machine: the oldest supported py-version, and no spelling
+# dictionaries listed
+cmd = '''python3 -c "import sys; sys.modules['enchant'] = None; from pylint import run_pylint; run_pylint()" --rcfile=/dev/null --py-version=$(sed -n 's/^requires-python = ">=\([0-9]*\.[0-9]*\).*/\1/p' pyproject.toml) --generate-rcfile > examples/pylintrc'''
 
 [[before_commit]]
 name = "Upgrade the toml examples"
-cmd = "pylint --rcfile=/dev/null --generate-toml-config > examples/pyproject.toml"
+cmd = '''python3 -c "import sys; sys.modules['enchant'] = None; from pylint import run_pylint; run_pylint()" --rcfile=/dev/null --py-version=$(sed -n 's/^requires-python = ">=\([0-9]*\.[0-9]*\).*/\1/p' pyproject.toml) --generate-toml-config > examples/pyproject.toml'''
 
 [[before_commit]]
 name = "Normalize the contributors-txt configuration"
