@@ -1,0 +1,6 @@
+Fixed a false positive ``unbalanced-tuple-unpacking`` when unpacking a tuple
+concatenation whose elements have several possible values.
+
+Fixed by upgrading astroid to 4.3.3.
+
+Closes #2621
