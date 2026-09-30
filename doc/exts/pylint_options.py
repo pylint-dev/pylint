@@ -10,7 +10,7 @@ import re
 from collections import defaultdict
 from inspect import getmodule
 from pathlib import Path
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 import tomlkit
 from sphinx.application import Sphinx
@@ -153,6 +153,7 @@ def _create_checker_section(
             continue
 
         # Get current value of option
+        value: Any
         try:
             # The dynamic default is a display string for the rendered docs
             # (e.g. indent-string is quoted so spaces stay visible). Unquote it
