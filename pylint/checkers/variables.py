@@ -3467,7 +3467,10 @@ class VariablesChecker(BaseChecker):
             # Check parent scope
             nodes_in_parent_scope = parent_node.locals.get(name, [])
             for found_node_parent in nodes_in_parent_scope:
-                if found_node_parent.lineno is None or found_node_parent.lineno <= klass.lineno:
+                if (
+                    found_node_parent.lineno is None
+                    or found_node_parent.lineno <= klass.lineno
+                ):
                     found = True
                     break
         if (
