@@ -1462,7 +1462,7 @@ accessed. Python regular expressions are accepted.",
 
         try:
             attrs = klass._proxied.getattr(node.func.attrname)
-        except astroid.NotFoundError:
+        except (astroid.NotFoundError, astroid.InferenceError):
             return
 
         for attr in attrs:
