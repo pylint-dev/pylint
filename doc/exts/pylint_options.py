@@ -76,12 +76,12 @@ def _get_default_message_symbols(linter: PyLinter, *, enabled: bool) -> list[str
         if getmodule(checker).__name__.startswith("pylint.extensions.")  # type: ignore[union-attr]
         for message in checker.messages
     }
-    return [
+    return sorted(
         message.symbol
         for message in linter.msgs_store.messages
         if message.msgid not in extension_message_ids
         if message.default_enabled is enabled
-    ]
+    )
 
 
 def _get_all_options(linter: PyLinter) -> OptionsDataDict:
