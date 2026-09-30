@@ -10,6 +10,11 @@ repos:
       #      - id: file-contents-sorter # commented out because it does not preserve comments order
       #        args: ["--ignore-case", "--unique"]
       #        files: "custom_dict.txt"
+      - id: mixed-line-ending
+        # Expected functional output is written with LF, even though the tests
+        # themselves keep their line endings to test them
+        args: ["--fix=lf"]
+        files: ^tests/(\w*/)*functional/.*\.txt$
       - id: end-of-file-fixer
         exclude: |
           (?x)^(
