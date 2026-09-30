@@ -71,7 +71,7 @@ main.persistent = true
 # prefer-stubs =
 # Minimum Python version to use for version dependent checks. Will default to the
 # version used to run pylint.
-main.py-version = "3.12"
+main.py-version = "3.14"
 # Python expression which should return a score less than or equal to 10. You
 # have access to the variables 'fatal', 'error', 'warning', 'refactor',
 # 'convention', and 'info' which contain the number of messages in each category,
@@ -83,10 +83,11 @@ reports.evaluation = """\
 # Template used to display messages. This is a python new-style format string
 # used to format the message information. See doc for all details.
 # msg-template =
-# Set the output format. Available formats are: 'text', 'parseable', 'colorized',
-# 'json2' (improved json format), 'json' (old json format), 'msvs' (visual
-# studio), 'github' (GitHub actions) and 'junit' (JUnit XML). You can also give a
-# reporter class, e.g. mypackage.mymodule.MyReporterClass.
+# Set the output format. Available formats are: 'text', 'no-header' (text without
+# module headers), 'parseable', 'colorized', 'json2' (improved json format),
+# 'json' (old json format), 'msvs' (visual studio), 'github' (GitHub actions) and
+# 'junit' (JUnit XML). You can also give a reporter class, e.g.
+# mypackage.mymodule.MyReporterClass.
 # output-format =
 # Tells whether to display a full report or only the messages.
 # reports =
@@ -334,8 +335,8 @@ similarities.ignore-signatures = true
 similarities.min-similarity-lines = 4
 # Limits count of emitted suggestions for spelling mistakes.
 spelling.max-spelling-suggestions = 4
-# Spelling dictionary name. Available dictionaries: en (aspell), en_AU (aspell),
-# en_CA (aspell), en_GB (aspell), en_US (aspell).
+# Spelling dictionary name. No available dictionaries : You need to install both
+# the python package and the system dependency for enchant to work.
 # spelling-dict =
 # List of comma separated words that should be considered directives if they
 # appear at the beginning of a comment and should not be checked.
