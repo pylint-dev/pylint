@@ -116,7 +116,7 @@ def table_lines_from_stats(
         old_value = old[index][1]
         diff_str = (
             diff_string(old_value, new_value)
-            if isinstance(old_value, float)
+            if isinstance(old_value, (int, float))
             else old_value
         )
         new_str = f"{new_value:.3f}" if isinstance(new_value, float) else str(new_value)
