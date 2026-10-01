@@ -283,16 +283,24 @@ def _accessed_dotted_submodules(
     for use in node.nodes_of_class(nodes.Name):
         if use.name != name:
             continue
-        parent = use.parent
+        # Walk the whole attribute chain rooted at `use` to build the full
+        # dotted access path, e.g. `email.mime.application` for
+        # `email.mime.application.MIMEApplication(...)`. Looking only one level
+        # deep cannot tell sibling submodules that share a prefix apart.
+        path = name
+        current: nodes.NodeNG = use
+        parent = current.parent
+        while isinstance(parent, nodes.Attribute) and parent.expr is current:
+            path = f"{path}.{parent.attrname}"
+            current = parent
+            parent = current.parent
+        # Credit the most specific imported submodule the access reaches, so
+        # `email.mime.application` and `email.mime.multipart` are told apart.
         reached = None
-        if isinstance(parent, nodes.Attribute) and parent.expr is use:
-            attribute_path = f"{name}.{parent.attrname}"
-            for candidate in candidates:
-                if candidate == attribute_path or candidate.startswith(
-                    f"{attribute_path}."
-                ):
+        for candidate in candidates:
+            if path == candidate or path.startswith(f"{candidate}."):
+                if reached is None or len(candidate) > len(reached):
                     reached = candidate
-                    break
         if reached is None:
             return None
         accessed.add(reached)
