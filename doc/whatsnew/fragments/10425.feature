@@ -14,6 +14,11 @@ Splitting integers from floats is what the split is for: an integer can only be 
 with underscores, which is uncontroversial, while rewriting a float means choosing a
 notation, which isn't. Each check can be enabled or disabled on its own.
 
+``bad-integer-notation`` leaves alone integers whose ungrouped shape is what readers
+recognize: runs of consecutive digits such as ``1234567890`` or ``987654321`` (often seeds),
+and any value listed in the new ``ignored-integers`` option (empty by default), compared
+whatever the base, sign or grouping used to write it.
+
 Two options keep the float check from churning code that was already fine:
 
 - ``float-notation-min-gain`` (default ``0``): how many characters a suggestion must save

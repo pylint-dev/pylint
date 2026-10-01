@@ -13,6 +13,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 from __future__ import annotations
 
+import itertools
 import math
 import re
 import tokenize
@@ -72,6 +73,24 @@ _GROUPING_PATTERNS: dict[str, re.Pattern[str]] = {
     "octal": re.compile(r"^0[a-zA-Z]_?[0-7]{1,3}(_[0-7]{3})*$"),
     "decimal": re.compile(r"^[0-9]{1,3}(_[0-9]{3})*$"),
 }
+
+
+def _is_consecutive_digit_run(digits: str) -> bool:
+    """Is ``digits`` a run like ``1234567``, ``1234567890`` or ``987654321``?
+
+    Such a literal is usually a seed or a placeholder whose shape is what the
+    reader recognizes, and grouping it hides that shape. The run climbs or falls
+    by one digit at each step; an ascending run may end on ``0`` after ``9``,
+    like the top row of a keyboard.
+    """
+    steps = {
+        (int(after) - int(before)) % 10 for before, after in itertools.pairwise(digits)
+    }
+    if steps == {1}:
+        return "90" not in digits[:-1]
+    return steps == {9} and "09" not in digits
+
+
 # Pattern for PEP 515 underscore grouping in float literals (with optional
 # fractional part and exponent).
 _FLOAT_UNDERSCORE_PATTERN: re.Pattern[str] = re.compile(
@@ -630,6 +649,21 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             },
         ),
         (
+            "ignored-integers",
+            {
+                "default": (),
+                "type": "csv",
+                "metavar": "<int>[,<int>...]",
+                "help": (
+                    "Integer values that 'bad-integer-notation' never flags, such as "
+                    "well-known sentinels whose ungrouped digits are what readers "
+                    "recognize. Values are compared whatever the base or grouping "
+                    "used to write them, and without their sign: '2147483647' also "
+                    "covers '0x7FFFFFFF' and '-2147483647'."
+                ),
+            },
+        ),
+        (
             "float-notation-threshold",
             {
                 # default big enough to not trigger on pixel perfect web design
@@ -716,12 +750,16 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         # statement that line belongs to. Rebuilt per module in process_tokens.
         self._statement_exponents: dict[int, Counter[int]] = {}
         if self.linter.is_message_enabled("bad-integer-notation"):
-            dec_int_threshold = Decimal(self.linter.config.integer_notation_threshold)
-            self._integer_threshold_str = (
-                NumberFormatterHelper.to_standard_scientific_notation(
-                    dec_int_threshold, len(dec_int_threshold.as_tuple().digits)
+            try:
+                self._ignored_integers = frozenset(
+                    int(value.replace("_", ""), 0)
+                    for value in self.linter.config.ignored_integers
                 )
-            )
+            except ValueError as exc:
+                raise ValueError(
+                    f"'ignored-integers' must be a list of integer literals, got "
+                    f"{list(self.linter.config.ignored_integers)!r}."
+                ) from exc
         if self.linter.is_message_enabled("bad-float-notation"):
             allowed_styles = set(self.linter.config.float_notation_style or ())
             unknown = allowed_styles - _NOTATION_STYLES
@@ -1288,6 +1326,8 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     ) -> None:
         has_underscore = "_" in string
         value = int(string.replace("_", ""), 0)
+        if value in self._ignored_integers:
+            return
         if value == 0 and pattern_key == "decimal" and string != "0":
             # Plain int that evaluates to zero but isn't the canonical form
             # ('00', '000', '0_0', ...). Prefixed zeros ('0x00', '0b00') can
@@ -1320,7 +1360,13 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     ),
                     confidence=HIGH,
                 )
-        elif value >= self.linter.config.integer_notation_threshold:
+        elif value >= self.linter.config.integer_notation_threshold and not (
+            pattern_key == "decimal" and _is_consecutive_digit_run(string)
+        ):
+            dec_threshold = Decimal(self.linter.config.integer_notation_threshold)
+            threshold_str = NumberFormatterHelper.to_standard_scientific_notation(
+                dec_threshold, len(dec_threshold.as_tuple().digits)
+            )
             suggestion = NumberFormatterHelper.to_standard_non_decimal_grouping(
                 string, group_size, prefix_length
             )
@@ -1332,7 +1378,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 end_col_offset=start[1] + len(string),
                 args=(
                     string,
-                    f"is at least {self._integer_threshold_str}",
+                    f"is at least {threshold_str}",
                     suggestion,
                 ),
                 confidence=HIGH,

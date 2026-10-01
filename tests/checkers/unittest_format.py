@@ -478,3 +478,13 @@ def test_float_notation_options_unvalidated_when_disabled() -> None:
     linter.register_checker(checker)
     linter.config.float_notation_style = ("nonsense",)
     checker.open()  # bad-float-notation is off by default: no ValueError
+
+
+@pytest.mark.parametrize("ignored", [("not_a_number",), ("1.5",), ("2147483647", "")])
+def test_ignored_integers_invalid(ignored: tuple[str, ...]) -> None:
+    linter = lint.PyLinter()
+    checker = FormatChecker(linter)
+    linter.register_checker(checker)
+    linter.config.ignored_integers = ignored
+    with pytest.raises(ValueError, match="'ignored-integers' must be a list"):
+        checker.open()

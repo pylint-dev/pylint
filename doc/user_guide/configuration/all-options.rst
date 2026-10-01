@@ -1323,6 +1323,15 @@ Standard Checkers
 **Default:**  ``None``
 
 
+.. _ignored-integers-option:
+
+--ignored-integers
+""""""""""""""""""
+*Integer values that 'bad-integer-notation' never flags, such as well-known sentinels whose ungrouped digits are what readers recognize. Values are compared whatever the base or grouping used to write them, and without their sign: '2147483647' also covers '0x7FFFFFFF' and '-2147483647'.*
+
+**Default:**  ``()``
+
+
 .. _indent-after-paren-option:
 
 --indent-after-paren
@@ -1420,6 +1429,8 @@ Standard Checkers
    ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
 
    # ignore-pattern-in-long-lines =
+
+   ignored-integers = []
 
    indent-after-paren = 4
 
