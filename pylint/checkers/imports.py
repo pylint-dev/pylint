@@ -1104,7 +1104,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             pass
 
         if context_name == importedmodname:
-            if not self._imports_name_missing_from_own_module(
+            if not self._is_missing_name_from_self(
                 node, context_name, original_importedmodname
             ):
                 self.add_message("import-self", node=node)
@@ -1130,33 +1130,27 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self._excluded_edges[context_name].add(importedmodname)
 
     @staticmethod
-    def _imports_name_missing_from_own_module(
-        node: ImportNode, context_name: str, original_importedmodname: str
+    def _is_missing_name_from_self(
+        node: ImportNode, context_name: str, importedmodname: str
     ) -> bool:
-        """Detect ``from <this package> import <name>`` where ``<name>`` does not
-        actually exist anywhere in the current module.
+        """Return True for ``from <this package> import <name>`` where ``<name>``
+        is not actually defined in this module.
 
         ``astroid.modutils.get_module_part`` falls back to the enclosing package
-        whenever the imported name isn't itself an importable submodule, which
-        makes it collapse to ``context_name`` regardless of whether the name is a
-        real attribute (e.g. a class defined earlier in the same ``__init__.py``)
-        or altogether missing. Only the former is a genuine self-import.
+        when ``<name>`` is not an importable submodule, so such an import looks
+        like a self-import. It is only a genuine self-import when ``<name>`` is a
+        real attribute defined here; a name bound solely by the (broken) import
+        itself is an import-error, not import-self (see #3748).
         """
         if not isinstance(node, nodes.ImportFrom):
             return False
         prefix = f"{context_name}."
-        if not original_importedmodname.startswith(prefix):
+        if not importedmodname.startswith(prefix):
             return False
-        imported_name = original_importedmodname[len(prefix) :]
-        if not imported_name or "." in imported_name:  # pragma: no cover
-            # Unreachable via any real ``from ... import name`` statement:
-            # Python's grammar guarantees each imported name is a single,
-            # non-empty identifier. Kept as a defensive guard only.
-            return False
-        bindings = node.root().locals.get(imported_name, [])
-        return bool(bindings) and all(
+        name = importedmodname[len(prefix) :]
+        return all(
             isinstance(binding, (nodes.Import, nodes.ImportFrom))
-            for binding in bindings
+            for binding in node.root().locals.get(name, [])
         )
 
     def _check_preferred_module(self, node: ImportNode, mod_path: str) -> None:
