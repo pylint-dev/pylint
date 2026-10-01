@@ -1,6 +1,6 @@
 """Regression tests for inferred.qname missing"""
 
-# pylint: disable=missing-docstring,too-few-public-methods,disallowed-name
+# pylint: disable=missing-docstring,too-few-public-methods,disallowed-name,dangerous-default-value
 
 X = slice(42)
 X()  # [not-callable]
