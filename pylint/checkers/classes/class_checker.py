@@ -619,6 +619,61 @@ def _assigned_value(node: nodes.AssignAttr) -> nodes.NodeNG | None:
     return parent.value
 
 
+def _guarded_classes(name: str, before: nodes.NodeNG) -> tuple[nodes.ClassDef, ...]:
+    """Find classes established for *name* by the preceding terminating guard."""
+    frame = before.frame()
+    if not isinstance(frame, nodes.FunctionDef):
+        return ()
+
+    statement = before.statement()
+    if statement.parent is not frame:
+        return ()
+
+    try:
+        statement_index = frame.body.index(statement)
+    except ValueError:
+        return ()
+    if statement_index == 0:
+        return ()
+
+    candidate = frame.body[statement_index - 1]
+    if not isinstance(candidate, nodes.If) or candidate.orelse or not candidate.body:
+        return ()
+    if not isinstance(candidate.body[-1], (nodes.Raise, nodes.Return)):
+        return ()
+    if not isinstance(candidate.test, nodes.UnaryOp) or candidate.test.op != "not":
+        return ()
+    call = candidate.test.operand
+    inferred_func = safe_infer(call.func) if isinstance(call, nodes.Call) else None
+    if not (
+        isinstance(call, nodes.Call)
+        and isinstance(call.func, nodes.Name)
+        and call.func.name == "isinstance"
+        and isinstance(inferred_func, nodes.FunctionDef)
+        and inferred_func.qname() == "builtins.isinstance"
+        and len(call.args) == 2
+        and not call.keywords
+        and isinstance(guarded_name := call.args[0], nodes.Name)
+        and guarded_name.name == name
+        and guarded_name.lookup(name)[0] is frame
+        and not any(
+            name in declaration.names
+            for declaration in frame.nodes_of_class((nodes.Global, nodes.Nonlocal))
+            if declaration.frame() is frame
+        )
+        and isinstance(classinfo := call.args[1], nodes.Name)
+    ):
+        return ()
+    try:
+        inferred_values = set(classinfo.infer())
+    except astroid.InferenceError:
+        return ()
+    if len(inferred_values) != 1:
+        return ()
+    inferred = inferred_values.pop()
+    return (inferred,) if isinstance(inferred, nodes.ClassDef) else ()
+
+
 MSGS: dict[str, MessageDefinitionTuple] = {
     "F0202": (
         "Unable to check methods signature (%s / %s)",
@@ -1410,7 +1465,64 @@ a metaclass class method.",
                 continue
 
             for node in filtered_nodes:
+                if self._attribute_is_initialized_on_guarded_receiver(
+                    node, attr, defining_methods
+                ):
+                    continue
                 self.add_message("attribute-defined-outside-init", args=attr, node=node)
+
+    def _attribute_is_initialized_on_guarded_receiver(
+        self,
+        node: nodes.NodeNG,
+        attr: str,
+        defining_methods: Sequence[str],
+    ) -> bool:
+        if not isinstance(node, nodes.AssignAttr):
+            return False
+        if node.statement().parent is not node.frame():
+            return False
+
+        if not isinstance(node.expr, nodes.Name):
+            return False
+        if any(
+            assignment.name == node.expr.name
+            for assignment in node.statement().nodes_of_class(nodes.AssignName)
+        ):
+            return False
+
+        guarded_classes = _guarded_classes(node.expr.name, node)
+        return bool(guarded_classes) and all(
+            self._attribute_is_initialized_in_class(
+                guarded_class, attr, defining_methods
+            )
+            for guarded_class in guarded_classes
+        )
+
+    def _attribute_is_initialized_in_class(
+        self,
+        cnode: nodes.ClassDef,
+        attr: str,
+        defining_methods: Sequence[str],
+    ) -> bool:
+        try:
+            cnode.local_attr(attr)
+            return True
+        except astroid.NotFoundError:
+            pass
+
+        if any(
+            node.frame().name in defining_methods
+            or is_property_setter(node.frame())
+            or _is_classic_property_setter(node.frame())
+            or _called_in_methods(node.frame(), cnode, defining_methods)
+            for node in cnode.instance_attrs.get(attr, ())
+        ):
+            return True
+        return (
+            attr in _setattr_names_in_defining_methods(cnode, defining_methods)
+            or self._defined_in_parent_init(cnode, attr, defining_methods)
+            or attr in self._parent_setattr_names(cnode, defining_methods)
+        )
 
     def _defined_in_parent_init(
         self, cnode: nodes.ClassDef, attr: str, defining_methods: Sequence[str]
