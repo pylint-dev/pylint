@@ -202,3 +202,28 @@ NotAmbiguousClass(feeling="so-so")
 NotAmbiguousClass(worrying="little")  # [unexpected-keyword-arg]
 
 # pylint: enable=unused-argument
+
+
+# Pass-through decorators above a decorator taking **kwargs must not hide it
+# https://github.com/pylint-dev/pylint/issues/10831
+def pass_through_decorator():
+    def decorator(func):
+        return func
+    return decorator
+
+
+@pass_through_decorator()
+@kwargs_decorator
+def pass_through_above_kwargs(junk=None):
+    print(junk)
+
+
+pass_through_above_kwargs(internal_arg=2)
+
+
+@pass_through_decorator()
+def only_pass_through(junk=None):
+    print(junk)
+
+
+only_pass_through(internal_arg=2)  # [unexpected-keyword-arg]
