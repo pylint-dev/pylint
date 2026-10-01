@@ -1,0 +1,5 @@
+Fix a crash (``astroid-error``) when a class or method is decorated with a
+``final`` that comes from a plain ``import final`` rather than
+``from typing import final``.
+
+Closes #11521
