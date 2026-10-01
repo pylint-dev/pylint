@@ -1,0 +1,5 @@
+Fixed a false positive ``attribute-defined-outside-init`` when assigning an
+attribute after a terminating ``isinstance`` guard narrowed a variant to a
+class that initializes the attribute.
+
+Closes #8900
