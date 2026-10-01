@@ -1,0 +1,3 @@
+Avoid ``unexpected-keyword-arg`` false positives when a decorator's return value cannot be inferred.
+
+Closes #10831
