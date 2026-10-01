@@ -221,7 +221,7 @@ class _ArgumentsManager:
                     for option in action.option_strings
                     if option.startswith("--")
                 )
-        falsy = {"false", "no", "n", "0"}
+        off_values = {"false", "no", "n", "0"}
         result: list[str] = []
         index = 0
         while index < len(arguments):
@@ -229,9 +229,9 @@ class _ArgumentsManager:
             name = argument[2:] if argument.startswith("--") else None
             if name in flag_names and index + 1 < len(arguments):
                 # A valueless option from a config file is always emitted as a
-                # "--opt value" pair. Drop the pair when the value is falsy so
+                # "--opt value" pair. Drop the pair when the value is off so
                 # the flag is not set; keep the flag (drop its value) otherwise.
-                if arguments[index + 1].lower() in falsy:
+                if arguments[index + 1].lower() in off_values:
                     index += 2
                     continue
                 result.append(argument)
