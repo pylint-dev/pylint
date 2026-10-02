@@ -1,0 +1,3 @@
+Fix a crash when a name bound by a ``type`` statement (a TypeVar) is used in a ``with`` statement.
+
+Closes #11510
