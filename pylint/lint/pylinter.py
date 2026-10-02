@@ -35,7 +35,7 @@ from pylint.constants import (
     MSG_TYPES_STATUS,
     WarningScope,
 )
-from pylint.interfaces import HIGH
+from pylint.interfaces import HIGH, _confidence_or_undefined
 from pylint.lint.base_options import _make_linter_options
 from pylint.lint.caching import load_results, save_results
 from pylint.lint.expand_modules import (
@@ -1406,7 +1406,7 @@ class PyLinter(
         line: int | None = None,
         node: nodes.NodeNG | None = None,
         args: Any | None = None,
-        confidence: interfaces.Confidence | None = None,
+        confidence: interfaces.Confidence | None = interfaces.UNDEFINED,
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
@@ -1419,8 +1419,7 @@ class PyLinter(
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
         """
-        if confidence is None:
-            confidence = interfaces.UNDEFINED
+        confidence = _confidence_or_undefined(confidence, stacklevel=2)
         message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
             self._add_one_message(
@@ -1448,6 +1447,7 @@ class PyLinter(
         This creates false positives for useless-suppression.
         This function avoids this by adding those message to the ignored msgs attribute
         """
+        confidence = _confidence_or_undefined(confidence, stacklevel=2)
         message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
             message_definition.check_message_definition(line, node)

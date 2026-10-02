@@ -550,6 +550,46 @@ def test_addmessage_preserves_explicit_zero_col_offset(linter: PyLinter) -> None
     assert linter.reporter.messages[0].location.column == 0
 
 
+@pytest.mark.parametrize("disabled", [False, True])
+@pytest.mark.parametrize("through_checker", [False, True])
+def test_addmessage_confidence_none_is_deprecated(
+    linter: PyLinter, disabled: bool, through_checker: bool
+) -> None:
+    """Plugins such as pylint-pytest pass ``confidence=None`` (#11530)."""
+    linter.set_reporter(testutils.GenericTestReporter())
+    linter.open()
+    linter.set_current_module("0123")
+    if disabled:
+        linter.disable("line-too-long")
+    emitter: PyLinter | checkers.BaseChecker = linter
+    if through_checker:
+        emitter = next(c for c in linter.get_checkers() if c.name == "format")
+    with pytest.warns(DeprecationWarning, match="confidence=None") as records:
+        emitter.add_message("line-too-long", line=1, args=(1, 2), confidence=None)
+    assert len(records) == 1
+    assert records[0].filename == __file__
+    if disabled:
+        assert not linter.reporter.messages
+    else:
+        assert linter.reporter.messages[0].confidence == interfaces.UNDEFINED
+
+
+def test_add_ignored_message_confidence_none_is_deprecated(
+    initialized_linter: PyLinter,
+) -> None:
+    with pytest.warns(DeprecationWarning, match="confidence=None") as records:
+        initialized_linter.add_ignored_message("line-too-long", line=1, confidence=None)
+    assert records[0].filename == __file__
+
+
+def test_message_confidence_none_is_deprecated() -> None:
+    location = MessageLocationTuple("0123", "0123", "0123", "", 1, 0, None, None)
+    with pytest.warns(DeprecationWarning, match="confidence=None") as records:
+        message = Message("C0301", "line-too-long", location, "msg", None)
+    assert records[0].filename == __file__
+    assert message.confidence == interfaces.UNDEFINED
+
+
 def test_addmessage_invalid(linter: PyLinter) -> None:
     linter.set_reporter(testutils.GenericTestReporter())
     linter.open()

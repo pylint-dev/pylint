@@ -241,7 +241,7 @@ def get_linter_result_for_v2(message: dict[str, Any]) -> list[dict[str, Any]]:
                     end_column=None,
                 ),
                 msg="This is the actual message",
-                confidence=None,
+                confidence=UNDEFINED,
             ),
             id="not-everything-defined",
         ),
