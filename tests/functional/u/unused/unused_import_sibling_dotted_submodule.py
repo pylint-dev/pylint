@@ -17,5 +17,21 @@ import fake.foo
 import deep.mime.application  # [unused-import]
 import deep.mime.multipart
 
+# A name bound by a single dotted import is handled by the normal machinery; the
+# sibling recovery must leave it alone (there is no sibling to tell apart).
+import lonely.only
+
+# When *no* sibling bound to the shared name is used, both imports are already
+# reported as unused by the normal machinery and recovery must not interfere.
+import neither.alpha  # [unused-import]
+import neither.beta  # [unused-import]
+
+# A bare reference to the shared name (not an attribute access) could reach any
+# of the siblings, so none of them may be reported as unused for that name.
+import ambiguous.alpha
+import ambiguous.beta
+
 fake.foo.do_something()
 deep.mime.multipart.build()
+lonely.only.run()
+print(ambiguous)
