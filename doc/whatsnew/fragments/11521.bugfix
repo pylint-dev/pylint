@@ -1,4 +1,0 @@
-Fix a crash in the ``using-final-decorator-in-unsupported-version`` check
-when ``import final`` is used.
-
-Closes #11521

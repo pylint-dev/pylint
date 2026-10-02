@@ -1,5 +1,0 @@
-Fixed a crash when calling ``__bases__`` on a class.
-
-Fixed by upgrading astroid to 4.3.3.
-
-Closes #11491

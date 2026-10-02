@@ -47,6 +47,63 @@ for additional fixes, features, and performance improvements applicable to pylin
 
 .. towncrier release notes start
 
+What's new in Pylint 4.1.2?
+---------------------------
+Release date: 2026-10-03
+
+
+False Positives Fixed
+---------------------
+
+- Fixed a false positive ``unbalanced-tuple-unpacking`` when unpacking a tuple
+  concatenation whose elements have several possible values.
+
+  Fixed by upgrading astroid to 4.3.3.
+
+  Closes #2621 (`#2621 <https://github.com/pylint-dev/pylint/issues/2621>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fixed a crash when calling ``__bases__`` on a class.
+
+  Fixed by upgrading astroid to 4.3.3.
+
+  Closes #11491 (`#11491 <https://github.com/pylint-dev/pylint/issues/11491>`_)
+
+- Fix a crash (``astroid-error``) when the class of a called attribute cannot
+  be fully inferred, for example when the attribute is used as a ``with``
+  statement target or inside a comprehension.
+
+  Closes #11492 (`#11492 <https://github.com/pylint-dev/pylint/issues/11492>`_)
+
+- Fix a crash when a name bound by a ``type`` statement (a TypeVar) is used in a ``with`` statement.
+
+  Closes #11510 (`#11510 <https://github.com/pylint-dev/pylint/issues/11510>`_)
+
+- Fixed a crash (``TypeError``) in the variables checker when checking a class
+  whose metaclass name binding has no line number, for example a class defined
+  with ``metaclass=__annotations__``.
+
+  Closes #11511 (`#11511 <https://github.com/pylint-dev/pylint/issues/11511>`_)
+
+- Fix a crash in the ``using-final-decorator-in-unsupported-version`` check
+  when ``import final`` is used.
+
+  Closes #11521 (`#11521 <https://github.com/pylint-dev/pylint/issues/11521>`_)
+
+- Fix a crash when a plugin passes ``confidence=None`` to ``add_message``, as
+  ``pylint-pytest`` does, for a message that is disabled. ``confidence=None`` is
+  accepted again and means ``UNDEFINED``, like in pylint 4.0. Passing it
+  explicitly to ``add_message``, ``add_ignored_message`` or ``Message`` now emits a
+  ``DeprecationWarning``: it will raise an error in pylint 5.0.
+
+  Closes #11530 (`#11530 <https://github.com/pylint-dev/pylint/issues/11530>`_)
+
+
+
 What's new in Pylint 4.1.1?
 ---------------------------
 Release date: 2026-09-29
