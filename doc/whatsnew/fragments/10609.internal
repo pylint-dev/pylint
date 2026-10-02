@@ -1,7 +1,0 @@
-Add regression tests for two false positives that no longer reproduce:
-``too-many-function-args`` on the functional API of a member-less ``Enum``
-subclass, and ``consider-using-augmented-assign`` on subscripts whose keys are
-different variables.
-
-Closes #10609
-Closes #10032
