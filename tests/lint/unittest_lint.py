@@ -274,23 +274,15 @@ def test_message_state_scope(initialized_linter: PyLinter) -> None:
 
     linter = initialized_linter
     linter.disable("C0202")
-    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope(
-        "C0202", None, interfaces.UNDEFINED
-    )
+    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope("C0202")
     linter.disable("W0101", scope="module", line=3)
-    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope(
-        "C0202", None, interfaces.UNDEFINED
-    )
-    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope(
-        "W0101", 3, interfaces.UNDEFINED
-    )
+    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope("C0202")
+    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope("W0101", 3)
     linter.enable("W0102", scope="module", line=3)
-    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope(
-        "W0102", 3, interfaces.UNDEFINED
-    )
+    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope("W0102", 3)
     linter.config = FakeConfig()
     assert MSG_STATE_CONFIDENCE == linter._get_message_state_scope(
-        "this-is-bad", None, confidence=interfaces.INFERENCE
+        "this-is-bad", confidence=interfaces.INFERENCE
     )
 
 
@@ -556,6 +548,46 @@ def test_addmessage_preserves_explicit_zero_col_offset(linter: PyLinter) -> None
     assert arg_node.col_offset != 0  # sanity-check fixture
     linter.add_message("C0321", node=arg_node, col_offset=0)
     assert linter.reporter.messages[0].location.column == 0
+
+
+@pytest.mark.parametrize("disabled", [False, True])
+@pytest.mark.parametrize("through_checker", [False, True])
+def test_addmessage_confidence_none_is_deprecated(
+    linter: PyLinter, disabled: bool, through_checker: bool
+) -> None:
+    """Plugins such as pylint-pytest pass ``confidence=None`` (#11530)."""
+    linter.set_reporter(testutils.GenericTestReporter())
+    linter.open()
+    linter.set_current_module("0123")
+    if disabled:
+        linter.disable("line-too-long")
+    emitter: PyLinter | checkers.BaseChecker = linter
+    if through_checker:
+        emitter = next(c for c in linter.get_checkers() if c.name == "format")
+    with pytest.warns(DeprecationWarning, match="confidence=None") as records:
+        emitter.add_message("line-too-long", line=1, args=(1, 2), confidence=None)
+    assert len(records) == 1
+    assert records[0].filename == __file__
+    if disabled:
+        assert not linter.reporter.messages
+    else:
+        assert linter.reporter.messages[0].confidence == interfaces.UNDEFINED
+
+
+def test_add_ignored_message_confidence_none_is_deprecated(
+    initialized_linter: PyLinter,
+) -> None:
+    with pytest.warns(DeprecationWarning, match="confidence=None") as records:
+        initialized_linter.add_ignored_message("line-too-long", line=1, confidence=None)
+    assert records[0].filename == __file__
+
+
+def test_message_confidence_none_is_deprecated() -> None:
+    location = MessageLocationTuple("0123", "0123", "0123", "", 1, 0, None, None)
+    with pytest.warns(DeprecationWarning, match="confidence=None") as records:
+        message = Message("C0301", "line-too-long", location, "msg", None)
+    assert records[0].filename == __file__
+    assert message.confidence == interfaces.UNDEFINED
 
 
 def test_addmessage_invalid(linter: PyLinter) -> None:
