@@ -33,13 +33,13 @@ from pylint.checkers.utils import (
     is_iterable,
     is_property_setter,
     is_property_setter_or_deleter,
+    is_typing_member,
     node_frame_class,
     only_required_for_messages,
     safe_infer,
     safe_mro,
     safe_slots,
     unimplemented_abstract_methods,
-    is_typing_member,
 )
 from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
