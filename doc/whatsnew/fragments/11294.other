@@ -1,0 +1,6 @@
+``pylint.checkers.utils.is_typing_member`` is deprecated: it is
+``is_module_member(node, "typing.<name>")`` with the module filled in. Call
+``is_module_member`` directly instead. ``is_typing_member`` will be removed in
+pylint 5.0.
+
+Refs #11294
