@@ -10,7 +10,7 @@ from typing import Any, Literal
 
 from astroid import nodes
 
-from pylint.interfaces import UNDEFINED, Confidence
+from pylint.interfaces import UNDEFINED, Confidence, _confidence_or_undefined
 from pylint.lint import PyLinter
 from pylint.testutils.output_line import MessageTest
 
@@ -35,12 +35,13 @@ class UnittestLinter(PyLinter):
         # TODO: Make node non optional
         node: nodes.NodeNG | None = None,
         args: Any = None,
-        confidence: Confidence = UNDEFINED,
+        confidence: Confidence | None = UNDEFINED,
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
     ) -> None:
         """Add a MessageTest to the _messages attribute of the linter class."""
+        confidence = _confidence_or_undefined(confidence, stacklevel=2)
         # Look up "location" data of node if not yet supplied
         if node:
             if node.position:

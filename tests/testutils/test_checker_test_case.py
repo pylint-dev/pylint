@@ -35,6 +35,16 @@ class TestCheckerTestCase(CheckerTestCase):
         with self.assertAddsMessages(_MSG_A):
             self.linter.add_message("W9901", line=1)
 
+    def test_assert_adds_messages_confidence_none_is_deprecated(self) -> None:
+        """``confidence=None`` still matches an ``UNDEFINED`` expectation (#11530)."""
+        with pytest.warns(DeprecationWarning, match="confidence=None") as records:
+            with self.assertAddsMessages(_MSG_A):
+                self.checker.add_message("W9901", line=1, confidence=None)
+        assert len(records) == 1
+        with pytest.warns(DeprecationWarning, match="confidence=None"):
+            with self.assertAddsMessages(_MSG_A):
+                self.linter.add_message("W9901", line=1, confidence=None)
+
     def test_assert_adds_messages_failure_not_raised(self) -> None:
         """Scenario 2: expected raised / actual not raised."""
         with pytest.raises(AssertionError, match=r"Got:\s+No message\."):
