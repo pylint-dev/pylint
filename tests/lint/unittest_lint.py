@@ -401,6 +401,19 @@ def test_enable_report(linter: PyLinter) -> None:
     assert linter.report_is_enabled("RP0001")
 
 
+def test_report_tables_diff_integer_stats() -> None:
+    """The difference column holds the change, not the previous count."""
+    stats, old_stats = LinterStats(), LinterStats()
+    stats.convention, old_stats.convention = 5, 2
+    stats.duplicated_lines["nb_duplicated_lines"] = 4
+    old_stats.duplicated_lines["nb_duplicated_lines"] = 6
+
+    lines = checkers.table_lines_from_stats(stats, old_stats, "message_types")
+    assert lines[:4] == ["convention", "5", "2", "+3.00"]
+    lines = checkers.table_lines_from_stats(stats, old_stats, "duplicated_lines")
+    assert lines[:4] == ["nb duplicated lines", "4", "6", "-2.00"]
+
+
 def test_report_output_format_aliased(linter: PyLinter) -> None:
     text.register(linter)
     linter.set_option("output-format", "text")

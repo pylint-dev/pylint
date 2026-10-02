@@ -1,0 +1,5 @@
+The "difference" column of the "Messages by category" and "Duplication"
+reports now shows the change from the previous run for integer counts,
+instead of repeating the previous count.
+
+Closes #11520
