@@ -1,7 +1,0 @@
-Fix a crash when a plugin passes ``confidence=None`` to ``add_message``, as
-``pylint-pytest`` does, for a message that is disabled. ``confidence=None`` is
-accepted again and means ``UNDEFINED``, like in pylint 4.0. Passing it
-explicitly to ``add_message``, ``add_ignored_message`` or ``Message`` now emits a
-``DeprecationWarning``: it will raise an error in pylint 5.0.
-
-Closes #11530
