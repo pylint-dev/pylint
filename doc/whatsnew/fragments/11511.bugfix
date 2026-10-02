@@ -1,0 +1,5 @@
+Fixed a crash (``TypeError``) in the variables checker when checking a class
+whose metaclass name binding has no line number, for example a class defined
+with ``metaclass=__annotations__``.
+
+Closes #11511
