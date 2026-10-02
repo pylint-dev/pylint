@@ -323,8 +323,12 @@ def defnode_in_scope(
         for expr, ids in scope.items:
             if expr.parent_of(var_node):
                 break
-            if ids and isinstance(ids, nodes.AssignName) and ids.name == varname:
-                return ids
+            if ids is None:
+                continue
+            # The target can be a name, or a (possibly nested) tuple or list of names
+            for ass_node in ids.nodes_of_class(nodes.AssignName):
+                if ass_node.name == varname:
+                    return ass_node
     elif isinstance(scope, (nodes.Lambda, nodes.FunctionDef)):
         if scope.args.is_argument(varname):
             # If the name is found inside a default value

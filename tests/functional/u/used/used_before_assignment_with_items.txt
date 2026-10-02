@@ -1,0 +1,2 @@
+used-before-assignment:48:16:48:21:used_in_own_item:Using variable 'first' before assignment:HIGH
+used-before-assignment:53:16:53:21:used_before_later_item:Using variable 'third' before assignment:HIGH
