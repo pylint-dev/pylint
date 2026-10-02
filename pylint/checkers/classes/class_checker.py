@@ -1137,7 +1137,7 @@ a metaclass class method.",
             if isinstance(ancestor, nodes.ClassDef):
                 decorators = ancestor.decorators.nodes if ancestor.decorators else []
                 if decorated_with(ancestor, ["typing.final"]) or any(
-                    is_typing_member(decorator, ["typing.final"])
+                    is_typing_member(decorator, ("final",))
                     for decorator in decorators
                 ):
                     self.add_message(
@@ -1674,7 +1674,7 @@ a metaclass class method.",
         if (
             decorated_with(parent_function_node, ["typing.final"])
             or any(
-                is_typing_member(decorator, ["typing.final"])
+                is_typing_member(decorator, ("final",))
                 for decorator in decorators
             )
         ) and self._py38_plus:

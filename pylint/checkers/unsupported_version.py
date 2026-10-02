@@ -124,7 +124,7 @@ class UnsupportedVersionChecker(BaseChecker):
         decorators = [
             decorator
             for decorator in node.get_children()
-            if is_typing_member(decorator, ["final"])
+            if is_typing_member(decorator, ("final",))
         ]
 
         for decorator in decorators:
