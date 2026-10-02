@@ -1314,7 +1314,7 @@ class PyLinter(
         line: int | None,
         node: nodes.NodeNG | None,
         args: Any | None,
-        confidence: interfaces.Confidence,
+        confidence: interfaces.Confidence | None,
         col_offset: int | None,
         end_lineno: int | None,
         end_col_offset: int | None,
@@ -1406,7 +1406,7 @@ class PyLinter(
         line: int | None = None,
         node: nodes.NodeNG | None = None,
         args: Any | None = None,
-        confidence: interfaces.Confidence = interfaces.UNDEFINED,
+        confidence: interfaces.Confidence | None = None,
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
@@ -1419,6 +1419,8 @@ class PyLinter(
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
         """
+        if confidence is None:
+            confidence = interfaces.UNDEFINED
         message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
             self._add_one_message(
@@ -1437,7 +1439,7 @@ class PyLinter(
         msgid: str,
         line: int,
         node: nodes.NodeNG | None = None,
-        confidence: interfaces.Confidence = interfaces.UNDEFINED,
+        confidence: interfaces.Confidence | None = interfaces.UNDEFINED,
     ) -> None:
         """Prepares a message to be added to the ignored message storage.
 

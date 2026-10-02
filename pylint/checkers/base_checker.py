@@ -16,7 +16,7 @@ from astroid import nodes
 from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
-from pylint.interfaces import UNDEFINED, Confidence
+from pylint.interfaces import Confidence
 from pylint.message.message_definition import MessageDefinition
 from pylint.typing import (
     ExtraMessageOptions,
@@ -152,7 +152,7 @@ class BaseChecker(_ArgumentsProvider):
         line: int | None = None,
         node: nodes.NodeNG | None = None,
         args: Any = None,
-        confidence: Confidence = UNDEFINED,
+        confidence: Confidence | None = None,
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
