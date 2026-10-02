@@ -1137,8 +1137,7 @@ a metaclass class method.",
             if isinstance(ancestor, nodes.ClassDef):
                 decorators = ancestor.decorators.nodes if ancestor.decorators else []
                 if decorated_with(ancestor, ["typing.final"]) or any(
-                    is_typing_member(decorator, ("final",))
-                    for decorator in decorators
+                    is_typing_member(decorator, ("final",)) for decorator in decorators
                 ):
                     self.add_message(
                         "subclassed-final-class",
@@ -1673,10 +1672,7 @@ a metaclass class method.",
         )
         if (
             decorated_with(parent_function_node, ["typing.final"])
-            or any(
-                is_typing_member(decorator, ("final",))
-                for decorator in decorators
-            )
+            or any(is_typing_member(decorator, ("final",)) for decorator in decorators)
         ) and self._py38_plus:
             self.add_message(
                 "overridden-final-method",
