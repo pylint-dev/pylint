@@ -2107,6 +2107,17 @@ accessed. Python regular expressions are accepted.",
                         self.add_message(
                             "not-context-manager", node=node, args=(inferred_name,)
                         )
+                    except AttributeError:
+                        # Some inferred results (e.g. a TypeVar bound by a
+                        # `type` statement) are not class-like nodes and have
+                        # no ``getattr``: they can never be context managers,
+                        # so report ``not-context-manager`` with the inferred
+                        # type's name instead of crashing.
+                        self.add_message(
+                            "not-context-manager",
+                            node=node,
+                            args=(inferred.pytype().rsplit(".", 1)[-1],),
+                        )
 
     @only_required_for_messages("invalid-unary-operand-type")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
