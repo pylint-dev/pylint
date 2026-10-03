@@ -1,0 +1,6 @@
+Fix a false positive for ``unpacking-non-sequence`` when unpacking the result
+of a function that is only declared in a stub (``.pyi``) file. A stub has no
+return statement, so its calls were inferred as returning ``None``; the return
+type declared by the stub is now used to check the unpacking instead.
+
+Closes #9354

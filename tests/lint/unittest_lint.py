@@ -1181,6 +1181,28 @@ def test_no_false_positive_from_pyi_stub() -> None:
     assert not run.linter.stats.by_msg
 
 
+def test_unpacking_from_pyi_stub() -> None:
+    """The return type declared by a stub is used to check the unpacking.
+
+    A stub has no return statement, so its calls used to be inferred as
+    returning ``None``, which made every unpacking of such a call look like
+    unpacking a non-sequence: https://github.com/pylint-dev/pylint/issues/9354
+    """
+    run = Run(
+        ["--recursive", "y", join(REGRTEST_DATA_DIR, "uses_pyi_stub_unpacking.py")],
+        exit=False,
+    )
+    # Only the shapes that genuinely are not unpackable still report:
+    #   declared_tuple               -> tuple[int, int, int]   unpacks cleanly
+    #   declared_int                 -> int                     not iterable
+    #   declared_class               -> Declared, iterable      unpacks cleanly
+    #   declared_unresolved          -> "NeverDefinedAnywhere"   nothing to infer
+    #   declared_without_annotation  -> no annotation at all    nothing to infer
+    #   declared_none                -> None                    not iterable
+    #   annotated_none               -> a real function, not a stub
+    assert run.linter.stats.by_msg == {"unpacking-non-sequence": 5}
+
+
 @pytest.mark.parametrize(
     "ignore_parameter,ignore_parameter_value",
     [
