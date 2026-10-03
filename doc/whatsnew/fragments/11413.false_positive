@@ -1,0 +1,4 @@
+Fix a false positive ``no-member`` when accessing an attribute on an enum value
+whose type is declared with an annotated ``_value_`` member.
+
+Closes #11413
