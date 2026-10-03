@@ -1,0 +1,4 @@
+Fix a false positive for :ref:`unnecessary-ellipsis` when a method on a ``Protocol``
+is defined inside an ``if TYPE_CHECKING:`` block.
+
+Closes #11459
