@@ -1,0 +1,9 @@
+Options registered as valueless (``store_true`` style), such as ``--exit-zero``,
+are now honored when their ``false`` value is set in a configuration file.
+Previously ``exit-zero = false`` in a config file was parsed into the command
+line as ``--exit-zero False``, which argparse treats as the flag being present
+(it takes no argument), silently enabling the option. The parser now drops the
+``true``/``false`` value for valueless options, so ``exit-zero = false`` leaves
+the flag off as the documented config-file syntax intends.
+
+Closes #8460
