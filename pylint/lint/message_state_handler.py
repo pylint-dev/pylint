@@ -262,10 +262,12 @@ class _MessageStateHandler:
     def _get_message_state_scope(
         self,
         msgid: str,
-        line: int | None,
-        confidence: interfaces.Confidence,
+        line: int | None = None,
+        confidence: interfaces.Confidence | None = None,
     ) -> MessageDisableReason | None:
-        """Return the scope at which the message was disabled / filtered."""
+        """Returns the scope at which a message was enabled/disabled."""
+        if confidence is None:
+            confidence = interfaces.UNDEFINED
         if confidence.name not in self.linter.config.confidence:
             return MessageDisableReason.CONFIDENCE
         try:

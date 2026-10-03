@@ -1,12 +1,15 @@
 .[testutils,spelling]
 # astroid dependency is also defined in pyproject.toml
-astroid==4.2.0b5   # Pinned to a specific version for tests
+astroid==4.3.3   # Pinned to a specific version for tests
+# dill has no release supporting Python 3.15 yet, PyPI rejects this in pyproject's dependencies
+dill @ git+https://github.com/uqfoundation/dill@2308ffb0d0c605b9c050fa4c9fd5793d65c67022 ; python_version>='3.15'
 typing-extensions~=4.15
 py~=1.11.0
 pytest>=8.4,<10.0
 pytest-benchmark~=5.1
 pytest-timeout~=2.4
-towncrier>=24.8,<26.0
+pytest-remaster~=0.1.0
+towncrier>=24.8,<27.0
 requests
 # Voluntary for test purpose, not actually used in prod, see #8904
 setuptools;python_version>='3.12'

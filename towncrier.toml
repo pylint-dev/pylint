@@ -1,7 +1,7 @@
 [tool.towncrier]
-version = "4.0.0-dev0"
+version = "4.2.0"
 directory = "doc/whatsnew/fragments"
-filename = "doc/whatsnew/4/4.1/index.rst"
+filename = "doc/whatsnew/4/4.2/index.rst"
 template = "doc/whatsnew/fragments/_template.rst"
 issue_format = "`#{issue} <https://github.com/pylint-dev/pylint/issues/{issue}>`_"
 wrap = false  # doesn't wrap links correctly if beginning with indentation
@@ -11,6 +11,11 @@ wrap = false  # doesn't wrap links correctly if beginning with indentation
 # are defined here. Therefore we have to use the array-style fragment definition.
 # The table-style definition, although more concise, would be sorted alphabetically.
 # https://github.com/twisted/towncrier/issues/437
+[[tool.towncrier.type]]
+directory = "security"
+name = "Security Fixes"
+showcontent = true
+
 [[tool.towncrier.type]]
 directory = "breaking"
 name = "Breaking Changes"

@@ -698,6 +698,22 @@ Logging checker Messages
   formatting as normal.
 
 
+.. _looping-through-iterator-checker:
+
+Looping-Through-Iterator checker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Verbatim name of the checker is ``looping-through-iterator``.
+
+Looping-Through-Iterator checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:looping-through-iterator (W4801): *Iterator '%s' from an outer scope is reused or consumed in a nested loop.*
+  Used when an iterator defined in an outer loop scope is consumed in a nested
+  loop. Because iterators are stateful and exhausted upon consumption, the
+  inner loop will fully consume the iterator during the first iteration of the
+  outer loop, leaving it empty for all subsequent iterations.
+
+
 .. _match_statements-checker:
 
 Match Statements checker
@@ -916,7 +932,7 @@ Refactoring checker Messages
   Using the builtin dict.get for getting a value from a dictionary if a key is
   present or a default if not, is simpler and considered more idiomatic,
   although sometimes a bit slower
-:chained-comparison (R1716): *Simplify chained comparison between the operands*
+:chained-comparison (R1716): *Simplify chained comparison between the operands: %s*
   This message is emitted when pylint encounters boolean operation like "a < b
   and b < c", suggesting instead to refactor it to "a < b < c"
 :consider-using-dict-comprehension (R1717): *Consider using a dictionary comprehension*
@@ -989,6 +1005,13 @@ Refactoring checker Messages
 :use-yield-from (R1737): *Use 'yield from' directly instead of yielding each element one by one*
   Yielding directly from the iterator is faster and arguably cleaner code than
   yielding each element one by one in the loop.
+:chained-comparison-all-equal (R1738): *Simplify chained comparison cycle to equality between the operands: %s*
+  Emitted when the operands of a boolean condition form a cycle of weak
+  inequalities (``<=`` or ``>=``). The condition is equivalent to checking that
+  all the operands are equal.
+:impossible-comparison (R1739): *This comparison always evaluates to False*
+  Emitted when a boolean condition contains a chain of comparisons that is
+  logically contradictory and can never be true (e.g. ``a > b and b > a``).
 :unnecessary-negation (C0117): *Consider changing "%s" to "%s"*
   Used when a boolean expression contains an unneeded negation, e.g. when two
   negation operators cancel each other out.
@@ -1105,7 +1128,8 @@ Stdlib checker Messages
 :redundant-unittest-assert (W1503): *Redundant use of %s with constant value %r*
   The first argument of assertTrue and assertFalse is a condition. If a
   constant is passed as parameter, that condition will be always true. In this
-  case a warning should be emitted.
+  case a warning should be emitted. The same applies to assertEqual and
+  assertNotEqual when both compared values are constants.
 :bad-thread-instantiation (W1506): *threading.Thread needs the target function*
   The warning is emitted when a threading.Thread class is instantiated without
   the target function being passed as a kwarg or as a second argument. By

@@ -30,14 +30,17 @@ from pylint.checkers.utils import (
     is_attr_protected,
     is_builtin_object,
     is_comprehension,
+    is_in_stub_file,
     is_iterable,
     is_property_setter,
     is_property_setter_or_deleter,
+    is_typing_member,
     node_frame_class,
     only_required_for_messages,
     safe_infer,
+    safe_mro,
+    safe_slots,
     unimplemented_abstract_methods,
-    uninferable_final_decorators,
 )
 from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
@@ -50,6 +53,10 @@ _AccessNodes: TypeAlias = nodes.Attribute | nodes.AssignAttr
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
 BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
+# Special methods that build or configure the class itself. A subclass routinely
+# takes different arguments there without breaking substitutability, because
+# callers name the concrete class instead of going through the base one.
+CONSTRUCTOR_METHODS = {"__new__", "__init__", "__init_subclass__", "__post_init__"}
 ASTROID_TYPE_COMPARATORS = {
     nodes.Const: lambda a, b: a.value == b.value,
     nodes.ClassDef: lambda a, b: a.qname == b.qname,
@@ -378,13 +385,18 @@ def _different_parameters(
     if kwarg_lost or vararg_lost:
         output_messages += ["Variadics removed in"]
 
-    if original.name in PYMETHODS:
-        # Ignore the difference for special methods. If the parameter
-        # numbers are different, then that is going to be caught by
-        # unexpected-special-method-signature.
-        # If the names are different, it doesn't matter, since they can't
-        # be used as keyword arguments anyway.
+    if original.name in CONSTRUCTOR_METHODS:
+        # Ignore every difference for the constructor family, overriding those
+        # with another signature is idiomatic.
         output_messages.clear()
+    elif original.name in PYMETHODS:
+        # For the other special methods, only keep the difference in the number
+        # of parameters. If the names are different, it doesn't matter, since
+        # they can't be used as keyword arguments anyway, and losing variadics
+        # is fine as long as the remaining parameters still match.
+        output_messages[:] = [
+            message for message in output_messages if "Number" in message
+        ]
 
     return output_messages
 
@@ -548,7 +560,7 @@ def _has_same_layout_slots(
         # value that is not a class definition.
         return False
     if isinstance(inferred, nodes.ClassDef):
-        other_slots = inferred.slots()
+        other_slots = safe_slots(inferred)
         if other_slots is None:
             # A class without ``__slots__`` anywhere in its mro has a
             # different layout, which CPython rejects at runtime too.
@@ -1006,7 +1018,9 @@ a metaclass class method.",
             match child:
                 case nodes.AnnAssign(
                     target=nodes.AssignName(name=name), value=None
-                ) if (name not in slot_names):
+                ) if name not in slot_names and not utils.is_assign_name_annotated_with(
+                    child.target, "ClassVar"
+                ):
                     self.add_message(
                         "declare-non-slot",
                         args=child.target.name,
@@ -1121,15 +1135,16 @@ a metaclass class method.",
             if not ancestor:
                 continue
 
-            if isinstance(ancestor, nodes.ClassDef) and (
-                decorated_with(ancestor, ["typing.final"])
-                or uninferable_final_decorators(ancestor.decorators)
-            ):
-                self.add_message(
-                    "subclassed-final-class",
-                    args=(node.name, ancestor.name),
-                    node=node,
-                )
+            if isinstance(ancestor, nodes.ClassDef):
+                decorators = ancestor.decorators.nodes if ancestor.decorators else []
+                if decorated_with(ancestor, ["typing.final"]) or any(
+                    is_typing_member(decorator, ("final",)) for decorator in decorators
+                ):
+                    self.add_message(
+                        "subclassed-final-class",
+                        args=(node.name, ancestor.name),
+                        node=node,
+                    )
 
     @only_required_for_messages(
         "unused-private-member",
@@ -1495,7 +1510,7 @@ a metaclass class method.",
             for ancestor in klass.ancestors():
                 if node.name in ancestor.instance_attrs and is_attr_private(node.name):
                     return
-                for obj in ancestor.lookup(node.name)[1]:
+                for obj in ancestor.locals.get(node.name, ()):
                     if isinstance(obj, nodes.FunctionDef):
                         return
             args = (overridden.root().name, overridden.fromlineno)
@@ -1650,9 +1665,15 @@ a metaclass class method.",
                 args=(function_node.name, "non-async", "async"),
                 node=function_node,
             )
+
+        decorators = (
+            parent_function_node.decorators.nodes
+            if parent_function_node.decorators
+            else []
+        )
         if (
             decorated_with(parent_function_node, ["typing.final"])
-            or uninferable_final_decorators(parent_function_node.decorators)
+            or any(is_typing_member(decorator, ("final",)) for decorator in decorators)
         ) and self._py38_plus:
             self.add_message(
                 "overridden-final-method",
@@ -1778,7 +1799,7 @@ a metaclass class method.",
         ancestors_slots_names = {
             slot.value
             for ancestor in node.local_attr_ancestors("__slots__")
-            for slot in ancestor.slots() or []
+            for slot in safe_slots(ancestor) or []
         }
 
         # Slots which are common to `node` and its parent classes
@@ -1937,19 +1958,19 @@ a metaclass class method.",
         # what will happen when assigning to an attribute.
         if any(
             base.locals.get("__setattr__")
-            for base in klass.mro()
+            for base in safe_mro(klass)
             if base.qname() != "builtins.object"
         ):
             return
 
         # If 'typing.Generic' is a base of bases of klass, the cached version
         # of 'slots()' might have been evaluated incorrectly, thus deleted cache entry.
-        if any(base.qname() == "typing.Generic" for base in klass.mro()):
+        if any(base.qname() == "typing.Generic" for base in safe_mro(klass)):
             cache = getattr(klass, "__cache", None)
             if cache and cache.get(klass.slots) is not None:
                 del cache[klass.slots]
 
-        slots = klass.slots()
+        slots = safe_slots(klass)
         if slots is None:
             return
         # If any ancestor doesn't use slots, the slots
@@ -2259,7 +2280,26 @@ a metaclass class method.",
                     # it's defined, it's accessed after the initial assignment
                     frame = defstmt.frame()
                     lno = defstmt.fromlineno
+                    access_nodes: dict[_AccessNodes, None] = dict.fromkeys(nodes_lst)
                     for _node in nodes_lst:
+                        method = _node.frame()
+                        if (
+                            frame.name == "__init__"
+                            and isinstance(method, nodes.FunctionDef)
+                            and method.parent is node
+                        ):
+                            # A method called on self before the assignment does
+                            # not see the attribute either: its call sites in
+                            # __init__ stand in for the accesses made inside it.
+                            access_nodes.update(
+                                dict.fromkeys(
+                                    method_attr
+                                    for method_attr in accessed.get(method.name, ())
+                                    if isinstance(method_attr.parent, nodes.Call)
+                                    and method_attr.parent.func is method_attr
+                                )
+                            )
+                    for _node in access_nodes:
                         if (
                             _node.frame() is frame
                             and _node.fromlineno < lno
@@ -2407,6 +2447,9 @@ a metaclass class method.",
         if not self.linter.is_message_enabled(
             "super-init-not-called"
         ) and not self.linter.is_message_enabled("non-parent-init-called"):
+            return
+        # A stub's __init__ body is `...`: there is no call to look for.
+        if is_in_stub_file(node):
             return
         to_call = _ancestors_to_call(klass_node)
         not_called_yet = dict(to_call)

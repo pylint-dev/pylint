@@ -243,3 +243,11 @@ ATTRIBUTES = {
 
 for key, (name, validate) in ATTRIBUTES.items():
     name = validate(1)
+
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/7500
+import types
+
+FUNCTION_CODE = compile("pass", "<string>", "exec")
+types.FunctionType(FUNCTION_CODE, {})()
+types.LambdaType(FUNCTION_CODE, {})()

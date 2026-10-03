@@ -203,3 +203,50 @@ def open_with_unknown_mode(mode):
     Path(FILENAME).open(mode)
     Path(FILENAME).open(mode=mode)
     open(FILENAME, mode, encoding=None)
+
+
+def open_with_text_default(mode="wt"):
+    """The default mode is text, so the call needs an encoding."""
+    return open(FILENAME, mode)  # [unspecified-encoding]
+
+
+def open_with_binary_default(mode="wb"):
+    """The default mode is binary, no encoding is involved."""
+    return open(FILENAME, mode)
+
+
+def open_with_keyword_only_default(*, mode="r"):
+    """Keyword-only parameters carry a default too."""
+    return open(FILENAME, mode=mode)  # [unspecified-encoding]
+
+
+def path_open_with_text_default(mode="w"):
+    """The same applies to the pathlib variant."""
+    return Path(FILENAME).open(mode)  # [unspecified-encoding]
+
+
+def open_with_text_default_and_encoding(mode="wt"):
+    """An explicit encoding satisfies the check."""
+    return open(FILENAME, mode, encoding="utf-8")
+
+
+def open_with_rebound_mode(mode="wt"):
+    """The parameter is rebound, its default no longer describes the mode."""
+    mode = mode.replace("t", "b")
+    return open(FILENAME, mode)
+
+
+def open_with_conditional_mode(binary, mode="wt"):
+    """The mode depends on a condition, so it stays unknown."""
+    if binary:
+        mode = "wb"
+    return open(FILENAME, mode)
+
+
+def make_opener(default_mode):
+    """A default that cannot be inferred tells nothing about the mode."""
+
+    def open_with_unknown_default(mode=default_mode):
+        return open(FILENAME, mode)
+
+    return open_with_unknown_default

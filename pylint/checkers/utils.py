@@ -895,56 +895,6 @@ def decorated_with(
     return False
 
 
-def uninferable_final_decorators(
-    node: nodes.Decorators,
-) -> list[nodes.Attribute | nodes.Name | None]:
-    """Return a list of uninferable `typing.final` decorators in `node`.
-
-    This function is used to determine if the `typing.final` decorator is used
-    with an unsupported Python version; the decorator cannot be inferred when
-    using a Python version lower than 3.8.
-    """
-    decorators = []
-    for decorator in getattr(node, "nodes", []):
-        import_nodes: tuple[nodes.Import | nodes.ImportFrom] | None = None
-
-        # Get the `Import` node. The decorator is of the form: @module.name
-        if isinstance(decorator, nodes.Attribute):
-            inferred = safe_infer(decorator.expr)
-            if isinstance(inferred, nodes.Module) and inferred.qname() == "typing":
-                _, import_nodes = decorator.expr.lookup(decorator.expr.name)
-
-        # Get the `ImportFrom` node. The decorator is of the form: @name
-        elif isinstance(decorator, nodes.Name):
-            _, import_nodes = decorator.lookup(decorator.name)
-
-        # The `final` decorator is expected to be found in the
-        # import_nodes. Continue if we don't find any `Import` or `ImportFrom`
-        # nodes for this decorator.
-        if not import_nodes:
-            continue
-        import_node = import_nodes[0]
-
-        if not isinstance(import_node, (nodes.Import, nodes.ImportFrom)):
-            continue
-
-        import_names = dict(import_node.names)
-
-        # Check if the import is of the form: `from typing import final`
-        is_from_import = ("final" in import_names) and import_node.modname == "typing"
-
-        # Check if the import is of the form: `import typing`
-        is_import = ("typing" in import_names) and getattr(
-            decorator, "attrname", None
-        ) == "final"
-
-        if is_from_import or is_import:
-            inferred = safe_infer(decorator)
-            if inferred is None or isinstance(inferred, util.UninferableBase):
-                decorators.append(decorator)
-    return decorators
-
-
 @lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(
     node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef | None = None
@@ -1493,6 +1443,36 @@ def has_known_bases(
     return True
 
 
+def safe_mro(node: nodes.ClassDef | bases.Instance) -> list[nodes.ClassDef]:
+    """Return the MRO of ``node``, or an empty list if it does not have one.
+
+    Duplicate or inconsistent bases leave a class without a usable MRO, and
+    ``mro()`` raises instead of returning one. A caller that only walks the MRO
+    to look something up can treat that as "no ancestors" rather than let the
+    error abort the whole file.
+    """
+    try:
+        # ``Instance`` proxies the call, so it is only typed through ``__getattr__``
+        mro: list[nodes.ClassDef] = node.mro()
+    except astroid.MroError:
+        return []
+    return mro
+
+
+def safe_slots(node: nodes.ClassDef) -> list[nodes.Const] | None:
+    """Return the slots of ``node``, or None if it does not have a usable MRO.
+
+    ``slots()`` walks the MRO internally, so it gives up on exactly the classes
+    ``safe_mro`` has nothing to return for. It raises ``NotImplementedError``
+    rather than the ``MroError`` underneath. A class without a usable MRO gets
+    the same answer as a class that defines no slot at all.
+    """
+    try:
+        return node.slots()  # type: ignore[no-any-return]
+    except NotImplementedError:
+        return None
+
+
 def is_none(node: nodes.NodeNG) -> bool:
     match node:
         case None | nodes.Const(value=None) | nodes.Name(value="None"):
@@ -1675,6 +1655,20 @@ def is_overload_stub(node: nodes.NodeNG) -> bool:
     """
     decorators = getattr(node, "decorators", None)
     return bool(decorators and decorated_with(node, ["typing.overload", "overload"]))
+
+
+def is_in_stub_file(node: nodes.NodeNG) -> bool:
+    """Check if a node comes from a ``.pyi`` stub file.
+
+    A stub declares signatures and leaves every body as ``...``, so checks about
+    what a body does (whether it uses an argument, whether it calls the parent
+    ``__init__``) say nothing about the code the stub describes.
+
+    :param node: Node to check.
+    :returns: True if the node's module was parsed from a ``.pyi`` file.
+    """
+    file = node.root().file
+    return bool(file) and file.endswith(".pyi")
 
 
 def is_protocol_class(cls: nodes.NodeNG) -> bool:
@@ -1868,6 +1862,21 @@ def is_sys_guard(node: nodes.If) -> bool:
     return False
 
 
+def is_platform_guard(node: nodes.If) -> bool:
+    """Return True if IF stmt is a os.name or sys.platform guard.
+
+    These guards split imports by OS/environment; the branches are
+    mutually exclusive so imports inside them cannot be grouped.
+    """
+    match node.test:
+        case nodes.Compare(
+            left=(nodes.Attribute() as attr)
+            | nodes.Subscript(value=nodes.Attribute() as attr)
+        ):
+            return attr.as_string() in {"os.name", "sys.platform"}
+    return False
+
+
 def _is_node_in_same_scope(
     candidate: nodes.NodeNG, node_scope: nodes.LocalsDictNodeNG
 ) -> bool:
@@ -1882,7 +1891,11 @@ def _is_reassigned_relative_to_current(
     """Check if the given variable name is reassigned in the same scope relative to
     the current node.
     """
-    node_scope = node.scope()
+    node_scope = (
+        node.parent.scope()
+        if isinstance(node, nodes.Lambda) and node.parent is not None
+        else node.scope()
+    )
     node_lineno = node.lineno
     if node_lineno is None:
         return False
@@ -1918,9 +1931,14 @@ def is_deleted_after_current(node: nodes.NodeNG, varname: str) -> bool:
     """Check if the given variable name is deleted in the same scope after the current
     node.
     """
+    node_scope = (
+        node.parent.scope()
+        if isinstance(node, nodes.Lambda) and node.parent is not None
+        else node.scope()
+    )
     return any(
         getattr(target, "name", None) == varname and target.lineno > node.lineno
-        for del_node in node.scope().nodes_of_class(nodes.Delete)
+        for del_node in node_scope.nodes_of_class(nodes.Delete)
         for target in del_node.targets
     )
 

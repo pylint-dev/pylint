@@ -1206,10 +1206,13 @@ accessed. Python regular expressions are accepted.",
 
             try:
                 attr_nodes = owner.getattr(node.attrname)
-            except AttributeError:
+            except (AttributeError, astroid.DuplicateBasesError):
                 continue
-            except astroid.DuplicateBasesError:
-                continue
+            except astroid.InferenceError:
+                # Nothing is known about this owner, so it may have the
+                # attribute: judging the other inferred owners alone would
+                # emit a false positive, bail out as for opaque inference.
+                return
             except astroid.NotFoundError:
                 # Avoid false positive in case a decorator supplies member.
                 if (
@@ -1459,7 +1462,7 @@ accessed. Python regular expressions are accepted.",
 
         try:
             attrs = klass._proxied.getattr(node.func.attrname)
-        except astroid.NotFoundError:
+        except (astroid.NotFoundError, astroid.InferenceError):
             return
 
         for attr in attrs:
@@ -1748,15 +1751,27 @@ accessed. Python regular expressions are accepted.",
                 )
 
         # 3. Match the **kwargs, if any.
-        if node.kwargs:
+        # CallSite unpacks literal ``**{...}`` operands into keyword_arguments
+        # in step 2. We therefore only assume **kwargs covers the remaining
+        # named and keyword-only parameters when its full key set is not
+        # statically provable: the enclosing scope forwards a variadic kwarg
+        # without context (``def wrap(**kw): f(**kw)``), or at least one
+        # ``**operand`` is not a literal Dict (Name, Call, subscript, ...).
+        # A name bound to a dict literal is not enough, the dict can be
+        # filled after its creation (``d["y"] = ...``, see #10029). A literal
+        # ``f(**{"y": ...})`` keeps the gate closed and lets
+        # ``no-value-for-parameter`` and ``missing-kwoa`` fire (see #8785).
+        kwargs_might_supply_more = any(
+            not isinstance(kw.value, nodes.Dict) for kw in node.kwargs
+        )
+        if node.kwargs and (
+            has_no_context_keywords_variadic or kwargs_might_supply_more
+        ):
             for i, [(name, _defval), _assigned] in enumerate(parameters):
-                # Assume that *kwargs provides values for all remaining
-                # unassigned named parameters.
                 if name is not None:
                     parameters[i] = (parameters[i][0], True)
-                else:
-                    # **kwargs can't assign to tuples.
-                    pass
+            for kwparam in kwparams.values():
+                kwparam[1] = True
 
         # Check that any parameters without a default have been assigned
         # values.
@@ -1924,8 +1939,8 @@ accessed. Python regular expressions are accepted.",
             # Ignore descriptor instances
             if "__get__" in inferred_call.locals:
                 return
-            # NamedTuple instances are callable
-            if inferred_call.qname() == "typing.NamedTuple":
+            # These instances are callable despite not exposing __call__ in astroid.
+            if inferred_call.qname() in {"builtins.function", "typing.NamedTuple"}:
                 return
 
         self.add_message("not-callable", node=node, args=node.func.as_string())
@@ -2091,6 +2106,17 @@ accessed. Python regular expressions are accepted.",
                             inferred_name = inferred.pytype().rsplit(".", 1)[-1]
                         self.add_message(
                             "not-context-manager", node=node, args=(inferred_name,)
+                        )
+                    except AttributeError:
+                        # Some inferred results (e.g. a TypeVar bound by a
+                        # `type` statement) are not class-like nodes and have
+                        # no ``getattr``: they can never be context managers,
+                        # so report ``not-context-manager`` with the inferred
+                        # type's name instead of crashing.
+                        self.add_message(
+                            "not-context-manager",
+                            node=node,
+                            args=(inferred.pytype().rsplit(".", 1)[-1],),
                         )
 
     @only_required_for_messages("invalid-unary-operand-type")
