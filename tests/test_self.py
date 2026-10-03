@@ -18,7 +18,7 @@ import textwrap
 import warnings
 from collections.abc import Iterator
 from copy import copy
-from io import BytesIO, StringIO
+from io import BytesIO, StringIO, TextIOWrapper
 from os.path import abspath, dirname, join
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TextIO
@@ -29,7 +29,7 @@ import pytest
 
 from pylint import extensions, modify_sys_path
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES_STATUS
-from pylint.lint.pylinter import PyLinter
+from pylint.lint.pylinter import PyLinter, _read_stdin
 from pylint.message import Message
 from pylint.reporters import BaseReporter
 from pylint.reporters.json_reporter import JSON2Reporter
@@ -631,6 +631,23 @@ class TestRunTC:
 
     def test_stdin_missing_modulename(self) -> None:
         self._runtest(["--from-stdin"], code=32)
+
+    @pytest.mark.parametrize(
+        "raw",
+        [b"import os\r\nprint(os.name)\r\n", b"import os\rprint(os.name)\r"],
+        ids=["crlf", "cr"],
+    )
+    def test_stdin_preserves_line_endings(self, raw: bytes) -> None:
+        """Piped source must reach the checkers with its line endings intact.
+
+        _read_stdin() re-wraps the buffer to force utf-8 decoding. Leaving
+        newline at its default also enables universal newlines, which rewrites
+        every CRLF and CR to LF before any checker runs, so
+        unexpected-line-ending-format compares against the wrong text.
+        """
+        wrapper = TextIOWrapper(BytesIO(raw), encoding="utf-8")
+        with mock.patch.object(sys, "stdin", wrapper):
+            assert _read_stdin() == raw.decode("utf-8")
 
     @pytest.mark.parametrize("write_bpy_to_disk", [False, True])
     def test_relative_imports(self, write_bpy_to_disk: bool, tmp_path: Path) -> None:
