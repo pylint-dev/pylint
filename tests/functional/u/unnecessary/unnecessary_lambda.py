@@ -100,3 +100,20 @@ def test_deleted_in_func():
     callback = lambda k: mapping.get(k)
     del mapping
     return callback
+
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/9306
+# The lambda defers looking up a name that is only bound further down,
+# so it cannot be replaced by the bare name.
+class Wrapper:  # pylint: disable=too-few-public-methods
+    """Holds a callable."""
+
+    def __init__(self, func):
+        self.func = func
+
+
+DEFERRED = Wrapper(lambda: defined_later())
+
+
+def defined_later():
+    return "later"
