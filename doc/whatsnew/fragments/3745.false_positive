@@ -1,0 +1,6 @@
+Fix a false positive for ``method-hidden`` when a subclass overrides
+``__init__`` without calling the ancestor's ``__init__`` that assigns the
+attribute of the same name. Since that assignment never runs for instances
+of the subclass, the method can't actually be hidden.
+
+Closes #3745
