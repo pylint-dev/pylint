@@ -1573,7 +1573,7 @@ class VariablesChecker(BaseChecker):
                     and isinstance(node.parent, nodes.ClassDef)
                 ):
                     overridden = overridden_method(node.parent, node.name)
-                    if overridden is not None and name in overridden.argnames():
+                    if overridden is not None and name in overridden.argnames() and name not in {arg.name for arg in overridden.args.posonlyargs} :
                         continue
                 # do not print Redefining builtin for additional builtins
                 self.add_message("redefined-builtin", args=name, node=stmt)
