@@ -14,6 +14,7 @@ import numbers
 import re
 import string
 from collections.abc import Callable, Iterable, Iterator
+from dataclasses import dataclass
 from functools import lru_cache, partial
 from re import Match
 from typing import TYPE_CHECKING, TypeVar
@@ -28,6 +29,7 @@ from astroid.nodes._base_nodes import ImportNode, Statement
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
 from pylint.constants import TYPING_NEVER, TYPING_NORETURN
+from pylint.interfaces import HIGH, INFERENCE, Confidence
 
 if TYPE_CHECKING:
 
@@ -763,6 +765,66 @@ def infer_kwarg_from_call(call_node: nodes.Call, keyword: str) -> nodes.Name | N
                     return value
 
     return None
+
+
+@dataclass(frozen=True)
+class CallArgument:
+    """The result of looking for one argument of a call.
+
+    ``value`` is the argument when it was found. When it is ``None``, ``is_known``
+    tells apart an argument that is provably not passed (``True``) from one that
+    ``*`` or ``**`` unpacking may pass (``False``).
+    """
+
+    value: nodes.NodeNG | None
+    confidence: Confidence = HIGH
+    is_known: bool = True
+
+    @property
+    def is_absent(self) -> bool:
+        return self.value is None and self.is_known
+
+
+def _is_closed_kwargs_literal(kwargs_operand: nodes.NodeNG) -> bool:
+    """Return whether a ``**`` operand is a dict literal whose keys are all visible.
+
+    The check is syntactic on purpose: a name bound to a dict literal can be changed
+    by ``update``, ``pop`` or a loop before the call, and inference does not see it.
+    """
+    return isinstance(kwargs_operand, nodes.Dict) and all(
+        isinstance(key, nodes.Const) and isinstance(key.value, str)
+        for key, _ in kwargs_operand.items
+    )
+
+
+def find_call_argument(
+    call_node: nodes.Call, keyword: str, position: int | None = None
+) -> CallArgument:
+    """Look for an argument of a call by keyword, and by position if given.
+
+    The argument is found when it is passed directly (``HIGH`` confidence), or
+    inside a ``**`` operand inferred as a dict (``INFERENCE`` confidence).
+    Otherwise it is absent only if no ``*`` operand could reach ``position`` and
+    every ``**`` operand is a dict literal with string constant keys.
+    """
+    may_be_unpacked = False
+    if position is not None:
+        leading_args = call_node.args[: position + 1]
+        if any(isinstance(arg, nodes.Starred) for arg in leading_args):
+            may_be_unpacked = True
+        elif len(call_node.args) > position:
+            return CallArgument(call_node.args[position])
+    for arg in call_node.keywords:
+        if arg.arg == keyword:
+            return CallArgument(arg.value)
+    inferred = infer_kwarg_from_call(call_node, keyword)
+    if inferred is not None:
+        return CallArgument(inferred, confidence=INFERENCE)
+    if may_be_unpacked or not all(
+        _is_closed_kwargs_literal(arg.value) for arg in call_node.kwargs
+    ):
+        return CallArgument(None, is_known=False)
+    return CallArgument(None)
 
 
 def inherit_from_std_ex(node: nodes.NodeNG | astroid.Instance) -> bool:
