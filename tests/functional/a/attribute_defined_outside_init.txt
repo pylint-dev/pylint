@@ -6,3 +6,4 @@ attribute-defined-outside-init:148:8:148:49:ChildOfNonMethodDefiningParent.later
 attribute-defined-outside-init:166:8:166:39:ChildOfParentWithNestedSetattr.later:Attribute 'nested_attr' defined outside __init__:UNDEFINED
 attribute-defined-outside-init:174:8:174:35:TwoArgumentSetattr.later:Attribute 'two_arg' defined outside __init__:UNDEFINED
 attribute-defined-outside-init:264:8:264:18:ClassicPropertySetter.unrelated:Attribute 'stray' defined outside __init__:UNDEFINED
+attribute-defined-outside-init:312:12:312:22:NestedAttributeAssignment.build._apply:Attribute 'extra' defined outside __init__:UNDEFINED

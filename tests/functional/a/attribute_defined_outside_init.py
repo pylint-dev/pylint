@@ -279,3 +279,36 @@ class ClassicPropertySetterKwargs:
         self._value = value
 
     value = property(fget=get_value, fset=set_value)
+
+
+class ClassicPropertySetterAmongOtherCalls:
+    """Regression test for #3325: class-level calls other than ``property``
+    are skipped while scanning for a classic property setter, and the classic
+    setter is still recognised (so no false positive is emitted here).
+    """
+
+    helper = staticmethod(print)
+
+    def __init__(self, value):
+        self.value = value
+
+    def get_value(self):
+        return self._value
+
+    def set_value(self, value):
+        self._value = value
+
+    value = property(get_value, set_value)
+
+
+class NestedAttributeAssignment:
+    """Regression test for #3325: an attribute assigned inside a method-local
+    function has a function (not a class) as its parent frame, so it is not a
+    classic property setter and the attribute is reported as usual.
+    """
+
+    def build(self):
+        def _apply():
+            self.extra = 1  # [attribute-defined-outside-init]
+
+        _apply()
