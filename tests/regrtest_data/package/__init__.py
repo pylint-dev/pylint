@@ -1,0 +1,15 @@
+# pylint: disable=R0903
+
+"""package's __init__ file"""
+
+from . import subpackage
+
+__revision__ = 0
+
+# E0602 - Undefined variable '__path__'
+__path__ += "folder"
+
+class AudioTime:
+    """test precedence over the AudioTime submodule"""
+
+    DECIMAL = 3

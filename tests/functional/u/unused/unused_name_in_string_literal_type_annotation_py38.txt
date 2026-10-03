@@ -1,0 +1,5 @@
+unused-import:3:0:3:35::Unused ArgumentParser imported from argparse:UNDEFINED
+unused-import:4:0:4:30::Unused Namespace imported from argparse:UNDEFINED
+unused-import:5:0:5:11::Unused import http:UNDEFINED
+unused-variable:15:4:15:9:unused_variable_example:Unused variable 'hello':UNDEFINED
+unused-variable:16:4:16:9:unused_variable_example:Unused variable 'world':UNDEFINED

@@ -1,0 +1,5 @@
+# Check that we can add or remove value in list
+# (This is mostly a check for the functional test themselves)
+[tool.pylint."messages control"]
+disable = "logging-not-lazy,logging-format-interpolation"
+enable = "locally-disabled,suppressed-message"

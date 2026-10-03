@@ -1,0 +1,58 @@
+# [missing-module-docstring]
+# pylint: disable=too-few-public-methods
+
+def public_documented():
+    """It has a docstring."""
+
+
+def _private_undocumented():
+    # Doesn't need a docstring
+    pass
+
+
+def _private_documented():
+    """It has a docstring."""
+
+
+class ClassDocumented:
+    """It has a docstring."""
+
+
+class ClassUndocumented: # [missing-class-docstring]
+    pass
+
+
+def public_undocumented(): # [missing-function-docstring]
+    pass
+
+
+def __sizeof__():
+    # Special
+    pass
+
+
+def __mangled():
+    pass
+
+
+class Property:
+    """Don't warn about setters and deleters."""
+
+    def __init__(self):
+        self._value = None
+
+    @property
+    def test(self):
+        """Default docstring for setters and deleters."""
+
+    @test.setter
+    def test(self, value):
+        self._value = value
+
+    @test.deleter
+    def test(self):
+        pass
+
+
+class DocumentedViaDunderDoc:
+    __doc__ = "This one"

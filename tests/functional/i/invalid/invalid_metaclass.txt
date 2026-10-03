@@ -1,0 +1,10 @@
+invalid-metaclass:43:0:43:18:FirstInvalid:Invalid metaclass 'int' used:UNDEFINED
+invalid-metaclass:47:0:47:19:SecondInvalid:Invalid metaclass 'InvalidAsMetaclass' used:UNDEFINED
+invalid-metaclass:51:0:51:18:ThirdInvalid:Invalid metaclass '2' used:UNDEFINED
+invalid-metaclass:55:0:55:19:FourthInvalid:Invalid metaclass 'Instance of invalid_metaclass.InvalidAsMetaclass' used:UNDEFINED
+invalid-metaclass:67:0:67:13:Invalid:Invalid metaclass 'int' used:UNDEFINED
+invalid-metaclass:71:0:71:19:InvalidSecond:Invalid metaclass '1' used:UNDEFINED
+duplicate-bases:75:0:75:29:MetaclassWithInvalidMRO:Duplicate bases for class 'MetaclassWithInvalidMRO':UNDEFINED
+invalid-metaclass:79:0:79:18:FifthInvalid:Invalid metaclass 'MetaclassWithInvalidMRO' used:UNDEFINED
+inconsistent-mro:87:0:87:34:MetaclassWithInconsistentMRO:Inconsistent method resolution order for class 'MetaclassWithInconsistentMRO':UNDEFINED
+invalid-metaclass:91:0:91:18:SixthInvalid:Invalid metaclass 'MetaclassWithInconsistentMRO' used:UNDEFINED

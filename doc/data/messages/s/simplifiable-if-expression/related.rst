@@ -1,0 +1,1 @@
+- `Simplifying an 'if' statement with bool() <https://stackoverflow.com/questions/49546992/>`_

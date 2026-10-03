@@ -1,0 +1,54 @@
+use-implicit-booleaness-not-comparison:14:7:14:21:github_issue_4774:"""bad_list == []"" can be simplified to ""not bad_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:22:3:22:20::"""empty_tuple == ()"" can be simplified to ""not empty_tuple"", if it is strictly a sequence, as an empty tuple is falsey":HIGH
+use-implicit-booleaness-not-comparison:25:3:25:19::"""empty_list == []"" can be simplified to ""not empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:28:3:28:19::"""empty_dict == {}"" can be simplified to ""not empty_dict"", if it is strictly a sequence, as an empty dict is falsey":HIGH
+use-implicit-booleaness-not-comparison:31:3:31:20::"""empty_tuple == ()"" can be simplified to ""not empty_tuple"", if it is strictly a sequence, as an empty tuple is falsey":HIGH
+use-implicit-booleaness-not-comparison:34:3:34:19::"""empty_list == []"" can be simplified to ""not empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:37:3:37:19::"""empty_dict == {}"" can be simplified to ""not empty_dict"", if it is strictly a sequence, as an empty dict is falsey":HIGH
+use-implicit-booleaness-not-comparison:42:11:42:18:bad_tuple_return:"""t == ()"" can be simplified to ""not t"", if it is strictly a sequence, as an empty tuple is falsey":HIGH
+use-implicit-booleaness-not-comparison:46:11:46:18:bad_list_return:"""b == []"" can be simplified to ""not b"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:50:11:50:18:bad_dict_return:"""c == {}"" can be simplified to ""not c"", if it is strictly a sequence, as an empty dict is falsey":HIGH
+use-implicit-booleaness-not-comparison:52:7:52:24::"""empty_tuple == ()"" can be simplified to ""not empty_tuple"", if it is strictly a sequence, as an empty tuple is falsey":HIGH
+use-implicit-booleaness-not-comparison:53:7:53:23::"""empty_list == []"" can be simplified to ""not empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:54:7:54:23::"""empty_dict != {}"" can be simplified to ""empty_dict"", if it is strictly a sequence, as an empty dict is falsey":HIGH
+use-implicit-booleaness-not-comparison:55:7:55:23::"""empty_tuple < ()"" can be simplified to ""not empty_tuple"", if it is strictly a sequence, as an empty tuple is falsey":HIGH
+use-implicit-booleaness-not-comparison:56:7:56:23::"""empty_list <= []"" can be simplified to ""not empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:57:7:57:23::"""empty_tuple > ()"" can be simplified to ""not empty_tuple"", if it is strictly a sequence, as an empty tuple is falsey":HIGH
+use-implicit-booleaness-not-comparison:58:7:58:23::"""empty_list >= []"" can be simplified to ""not empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:87:3:87:10::"""a == []"" can be simplified to ""not a"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:99:3:99:10::"""e == []"" can be simplified to ""not e"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:99:15:99:22::"""f == {}"" can be simplified to ""not f"", if it is strictly a sequence, as an empty dict is falsey":HIGH
+use-implicit-booleaness-not-comparison:137:3:137:14::"""A.lst == []"" can be simplified to ""not A.lst"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:141:3:141:14::"""A.lst == []"" can be simplified to ""not A.lst"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:145:3:145:20::"""A.test(...) == []"" can be simplified to ""not A.test(...)"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:153:3:153:24::"""test_function(...) == []"" can be simplified to ""not test_function(...)"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:160:3:160:20::"""numpy_array == []"" can be simplified to ""not numpy_array"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:162:3:162:20::"""numpy_array != []"" can be simplified to ""numpy_array"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:164:3:164:20::"""numpy_array >= ()"" can be simplified to ""not numpy_array"", if it is strictly a sequence, as an empty tuple is falsey":HIGH
+use-implicit-booleaness-not-comparison:189:3:189:13::"""data == {}"" can be simplified to ""not data"", if it is strictly a sequence, as an empty dict is falsey":HIGH
+use-implicit-booleaness-not-comparison:191:3:191:13::"""data != {}"" can be simplified to ""data"", if it is strictly a sequence, as an empty dict is falsey":HIGH
+use-implicit-booleaness-not-comparison:199:3:199:26::"""long_test == {}"" can be simplified to ""not long_test"", if it is strictly a sequence, as an empty dict is falsey":HIGH
+use-implicit-booleaness-not-comparison:237:11:237:41:test_func:"""my_class.parent_function == {}"" can be simplified to ""not my_class.parent_function"", if it is strictly a sequence, as an empty dict is falsey":HIGH
+use-implicit-booleaness-not-comparison:238:11:238:37:test_func:"""my_class.my_property == {}"" can be simplified to ""not my_class.my_property"", if it is strictly a sequence, as an empty dict is falsey":HIGH
+use-implicit-booleaness-not-comparison:254:7:254:23:test_in_boolean_context:"""empty_list != []"" can be simplified to ""empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:256:10:256:26:test_in_boolean_context:"""empty_list != []"" can be simplified to ""empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:258:11:258:27:test_in_boolean_context:"""empty_list != []"" can be simplified to ""empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:261:13:261:29:test_in_boolean_context:"""empty_list != []"" can be simplified to ""empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:264:12:264:28:test_in_boolean_context:"""empty_list != []"" can be simplified to ""empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:268:22:268:38:test_in_boolean_context:"""empty_list != []"" can be simplified to ""empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:269:22:269:38:test_in_boolean_context:"""empty_list != []"" can be simplified to ""empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:270:22:270:38:test_in_boolean_context:"""empty_list != []"" can be simplified to ""empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:273:8:273:24:test_in_boolean_context:"""empty_list != []"" can be simplified to ""empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:274:8:274:24:test_in_boolean_context:"""empty_list != []"" can be simplified to ""empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:277:19:277:35:test_in_boolean_context.<lambda>:"""empty_list != []"" can be simplified to ""empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:280:9:280:25:test_in_boolean_context:"""empty_list != []"" can be simplified to ""empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:283:7:283:23:test_in_boolean_context:"""empty_list != []"" can be simplified to ""empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:285:21:285:37:test_in_boolean_context:"""empty_list != []"" can be simplified to ""empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:287:8:287:24:test_in_boolean_context:"""empty_list != []"" can be simplified to ""empty_list"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:297:8:297:24:test_not_in_boolean_context:"""empty_list != []"" can be simplified to ""bool(empty_list)"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:299:8:299:24:test_not_in_boolean_context:"""empty_list != []"" can be simplified to ""bool(empty_list)"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:301:10:301:26:test_not_in_boolean_context:"""empty_list != []"" can be simplified to ""bool(empty_list)"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:303:5:303:21:test_not_in_boolean_context:"""empty_list != []"" can be simplified to ""bool(empty_list)"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:305:12:305:28:test_not_in_boolean_context.<lambda>:"""empty_list != []"" can be simplified to ""bool(empty_list)"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:307:25:307:41:test_not_in_boolean_context:"""empty_list != []"" can be simplified to ""bool(empty_list)"", if it is strictly a sequence, as an empty list is falsey":HIGH
+use-implicit-booleaness-not-comparison:309:11:309:27:test_not_in_boolean_context:"""empty_list != []"" can be simplified to ""bool(empty_list)"", if it is strictly a sequence, as an empty list is falsey":HIGH

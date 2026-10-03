@@ -1,0 +1,2 @@
+redundant-returns-doc:44:0:44:11:my_func:Redundant returns documentation:HIGH
+redundant-returns-doc:52:0:52:11:my_func:Redundant returns documentation:HIGH

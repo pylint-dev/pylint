@@ -1,0 +1,16 @@
+"""Tests for used-before-assignment with Python 3.13 type var defaults (PEP 696)"""
+# pylint: disable=missing-docstring,unused-argument,too-few-public-methods
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    class Y: ...
+
+class Good1[T = Y]: ...
+class Good2[*Ts = tuple[int, Y]]: ...
+class Good3[**P = [int, Y]]: ...
+type Alias[T = Y] = T | None
+
+# https://github.com/pylint-dev/pylint/issues/9884
+def func[T = Y](x: T) -> None:  # [redefined-outer-name]  FALSE POSITIVE
+    ...

@@ -1,0 +1,5 @@
+invalid-name:8:4:8:15:Foo:"Class constant name ""CLASS_CONST"" doesn't conform to snake_case naming style":HIGH
+invalid-name:9:4:9:16:Foo:"Class constant name ""CLASS_CONST2"" doesn't conform to snake_case naming style":HIGH
+invalid-name:11:4:11:16:Foo:"Class constant name ""CLASS_CONST3"" doesn't conform to snake_case naming style":HIGH
+invalid-name:13:4:13:16:Foo:"Class constant name ""CLASS_CONST4"" doesn't conform to snake_case naming style":HIGH
+invalid-name:15:0:15:12::"Constant name ""MODULE_CONST"" doesn't conform to snake_case naming style":HIGH

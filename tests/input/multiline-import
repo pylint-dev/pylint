@@ -1,0 +1,8 @@
+from foo import (
+  bar,
+  baz,
+  quux,
+  quuux,
+  quuuux,
+  quuuuux,
+)

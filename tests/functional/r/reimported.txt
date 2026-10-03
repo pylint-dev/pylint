@@ -1,0 +1,10 @@
+reimported:5:0:5:29::Reimport 'sleep' (imported line 5):UNDEFINED
+reimported:6:0:6:33::Reimport 'missing' (imported line 6):UNDEFINED
+reimported:9:0:9:15::Reimport 'missing1' (imported line 8):HIGH
+reimported:12:0:12:27::Reimport 'deque' (imported line 11):HIGH
+reimported:23:0:23:33::Reimport 'ElementTree' (imported line 22):HIGH
+reimported:26:0:26:21::Reimport 'email.encoders' (imported line 25):HIGH
+reimported:28:0:28:10::Reimport 'sys' (imported line 20):HIGH
+redefined-outer-name:38:4:38:14:reimport:Redefining name 'sys' from outer scope (line 18):UNDEFINED
+reimported:38:4:38:14:reimport:Reimport 'sys' (imported line 20):HIGH
+reimported:45:0:45:34::Reimport 'pandas._libs.algos' (imported line 44):HIGH

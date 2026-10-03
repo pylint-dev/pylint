@@ -1,0 +1,4 @@
+consider-using-get:5:0:6:32::Consider using dict.get for getting values from a dict if a key is present or a default if not:UNDEFINED
+consider-using-get:8:0:11:24::Consider using dict.get for getting values from a dict if a key is present or a default if not:UNDEFINED
+consider-using-get:13:0:14:30::Consider using dict.get for getting values from a dict if a key is present or a default if not:UNDEFINED
+consider-using-get:67:0:70:24::Consider using dict.get for getting values from a dict if a key is present or a default if not:UNDEFINED

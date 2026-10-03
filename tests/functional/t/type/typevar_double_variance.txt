@@ -1,0 +1,4 @@
+typevar-double-variance:6:0:6:4::TypeVar cannot be both covariant and contravariant:INFERENCE
+typevar-name-incorrect-variance:6:0:6:4::Type variable name does not reflect variance:INFERENCE
+typevar-double-variance:8:0:8:8::TypeVar cannot be both covariant and contravariant:INFERENCE
+typevar-name-incorrect-variance:8:0:8:8::Type variable name does not reflect variance:INFERENCE

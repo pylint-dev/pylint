@@ -1,0 +1,1 @@
+subclassed-final-class:18:0:18:14:Subclass:"Class 'Subclass' is a subclass of a class decorated with typing.final: 'Base'":UNDEFINED

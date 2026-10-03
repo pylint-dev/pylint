@@ -1,0 +1,2 @@
+duplicate-string-formatting-argument:8:8:15:1::Duplicate string formatting argument 'NAME', consider passing as named argument:UNDEFINED
+duplicate-string-formatting-argument:8:8:15:1::Duplicate string formatting argument 'OTHER_NAME', consider passing as named argument:UNDEFINED

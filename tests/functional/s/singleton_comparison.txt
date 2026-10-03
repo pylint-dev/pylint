@@ -1,0 +1,14 @@
+singleton-comparison:4:4:4:13::Comparison 'x == None' should be 'x is None':UNDEFINED
+singleton-comparison:5:4:5:13::Comparison 'x == True' should be 'x is True' if checking for the singleton value True, or 'bool(x)' if testing for truthiness:UNDEFINED
+singleton-comparison:6:4:6:14::Comparison 'x == False' should be 'x is False' if checking for the singleton value False, or 'not x' if testing for falsiness:UNDEFINED
+singleton-comparison:7:4:7:16::Comparison 'True == True' should be 'True is True' if checking for the singleton value True, or 'bool(True)' if testing for truthiness:UNDEFINED
+singleton-comparison:11:4:11:13::Comparison 'None == x' should be 'None is x':UNDEFINED
+singleton-comparison:12:5:12:14::Comparison 'True == x' should be 'True is x' if checking for the singleton value True, or 'bool(x)' if testing for truthiness:UNDEFINED
+singleton-comparison:13:5:13:15::Comparison 'False == x' should be 'False is x' if checking for the singleton value False, or 'not x' if testing for falsiness:UNDEFINED
+singleton-comparison:15:4:15:13::Comparison 'x != True' should be 'x is not True' if checking for the singleton value True, or 'not x' if testing for falsiness:UNDEFINED
+singleton-comparison:16:5:16:15::Comparison 'x != False' should be 'x is not False' if checking for the singleton value False, or 'bool(x)' if testing for truthiness:UNDEFINED
+singleton-comparison:17:5:17:14::Comparison 'x != None' should be 'x is not None':UNDEFINED
+singleton-comparison:18:7:18:16::Comparison 'x == True' should be 'x is True' if checking for the singleton value True, or 'x' if testing for truthiness:UNDEFINED
+singleton-comparison:19:7:19:17::Comparison 'x != False' should be 'x is not False' if checking for the singleton value False, or 'x' if testing for truthiness:UNDEFINED
+singleton-comparison:20:3:20:12::Comparison 'x == True' should be 'x is True' if checking for the singleton value True, or 'x' if testing for truthiness:UNDEFINED
+singleton-comparison:22:9:22:18::Comparison 'x == True' should be 'x is True' if checking for the singleton value True, or 'x' if testing for truthiness:UNDEFINED

@@ -1,0 +1,7 @@
+used-before-assignment:16:14:16:29:function:Using variable 'failure_message' before assignment:CONTROL_FLOW
+used-before-assignment:120:10:120:13:func_invalid1:Using variable 'msg' before assignment:CONTROL_FLOW
+used-before-assignment:131:10:131:13:func_invalid2:Using variable 'msg' before assignment:CONTROL_FLOW
+used-before-assignment:150:10:150:13:func_invalid3:Using variable 'msg' before assignment:INFERENCE
+used-before-assignment:163:10:163:13:func_invalid4:Using variable 'msg' before assignment:CONTROL_FLOW
+used-before-assignment:175:10:175:13:func_invalid5:Using variable 'msg' before assignment:CONTROL_FLOW
+used-before-assignment:187:10:187:13:func_invalid6:Using variable 'msg' before assignment:CONTROL_FLOW

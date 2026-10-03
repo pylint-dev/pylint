@@ -1,0 +1,22 @@
+missing-param-doc:12:0:12:47:test_missing_func_params_in_numpy_docstring:"""y"" missing in parameter documentation":HIGH
+missing-type-doc:12:0:12:47:test_missing_func_params_in_numpy_docstring:"""x, y"" missing in parameter type documentation":HIGH
+missing-param-doc:30:4:30:53:Foo.test_missing_method_params_in_numpy_docstring:"""y"" missing in parameter documentation":HIGH
+missing-type-doc:30:4:30:53:Foo.test_missing_method_params_in_numpy_docstring:"""x, y"" missing in parameter type documentation":HIGH
+differing-param-doc:69:0:69:53:test_wrong_name_of_func_params_in_numpy_docstring:"""xarg1, zarg1"" differing in parameter documentation":HIGH
+differing-type-doc:69:0:69:53:test_wrong_name_of_func_params_in_numpy_docstring:"""xarg1, zarg1"" differing in parameter type documentation":HIGH
+missing-param-doc:69:0:69:53:test_wrong_name_of_func_params_in_numpy_docstring:"""xarg, zarg"" missing in parameter documentation":HIGH
+missing-type-doc:69:0:69:53:test_wrong_name_of_func_params_in_numpy_docstring:"""xarg, zarg"" missing in parameter type documentation":HIGH
+differing-param-doc:88:0:88:57:test_wrong_name_of_func_params_in_numpy_docstring_two:"""yarg1"" differing in parameter documentation":HIGH
+differing-type-doc:88:0:88:57:test_wrong_name_of_func_params_in_numpy_docstring_two:"""yarg1"" differing in parameter type documentation":HIGH
+missing-param-doc:119:0:119:14:ClassFoo:"""x"" missing in parameter documentation":HIGH
+missing-type-doc:119:0:119:14:ClassFoo:"""x, y"" missing in parameter type documentation":HIGH
+missing-param-doc:159:4:159:16:ClassFoo.__init__:"""x"" missing in parameter documentation":HIGH
+missing-type-doc:159:4:159:16:ClassFoo.__init__:"""x, y"" missing in parameter type documentation":HIGH
+missing-param-doc:175:0:175:14:ClassFoo:"""x"" missing in parameter documentation":HIGH
+missing-type-doc:175:0:175:14:ClassFoo:"""x, y"" missing in parameter type documentation":HIGH
+multiple-constructor-doc:175:0:175:14:ClassFoo:"""ClassFoo"" has constructor parameters documented in class and __init__":HIGH
+missing-param-doc:191:4:191:16:ClassFoo.__init__:"""x"" missing in parameter documentation":HIGH
+missing-type-doc:191:4:191:16:ClassFoo.__init__:"""x, y"" missing in parameter type documentation":HIGH
+missing-param-doc:203:0:203:33:test_warns_missing_args_numpy:"""*args"" missing in parameter documentation":HIGH
+missing-param-doc:220:0:220:35:test_warns_missing_kwargs_numpy:"""**kwargs"" missing in parameter documentation":HIGH
+missing-type-doc:237:0:237:38:test_finds_args_without_type_numpy:"""untyped_arg"" missing in parameter type documentation":HIGH

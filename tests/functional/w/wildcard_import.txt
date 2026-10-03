@@ -1,0 +1,2 @@
+wildcard-import:2:0:2:23::Wildcard import indirect1:UNDEFINED
+wildcard-import:5:0:5:29::Wildcard import unknown.package:UNDEFINED

@@ -1,0 +1,3 @@
+protected-access:19:0:19:9::Access to a protected member _teta of a client class:UNDEFINED
+protected-access:29:14:29:35:Light.func:Access to a protected member _light_internal of a client class:UNDEFINED
+protected-access:33:10:33:31:func:Access to a protected member _light_internal of a client class:UNDEFINED

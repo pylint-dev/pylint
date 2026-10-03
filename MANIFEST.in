@@ -1,0 +1,14 @@
+include README.rst
+include requirements_test_min.txt
+include requirements_test_pre_commit.txt
+include requirements_test.txt
+include tox.ini
+graft doc
+graft examples
+graft script
+graft tests
+prune doc/_build
+prune tests/.benchmarks
+prune tests/.pylint_primer_tests
+global-exclude __pycache__
+global-exclude *.py[co]

@@ -1,0 +1,3 @@
+************* Module {abspath}
+{relpath}:1:0: R0022: Useless option value for '--disable', 'buffer-builtin' was removed from pylint, see https://github.com/pylint-dev/pylint/pull/4942. (useless-option-value)
+{relpath}:1:0: R0022: Useless option value for '--enable', 'cmp-builtin' was removed from pylint, see https://github.com/pylint-dev/pylint/pull/4942. (useless-option-value)

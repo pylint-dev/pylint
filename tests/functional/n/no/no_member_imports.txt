@@ -1,0 +1,3 @@
+no-member:9:4:9:28:test_no_member_in_getattr:Module 'math' has no 'THIS_does_not_EXIST' member:INFERENCE
+no-member:24:4:24:33:test_ignored_modules_invalid_pattern:Module 'xml.etree' has no 'THIS_does_not_EXIST' member:INFERENCE
+no-member:43:4:43:27:test_ignored_classes_no_recursive_pattern:Module 'sys' has no 'THIS_does_not_EXIST' member:INFERENCE

@@ -1,0 +1,5 @@
+isinstance-second-argument-not-valid-type:27:0:27:23::Second argument of isinstance is not a type:INFERENCE
+isinstance-second-argument-not-valid-type:28:0:28:19::Second argument of isinstance is not a type:INFERENCE
+isinstance-second-argument-not-valid-type:29:0:29:34::Second argument of isinstance is not a type:INFERENCE
+isinstance-second-argument-not-valid-type:30:0:30:54::Second argument of isinstance is not a type:INFERENCE
+isinstance-second-argument-not-valid-type:31:0:31:18::Second argument of isinstance is not a type:INFERENCE

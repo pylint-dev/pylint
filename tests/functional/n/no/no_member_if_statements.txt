@@ -1,0 +1,3 @@
+no-member:6:0:6:15::Instance of 'str' has no 'isoformat' member:INFERENCE
+no-member:12:4:12:19::Instance of 'str' has no 'isoformat' member:INFERENCE
+no-member:23:3:23:22::Instance of 'str' has no 'none_existent' member:INFERENCE

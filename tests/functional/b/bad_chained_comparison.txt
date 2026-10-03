@@ -1,0 +1,11 @@
+bad-chained-comparison:21:7:21:36:id_comparison_invalid:Suspicious 3-part chained comparison using semantically incompatible operators ('!=' and 'is'):HIGH
+bad-chained-comparison:23:7:23:44:id_comparison_invalid:Suspicious 3-part chained comparison using semantically incompatible operators ('==' and 'is not'):HIGH
+bad-chained-comparison:28:7:28:33:member_comparison_invalid:Suspicious 3-part chained comparison using semantically incompatible operators ('==' and 'in'):HIGH
+bad-chained-comparison:30:9:30:39:member_comparison_invalid:Suspicious 3-part chained comparison using semantically incompatible operators ('==', 'in' and 'not in'):HIGH
+bad-chained-comparison:32:9:32:58:member_comparison_invalid:Suspicious 5-part chained comparison using semantically incompatible operators ('!=', '==', 'in' and 'not in'):HIGH
+bad-chained-comparison:34:9:34:57:member_comparison_invalid:Suspicious 5-part chained comparison using semantically incompatible operators ('<=', '>', 'in' and 'not in'):HIGH
+bad-chained-comparison:39:7:39:33:id_member_invalid:Suspicious 3-part chained comparison using semantically incompatible operators ('in' and 'is'):HIGH
+bad-chained-comparison:41:9:41:39:id_member_invalid:Suspicious 3-part chained comparison using semantically incompatible operators ('in', 'is' and 'not in'):HIGH
+bad-chained-comparison:43:9:43:62:id_member_invalid:Suspicious 5-part chained comparison using semantically incompatible operators ('in', 'is', 'is not' and 'not in'):HIGH
+bad-chained-comparison:48:7:48:56:complex_invalid:Suspicious 5-part chained comparison using semantically incompatible operators ('==', 'in', 'is not' and 'not in'):HIGH
+bad-chained-comparison:50:9:50:53:complex_invalid:Suspicious 6-part chained comparison using semantically incompatible operators ('!=', '<', '<=', 'in', 'is' and 'not in'):HIGH

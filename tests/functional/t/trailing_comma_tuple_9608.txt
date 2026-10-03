@@ -1,0 +1,3 @@
+trailing-comma-tuple:17:0:None:None::Disallow trailing comma tuple:HIGH
+trailing-comma-tuple:18:0:None:None::Disallow trailing comma tuple:HIGH
+trailing-comma-tuple:24:0:None:None::Disallow trailing comma tuple:HIGH

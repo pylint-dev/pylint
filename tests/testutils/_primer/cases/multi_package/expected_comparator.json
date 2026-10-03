@@ -1,0 +1,4 @@
+[
+  { "package": "astroid", "missing": 0, "new": 0, "changed": 1 },
+  { "package": "astropy", "missing": 1, "new": 0, "changed": 0 }
+]

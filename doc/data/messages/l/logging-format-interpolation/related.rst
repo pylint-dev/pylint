@@ -1,0 +1,2 @@
+- `logging variable data <https://docs.python.org/3/howto/logging.html#logging-variable-data>`_
+- `Rationale for the message on stackoverflow <https://stackoverflow.com/a/34634301/2519059>`_

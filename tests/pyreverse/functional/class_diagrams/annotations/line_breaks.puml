@@ -1,0 +1,7 @@
+@startuml classes
+set namespaceSeparator none
+class "A" as line_breaks.A {
+  p : int | None
+  {abstract}f(x: str | None | (list[A] | list[int]), y: A | (int | str) | None) -> int | str | list[A | int]
+}
+@enduml

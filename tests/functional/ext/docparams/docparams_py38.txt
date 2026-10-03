@@ -1,0 +1,2 @@
+differing-param-doc:4:0:4:32:differing_param_doc_pos_only:"""param"" differing in parameter documentation":HIGH
+missing-type-doc:15:0:15:29:missing_type_doc_pos_only:"""par1"" missing in parameter type documentation":HIGH

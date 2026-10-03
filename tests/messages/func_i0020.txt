@@ -1,0 +1,3 @@
+I:  7: 'W0612' is cryptic: use '# pylint: disable=unused-variable' instead
+I:  7: Locally disabling unused-variable (W0612)
+I:  8: Suppressed 'unused-variable' (from line 7)

@@ -1,0 +1,5 @@
+property-with-parameters:7:4:7:9:Cls.a:Cannot have defined parameters for properties:HIGH
+property-with-parameters:11:4:11:9:Cls.b:Cannot have defined parameters for properties:HIGH
+property-with-parameters:15:4:15:9:Cls.c:Cannot have defined parameters for properties:HIGH
+property-with-parameters:19:4:19:9:Cls.d:Cannot have defined parameters for properties:HIGH
+property-with-parameters:23:4:23:9:Cls.e:Cannot have defined parameters for properties:HIGH

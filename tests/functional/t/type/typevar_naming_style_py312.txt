@@ -1,0 +1,3 @@
+invalid-name:6:11:6:12::"Type variable name ""t"" doesn't conform to predefined naming style":HIGH
+invalid-name:13:10:13:13::"Parameter specification variable name ""p"" doesn't conform to predefined naming style":HIGH
+invalid-name:16:9:16:12::"Type variable tuple name ""ts"" doesn't conform to predefined naming style":HIGH

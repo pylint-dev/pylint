@@ -1,0 +1,7 @@
+used-before-assignment:7:7:7:8:used_before_assignment_1:Using variable 'x' before assignment:HIGH
+redefined-outer-name:8:12:8:13:used_before_assignment_1:Redefining name 'x' from outer scope (line 3):UNDEFINED
+used-before-assignment:13:7:13:8:used_before_assignment_2:Using variable 'x' before assignment:HIGH
+redefined-outer-name:15:4:15:5:used_before_assignment_2:Redefining name 'x' from outer scope (line 3):UNDEFINED
+possibly-used-before-assignment:19:7:19:8:used_before_assignment_3:Possibly using variable 'x' before assignment:CONTROL_FLOW
+redefined-outer-name:21:12:21:13:used_before_assignment_3:Redefining name 'x' from outer scope (line 3):UNDEFINED
+redefined-outer-name:30:4:30:5:not_used_before_assignment_2:Redefining name 'x' from outer scope (line 3):UNDEFINED

@@ -1,0 +1,52 @@
+{
+  "astroid": {
+    "commit": "1234567890abcdef",
+    "messages": [
+      {
+        "type": "info",
+        "module": "astroid",
+        "obj": "",
+        "line": 91,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/__init__.py",
+        "symbol": "locally-disabled",
+        "message": "Locally disabling redefined-builtin (W0622)",
+        "messageId": "I0011",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/__init__.py"
+      },
+      {
+        "type": "convention",
+        "module": "astroid.node_classes",
+        "obj": "my_function",
+        "line": 100,
+        "column": 0,
+        "endLine": 100,
+        "endColumn": 15,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/node_classes.py",
+        "symbol": "too-complex",
+        "message": "'my_function' is too complex. The McCabe rating is 18",
+        "messageId": "R1260",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/node_classes.py"
+      },
+      {
+        "type": "warning",
+        "module": "astroid",
+        "obj": "",
+        "line": 91,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/__init__.py",
+        "symbol": "unknown-option-value",
+        "message": "Unknown option value for 'disable', expected a valid pylint message and got 'Ellipsis'",
+        "messageId": "W0012",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/__init__.py"
+      }
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+[MAIN]
+load-plugins=pylint.extensions.mccabe,
+
+max-complexity=0
+
+[testoptions]
+min_pyver=3.11

@@ -1,0 +1,13 @@
+missing-raises-doc:7:0:7:35:test_find_missing_sphinx_raises:"""RuntimeError"" not documented as being raised":HIGH
+unreachable:13:4:13:25:test_find_missing_sphinx_raises:Unreachable code:HIGH
+unreachable:36:4:36:25:test_find_all_sphinx_raises:Unreachable code:HIGH
+unreachable:37:4:37:30:test_find_all_sphinx_raises:Unreachable code:HIGH
+unreachable:38:4:38:27:test_find_all_sphinx_raises:Unreachable code:HIGH
+unreachable:48:4:48:25:test_find_multiple_sphinx_raises:Unreachable code:HIGH
+missing-raises-doc:51:0:51:37:test_finds_rethrown_sphinx_raises:"""RuntimeError"" not documented as being raised":HIGH
+missing-raises-doc:64:0:64:46:test_finds_rethrown_sphinx_multiple_raises:"""RuntimeError, ValueError"" not documented as being raised":HIGH
+missing-raises-doc:90:0:90:55:test_find_missing_sphinx_raises_infer_from_instance:"""RuntimeError"" not documented as being raised":HIGH
+unreachable:97:4:97:25:test_find_missing_sphinx_raises_infer_from_instance:Unreachable code:HIGH
+missing-raises-doc:100:0:100:55:test_find_missing_sphinx_raises_infer_from_function:"""RuntimeError"" not documented as being raised":HIGH
+unreachable:110:4:110:25:test_find_missing_sphinx_raises_infer_from_function:Unreachable code:HIGH
+missing-raises-doc:133:0:133:46:test_find_valid_missing_sphinx_attr_raises:"""IllegalMonthError"" not documented as being raised":HIGH

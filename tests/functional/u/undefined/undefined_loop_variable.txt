@@ -1,0 +1,4 @@
+undefined-loop-variable:9:11:9:14:do_stuff:Using possibly undefined loop variable 'var':UNDEFINED
+undefined-loop-variable:28:7:28:11::Using possibly undefined loop variable 'var1':UNDEFINED
+undefined-loop-variable:78:11:78:14:do_stuff_with_redefined_range:Using possibly undefined loop variable 'var':UNDEFINED
+undefined-loop-variable:196:11:196:20:find_even_number:Using possibly undefined loop variable 'something':UNDEFINED

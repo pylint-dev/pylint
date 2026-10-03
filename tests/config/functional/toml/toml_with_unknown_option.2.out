@@ -1,0 +1,2 @@
+************* Module {abspath}
+{relpath}:1:0: E0015: Unrecognized option found: unknown-option, another-unknown-option (unrecognized-option)

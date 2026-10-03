@@ -1,0 +1,19 @@
+global-at-module-level:4:0:4:11::Using the global statement at the module level:HIGH
+undefined-variable:5:6:5:10::Undefined variable 'CSTE':UNDEFINED
+global-statement:20:4:20:19:fix_contant:Using the global statement:HIGH
+global-variable-not-assigned:27:4:27:14:other:Using global for 'HOP' but no assignment is done:HIGH
+undefined-variable:28:10:28:13:other:Undefined variable 'HOP':UNDEFINED
+global-variable-undefined:33:4:33:18:define_constant:Global variable 'SOMEVAR' undefined at the module level:HIGH
+global-statement:39:4:39:14:global_with_import:Using the global statement:HIGH
+unused-import:40:4:40:14:global_with_import:Unused import sys:UNDEFINED
+global-statement:45:4:45:21:global_with_import_from:Using the global statement:HIGH
+unused-import:46:4:46:38:global_with_import_from:Unused namedtuple imported from collections:UNDEFINED
+global-variable-not-assigned:51:4:51:19:global_no_assign:Using global for 'CONSTANT' but no assignment is done:HIGH
+global-statement:57:4:57:19:global_del:Using the global statement:HIGH
+global-statement:64:4:64:19:global_operator_assign:Using the global statement:HIGH
+global-statement:71:4:71:19:global_function_assign:Using the global statement:HIGH
+global-statement:81:4:81:15:override_func:Using the global statement:HIGH
+global-statement:91:4:91:16:override_class:Using the global statement:HIGH
+global-variable-not-assigned:101:4:101:21:init_connection_state:Using global for 'RAN_DB_SET' but no assignment is done:HIGH
+global-variable-not-assigned:102:4:102:22:init_connection_state:Using global for 'RAN_DB_DICT' but no assignment is done:HIGH
+global-statement:112:4:112:15:setup_shared_foo:Using the global statement:HIGH

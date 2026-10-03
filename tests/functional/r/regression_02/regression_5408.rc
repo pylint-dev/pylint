@@ -1,0 +1,4 @@
+[testoptions]
+# The test lints a deep recursion, and whether PyPy hits its recursion limit
+# depends on how deep the stack already is: it fails at random under xdist.
+except_implementations=PyPy

@@ -1,0 +1,11 @@
+dangerous-default-value:19:4:19:26:BadListDefault:Dangerous default value [] as argument:INFERENCE
+dangerous-default-value:20:4:20:26:BadListDefault:Dangerous default value [] as argument:INFERENCE
+dangerous-default-value:24:4:24:19:BadDictDefault:Dangerous default value {} as argument:INFERENCE
+dangerous-default-value:28:4:28:22:BadSetDefault:Dangerous default value set() as argument:INFERENCE
+dangerous-default-value:32:4:32:23:BadSetLiteralDefault:Dangerous default value set() as argument:INFERENCE
+dangerous-default-value:36:4:36:24:BadListCallDefault:Dangerous default value list() as argument:INFERENCE
+dangerous-default-value:40:4:40:23:BadDictCallDefault:Dangerous default value dict() as argument:INFERENCE
+dangerous-default-value:44:4:44:50:BadDequeDefault:Dangerous default value deque() as argument:INFERENCE
+dangerous-default-value:57:4:57:20:MixedNamedTuple:Dangerous default value [] as argument:INFERENCE
+dangerous-default-value:66:4:66:33:GlobalDangerousDefault:Dangerous default value DANGEROUS_GLOBAL (builtins.set) as argument:INFERENCE
+dangerous-default-value:70:4:70:52:BadCustomStoreDefault:Dangerous default value CustomMutableStore() as argument:INFERENCE

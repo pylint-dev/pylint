@@ -1,0 +1,45 @@
+name: ✨ Feature request
+description: Suggest an idea for pylint
+labels: ["Needs triage :inbox_tray:"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Thank you for wanting to make a suggestion for pylint!**
+
+        ⚠ Please make sure that [this feature wasn't already requested][issue search] or already implemented in the main branch.
+
+
+        [issue search]: https://github.com/pylint-dev/pylint/issues?q=is%3Aissue+is%3Aopen+
+
+  - type: textarea
+    id: current-problem
+    attributes:
+      label: Current problem
+      description:
+        What are you trying to do, that you are unable to achieve with pylint as it
+        currently stands?
+      placeholder: >-
+        I'm trying to do X and I'm missing feature Y for this to be easily achievable.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Desired solution
+      description: A clear and concise description of what you want to happen.
+      placeholder: >-
+        When I do X, I want to achieve Y in a situation when Z.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: >
+        Add any other context, links, etc. about the feature here. Describe how the
+        feature would be used, why it is needed and what it would solve.
+
+        **HINT:** You can paste https://gist.github.com links for larger files.
+      placeholder: >-
+        I asked on https://stackoverflow.com/... and the community advised me to do X, Y
+        and Z.

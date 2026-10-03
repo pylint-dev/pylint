@@ -1,0 +1,11 @@
+use-set-for-membership:8:5:8:14::Consider using set for membership test:UNDEFINED
+use-set-for-membership:9:5:9:14::Consider using set for membership test:UNDEFINED
+use-set-for-membership:15:8:15:17::Consider using set for membership test:UNDEFINED
+use-set-for-membership:17:8:17:17::Consider using set for membership test:UNDEFINED
+use-set-for-membership:20:11:20:20::Consider using set for membership test:UNDEFINED
+use-set-for-membership:21:12:21:21::Consider using set for membership test:UNDEFINED
+use-set-for-membership:22:24:22:33::Consider using set for membership test:UNDEFINED
+use-set-for-membership:23:11:23:20::Consider using set for membership test:UNDEFINED
+use-set-for-membership:28:13:28:22::Consider using set for membership test:UNDEFINED
+use-set-for-membership:29:10:29:19::Consider using set for membership test:UNDEFINED
+use-set-for-membership:33:5:33:36::Consider using set for membership test:UNDEFINED

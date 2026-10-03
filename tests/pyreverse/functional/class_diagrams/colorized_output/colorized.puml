@@ -1,0 +1,44 @@
+@startuml classes
+set namespaceSeparator none
+class "CheckerCollector" as colorized.CheckerCollector #77AADD {
+  checker1
+  checker2
+  checker3
+}
+class "ElseifUsedChecker" as pylint.extensions.check_elif.ElseifUsedChecker #99DDFF {
+  msgs : dict
+  name : str
+  leave_module(_: nodes.Module) -> None
+  process_tokens(tokens: list[TokenInfo]) -> None
+  visit_if(node: nodes.If) -> None
+}
+class "ExceptionsChecker" as pylint.checkers.exceptions.ExceptionsChecker #44BB99 {
+  msgs : dict
+  name : str
+  options : tuple
+  open() -> None
+  visit_binop(node: nodes.BinOp) -> None
+  visit_compare(node: nodes.Compare) -> None
+  visit_raise(node: nodes.Raise) -> None
+  visit_try(node: nodes.Try) -> None
+  visit_trystar(node: nodes.TryStar) -> None
+}
+class "StdlibChecker" as pylint.checkers.stdlib.StdlibChecker #44BB99 {
+  msgs : dict[str, MessageDefinitionTuple]
+  name : str
+  deprecated_arguments(method: str) -> tuple[tuple[int | None, str], ...]
+  deprecated_attributes() -> Iterable[str]
+  deprecated_classes(module: str) -> Iterable[str]
+  deprecated_decorators() -> Iterable[str]
+  deprecated_methods() -> set[str]
+  visit_boolop(node: nodes.BoolOp) -> None
+  visit_call(node: nodes.Call) -> None
+  visit_functiondef(node: nodes.FunctionDef) -> None
+  visit_if(node: nodes.If) -> None
+  visit_ifexp(node: nodes.IfExp) -> None
+  visit_unaryop(node: nodes.UnaryOp) -> None
+}
+pylint.checkers.exceptions.ExceptionsChecker --* colorized.CheckerCollector : checker1
+pylint.checkers.stdlib.StdlibChecker --* colorized.CheckerCollector : checker3
+pylint.extensions.check_elif.ElseifUsedChecker --* colorized.CheckerCollector : checker2
+@enduml

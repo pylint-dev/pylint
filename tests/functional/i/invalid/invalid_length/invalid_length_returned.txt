@@ -1,0 +1,4 @@
+invalid-length-returned:38:4:38:15:FirstBadLen.__len__:__len__ does not return non-negative integer:UNDEFINED
+invalid-length-returned:45:4:45:15:SecondBadLen.__len__:__len__ does not return non-negative integer:UNDEFINED
+invalid-length-returned:52:4:52:15:ThirdBadLen.__len__:__len__ does not return non-negative integer:UNDEFINED
+invalid-length-returned:59:4:59:15:NonRegression.__len__:__len__ does not return non-negative integer:UNDEFINED

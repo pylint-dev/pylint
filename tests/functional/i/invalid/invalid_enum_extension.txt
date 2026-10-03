@@ -1,0 +1,2 @@
+invalid-enum-extension:12:0:12:7:B:"Extending inherited Enum class ""A""":INFERENCE
+invalid-enum-extension:47:0:47:21:IncorrectPastel:"Extending inherited Enum class ""IncorrectColorEnum""":INFERENCE

@@ -1,0 +1,1 @@
+inconsistent-quotes:7:0:None:None::Quote delimiter ' is inconsistent with the rest of the file:UNDEFINED

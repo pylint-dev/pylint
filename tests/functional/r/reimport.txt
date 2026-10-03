@@ -1,0 +1,4 @@
+reimported:7:0:7:9::Reimport 'os' (imported line 5):HIGH
+reimported:15:4:15:30::Reimport 'exists' (imported line 6):HIGH
+reimported:20:4:20:20:func:Reimport 'os' (imported line 5):HIGH
+reimported:22:4:22:13:func:Reimport 're' (imported line 8):HIGH

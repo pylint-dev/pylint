@@ -1,0 +1,2 @@
+undefined-variable:13:32:13:33:Parent.__init__:Undefined variable 'S':UNDEFINED
+undefined-variable:16:25:16:26:Child:Undefined variable 'S':UNDEFINED

@@ -1,0 +1,16 @@
+consider-using-join:6:4:6:20::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
+consider-using-join:10:4:10:20::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
+consider-using-join:14:4:14:20::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
+consider-using-join:18:4:18:20::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
+consider-using-join:22:4:22:26::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
+consider-using-join:28:4:28:26::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
+consider-using-join:34:4:34:27::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
+consider-using-join:40:4:40:20::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
+consider-using-join:44:4:44:27::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
+consider-using-join:85:4:85:20::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
+consider-using-join:89:4:89:20::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
+consider-using-join:93:4:93:20::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
+consider-using-join:98:4:98:20::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
+consider-using-join:102:4:102:20::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
+consider-using-join:106:4:106:20::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
+consider-using-join:137:31:137:47::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED

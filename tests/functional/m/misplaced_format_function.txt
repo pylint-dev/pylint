@@ -1,0 +1,4 @@
+misplaced-format-function:5:0:5:30::format function is not called on str:UNDEFINED
+misplaced-format-function:6:0:6:30::format function is not called on str:UNDEFINED
+misplaced-format-function:52:8:52:41:FakeClass.format_string:format function is not called on str:UNDEFINED
+misplaced-format-function:58:0:58:32::format function is not called on str:UNDEFINED

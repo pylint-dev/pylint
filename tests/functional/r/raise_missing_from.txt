@@ -1,0 +1,11 @@
+raise-missing-from:7:4:7:39::Consider explicitly re-raising using 'except Exception as exc' and 'raise ValueError('Invalid integer') from exc':HIGH
+raise-missing-from:13:4:13:18::Consider explicitly re-raising using 'except ZeroDivisionError as exc' and 'raise KeyError from exc':HIGH
+raise-missing-from:20:4:20:25::Consider explicitly re-raising using 'except ZeroDivisionError as exc' and 'raise (foo + bar).baz from exc':HIGH
+raise-missing-from:26:4:26:18::Consider explicitly re-raising using 'raise KeyError from e':HIGH
+raise-missing-from:32:4:32:18::Consider explicitly re-raising using 'raise KeyError from e':HIGH
+raise-missing-from:46:20:46:34::Consider explicitly re-raising using 'raise KeyError from e':HIGH
+raise-missing-from:54:4:54:20::Consider explicitly re-raising using 'raise KeyError() from e':HIGH
+raise-missing-from:60:4:60:47::Consider explicitly re-raising using 'raise KeyError(whatever, whatever=whatever) from e':HIGH
+raise-missing-from:72:16:72:59::Consider explicitly re-raising using 'except (ZeroDivisionError, ValueError, KeyError) as exc' and 'raise KeyError(whatever, whatever=whatever) from exc':HIGH
+raise-missing-from:75:8:75:45::Consider explicitly re-raising using 'except (ZeroDivisionError, ValueError, KeyError) as exc' and 'raise KeyError(whatever, overever=12) from exc':HIGH
+raise-missing-from:82:4:82:32::Consider explicitly re-raising using 'except (OSError, IndexError, struct.error, OverflowError, ValueError) as exc' and 'raise InvalidFileException() from exc':HIGH

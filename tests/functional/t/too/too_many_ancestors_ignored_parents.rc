@@ -1,0 +1,3 @@
+[DESIGN]
+max-parents=2
+ignored-parents=functional.t.too.too_many_ancestors_ignored_parents.E

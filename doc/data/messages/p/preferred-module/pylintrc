@@ -1,0 +1,2 @@
+[IMPORTS]
+preferred-modules=urllib:requests,

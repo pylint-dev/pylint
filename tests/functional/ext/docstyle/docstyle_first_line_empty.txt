@@ -1,0 +1,3 @@
+docstring-first-line-empty:4:0:4:18:check_messages:First line empty in function docstring:HIGH
+docstring-first-line-empty:14:0:14:10:FFFF:First line empty in class docstring:HIGH
+docstring-first-line-empty:19:4:19:15:FFFF.method1:First line empty in method docstring:HIGH

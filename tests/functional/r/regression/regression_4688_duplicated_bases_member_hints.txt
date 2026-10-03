@@ -1,0 +1,1 @@
+no-member:7:8:7:36:Klass.get:Instance of 'Klass' has no '_non_existent_attribute' member:INFERENCE

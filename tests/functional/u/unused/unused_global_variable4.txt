@@ -1,0 +1,2 @@
+unused-variable:2:0:2:3::Unused variable 'var':UNDEFINED
+unused-variable:3:0:3:3::Unused variable 'var':UNDEFINED

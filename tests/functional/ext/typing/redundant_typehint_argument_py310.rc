@@ -1,0 +1,3 @@
+[main]
+py-version=3.10
+load-plugins=pylint.extensions.typing

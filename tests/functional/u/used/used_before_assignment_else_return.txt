@@ -1,0 +1,4 @@
+used-before-assignment:26:14:26:19:invalid:Using variable 'error' before assignment:CONTROL_FLOW
+used-before-assignment:39:14:39:19:invalid_2:Using variable 'error' before assignment:CONTROL_FLOW
+used-before-assignment:51:14:51:19:invalid_3:Using variable 'error' before assignment:CONTROL_FLOW
+used-before-assignment:61:14:61:19:invalid_4:Using variable 'error' before assignment:CONTROL_FLOW

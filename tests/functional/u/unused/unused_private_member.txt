@@ -1,0 +1,21 @@
+unused-private-member:6:4:6:14:AnotherClass.__test:Unused private member `AnotherClass.__test(self)`:UNDEFINED
+unused-private-member:10:4:10:15:HasUnusedInClass:Unused private member `HasUnusedInClass.__my_secret`:UNDEFINED
+unused-private-member:14:4:14:37:HasUnusedInClass.__private_class_method_unused:Unused private member `HasUnusedInClass.__private_class_method_unused(cls)`:UNDEFINED
+unused-private-member:22:4:22:38:HasUnusedInClass.__private_static_method_unused:Unused private member `HasUnusedInClass.__private_static_method_unused()`:UNDEFINED
+unused-private-member:30:8:30:30:HasUnusedInClass.__init__:Unused private member `HasUnusedInClass.__instance_secret`:UNDEFINED
+unused-private-member:36:4:36:14:HasUnusedInClass.__test:Unused private member `HasUnusedInClass.__test(self, x, y, z)`:UNDEFINED
+unused-private-member:57:4:57:24:HasUnusedInClass.__test_recursive:Unused private member `HasUnusedInClass.__test_recursive(self)`:UNDEFINED
+unused-private-member:135:8:135:21:FalsePositive4657.__init__:Unused private member `FalsePositive4657.__attr_c`:UNDEFINED
+undefined-variable:140:15:140:18:FalsePositive4657.attr_c:Undefined variable 'cls':UNDEFINED
+unused-private-member:159:8:159:26:FalsePositive4668.__new__:Unused private member `FalsePositive4668.__unused`:UNDEFINED
+unused-private-member:183:8:183:27:FalsePositive4673.do_thing.__true_positive:Unused private member `FalsePositive4673.do_thing.__true_positive(in_thing)`:UNDEFINED
+unused-private-member:203:8:203:21:FalsePositive4673.complicated_example.__inner_4:Unused private member `FalsePositive4673.complicated_example.__inner_4()`:UNDEFINED
+unused-private-member:214:8:214:23:Crash4755Context.__init__:Unused private member `Crash4755Context.__messages`:UNDEFINED
+unused-private-member:231:4:231:24:FalsePositive4681:Unused private member `FalsePositive4681.__should_cause_error`:UNDEFINED
+unused-private-member:241:12:241:50:FalsePositive4681.__init__:Unused private member `FalsePositive4681.__should_cause_error`:UNDEFINED
+unused-private-member:245:12:245:50:FalsePositive4681.__init__:Unused private member `FalsePositive4681.__should_cause_error`:UNDEFINED
+unused-private-member:276:4:276:31:FalsePositive4849.__unused_private_method:Unused private member `FalsePositive4849.__unused_private_method()`:UNDEFINED
+unused-private-member:293:4:293:23:Pony.__init_defaults:Unused private member `Pony.__init_defaults(self)`:UNDEFINED
+unused-private-member:298:4:298:23:Pony.__get_fur_color:Unused private member `Pony.__get_fur_color(self)`:UNDEFINED
+unused-private-member:343:8:343:15:TypeSelfCallInMethod.b:Unused private member `TypeSelfCallInMethod.__a`:UNDEFINED
+unused-private-member:353:8:353:19:Item.__init__:Unused private member `Item.__item`:UNDEFINED

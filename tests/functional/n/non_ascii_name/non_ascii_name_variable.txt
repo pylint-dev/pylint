@@ -1,0 +1,2 @@
+non-ascii-name:7:0:7:4::"Variable name ""łol"" contains a non-ASCII character, consider renaming it.":HIGH
+non-ascii-name:9:0:9:4::"Variable name ""łol"" contains a non-ASCII character, consider renaming it.":HIGH

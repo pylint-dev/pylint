@@ -1,0 +1,2 @@
+consider-ternary-expression:4:0:7:9::Consider rewriting as a ternary expression:UNDEFINED
+consider-ternary-expression:17:4:20:13:a:Consider rewriting as a ternary expression:UNDEFINED

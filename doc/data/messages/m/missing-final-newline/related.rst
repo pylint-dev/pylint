@@ -1,0 +1,2 @@
+- `POSIX Standard <https://pubs.opengroup.org/onlinepubs/9699919799/>`_
+- `POSIX Standard Chapter 3.206 Line <https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap03.html#tag_03_206>`_

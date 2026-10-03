@@ -1,0 +1,1 @@
+too-many-return-statements:3:0:3:19:stupid_function:Too many return statements (11/6):UNDEFINED

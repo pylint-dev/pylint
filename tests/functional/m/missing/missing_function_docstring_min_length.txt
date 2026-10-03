@@ -1,0 +1,2 @@
+missing-function-docstring:9:0:9:12:func_two:Missing function or method docstring:HIGH
+missing-function-docstring:14:0:14:14:func_three:Missing function or method docstring:HIGH

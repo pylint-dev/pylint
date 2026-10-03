@@ -1,0 +1,2 @@
+no-member:13:6:13:18::Instance of 'Klass' has no 'spam' member:INFERENCE
+no-member:26:6:26:13::Class 'Klass' has no 'X' member:INFERENCE

@@ -1,0 +1,4 @@
+non-iterator-returned:79:4:79:16:FirstBadIterator.__iter__:__iter__ returns non-iterator:UNDEFINED
+non-iterator-returned:86:4:86:16:SecondBadIterator.__iter__:__iter__ returns non-iterator:UNDEFINED
+non-iterator-returned:93:4:93:16:ThirdBadIterator.__iter__:__iter__ returns non-iterator:UNDEFINED
+non-iterator-returned:100:4:100:16:FourthBadIterator.__iter__:__iter__ returns non-iterator:UNDEFINED

@@ -1,0 +1,16 @@
+@startuml classes
+set namespaceSeparator none
+class "Dummy" as attributes_annotation.Dummy {
+}
+class "Dummy2" as attributes_annotation.Dummy2 {
+  alternative_optional : int | None
+  alternative_optional_swapped : None | int
+  alternative_union_syntax : str | int
+  class_attr : list[Dummy]
+  optional : Optional[Dummy]
+  optional_union : Optional[int | str]
+  param : str
+  union : Union[int, str]
+}
+attributes_annotation.Dummy2 --> attributes_annotation.Dummy : optional
+@enduml

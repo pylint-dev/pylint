@@ -1,0 +1,16 @@
+fixme:5:1:None:None::TODO resolve this:UNDEFINED
+fixme:7:1:None:None::"TODO: indentations are permitted ":UNDEFINED
+fixme:9:1:None:None::"TODO: indentations are permitted ":UNDEFINED
+fixme:11:1:None:None::"TODO: indentations are permitted":UNDEFINED
+fixme:16:1:None:None::FIXME don't forget this # [fixme]:UNDEFINED
+fixme:17:1:None:None::XXX also remember this # [fixme]:UNDEFINED
+fixme:18:1:None:None::"FIXME: and this line, but treat it as one FIXME TODO # [fixme]":UNDEFINED
+fixme:20:1:None:None::XXX indentations are okay # [fixme]:UNDEFINED
+fixme:25:1:None:None::FIXME should still work:UNDEFINED
+fixme:28:1:None:None::"TODO """""" should work":UNDEFINED
+fixme:37:1:None:None::"TO make something DO: look a regex":UNDEFINED
+fixme:45:5:None:None::./TODO implement this:UNDEFINED
+fixme:49:1:None:None::XXX single quotes should be no different # [fixme]:UNDEFINED
+fixme:53:5:None:None::./TODO implement this # [fixme]:UNDEFINED
+fixme:54:5:None:None::FIXME and this # [fixme]:UNDEFINED
+fixme:56:5:None:None::FIXME one more for good measure:UNDEFINED

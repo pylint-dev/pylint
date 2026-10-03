@@ -1,0 +1,1 @@
+return-outside-function:2:0:2:6::Return outside function:UNDEFINED

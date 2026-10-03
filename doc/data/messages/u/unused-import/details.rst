@@ -1,0 +1,1 @@
+By default, this check is skipped for ``__init__.py`` files, as they often contain imports from submodules for the convenience of end users. While these imports are not used within ``__init__.py``, they serve the purpose of providing intuitive import paths for the module's important classes and constants.

@@ -1,0 +1,1 @@
+logging-fstring-interpolation:5:0:5:60::Use lazy % formatting in logging functions:UNDEFINED

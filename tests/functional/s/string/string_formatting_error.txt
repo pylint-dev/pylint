@@ -1,0 +1,15 @@
+too-few-format-args:9:10:9:46:pprint:Not enough arguments for format string:UNDEFINED
+too-many-format-args:10:10:10:33:pprint:Too many arguments for format string:UNDEFINED
+mixed-format-string:11:10:11:54:pprint:Mixing named and unnamed conversion specifiers in format string:UNDEFINED
+missing-format-string-key:12:10:12:49:pprint:Missing key 'PARG_2' in format string dictionary:UNDEFINED
+unused-format-string-key:13:10:13:73:pprint:Unused key 'PARG_3' in format string dictionary:UNDEFINED
+bad-format-string-key:14:10:14:54:pprint:Format string dictionary key should be a string, not 2:UNDEFINED
+missing-format-string-key:14:10:14:54:pprint:Missing key 'PARG_2' in format string dictionary:UNDEFINED
+format-needs-mapping:15:10:15:42:pprint:Expected mapping for format string, not Tuple:UNDEFINED
+format-needs-mapping:16:10:16:42:pprint:Expected mapping for format string, not List:UNDEFINED
+bad-format-character:17:10:17:24:pprint:Unsupported format character 'z' (0x7a) at index 2:UNDEFINED
+truncated-format-string:18:10:18:38:pprint:Format string ends in middle of conversion specifier:UNDEFINED
+format-string-without-interpolation:20:10:20:27:pprint:Using formatting for a string that does not have any interpolated variables:UNDEFINED
+format-string-without-interpolation:21:10:21:23:pprint:Using formatting for a string that does not have any interpolated variables:UNDEFINED
+format-string-without-interpolation:22:10:22:23:pprint:Using formatting for a string that does not have any interpolated variables:UNDEFINED
+format-string-without-interpolation:23:10:23:25:pprint:Using formatting for a string that does not have any interpolated variables:UNDEFINED

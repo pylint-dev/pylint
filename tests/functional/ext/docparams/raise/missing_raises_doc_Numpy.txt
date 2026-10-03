@@ -1,0 +1,11 @@
+missing-raises-doc:11:0:11:34:test_find_missing_numpy_raises:"""RuntimeError"" not documented as being raised":HIGH
+unreachable:20:4:20:25:test_find_missing_numpy_raises:Unreachable code:HIGH
+unreachable:34:4:34:25:test_find_all_numpy_raises:Unreachable code:HIGH
+missing-raises-doc:37:0:37:35:test_find_rethrown_numpy_raises:"""RuntimeError"" not documented as being raised":HIGH
+missing-raises-doc:53:0:53:44:test_find_rethrown_numpy_multiple_raises:"""RuntimeError, ValueError"" not documented as being raised":HIGH
+missing-raises-doc:111:0:111:45:test_find_valid_missing_numpy_attr_raises:"""IllegalMonthError"" not documented as being raised":HIGH
+missing-raises-doc:146:4:146:11:Foo.foo:"""AttributeError"" not documented as being raised":HIGH
+unreachable:158:8:158:17:Foo.foo:Unreachable code:HIGH
+unreachable:182:8:182:17:Foo.foo:Unreachable code:HIGH
+missing-raises-doc:185:4:185:11:Foo.foo:"""AttributeError"" not documented as being raised":HIGH
+unreachable:215:8:215:17:Foo.foo:Unreachable code:HIGH

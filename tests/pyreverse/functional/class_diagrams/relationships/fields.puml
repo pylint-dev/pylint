@@ -1,0 +1,25 @@
+@startuml classes
+set namespaceSeparator none
+class "Aggregation1" as fields.Aggregation1 {
+  x
+}
+class "Aggregation2" as fields.Aggregation2 {
+  x
+}
+class "Association" as fields.Association {
+  x
+}
+class "Composition1" as fields.Composition1 {
+  x
+}
+class "Composition2" as fields.Composition2 {
+  x
+}
+class "P" as fields.P {
+}
+fields.Association --> fields.P : x
+fields.P --* fields.Composition1 : x
+fields.P --* fields.Composition2 : x
+fields.P --o fields.Aggregation1 : x
+fields.P --o fields.Aggregation2 : x
+@enduml

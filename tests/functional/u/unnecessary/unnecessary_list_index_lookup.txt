@@ -1,0 +1,11 @@
+unnecessary-list-index-lookup:8:10:8:22::Unnecessary list index lookup, use 'val' instead:HIGH
+unnecessary-list-index-lookup:43:52:43:64::Unnecessary list index lookup, use 'val' instead:HIGH
+unnecessary-list-index-lookup:46:10:46:22::Unnecessary list index lookup, use 'val' instead:HIGH
+unnecessary-list-index-lookup:74:10:74:27::Unnecessary list index lookup, use 'val' instead:HIGH
+unnecessary-list-index-lookup:112:10:112:21::Unnecessary list index lookup, use 'val' instead:HIGH
+unnecessary-list-index-lookup:115:10:115:21::Unnecessary list index lookup, use 'val' instead:HIGH
+unnecessary-list-index-lookup:119:10:119:21::Unnecessary list index lookup, use 'val' instead:INFERENCE
+unnecessary-list-index-lookup:122:10:122:21::Unnecessary list index lookup, use 'val' instead:INFERENCE
+unnecessary-list-index-lookup:135:10:135:21::Unnecessary list index lookup, use 'val' instead:HIGH
+unnecessary-list-index-lookup:137:10:137:22::Unnecessary list index lookup, use 'val' instead:HIGH
+unnecessary-list-index-lookup:140:10:140:22::Unnecessary list index lookup, use 'val' instead:INFERENCE

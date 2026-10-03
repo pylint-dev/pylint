@@ -1,0 +1,11 @@
+# Check that we can read a TOML file where lists, integers and
+# booleans are expressed as such (and not as strings), using TOML
+# type system.
+
+[tool.pylint."messages control"]
+disable = [
+    "logging-not-lazy",
+    "logging-format-interpolation",
+]
+jobs = 10
+reports = true

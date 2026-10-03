@@ -1,0 +1,2 @@
+non-ascii-name:3:0:3:10::"Variable name ""áéíóú"" contains a non-ASCII character, consider renaming it.":HIGH
+non-ascii-name:5:0:5:9:úóíéá:"Function name ""úóíéá"" contains a non-ASCII character, consider renaming it.":HIGH

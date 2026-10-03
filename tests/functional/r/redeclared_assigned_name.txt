@@ -1,0 +1,4 @@
+redeclared-assigned-name:3:0:3:12::Redeclared variable 'FIRST' in assignment:UNDEFINED
+redeclared-assigned-name:5:4:5:18::Redeclared variable 'SECOND' in assignment:UNDEFINED
+redeclared-assigned-name:8:11:8:34::Redeclared variable 'SECOND' in assignment:UNDEFINED
+redeclared-assigned-name:11:4:11:14::Redeclared variable 'DUMM' in assignment:UNDEFINED

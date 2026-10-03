@@ -1,0 +1,3 @@
+no-method-argument:11:4:11:14:MyClass.method:Method 'method' has no argument:UNDEFINED
+no-method-argument:14:4:14:13:MyClass.setup:Method 'setup' has no argument:UNDEFINED
+undefined-variable:16:8:16:12:MyClass.setup:Undefined variable 'self':UNDEFINED

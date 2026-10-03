@@ -1,0 +1,33 @@
+unused-import:4:4:4:14:test_regression_737:Unused import xml:UNDEFINED
+unused-import:7:4:7:24:test_regression_923:Unused import unittest.case:UNDEFINED
+unused-import:8:4:8:21:test_regression_923:Unused xml imported as sql:UNDEFINED
+unused-variable:15:4:15:7:test_unused_with_prepended_underscore:Unused variable '_a_':UNDEFINED
+unused-variable:16:4:16:9:test_unused_with_prepended_underscore:Unused variable '__a__':UNDEFINED
+unused-variable:20:4:20:23:test_local_field_prefixed_with_unused_or_ignored:Unused variable 'flagged_local_field':UNDEFINED
+unused-variable:28:8:28:17:HasUnusedDunderClass.test:Unused variable '__class__':UNDEFINED
+possibly-unused-variable:35:4:35:9:locals_example_defined_before:Possibly unused variable 'value':UNDEFINED
+unused-variable:41:4:41:9:locals_example_defined_after:Unused variable 'value':UNDEFINED
+unused-variable:46:4:46:9:locals_does_not_account_for_subscopes:Unused variable 'value':UNDEFINED
+unused-import:54:4:54:38:unused_import_from:Unused wraps imported from functools as abc:UNDEFINED
+unused-import:55:4:55:38:unused_import_from:Unused namedtuple imported from collections:UNDEFINED
+unused-import:59:4:59:40:unused_import_in_function:Unused hexdigits imported from string:UNDEFINED
+unused-variable:64:4:64:10:hello:Unused variable 'my_var':UNDEFINED
+unused-variable:75:4:75:8:function:Unused variable 'aaaa':UNDEFINED
+global-statement:97:4:97:39:test_global:Using the global statement:HIGH
+unused-import:98:4:98:31:test_global:Unused path imported from os as PATH:UNDEFINED
+unused-import:99:4:99:19:test_global:Unused os imported as OS:UNDEFINED
+unused-import:100:4:100:22:test_global:Unused import collections:UNDEFINED
+unused-import:101:4:101:33:test_global:Unused deque imported from collections:UNDEFINED
+unused-import:103:4:103:28:test_global:Unused platform imported from sys:UNDEFINED
+unused-import:104:4:104:38:test_global:Unused version imported from sys as VERSION:UNDEFINED
+unused-import:105:4:105:15:test_global:Unused import this:UNDEFINED
+unused-import:106:4:106:19:test_global:Unused re imported as RE:UNDEFINED
+unused-variable:110:4:110:10:function2:Unused variable 'unused':UNDEFINED
+redefined-outer-name:116:8:117:42:function2:Redefining name 'error' from outer scope (line 113):UNDEFINED
+redefined-outer-name:144:8:145:28:func3:Redefining name 'error' from outer scope (line 140):UNDEFINED
+unused-variable:144:8:145:28:func3:Unused variable 'error':UNDEFINED
+unused-variable:150:4:154:26:func4:Unused variable 'error':UNDEFINED
+redefined-outer-name:153:8:154:26:func4:Redefining name 'error' from outer scope (line 150):UNDEFINED
+unused-variable:161:4:162:12:main:Unused variable 'e':UNDEFINED
+undefined-loop-variable:168:10:168:11:main:Using possibly undefined loop variable 'e':UNDEFINED
+unused-variable:228:8:229:16:test_regression_8595:Unused variable 'e':UNDEFINED

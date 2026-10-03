@@ -1,0 +1,3 @@
+I:  1: 'W0404' is cryptic: use '# pylint: disable=reimported' instead
+I:  1: Locally disabling reimported (W0404)
+I:  1: Useless suppression of 'reimported'

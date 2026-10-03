@@ -1,0 +1,6 @@
+# Check that we raise an error when a comma is missing
+# See https://github.com/pylint-dev/pylint/issues/3122
+[tool.pylint."messages control"]
+disable = "logging-not-lazylogging-format-interpolation,missing-docstring"
+enable = "locally-disabledsuppressed-message,missing-module-docstring"
+jobs = "10"

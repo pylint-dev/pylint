@@ -1,0 +1,8 @@
+# Check that we can set the ``files`` option in a TOML configuration file.
+# See https://github.com/pylint-dev/pylint/issues/5701
+
+[tool.pylint.main]
+files = [
+    "src",
+    "tests/regression",
+]

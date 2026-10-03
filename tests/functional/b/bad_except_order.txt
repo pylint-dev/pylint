@@ -1,0 +1,5 @@
+bad-except-order:9:7:9:16::Bad except clauses order (Exception is an ancestor class of TypeError):INFERENCE
+bad-except-order:16:7:16:17::Bad except clauses order (LookupError is an ancestor class of IndexError):INFERENCE
+bad-except-order:23:7:23:38::Bad except clauses order (LookupError is an ancestor class of IndexError):INFERENCE
+bad-except-order:23:7:23:38::Bad except clauses order (NameError is an ancestor class of UnboundLocalError):INFERENCE
+bad-except-order:26:0:31:8::Bad except clauses order (empty except clause should always appear last):HIGH

@@ -1,0 +1,8 @@
+[STRING]
+check-quote-consistency=yes
+
+[main]
+py-version=3.11
+
+[testoptions]
+min_pyver=3.12

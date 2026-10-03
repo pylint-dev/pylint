@@ -1,0 +1,4 @@
+too-many-boolean-expressions:6:3:6:61::Too many boolean expressions in if statement (6/5):UNDEFINED
+too-many-boolean-expressions:10:5:10:49::Too many boolean expressions in if statement (7/5):UNDEFINED
+too-many-boolean-expressions:12:5:12:58::Too many boolean expressions in if statement (6/5):UNDEFINED
+too-many-boolean-expressions:14:5:14:64::Too many boolean expressions in if statement (6/5):UNDEFINED

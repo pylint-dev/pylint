@@ -1,0 +1,7 @@
+use-dict-literal:3:4:3:10::Consider using '{}' instead of a call to 'dict'.:INFERENCE
+use-dict-literal:4:4:4:28::"Consider using '{""a"": '1', ""b"": None, ""c"": 3}' instead of a call to 'dict'.":INFERENCE
+use-dict-literal:8:4:8:13::Consider using '{**x}' instead of a call to 'dict'.:INFERENCE
+use-dict-literal:13:4:13:19::"Consider using '{""foo"": bar()}' instead of a call to 'dict'.":INFERENCE
+use-dict-literal:17:0:24:1::"Consider using '{""suggestions"": list(bar(boo=True)), **baz}' instead of a call to 'dict'.":INFERENCE
+use-dict-literal:31:0:34:1::"Consider using '{""url"": '/foo', **inst.prop}' instead of a call to 'dict'.":INFERENCE
+use-dict-literal:36:0:46:1::"Consider using '{""Lorem"": 'ipsum', ""dolor"": 'sit', ""amet"": 'consectetur', ""adipiscing"": 'elit', ... }' instead of a call to 'dict'.":INFERENCE

@@ -1,0 +1,3 @@
+consider-using-sys-exit:5:4:5:10:foo:Consider using 'sys.exit' instead:HIGH
+consider-using-sys-exit:8:4:8:10:foo_1:Consider using 'sys.exit' instead:HIGH
+consider-using-sys-exit:14:0:14:6::Consider using 'sys.exit' instead:HIGH

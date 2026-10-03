@@ -1,0 +1,5 @@
+{
+  "load_plugins": ["pylint_flask"],
+  "max_line_length": 220,
+  "max_module_lines": 2001
+}

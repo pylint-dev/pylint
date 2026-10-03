@@ -1,0 +1,2 @@
+declare-non-slot:14:4:14:12:ClassVariables:No such name 'instance' in __slots__:INFERENCE
+declare-non-slot:22:4:22:11:Derived:No such name 'missing' in __slots__:INFERENCE

@@ -1,0 +1,3 @@
+I should just print
+************* Module Command line or configuration file
+Command line or configuration file:1:0: E0013: Plugin 'pylint_flask' is impossible to load, is it installed ? ('No module named 'pylint_flask'') (bad-plugin-value)

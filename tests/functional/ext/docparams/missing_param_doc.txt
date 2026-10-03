@@ -1,0 +1,15 @@
+missing-any-param-doc:7:0:7:11:foobar1:"Missing any documentation in ""foobar1""":HIGH
+missing-any-param-doc:12:0:12:11:foobar2:"Missing any documentation in ""foobar2""":HIGH
+missing-param-doc:19:0:19:11:foobar3:"""arg2"" missing in parameter documentation":HIGH
+missing-type-doc:19:0:19:11:foobar3:"""arg2"" missing in parameter type documentation":HIGH
+missing-param-doc:28:0:28:11:foobar4:"""arg2"" missing in parameter documentation":HIGH
+missing-type-doc:28:0:28:11:foobar4:"""arg2"" missing in parameter type documentation":HIGH
+missing-type-doc:37:0:37:11:foobar5:"""arg1"" missing in parameter type documentation":HIGH
+missing-param-doc:47:0:47:11:foobar6:"""arg3"" missing in parameter documentation":HIGH
+missing-type-doc:47:0:47:11:foobar6:"""arg3"" missing in parameter type documentation":HIGH
+missing-any-param-doc:57:0:57:11:foobar7:"Missing any documentation in ""foobar7""":HIGH
+missing-any-param-doc:65:0:65:11:foobar8:"Missing any documentation in ""foobar8""":HIGH
+missing-type-doc:80:0:80:12:foobar10:"""arg1, arg3"" missing in parameter type documentation":HIGH
+missing-any-param-doc:92:0:92:12:foobar11:"Missing any documentation in ""foobar11""":HIGH
+missing-param-doc:101:0:101:12:foobar12:"""arg3"" missing in parameter documentation":HIGH
+missing-type-doc:101:0:101:12:foobar12:"""arg2, arg3"" missing in parameter type documentation":HIGH

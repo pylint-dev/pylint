@@ -1,0 +1,1 @@
+- `Discussion thread re: docstrings on assignments <https://discuss.python.org/t/docstrings-for-new-type-aliases-as-defined-in-pep-695/39816>`_

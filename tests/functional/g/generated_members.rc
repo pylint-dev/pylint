@@ -1,0 +1,11 @@
+[Messages Control]
+disable=too-few-public-methods
+
+[typecheck]
+generated-members=
+    \Afunctional\.g\.generated_members\.Klass\.ham\Z,
+    DoesNotExist,
+    "[a-zA-Z]+_set{1,2}",
+    nodes.Tuple.*,
+    checkers.*?base,
+    (session|SESSION).rollback

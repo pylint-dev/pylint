@@ -1,0 +1,5 @@
+[MAIN]
+load-plugins = pylint.extensions.bad_builtin
+
+[pylint.DEPRECATED_BUILTINS]
+bad-functions=map,input,filter,print

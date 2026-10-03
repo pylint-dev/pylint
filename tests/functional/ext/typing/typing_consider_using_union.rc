@@ -1,0 +1,6 @@
+[main]
+py-version=3.8
+load-plugins=pylint.extensions.typing
+
+[typing]
+runtime-typing=no

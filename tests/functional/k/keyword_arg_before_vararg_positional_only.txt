@@ -1,0 +1,3 @@
+keyword-arg-before-vararg:6:0:6:9:name1:Keyword argument before variable positional arguments list in the definition of name1 function:UNDEFINED
+keyword-arg-before-vararg:7:0:7:9:name2:Keyword argument before variable positional arguments list in the definition of name2 function:UNDEFINED
+keyword-arg-before-vararg:8:0:8:9:name3:Keyword argument before variable positional arguments list in the definition of name3 function:UNDEFINED

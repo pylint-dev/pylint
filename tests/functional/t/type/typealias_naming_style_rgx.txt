@@ -1,0 +1,2 @@
+invalid-name:9:0:9:27::"Type alias name ""TypeAliasShouldntBeLikeThis"" doesn't conform to '_{0,2}TypeAliasShouldBeLikeThis' pattern":HIGH
+invalid-name:10:0:10:28::"Type alias name ""_TypeAliasShouldntBeLikeThis"" doesn't conform to '_{0,2}TypeAliasShouldBeLikeThis' pattern":HIGH

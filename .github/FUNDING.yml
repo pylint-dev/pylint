@@ -1,0 +1,3 @@
+# These are supported funding model platforms
+tidelift: "pypi/pylint"
+github: [cdce8p, DanielNoord, jacobtylerwalls,Pierre-Sassoulas]

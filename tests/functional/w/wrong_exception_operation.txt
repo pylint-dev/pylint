@@ -1,0 +1,5 @@
+catching-non-exception:6:8:6:30::"Catching an exception which doesn't inherit from Exception: ValueError | TypeError":UNDEFINED
+wrong-exception-operation:6:8:6:30::Invalid exception operation. Did you mean '(ValueError, TypeError)' instead?:UNDEFINED
+wrong-exception-operation:11:8:11:30::Invalid exception operation. Did you mean '(ValueError, TypeError)' instead?:UNDEFINED
+wrong-exception-operation:17:8:17:30::Invalid exception operation. Did you mean '(ValueError, TypeError)' instead?:UNDEFINED
+wrong-exception-operation:33:7:33:40::Invalid exception operation. Did you mean '((ValueError, ) + DIVISION_BY_ZERO)' instead?:UNDEFINED

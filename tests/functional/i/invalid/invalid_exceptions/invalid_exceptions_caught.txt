@@ -1,0 +1,13 @@
+catching-non-exception:26:7:26:18::"Catching an exception which doesn't inherit from Exception: MyException":UNDEFINED
+catching-non-exception:32:7:32:39::"Catching an exception which doesn't inherit from Exception: MyException":UNDEFINED
+catching-non-exception:32:7:32:39::"Catching an exception which doesn't inherit from Exception: MySecondException":UNDEFINED
+catching-non-exception:53:7:53:21::"Catching an exception which doesn't inherit from Exception: None":UNDEFINED
+catching-non-exception:53:7:53:21::"Catching an exception which doesn't inherit from Exception: list()":UNDEFINED
+catching-non-exception:58:7:58:11::"Catching an exception which doesn't inherit from Exception: None":UNDEFINED
+catching-non-exception:71:7:71:52::"Catching an exception which doesn't inherit from Exception: 4":UNDEFINED
+catching-non-exception:71:7:71:52::"Catching an exception which doesn't inherit from Exception: None":UNDEFINED
+catching-non-exception:71:7:71:52::"Catching an exception which doesn't inherit from Exception: list([4, 5, 6])":UNDEFINED
+catching-non-exception:84:7:84:26::"Catching an exception which doesn't inherit from Exception: NON_EXCEPTION_TUPLE":UNDEFINED
+catching-non-exception:102:7:102:13::"Catching an exception which doesn't inherit from Exception: object":UNDEFINED
+catching-non-exception:107:7:107:12::"Catching an exception which doesn't inherit from Exception: range":UNDEFINED
+catching-non-exception:141:7:141:13::"Catching an exception which doesn't inherit from Exception: LAMBDA":UNDEFINED

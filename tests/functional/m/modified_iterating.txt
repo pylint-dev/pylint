@@ -1,0 +1,21 @@
+modified-iterating-list:9:4:9:26::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-list:12:4:12:26::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-dict:30:4:30:18::Iterated dict 'MY_DICT' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
+modified-iterating-set:40:4:40:27::Iterated set 'item_set' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
+modified-iterating-set:44:4:44:20::Iterated set 'item_set' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
+modified-iterating-set:48:4:48:23::Iterated set 'item_set' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
+modified-iterating-set:52:4:52:18::Iterated set 'item_set' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
+modified-iterating-set:56:4:56:21::Iterated set 'item_set' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
+modified-iterating-list:63:8:63:27::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-set:64:8:64:26::Iterated set 'item_set' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
+modified-iterating-list:65:4:65:23::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-list:68:4:68:12::Iterated list 'list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-list:71:4:71:20::Iterated list 'list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-dict:74:4:74:9::Iterated dict 'MY_DICT' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
+modified-iterating-set:77:4:77:15::Iterated set 'item_set' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
+modified-iterating-list:81:4:81:23::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-list:84:12:84:31::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-list:86:16:86:35::Iterated list 'item_list' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-dict:112:8:112:28:update_existing_key:Iterated dict 'MY_DICT' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
+modified-iterating-list:124:12:124:19:MyClass.my_method:Iterated list 'attribute' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-dict:142:8:142:15:my_call:Iterated dict '' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE

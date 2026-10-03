@@ -1,0 +1,4 @@
+no-member:9:0:9:11::Instance of 'A' has no 'value' member:INFERENCE
+no-member:16:18:16:29::Instance of 'B' has no 'value' member:INFERENCE
+no-member:24:0:24:11::Instance of 'C' has no 'value' member:INFERENCE
+no-member:25:18:25:29::Instance of 'C' has no 'value' member:INFERENCE

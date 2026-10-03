@@ -1,0 +1,3 @@
+- `PEP 489 <https://peps.python.org/pep-0489/#export-hook-name>`_
+- `PEP 672 <https://peps.python.org/pep-0672/#confusing-features>`_
+- `Python issue 20485 <https://bugs.python.org/issue20485>`_

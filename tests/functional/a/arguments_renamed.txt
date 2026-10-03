@@ -1,0 +1,10 @@
+arguments-renamed:17:4:17:12:Orange.brew:Parameter 'fruit_name' has been renamed to 'orange_name' in overriding 'Orange.brew' method:UNDEFINED
+arguments-renamed:20:4:20:26:Orange.eat_with_condiment:Parameter 'fruit_name' has been renamed to 'orange_name' in overriding 'Orange.eat_with_condiment' method:UNDEFINED
+arguments-differ:27:4:27:26:Banana.eat_with_condiment:Number of parameters was 3 in 'Fruit.eat_with_condiment' and is now 4 in overriding 'Banana.eat_with_condiment' method:UNDEFINED
+arguments-renamed:40:4:40:12:Child.test:Parameter 'arg' has been renamed to 'arg1' in overriding 'Child.test' method:UNDEFINED
+arguments-differ:43:4:43:19:Child.kwargs_test:Number of parameters was 4 in 'Parent.kwargs_test' and is now 4 in overriding 'Child.kwargs_test' method:UNDEFINED
+arguments-renamed:48:4:48:12:Child2.test:Parameter 'arg' has been renamed to 'var' in overriding 'Child2.test' method:UNDEFINED
+arguments-differ:51:4:51:19:Child2.kwargs_test:Number of parameters was 4 in 'Parent.kwargs_test' and is now 3 in overriding 'Child2.kwargs_test' method:UNDEFINED
+arguments-renamed:67:4:67:13:ChildDefaults.test1:Parameter 'barg' has been renamed to 'param2' in overriding 'ChildDefaults.test1' method:UNDEFINED
+arguments-renamed:95:8:95:16:FruitOverrideConditional.brew:Parameter 'fruit_name' has been renamed to 'orange_name' in overriding 'FruitOverrideConditional.brew' method:UNDEFINED
+arguments-differ:99:12:99:34:FruitOverrideConditional.eat_with_condiment:Number of parameters was 3 in 'FruitConditional.eat_with_condiment' and is now 4 in overriding 'FruitOverrideConditional.eat_with_condiment' method:UNDEFINED

@@ -1,0 +1,1 @@
+- `Stackoverflow discussion <https://stackoverflow.com/questions/920645/when-to-use-while-or-for-in-python>`_

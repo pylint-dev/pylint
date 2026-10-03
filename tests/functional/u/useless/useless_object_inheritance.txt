@@ -1,0 +1,4 @@
+useless-object-inheritance:8:0:8:7:A:Class 'A' inherits from object, can be safely removed from bases in python3:UNDEFINED
+useless-object-inheritance:14:0:14:7:C:Class 'C' inherits from object, can be safely removed from bases in python3:UNDEFINED
+useless-object-inheritance:17:0:17:7:D:Class 'D' inherits from object, can be safely removed from bases in python3:UNDEFINED
+useless-object-inheritance:20:0:20:7:E:Class 'E' inherits from object, can be safely removed from bases in python3:UNDEFINED

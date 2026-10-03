@@ -1,0 +1,1 @@
+assigning-non-slot:18:8:18:17:Foo.__init__:Assigning to attribute '_bar' not defined in class slots:INFERENCE

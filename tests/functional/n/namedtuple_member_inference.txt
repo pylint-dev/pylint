@@ -1,0 +1,1 @@
+no-member:15:10:15:17:test:Class 'Thing' has no 'x' member:INFERENCE

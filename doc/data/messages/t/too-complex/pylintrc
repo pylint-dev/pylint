@@ -1,0 +1,3 @@
+[main]
+
+load-plugins=pylint.extensions.mccabe

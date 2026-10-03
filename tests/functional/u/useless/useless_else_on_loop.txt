@@ -1,0 +1,6 @@
+useless-else-on-loop:9:4:10:31:test_return_for:Else clause on loop without a break statement, remove the else and de-indent all the code inside it:UNDEFINED
+useless-else-on-loop:17:4:18:31:test_return_while:Else clause on loop without a break statement, remove the else and de-indent all the code inside it:UNDEFINED
+useless-else-on-loop:27:0:28:21::Else clause on loop without a break statement, remove the else and de-indent all the code inside it:UNDEFINED
+useless-else-on-loop:34:0:35:21::Else clause on loop without a break statement, remove the else and de-indent all the code inside it:UNDEFINED
+useless-else-on-loop:39:0:42:13::Else clause on loop without a break statement, remove the else and de-indent all the code inside it:UNDEFINED
+useless-else-on-loop:86:4:87:19:test_break_in_orelse_deep2:Else clause on loop without a break statement, remove the else and de-indent all the code inside it:UNDEFINED

@@ -1,0 +1,17 @@
+missing-parentheses-for-call-in-test:39:3:39:16::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:45:3:45:19::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:53:3:53:23::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:61:5:61:25::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:66:3:66:14::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:74:3:74:17::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:80:17:80:30::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:82:23:82:34::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:83:24:83:38::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:85:26:85:39::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:86:26:86:37::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:89:26:89:40::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:90:26:90:42::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:97:3:97:26::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:105:3:105:20::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:117:3:117:19::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:119:5:119:22::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE

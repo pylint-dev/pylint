@@ -1,0 +1,10 @@
+{
+  "functional_append": {
+    "disable": [
+      "missing-class-docstring",
+      "missing-function-docstring",
+      "missing-module-docstring"
+    ]
+  },
+  "extension_pkg_whitelist": ["pygame"]
+}

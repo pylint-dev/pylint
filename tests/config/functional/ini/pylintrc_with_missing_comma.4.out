@@ -1,0 +1,4 @@
+************* Module {abspath}
+{relpath}:1:0: W0012: Unknown option value for '--disable', expected a valid pylint message and got 'logging-not-lazylogging-format-interpolation' (unknown-option-value)
+{relpath}:1:0: W0012: Unknown option value for '--enable', expected a valid pylint message and got 'locally-disabled
+suppressed-message' (unknown-option-value)

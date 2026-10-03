@@ -1,0 +1,3 @@
+confusing-consecutive-elif:17:4:18:38:triggered_if_if_block_ends_with_elif:Consecutive elif with differing indentation level, consider creating a function to separate the inner elif:UNDEFINED
+confusing-consecutive-elif:78:4:79:38:triggered_if_elif_block_ends_with_elif:Consecutive elif with differing indentation level, consider creating a function to separate the inner elif:UNDEFINED
+confusing-consecutive-elif:92:4:93:38:triggered_if_block_ends_with_if:Consecutive elif with differing indentation level, consider creating a function to separate the inner elif:UNDEFINED

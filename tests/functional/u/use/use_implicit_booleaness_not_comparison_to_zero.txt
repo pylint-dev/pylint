@@ -1,0 +1,28 @@
+use-implicit-booleaness-not-comparison-to-zero:6:3:6:9::"""X is 0"" can be simplified to ""not X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:12:3:12:13::"""Y is not 0"" can be simplified to ""Y"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:18:3:18:9::"""X == 0"" can be simplified to ""not X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:24:3:24:9::"""0 == Y"" can be simplified to ""not Y"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:27:3:27:9::"""Y != 0"" can be simplified to ""Y"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:30:3:30:9::"""0 != X"" can be simplified to ""X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:66:7:66:13:test_in_boolean_context:"""X != 0"" can be simplified to ""X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:68:10:68:16:test_in_boolean_context:"""X != 0"" can be simplified to ""X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:70:11:70:17:test_in_boolean_context:"""X != 0"" can be simplified to ""X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:73:13:73:19:test_in_boolean_context:"""X != 0"" can be simplified to ""X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:76:12:76:18:test_in_boolean_context:"""X != 0"" can be simplified to ""X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:80:22:80:28:test_in_boolean_context:"""X != 0"" can be simplified to ""X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:81:22:81:28:test_in_boolean_context:"""X != 0"" can be simplified to ""X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:82:22:82:28:test_in_boolean_context:"""X != 0"" can be simplified to ""X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:85:8:85:14:test_in_boolean_context:"""X != 0"" can be simplified to ""X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:86:8:86:14:test_in_boolean_context:"""X != 0"" can be simplified to ""X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:89:19:89:25:test_in_boolean_context.<lambda>:"""X != 0"" can be simplified to ""X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:92:9:92:15:test_in_boolean_context:"""X != 0"" can be simplified to ""X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:95:7:95:13:test_in_boolean_context:"""X != 0"" can be simplified to ""X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:97:21:97:27:test_in_boolean_context:"""X != 0"" can be simplified to ""X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:99:8:99:14:test_in_boolean_context:"""X != 0"" can be simplified to ""X"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:110:8:110:14:test_not_in_boolean_context:"""X != 0"" can be simplified to ""bool(X)"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:112:8:112:14:test_not_in_boolean_context:"""X != 0"" can be simplified to ""bool(X)"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:114:10:114:16:test_not_in_boolean_context:"""X != 0"" can be simplified to ""bool(X)"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:116:5:116:11:test_not_in_boolean_context:"""X != 0"" can be simplified to ""bool(X)"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:118:12:118:18:test_not_in_boolean_context.<lambda>:"""X != 0"" can be simplified to ""bool(X)"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:120:25:120:31:test_not_in_boolean_context:"""X != 0"" can be simplified to ""bool(X)"", if it is strictly an int, as 0 is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-zero:122:11:122:17:test_not_in_boolean_context:"""X != 0"" can be simplified to ""bool(X)"", if it is strictly an int, as 0 is falsey":HIGH

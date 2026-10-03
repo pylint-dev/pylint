@@ -1,0 +1,2 @@
+[MAIN]
+load-plugins=pylint.extensions.redefined_loop_name,

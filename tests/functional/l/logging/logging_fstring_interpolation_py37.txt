@@ -1,0 +1,4 @@
+logging-fstring-interpolation:5:0:5:23::Use lazy % formatting in logging functions:UNDEFINED
+logging-fstring-interpolation:8:0:8:31::Use lazy % formatting in logging functions:UNDEFINED
+f-string-without-interpolation:10:14:10:25::Using an f-string that does not have any interpolated variables:UNDEFINED
+f-string-without-interpolation:11:14:11:25::Using an f-string that does not have any interpolated variables:UNDEFINED

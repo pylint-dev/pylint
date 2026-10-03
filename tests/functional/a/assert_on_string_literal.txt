@@ -1,0 +1,2 @@
+assert-on-string-literal:3:0:3:35::Assert statement has a string literal as its first argument. The assert will never fail.:UNDEFINED
+assert-on-string-literal:4:0:4:9::Assert statement has a string literal as its first argument. The assert will always fail.:UNDEFINED

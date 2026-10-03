@@ -1,0 +1,3 @@
+[main]
+load-plugins=
+    pylint.extensions.check_does_not_exists_in_venv,

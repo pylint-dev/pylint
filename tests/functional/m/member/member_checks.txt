@@ -1,0 +1,19 @@
+no-member:23:27:23:46:Client.__init__:Class 'Provider' has no 'cattribute' member:INFERENCE
+no-member:33:8:33:28:Client.use_method:Instance of 'Provider' has no 'hophophop' member:INFERENCE
+no-member:38:14:38:34:Client.use_attr:Instance of 'Provider' has no 'attribute' member:INFERENCE
+no-member:50:8:50:19:Client.test_bt_types:Instance of 'list' has no 'apppend' member; maybe 'append'?:INFERENCE
+no-member:52:8:52:15:Client.test_bt_types:Instance of 'dict' has no 'set' member; maybe 'get'?:INFERENCE
+no-member:54:8:54:18:Client.test_bt_types:Instance of 'tuple' has no 'append' member:INFERENCE
+no-member:56:14:56:27:Client.test_bt_types:Instance of 'str' has no 'loower' member; maybe 'lower'?:INFERENCE
+no-member:58:14:58:30:Client.test_bt_types:Instance of 'int' has no 'whatever' member:INFERENCE
+no-member:64:8:64:24:Client.test_no_false_positives:Super of 'Client' has no 'misssing' member:INFERENCE
+no-member:96:4:96:19::Instance of 'Client' has no 'indeed' member:INFERENCE
+no-member:103:4:103:18::Class 'Client' has no 'missing' member:INFERENCE
+no-member:109:8:109:22::Class 'Client' has no 'missing' member:INFERENCE
+no-member:123:8:123:22::Class 'Client' has no 'missing' member:INFERENCE
+no-member:133:0:133:18::Class 'Client' has no 'ala' member:INFERENCE
+no-member:134:0:134:13::Class 'dict' has no 'bala' member:INFERENCE
+no-member:135:0:135:18::Class 'str' has no 'portocala' member:INFERENCE
+no-member:170:19:170:32:NoDunderNameInInstance.__init__:Instance of 'NoDunderNameInInstance' has no '__name__' member:INFERENCE
+no-member:176:14:176:23:InvalidAccessBySlots.__init__:Instance of 'InvalidAccessBySlots' has no 'teta' member:INFERENCE
+no-member:208:13:208:20::Class 'Cls' has no 'BAZ' member; maybe 'BAR'?:INFERENCE

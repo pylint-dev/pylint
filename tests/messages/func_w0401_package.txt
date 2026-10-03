@@ -1,0 +1,2 @@
+R:  1: Cyclic import (input.func_w0401_package.all_the_things -> input.func_w0401_package.thing2)
+W:  8: Using a conditional statement with a constant value

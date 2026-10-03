@@ -1,0 +1,1 @@
+string = "\z"  # [syntax-error]

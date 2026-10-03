@@ -1,0 +1,44 @@
+classDiagram
+  class Ancestor {
+    attr : str
+    cls_member
+    get_value()
+    set_value(value)
+  }
+  class CustomException {
+  }
+  class DoNothing {
+  }
+  class DoNothing2 {
+  }
+  class DoSomething {
+    my_int : Optional[int]
+    my_int_2 : Optional[int]
+    my_string : str
+    do_it(new_int: int) int
+  }
+  class Interface {
+    get_value()*
+    set_value(value)*
+  }
+  class NullablePatterns {
+    return_nullable_1()* int | None
+    return_nullable_2()* Optional[int]
+  }
+  class PropertyPatterns {
+    prop1
+    prop2
+  }
+  class Specialization {
+    TYPE : str
+    relation
+    relation2
+    top : str
+    from_value(value: int)
+    increment_value() None
+    transform_value(value: int) int
+  }
+  Specialization --|> Ancestor
+  DoNothing --* Ancestor : cls_member
+  DoNothing --* Specialization : relation
+  DoNothing2 --o Specialization : relation2

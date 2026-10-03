@@ -1,0 +1,14 @@
+C:  5: Variable name "A" doesn't conform to snake_case naming style
+C:  5: Variable name "A" doesn't conform to snake_case naming style
+C:  7: Variable name "C" doesn't conform to snake_case naming style
+C:  7: Variable name "C" doesn't conform to snake_case naming style
+R:  1: Similar lines in 2 files
+==input.func_w0801:[3:10]
+==input.w0801_same:[3:10]
+__revision__ = 'id'
+A = 2
+B = 3
+C = A + B
+# need more than X lines to trigger the message
+C *= 2
+A -= B

@@ -1,0 +1,14 @@
+🤖 **Effect of this PR on checked open source code:** 🤖
+
+
+**Effect on [astroid](https://github.com/pylint-dev/astroid):**
+
+Changed messages:
+
+<details>
+
+1) [line-too-long](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L50):
+type: `convention` → `warning`
+</details>
+
+*This comment was generated for commit v2.14.2*

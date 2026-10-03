@@ -1,0 +1,3 @@
+too-many-arguments:4:0:4:19:stupid_function:Too many arguments (9/5):UNDEFINED
+too-many-positional-arguments:4:0:4:19:stupid_function:Too many positional arguments (9/5):HIGH
+too-many-arguments:37:0:37:9:name1:Too many arguments (6/5):UNDEFINED

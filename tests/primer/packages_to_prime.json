@@ -1,0 +1,113 @@
+{
+  "astropy": {
+    "branch": "main",
+    "commit": "006f4960ab7311b83c36ca66d5df70274419e144",
+    "directories": ["astropy"],
+    "url": "https://github.com/astropy/astropy"
+  },
+  "ansible": {
+    "branch": "devel",
+    "commit": "a900ea9d0c3665d4013d305dabe6d0af2c3231f8",
+    "directories": ["lib/ansible"],
+    "url": "https://github.com/ansible/ansible",
+    "pylintrc_relpath": "test/lib/ansible_test/_util/controller/sanity/pylint/config/default.cfg"
+  },
+  "astroid": {
+    "branch": "main",
+    "commit": "09c3282b92bfc2617ccbe93114f802d76981a642",
+    "directories": ["astroid"],
+    "pyreverse_targets": {
+      "classdef": {
+        "class_name": "astroid.nodes.scoped_nodes.scoped_nodes.ClassDef",
+        "path": "astroid"
+      },
+      "functiondef": {
+        "class_name": "astroid.nodes.scoped_nodes.scoped_nodes.FunctionDef",
+        "path": "astroid"
+      },
+      "assignname": {
+        "class_name": "astroid.nodes.node_classes.AssignName",
+        "path": "astroid"
+      }
+    },
+    "url": "https://github.com/pylint-dev/astroid",
+    "pylintrc_relpath": "pylintrc"
+  },
+  "black": {
+    "branch": "main",
+    "commit": "8d5a2d9f49378d7abe2eb632df1601818de8c24e",
+    "directories": ["src/black/", "src/blackd/", "src/blib2to3/"],
+    "url": "https://github.com/psf/black"
+  },
+  "coverage": {
+    "branch": "main",
+    "commit": "caec47913e044e24ab54a37c422c521ba0bda718",
+    "directories": ["coverage"],
+    "url": "https://github.com/nedbat/coveragepy",
+    "pylintrc_relpath": "pyproject.toml"
+  },
+  "django": {
+    "branch": "main",
+    "commit": "2f7f30c320b6517d31fb8852db1875ad3a6a774f",
+    "directories": ["django"],
+    "minimum_python": "3.12",
+    "url": "https://github.com/django/django"
+  },
+  "flask": {
+    "branch": "main",
+    "commit": "d73fa1cdcbd8b1465c151db8924ba58b1dd14e35",
+    "directories": ["src/flask"],
+    "url": "https://github.com/pallets/flask"
+  },
+  "home-assistant": {
+    "branch": "dev",
+    "commit": "9dccac7fa5796679e3fa5e3189cd5db73c6d48e6",
+    "directories": ["homeassistant"],
+    "url": "https://github.com/home-assistant/core"
+  },
+  "music21": {
+    "branch": "master",
+    "commit": "4e6d4d617cb0bb0259fe3c295276dd85dc07237e",
+    "directories": ["music21"],
+    "pylintrc_relpath": ".pylintrc",
+    "url": "https://github.com/cuthbertLab/music21"
+  },
+  "pandas": {
+    "branch": "main",
+    "commit": "300ad10f85ecf64ce055eaf7cca64d6203129ce7",
+    "directories": ["pandas/core"],
+    "pylint_additional_args": ["--ignore-patterns=\"test_"],
+    "url": "https://github.com/pandas-dev/pandas"
+  },
+  "poetry-core": {
+    "branch": "main",
+    "commit": "b52c25c451bbaed9f309d45fc6e6e35c704e55bf",
+    "directories": ["src"],
+    "url": "https://github.com/python-poetry/poetry-core",
+    "pylint_additional_args": ["--recursive=y", "--source-roots=src"]
+  },
+  "psycopg": {
+    "branch": "master",
+    "commit": "3d43a1a2420f240d7278f426e756554855384f1d",
+    "directories": ["psycopg/psycopg"],
+    "url": "https://github.com/psycopg/psycopg"
+  },
+  "pygame": {
+    "branch": "main",
+    "commit": "85fda3f719d437cf27106afae8c890e6b88ba5f5",
+    "directories": ["src_py"],
+    "url": "https://github.com/pygame/pygame"
+  },
+  "pytest": {
+    "branch": "main",
+    "commit": "2887015cade4757385308e7a7d8083557fc637e2",
+    "directories": ["src/_pytest"],
+    "url": "https://github.com/pytest-dev/pytest"
+  },
+  "sentry": {
+    "branch": "master",
+    "commit": "507084d38c811ed62bc70e2eb1ddc3c34ec4d663",
+    "directories": ["src/sentry"],
+    "url": "https://github.com/getsentry/sentry"
+  }
+}

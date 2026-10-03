@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites tests="2" errors="0" failures="0" disabled="0" time="0">
+  <testsuite name="junit_clean_package" tests="1" errors="0" failures="0" skipped="0" disabled="0" time="0">
+    <testcase name="junit_clean_package:0:0" classname="pylint" file="junit_clean_package/__init__.py">
+      <system-out>All checks passed for: junit_clean_package/__init__.py</system-out>
+    </testcase>
+  </testsuite>
+  <testsuite name="junit_clean_package.clean_module" tests="1" errors="0" failures="0" skipped="0" disabled="0" time="0">
+    <testcase name="junit_clean_package.clean_module:0:0" classname="pylint" file="junit_clean_package/clean_module.py">
+      <system-out>All checks passed for: junit_clean_package/clean_module.py</system-out>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,17 @@
+invalid-slice-index:10:20:10:22:function1:Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-index:10:23:10:25:function1:Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-index:14:13:14:16:function2:Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-index:14:17:14:20:function2:Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-index:15:7:15:10:function2:Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-index:15:11:15:14:function2:Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-index:16:7:16:10:function2:Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-index:16:11:16:14:function2:Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-index:17:8:17:11:function2:Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-index:17:12:17:15:function2:Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-index:26:20:26:33:function3:Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-step:30:15:30:16:invalid_step:Slice step cannot be 0:HIGH
+invalid-slice-step:31:9:31:10:invalid_step:Slice step cannot be 0:HIGH
+invalid-slice-step:32:9:32:10:invalid_step:Slice step cannot be 0:HIGH
+invalid-slice-step:33:10:33:11:invalid_step:Slice step cannot be 0:HIGH
+invalid-slice-index:42:13:42:16:invalid_slice_range:Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-index:42:17:42:20:invalid_slice_range:Slice index is not an int, None, or instance with __index__:UNDEFINED

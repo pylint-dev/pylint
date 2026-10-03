@@ -1,0 +1,6 @@
+no-self-argument:15:4:15:16:NoSelfArgument.__init__:"Method '__init__' should have ""self"" as first argument":UNDEFINED
+no-self-argument:19:4:19:12:NoSelfArgument.abdc:"Method 'abdc' should have ""self"" as first argument":UNDEFINED
+no-self-argument:42:4:42:15:NoSelfArgument.varargs:"Method 'varargs' should have ""self"" as first argument":UNDEFINED
+no-self-argument:45:4:45:14:NoSelfArgument.kwargs:"Method 'kwargs' should have ""self"" as first argument":UNDEFINED
+no-self-argument:48:4:48:26:NoSelfArgument.varargs_and_kwargs:"Method 'varargs_and_kwargs' should have ""self"" as first argument":UNDEFINED
+no-self-argument:59:4:59:23:Toto.__class_other__:"Method '__class_other__' should have ""self"" as first argument":UNDEFINED

@@ -1,0 +1,4 @@
+unnecessary-default-type-args:6:4:6:32::Type `t.Generator[int, None, None]` has unnecessary default type args. Change it to `t.Generator[int]`.:HIGH
+unnecessary-default-type-args:9:4:9:31::Type `t.AsyncGenerator[int, None]` has unnecessary default type args. Change it to `t.AsyncGenerator[int]`.:HIGH
+unnecessary-default-type-args:13:4:13:33::Type `ca.Generator[int, None, None]` has unnecessary default type args. Change it to `ca.Generator[int]`.:HIGH
+unnecessary-default-type-args:16:4:16:32::Type `ca.AsyncGenerator[int, None]` has unnecessary default type args. Change it to `ca.AsyncGenerator[int]`.:HIGH

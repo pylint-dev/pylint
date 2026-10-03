@@ -1,0 +1,7 @@
+* text=auto
+tests/**/functional/** -text
+tests/input/** -text
+tests/**/data/** -text
+tests/regrtest_data/** -text
+doc/data/messages/u/unexpected-line-ending-format/bad.py -text
+doc/data/messages/m/mixed-line-endings/bad.py -text

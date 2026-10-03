@@ -1,0 +1,138 @@
+"""Test abstract-method warning."""
+
+
+# pylint: disable=missing-docstring
+# pylint: disable=too-few-public-methods
+import abc
+
+
+class Abstract(abc.ABC):
+    def aaaa(self):
+        """should be overridden in concrete class"""
+        raise NotImplementedError()
+
+    def bbbb(self):
+        """should be overridden in concrete class"""
+        raise NotImplementedError()
+
+
+class AbstractB(Abstract, abc.ABC):
+    """Abstract class.
+
+    this class is checking that it does not output an error msg for
+    unimplemeted methods in abstract classes
+    """
+    def cccc(self):
+        """should be overridden in concrete class"""
+        raise NotImplementedError()
+
+class AbstractC(AbstractB, abc.ABC):
+    """
+    Abstract class.
+
+    Should not trigger a warning for unimplemented
+    abstract methods, because of explicit abc.ABC inheritance.
+    """
+
+
+class AbstractD(AbstractB, metaclass=abc.ABCMeta):
+    """
+    Abstract class.
+
+    Should not trigger a warning for unimplemented
+    abstract methods, because of explicit metaclass.
+    """
+
+
+class ConcreteA(AbstractC):  # [abstract-method, abstract-method, abstract-method]
+    """
+    Incomplete concrete class.
+
+    Should trigger a warning for unimplemented abstract
+    methods due to lack of explicit abc.ABC inheritance.
+    """
+
+
+class ConcreteB(Abstract):  # [abstract-method]
+    """
+    Incomplete concrete class.
+
+    Should trigger a warning for unimplemented abstract
+    methods due to lack of explicit abc.ABC inheritance.
+    """
+
+    def aaaa(self):
+        """overridden form Abstract"""
+
+
+class ConcreteC(AbstractC):
+    """
+    Complete concrete class
+
+    Should not trigger a warning as all
+    abstract methods are implemented.
+    """
+    def aaaa(self):
+        """overridden form Abstract"""
+
+    def bbbb(self):
+        """overridden form Abstract"""
+
+    def cccc(self):
+        """overridden form AbstractB"""
+
+
+class Structure(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def __iter__(self):
+        pass
+    @abc.abstractmethod
+    def __len__(self):
+        pass
+    @abc.abstractmethod
+    def __contains__(self, _):
+        pass
+    @abc.abstractmethod
+    def __hash__(self):
+        pass
+
+
+# +1: [abstract-method, abstract-method, abstract-method]
+class Container(Structure):
+    def __contains__(self, _):
+        pass
+
+
+# +1: [abstract-method, abstract-method, abstract-method]
+class Sizable(Structure):
+    def __len__(self):
+        return 42
+
+
+# +1: [abstract-method, abstract-method, abstract-method]
+class Hashable(Structure):
+    __hash__ = 42
+
+
+# +1: [abstract-method, abstract-method, abstract-method]
+class Iterator(Structure):
+    def keys(self):
+        return iter([1, 2, 3])
+
+    __iter__ = keys
+
+
+class AbstractSizable(Structure):
+    @abc.abstractmethod
+    def length(self):
+        pass
+    __len__ = length
+
+
+class GoodComplexMRO(Container, Iterator, Sizable, Hashable):
+    pass
+
+
+# +1: [abstract-method, abstract-method, abstract-method]
+class BadComplexMro(Container, Iterator, AbstractSizable):
+    pass

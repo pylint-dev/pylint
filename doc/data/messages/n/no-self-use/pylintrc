@@ -1,0 +1,2 @@
+[MAIN]
+load-plugins=pylint.extensions.no_self_use,

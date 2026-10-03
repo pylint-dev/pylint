@@ -1,0 +1,46 @@
+@startuml classes_No_Name
+set namespaceSeparator none
+class "Ancestor" as data.clientmodule_test.Ancestor {
+  attr : str
+  cls_member
+  get_value()
+  set_value(value)
+}
+class "<color:red>CustomException</color>" as data.suppliermodule_test.CustomException {
+}
+class "DoNothing" as data.suppliermodule_test.DoNothing {
+}
+class "DoNothing2" as data.suppliermodule_test.DoNothing2 {
+}
+class "DoSomething" as data.suppliermodule_test.DoSomething {
+  my_int : Optional[int]
+  my_int_2 : Optional[int]
+  my_string : str
+  do_it(new_int: int) -> int
+}
+class "Interface" as data.suppliermodule_test.Interface {
+  {abstract}get_value()
+  {abstract}set_value(value)
+}
+class "NullablePatterns" as data.nullable_pattern.NullablePatterns {
+  {abstract}return_nullable_1() -> int | None
+  {abstract}return_nullable_2() -> Optional[int]
+}
+class "PropertyPatterns" as data.property_pattern.PropertyPatterns {
+  prop1
+  prop2
+}
+class "Specialization" as data.clientmodule_test.Specialization {
+  TYPE : str
+  relation
+  relation2
+  top : str
+  from_value(value: int)
+  increment_value() -> None
+  transform_value(value: int) -> int
+}
+data.clientmodule_test.Specialization --|> data.clientmodule_test.Ancestor
+data.suppliermodule_test.DoNothing --* data.clientmodule_test.Ancestor : cls_member
+data.suppliermodule_test.DoNothing --* data.clientmodule_test.Specialization : relation
+data.suppliermodule_test.DoNothing2 --o data.clientmodule_test.Specialization : relation2
+@enduml

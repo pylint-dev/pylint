@@ -1,0 +1,2 @@
+[BASIC]
+function-rgx=^(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$

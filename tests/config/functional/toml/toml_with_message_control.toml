@@ -1,0 +1,7 @@
+# Check that we can read a TOML file where lists and integers are
+# expressed as strings.
+
+[tool.pylint."messages control"]
+disable = "logging-not-lazy,logging-format-interpolation"
+jobs = "10"
+reports = "yes"

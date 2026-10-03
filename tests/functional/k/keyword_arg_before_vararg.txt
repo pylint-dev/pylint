@@ -1,0 +1,4 @@
+keyword-arg-before-vararg:4:0:4:28:check_kwargs_before_args:Keyword argument before variable positional arguments list in the definition of check_kwargs_before_args function:UNDEFINED
+keyword-arg-before-vararg:13:4:13:21:AAAA.func_in_class:Keyword argument before variable positional arguments list in the definition of func_in_class function:UNDEFINED
+keyword-arg-before-vararg:18:4:18:30:AAAA.static_method_in_class:Keyword argument before variable positional arguments list in the definition of static_method_in_class function:UNDEFINED
+keyword-arg-before-vararg:23:4:23:29:AAAA.class_method_in_class:Keyword argument before variable positional arguments list in the definition of class_method_in_class function:UNDEFINED

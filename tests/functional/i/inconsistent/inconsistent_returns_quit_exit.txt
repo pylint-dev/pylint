@@ -1,0 +1,1 @@
+inconsistent-return-statements:57:0:57:29:func_inconsistent_example:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED

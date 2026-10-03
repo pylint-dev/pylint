@@ -1,0 +1,8 @@
+access-member-before-definition:9:15:9:25:Aaaa.__init__:Access to member '_var2' before its definition line 10:UNDEFINED
+access-member-before-definition:28:19:28:29:Bbbb.catchme:Access to member '_repo' before its definition line 30:UNDEFINED
+access-member-before-definition:46:8:46:18:MyClass1.__init__:Access to member 'first' before its definition line 47:UNDEFINED
+access-member-before-definition:58:12:58:23:AnnotatedAssignmentIsADefinition.process:Access to member 'widget' before its definition line 59:UNDEFINED
+access-member-before-definition:70:8:70:22:AccessInCalledMethod.__init__:Access to member 'later' before its definition line 71:UNDEFINED
+access-member-before-definition:137:8:137:22:DecoratedCalledMethod.__init__:Access to member 'later' before its definition line 138:UNDEFINED
+access-member-before-definition:147:8:147:21:CalledMethodReadsTwoMembers.__init__:Access to member 'first' before its definition line 148:UNDEFINED
+access-member-before-definition:147:8:147:21:CalledMethodReadsTwoMembers.__init__:Access to member 'second' before its definition line 149:UNDEFINED

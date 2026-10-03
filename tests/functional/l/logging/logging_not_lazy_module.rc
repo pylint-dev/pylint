@@ -1,0 +1,5 @@
+[LOGGING]
+logging-modules=logging,my.logging
+
+[testoptions]
+exclude_from_minimal_messages_config=true

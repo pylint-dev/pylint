@@ -1,0 +1,8 @@
+potential-index-error:6:6:6:18::Invalid index for iterable length:INFERENCE
+potential-index-error:7:6:7:18::Invalid index for iterable length:INFERENCE
+potential-index-error:8:6:8:22::Invalid index for iterable length:INFERENCE
+potential-index-error:36:6:36:19::Invalid index for iterable length:INFERENCE
+potential-index-error:39:6:39:18::Invalid index for iterable length:INFERENCE
+potential-index-error:42:6:42:21::Invalid index for iterable length:INFERENCE
+potential-index-error:45:6:45:24::Invalid index for iterable length:INFERENCE
+potential-index-error:48:6:48:28::Invalid index for iterable length:INFERENCE

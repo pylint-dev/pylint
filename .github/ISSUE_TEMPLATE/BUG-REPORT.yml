@@ -1,0 +1,108 @@
+name: 🐛 Bug report
+description: Report a bug in pylint
+labels: ["Needs triage :inbox_tray:"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Thank you for wanting to report a bug in pylint!**
+
+        ⚠ Please make sure that this [issue wasn't already requested][issue search], or already implemented in the main branch.
+
+
+        [issue search]: https://github.com/pylint-dev/pylint/issues?q=is%3Aissue+is%3Aopen+
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Bug description
+      description:
+        What is the bug about? Please provide the code that is causing the issue, and
+        configurations used if required
+      placeholder: |
+        # Please disable message unrelated to the bug
+        # pylint: disable=missing-docstring,
+        <a> = b + 1
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Configuration
+      description:
+        Please provide the part of the configuration that is causing the bug if required
+        (Leave this part blank if the configuration is not relevant)
+      placeholder: |
+        # Leave this blank if the configuration is not relevant!
+
+        [MAIN]
+        load-plugins=
+            pylint.extensions.code_style
+
+        [MESSAGE CONTROL]
+        enable=
+            useless-suppression
+
+        # ...
+      render: ini
+  - type: textarea
+    id: cmd-used
+    attributes:
+      label: Command used
+      description: What was the command used to invoke pylint?
+      placeholder: |
+        pylint a.py
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Pylint output
+      description: What is the current pylint output?
+      placeholder: |
+        ************* Module a
+        a.py:3:1: E0001: invalid syntax (<unknown>, line 1) (syntax-error)
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: future-behavior
+    attributes:
+      label: Expected behavior
+      description:
+        What would you expect instead? For example expected output or behavior
+    validations:
+      required: true
+  - type: textarea
+    id: python-interpreter
+    attributes:
+      label: Pylint version
+      description: >-
+        Please copy and paste the result of `pylint --version` or specify the range of
+        versions affected.
+      placeholder: |
+        pylint 3.3.0
+        astroid 3.3.0
+        Python 3.12.0 (v3.12.0:0fb18b02c8, Oct  2 2023, 09:45:56)
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: OS / Environment
+      description: >-
+        Provide all relevant information below, e.g. OS version, terminal etc.
+      placeholder: Fedora 33, Cygwin, etc.
+  - type: textarea
+    id: additional-deps
+    attributes:
+      label: Additional dependencies
+      description:
+        If applicable ie, if we can't reproduce without it. Please copy and paste the
+        result of `pip freeze`.
+      placeholder: |
+        pandas==0.23.2
+        marshmallow==3.10.0
+      render: python

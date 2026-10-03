@@ -1,0 +1,7 @@
+[EXCEPTIONS]
+overgeneral-exceptions=builtins.BaseException,
+                       builtins.Exception,
+                       functional.b.broad_exception.broad_exception_raised_trystar.CustomBroadException,
+                       broad_exception_raised_trystar.CustomBroadException
+[testoptions]
+min_pyver=3.11

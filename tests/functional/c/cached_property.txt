@@ -1,0 +1,1 @@
+invalid-overridden-method:22:4:22:12:Child.func:Method 'func' was expected to be 'method', found it instead as 'property':UNDEFINED

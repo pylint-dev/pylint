@@ -1,0 +1,3 @@
+use-sequence-for-iteration:7:9:7:18::Use a sequence type when iterating over values:HIGH
+use-sequence-for-iteration:11:12:11:21::Use a sequence type when iterating over values:HIGH
+use-sequence-for-iteration:14:12:14:21::Use a sequence type when iterating over values:HIGH

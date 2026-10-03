@@ -1,0 +1,2 @@
+[REFACTORING]
+never-returning-functions=sys.exit,sys.getdefaultencoding,inconsistent_returns_noreturn.declared_to_not_return

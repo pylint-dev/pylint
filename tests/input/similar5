@@ -1,0 +1,17 @@
+@deco1(dval1)
+@deco2(dval2)
+@deco3(
+    dval3,
+    dval4
+)
+def func1(
+    arg1: int = 3,
+    arg2: Class1 = val1,
+    arg3: Class2 = func3(val2),
+    arg4: int = 4,
+    arg5: int = 5
+) -> Ret1:
+    pass
+
+def example():
+    """Valid function definition with docstring only."""
