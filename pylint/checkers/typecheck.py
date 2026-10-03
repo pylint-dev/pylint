@@ -715,6 +715,18 @@ def _has_parent_of_type(
     return isinstance(parent, node_type)
 
 
+def _returns_first_argument(func: nodes.FunctionDef) -> bool:
+    """Return whether every return of ``func`` is its own first parameter."""
+    if not func.args.args:
+        return False
+    first_param = func.args.args[0].name
+    returns = list(func.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef))
+    return bool(returns) and all(
+        isinstance(ret.value, nodes.Name) and ret.value.name == first_param
+        for ret in returns
+    )
+
+
 def _no_context_variadic_keywords(node: nodes.Call, scope: nodes.Lambda) -> bool:
     statement = node.statement()
     variadics = []
@@ -1810,6 +1822,7 @@ accessed. Python regular expressions are accepted.",
         if not func.decorators:
             return False
 
+        has_signature_changing_decorator = False
         for decorator in func.decorators.nodes:
             inferred = safe_infer(decorator)
 
@@ -1822,6 +1835,11 @@ accessed. Python regular expressions are accepted.",
             if not isinstance(inferred, nodes.FunctionDef):
                 return False
 
+            if _returns_first_argument(inferred):
+                # A pass-through decorator leaves the signature unchanged
+                continue
+
+            has_signature_changing_decorator = True
             try:
                 return_values = list(inferred.infer_call_result(caller=None))
             except InferenceError:
@@ -1843,7 +1861,7 @@ accessed. Python regular expressions are accepted.",
 
                 return False
 
-        return True
+        return has_signature_changing_decorator
 
     def _check_invalid_sequence_index(self, subscript: nodes.Subscript) -> None:
         # Look for index operations where the parent is a sequence type.
