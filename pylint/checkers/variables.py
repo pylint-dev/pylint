@@ -1783,7 +1783,21 @@ class VariablesChecker(BaseChecker):
                 )
             )
         ) and not utils.node_ignores_exception(node, NameError):
+            if self._is_pep695_type_parameter(node):
+                return
             self.add_message("undefined-variable", args=node.name, node=node)
+
+    @staticmethod
+    def _is_pep695_type_parameter(node: nodes.Name) -> bool:
+        """Check if the name resolves to a PEP 695 type parameter.
+
+        Type parameters live in an implicit ``TypeParamScope`` (astroid >= 4.2)
+        that the consumer stack does not track; delegate to astroid's lookup.
+        """
+        return any(
+            isinstance(definition.scope(), nodes.TypeParamScope)
+            for definition in node.lookup(node.name)[1]
+        )
 
     def _should_node_be_skipped(
         self,
@@ -1804,11 +1818,6 @@ class VariablesChecker(BaseChecker):
             if utils.is_ancestor_name(consumer.node, node) or (
                 not is_start_index and self._ignore_class_scope(node)
             ):
-                if any(
-                    node.name == param.name.name for param in consumer.node.type_params
-                ):
-                    return False
-
                 return True
 
             match node.parent:
@@ -1819,9 +1828,6 @@ class VariablesChecker(BaseChecker):
         elif consumer.scope_type == "function" and self._defined_in_function_definition(
             node, consumer.node
         ):
-            if any(node.name == param.name.name for param in consumer.node.type_params):
-                return False
-
             # If the name node is used as a function default argument's value or as
             # a decorator, then start from the parent frame of the function instead
             # of the function frame - and thus open an inner class scope
@@ -1983,6 +1989,7 @@ class VariablesChecker(BaseChecker):
                     or isinstance(stmt, nodes.AnnAssign)  # noqa: RUF021
                     and utils.get_node_first_ancestor_of_type(stmt, nodes.FunctionDef)
                     or isinstance(stmt, nodes.TypeAlias)
+                    or utils.is_node_in_pep695_type_context(node)
                 ):
                     self.add_message(
                         "used-before-assignment",
