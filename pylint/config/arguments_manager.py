@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any, TextIO
 from pylint import utils
 from pylint.config.argument import (
     _Argument,
+    _bool_transformer,
     _CallableArgument,
     _ExtendArgument,
     _StoreArgument,
@@ -205,10 +206,77 @@ class _ArgumentsManager:
         """Loads the default values of all registered options."""
         self.config = self._arg_parser.parse_args([], self.config)
 
+    def _preprocess_boolean_arguments(
+        self, arguments: Sequence[str], *, from_config_file: bool = False
+    ) -> list[str]:
+        """Process boolean arguments (store_true/store_false) into the namespace.
+
+        Boolean flags configured in configuration files (toml or ini) typically have
+        an explicit boolean value (e.g., exit-zero = false, from-stdin = true).
+        This method parses those values so that false values disable the flag and
+        true values enable it, without leaving trailing positional tokens in the
+        argument list.
+        """
+        args_to_parse: list[str] = []
+        i = 0
+        while i < len(arguments):
+            arg = arguments[i]
+            if arg.startswith("-") and "=" in arg:
+                opt, val = arg.split("=", 1)
+                action = self._arg_parser._option_string_actions.get(opt)
+                if isinstance(
+                    action, (argparse._StoreTrueAction, argparse._StoreFalseAction)
+                ):
+                    try:
+                        bool_val = _bool_transformer(val)
+                    except argparse.ArgumentTypeError as exc:
+                        self._arg_parser.error(f"argument {opt}: {exc}")
+                    if isinstance(action, argparse._StoreTrueAction):
+                        if bool_val:
+                            args_to_parse.append(opt)
+                        else:
+                            setattr(self.config, action.dest, False)
+                    else:
+                        if not bool_val:
+                            args_to_parse.append(opt)
+                        else:
+                            setattr(self.config, action.dest, True)
+                    i += 1
+                    continue
+            elif from_config_file and arg.startswith("--"):
+                action = self._arg_parser._option_string_actions.get(arg)
+                if isinstance(
+                    action, (argparse._StoreTrueAction, argparse._StoreFalseAction)
+                ):
+                    if i + 1 < len(arguments) and not arguments[i + 1].startswith("--"):
+                        val = arguments[i + 1]
+                        try:
+                            bool_val = _bool_transformer(val)
+                        except argparse.ArgumentTypeError as exc:
+                            self._arg_parser.error(f"argument {arg}: {exc}")
+                        if isinstance(action, argparse._StoreTrueAction):
+                            if bool_val:
+                                args_to_parse.append(arg)
+                            else:
+                                setattr(self.config, action.dest, False)
+                        else:
+                            if not bool_val:
+                                args_to_parse.append(arg)
+                            else:
+                                setattr(self.config, action.dest, True)
+                        i += 2
+                        continue
+            args_to_parse.append(arg)
+            i += 1
+        return args_to_parse
+
     def _parse_configuration_file(self, arguments: list[str]) -> None:
         """Parse the arguments found in a configuration file into the namespace."""
         self._reset_callback_actions()
         try:
+            arguments = self._preprocess_boolean_arguments(
+                arguments, from_config_file=True
+            )
             self.config, parsed_args = self._arg_parser.parse_known_args(
                 arguments, self.config
             )
@@ -228,6 +296,10 @@ class _ArgumentsManager:
         arguments = sys.argv[1:] if arguments is None else arguments
 
         self._reset_callback_actions()
+
+        arguments = self._preprocess_boolean_arguments(
+            arguments, from_config_file=False
+        )
 
         self.config, parsed_args = self._arg_parser.parse_known_args(
             arguments, self.config

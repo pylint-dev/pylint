@@ -1,0 +1,3 @@
+Respect boolean values for flags in configuration files (such as ``exit-zero = false`` and ``from-stdin = false`` in TOML files).
+
+Closes #8460
