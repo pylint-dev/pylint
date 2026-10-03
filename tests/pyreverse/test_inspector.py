@@ -16,7 +16,12 @@ from pathlib import Path
 import astroid
 import pytest
 
-from pylint.pyreverse.inspector import Linker, Project
+from pylint.pyreverse.inspector import (
+    Linker,
+    Project,
+    extract_element_types,
+    resolve_to_class_def,
+)
 from pylint.testutils.utils import _test_cwd
 from pylint.typing import GetProjectCallable
 
@@ -83,3 +88,28 @@ def test_project_node(test_context: tuple[Project, Linker]) -> None:
         "data.suppliermodule_test",
     ]
     assert sorted(proj.keys()) == expected
+
+
+def test_extract_element_types_with_instance() -> None:
+    node = astroid.extract_node("""
+    class TargetClass:
+        pass
+    TargetClass()
+    """)
+    inferred = set(node.infer())
+    extracted = extract_element_types(inferred)
+    assert extracted == inferred
+
+
+def test_resolve_to_class_def_with_instance() -> None:
+    node = astroid.extract_node("""
+    class TargetClass:
+        pass
+    TargetClass()
+    """)
+    inferred = set(node.infer())
+    resolved = resolve_to_class_def(inferred)
+    assert len(resolved) == 1
+    class_def = next(iter(resolved))
+    assert isinstance(class_def, astroid.nodes.ClassDef)
+    assert class_def.name == "TargetClass"
