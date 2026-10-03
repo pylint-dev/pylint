@@ -34,6 +34,7 @@ from pylint.checkers.utils import (
     decorated_with_property,
     has_known_bases,
     is_builtin_object,
+    is_call_of_singledispatch_generic_function,
     is_comprehension,
     is_hashable,
     is_inside_abstract_class,
@@ -1150,6 +1151,12 @@ accessed. Python regular expressions are accepted.",
         if self._postponed_evaluation_enabled and is_node_in_type_annotation_context(
             node
         ):
+            return
+
+        if is_call_of_singledispatch_generic_function(node.expr):
+            # The type such a call resolves to at runtime depends on the
+            # registered overload picked for the argument's type, which we
+            # cannot infer. See https://github.com/pylint-dev/pylint/issues/2647
             return
 
         try:

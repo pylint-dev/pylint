@@ -1,0 +1,1 @@
+no-member:47:4:47:42:real_no_member_bug_is_still_caught:Instance of 'HasNoAttributeX' has no 'definitely_not_a_real_attribute' member:INFERENCE
