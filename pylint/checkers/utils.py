@@ -844,13 +844,25 @@ def is_property_setter_or_deleter(node: nodes.NodeNG) -> bool:
     return _is_property_kind(node, "setter", "deleter")
 
 
+_PROPERTY_DECORATOR_QNAMES = frozenset(
+    {
+        "builtins.property",
+        "functools.cached_property",
+        "types.DynamicClassAttribute",
+        "enum.property",
+    }
+)
+
+
 def _is_property_decorator(decorator: nodes.Name) -> bool:
     for inferred in decorator.infer():
         if isinstance(inferred, nodes.ClassDef):
-            if inferred.qname() in {"builtins.property", "functools.cached_property"}:
+            if inferred.qname() in _PROPERTY_DECORATOR_QNAMES:
                 return True
             for ancestor in inferred.ancestors():
-                if ancestor.name == "property" and ancestor.root().name == "builtins":
+                if ancestor.qname() in _PROPERTY_DECORATOR_QNAMES or (
+                    ancestor.name == "property" and ancestor.root().name == "builtins"
+                ):
                     return True
         elif isinstance(inferred, nodes.FunctionDef):
             # If decorator is function, check if it has exactly one return
