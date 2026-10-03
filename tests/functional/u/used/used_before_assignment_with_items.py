@@ -52,3 +52,8 @@ def used_in_own_item():
 def used_before_later_item():
     with single(third) as first, pair() as (second, third):  # [used-before-assignment]
         print(first, second, third)
+
+
+def item_without_target():
+    with contextlib.nullcontext(), pair() as (first, second), single(first) as third:
+        print(first, second, third)
