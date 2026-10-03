@@ -46,6 +46,19 @@ class DifferentArgument(BaseHandler):
         return type, args
 
 
+class PositionalOnlyBase:
+    def log_error(self, format, /):  # [redefined-builtin]
+        """A positional-only name is not part of the interface."""
+        return format
+
+
+  class PositionalOnlyChild(PositionalOnlyBase):
+      def log_error(self, format, /):  # [redefined-builtin]
+        """The override could rename it freely, so it still warns."""
+        return format
+                
+
+
 def standalone(format):  # [redefined-builtin]
     """A function with no inherited signature still warns."""
     return format
