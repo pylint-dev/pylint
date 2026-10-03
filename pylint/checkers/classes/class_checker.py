@@ -31,6 +31,7 @@ from pylint.checkers.utils import (
     is_builtin_object,
     is_comprehension,
     is_iterable,
+    is_overload_stub,
     is_property_setter,
     is_property_setter_or_deleter,
     is_typing_member,
@@ -2535,6 +2536,9 @@ a metaclass class method.",
         # Ignore setters, they have an implicit extra argument,
         # which shouldn't be taken in consideration.
         if is_property_setter(method1):
+            return
+        # Ignore overload stubs, only the implementation overrides the method.
+        if is_overload_stub(method1):
             return
 
         arg_differ_output = _different_parameters(
