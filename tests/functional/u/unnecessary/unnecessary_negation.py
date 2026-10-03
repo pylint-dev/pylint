@@ -69,3 +69,19 @@ class Klass:
     """This is also ok"""
     def __ne__(self, other):
         return not self == other
+
+
+class SetSubclass(set):
+    """Ordered by inclusion, like set"""
+
+
+class FrozenSetSubclass(frozenset):
+    """Ordered by inclusion, like frozenset"""
+
+
+def tolerated_set_subclass_statements():
+    """Subclasses of set and frozenset keep the partial ordering"""
+    if not SetSubclass('bar') <= SetSubclass('foobaz'):
+        pass
+    if not FrozenSetSubclass('bar') < FrozenSetSubclass('foobaz'):
+        pass
