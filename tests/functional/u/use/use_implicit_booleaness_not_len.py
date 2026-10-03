@@ -14,22 +14,37 @@ if z and len(['T', 'E', 'S', 'T']):  # [use-implicit-booleaness-not-len]
 if True or len('TEST'):  # [use-implicit-booleaness-not-len]
     pass
 
-if len('TEST') == 0:  # Should be fine
+if len('TEST') == 0:  # [use-implicit-booleaness-not-len]
     pass
 
-if len('TEST') < 1:  # Should be fine
+if len('TEST') < 1:  # Should be fine (comparing to 1, not 0)
     pass
 
-if len('TEST') <= 0:  # Should be fine
+if len('TEST') <= 0:  # [use-implicit-booleaness-not-len]
     pass
 
-if 1 > len('TEST'):  # Should be fine
+if 1 > len('TEST'):  # Should be fine (comparing to 1, not 0)
     pass
 
-if 0 >= len('TEST'):  # Should be fine
+if 0 >= len('TEST'):  # [use-implicit-booleaness-not-len]
     pass
 
-if z and len('TEST') == 0:  # Should be fine
+if len('TEST') > 0:  # [use-implicit-booleaness-not-len]
+    pass
+
+if len('TEST') != 0:  # [use-implicit-booleaness-not-len]
+    pass
+
+if 0 < len('TEST'):  # [use-implicit-booleaness-not-len]
+    pass
+
+if 0 == len('TEST'):  # [use-implicit-booleaness-not-len]
+    pass
+
+if 0 != len('TEST'):  # [use-implicit-booleaness-not-len]
+    pass
+
+if z and len('TEST') == 0:  # [use-implicit-booleaness-not-len]
     pass
 
 if 0 == len('TEST') < 10:  # Should be fine
@@ -73,16 +88,16 @@ while z and len('TEST'):  # [use-implicit-booleaness-not-len]
 while not len('TEST') and z:  # [use-implicit-booleaness-not-len]
     pass
 
-assert len('TEST') > 0  # Should be fine
+assert len('TEST') > 0  # [use-implicit-booleaness-not-len]
 
-x = 1 if len('TEST') != 0 else 2  # Should be fine
+x = 1 if len('TEST') != 0 else 2  # [use-implicit-booleaness-not-len]
 
 f_o_o = len('TEST') or 42  # Should be fine
 
 a = x and len(x)  # Should be fine
 
 def some_func():
-    return len('TEST') > 0  # Should be fine
+    return len('TEST') > 0  # [use-implicit-booleaness-not-len]
 
 def github_issue_1325():
     l = [1, 2, 3]
@@ -132,7 +147,7 @@ def github_issue_1879():
     # pylint: disable=import-outside-toplevel
     import numpy
     numpy_array = numpy.array([0])
-    if len(numpy_array) > 0:
+    if len(numpy_array) > 0:  # [use-implicit-booleaness-not-len]
         print('numpy_array')
     if len(numpy_array):
         print('numpy_array')
@@ -143,7 +158,7 @@ def github_issue_1879():
     pandas_df = pd.DataFrame()
     if len(pandas_df):
         print("this works, but pylint tells me not to use len() without comparison")
-    if len(pandas_df) > 0:
+    if len(pandas_df) > 0:  # [use-implicit-booleaness-not-len]
         print("this works and pylint likes it, but it's not the solution intended by PEP-8")
     if pandas_df:
         print("this does not work (truth value of dataframe is ambiguous)")
