@@ -116,12 +116,12 @@ def table_lines_from_stats(
         old_value = old[index][1]
         diff_str = (
             diff_string(old_value, new_value)
-            if isinstance(old_value, float)
-            else old_value
+            if isinstance(old_value, (int, float))
+            else str(old_value)
         )
         new_str = f"{new_value:.3f}" if isinstance(new_value, float) else str(new_value)
         old_str = f"{old_value:.3f}" if isinstance(old_value, float) else str(old_value)
-        lines.extend((value[0].replace("_", " "), new_str, old_str, diff_str))  # type: ignore[arg-type]
+        lines.extend((value[0].replace("_", " "), new_str, old_str, diff_str))
     return lines
 
 
