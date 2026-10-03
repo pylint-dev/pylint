@@ -2948,7 +2948,7 @@ class VariablesChecker(BaseChecker):
             return
 
         # Don't check function stubs created only for type information
-        if utils.is_overload_stub(node):
+        if utils.is_overload_stub(node) or utils.is_in_stub_file(node):
             return
 
         # Don't check protocol classes
