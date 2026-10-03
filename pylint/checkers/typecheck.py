@@ -2359,6 +2359,10 @@ accessed. Python regular expressions are accepted.",
             supported_protocol
             and not supported_protocol(inferred, node)
             and not utils.in_type_checking_block(node)
+            and not any(
+                supported_protocol(alternative, node)
+                for alternative in utils.infer_all(node.value)
+            )
         ):
             self.add_message(msg, args=node.value.as_string(), node=node.value)
 
