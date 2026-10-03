@@ -16,12 +16,12 @@ from pylint.message import MessageDefinition, MessageDefinitionStore, MessageIdS
 
 
 @pytest.fixture
-def msgid():
+def msgid() -> str:
     return "W1234"
 
 
 @pytest.fixture
-def symbol():
+def symbol() -> str:
     return "msg-symbol"
 
 
