@@ -1,3 +1,5 @@
-Format integer statistics with difference strings in ``table_lines_from_stats`` instead of keeping previous integer counts.
+The "difference" column of the "Messages by category" and "Duplication" reports
+(``--reports=y``) now shows the change since the previous run instead of repeating
+the previous count.
 
 Closes #11520

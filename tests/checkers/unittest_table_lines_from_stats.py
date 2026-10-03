@@ -4,109 +4,83 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
+import pytest
+
 from pylint.checkers import table_lines_from_stats
 from pylint.utils import LinterStats
 
 
-def test_table_lines_from_stats_message_types_with_old_stats() -> None:
-    """Test table_lines_from_stats formats integer message counts with diff_string."""
-    new = LinterStats()
-    old = LinterStats()
-    new.convention, old.convention = 5, 2
-    new.warning, old.warning = 3, 3
-    new.error, old.error = 1, 4
-
-    lines = table_lines_from_stats(new, old, "message_types")
-
-    assert all(isinstance(cell, str) for cell in lines)
-    assert lines == [
-        "convention",
-        "5",
-        "2",
-        "+3.00",
-        "refactor",
-        "0",
-        "0",
-        "=",
-        "warning",
-        "3",
-        "3",
-        "=",
-        "error",
-        "1",
-        "4",
-        "-3.00",
-    ]
+def _message_types_stats(convention: int, warning: int, error: int) -> LinterStats:
+    stats = LinterStats()
+    stats.convention, stats.warning, stats.error = convention, warning, error
+    return stats
 
 
-def test_table_lines_from_stats_message_types_without_old_stats() -> None:
-    """Test table_lines_from_stats handles missing old stats for message types."""
-    new = LinterStats()
-    new.convention = 5
-
-    lines = table_lines_from_stats(new, None, "message_types")
-
-    assert all(isinstance(cell, str) for cell in lines)
-    assert lines == [
-        "convention",
-        "5",
-        "NC",
-        "NC",
-        "refactor",
-        "0",
-        "NC",
-        "NC",
-        "warning",
-        "0",
-        "NC",
-        "NC",
-        "error",
-        "0",
-        "NC",
-        "NC",
-    ]
+def _duplicated_lines_stats(number: int, percent: float) -> LinterStats:
+    stats = LinterStats()
+    stats.duplicated_lines["nb_duplicated_lines"] = number
+    stats.duplicated_lines["percent_duplicated_lines"] = percent
+    return stats
 
 
-def test_table_lines_from_stats_duplicated_lines_with_old_stats() -> None:
-    """Test table_lines_from_stats formats integer and float duplicated lines with diff_string."""
-    new = LinterStats()
-    old = LinterStats()
-    new.duplicated_lines["nb_duplicated_lines"] = 10
-    new.duplicated_lines["percent_duplicated_lines"] = 2.5
-    old.duplicated_lines["nb_duplicated_lines"] = 6
-    old.duplicated_lines["percent_duplicated_lines"] = 1.5
-
-    lines = table_lines_from_stats(new, old, "duplicated_lines")
-
-    assert all(isinstance(cell, str) for cell in lines)
-    assert lines == [
-        "nb duplicated lines",
-        "10",
-        "6",
-        "+4.00",
-        "percent duplicated lines",
-        "2.500",
-        "1.500",
-        "+1.00",
-    ]
-
-
-def test_table_lines_from_stats_duplicated_lines_without_old_stats() -> None:
-    """Test table_lines_from_stats handles missing old stats for duplicated lines."""
-    new = LinterStats()
-    new.duplicated_lines["nb_duplicated_lines"] = 10
-    new.duplicated_lines["percent_duplicated_lines"] = 2.5
-
-    lines = table_lines_from_stats(new, None, "duplicated_lines")
-
-    assert all(isinstance(cell, str) for cell in lines)
-    assert lines == [
-        "nb duplicated lines",
-        "10",
-        "NC",
-        "NC",
-        "percent duplicated lines",
-        "2.500",
-        "NC",
-        "NC",
+@pytest.mark.parametrize(
+    "new,old,stat_type,expected",
+    [
+        pytest.param(
+            _message_types_stats(5, 3, 1),
+            _message_types_stats(2, 3, 4),
+            "message_types",
+            [
+                ("convention", "5", "2", "+3.00"),
+                ("refactor", "0", "0", "="),
+                ("warning", "3", "3", "="),
+                ("error", "1", "4", "-3.00"),
+            ],
+            id="message_types_with_old_stats",
+        ),
+        pytest.param(
+            _message_types_stats(5, 0, 0),
+            None,
+            "message_types",
+            [
+                ("convention", "5", "NC", "NC"),
+                ("refactor", "0", "NC", "NC"),
+                ("warning", "0", "NC", "NC"),
+                ("error", "0", "NC", "NC"),
+            ],
+            id="message_types_without_old_stats",
+        ),
+        pytest.param(
+            _duplicated_lines_stats(10, 2.5),
+            _duplicated_lines_stats(6, 1.5),
+            "duplicated_lines",
+            [
+                ("nb duplicated lines", "10", "6", "+4.00"),
+                ("percent duplicated lines", "2.500", "1.500", "+1.00"),
+            ],
+            id="duplicated_lines_with_old_stats",
+        ),
+        pytest.param(
+            _duplicated_lines_stats(10, 2.5),
+            None,
+            "duplicated_lines",
+            [
+                ("nb duplicated lines", "10", "NC", "NC"),
+                ("percent duplicated lines", "2.500", "NC", "NC"),
+            ],
+            id="duplicated_lines_without_old_stats",
+        ),
+    ],
+)
+def test_table_lines_from_stats(
+    new: LinterStats,
+    old: LinterStats | None,
+    stat_type: Literal["duplicated_lines", "message_types"],
+    expected: list[tuple[str, str, str, str]],
+) -> None:
+    """The difference column holds the change since the previous run, as a string."""
+    assert table_lines_from_stats(new, old, stat_type) == [
+        cell for row in expected for cell in row
     ]
