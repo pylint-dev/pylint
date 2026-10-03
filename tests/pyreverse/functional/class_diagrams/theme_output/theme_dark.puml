@@ -1,0 +1,18 @@
+@startuml classes
+skinparam backgroundColor #1e1e1e
+skinparam class {
+  BackgroundColor #1e1e1e
+  BorderColor #e0e0e0
+  FontColor #e0e0e0
+  AttributeFontColor #e0e0e0
+  ArrowColor #e0e0e0
+}
+set namespaceSeparator none
+class "Animal" as theme_dark.Animal {
+  {abstract}speak()
+}
+class "Dog" as theme_dark.Dog {
+  speak()
+}
+theme_dark.Dog --|> theme_dark.Animal
+@enduml
