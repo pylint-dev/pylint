@@ -70,6 +70,18 @@ def _yn_transformer(value: str) -> bool:
     )
 
 
+def _bool_transformer(value: str) -> bool:
+    """Transforms a boolean string into a bool."""
+    val = value.lower()
+    if val in YES_VALUES or val in {"1", "on"}:
+        return True
+    if val in NO_VALUES or val in {"0", "off"}:
+        return False
+    raise argparse.ArgumentTypeError(
+        f"Invalid boolean value '{value}', should be in {*YES_VALUES, *NO_VALUES}"
+    )
+
+
 def _non_empty_string_transformer(value: str) -> str:
     """Check that a string is not empty and remove quotes."""
     if not value:

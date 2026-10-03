@@ -278,3 +278,77 @@ def test_files_option_overridden_by_files_flag() -> None:
         ["--rcfile", str(config_path), "--files", str(EMPTY_MODULE)], exit=False
     )
     assert runner.linter.config.files == [str(EMPTY_MODULE)]
+
+
+def test_toml_boolean_options_false(tmp_path: Path) -> None:
+    """Boolean options with false values in TOML files disable the corresponding flags."""
+    config_file = tmp_path / "pyproject.toml"
+    config_file.write_text("""
+[tool.pylint.main]
+exit-zero = false
+from-stdin = false
+""")
+    runner = run_using_a_configuration_file(config_file, str(EMPTY_MODULE))
+    assert runner.linter.config.exit_zero is False
+    assert runner.linter.config.from_stdin is False
+
+
+def test_toml_boolean_options_true(tmp_path: Path) -> None:
+    """Boolean options with true values in TOML files enable the corresponding flags."""
+    config_file = tmp_path / "pyproject.toml"
+    config_file.write_text("""
+[tool.pylint.main]
+exit-zero = true
+""")
+    runner = run_using_a_configuration_file(config_file, str(EMPTY_MODULE))
+    assert runner.linter.config.exit_zero is True
+
+
+def test_ini_boolean_options(tmp_path: Path) -> None:
+    """Boolean options in INI files respect false and true values."""
+    config_file = tmp_path / "pylintrc"
+    config_file.write_text("""
+[MAIN]
+exit-zero = false
+from-stdin = no
+""")
+    runner = run_using_a_configuration_file(config_file, str(EMPTY_MODULE))
+    assert runner.linter.config.exit_zero is False
+    assert runner.linter.config.from_stdin is False
+
+
+def test_boolean_options_cli_override(tmp_path: Path) -> None:
+    """CLI flags override boolean options set in configuration files."""
+    config_file = tmp_path / "pyproject.toml"
+    config_file.write_text("""
+[tool.pylint.main]
+exit-zero = false
+""")
+    runner = Run(
+        ["--rcfile", str(config_file), "--exit-zero", str(EMPTY_MODULE)],
+        exit=False,
+    )
+    assert runner.linter.config.exit_zero is True
+
+    config_file_true = tmp_path / "pyproject_true.toml"
+    config_file_true.write_text("""
+[tool.pylint.main]
+exit-zero = true
+""")
+    runner_negated = Run(
+        ["--rcfile", str(config_file_true), "--exit-zero=false", str(EMPTY_MODULE)],
+        exit=False,
+    )
+    assert runner_negated.linter.config.exit_zero is False
+
+
+def test_invalid_boolean_option_in_config(tmp_path: Path) -> None:
+    """Invalid boolean option values in configuration files cause an exit error."""
+    config_file = tmp_path / "pyproject.toml"
+    config_file.write_text("""
+[tool.pylint.main]
+exit-zero = "maybe"
+""")
+    with pytest.raises(SystemExit) as exc:
+        run_using_a_configuration_file(config_file, str(EMPTY_MODULE))
+    assert exc.value.code == 32
