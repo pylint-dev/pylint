@@ -739,3 +739,87 @@ def test_safe_slots_returns_nothing_for_inconsistent_bases() -> None:
         __slots__ = ("label",)
     """)
     assert utils.safe_slots(node) is None
+
+
+def test_split_format_field_names_int() -> None:
+    field_name, field_iter = utils.split_format_field_names("0[1]")
+    assert field_name == 0
+    assert list(field_iter) == [(False, 1)]
+
+
+def test_get_argument_from_call_const() -> None:
+    call_node = astroid.extract_node("func(42, key='val')")
+    pos_arg = utils.get_argument_from_call(call_node, position=0)
+    assert isinstance(pos_arg, nodes.Const)
+    assert pos_arg.value == 42
+    kw_arg = utils.get_argument_from_call(call_node, keyword="key")
+    assert isinstance(kw_arg, nodes.Const)
+    assert kw_arg.value == "val"
+
+
+def test_infer_kwarg_from_call_const() -> None:
+    call_node = astroid.extract_node("func(**{'key': 99})")
+    kw_val = utils.infer_kwarg_from_call(call_node, "key")
+    assert isinstance(kw_val, nodes.Const)
+    assert kw_val.value == 99
+
+
+def test_unimplemented_abstract_methods_callable_callback() -> None:
+    node = astroid.extract_node("""
+    class AbstractClass:
+        def abstract_func(self):
+            pass
+
+    class ConcreteClass(AbstractClass):
+        pass
+    """)
+
+    def is_abstract_cb(func: nodes.FunctionDef) -> bool:
+        return func.name.startswith("abstract_")
+
+    unimplemented = utils.unimplemented_abstract_methods(
+        node, is_abstract_cb=is_abstract_cb
+    )
+    assert "abstract_func" in unimplemented
+
+
+def test_has_known_bases_instance_proxy() -> None:
+    node = astroid.extract_node("""
+    class MyClass:
+        pass
+    MyClass()
+    """)
+    inferred = next(node.infer())
+    assert isinstance(inferred, astroid.bases.Instance)
+    assert utils.has_known_bases(inferred) is True
+
+
+def test_get_python_type_of_node_uninferable() -> None:
+    assert utils._get_python_type_of_node(astroid.util.Uninferable) is astroid.util.Uninferable
+
+
+def test_is_call_of_name_none() -> None:
+    assert utils.is_call_of_name(None, "bool") is False
+
+
+def test_get_import_name_none_modname() -> None:
+    node = astroid.extract_node("from . import module")
+    assert utils.get_import_name(node, None) is None
+
+
+def test_find_assigned_names_recursive_non_name() -> None:
+    assign_node = astroid.extract_node("a, b.x, c = 1, 2, 3")
+    names = list(utils.find_assigned_names_recursive(assign_node.targets[0]))
+    assert names == ["a", "c"]
+
+
+def test_has_starred_node_recursive_set() -> None:
+    node_starred = astroid.extract_node("{1, *a}")
+    assert any(utils.has_starred_node_recursive(node_starred)) is True
+    node_normal = astroid.extract_node("{1, 2}")
+    assert any(utils.has_starred_node_recursive(node_normal)) is False
+
+
+def test_inherit_from_std_ex_node_without_name() -> None:
+    pass_node = astroid.extract_node("pass")
+    assert utils.inherit_from_std_ex(pass_node) is False

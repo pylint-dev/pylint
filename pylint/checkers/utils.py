@@ -593,7 +593,7 @@ def parse_format_string(
 
 def split_format_field_names(
     format_string: str,
-) -> tuple[str, Iterable[tuple[bool, str]]]:
+) -> tuple[str | int, Iterable[tuple[bool, str | int]]]:
     try:
         return _string.formatter_field_name_split(format_string)  # type: ignore[no-any-return]
     except ValueError as e:
@@ -636,7 +636,7 @@ def collect_string_fields(format_string: str) -> Iterable[str | None]:
 
 def parse_format_method_string(
     format_string: str,
-) -> tuple[list[tuple[str, list[tuple[bool, str]]]], int, int]:
+) -> tuple[list[tuple[str | int, list[tuple[bool, str | int]]]], int, int]:
     """Parses a PEP 3101 format string, returning a tuple of
     (keyword_arguments, implicit_pos_args_cnt, explicit_pos_args).
 
@@ -716,7 +716,7 @@ def is_attr_private(attrname: str) -> Match[str] | None:
 
 def get_argument_from_call(
     call_node: nodes.Call, position: int | None = None, keyword: str | None = None
-) -> nodes.Name:
+) -> nodes.NodeNG:
     """Returns the specified argument from a function call.
 
     :param nodes.Call call_node: Node representing a function call to check.
@@ -724,7 +724,7 @@ def get_argument_from_call(
     :param str keyword: the keyword of the argument.
 
     :returns: The node representing the argument, None if the argument is not found.
-    :rtype: nodes.Name
+    :rtype: nodes.NodeNG
     :raises ValueError: if both position and keyword are None.
     :raises NoSuchArgumentError: if no argument at the provided position or with
     the provided keyword.
@@ -744,14 +744,14 @@ def get_argument_from_call(
     raise NoSuchArgumentError
 
 
-def infer_kwarg_from_call(call_node: nodes.Call, keyword: str) -> nodes.Name | None:
+def infer_kwarg_from_call(call_node: nodes.Call, keyword: str) -> nodes.NodeNG | None:
     """Returns the specified argument from a function's kwargs.
 
     :param nodes.Call call_node: Node representing a function call to check.
     :param str keyword: Name of the argument to be extracted.
 
     :returns: The node representing the argument, None if the argument is not found.
-    :rtype: nodes.Name
+    :rtype: nodes.NodeNG
     """
     for arg in call_node.kwargs:
         inferred = safe_infer(arg.value)
@@ -769,6 +769,8 @@ def inherit_from_std_ex(node: nodes.NodeNG | astroid.Instance) -> bool:
     """Return whether the given class node is subclass of
     exceptions.Exception.
     """
+    if not hasattr(node, "name"):
+        return False
     ancestors = node.ancestors() if hasattr(node, "ancestors") else []
     return any(
         ancestor.name in {"Exception", "BaseException"}
@@ -897,7 +899,8 @@ def decorated_with(
 
 @lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(
-    node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef | None = None
+    node: nodes.ClassDef,
+    is_abstract_cb: Callable[[nodes.FunctionDef], bool] | None = None,
 ) -> dict[str, nodes.FunctionDef]:
     """Get the unimplemented abstract methods for the given *node*.
 
@@ -1296,8 +1299,12 @@ def supports_delitem(value: nodes.NodeNG, _: nodes.NodeNG) -> bool:
     return _supports_protocol(value, _supports_delitem_protocol)
 
 
-def _get_python_type_of_node(node: nodes.NodeNG) -> str | None:
-    pytype: Callable[[], str] | None = getattr(node, "pytype", None)
+def _get_python_type_of_node(
+    node: InferenceResult,
+) -> str | util.UninferableBase | None:
+    pytype: Callable[[], str | util.UninferableBase] | None = getattr(
+        node, "pytype", None
+    )
     if callable(pytype):
         return pytype()
     return None
@@ -1322,7 +1329,7 @@ def safe_infer(
     If compare_constructors is True and if multiple classes are inferred,
     constructors with different signatures are held ambiguous and return None.
     """
-    inferred_types: set[str | None] = set()
+    inferred_types: set[str | util.UninferableBase | None] = set()
     try:
         infer_gen = node.infer(context=context)
         value = next(infer_gen)
@@ -1423,7 +1430,8 @@ def class_constructors_are_ambiguous(
 
 
 def has_known_bases(
-    klass: nodes.ClassDef, context: InferenceContext | None = None
+    klass: nodes.ClassDef | bases.BaseInstance,
+    context: InferenceContext | None = None,
 ) -> bool:
     """Return true if all base classes of a class could be inferred."""
     try:
@@ -1680,7 +1688,7 @@ def is_protocol_class(cls: nodes.NodeNG) -> bool:
     return False
 
 
-def is_call_of_name(node: nodes.NodeNG, name: str) -> bool:
+def is_call_of_name(node: nodes.NodeNG | None, name: str) -> bool:
     """Checks if node is a function call with the given name."""
     match node:
         case nodes.Call(func=nodes.Name(name=func_name)):
@@ -1813,7 +1821,11 @@ def get_import_name(importnode: ImportNode, modname: str | None) -> str | None:
     :returns: absolute qualified module name of the module
         used in import.
     """
-    if isinstance(importnode, nodes.ImportFrom) and importnode.level:
+    if (
+        isinstance(importnode, nodes.ImportFrom)
+        and importnode.level
+        and modname is not None
+    ):
         root = importnode.root()
         if isinstance(root, nodes.Module):
             try:
@@ -2056,7 +2068,7 @@ def in_for_else_branch(parent: nodes.NodeNG, stmt: Statement) -> bool:
 
 
 def find_assigned_names_recursive(
-    target: nodes.AssignName | nodes.BaseContainer,
+    target: nodes.NodeNG,
 ) -> Iterator[str]:
     """Yield the names of assignment targets, accounting for nested ones."""
     match target:
@@ -2069,7 +2081,7 @@ def find_assigned_names_recursive(
 
 
 def has_starred_node_recursive(
-    node: nodes.For | nodes.Comprehension | nodes.Set | nodes.Starred,
+    node: nodes.NodeNG,
 ) -> Iterator[bool]:
     """Yield ``True`` if a Starred node is found recursively."""
     match node:
@@ -2079,8 +2091,9 @@ def has_starred_node_recursive(
             for elt in node.elts:
                 yield from has_starred_node_recursive(elt)
         case nodes.For() | nodes.Comprehension():
-            for elt in node.iter.elts:
-                yield from has_starred_node_recursive(elt)
+            if hasattr(node.iter, "elts"):
+                for elt in node.iter.elts:
+                    yield from has_starred_node_recursive(elt)
 
 
 def is_hashable(node: nodes.NodeNG) -> bool:

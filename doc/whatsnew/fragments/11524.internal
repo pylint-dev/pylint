@@ -1,0 +1,3 @@
+Align helper type annotations and input validations with handled AST values across checkers, configuration, and pyreverse.
+
+Closes #11524

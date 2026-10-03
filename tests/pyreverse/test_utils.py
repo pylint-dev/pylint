@@ -14,6 +14,7 @@ import pytest
 from astroid import nodes
 
 from pylint.pyreverse.utils import (
+    FilterMixIn,
     get_annotation,
     get_annotation_label,
     get_visibility,
@@ -162,3 +163,19 @@ def test_infer_node_4() -> None:
     inferred = infer_node(instance_attr).pop()
     assert isinstance(inferred, nodes.Subscript)
     assert inferred.name == "Optional[int]"
+
+
+def test_show_attr_node_without_name() -> None:
+    filter_mixin = FilterMixIn("ALL")
+    pass_node = astroid.extract_node("pass")
+    assert filter_mixin.show_attr(pass_node) is False
+
+
+def test_get_annotation_label_none() -> None:
+    assert get_annotation_label(None) == ""
+
+
+def test_get_annotation_binop() -> None:
+    node = astroid.extract_node("a: int | str = None")
+    annotation = get_annotation(node.target)
+    assert isinstance(annotation, nodes.BinOp)
