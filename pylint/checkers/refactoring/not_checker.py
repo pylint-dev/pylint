@@ -72,9 +72,8 @@ class NotChecker(checkers.BaseChecker):
                     return
                 if isinstance(_type, self.skipped_nodes):
                     return
-                if (
-                    isinstance(_type, astroid.Instance)
-                    and _type.qname() in self.skipped_classnames
+                if isinstance(_type, astroid.Instance) and any(
+                    _type.is_subtype_of(qname) for qname in self.skipped_classnames
                 ):
                     return
             suggestion = (
