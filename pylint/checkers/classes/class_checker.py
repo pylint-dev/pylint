@@ -30,6 +30,7 @@ from pylint.checkers.utils import (
     is_attr_protected,
     is_builtin_object,
     is_comprehension,
+    is_in_stub_file,
     is_iterable,
     is_property_setter,
     is_property_setter_or_deleter,
@@ -2446,6 +2447,9 @@ a metaclass class method.",
         if not self.linter.is_message_enabled(
             "super-init-not-called"
         ) and not self.linter.is_message_enabled("non-parent-init-called"):
+            return
+        # A stub's __init__ body is `...`: there is no call to look for.
+        if is_in_stub_file(node):
             return
         to_call = _ancestors_to_call(klass_node)
         not_called_yet = dict(to_call)
