@@ -139,7 +139,7 @@ def _definition_equivalent_to_call(
             return False
     elif call.starred_args:
         return False
-    if any(kw not in call.kws for kw in definition.kwonlyargs):
+    if any(call.kws.get(kw) != kw for kw in definition.kwonlyargs):
         return False
     if definition.args != call.args:
         return False
