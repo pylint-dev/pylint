@@ -1,0 +1,5 @@
+Avoid false positives for :ref:`unsubscriptable-object`,
+:ref:`unsupported-assignment-operation`, and :ref:`unsupported-delete-operation`
+when another inferred class supports the required subscription protocol.
+
+Refs #10423
