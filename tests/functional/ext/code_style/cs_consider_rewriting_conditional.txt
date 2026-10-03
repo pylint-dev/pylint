@@ -1,0 +1,7 @@
+consider-rewriting-conditional:28:7:28:68:f1:Consider rewriting conditional expression to 'not (isinstance(expr, node_cls) and expr.attrname == '__init__')':HIGH
+consider-rewriting-conditional:30:9:30:28:f1:Consider rewriting conditional expression to 'not (x and y in z)':HIGH
+consider-rewriting-conditional:32:9:32:28:f1:Consider rewriting conditional expression to 'not (x and y is z)':HIGH
+consider-rewriting-conditional:34:9:34:29:f1:Consider rewriting conditional expression to 'x and y':HIGH
+consider-rewriting-conditional:36:16:36:30:f1:Consider rewriting conditional expression to 'not (y and z)':HIGH
+consider-rewriting-conditional:38:9:38:33:f1:Consider rewriting conditional expression to 'not (x and y >= 0 and z > 0)':HIGH
+consider-rewriting-conditional:40:9:40:33:f1:Consider rewriting conditional expression to 'not (x and y <= 0 and z < 0)':HIGH

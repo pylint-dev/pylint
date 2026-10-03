@@ -92,6 +92,10 @@ Code Style checker Messages
   Using math.inf or math.nan permits to benefit from typing and it is up to 4
   times faster than a float call (after the initial import of math). This check
   also catches typos in float calls as a side effect.
+:consider-rewriting-conditional (R6107): *Consider rewriting conditional expression to '%s'*
+  Rewrite negated if expressions to improve readability. This style is simpler
+  and also permits converting long if/elif chains to match case with more ease.
+  Disabled by default!
 
 
 .. _pylint.extensions.comparison_placement:
