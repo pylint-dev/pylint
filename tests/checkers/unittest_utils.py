@@ -795,7 +795,10 @@ def test_has_known_bases_instance_proxy() -> None:
 
 
 def test_get_python_type_of_node_uninferable() -> None:
-    assert utils._get_python_type_of_node(astroid.util.Uninferable) is astroid.util.Uninferable
+    assert (
+        utils._get_python_type_of_node(astroid.util.Uninferable)
+        is astroid.util.Uninferable
+    )
 
 
 def test_is_call_of_name_none() -> None:
