@@ -1,0 +1,4 @@
+Fix a false positive for :ref:`reimported` when a relative import (``from . import x``)
+shares a bare name with an unrelated absolute import of the same name.
+
+Closes #11353
