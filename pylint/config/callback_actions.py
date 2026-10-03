@@ -2,7 +2,7 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
-# pylint: disable=too-many-arguments, redefined-builtin, duplicate-code
+# pylint: disable=too-many-arguments, duplicate-code
 
 """Callback actions for various options."""
 
