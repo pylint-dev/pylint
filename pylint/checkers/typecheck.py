@@ -1828,6 +1828,12 @@ accessed. Python regular expressions are accepted.",
                 return False
 
             for return_value in return_values:
+                # An opaque return can still be a wrapper that accepts the keyword.
+                # Avoid a false positive when the decorator changed the signature
+                # in a way astroid cannot infer.
+                if isinstance(return_value, util.UninferableBase):
+                    return True
+
                 # infer_call_result() returns nodes.Const.None for None return values
                 # so this also catches non-returning decorators
                 if not isinstance(return_value, nodes.FunctionDef):

@@ -202,3 +202,16 @@ NotAmbiguousClass(feeling="so-so")
 NotAmbiguousClass(worrying="little")  # [unexpected-keyword-arg]
 
 # pylint: enable=unused-argument
+
+
+# Test that we don't emit a false positive when the decorator's return is uninferable
+def uninferable_return_decorator(func):
+    return unknown_decorator(func)
+
+
+@uninferable_return_decorator
+def crash_test_three():
+    pass
+
+
+crash_test_three(internal_arg=2)
