@@ -61,6 +61,9 @@ LOCALE_ENCODING = locale.getlocale()[1]
 Path(FILENAME).read_text(encoding=LOCALE_ENCODING)
 Path(FILENAME).read_text(encoding="utf8")
 Path(FILENAME).read_text("utf8")
+(Path("/") / "tmp").read_text()  # [unspecified-encoding]
+p: Path = Path("/") / "tmp"
+p.read_text()  # [unspecified-encoding]
 
 LOCALE_ENCODING = None
 Path(FILENAME).read_text()  # [unspecified-encoding]
