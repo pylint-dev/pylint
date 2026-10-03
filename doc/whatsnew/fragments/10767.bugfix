@@ -1,0 +1,7 @@
+Fix a crash in ``pyreverse`` when a class diagram includes a class whose
+``instance_attrs`` contain synthetic ``EmptyNode`` entries (e.g. classes
+rebuilt by astroid's namedtuple/argparse brains). These placeholder nodes
+are now skipped when extracting composition/aggregation/association
+relationships.
+
+Closes #10767
