@@ -176,3 +176,17 @@ if z:
 gen = get_generator()
 if gen:  # [using-constant-test]
     pass
+
+
+# Values unpacked from a generator are not necessarily truthy (#10080).
+def generator_with_unknown_value():
+    yield input()
+
+
+[unpacked_list_item] = generator_with_unknown_value()
+if unpacked_list_item:
+    pass
+
+(unpacked_tuple_item,) = generator_with_unknown_value()
+if unpacked_tuple_item:
+    pass
