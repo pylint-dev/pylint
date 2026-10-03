@@ -1657,6 +1657,20 @@ def is_overload_stub(node: nodes.NodeNG) -> bool:
     return bool(decorators and decorated_with(node, ["typing.overload", "overload"]))
 
 
+def is_in_stub_file(node: nodes.NodeNG) -> bool:
+    """Check if a node comes from a ``.pyi`` stub file.
+
+    A stub declares signatures and leaves every body as ``...``, so checks about
+    what a body does (whether it uses an argument, whether it calls the parent
+    ``__init__``) say nothing about the code the stub describes.
+
+    :param node: Node to check.
+    :returns: True if the node's module was parsed from a ``.pyi`` file.
+    """
+    file = node.root().file
+    return bool(file) and file.endswith(".pyi")
+
+
 def is_protocol_class(cls: nodes.NodeNG) -> bool:
     """Check if the given node represents a protocol class.
 

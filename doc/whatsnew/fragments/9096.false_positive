@@ -1,0 +1,4 @@
+Fix a false positive for :ref:`super-init-not-called` in ``.pyi`` stub files, where
+every ``__init__`` body is ``...`` and cannot call the parent's ``__init__``.
+
+Closes #9096

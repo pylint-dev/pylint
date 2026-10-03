@@ -2,14 +2,18 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
+from pathlib import Path
+
 import astroid
+import pytest
 from astroid import nodes
 
 from pylint.checkers.classes.class_checker import (
     ClassChecker,
     _setattr_names_in_defining_methods,
 )
-from pylint.lint import PyLinter
+from pylint.lint import PyLinter, Run
+from pylint.reporters import CollectingReporter
 
 
 def test_attribute_defined_outside_init_disabled(linter: PyLinter) -> None:
@@ -50,3 +54,30 @@ def test_setattr_names_in_defining_methods_ignores_metaclass() -> None:
     assert isinstance(meta, nodes.ClassDef) and isinstance(plain, nodes.ClassDef)
     assert _setattr_names_in_defining_methods(meta, ("__init__",)) == set()
     assert _setattr_names_in_defining_methods(plain, ("__init__",)) == {"banana"}
+
+
+SUPER_INIT_STUB_CODE = """class Foo:
+    def __init__(self) -> None: ...
+
+class Bar(Foo):
+    def __init__(self) -> None: ...
+"""
+
+
+@pytest.mark.parametrize(
+    ("suffix", "expected"),
+    [(".pyi", []), (".py", ["super-init-not-called"])],
+    ids=["stub", "module"],
+)
+def test_super_init_not_called_is_not_raised_in_a_stub(
+    tmp_path: Path, suffix: str, expected: list[str]
+) -> None:
+    """A ``.pyi`` ``__init__`` is ``...``, so it cannot call the parent's (#9096)."""
+    path = tmp_path / f"foo{suffix}"
+    path.write_text(SUPER_INIT_STUB_CODE, encoding="utf-8")
+    run = Run(
+        ["--disable=all", "--enable=super-init-not-called", str(path)],
+        reporter=CollectingReporter(),
+        exit=False,
+    )
+    assert [message.symbol for message in run.linter.reporter.messages] == expected
