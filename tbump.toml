@@ -31,7 +31,8 @@ cmd = "python tests/test_functional.py --update-functional-output"
 
 [[before_commit]]
 name = "Normalize file ending"
-cmd = "git add --renormalize ."
+# Staging the deletions first, or renormalize fails on a removed expected output
+cmd = "git add --update && git add --renormalize ."
 
 [[before_commit]]
 name = "Upgrade changelog"
@@ -43,11 +44,13 @@ cmd = "tox -e docs||echo 'Hack so this command does not fail'"
 
 [[before_commit]]
 name = "Upgrade the pylintrc examples"
-cmd = "pylint --rcfile=/dev/null --generate-rcfile > examples/pylintrc"
+# Independent of the machine: the oldest supported py-version, and no spelling
+# dictionaries listed
+cmd = '''python3 -c "import sys; sys.modules['enchant'] = None; from pylint import run_pylint; run_pylint()" --rcfile=/dev/null --py-version=$(sed -n 's/^requires-python = ">=\([0-9]*\.[0-9]*\).*/\1/p' pyproject.toml) --generate-rcfile > examples/pylintrc'''
 
 [[before_commit]]
 name = "Upgrade the toml examples"
-cmd = "pylint --rcfile=/dev/null --generate-toml-config > examples/pyproject.toml"
+cmd = '''python3 -c "import sys; sys.modules['enchant'] = None; from pylint import run_pylint; run_pylint()" --rcfile=/dev/null --py-version=$(sed -n 's/^requires-python = ">=\([0-9]*\.[0-9]*\).*/\1/p' pyproject.toml) --generate-toml-config > examples/pyproject.toml'''
 
 [[before_commit]]
 name = "Normalize the contributors-txt configuration"
@@ -58,12 +61,16 @@ name = "Upgrade the contributors list"
 cmd = "python3 script/create_contributor_list.py"
 
 [[before_commit]]
-name = "Update primer commit pins to latest"
-cmd = "python3 script/update_primer_commits.py"
+name = "Update primer commit pins to latest (minor releases only, not on a maintenance branch)"
+cmd = "case {new_version} in *.0) python3 script/update_primer_commits.py ;; esac"
 
 [[before_commit]]
 name = "Apply pre-commit"
 cmd = "pre-commit run --all-files||echo 'Hack so this command does not fail'"
+
+[[before_commit]]
+name = "Write the GitHub release notes to release_notes.md (not committed)"
+cmd = '''awk -v v={new_version} 'FNR==1{{f=0}} /^What.s new in Pylint /{{f=($0=="What\047s new in Pylint " v "?")}} f' doc/whatsnew/*/*/index.rst | sed -E 's/`((pylint-dev\/astroid)?#[0-9]+) <[^>]+>`__/\1/g; s/:ref:`([^`]+)`/``\1``/g' | awk -f script/code_blocks_to_markdown.awk > release_notes.md'''
 
 [[before_commit]]
 name = "Confirm changes"
