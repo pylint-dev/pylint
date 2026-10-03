@@ -1,0 +1,9 @@
+Message symbols and option names in the documentation and in the changelog
+fragments are now automatically turned into links to the page documenting
+them, by a new pre-commit hook. A bare message symbol like :ref:`no-member`
+links to the message's page, and an option cited as :ref:`--jobs <jobs-option>`
+or :ref:`py-version <py-version-option>` links to its entry in the exhaustive
+option list. Current, renamed and deleted messages are all handled, and a name
+that no longer exists keeps its literal text.
+
+Refs #10568
