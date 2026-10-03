@@ -1,0 +1,24 @@
+nonsensical-float-arg:15:27:15:35::math.inf passed as 'rel_tol' to math.isclose(), an infinite tolerance makes the comparison meaningless:INFERENCE
+nonsensical-float-arg:16:27:16:35::math.nan passed as 'abs_tol' to math.isclose(), a NaN tolerance makes the comparison fail unless the values are equal:INFERENCE
+nonsensical-float-arg:17:27:17:39::float('inf') passed as 'rel_tol' to math.isclose(), an infinite tolerance makes the comparison meaningless:INFERENCE
+nonsensical-float-arg:18:27:18:39::float('nan') passed as 'rel_tol' to math.isclose(), a NaN tolerance makes the comparison fail unless the values are equal:INFERENCE
+nonsensical-float-arg:19:27:19:36::-math.inf passed as 'rel_tol' to math.isclose(), an infinite tolerance makes the comparison meaningless:INFERENCE
+nonsensical-float-arg:20:27:20:32::inf passed as 'rel_tol' to math.isclose(), an infinite tolerance makes the comparison meaningless:INFERENCE
+nonsensical-float-arg:21:28:21:36::math.inf passed as 'abs_tol' to cmath.isclose(), an infinite tolerance makes the comparison meaningless:INFERENCE
+nonsensical-float-arg:24:11:24:19::math.inf passed as 'secs' to time.sleep(), an infinite timeout is not supported, omit the argument to wait forever:INFERENCE
+nonsensical-float-arg:25:23:25:31::math.inf passed as 'timeout' to threading.Event().wait(), an infinite timeout is not supported, omit the argument to wait forever:INFERENCE
+nonsensical-float-arg:26:35:26:43::math.nan passed as 'timeout' to threading.Condition().wait(), a NaN timeout is not supported, omit the argument to wait forever:INFERENCE
+nonsensical-float-arg:27:31:27:39::math.inf passed as 'timeout' to threading.Lock().acquire(), an infinite timeout is not supported, omit the argument to wait forever:INFERENCE
+nonsensical-float-arg:28:24:28:32::math.inf passed as 'timeout' to queue.Queue().get(), an infinite timeout is not supported, omit the argument to wait forever:INFERENCE
+nonsensical-float-arg:29:33:29:41::math.inf passed as 'timeout' to queue.Queue().put(), an infinite timeout is not supported, omit the argument to wait forever:INFERENCE
+nonsensical-float-arg:32:4:32:12::math.inf passed as 'x' to int(), infinity cannot be converted to an integer:INFERENCE
+nonsensical-float-arg:33:11:33:19::math.nan passed as 'x' to math.floor(), NaN cannot be converted to an integer:INFERENCE
+nonsensical-float-arg:34:10:34:18::math.inf passed as 'x' to math.ceil(), infinity cannot be converted to an integer:INFERENCE
+nonsensical-float-arg:35:11:35:19::math.inf passed as 'x' to math.trunc(), infinity cannot be converted to an integer:INFERENCE
+nonsensical-float-arg:36:19:36:27::math.inf passed as 'numerator' to fractions.Fraction(), infinity cannot be converted to an integer:INFERENCE
+nonsensical-float-arg:37:18:37:26::math.inf passed as 'seconds' to timedelta(), infinity cannot be converted to an integer:INFERENCE
+nonsensical-float-arg:38:13:38:21::math.nan passed as 'seconds' to timedelta(), NaN cannot be converted to an integer:INFERENCE
+nonsensical-float-arg:39:23:39:31::math.inf passed as 'timestamp' to datetime.fromtimestamp(), infinity is outside the range of representable dates:INFERENCE
+nonsensical-float-arg:43:11:43:18::FOREVER passed as 'secs' to time.sleep(), an infinite timeout is not supported, omit the argument to wait forever:INFERENCE
+nonsensical-float-arg:48:43:48:51:BananaTest.test_almost:math.inf passed as 'delta' to self.assertAlmostEqual(), an infinite tolerance makes the comparison meaningless:INFERENCE
+nonsensical-float-arg:49:52:49:60:BananaTest.test_almost:math.inf passed as 'delta' to self.assertNotAlmostEqual(), an infinite tolerance makes the assertion meaningless:INFERENCE
