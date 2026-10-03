@@ -1,0 +1,11 @@
+Fix a false positive for ``duplicate-code`` (R0801) when ``ignore-signatures``
+is enabled (the default) and several functions have placeholder bodies such as
+``pass``, ``...``, ``raise NotImplementedError`` or ``return NotImplemented``.
+Stripping the signatures used to leave the placeholder bodies of unrelated
+functions on adjacent lines, so two abstract classes with enough stub methods
+were reported as duplicates of each other. Functions whose body only contains
+such placeholder statements are now ignored entirely when signatures are
+ignored. As with the other ``ignore-*`` options, duplicated code that is only
+separated by ignored lines is aggregated into a single reported block.
+
+Closes #7213
