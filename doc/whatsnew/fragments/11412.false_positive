@@ -1,0 +1,4 @@
+Fix a false positive for :ref:
+o-member when evaluating context managers decorated with `@contextmanager` that return generator types.
+
+Closes #11412
