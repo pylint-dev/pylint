@@ -130,3 +130,23 @@ class StaticChild(AbstractStaticParent):
         *, b: Union[bool, None] = None, p: Union[int, None] = None, s: str = ""
     ) -> None:
         pass
+
+
+class StubOnlyParent:
+    """Without an implementation the first overload stub is the reference."""
+
+    @overload
+    def func(self, a: int) -> int: ...
+
+    @overload
+    def func(self, a: str) -> str: ...
+
+
+class ChildOfStubOnly(StubOnlyParent):
+    def func(self, a):
+        return a
+
+
+class WrongChildOfStubOnly(StubOnlyParent):
+    def func(self, a, extra):  # [arguments-differ]
+        return a
