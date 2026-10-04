@@ -1,0 +1,4 @@
+Fixed a false positive ``too-few-public-methods`` (R0903) for classes inheriting
+from subscripted generic classes (e.g., generic Pydantic models or classes with dynamic ``__class_getitem__``).
+
+Closes #10602
