@@ -14,13 +14,13 @@ from typing import TYPE_CHECKING
 
 from astroid import nodes
 from astroid.brain.brain_attrs import ATTRS_NAMES
-from astroid.exceptions import InferenceError
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     is_enum,
     is_module_member,
     only_required_for_messages,
+    safe_infer,
 )
 from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
@@ -202,13 +202,8 @@ STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
 
 def _get_subscript_classes(base: nodes.NodeNG) -> Iterator[nodes.ClassDef]:
     """Infer the underlying class of a subscripted base node."""
-    if not isinstance(base, nodes.Subscript):
-        return
-    try:
-        inferred_types = base.value.infer()
-    except InferenceError:
-        return
-    for inferred in inferred_types:
+    if isinstance(base, nodes.Subscript):
+        inferred = safe_infer(base.value)
         if isinstance(inferred, nodes.ClassDef):
             yield inferred
 
@@ -222,15 +217,11 @@ def _iter_all_ancestors(node: nodes.ClassDef) -> Iterator[nodes.ClassDef]:
     ancestors are properly accounted for.
     """
     yielded: set[nodes.ClassDef] = {node}
-    to_explore: list[nodes.ClassDef] = []
-
     for ancestor in node.ancestors():
-        if ancestor not in yielded:
-            yielded.add(ancestor)
-            yield ancestor
-            to_explore.append(ancestor)
+        yielded.add(ancestor)
+        yield ancestor
 
-    queue = [node, *to_explore]
+    queue = [node]
     while queue:
         current = queue.pop(0)
         for base in current.bases:
