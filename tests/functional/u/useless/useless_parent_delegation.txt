@@ -19,8 +19,8 @@ useless-parent-delegation:274:4:274:28:UselessSuper.with_default_arg_ter:Useless
 useless-parent-delegation:277:4:277:29:UselessSuper.with_default_arg_quad:Useless parent or super() delegation in method 'with_default_arg_quad':INFERENCE
 useless-parent-delegation:311:4:311:16:DecoratedList.__hash__:Useless parent or super() delegation in method '__hash__':INFERENCE
 useless-parent-delegation:337:4:337:16:SubTwoOne.__init__:Useless parent or super() delegation in method '__init__':INFERENCE
-useless-parent-delegation:360:4:360:15:UselessSuperPy3.useless:Useless parent or super() delegation in method 'useless':INFERENCE
-useless-parent-delegation:375:4:375:16:Ham.__init__:Useless parent or super() delegation in method '__init__':INFERENCE
-useless-parent-delegation:408:4:408:12:ReturnTypeSpecified.draw:Useless parent or super() delegation in method 'draw':INFERENCE
-useless-parent-delegation:415:4:415:12:ReturnTypeSame.draw:Useless parent or super() delegation in method 'draw':INFERENCE
-useless-parent-delegation:451:4:451:16:PlainObject.__init__:Useless parent or super() delegation in method '__init__':INFERENCE
+useless-parent-delegation:369:4:369:15:UselessSuperPy3.useless:Useless parent or super() delegation in method 'useless':INFERENCE
+useless-parent-delegation:384:4:384:16:Ham.__init__:Useless parent or super() delegation in method '__init__':INFERENCE
+useless-parent-delegation:417:4:417:12:ReturnTypeSpecified.draw:Useless parent or super() delegation in method 'draw':INFERENCE
+useless-parent-delegation:424:4:424:12:ReturnTypeSame.draw:Useless parent or super() delegation in method 'draw':INFERENCE
+useless-parent-delegation:460:4:460:16:PlainObject.__init__:Useless parent or super() delegation in method '__init__':INFERENCE
