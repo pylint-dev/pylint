@@ -1,3 +1,0 @@
-Fix an issue where discovery can miss a similarly named directory if a shorter named directory is processed first.
-
-Closes #10969

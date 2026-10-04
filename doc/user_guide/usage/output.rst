@@ -17,6 +17,7 @@ pylint the ``--output-format=<value>`` option. Possible values are:
 * ``json``: old json format
 * ``msvs``: visual studio
 * ``github``: `GitHub action messages <https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions>`_
+* ``junit``: JUnit XML for CI/CD integration (Jenkins, Azure DevOps, GitLab CI, GitHub Actions)
 
 Multiple output formats can be used at the same time by passing
 a comma-separated list of formats to ``--output-format``.
@@ -27,6 +28,42 @@ a colorized report to stdout at the same time:
 ::
 
   --output-format=json:somefile.json,colorized
+
+Environment Variables
+''''''''''''''''''''''''''''
+The colorization of the report written to stdout can also be controlled through
+environment variables. Reports written to a file are never changed. The
+precedence for determining the output format is as follows:
+
+1. :envvar:`NO_COLOR`
+2. :envvar:`FORCE_COLOR`
+3. ``--output-format=...``
+
+.. envvar:: NO_COLOR
+
+   When set to any non-empty value, a ``colorized`` report on stdout is
+   replaced by a ``text`` report. This removes every ANSI decoration, not
+   only the colors: bold, underline and inverse text are gone too.
+   See https://no-color.org.
+
+.. envvar:: FORCE_COLOR
+
+   When set to any non-empty value, a ``text`` report on stdout is replaced
+   by a ``colorized`` report, with all its decorations, even when stdout is
+   not a terminal (on Windows too). Other text-based
+   formats such as ``parseable`` or ``msvs`` are kept as they are.
+   It is ignored when :envvar:`NO_COLOR` is also set.
+   See https://force-color.org.
+
+Pylint emits a warning when one of these variables overrides an
+``--output-format`` option given on the command line or in the configuration,
+or when both are set. Colorizing the default output is silent.
+
+For example, to get a plain report even if ``colorized`` is in your
+configuration:
+::
+
+  NO_COLOR=1 pylint --output-format=colorized my_garden.py
 
 
 Custom message formats

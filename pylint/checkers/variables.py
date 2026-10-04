@@ -1567,6 +1567,19 @@ class VariablesChecker(BaseChecker):
                 and not self._allowed_redefined_builtin(name)
                 and not self._should_ignore_redefined_builtin(stmt)
             ):
+                if (
+                    isinstance(stmt, nodes.AssignName)
+                    and isinstance(stmt.parent, nodes.Arguments)
+                    and isinstance(node.parent, nodes.ClassDef)
+                ):
+                    overridden = overridden_method(node.parent, node.name)
+                    if (
+                        overridden is not None
+                        and name in overridden.argnames()
+                        and name
+                        not in {arg.name for arg in overridden.args.posonlyargs}
+                    ):
+                        continue
                 # do not print Redefining builtin for additional builtins
                 self.add_message("redefined-builtin", args=name, node=stmt)
 
@@ -2828,16 +2841,15 @@ class VariablesChecker(BaseChecker):
         argnames = node.argnames()
         # Care about functions with unknown argument (builtins)
         if name in argnames:
-            if node.name == "__new__":
-                is_init_def = False
-                # Look for the `__init__` method in all the methods of the same class.
-                for n in node.parent.get_children():
-                    is_init_def = hasattr(n, "name") and (n.name == "__init__")
-                    if is_init_def:
-                        break
-                # Ignore unused arguments check for `__new__` if `__init__` is defined.
-                if is_init_def:
-                    return
+            if (
+                node.name == "__new__"
+                and isinstance(node.parent, nodes.ClassDef)
+                and any(
+                    isinstance(initializer, nodes.FunctionDef)
+                    for initializer in node.parent.locals.get("__init__", ())
+                )
+            ):
+                return
             self._check_unused_arguments(name, node, stmt, argnames, nonlocal_names)
         else:
             if stmt.parent and isinstance(
@@ -2949,7 +2961,7 @@ class VariablesChecker(BaseChecker):
             return
 
         # Don't check function stubs created only for type information
-        if utils.is_overload_stub(node):
+        if utils.is_overload_stub(node) or utils.is_in_stub_file(node):
             return
 
         # Don't check protocol classes
@@ -3149,13 +3161,20 @@ class VariablesChecker(BaseChecker):
         match value_node:
             case nodes.Const(value=str() | bytes()):
                 return len(value_node.value)
-            case nodes.Subscript():
-                step = value_node.slice.step or 1
-                splice_range = (
-                    value_node.slice.upper.value - value_node.slice.lower.value
+            case nodes.Subscript(
+                slice=nodes.Slice(
+                    lower=nodes.Const(value=int() as lower),
+                    upper=nodes.Const(value=int() as upper),
+                    step=None | nodes.Const(value=int()) as step_node,
                 )
-                # RUF046 says the return of 'math.ceil' is always an int, mypy doesn't see it
-                return math.ceil(splice_range / step)  # type: ignore[no-any-return]
+            ):
+                # Only int bounds and an int or missing step are supported;
+                # anything else falls through to the default below.
+                step = 1 if step_node is None else step_node.value
+                if step == 0:
+                    return 1
+                splice_range = upper - lower
+                return math.ceil(splice_range / step)
         return 1
 
     @staticmethod
@@ -3457,14 +3476,21 @@ class VariablesChecker(BaseChecker):
                 scope_locals = to_consume.to_consume
                 found_nodes = scope_locals.get(name, [])
                 for found_node in found_nodes:
-                    if found_node.lineno <= klass.lineno:
+                    # A binding without a line number (e.g. a synthetic or
+                    # builtin node such as ``__annotations__``) cannot be
+                    # ordered against the class definition, so treat it as
+                    # consumed/resolved rather than crashing on the comparison.
+                    if found_node.lineno is None or found_node.lineno <= klass.lineno:
                         consumed.append((to_consume, name, found_nodes))
                         found = True
                         break
             # Check parent scope
             nodes_in_parent_scope = parent_node.locals.get(name, [])
             for found_node_parent in nodes_in_parent_scope:
-                if found_node_parent.lineno <= klass.lineno:
+                if (
+                    found_node_parent.lineno is None
+                    or found_node_parent.lineno <= klass.lineno
+                ):
                     found = True
                     break
         if (

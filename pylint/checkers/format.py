@@ -127,9 +127,17 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 
 
 def _last_token_on_line_is(tokens: TokenWrapper, line_end: int, token: str) -> bool:
-    return (line_end > 0 and tokens.token(line_end - 1) == token) or (
+    # Only an operator token counts. Since PEP 701 (Python 3.12) the text of an
+    # f-string is its own FSTRING_MIDDLE token, so ``f"{b};" \`` ends the line
+    # with a ``;`` that is string content, not a statement terminator.
+    return (
+        line_end > 0
+        and tokens.token(line_end - 1) == token
+        and tokens.type(line_end - 1) == tokenize.OP
+    ) or (
         line_end > 1
         and tokens.token(line_end - 2) == token
+        and tokens.type(line_end - 2) == tokenize.OP
         and tokens.type(line_end - 1) == tokenize.COMMENT
     )
 
@@ -154,6 +162,9 @@ class TokenWrapper:
 
     def line(self, idx: int) -> str:
         return self._tokens[idx][4]
+
+    def __len__(self) -> int:
+        return len(self._tokens)
 
 
 class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
@@ -632,6 +643,24 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 self.add_message("line-too-long", line=i, args=(len(line), max_chars))
 
     @staticmethod
+    def _first_comment_offset(
+        tokens: TokenWrapper, line_start: int, lines: str, lineno: int
+    ) -> int | None:
+        """Offset in ``lines`` of the first comment token they contain, if any."""
+        last_lineno = lineno + lines.count("\n")
+        for idx in range(line_start, len(tokens)):
+            row = tokens.start_line(idx)
+            if row > last_lineno:
+                break
+            if tokens.type(idx) != tokenize.COMMENT or row < lineno:
+                continue
+            offset = 0
+            for _ in range(row - lineno):
+                offset = lines.index("\n", offset) + 1
+            return offset + tokens.start_col(idx)
+        return None
+
+    @staticmethod
     def remove_pylint_option_from_lines(options_pattern_obj: Match[str]) -> str:
         """Remove the `# pylint ...` pattern from lines."""
         lines = options_pattern_obj.string
@@ -721,7 +750,11 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             return
 
         # Line length check may be deactivated through `pylint: disable` comment
-        mobj = OPTION_PO.search(lines)
+        # When the lines hold a comment, the pragma is in it: start the search
+        # there, so a ``#`` inside a string before it is not taken for the pragma
+        # (#11440). Without one, a pragma written inside a docstring still counts.
+        comment_offset = self._first_comment_offset(tokens, line_start, lines, lineno)
+        mobj = OPTION_PO.search(lines, comment_offset or 0)
         checker_off = False
         if mobj:
             if not self.is_line_length_check_activated(mobj):

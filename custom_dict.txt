@@ -111,6 +111,7 @@ encodings
 endswith
 enum
 enums
+env
 epilog
 epylint
 epytext
@@ -176,6 +177,8 @@ iTerm
 jn
 jpg
 json
+junit
+JUnit
 jx
 jython
 # class is a reserved word
@@ -229,6 +232,7 @@ myfunction
 mymain
 mymethod
 mymodule
+mypackage
 mypy
 namedtuple
 namespace
@@ -258,6 +262,7 @@ overridable
 params
 paren
 parens
+parseable
 passthru
 pathlib
 patternerror
@@ -283,6 +288,7 @@ pypy
 pyreverse
 pyright
 pytest
+pytest's
 qname
 rawcheckers
 rc
@@ -347,6 +353,8 @@ sys
 tbump
 tempfile
 testcase
+testcases
+testsuite
 testdata
 testoptions
 tmp
@@ -382,6 +390,7 @@ unicode
 uninferable
 Uninferable
 unittest
+unittest's
 unraisablehook
 untriggered
 # prefix for string

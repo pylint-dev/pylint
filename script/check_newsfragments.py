@@ -23,6 +23,7 @@ VALID_ISSUES_KEYWORDS = [
 ]
 VALID_FILE_TYPE = frozenset(
     [
+        "security",
         "breaking",
         "user_action",
         "feature",

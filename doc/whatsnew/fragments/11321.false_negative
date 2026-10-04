@@ -1,4 +1,0 @@
-``redundant-unittest-assert`` now also flags ``assertEqual`` and ``assertNotEqual``
-when both compared values are constants, e.g. ``self.assertEqual(5, 5)``.
-
-Closes #11321

@@ -1,3 +1,0 @@
-Fixed dynamic color mapping for "fail-on" messages when using multiple reporter/output formats.
-
-Closes #10825

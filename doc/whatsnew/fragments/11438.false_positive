@@ -1,0 +1,4 @@
+``redefined-builtin`` no longer warns for method parameters that retain a
+built-in name from an overridden method.
+
+Closes #11438

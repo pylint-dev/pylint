@@ -1,0 +1,7 @@
+Fixed a false positive for ``attribute-defined-outside-init`` when an
+attribute is assigned inside the setter of an old-style, non-decorator
+``property(fget, fset)`` call. The decorator form (``@property`` /
+``@x.setter``) was already exempted by the fix for #409; the classic
+call form was not.
+
+Closes #3325

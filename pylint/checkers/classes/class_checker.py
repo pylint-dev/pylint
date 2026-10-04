@@ -30,17 +30,18 @@ from pylint.checkers.utils import (
     is_attr_protected,
     is_builtin_object,
     is_comprehension,
+    is_in_stub_file,
     is_iterable,
     is_overload_stub,
     is_property_setter,
     is_property_setter_or_deleter,
+    is_typing_member,
     node_frame_class,
     only_required_for_messages,
     safe_infer,
     safe_mro,
     safe_slots,
     unimplemented_abstract_methods,
-    uninferable_final_decorators,
 )
 from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
@@ -140,7 +141,7 @@ def _definition_equivalent_to_call(
             return False
     elif call.starred_args:
         return False
-    if any(kw not in call.kws for kw in definition.kwonlyargs):
+    if any(call.kws.get(kw) != kw for kw in definition.kwonlyargs):
         return False
     if definition.args != call.args:
         return False
@@ -420,6 +421,35 @@ def _has_data_descriptor(cls: nodes.ClassDef, attr: str) -> bool:
                         return True
         except astroid.InferenceError:
             # Can't infer, avoid emitting a false positive in this case.
+            return True
+    return False
+
+
+def _is_classic_property_setter(func: nodes.FunctionDef) -> bool:
+    """Check if *func* is used as the ``fset`` argument of an old-style,
+    non-decorator ``property(fget, fset)`` call in its enclosing class body.
+    """
+    if not isinstance(func, nodes.FunctionDef):
+        return False
+    frame = func.parent
+    if not isinstance(frame, nodes.ClassDef):
+        return False
+    for node in frame.body:
+        if not isinstance(node, nodes.Assign) or not isinstance(node.value, nodes.Call):
+            continue
+        call = node.value
+        inferred_func = safe_infer(call.func)
+        if not (
+            isinstance(inferred_func, nodes.ClassDef)
+            and is_builtin_object(inferred_func)
+            and inferred_func.name == "property"
+        ):
+            continue
+        fset_arg: nodes.NodeNG | None = call.args[1] if len(call.args) > 1 else None
+        for keyword in call.keywords or ():
+            if keyword.arg == "fset":
+                fset_arg = keyword.value
+        if isinstance(fset_arg, nodes.Name) and fset_arg.name == func.name:
             return True
     return False
 
@@ -1135,15 +1165,16 @@ a metaclass class method.",
             if not ancestor:
                 continue
 
-            if isinstance(ancestor, nodes.ClassDef) and (
-                decorated_with(ancestor, ["typing.final"])
-                or uninferable_final_decorators(ancestor.decorators)
-            ):
-                self.add_message(
-                    "subclassed-final-class",
-                    args=(node.name, ancestor.name),
-                    node=node,
-                )
+            if isinstance(ancestor, nodes.ClassDef):
+                decorators = ancestor.decorators.nodes if ancestor.decorators else []
+                if decorated_with(ancestor, ["typing.final"]) or any(
+                    is_typing_member(decorator, ("final",)) for decorator in decorators
+                ):
+                    self.add_message(
+                        "subclassed-final-class",
+                        args=(node.name, ancestor.name),
+                        node=node,
+                    )
 
     @only_required_for_messages(
         "unused-private-member",
@@ -1345,7 +1376,9 @@ a metaclass class method.",
             # or if we have the attribute defined in a setter.
             frames = (node.frame() for node in filtered_nodes)
             if any(
-                frame.name in defining_methods or is_property_setter(frame)
+                frame.name in defining_methods
+                or is_property_setter(frame)
+                or _is_classic_property_setter(frame)
                 for frame in frames
             ):
                 continue
@@ -1509,7 +1542,7 @@ a metaclass class method.",
             for ancestor in klass.ancestors():
                 if node.name in ancestor.instance_attrs and is_attr_private(node.name):
                     return
-                for obj in ancestor.lookup(node.name)[1]:
+                for obj in ancestor.locals.get(node.name, ()):
                     if isinstance(obj, nodes.FunctionDef):
                         return
             args = (overridden.root().name, overridden.fromlineno)
@@ -1664,9 +1697,15 @@ a metaclass class method.",
                 args=(function_node.name, "non-async", "async"),
                 node=function_node,
             )
+
+        decorators = (
+            parent_function_node.decorators.nodes
+            if parent_function_node.decorators
+            else []
+        )
         if (
             decorated_with(parent_function_node, ["typing.final"])
-            or uninferable_final_decorators(parent_function_node.decorators)
+            or any(is_typing_member(decorator, ("final",)) for decorator in decorators)
         ) and self._py38_plus:
             self.add_message(
                 "overridden-final-method",
@@ -2273,7 +2312,26 @@ a metaclass class method.",
                     # it's defined, it's accessed after the initial assignment
                     frame = defstmt.frame()
                     lno = defstmt.fromlineno
+                    access_nodes: dict[_AccessNodes, None] = dict.fromkeys(nodes_lst)
                     for _node in nodes_lst:
+                        method = _node.frame()
+                        if (
+                            frame.name == "__init__"
+                            and isinstance(method, nodes.FunctionDef)
+                            and method.parent is node
+                        ):
+                            # A method called on self before the assignment does
+                            # not see the attribute either: its call sites in
+                            # __init__ stand in for the accesses made inside it.
+                            access_nodes.update(
+                                dict.fromkeys(
+                                    method_attr
+                                    for method_attr in accessed.get(method.name, ())
+                                    if isinstance(method_attr.parent, nodes.Call)
+                                    and method_attr.parent.func is method_attr
+                                )
+                            )
+                    for _node in access_nodes:
                         if (
                             _node.frame() is frame
                             and _node.fromlineno < lno
@@ -2421,6 +2479,9 @@ a metaclass class method.",
         if not self.linter.is_message_enabled(
             "super-init-not-called"
         ) and not self.linter.is_message_enabled("non-parent-init-called"):
+            return
+        # A stub's __init__ body is `...`: there is no call to look for.
+        if is_in_stub_file(node):
             return
         to_call = _ancestors_to_call(klass_node)
         not_called_yet = dict(to_call)
