@@ -32,6 +32,7 @@ from pylint.checkers.utils import (
     is_comprehension,
     is_in_stub_file,
     is_iterable,
+    is_overload_stub,
     is_property_setter,
     is_property_setter_or_deleter,
     is_typing_member,
@@ -1482,6 +1483,15 @@ a metaclass class method.",
                 continue
             if not isinstance(parent_function, nodes.FunctionDef):
                 continue
+            if is_overload_stub(parent_function):
+                # Compare with the implementation, not the first overload stub.
+                implementations = [
+                    n
+                    for n in overridden.locals[node.name]
+                    if isinstance(n, nodes.FunctionDef) and not is_overload_stub(n)
+                ]
+                if implementations:
+                    parent_function = implementations[-1]
             self._check_signature(node, parent_function, klass)
             self._check_invalid_overridden_method(node, parent_function)
             break
@@ -2570,6 +2580,9 @@ a metaclass class method.",
         # Ignore setters, they have an implicit extra argument,
         # which shouldn't be taken in consideration.
         if is_property_setter(method1):
+            return
+        # Ignore overload stubs, only the implementation overrides the method.
+        if is_overload_stub(method1):
             return
 
         arg_differ_output = _different_parameters(
