@@ -3,6 +3,7 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 import astroid
+import pytest
 
 from pylint import checkers
 from pylint.checkers import design_analysis
@@ -55,9 +56,45 @@ class TestDesignChecker(CheckerTestCase):
         assert options == []
 
 
+    @pytest.mark.parametrize(
+        "code_snippet",
+        [
+            # Case 1: Subscripted generic class with custom __class_getitem__
+            """
+            class Parent:
+                def __class_getitem__(cls, item):
+                    return super().__class_getitem__(item)
+                def method_one(self): pass
+                def method_two(self): pass
+            class Child(Parent[int]):
+                pass
+            """,
+            # Case 2: Multi-level inheritance through a subscripted generic
+            """
+            class GrandParent:
+                def method_one(self): pass
+                def method_two(self): pass
+            class Parent(GrandParent):
+                def __class_getitem__(cls, item):
+                    return super().__class_getitem__(item)
+            class Child(Parent[str]):
+                pass
+            """,
+        ],
+    )
+    def test_too_few_public_methods_subscripted_generic(
+        self, code_snippet: str
+    ) -> None:
+        """Ensure subscripted generic base classes (whose __class_getitem__
+        is uninferable) do not trigger false positive too-few-public-methods (R0903).
+        """
+        node = astroid.extract_node(code_snippet)
+        with self.assertNoMessages():
+            self.checker.leave_classdef(node)
+
+
 def test_function_counters_are_popped_with_one_message_enabled() -> None:
     """``leave_functiondef`` must run whenever ``visit_functiondef`` ran.
-
     Otherwise the counters pushed for each function are never popped, and every
     statement of the run increments all of them.
     """
