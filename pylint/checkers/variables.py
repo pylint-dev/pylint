@@ -48,10 +48,6 @@ SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = "__future__"
 # regexp for ignored argument name
 IGNORED_ARGUMENT_NAMES = re.compile("_.*|^ignored_|^unused_")
-# In Python 3.7 abc has a Python implementation which is preferred
-# by astroid. Unfortunately this also messes up our explicit checks
-# for `abc`
-METACLASS_NAME_TRANSFORMS = {"_py_abc": "abc"}
 BUILTIN_RANGE = "builtins.range"
 TYPING_MODULE = "typing"
 
@@ -1454,7 +1450,6 @@ class VariablesChecker(BaseChecker):
         """Leave module: check globals."""
         assert len(self._to_consume) == 1
 
-        self._check_metaclasses(node)
         not_consumed = self._to_consume.pop().to_consume
         # attempt to check for __all__ if defined
         if "__all__" in node.locals:
@@ -1472,6 +1467,7 @@ class VariablesChecker(BaseChecker):
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Visit class: update consumption analysis variable."""
+        self._check_metaclass(node)
         self._to_consume.append(NamesConsumer(node, "class"))
 
     def leave_classdef(self, node: nodes.ClassDef) -> None:
@@ -1585,8 +1581,6 @@ class VariablesChecker(BaseChecker):
 
     def leave_functiondef(self, node: nodes.FunctionDef) -> None:
         """Leave function: check function's locals are consumed."""
-        self._check_metaclasses(node)
-
         if node.type_comment_returns:
             self._store_type_annotation_node(node.type_comment_returns)
         if node.type_comment_args:
@@ -3426,86 +3420,59 @@ class VariablesChecker(BaseChecker):
             )
         del self._to_consume
 
-    def _check_metaclasses(self, node: nodes.Module | nodes.FunctionDef) -> None:
-        """Update consumption analysis for metaclasses."""
-        consumed: list[tuple[NamesConsumer, str, list[nodes.NodeNG]]] = []
+    def _check_metaclass(self, klass: nodes.ClassDef) -> None:
+        """Update consumption analysis for the names used in the metaclass of klass.
 
-        for child_node in node.get_children():
-            if isinstance(child_node, nodes.ClassDef):
-                consumed.extend(self._check_classdef_metaclasses(child_node, node))
-
-        # Mark the consumed items properly so they move from to_consume
-        # to consumed, avoiding unused-import/unused-variable false positives
-        # while still allowing subsequent references to resolve.
-        for consumer, name, found_nodes in consumed:
-            if name in consumer.to_consume:
-                consumer.mark_as_consumed(name, found_nodes)
-
-    def _check_classdef_metaclasses(
-        self,
-        klass: nodes.ClassDef,
-        parent_node: nodes.Module | nodes.FunctionDef,
-    ) -> list[tuple[NamesConsumer, str, list[nodes.NodeNG]]]:
+        ``metaclass=`` is not a child of the class node, so these names are not
+        visited like the ones of the bases and of the other class keywords.
+        """
         if not klass._metaclass:
             # Skip if this class doesn't use explicitly a metaclass, but inherits it from ancestors
-            return []
+            return
 
-        consumed: list[tuple[NamesConsumer, str, list[nodes.NodeNG]]] = []
         metaclass = klass.metaclass()
-        name = ""
-        match klass._metaclass:
-            case nodes.Name(name=name):
-                # bind name
-                pass
-            case nodes.Attribute(expr=attr):
-                while isinstance(attr, nodes.Attribute):
-                    attr = attr.expr
-                if isinstance(attr, nodes.Name):
-                    name = attr.name
-            case nodes.Call(func=nodes.Name(name=name)):
-                # bind name
-                pass
-            case _ if metaclass:
-                name = metaclass.root().name
+        names = dict.fromkeys(
+            name_node.name
+            for name_node in klass._metaclass.nodes_of_class(
+                nodes.Name, skip_klass=nodes.LocalsDictNodeNG
+            )
+        )
+        for name in names:
+            if (
+                not self._consume_metaclass_name(klass, name)
+                and not metaclass
+                and not (
+                    name in nodes.Module.scope_attrs
+                    or utils.is_builtin(name)
+                    or name in self.linter.config.additional_builtins
+                )
+            ):
+                self.add_message("undefined-variable", node=klass, args=(name,))
 
-        found = False
-        name = METACLASS_NAME_TRANSFORMS.get(name, name)
-        if name:
-            # check enclosing scopes starting from most local
-            for to_consume in self._to_consume[::-1]:
-                scope_locals = to_consume.to_consume
-                found_nodes = scope_locals.get(name, [])
-                for found_node in found_nodes:
+    def _consume_metaclass_name(self, klass: nodes.ClassDef, name: str) -> bool:
+        """Mark the definition of a name used in the metaclass of klass as consumed.
+
+        Return whether the name is defined.
+        """
+        # The class statement runs in the innermost scope, after the definitions
+        # preceding it: any definition of an enclosing scope can be used.
+        innermost = self._to_consume[-1]
+        for consumer in reversed(self._to_consume):
+            definitions = consumer.node.locals.get(name, [])
+            if consumer is innermost:
+                definitions = [
+                    definition
+                    for definition in definitions
                     # A binding without a line number (e.g. a synthetic or
                     # builtin node such as ``__annotations__``) cannot be
-                    # ordered against the class definition, so treat it as
-                    # consumed/resolved rather than crashing on the comparison.
-                    if found_node.lineno is None or found_node.lineno <= klass.lineno:
-                        consumed.append((to_consume, name, found_nodes))
-                        found = True
-                        break
-            # Check parent scope
-            nodes_in_parent_scope = parent_node.locals.get(name, [])
-            for found_node_parent in nodes_in_parent_scope:
-                if (
-                    found_node_parent.lineno is None
-                    or found_node_parent.lineno <= klass.lineno
-                ):
-                    found = True
-                    break
-        if (
-            name
-            and not found
-            and not metaclass
-            and not (
-                name in nodes.Module.scope_attrs
-                or utils.is_builtin(name)
-                or name in self.linter.config.additional_builtins
-            )
-        ):
-            self.add_message("undefined-variable", node=klass, args=(name,))
-
-        return consumed
+                    # ordered against the class definition.
+                    if definition.lineno is None or definition.lineno <= klass.lineno
+                ]
+            if definitions:
+                if name in consumer.to_consume:
+                    consumer.mark_as_consumed(name, consumer.to_consume[name])
+                return True
+        return False
 
     def visit_subscript(self, node: nodes.Subscript) -> None:
         inferred_slice = utils.safe_infer(node.slice)

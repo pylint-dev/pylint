@@ -1,0 +1,7 @@
+Fix ``unused-import`` false positives for names used only in the ``metaclass=``
+argument of a class defined inside another class or inside a block such as an
+``if``, or within a more complex expression like a conditional expression or a
+call argument. A name already used before such a class is also no longer
+reported as ``undefined-variable`` when the metaclass cannot be inferred.
+
+Closes #1630
