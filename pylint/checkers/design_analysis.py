@@ -13,7 +13,7 @@ from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
 from astroid import nodes
-from astroid.exceptions import AstroidError, InferenceError
+from astroid.exceptions import InferenceError
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_enum, only_required_for_messages
@@ -185,11 +185,24 @@ STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
 )
 
 
+def _get_subscript_classes(base: nodes.NodeNG) -> Iterator[nodes.ClassDef]:
+    """Infer the underlying class of a subscripted base node."""
+    if not isinstance(base, nodes.Subscript):
+        return
+    try:
+        inferred_types = base.value.infer()
+    except InferenceError:
+        return
+    for inferred in inferred_types:
+        if isinstance(inferred, nodes.ClassDef):
+            yield inferred
+
+
 def _iter_all_ancestors(node: nodes.ClassDef) -> Iterator[nodes.ClassDef]:
     """Iterate over all ancestors of node, including subscripted generic classes.
 
-    Astroid's ClassDef.ancestors() skips subscripted bases (e.g. GenericModel[int])
-    when their __class_getitem__ inference yields Uninferable. This fallback
+    In astroid, ``ClassDef.ancestors()`` skips subscripted bases (e.g. GenericModel[int])
+    when their ``__class_getitem__`` inference yields Uninferable. This fallback
     inspects the subscript value to ensure generic parent classes and their
     ancestors are properly accounted for.
     """
@@ -206,23 +219,12 @@ def _iter_all_ancestors(node: nodes.ClassDef) -> Iterator[nodes.ClassDef]:
     while queue:
         current = queue.pop(0)
         for base in current.bases:
-            if isinstance(base, nodes.Subscript):
-                try:
-                    for inferred in base.value.infer():
-                        if (
-                            isinstance(inferred, nodes.ClassDef)
-                            and inferred not in yielded
-                        ):
-                            yielded.add(inferred)
-                            yield inferred
-                            queue.append(inferred)
-                            for ancestor in inferred.ancestors():
-                                if ancestor not in yielded:
-                                    yielded.add(ancestor)
-                                    yield ancestor
-                                    queue.append(ancestor)
-                except (InferenceError, AstroidError):
-                    continue
+            for cls in _get_subscript_classes(base):
+                for candidate in (cls, *cls.ancestors()):
+                    if candidate not in yielded:
+                        yielded.add(candidate)
+                        yield candidate
+                        queue.append(candidate)
 
 
 def _is_exempt_from_public_methods(node: nodes.ClassDef) -> bool:
