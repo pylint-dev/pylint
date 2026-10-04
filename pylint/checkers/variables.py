@@ -3431,33 +3431,57 @@ class VariablesChecker(BaseChecker):
             return
 
         metaclass = klass.metaclass()
-        names = dict.fromkeys(
-            name_node.name
-            for name_node in klass._metaclass.nodes_of_class(
-                nodes.Name, skip_klass=nodes.LocalsDictNodeNG
-            )
-        )
-        for name in names:
+        undefined: set[str] = set()
+        for name_node in klass._metaclass.nodes_of_class(nodes.Name):
+            name = name_node.name
             if (
-                not self._consume_metaclass_name(klass, name)
+                not self._is_bound_in_metaclass(klass, name_node)
+                and not self._consume_metaclass_name(klass, name_node)
                 and not metaclass
+                and name not in undefined
                 and not (
                     name in nodes.Module.scope_attrs
                     or utils.is_builtin(name)
                     or name in self.linter.config.additional_builtins
                 )
             ):
+                undefined.add(name)
                 self.add_message("undefined-variable", node=klass, args=(name,))
 
-    def _consume_metaclass_name(self, klass: nodes.ClassDef, name: str) -> bool:
+    def _is_bound_in_metaclass(
+        self, klass: nodes.ClassDef, name_node: nodes.Name
+    ) -> bool:
+        """Return whether a lambda or a comprehension of the metaclass of klass binds
+        the name, like the parameter of ``(lambda meta: meta)``.
+        """
+        return any(
+            isinstance(scope, (nodes.Lambda, nodes.ComprehensionScope))
+            and name_node.name in scope.locals
+            and self._in_lambda_or_comprehension_body(name_node, scope.parent)
+            for scope in itertools.takewhile(
+                lambda node: node is not klass, name_node.node_ancestors()
+            )
+        )
+
+    def _consume_metaclass_name(
+        self, klass: nodes.ClassDef, name_node: nodes.Name
+    ) -> bool:
         """Mark the definition of a name used in the metaclass of klass as consumed.
 
         Return whether the name is defined.
         """
+        name = name_node.name
         # The class statement runs in the innermost scope, after the definitions
-        # preceding it: any definition of an enclosing scope can be used.
+        # preceding it, and can use any definition of an enclosing scope. A class
+        # body is not visible from the functions defined in it, nor from the body
+        # of a lambda or of a comprehension.
         innermost = self._to_consume[-1]
+        in_nested_scope = self._in_lambda_or_comprehension_body(name_node, klass)
         for consumer in reversed(self._to_consume):
+            if consumer.scope_type == "class" and (
+                consumer is not innermost or in_nested_scope
+            ):
+                continue
             definitions = consumer.node.locals.get(name, [])
             if consumer is innermost:
                 definitions = [
