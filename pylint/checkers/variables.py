@@ -1567,6 +1567,19 @@ class VariablesChecker(BaseChecker):
                 and not self._allowed_redefined_builtin(name)
                 and not self._should_ignore_redefined_builtin(stmt)
             ):
+                if (
+                    isinstance(stmt, nodes.AssignName)
+                    and isinstance(stmt.parent, nodes.Arguments)
+                    and isinstance(node.parent, nodes.ClassDef)
+                ):
+                    overridden = overridden_method(node.parent, node.name)
+                    if (
+                        overridden is not None
+                        and name in overridden.argnames()
+                        and name
+                        not in {arg.name for arg in overridden.args.posonlyargs}
+                    ):
+                        continue
                 # do not print Redefining builtin for additional builtins
                 self.add_message("redefined-builtin", args=name, node=stmt)
 
