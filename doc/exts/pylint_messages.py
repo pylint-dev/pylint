@@ -26,6 +26,7 @@ from pylint.message._deleted_message_ids import (
     DeletedMessage,
 )
 from pylint.utils import get_rst_title
+from pylint.utils.utils import _escape_rst_backslashes
 
 PYLINT_BASE_PATH = Path(__file__).resolve().parent.parent.parent
 """Base path to the project folder."""
@@ -581,7 +582,7 @@ def _generate_single_message_body(message: MessageData) -> str:
 
 **Description:**
 
-*{message.definition.description}*
+*{_escape_rst_backslashes(message.definition.description)}*
 """
     if not message.default_enabled:
         body += f"""
