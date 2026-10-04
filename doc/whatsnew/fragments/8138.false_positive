@@ -1,0 +1,4 @@
+Fix a false positive for ``not-callable`` and ``not-an-iterable`` when using a
+property whose body is only ``...``, such as the ``sqlalchemy.func`` helpers.
+
+Closes #8138
