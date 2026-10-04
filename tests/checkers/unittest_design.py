@@ -79,6 +79,36 @@ class TestDesignChecker(CheckerTestCase):
             class Child(Parent[str]):
                 pass
             """,
+            # Case 3: Multiple inheritance (normal base class + subscripted generic class)
+            """
+            class Helper:
+                def helper_m(self): pass
+
+            class Parent:
+                def __class_getitem__(cls, item):
+                    return super().__class_getitem__(item)
+                def parent_m(self): pass
+
+            class Child(Helper, Parent[int]):
+                pass
+            """,
+            # Case 4: Unresolvable subscripted base class
+            """
+            class Child(UnresolvableBase[int]):
+                def method_one(self): pass
+                def method_two(self): pass
+            """,
+            # Case 5: Inheriting from an exempt class through a subscripted generic
+            """
+            from enum import Enum
+
+            class GenericEnum(Enum):
+                def __class_getitem__(cls, item):
+                    return super().__class_getitem__(item)
+
+            class Child(GenericEnum[int]):
+                pass
+            """,
         ],
     )
     def test_too_few_public_methods_subscripted_generic(
@@ -88,5 +118,35 @@ class TestDesignChecker(CheckerTestCase):
         is uninferable) do not trigger false positive too-few-public-methods (R0903).
         """
         node = astroid.extract_node(code_snippet)
+        with self.assertNoMessages():
+            self.checker.leave_classdef(node)
+
+    @set_config(exclude_too_few_public_methods=".*Parent.*")
+    def test_exclude_too_few_methods_subscripted_generic(self) -> None:
+        """Test exclude-too-few-public-methods with subscripted generic class."""
+        node = astroid.extract_node("""
+        class Parent:
+            def __class_getitem__(cls, item):
+                return super().__class_getitem__(item)
+
+        class Child(Parent[int]):
+            pass
+        """)
+        with self.assertNoMessages():
+            self.checker.leave_classdef(node)
+
+    @set_config(exclude_too_few_public_methods=".*NonMatching.*")
+    def test_exclude_too_few_methods_subscripted_generic_no_match(self) -> None:
+        """Test exclude-too-few-public-methods when pattern does not match."""
+        node = astroid.extract_node("""
+        class Parent:
+            def __class_getitem__(cls, item):
+                return super().__class_getitem__(item)
+            def method_one(self): pass
+            def method_two(self): pass
+
+        class Child(Parent[int]):
+            pass
+        """)
         with self.assertNoMessages():
             self.checker.leave_classdef(node)
