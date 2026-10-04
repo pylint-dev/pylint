@@ -57,3 +57,23 @@ def used_before_later_item():
 def item_without_target():
     with contextlib.nullcontext(), pair() as (first, second), single(first) as third:
         print(first, second, third)
+
+
+def target_reads_name_bound_earlier_in_same_target(store):
+    with pair() as (first, store[first]):
+        print(first, store)
+
+
+def target_reads_name_bound_later_in_same_target(store):
+    with pair() as (store[first], first):  # [used-before-assignment]
+        print(first, store)
+
+
+def target_reads_name_bound_by_later_tuple_target(store):
+    with pair() as store[first], pair() as (first, second):  # [used-before-assignment]
+        print(first, second)
+
+
+def target_reads_name_bound_by_later_name_target(store):
+    with pair() as store[first], pair() as first:  # [used-before-assignment]
+        print(first)
