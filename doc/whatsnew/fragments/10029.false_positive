@@ -1,0 +1,5 @@
+Fix a false positive for ``missing-kwoa`` when keyword-only arguments are passed
+through a ``**kwargs`` dictionary that is not a literal at the call site, for
+example one filled with ``options["key"] = value`` after its creation.
+
+Closes #10029

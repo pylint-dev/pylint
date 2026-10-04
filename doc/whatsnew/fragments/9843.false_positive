@@ -1,0 +1,4 @@
+Fix a false positive for ``unused-argument`` in dataclass ``__new__`` methods
+when the arguments are consumed by a generated ``__init__`` method.
+
+Closes #9843

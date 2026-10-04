@@ -1,0 +1,3 @@
+Fix false positive ``unreachable`` when calling a function with ``@overload`` where one signature returns ``NoReturn``.
+
+Closes #10785

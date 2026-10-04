@@ -1,0 +1,18 @@
+Fix ``# pylint: enable`` inside a ``try`` block leaking into the ``except``
+handler. For example in the following code, ``no-member`` is no longer
+incorrectly re-enabled in the ``except`` block:
+
+.. code-block:: python
+
+    class Basket:
+        # pylint: disable=no-member
+        def pick(self):
+            try:
+                # pylint: enable=no-member
+                print(self.apple)  # no-member emitted here
+            except KeyError:
+                print(self.banana)  # no-member NOT emitted here (correct)
+
+Requires astroid 4.2.
+
+Refs #10933

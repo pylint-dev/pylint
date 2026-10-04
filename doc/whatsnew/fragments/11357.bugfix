@@ -1,0 +1,4 @@
+Fix a crash in the ``unnecessary-default-type-args`` check when a ``Generator``
+or ``AsyncGenerator`` subscript holds an empty tuple, such as ``Generator[()]``.
+
+Closes #11357

@@ -1,0 +1,4 @@
+Fix a false positive for :ref:`not-callable` when calling functions constructed with
+``types.FunctionType`` or ``types.LambdaType``.
+
+Closes #7500

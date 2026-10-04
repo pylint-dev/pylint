@@ -1,0 +1,6 @@
+Emit ``arguments-differ`` when an overridden special method takes a different
+number of parameters. Only renamed parameters and removed variadics stay
+exempt, and the constructor family (``__new__``, ``__init__``,
+``__init_subclass__`` and ``__post_init__``) is still fully ignored.
+
+Closes #11295

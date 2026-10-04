@@ -1,0 +1,6 @@
+Skip isort classification in the import checker when no import-ordering message is enabled,
+and cache the isort configuration so it is built once instead of once per import statement.
+Skipping the isort processing become a negligible improvement once the caching is applied.
+pylint became ~17% faster on ansible (~=4500 imports) even with isort enabled.
+
+Refs #10886, #2866, #10637

@@ -61,9 +61,9 @@ class CamelCaseStyle(NamingStyle):
     """Regex rules for camelCase naming style."""
 
     CLASS_NAME_RGX = re.compile(r"[^\W\dA-Z][^\W_]*$")
-    MOD_NAME_RGX = re.compile(r"([^\W\dA-Z][^\W_]*|__main__)$")
+    MOD_NAME_RGX = re.compile(r"[^\W\dA-Z][^\W_]*$")
     CONST_NAME_RGX = re.compile(r"([^\W\dA-Z][^\W_]*|__.*__)$")
-    COMP_VAR_RGX = CLASS_NAME_RGX
+    COMP_VAR_RGX = MOD_NAME_RGX
     DEFAULT_NAME_RGX = re.compile(r"(?:__)?([^\W\dA-Z][^\W_]*|__[^\W\dA-Z_]\w+__)$")
     CLASS_ATTRIBUTE_RGX = re.compile(r"([^\W\dA-Z][^\W_]*|__.*__)$")
 
@@ -72,7 +72,7 @@ class PascalCaseStyle(NamingStyle):
     """Regex rules for PascalCase naming style."""
 
     CLASS_NAME_RGX = re.compile(r"[^\W\da-z][^\W_]*$")
-    MOD_NAME_RGX = re.compile(r"([^\W\da-z][^\W_]*|__main__)$")
+    MOD_NAME_RGX = CLASS_NAME_RGX
     CONST_NAME_RGX = re.compile(r"([^\W\da-z][^\W_]*|__.*__)$")
     COMP_VAR_RGX = CLASS_NAME_RGX
     DEFAULT_NAME_RGX = re.compile(r"([^\W\da-z][^\W_]*|__[^\W\dA-Z_]\w+__)$")
@@ -83,7 +83,7 @@ class UpperCaseStyle(NamingStyle):
     """Regex rules for UPPER_CASE naming style."""
 
     CLASS_NAME_RGX = re.compile(r"[^\W\da-z][^\Wa-z]*$")
-    MOD_NAME_RGX = re.compile(r"([^\W\da-z][^\Wa-z]*|__main__)$")
+    MOD_NAME_RGX = CLASS_NAME_RGX
     CONST_NAME_RGX = re.compile(r"([^\W\da-z][^\Wa-z]*|__.*__)$")
     COMP_VAR_RGX = CLASS_NAME_RGX
     DEFAULT_NAME_RGX = re.compile(r"([^\W\da-z][^\Wa-z]*|__[^\W\dA-Z_]\w+__)$")

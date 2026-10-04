@@ -35,12 +35,11 @@ from pylint.constants import (
     MSG_TYPES_STATUS,
     WarningScope,
 )
-from pylint.interfaces import HIGH, _confidence_or_undefined
+from pylint.interfaces import HIGH
 from pylint.lint.base_options import _make_linter_options
 from pylint.lint.caching import load_results, save_results
 from pylint.lint.expand_modules import (
     _is_ignored_file,
-    _is_in_ignore_list_re,
     discover_package_path,
     expand_modules,
 )
@@ -736,54 +735,33 @@ class PyLinter(
 
         Returns iterator of paths to discovered modules and packages.
         """
-
-        def is_ignored_name(name: str) -> bool:
-            # os.walk already gives base names, unlike _is_ignored_file we do
-            # not need to resolve the absolute path to get one.
-            return name in self.config.ignore or _is_in_ignore_list_re(
-                name, self.config.ignore_patterns
-            )
-
         for something in files_or_modules:
             if os.path.isdir(something) and not os.path.isfile(
                 os.path.join(something, "__init__.py")
             ):
-                if _is_ignored_file(
-                    something,
-                    self.config.ignore,
-                    self.config.ignore_patterns,
-                    self.config.ignore_paths,
-                ):
-                    continue
-                for root, dirnames, files in os.walk(something, topdown=True):
-                    # Prune ignored directories in place, so that os.walk does
-                    # not descend into them. ignore-paths needs the full path.
-                    dirnames[:] = [
-                        dirname
-                        for dirname in dirnames
-                        if not is_ignored_name(dirname)
-                        and not _is_in_ignore_list_re(
-                            os.path.normpath(os.path.join(root, dirname)),
-                            self.config.ignore_paths,
-                        )
-                    ]
+                skip_subtrees: list[str] = []
+                for root, _, files in os.walk(something):
+                    if any(root.startswith(s) for s in skip_subtrees):
+                        # Skip subtree of already discovered package.
+                        continue
 
-                    # os.walk yields entries in the order of the file system,
-                    # sort them so that files are discovered in the same order
-                    # everywhere.
-                    dirnames.sort()
+                    if _is_ignored_file(
+                        root,
+                        self.config.ignore,
+                        self.config.ignore_patterns,
+                        self.config.ignore_paths,
+                    ):
+                        skip_subtrees.append(root + os.sep)
+                        continue
 
                     if "__init__.py" in files:
-                        # The package is expanded as a whole later on, do not
-                        # descend into it.
-                        dirnames.clear()
+                        skip_subtrees.append(root + os.sep)
                         yield root
                     else:
                         yield from (
                             os.path.join(root, file)
-                            for file in sorted(files)
+                            for file in files
                             if file.endswith((".py", ".pyi"))
-                            and not is_ignored_name(file)
                         )
             else:
                 yield something
@@ -1314,7 +1292,7 @@ class PyLinter(
         line: int | None,
         node: nodes.NodeNG | None,
         args: Any | None,
-        confidence: interfaces.Confidence | None,
+        confidence: interfaces.Confidence,
         col_offset: int | None,
         end_lineno: int | None,
         end_col_offset: int | None,
@@ -1406,7 +1384,7 @@ class PyLinter(
         line: int | None = None,
         node: nodes.NodeNG | None = None,
         args: Any | None = None,
-        confidence: interfaces.Confidence | None = interfaces.UNDEFINED,
+        confidence: interfaces.Confidence = interfaces.UNDEFINED,
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
@@ -1419,7 +1397,6 @@ class PyLinter(
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
         """
-        confidence = _confidence_or_undefined(confidence, stacklevel=2)
         message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
             self._add_one_message(
@@ -1438,7 +1415,7 @@ class PyLinter(
         msgid: str,
         line: int,
         node: nodes.NodeNG | None = None,
-        confidence: interfaces.Confidence | None = interfaces.UNDEFINED,
+        confidence: interfaces.Confidence = interfaces.UNDEFINED,
     ) -> None:
         """Prepares a message to be added to the ignored message storage.
 
@@ -1447,7 +1424,6 @@ class PyLinter(
         This creates false positives for useless-suppression.
         This function avoids this by adding those message to the ignored msgs attribute
         """
-        confidence = _confidence_or_undefined(confidence, stacklevel=2)
         message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
             message_definition.check_message_definition(line, node)

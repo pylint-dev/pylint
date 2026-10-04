@@ -1,4 +1,0 @@
-Fix the programmatic ``run_pylint`` example to pass command-line arguments as
-a sequence.
-
-Closes #8766

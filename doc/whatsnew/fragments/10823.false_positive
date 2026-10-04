@@ -1,0 +1,4 @@
+Fix ``undefined-variable`` false positive when a name used as a ``metaclass``
+argument in a nested class is referenced again later in the module.
+
+Closes #10823

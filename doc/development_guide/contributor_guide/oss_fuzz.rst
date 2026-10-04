@@ -50,13 +50,15 @@ commands:
   mkdir fuzzing-repro
   cd fuzzing-repro
 
-  uv venv --python 3.14
+  # Note: Atheris doesn't support Python 3.12+ yet:
+  # https://github.com/google/atheris/issues/82
+  uv venv --python 3.11
   source .venv/bin/activate
 
   git clone https://github.com/pylint-dev/astroid.git
   cd astroid
 
-  uv pip install atheris==3.1.0
+  uv pip install atheris==2.3.0
   uv pip install --editable .
 
   # Save the minimized testcase as `minimized.py` in the astroid directory

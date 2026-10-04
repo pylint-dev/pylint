@@ -49,8 +49,7 @@ class EllipsisChecker(BaseChecker):
         if (
             isinstance(scope, nodes.FunctionDef)
             and utils.is_function_body_ellipsis(scope)
-            and scope.parent
-            and utils.is_protocol_class(scope.parent.scope())
+            and utils.is_protocol_class(scope.parent)
         ):
             return
 

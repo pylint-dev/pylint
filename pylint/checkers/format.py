@@ -163,9 +163,6 @@ class TokenWrapper:
     def line(self, idx: int) -> str:
         return self._tokens[idx][4]
 
-    def __len__(self) -> int:
-        return len(self._tokens)
-
 
 class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     """Formatting checker.
@@ -643,24 +640,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 self.add_message("line-too-long", line=i, args=(len(line), max_chars))
 
     @staticmethod
-    def _first_comment_offset(
-        tokens: TokenWrapper, line_start: int, lines: str, lineno: int
-    ) -> int | None:
-        """Offset in ``lines`` of the first comment token they contain, if any."""
-        last_lineno = lineno + lines.count("\n")
-        for idx in range(line_start, len(tokens)):
-            row = tokens.start_line(idx)
-            if row > last_lineno:
-                break
-            if tokens.type(idx) != tokenize.COMMENT or row < lineno:
-                continue
-            offset = 0
-            for _ in range(row - lineno):
-                offset = lines.index("\n", offset) + 1
-            return offset + tokens.start_col(idx)
-        return None
-
-    @staticmethod
     def remove_pylint_option_from_lines(options_pattern_obj: Match[str]) -> str:
         """Remove the `# pylint ...` pattern from lines."""
         lines = options_pattern_obj.string
@@ -750,11 +729,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             return
 
         # Line length check may be deactivated through `pylint: disable` comment
-        # When the lines hold a comment, the pragma is in it: start the search
-        # there, so a ``#`` inside a string before it is not taken for the pragma
-        # (#11440). Without one, a pragma written inside a docstring still counts.
-        comment_offset = self._first_comment_offset(tokens, line_start, lines, lineno)
-        mobj = OPTION_PO.search(lines, comment_offset or 0)
+        mobj = OPTION_PO.search(lines)
         checker_off = False
         if mobj:
             if not self.is_line_length_check_activated(mobj):

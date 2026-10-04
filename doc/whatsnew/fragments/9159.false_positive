@@ -1,0 +1,8 @@
+Fixed a false positive ``no-member`` when a ``classmethod`` annotated with
+``typing.Self`` is overridden in a subclass and its result is used directly,
+as in ``Subclass.build().only_on_subclass()``. The return type is now narrowed
+to the subclass rather than the base class. This regressed in pylint 3.0.0.
+
+Fixed by upgrading astroid to 4.1.0.
+
+Closes #9159

@@ -153,12 +153,3 @@ class A:
 
     def line(self) -> None:
         self.c[1] = self.c[1] + 1  # [consider-using-augmented-assign]
-
-
-# Subscripts with different key variables are different targets,
-# even when both keys infer to strings (https://github.com/pylint-dev/pylint/issues/10032)
-d = {}
-d2 = {}
-key = str(1)
-previous = str(0)
-d2[key] = d2[previous] + d[key]

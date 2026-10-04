@@ -1,0 +1,9 @@
+Add new checks ``impossible-comparison`` and ``chained-comparison-all-equal``.
+``impossible-comparison`` flags boolean conditions whose chain of numeric
+comparisons is logically contradictory and can never be true (for example
+``a > b and b > a``). ``chained-comparison-all-equal`` flags boolean conditions
+whose operands form a cycle of weak inequalities (``<=`` or ``>=``) and can be
+simplified to a chain of equalities (for example ``a >= b and b >= a`` is
+equivalent to ``a == b``).
+
+Closes #5814

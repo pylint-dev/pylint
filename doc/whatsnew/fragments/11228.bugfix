@@ -1,0 +1,3 @@
+Fix a crash in the ``docparams`` extension when a raised name does not infer to an exception, such as ``raise sum`` or ``raise some_module``. Such objects have no ``ancestors()``, which aborted the whole file with an ``astroid-error`` fatal message.
+
+Closes #11228

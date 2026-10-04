@@ -1,0 +1,5 @@
+``chained-comparison`` is now emitted for additional simplifiable patterns
+(e.g. ``a > 1 and a > 10``) and its message now includes the suggested
+simplification.
+
+Refs #7611

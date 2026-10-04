@@ -9,7 +9,7 @@ Python program thanks to their APIs:
 
     from pylint import run_pylint, run_pyreverse, run_symilar
 
-    run_pylint(["--disable=C", "myfile.py"])
+    run_pylint("--disable=C", "myfile.py")
     run_pyreverse(...)
     run_symilar(...)
 

@@ -1,0 +1,3 @@
+Fix a false suggestion from ``nested-min-max`` (``W3301``): when rewriting a nested ``min``/``max`` into a splat call, arguments positioned after the splatted call were silently dropped, so the suggested code changed the result.
+
+Closes #11134

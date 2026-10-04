@@ -1,0 +1,4 @@
+Documentation for options defined by ``Run``, such as ``--errors-only`` and
+``--init-hook``, is now generated alongside checker configuration options.
+
+Closes #6938

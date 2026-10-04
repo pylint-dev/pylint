@@ -214,28 +214,3 @@ class TestShadowedModuleAlias(CheckerTestCase):
             assert linter.reporter.finalize().strip() == ""
         finally:
             sys.path.pop(0)
-
-
-class TestUnusedArgumentInStubFile(CheckerTestCase):
-    """A ``.pyi`` body is ``...``, so it cannot use its arguments (#9417)."""
-
-    CHECKER_CLASS = variables.VariablesChecker
-
-    CODE = """
-    class TestClient:
-        def simulate_get(self, path: str) -> str: ...
-
-    def module_function(value: int) -> int: ...
-    """
-
-    def test_no_unused_argument_in_a_stub(self) -> None:
-        node = astroid.parse(self.CODE, path="client.pyi")
-        with self.assertNoMessages():
-            self.walk(node)
-
-    def test_the_same_code_in_a_py_file_still_warns(self) -> None:
-        node = astroid.parse(self.CODE, path="client.py")
-        self.walk(node)
-        assert {
-            (message.msg_id, message.args) for message in self.linter.release_messages()
-        } == {("unused-argument", "path"), ("unused-argument", "value")}

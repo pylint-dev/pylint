@@ -1567,19 +1567,6 @@ class VariablesChecker(BaseChecker):
                 and not self._allowed_redefined_builtin(name)
                 and not self._should_ignore_redefined_builtin(stmt)
             ):
-                if (
-                    isinstance(stmt, nodes.AssignName)
-                    and isinstance(stmt.parent, nodes.Arguments)
-                    and isinstance(node.parent, nodes.ClassDef)
-                ):
-                    overridden = overridden_method(node.parent, node.name)
-                    if (
-                        overridden is not None
-                        and name in overridden.argnames()
-                        and name
-                        not in {arg.name for arg in overridden.args.posonlyargs}
-                    ):
-                        continue
                 # do not print Redefining builtin for additional builtins
                 self.add_message("redefined-builtin", args=name, node=stmt)
 
@@ -2961,7 +2948,7 @@ class VariablesChecker(BaseChecker):
             return
 
         # Don't check function stubs created only for type information
-        if utils.is_overload_stub(node) or utils.is_in_stub_file(node):
+        if utils.is_overload_stub(node):
             return
 
         # Don't check protocol classes
@@ -3476,21 +3463,14 @@ class VariablesChecker(BaseChecker):
                 scope_locals = to_consume.to_consume
                 found_nodes = scope_locals.get(name, [])
                 for found_node in found_nodes:
-                    # A binding without a line number (e.g. a synthetic or
-                    # builtin node such as ``__annotations__``) cannot be
-                    # ordered against the class definition, so treat it as
-                    # consumed/resolved rather than crashing on the comparison.
-                    if found_node.lineno is None or found_node.lineno <= klass.lineno:
+                    if found_node.lineno <= klass.lineno:
                         consumed.append((to_consume, name, found_nodes))
                         found = True
                         break
             # Check parent scope
             nodes_in_parent_scope = parent_node.locals.get(name, [])
             for found_node_parent in nodes_in_parent_scope:
-                if (
-                    found_node_parent.lineno is None
-                    or found_node_parent.lineno <= klass.lineno
-                ):
+                if found_node_parent.lineno <= klass.lineno:
                     found = True
                     break
         if (

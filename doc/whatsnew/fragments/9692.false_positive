@@ -1,0 +1,7 @@
+Fix a false positive for ``inconsistent-return-statements`` when an instance
+method annotated with ``NoReturn`` (or ``Never``) is called via the class
+rather than an instance (e.g. ``MyClass.raise_method(obj)``). The unbound
+method form is now recognised as never returning, matching the existing
+behaviour for the bound-method form.
+
+Closes #9692

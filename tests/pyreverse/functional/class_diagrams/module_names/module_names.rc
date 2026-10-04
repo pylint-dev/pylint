@@ -1,3 +1,0 @@
-[testoptions]
-output_formats=mmd,dot
-command_line_args=--module-names=y

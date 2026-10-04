@@ -74,55 +74,6 @@ to your liking.
 
 .. towncrier release notes start
 
-What's new in Pylint 4.0.10?
-----------------------------
-Release date: 2026-09-29
-
-
-False Positives Fixed
----------------------
-
-- Fix false positives for :ref:`unnecessary-lambda` when a variable referenced in
-  the called expression is assigned, reassigned, or deleted later in the same scope.
-
-  Closes #8192 (`#8192 <https://github.com/pylint-dev/pylint/issues/8192>`_)
-
-- Fix a false positive for ``unused-argument`` in dataclass ``__new__`` methods
-  when the arguments are consumed by a generated ``__init__`` method.
-
-  Closes #9843 (`#9843 <https://github.com/pylint-dev/pylint/issues/9843>`_)
-
-- Fix a false positive for ``missing-kwoa`` when keyword-only arguments are passed
-  through a ``**kwargs`` dictionary that is not a literal at the call site, for
-  example one filled with ``options["key"] = value`` after its creation.
-
-  Closes #10029 (`#10029 <https://github.com/pylint-dev/pylint/issues/10029>`_)
-
-- ``ungrouped-imports`` no longer reports imports inside mutually exclusive
-  OS guard branches (``if os.name == "nt":`` / ``if sys.platform == "win32":``),
-  matching the existing behavior for ``sys.version_info`` guards.
-
-  Closes #10460 (`#10460 <https://github.com/pylint-dev/pylint/issues/10460>`_)
-
-
-
-Other Bug Fixes
----------------
-
-- A ``TypeError`` crash could occur when checking a ``for`` loop that
-  iterates over a subscript with non-numeric constant bounds or a zero
-  step, e.g. ``for a, b in {"k": [][0: ""]}.values():``.
-
-  Closes #11472 (`#11472 <https://github.com/pylint-dev/pylint/issues/11472>`_)
-
-- Fix a crash (``AttributeError: 'ClassDef' object has no attribute 'expr'``) in the
-  ``import-private-name`` extension when an annotated assignment's value is an
-  attribute access on a call rooted at a non-``Name`` node, e.g. ``x: str = ''().a``.
-
-  Closes #11479 (`#11479 <https://github.com/pylint-dev/pylint/issues/11479>`_)
-
-
-
 What's new in Pylint 4.0.9?
 ---------------------------
 Release date: 2026-09-23

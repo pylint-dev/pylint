@@ -1,0 +1,7 @@
+The primer's project cache key is now derived from the commits pinned in
+``packages_to_prime.json`` instead of the remote branch tips. ``main`` and PR primer
+runs now share the same project cache and lint files in the same on-disk order,
+removing spurious diffs from primer comments (message positions and astroid inference
+results depend on the order in which modules are linted).
+
+Closes #11192

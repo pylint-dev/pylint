@@ -1,0 +1,6 @@
+Fix a false positive for ``unnecessary-direct-lambda-call`` when a directly called
+lambda in a class body wraps a comprehension containing an assignment expression.
+PEP 572 makes that a ``SyntaxError`` without the lambda's scope, so following the
+message produced code that would not compile.
+
+Closes #9294

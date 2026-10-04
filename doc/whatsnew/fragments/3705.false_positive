@@ -1,0 +1,6 @@
+Fixed a false positive for ``no-self-use`` on a method that only uses
+``self`` before a locally defined class (or other nested method), because
+the checker's could-be-a-function tracking state was not restored after
+visiting the nested method.
+
+Closes #3705

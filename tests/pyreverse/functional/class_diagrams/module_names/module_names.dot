@@ -1,7 +1,0 @@
-digraph "classes" {
-rankdir=BT
-charset="utf-8"
-"module_names.Animal" [color="black", fontcolor="black", label=<{module_names.Animal|name : str<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
-"module_names.Dog" [color="black", fontcolor="black", label=<{module_names.Dog|<br ALIGN="LEFT"/>|bark(): str<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
-"module_names.Dog" -> "module_names.Animal" [arrowhead="empty", arrowtail="none"];
-}

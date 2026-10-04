@@ -14,8 +14,9 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
-    is_typing_member,
     only_required_for_messages,
+    safe_infer,
+    uninferable_final_decorators,
 )
 from pylint.interfaces import HIGH
 
@@ -121,13 +122,13 @@ class UnsupportedVersionChecker(BaseChecker):
         if self._py38_plus:
             return
 
-        decorators = [
-            decorator
-            for decorator in node.get_children()
-            if is_typing_member(decorator, ("final",))
-        ]
+        decorators = []
+        for decorator in node.get_children():
+            inferred = safe_infer(decorator)
+            if inferred and inferred.qname() == "typing.final":
+                decorators.append(decorator)
 
-        for decorator in decorators:
+        for decorator in decorators or uninferable_final_decorators(node):
             self.add_message(
                 "using-final-decorator-in-unsupported-version",
                 node=decorator,

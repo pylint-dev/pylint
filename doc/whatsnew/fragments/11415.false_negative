@@ -1,0 +1,6 @@
+Fix a false negative for ``unspecified-encoding`` and ``bad-open-mode`` when the
+mode of an ``open`` call is a parameter of the enclosing function that has a
+default value. The default is now used to check the call, as a literal mode
+would be. Calls with such a mode stopped being reported in pylint 4.0.8.
+
+Refs #11415

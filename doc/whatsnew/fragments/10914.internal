@@ -1,0 +1,13 @@
+The primer now pairs residual messages — first by ``(symbol, path, obj)`` and then by
+exact source location — and reports altered messages as a single *changed* entry with
+a compact diff, rather than as a separate removal + addition. The location-based pass
+also catches symbol renames at the same code position (e.g. ``used-before-assignment``
+→ ``possibly-used-before-assignment``). When several messages are eligible, the one
+closest to the original line wins, so pairs never cross. New messages are classified
+into fixed false positives (``useless-suppression``), ``astroid-error`` fatal errors,
+and the rest. ``astroid-error`` messages are excluded from pairing (their text embeds
+a unique crash-report path) so persistent crashes keep raising the prominent warning.
+Truncated comments are now cut at a line break and keep their code fences and
+``<details>`` blocks closed.
+
+Refs #10914

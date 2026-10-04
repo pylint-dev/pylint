@@ -93,11 +93,3 @@ and_expr = Colour.RED & Colour.GREEN & Colour.BLUE
 and_expr_with_complement = ~Colour.RED & ~Colour.GREEN & ~Colour.BLUE
 or_expr = Colour.RED | Colour.GREEN | Colour.BLUE
 xor_expr = Colour.RED ^ Colour.GREEN ^ Colour.BLUE
-
-
-class Issue10609(Enum):
-    """A member-less subclass still has the functional API of ``EnumType.__call__``."""
-
-
-FunctionalFromSubclass = Issue10609("FunctionalFromSubclass", {"RED": 1})
-FunctionalFromEnum = Enum("FunctionalFromEnum", {"BLUE": 2})

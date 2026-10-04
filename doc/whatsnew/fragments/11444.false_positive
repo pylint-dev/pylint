@@ -1,0 +1,3 @@
+Fixed a false positive for ``unnecessary-semicolon`` when an f-string ending in ``;`` is continued onto the next line with a backslash on Python 3.12+.
+
+Closes #11444

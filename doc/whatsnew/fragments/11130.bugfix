@@ -1,0 +1,3 @@
+Fix a false positive for ``nested-min-max`` (``W3301``) when the inner ``min``/``max`` call carries a keyword argument such as ``key=``. Flattening the call dropped the keyword and changed the result, so nested calls whose inner call has keyword arguments are no longer flagged.
+
+Closes #11130

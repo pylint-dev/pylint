@@ -1,0 +1,3 @@
+Upgrade the ``isort`` upper bound so ``isort`` 9 can be installed alongside pylint.
+
+Closes #11351

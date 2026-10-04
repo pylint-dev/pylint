@@ -1,0 +1,3 @@
+Check for metaclass __call__ signature when evaluating arguments of a class call.
+
+Closes #11032
