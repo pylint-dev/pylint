@@ -1483,6 +1483,15 @@ a metaclass class method.",
                 continue
             if not isinstance(parent_function, nodes.FunctionDef):
                 continue
+            if is_overload_stub(parent_function):
+                # Compare with the implementation, not the first overload stub.
+                implementations = [
+                    n
+                    for n in overridden.locals[node.name]
+                    if isinstance(n, nodes.FunctionDef) and not is_overload_stub(n)
+                ]
+                if implementations:
+                    parent_function = implementations[-1]
             self._check_signature(node, parent_function, klass)
             self._check_invalid_overridden_method(node, parent_function)
             break

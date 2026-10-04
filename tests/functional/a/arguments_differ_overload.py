@@ -4,6 +4,7 @@ https://github.com/pylint-dev/pylint/issues/5264
 https://github.com/pylint-dev/pylint/issues/10186
 """
 # pylint: disable=missing-docstring,unused-argument,too-few-public-methods
+from abc import ABC, abstractmethod
 from typing import Literal, Union, overload
 
 
@@ -70,4 +71,62 @@ class ChildWithWrongImplementation(Parent):
 
 class ChildWithoutOverload(Parent):
     def statement(self, future, extra):  # [arguments-differ]
+        pass
+
+
+class ChildOfOverloaded(OverloadedParent):
+    """Compared with the parent's implementation, not its first overload stub."""
+
+    def func(
+        self, *, b: Union[bool, None] = None, p: int = 0, s: str = ""
+    ) -> None:
+        pass
+
+
+class WrongChildOfOverloaded(OverloadedParent):
+    def func(self, extra, *, b=None, p=0, s="") -> None:  # [arguments-differ]
+        pass
+
+
+class AbstractStaticParent(ABC):
+    @staticmethod
+    @abstractmethod
+    @overload
+    def func(*, b: Literal[True]) -> None: ...
+
+    @staticmethod
+    @abstractmethod
+    @overload
+    def func(*, b: Literal[False], p: int) -> None: ...
+
+    @staticmethod
+    @abstractmethod
+    @overload
+    def func(*, s: str) -> None: ...
+
+    @staticmethod
+    @abstractmethod
+    def func(
+        *, b: Union[bool, None] = None, p: Union[int, None] = None, s: str = ""
+    ) -> None:
+        """The implementation"""
+
+
+class StaticChild(AbstractStaticParent):
+    @staticmethod
+    @overload
+    def func(*, b: Literal[True]) -> None: ...
+
+    @staticmethod
+    @overload
+    def func(*, b: Literal[False], p: int) -> None: ...
+
+    @staticmethod
+    @overload
+    def func(*, s: str) -> None: ...
+
+    @staticmethod
+    def func(
+        *, b: Union[bool, None] = None, p: Union[int, None] = None, s: str = ""
+    ) -> None:
         pass
