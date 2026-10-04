@@ -266,91 +266,49 @@ def _fix_dot_imports(
     return sorted(names.items(), key=lambda a: a[1].fromlineno)
 
 
-def _accessed_dotted_submodules(
-    node: nodes.Module, name: str, candidates: set[str]
-) -> set[str] | None:
-    """Find which of the dotted import paths in `candidates` (all bound to
-    the single local `name`, e.g. {'pkg.a', 'pkg.b'}) are reached by an.
+def _unused_sibling_submodule_imports(
+    module: nodes.Module, name: str
+) -> list[nodes.NodeNG]:
+    """Return the ``import pkg.a`` statements hidden by a used ``import pkg.b``.
 
-    attribute access rooted at `name` (e.g. `pkg.a.thing()`) anywhere in
-    `node`.
-
-    Returns None if `name` is used anywhere in a way that isn't attributable
-    to one specific dotted import (a bare reference such as `x = pkg`), since
-    such a use may legitimately reach any of the sibling imports.
+    Both bind ``pkg``, so using either one consumes them all (#2583).
     """
-    accessed: set[str] = set()
-    for use in node.nodes_of_class(nodes.Name):
+    imported = {
+        dotted: stmt
+        for stmt in module.locals[name]
+        if isinstance(stmt, nodes.Import)
+        for dotted, alias in stmt.names
+        if alias is None and dotted.startswith(f"{name}.")
+    }
+    statements = list(dict.fromkeys(imported.values()))
+    if len(statements) < 2:
+        return []
+    used = set()
+    for use in module.nodes_of_class(nodes.Name):
         if use.name != name:
             continue
-        # Walk the whole attribute chain rooted at `use` to build the full
-        # dotted access path, e.g. `email.mime.application` for
-        # `email.mime.application.MIMEApplication(...)`. Looking only one level
-        # deep cannot tell sibling submodules that share a prefix apart.
-        path = name
-        current: nodes.NodeNG = use
-        parent = current.parent
-        while isinstance(parent, nodes.Attribute) and parent.expr is current:
-            path = f"{path}.{parent.attrname}"
-            current = parent
-            parent = current.parent
-        # Credit the most specific imported submodule the access reaches, so
-        # `email.mime.application` and `email.mime.multipart` are told apart.
-        reached = None
-        for candidate in candidates:
-            if path == candidate or path.startswith(f"{candidate}."):
-                if reached is None or len(candidate) > len(reached):
-                    reached = candidate
-        if reached is None:
-            return None
-        accessed.add(reached)
-    return accessed
+        access: nodes.NodeNG = use
+        while isinstance(access.parent, nodes.Attribute):
+            access = access.parent
+        path = f"{access.as_string()}."
+        reached = [dotted for dotted in imported if path.startswith(f"{dotted}.")]
+        if not reached:
+            # e.g. a bare ``pkg``: it could reach any sibling
+            return []
+        used.add(imported[max(reached, key=len)])
+    return [stmt for stmt in statements if stmt not in used]
 
 
 def _recover_unreferenced_dotted_imports(
     node: nodes.Module, not_consumed: Consumption
 ) -> None:
-    """Restore a dotted-submodule import to `not_consumed` when it was only
-    dropped because a *sibling* import bound to the same local name was used.
-
-    `import pkg.a` and `import pkg.b` both bind the local name `pkg`, so using
-    either one (`pkg.a.thing()`) marks the whole name `pkg` as consumed and
-    hides an actually-unused sibling (`pkg.b`) from `not_consumed`, and thus
-    from `unused-import`.
-    """
-    for name, stmts in node.locals.items():
+    """Re-flag sibling submodule imports a used sibling wrongly consumed (#2583)."""
+    for name in node.locals:
         if name in not_consumed:
             continue
-        dotted_imports = [
-            stmt
-            for stmt in stmts
-            if isinstance(stmt, nodes.Import)
-            and any(
-                alias is None and imported_name.startswith(f"{name}.")
-                for imported_name, alias in stmt.names
-            )
-        ]
-        if len(dotted_imports) < 2:
-            continue
-        candidates = {
-            imported_name
-            for stmt in dotted_imports
-            for imported_name, alias in stmt.names
-            if alias is None and imported_name.startswith(f"{name}.")
-        }
-        accessed = _accessed_dotted_submodules(node, name, candidates)
-        if not accessed:
-            continue
-        unreferenced = [
-            stmt
-            for stmt in dotted_imports
-            if not any(
-                alias is None and imported_name in accessed
-                for imported_name, alias in stmt.names
-            )
-        ]
-        if unreferenced:
-            not_consumed[name] = unreferenced
+        unused = _unused_sibling_submodule_imports(node, name)
+        if unused:
+            not_consumed[name] = unused
 
 
 def _find_frame_imports(name: str, frame: nodes.LocalsDictNodeNG) -> bool:
