@@ -27,3 +27,24 @@ class Two[T](One[T]):
 
 one = One(1)
 two = Two(1, 2)
+
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/10991:
+# a kw_only field inherited through a base that forwards a TypeVarTuple.
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class Base:
+    value: str
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class Middle[T, *Shape](Base):
+    pass
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class Upper[T, *Shape](Middle[T, *Shape]):
+    pass
+
+
+Upper[str, int](value="hello")
+Upper(value="hello")
