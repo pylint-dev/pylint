@@ -296,6 +296,7 @@ ini_options.filterwarnings = [
 ]
 
 [tool.coverage]
+run.branch = true
 paths.source = [ "pylint" ]
 report.include = [ "pylint/*" ]
 report.omit = [ "*/test/*" ]
