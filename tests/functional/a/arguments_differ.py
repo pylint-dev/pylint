@@ -418,3 +418,35 @@ class PostInitChild(PostInitParent):
     def __post_init__(self, y):
         super().__post_init__()
         self.x += y
+
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/11567
+# Positional-only parameters are positional parameters too.
+class PosonlyBase:
+    def method(self, key):
+        return key
+
+
+class PosonlyChild(PosonlyBase):
+    def method(self, key, /):
+        return key
+
+
+class PosonlyMixedBase:
+    def method(self, first, second):
+        return first, second
+
+
+class PosonlyMixedChild(PosonlyMixedBase):
+    def method(self, first, /, second):
+        return first, second
+
+
+class PosonlyMissingBase:
+    def method(self, first, second):
+        return first, second
+
+
+class PosonlyMissingChild(PosonlyMissingBase):
+    def method(self, first, /):  # [arguments-differ]
+        return first
