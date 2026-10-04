@@ -13,6 +13,7 @@
 # https://unix.stackexchange.com/a/31806/189111
 doc/user_guide/messages/convention/
 doc/user_guide/messages/error/
+temp_auto_push.bat
 doc/user_guide/messages/fatal/
 doc/user_guide/messages/information/
 doc/user_guide/messages/refactor/
@@ -28,3 +29,4 @@ build-stamp
 .pytest_cache/
 .mypy_cache/
 .benchmarks/
+branch_structure.json
