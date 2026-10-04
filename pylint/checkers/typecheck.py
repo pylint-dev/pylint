@@ -847,6 +847,82 @@ def _is_c_extension(module_node: InferenceResult) -> bool:
     )
 
 
+# Annotations that name a callable type. ``collections.abc.Callable`` is
+# inferred as ``_collections_abc.Callable``. Subscripting builtin ``type`` is
+# handled separately: astroid's type-subscript brain does not infer it as
+# ``builtins.type``.
+_CALLABLE_STUB_ANNOTATION_QNAMES = frozenset(
+    {
+        "builtins.type",
+        "_collections_abc.Callable",
+    }
+)
+
+
+def _is_subscripted_builtin_type(node: nodes.NodeNG) -> bool:
+    """Return True if ``node`` is builtin ``type`` in a ``type[...]`` annotation.
+
+    Astroid infers that name to a synthetic class whose qname is not
+    ``builtins.type``, so the builtin is recognized by lookup instead.
+    """
+    if not isinstance(node, nodes.Name) or node.name != "type":
+        return False
+    scope, _ = node.lookup("type")
+    return isinstance(scope, nodes.Module) and scope.qname() == "builtins"
+
+
+def _annotation_is_callable_type(annotation: nodes.NodeNG | None) -> bool:
+    """Return True if ``annotation`` is exactly a callable-type subscript.
+
+    Accepts ``typing.Type``, ``typing.Callable``, builtin ``type``, and
+    ``collections.abc.Callable``. A union, ``Optional``, ``Annotated``, or a
+    bare class is not an exact callable type.
+    """
+    if not isinstance(annotation, nodes.Subscript):
+        return False
+    origin = annotation.value
+    if utils.is_typing_member(origin, ("Type", "Callable")):
+        return True
+    if _is_subscripted_builtin_type(origin):
+        return True
+    inferred = safe_infer(origin)
+    return (
+        isinstance(inferred, nodes.ClassDef)
+        and inferred.qname() in _CALLABLE_STUB_ANNOTATION_QNAMES
+    )
+
+
+def _is_ellipsis_property_callable_stub(node: nodes.Call) -> bool:
+    """Return True if ``node`` calls an ellipsis ``@property`` of a callable type.
+
+    Astroid infers a function body that is only ``...`` as ``None``. When the
+    return annotation is a callable type, that ``None`` is a stub for type
+    checkers, not a value that was implemented as non-callable.
+    """
+    if not isinstance(node.func, nodes.Attribute):
+        return False
+
+    klass = safe_infer(node.func.expr)
+    if not isinstance(klass, astroid.Instance):
+        return False
+
+    try:
+        attrs = klass._proxied.getattr(node.func.attrname)
+    except (astroid.NotFoundError, astroid.InferenceError):
+        return False
+
+    for attr in attrs:
+        if not isinstance(attr, nodes.FunctionDef):
+            continue
+        if not decorated_with_property(attr):
+            continue
+        if not utils.is_function_body_ellipsis(attr):
+            continue
+        if _annotation_is_callable_type(attr.returns):
+            return True
+    return False
+
+
 def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
     # Return True if we are sure that arg is not a type
     if isinstance(arg, nodes.BinOp) and arg.op == "|":
@@ -1925,6 +2001,13 @@ accessed. Python regular expressions are accepted.",
         # Handle uninferable calls
         if not inferred_call or inferred_call.callable():
             self._check_uninferable_call(node)
+            return
+
+        # Const(None) from an ellipsis body is an Instance, so it misses the
+        # branch below. Return without calling ``_check_uninferable_call``:
+        # that path infers the stub as None and would emit a second time.
+        # An implemented ``return`` is not an ellipsis body, so it still emits.
+        if _is_ellipsis_property_callable_stub(node):
             return
 
         if not isinstance(inferred_call, astroid.Instance):

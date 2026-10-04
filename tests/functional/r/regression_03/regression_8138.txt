@@ -1,0 +1,5 @@
+not-callable:87:0:87:19::props.returns_int is not callable:UNDEFINED
+not-callable:88:0:88:19::props.unannotated is not callable:UNDEFINED
+not-callable:89:0:89:13::props.union is not callable:UNDEFINED
+not-callable:90:0:90:19::props.implemented is not callable:UNDEFINED
+not-callable:98:0:98:20::_ConstAttr().value is not callable:UNDEFINED

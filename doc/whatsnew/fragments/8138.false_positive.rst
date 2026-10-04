@@ -1,0 +1,4 @@
+Fix a false positive for :ref:`not-callable` when calling an ellipsis
+``@property`` stub annotated as ``type``, ``typing.Type``, or ``Callable``.
+
+Closes #8138
