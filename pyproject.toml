@@ -75,7 +75,7 @@ dev = [
   "tbump~=6.11.0",
 ]
 test = [
-  "coverage~=7.10",
+  "coverage[toml]~=7.10",
   "pytest-cov>=6.2,<8",
   "pytest-xdist~=3.8",
   "six",
@@ -293,6 +293,23 @@ ini_options.filterwarnings = [
   "ignore:'break' in a 'finally' block:SyntaxWarning",
   "ignore:'continue' in a 'finally' block:SyntaxWarning",
   "ignore:'return' in a 'finally' block:SyntaxWarning",
+]
+
+[tool.coverage]
+paths.source = [ "pylint" ]
+report.include = [ "pylint/*" ]
+report.omit = [ "*/test/*" ]
+report.exclude_also = [
+  # Overload signatures are only read by type checkers
+  "@overload",
+  # Debug-only code
+  "def __repr__",
+  # Type checking code not executed during pytest runs
+  "if TYPE_CHECKING:",
+  # Fallback cases which should never be executed
+  "raise AssertionError",
+  # Abstract methods are not executed during pytest runs
+  "raise NotImplementedError()",
 ]
 
 [tool.aliases]
