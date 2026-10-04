@@ -331,6 +331,21 @@ def _is_before(node: nodes.NodeNG, reference_node: nodes.NodeNG) -> bool:
     return False
 
 
+def _is_shadowed_in_nested_scope(name: nodes.Name, defnode: nodes.NamedExpr) -> bool:
+    """Checks if name is bound by a scope nested inside the value of defnode,
+    e.g. the lambda argument in ``(arg := f(key=lambda arg: arg))``.
+    """
+    defscope = defnode.scope()
+    scope = name.scope()
+    while scope is not defscope:
+        if name.name in scope.locals:
+            return True
+        if scope.parent is None:
+            return False
+        scope = scope.parent.scope()
+    return False
+
+
 def _is_assigned_in_comprehension_condition(
     node: nodes.Name, defnode: nodes.NamedExpr
 ) -> bool:
@@ -346,7 +361,10 @@ def _is_assigned_in_comprehension_condition(
         for condition in comprehension.ifs
     ):
         return False
-    if any(name.name == node.name for name in defnode.value.nodes_of_class(nodes.Name)):
+    if any(
+        name.name == node.name and not _is_shadowed_in_nested_scope(name, defnode)
+        for name in defnode.value.nodes_of_class(nodes.Name)
+    ):
         return False
     comprehension_scope = comprehension.parent
     elements: tuple[nodes.NodeNG, ...]

@@ -324,3 +324,6 @@ KNOWN_SET = {service_set for port in range(3) if (service_set := str(port))}
 KNOWN_DICT = {key: value for port in range(3) if (key := port) if (value := port)}
 KNOWN_NESTED = [[nested] for port in range(3) if (nested := port)]
 SELF_REFERENCING = [ref for port in range(3) if (ref := ref)]  # [used-before-assignment]
+# A name inside a nested scope of the walrus value is not a self-reference
+SHADOWED_COMP = [shadow for port in range(3) if (shadow := [shadow * 2 for shadow in [port]])]
+SHADOWED_LAMBDA = [arg for port in range(3) if (arg := sorted([port], key=lambda arg: -arg))]
