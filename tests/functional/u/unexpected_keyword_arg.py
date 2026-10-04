@@ -227,3 +227,39 @@ def only_pass_through(junk=None):
 
 
 only_pass_through(internal_arg=2)  # [unexpected-keyword-arg]
+
+
+def positional_only_pass_through(func, /):
+    return func
+
+
+@positional_only_pass_through
+@kwargs_decorator
+def positional_only_pass_through_above_kwargs(junk=None):
+    print(junk)
+
+
+positional_only_pass_through_above_kwargs(internal_arg=2)
+
+
+@kwargs_decorator
+@positional_only_pass_through
+def pass_through_below_kwargs(junk=None):
+    print(junk)
+
+
+pass_through_below_kwargs(internal_arg=2)
+
+
+def rebinding_decorator(func):
+    func = non_param_decorator(func)
+    return func
+
+
+@rebinding_decorator
+@kwargs_decorator
+def rebinding_above_kwargs(junk=None):
+    print(junk)
+
+
+rebinding_above_kwargs(internal_arg=2)  # [unexpected-keyword-arg]

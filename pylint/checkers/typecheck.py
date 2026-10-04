@@ -717,12 +717,16 @@ def _has_parent_of_type(
 
 def _returns_first_argument(func: nodes.FunctionDef) -> bool:
     """Return whether every return of ``func`` is its own first parameter."""
-    if not func.args.args:
+    if func.args.args is None:
         return False
-    first_param = func.args.args[0].name
+    params = func.args.posonlyargs + func.args.args
+    if not params:
+        return False
+    first_param = params[0]
     returns = list(func.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef))
     return bool(returns) and all(
-        isinstance(ret.value, nodes.Name) and ret.value.name == first_param
+        isinstance(ret.value, nodes.Name)
+        and ret.value.lookup(ret.value.name)[1] == [first_param]
         for ret in returns
     )
 
