@@ -275,3 +275,16 @@ def decorated_by_no_param_decorator(junk=None):
 
 
 decorated_by_no_param_decorator(internal_arg=2)  # [unexpected-keyword-arg]
+
+
+# pylint: disable-next=undefined-variable
+def uninferable_return_decorator(func):
+    return unknown_decorator(func)
+
+
+@uninferable_return_decorator
+def decorated_by_uninferable_return(junk=None):
+    print(junk)
+
+
+decorated_by_uninferable_return(internal_arg=2)
