@@ -2,3 +2,5 @@
 for example ``def f(key=uuid4())``. Default values are evaluated once, when the function is
 defined, not on every call. Calls to immutable builtins are allowed and the new
 ``allowed-default-calls`` option extends the list.
+
+Refs #11579
