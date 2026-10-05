@@ -332,7 +332,7 @@ def _is_before(node: nodes.NodeNG, reference_node: nodes.NodeNG) -> bool:
 
 
 def _is_shadowed_in_nested_scope(name: nodes.Name, defnode: nodes.NamedExpr) -> bool:
-    """Checks if name is bound by a scope nested inside the value of defnode,
+    """Checks if name is bound by a scope nested inside the walrus value,
     e.g. the lambda argument in ``(arg := f(key=lambda arg: arg))``.
     """
     defscope = defnode.scope()
@@ -340,8 +340,6 @@ def _is_shadowed_in_nested_scope(name: nodes.Name, defnode: nodes.NamedExpr) -> 
     while scope is not defscope:
         if name.name in scope.locals:
             return True
-        if scope.parent is None:
-            return False
         scope = scope.parent.scope()
     return False
 
