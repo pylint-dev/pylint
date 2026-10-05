@@ -6,3 +6,4 @@ unexpected-keyword-arg:126:0:126:39::Unexpected keyword argument 'a' in function
 unexpected-keyword-arg:202:0:202:36::Unexpected keyword argument 'worrying' in constructor call:UNDEFINED
 unexpected-keyword-arg:229:0:229:33::Unexpected keyword argument 'internal_arg' in function call:UNDEFINED
 unexpected-keyword-arg:265:0:265:38::Unexpected keyword argument 'internal_arg' in function call:UNDEFINED
+unexpected-keyword-arg:277:0:277:47::Unexpected keyword argument 'internal_arg' in function call:UNDEFINED

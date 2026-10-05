@@ -263,3 +263,15 @@ def rebinding_above_kwargs(junk=None):
 
 
 rebinding_above_kwargs(internal_arg=2)  # [unexpected-keyword-arg]
+
+
+def no_param_decorator():
+    return None
+
+
+@no_param_decorator
+def decorated_by_no_param_decorator(junk=None):
+    print(junk)
+
+
+decorated_by_no_param_decorator(internal_arg=2)  # [unexpected-keyword-arg]
