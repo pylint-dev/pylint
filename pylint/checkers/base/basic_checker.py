@@ -673,7 +673,9 @@ class BasicChecker(_BasicChecker):
 
     @staticmethod
     def _inherits_from_allowed(klass: nodes.ClassDef, allowed: list[str]) -> bool:
-        """Whether the class derives from an allowed call, e.g. a frozenset subclass."""
+        """Whether the class derives from an allowed call, e.g. a frozenset
+        subclass.
+        """
         try:
             return any(base.qname() in allowed for base in klass.ancestors())
         except astroid.InferenceError:  # pragma: no cover
