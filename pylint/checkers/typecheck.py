@@ -897,7 +897,9 @@ def _extract_choice_aliases(val_node: nodes.Call) -> list[str]:
 
 
 def _extract_alias_names(val_node: nodes.NodeNG) -> list[str]:
-    """Extract string alias names from an AST node (Const, safe_infer, or AliasChoices call)."""
+    """Extract string alias names from an AST node (Const, safe_infer, or AliasChoices
+    call).
+    """
     if isinstance(val_node, nodes.Const) and isinstance(val_node.value, str):
         return [val_node.value]
     inferred = safe_infer(val_node)
