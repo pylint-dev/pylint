@@ -111,15 +111,22 @@ jobs:
             const { COMMIT_STRING_ARTIFACT, OUTPUT_ARTIFACT } = process.env
             // Download 'main' pylint output
             const fs = require('fs');
+            const rebaseHint = "The primer cannot be computed: rebase on origin/main."
+            // Look up the run of the 'main' commit this PR is merged into: listing
+            // the latest runs sometimes returns a stale page, with old runs only.
+            const { stdout: mainSha } = await exec.getExecOutput("git", ["rev-parse", "HEAD^1"]);
             const runs = await github.rest.actions.listWorkflowRuns({
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: ".github/workflows/primer_run_main.yaml",
-              status: "success"
+              status: "success",
+              head_sha: mainSha.trim(),
             });
-            const lastRunMain = runs.data.workflow_runs.reduce(function(prev, current) {
-                return (prev.run_number > current.run_number) ? prev : current
-            })
+            const [lastRunMain] = runs.data.workflow_runs
+            if (!lastRunMain) {
+              core.setFailed(`No successful primer run on 'main' for ${mainSha.trim()}. ${rebaseHint}`)
+              return
+            }
             console.log("Last run on main:")
             console.log(lastRunMain.html_url)
             const artifacts_main = await github.rest.actions.listWorkflowRunArtifacts({
@@ -127,6 +134,10 @@ jobs:
                repo: context.repo.repo,
                run_id: lastRunMain.id,
             });
+            if (!artifacts_main.data.artifacts.some((artifact) => !artifact.expired)) {
+              core.setFailed(`The artifacts of ${lastRunMain.html_url} have expired. ${rebaseHint}`)
+              return
+            }
 
             // Get commitstring
             const [matchArtifactMain] = artifacts_main.data.artifacts.filter((artifact) =>
