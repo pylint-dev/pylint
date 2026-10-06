@@ -620,9 +620,13 @@ scope_type : {self.scope_type}
                 or n.statement().parent_of(node)
             ]
 
+        uncertain_nodes_from_if = []
+        uncertain_nodes_from_try = []
+
         # Filter out assignments guarded by always false conditions
         if found_nodes:
             uncertain_nodes = self._uncertain_nodes_if_tests(found_nodes, node)
+            uncertain_nodes_from_if = uncertain_nodes
             self.consumed_uncertain[node.name] += uncertain_nodes
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
@@ -634,6 +638,7 @@ scope_type : {self.scope_type}
                 found_nodes, node, node_statement
             )
             self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_from_try.extend(uncertain_nodes)
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
@@ -646,6 +651,7 @@ scope_type : {self.scope_type}
                 )
             )
             self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_from_try.extend(uncertain_nodes)
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
@@ -658,8 +664,23 @@ scope_type : {self.scope_type}
                 )
             )
             self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_from_try.extend(uncertain_nodes)
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
+
+        # A bare annotation does not supply a value when all assignments may
+        # fail in try/except control flow. Preserve existing if/elif inference.
+        if (
+            uncertain_nodes_from_try
+            and not uncertain_nodes_from_if
+            and found_nodes
+            and all(
+                isinstance(n.parent, nodes.AnnAssign) and n.parent.value is None
+                for n in found_nodes
+            )
+        ):
+            self.consumed_uncertain[node.name] += found_nodes
+            found_nodes = []
 
         return found_nodes
 
