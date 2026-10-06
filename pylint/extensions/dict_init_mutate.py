@@ -19,6 +19,13 @@ if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
 
+def _references_name(name: str, *exprs: nodes.NodeNG) -> bool:
+    """Return whether any of the expressions reads the given name."""
+    return any(
+        ref.name == name for expr in exprs for ref in expr.nodes_of_class(nodes.Name)
+    )
+
+
 class DictInitMutateChecker(BaseChecker):
     name = "dict-init-mutate"
     msgs = {
@@ -48,8 +55,13 @@ class DictInitMutateChecker(BaseChecker):
 
         match node.next_sibling():
             case nodes.Assign(
-                targets=[nodes.Subscript(value=nodes.Name(name=name))]
-            ) if (name == dict_name):
+                targets=[nodes.Subscript(value=nodes.Name(name=name), slice=key_node)],
+                value=val_node,
+            ) if (
+                name == dict_name
+            ):
+                if _references_name(dict_name, key_node, val_node):
+                    return
                 suggestion = self._build_suggestion(
                     dict_name, dict_node, node.next_sibling()
                 )
@@ -88,6 +100,8 @@ class DictInitMutateChecker(BaseChecker):
                     ) if (
                         name == dict_name
                     ):
+                        if _references_name(dict_name, key_node, val_node):
+                            break
                         yield f"{key_node.as_string()}: {val_node.as_string()}"
                     case _:
                         break
