@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from pylint.pyreverse.mermaidjs_printer import HTMLMermaidJSPrinter, MermaidJSPrinter
+from pylint.pyreverse.printer import NodeProperties, NodeType
 
 
 def test_html_mermaidjs_printer_light_theme_has_no_frontmatter() -> None:
@@ -53,3 +54,26 @@ def test_mermaidjs_printer_ignores_theme() -> None:
     dark = MermaidJSPrinter(title="unittest", theme="dark")
     assert light.lines == dark.lines
     assert not any("%%{init:" in line for line in dark.lines)
+
+
+def test_html_mermaidjs_printer_dark_theme_filled_node_keeps_dark_text() -> None:
+    """The dark Mermaid theme uses a pale text color, which is unreadable on
+    the pale fill of a colorized node.
+    """
+    printer = HTMLMermaidJSPrinter(title="unittest", theme="dark")
+    printer.emit_node(
+        name="test",
+        type_=NodeType.CLASS,
+        properties=NodeProperties(label="test", color="#EEDD88"),
+    )
+    assert printer.lines[-1].strip() == "style test fill:#EEDD88,color:black"
+
+
+def test_html_mermaidjs_printer_light_theme_filled_node_is_unchanged() -> None:
+    printer = HTMLMermaidJSPrinter(title="unittest")
+    printer.emit_node(
+        name="test",
+        type_=NodeType.CLASS,
+        properties=NodeProperties(label="test", color="#EEDD88"),
+    )
+    assert printer.lines[-1].strip() == "style test fill:#EEDD88"

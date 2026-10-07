@@ -45,6 +45,7 @@ DOT_FILES = ["packages_No_Name.dot", "classes_No_Name.dot"]
 COLORIZED_DOT_FILES = ["packages_colorized.dot", "classes_colorized.dot"]
 PUML_FILES = ["packages_No_Name.puml", "classes_No_Name.puml"]
 COLORIZED_PUML_FILES = ["packages_colorized.puml", "classes_colorized.puml"]
+DARK_PUML_FILES = ["packages_dark.puml", "classes_dark.puml"]
 MMD_FILES = ["packages_No_Name.mmd", "classes_No_Name.mmd"]
 HTML_FILES = ["packages_No_Name.html", "classes_No_Name.html"]
 NO_STANDALONE_FILES = ["classes_no_standalone.dot", "packages_no_standalone.dot"]
@@ -152,6 +153,17 @@ def setup_colorized_puml(
 
 
 @pytest.fixture()
+def setup_dark_puml(
+    dark_puml_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
+) -> Iterator[None]:
+    writer = DiagramWriter(dark_puml_config)
+    project = get_project(TEST_DATA_DIR, name="dark")
+    yield from _setup(project, dark_puml_config, default_args, writer)
+
+
+@pytest.fixture()
 def setup_mmd(
     mmd_config: PyreverseConfig,
     default_args: Sequence[str],
@@ -249,6 +261,12 @@ def test_html_files(generated_file: str) -> None:
 @pytest.mark.usefixtures("setup_colorized_puml")
 @pytest.mark.parametrize("generated_file", COLORIZED_PUML_FILES)
 def test_colorized_puml_files(generated_file: str) -> None:
+    _assert_files_are_equal(generated_file)
+
+
+@pytest.mark.usefixtures("setup_dark_puml")
+@pytest.mark.parametrize("generated_file", DARK_PUML_FILES)
+def test_dark_puml_files(generated_file: str) -> None:
     _assert_files_are_equal(generated_file)
 
 

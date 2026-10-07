@@ -52,3 +52,18 @@ def test_dot_printer_dark_theme_edge_color_with_per_type_override() -> None:
     edge_line = printer.lines[-1]
     assert 'color="#e0e0e0"' in edge_line
     assert 'fontcolor="green"' in edge_line
+
+
+def test_dot_printer_dark_theme_filled_node_keeps_dark_fontcolor() -> None:
+    """A filled node has a pale background, so the dark theme's pale font
+    color would be unreadable on it.
+    """
+    printer = DotPrinter(title="unittest", theme="dark")
+    printer.emit_node(
+        name="test",
+        type_=NodeType.CLASS,
+        properties=NodeProperties(label="test", color="#EEDD88"),
+    )
+    node_line = printer.lines[-1]
+    assert 'style="filled"' in node_line
+    assert 'fontcolor="black"' in node_line

@@ -14,6 +14,9 @@ class MermaidJSPrinter(Printer):
     """Printer for MermaidJS diagrams."""
 
     DEFAULT_COLOR = "black"
+    # Text color of the nodes that have a fill color, for the themes whose own
+    # text color would not be readable on it.
+    FILLED_FONTCOLORS: dict[str, str] = {}
 
     NODES: dict[NodeType, str] = {
         NodeType.CLASS: "class",
@@ -93,7 +96,11 @@ class MermaidJSPrinter(Printer):
         self.emit("}")
         # apply style for colored output
         if properties.color and properties.color != self.DEFAULT_COLOR:
-            self.emit(f"style {name} fill:{properties.color}")
+            style = f"style {name} fill:{properties.color}"
+            filled_fontcolor = self.FILLED_FONTCOLORS.get(self.theme)
+            if filled_fontcolor:
+                style += f",color:{filled_fontcolor}"
+            self.emit(style)
 
     def emit_edge(
         self,
@@ -139,6 +146,8 @@ class HTMLMermaidJSPrinter(MermaidJSPrinter):
     # background has to be set separately or a dark diagram is rendered on the
     # browser's default white page.
     THEME_BACKGROUNDS: dict[str, str] = {"dark": "#1e1e1e"}
+    # The fill colors are pale, and so is the text of Mermaid's dark theme
+    FILLED_FONTCOLORS: dict[str, str] = {"dark": "black"}
 
     def _open_graph(self) -> None:
         background = self.THEME_BACKGROUNDS.get(self.theme, "")

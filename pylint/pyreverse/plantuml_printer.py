@@ -14,8 +14,19 @@ class PlantUmlPrinter(Printer):
     """Printer for PlantUML diagrams."""
 
     THEME_COLORS: dict[str, dict[str, str]] = {
-        "light": {"color": "black", "fontcolor": "black", "bgcolor": "white"},
-        "dark": {"color": "#e0e0e0", "fontcolor": "#e0e0e0", "bgcolor": "#1e1e1e"},
+        "light": {
+            "color": "black",
+            "fontcolor": "black",
+            "filled_fontcolor": "black",
+            "bgcolor": "white",
+        },
+        "dark": {
+            "color": "#e0e0e0",
+            "fontcolor": "#e0e0e0",
+            # The fill colors are pale, whatever the theme
+            "filled_fontcolor": "black",
+            "bgcolor": "#1e1e1e",
+        },
     }
 
     NODES: dict[NodeType, str] = {
@@ -37,6 +48,16 @@ class PlantUmlPrinter(Printer):
         if self.theme == "dark":
             theme_colors = self.THEME_COLORS["dark"]
             self.emit(f'skinparam backgroundColor {theme_colors["bgcolor"]}')
+            # Covers the text that is neither in a class nor in a package,
+            # such as the label of an edge.
+            self.emit(f'skinparam defaultFontColor {theme_colors["fontcolor"]}')
+            self.emit("skinparam package {")
+            self._inc_indent()
+            self.emit(f'BackgroundColor {theme_colors["bgcolor"]}')
+            self.emit(f'BorderColor {theme_colors["color"]}')
+            self.emit(f'FontColor {theme_colors["fontcolor"]}')
+            self._dec_indent()
+            self.emit("}")
             self.emit("skinparam class {")
             self._inc_indent()
             self.emit(f'BackgroundColor {theme_colors["bgcolor"]}')
@@ -77,6 +98,11 @@ class PlantUmlPrinter(Printer):
         node_color = properties.color if properties.color is not None else default_color
         if node_color != default_color:
             color = f" #{node_color.lstrip('#')}"
+            filled_fontcolor = theme_colors["filled_fontcolor"]
+            if filled_fontcolor != theme_colors["fontcolor"]:
+                # Unlike a color tag on the label, this also applies to the
+                # attributes and the methods.
+                color += f";text:{filled_fontcolor}"
         else:
             color = ""
         body = []

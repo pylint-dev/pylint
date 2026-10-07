@@ -47,3 +47,48 @@ def test_plantuml_printer_fontcolor_override_takes_precedence_over_theme() -> No
         properties=NodeProperties(label="test", fontcolor="red"),
     )
     assert any("<color:red>test</color>" in line for line in printer.lines)
+
+
+def test_plantuml_printer_dark_theme_styles_package_nodes() -> None:
+    """Package diagrams use the ``package`` keyword, which ``skinparam class``
+    does not cover.
+    """
+    printer = PlantUmlPrinter(title="unittest", theme="dark")
+    joined = "".join(printer.lines)
+    assert "skinparam package {" in joined
+    assert joined.count("BackgroundColor #1e1e1e") == 2
+    assert joined.count("BorderColor #e0e0e0") == 2
+
+
+def test_plantuml_printer_dark_theme_sets_default_font_color() -> None:
+    """Text that belongs to neither a class nor a package, such as the label
+    of an edge, only follows the global default font color.
+    """
+    printer = PlantUmlPrinter(title="unittest", theme="dark")
+    assert "skinparam defaultFontColor #e0e0e0\n" in printer.lines
+
+
+def test_plantuml_printer_dark_theme_filled_node_keeps_dark_text() -> None:
+    """``text:`` applies to the name and the members, unlike a ``<color>`` tag
+    on the label that would leave the members in the theme's pale color.
+    """
+    printer = PlantUmlPrinter(title="unittest", theme="dark")
+    for type_ in (NodeType.CLASS, NodeType.PACKAGE):
+        printer.emit_node(
+            name="test",
+            type_=type_,
+            properties=NodeProperties(label="test", color="#EEDD88"),
+        )
+        assert printer.lines[-2] == (
+            f'{type_.value} "test" as test #EEDD88;text:black {{\n'
+        )
+
+
+def test_plantuml_printer_light_theme_filled_node_is_unchanged() -> None:
+    printer = PlantUmlPrinter(title="unittest")
+    printer.emit_node(
+        name="test",
+        type_=NodeType.CLASS,
+        properties=NodeProperties(label="test", color="#EEDD88"),
+    )
+    assert printer.lines[-2] == 'class "test" as test #EEDD88 {\n'

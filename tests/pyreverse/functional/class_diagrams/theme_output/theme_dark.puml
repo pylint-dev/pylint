@@ -1,5 +1,11 @@
 @startuml classes
 skinparam backgroundColor #1e1e1e
+skinparam defaultFontColor #e0e0e0
+skinparam package {
+  BackgroundColor #1e1e1e
+  BorderColor #e0e0e0
+  FontColor #e0e0e0
+}
 skinparam class {
   BackgroundColor #1e1e1e
   BorderColor #e0e0e0

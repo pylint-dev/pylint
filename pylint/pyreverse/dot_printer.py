@@ -59,8 +59,19 @@ ARROWS: dict[EdgeType, dict[str, str]] = {
 
 class DotPrinter(Printer):
     THEME_COLORS: dict[str, dict[str, str]] = {
-        "light": {"color": "black", "fontcolor": "black", "bgcolor": ""},
-        "dark": {"color": "#e0e0e0", "fontcolor": "#e0e0e0", "bgcolor": "#1e1e1e"},
+        "light": {
+            "color": "black",
+            "fontcolor": "black",
+            "filled_fontcolor": "black",
+            "bgcolor": "",
+        },
+        "dark": {
+            "color": "#e0e0e0",
+            "fontcolor": "#e0e0e0",
+            # The fill colors are pale, whatever the theme
+            "filled_fontcolor": "black",
+            "bgcolor": "#1e1e1e",
+        },
     }
 
     def __init__(
@@ -105,10 +116,13 @@ class DotPrinter(Printer):
         default_color = self._theme_colors["color"]
         color = properties.color if properties.color is not None else default_color
         style = "filled" if color != default_color else "solid"
+        default_fontcolor = self._theme_colors[
+            "filled_fontcolor" if style == "filled" else "fontcolor"
+        ]
         fontcolor = (
             properties.fontcolor
             if properties.fontcolor is not None
-            else self._theme_colors["fontcolor"]
+            else default_fontcolor
         )
         label = self._build_label_for_node(properties)
         label_part = f", label=<{label}>" if label else ""
