@@ -1,3 +1,3 @@
-possibly-used-before-assignment:35:19:35:26:unbound.<lambda>:Possibly using variable 'missing' before assignment:CONTROL_FLOW
-possibly-used-before-assignment:39:20:39:24:default_refers_to_enclosing_scope_vararg.<lambda>:Possibly using variable 'args' before assignment:CONTROL_FLOW
-possibly-used-before-assignment:43:20:43:21:default_refers_to_enclosing_scope_positional.<lambda>:Possibly using variable 'x' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:43:19:43:26:unbound.<lambda>:Possibly using variable 'missing' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:47:20:47:24:default_refers_to_enclosing_scope_vararg.<lambda>:Possibly using variable 'args' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:51:20:51:21:default_refers_to_enclosing_scope_positional.<lambda>:Possibly using variable 'x' before assignment:CONTROL_FLOW

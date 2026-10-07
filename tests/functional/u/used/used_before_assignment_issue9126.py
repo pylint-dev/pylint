@@ -24,6 +24,14 @@ def nested_positional():
     return lambda x: (lambda: x)
 
 
+def nested_in_comprehension_vararg():
+    return lambda *values: [lambda: values for _ in range(2)]
+
+
+def nested_in_comprehension_positional():
+    return lambda value: [(lambda: value) for _ in range(2)]
+
+
 def nested_def():
     def inner(*args):
         return args
@@ -52,4 +60,6 @@ if __name__ == "__main__":
     kwargs = None
     kw = None
     x = None
+    values = None
+    value = None
     missing = None
