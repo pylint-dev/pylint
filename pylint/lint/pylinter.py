@@ -1472,7 +1472,7 @@ class PyLinter(
         *,
         module: str,
         filepath: str | None = None,
-        line: int | None = None,
+        lineno: int | None = None,
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
@@ -1488,7 +1488,7 @@ class PyLinter(
         """
         abspath = filepath if filepath is not None else self.current_file
         location = self._build_location(
-            abspath, module, "", line or 1, col_offset, end_lineno, end_col_offset
+            abspath, module, "", lineno or 1, col_offset, end_lineno, end_col_offset
         )
         for message_definition in self.msgs_store.get_message_definitions(msgid):
             self._filter_and_emit(message_definition, args, confidence, location)

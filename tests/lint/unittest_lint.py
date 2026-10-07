@@ -599,7 +599,7 @@ def test_add_message_at_location_override(linter: PyLinter) -> None:
         "C0301",
         module="overridden_module",
         filepath="/fake/path.py",
-        line=1,
+        lineno=1,
         args=(1, 2),
     )
     assert len(linter.reporter.messages) == 1
@@ -618,7 +618,7 @@ def test_add_message_at_location_forwards_line_and_col(linter: PyLinter) -> None
         "C0301",
         module="overridden_module",
         filepath="/fake/path.py",
-        line=10,
+        lineno=10,
         col_offset=5,
         end_lineno=12,
         end_col_offset=20,
@@ -638,7 +638,7 @@ def test_add_message_at_location_requires_module_kwarg(linter: PyLinter) -> None
     linter.set_current_module("current_module")
     with pytest.raises(TypeError):
         linter.add_message_at_location(  # type: ignore[call-arg]
-            "C0301", line=1, args=(1, 2)
+            "C0301", lineno=1, args=(1, 2)
         )
 
 
@@ -652,7 +652,7 @@ def test_add_message_at_location_skips_disabled(linter: PyLinter) -> None:
         "C0301",
         module="other_module",
         filepath="/fake/path.py",
-        line=1,
+        lineno=1,
         args=(1, 2),
     )
     assert linter.reporter.messages == []
@@ -664,7 +664,9 @@ def test_add_message_at_location_without_filepath(linter: PyLinter) -> None:
     linter.open()
     linter.set_current_module("current_module")
     linter.current_file = None
-    linter.add_message_at_location("C0301", module="other_module", line=1, args=(1, 2))
+    linter.add_message_at_location(
+        "C0301", module="other_module", lineno=1, args=(1, 2)
+    )
     assert len(linter.reporter.messages) == 1
     location = linter.reporter.messages[0].location
     assert location.abspath == ""

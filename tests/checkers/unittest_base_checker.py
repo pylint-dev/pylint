@@ -230,7 +230,7 @@ def test_base_checker_add_message_at_location_delegates() -> None:
         "W9999",
         module="other_module",
         filepath="other.py",
-        line=42,
+        lineno=42,
         col_offset=3,
         args=("world",),
         confidence=HIGH,
