@@ -132,6 +132,17 @@ def _get_unpacking_extra_info(node: nodes.Assign, inferred: InferenceResult) -> 
     return more
 
 
+def _is_bound_before_class(name: str, class_node: nodes.ClassDef) -> bool:
+    """Whether a module-level or builtin binding of name exists before the class."""
+    scope, bindings = class_node.root().lookup(name)
+    if scope is not class_node.root():
+        return bool(bindings)
+    return any(
+        binding.lineno is not None and binding.lineno < class_node.lineno
+        for binding in bindings
+    )
+
+
 def _detect_global_scope(
     node: nodes.Name,
     frame: nodes.LocalsDictNodeNG,
@@ -2291,6 +2302,7 @@ class VariablesChecker(BaseChecker):
         maybe_before_assign = True
         annotation_return = False
         use_outer_definition = False
+        def_in_class_body = False
         if (
             defstmt is defframe
             and isinstance(defstmt, (nodes.FunctionDef, nodes.ClassDef))
@@ -2303,6 +2315,7 @@ class VariablesChecker(BaseChecker):
             # body, so that a module-level or builtin name is still found by the
             # lookup below.
             defframe = frame
+            def_in_class_body = True
         if frame is not defframe:
             maybe_before_assign = _detect_global_scope(node, frame, defframe)
         elif defframe.parent is None:
@@ -2323,7 +2336,11 @@ class VariablesChecker(BaseChecker):
                 isinstance(frame, nodes.FunctionDef)
                 or isinstance(node.frame(), nodes.Lambda)
             ) and _assigned_locally(node)
-            if not forbid_lookup and defframe.root().lookup(node.name)[1]:
+            if (
+                not forbid_lookup
+                and defframe.root().lookup(node.name)[1]
+                and (not def_in_class_body or _is_bound_before_class(node.name, frame))
+            ):
                 maybe_before_assign = False
                 use_outer_definition = stmt == defstmt and not isinstance(
                     defnode, nodes.Comprehension
