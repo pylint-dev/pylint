@@ -301,6 +301,33 @@ def is_defined_in_scope(
     return defnode_in_scope(var_node, varname, scope) is not None
 
 
+def _defnode_in_assign_targets(
+    var_node: nodes.NodeNG,
+    varname: str,
+    assign: nodes.Assign,
+) -> nodes.AssignName | None:
+    """Return the node binding ``varname`` in an earlier target of ``assign``.
+
+    Targets are bound left to right after the value is evaluated, so a name read
+    inside a target, as in ``a = b[a] = 0`` or ``a, b[a] = 0, 1``, can use a name
+    bound before it in the targets.
+    """
+    if not any(target.parent_of(var_node) for target in assign.targets):
+        return None
+    for target in assign.targets:
+        for ass_node in target.nodes_of_class(nodes.AssignName):
+            if (ass_node.lineno, ass_node.col_offset) > (
+                var_node.lineno,
+                var_node.col_offset,
+            ):
+                return None
+            # Skip names bound in a nested scope, such as a lambda or
+            # comprehension inside a subscript
+            if ass_node.name == varname and ass_node.scope() is assign.scope():
+                return ass_node
+    return None
+
+
 # pylint: disable = too-many-branches
 def defnode_in_scope(
     var_node: nodes.NodeNG,
@@ -339,6 +366,8 @@ def defnode_in_scope(
                     return ass_node
             if in_target:
                 break
+    elif isinstance(scope, nodes.Assign):
+        return _defnode_in_assign_targets(var_node, varname, scope)
     elif isinstance(scope, (nodes.Lambda, nodes.FunctionDef)):
         if scope.args.is_argument(varname):
             # If the name is found inside a default value
@@ -378,6 +407,9 @@ def is_defined_before(var_node: nodes.Name) -> bool:
         defnode = defnode_in_scope(var_node, varname, parent)
         if defnode is None:
             continue
+        if isinstance(parent, nodes.Assign):
+            # Bound by an earlier target of the same assignment
+            return True
         defnode_scope = defnode.scope()
         if isinstance(
             defnode_scope, (*COMP_NODE_TYPES, nodes.Lambda, nodes.FunctionDef)
