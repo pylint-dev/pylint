@@ -1314,7 +1314,7 @@ class PyLinter(
         line: int | None,
         node: nodes.NodeNG | None,
         args: Any | None,
-        confidence: interfaces.Confidence | None,
+        confidence: interfaces.Confidence,
         col_offset: int | None,
         end_lineno: int | None,
         end_col_offset: int | None,
@@ -1346,7 +1346,12 @@ class PyLinter(
                     end_col_offset = node.end_col_offset
 
         # should this message be displayed
-        if not self.is_message_enabled(message_definition.msgid, line, confidence):
+        # This is ``is_message_enabled`` without resolving the msgid again: the
+        # msgid of a message definition is always its only active msgid.
+        if (
+            confidence.name not in self.config.confidence
+            or not self._is_one_message_enabled(message_definition.msgid, line)
+        ):
             self.file_state.handle_ignored_message(
                 self._get_message_state_scope(
                     message_definition.msgid, line, confidence
