@@ -48,10 +48,6 @@ SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = "__future__"
 # regexp for ignored argument name
 IGNORED_ARGUMENT_NAMES = re.compile("_.*|^ignored_|^unused_")
-# In Python 3.7 abc has a Python implementation which is preferred
-# by astroid. Unfortunately this also messes up our explicit checks
-# for `abc`
-METACLASS_NAME_TRANSFORMS = {"_py_abc": "abc"}
 BUILTIN_RANGE = "builtins.range"
 TYPING_MODULE = "typing"
 
@@ -329,6 +325,48 @@ def _is_before(node: nodes.NodeNG, reference_node: nodes.NodeNG) -> bool:
     ):
         return True
     return False
+
+
+def _is_shadowed_in_nested_scope(name: nodes.Name, defnode: nodes.NamedExpr) -> bool:
+    """Checks if name is bound by a scope nested inside the walrus value,
+    e.g. the lambda argument in ``(arg := f(key=lambda arg: arg))``.
+    """
+    defscope = defnode.scope()
+    scope = name.scope()
+    while scope is not defscope:
+        if name.name in scope.locals:
+            return True
+        scope = scope.parent.scope()
+    return False
+
+
+def _is_assigned_in_comprehension_condition(
+    node: nodes.Name, defnode: nodes.NamedExpr
+) -> bool:
+    """Checks if node is used in the element of a comprehension whose condition
+    assigns it, e.g. ``[y for x in data if (y := f(x))]``.
+
+    The conditions of a comprehension are evaluated before its element.
+    Self-referencing assignments like ``(y := y)`` are excluded.
+    """
+    comprehension = utils.get_node_first_ancestor_of_type(defnode, nodes.Comprehension)
+    if comprehension is None or not any(
+        condition is defnode or condition.parent_of(defnode)
+        for condition in comprehension.ifs
+    ):
+        return False
+    if any(
+        name.name == node.name and not _is_shadowed_in_nested_scope(name, defnode)
+        for name in defnode.value.nodes_of_class(nodes.Name)
+    ):
+        return False
+    comprehension_scope = comprehension.parent
+    elements: tuple[nodes.NodeNG, ...]
+    if isinstance(comprehension_scope, nodes.DictComp):
+        elements = (comprehension_scope.key, comprehension_scope.value)
+    else:
+        elements = (comprehension_scope.elt,)
+    return any(element is node or element.parent_of(node) for element in elements)
 
 
 def _is_nonlocal_name(node: nodes.Name, frame: nodes.LocalsDictNodeNG) -> bool:
@@ -624,9 +662,13 @@ scope_type : {self.scope_type}
                 or n.statement().parent_of(node)
             ]
 
+        uncertain_nodes_from_if = []
+        uncertain_nodes_from_try = []
+
         # Filter out assignments guarded by always false conditions
         if found_nodes:
             uncertain_nodes = self._uncertain_nodes_if_tests(found_nodes, node)
+            uncertain_nodes_from_if = uncertain_nodes
             self.consumed_uncertain[node.name] += uncertain_nodes
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
@@ -638,6 +680,7 @@ scope_type : {self.scope_type}
                 found_nodes, node, node_statement
             )
             self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_from_try.extend(uncertain_nodes)
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
@@ -650,6 +693,7 @@ scope_type : {self.scope_type}
                 )
             )
             self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_from_try.extend(uncertain_nodes)
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
@@ -662,8 +706,23 @@ scope_type : {self.scope_type}
                 )
             )
             self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_from_try.extend(uncertain_nodes)
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
+
+        # A bare annotation does not supply a value when all assignments may
+        # fail in try/except control flow. Preserve existing if/elif inference.
+        if (
+            uncertain_nodes_from_try
+            and not uncertain_nodes_from_if
+            and found_nodes
+            and all(
+                isinstance(n.parent, nodes.AnnAssign) and n.parent.value is None
+                for n in found_nodes
+            )
+        ):
+            self.consumed_uncertain[node.name] += found_nodes
+            found_nodes = []
 
         return found_nodes
 
@@ -1454,7 +1513,6 @@ class VariablesChecker(BaseChecker):
         """Leave module: check globals."""
         assert len(self._to_consume) == 1
 
-        self._check_metaclasses(node)
         not_consumed = self._to_consume.pop().to_consume
         # attempt to check for __all__ if defined
         if "__all__" in node.locals:
@@ -1472,6 +1530,7 @@ class VariablesChecker(BaseChecker):
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Visit class: update consumption analysis variable."""
+        self._check_metaclass(node)
         self._to_consume.append(NamesConsumer(node, "class"))
 
     def leave_classdef(self, node: nodes.ClassDef) -> None:
@@ -1585,8 +1644,6 @@ class VariablesChecker(BaseChecker):
 
     def leave_functiondef(self, node: nodes.FunctionDef) -> None:
         """Leave function: check function's locals are consumed."""
-        self._check_metaclasses(node)
-
         if node.type_comment_returns:
             self._store_type_annotation_node(node.type_comment_returns)
         if node.type_comment_args:
@@ -2436,6 +2493,17 @@ class VariablesChecker(BaseChecker):
                     maybe_before_assign = defnode.value is node or any(
                         a is defnode.value for a in node.node_ancestors()
                     )
+                elif (
+                    isinstance(defnode, nodes.NamedExpr)
+                    and frame is defframe
+                    and defframe.parent_of(stmt)
+                    and stmt is defstmt
+                    and _is_assigned_in_comprehension_condition(node, defnode)
+                ):
+                    # Assigned in the condition of a comprehension and used in
+                    # its element, which is evaluated afterwards:
+                    # [y for x in data if (y := f(x))]
+                    maybe_before_assign = False
                 elif (
                     isinstance(defframe, nodes.ClassDef)
                     and defnode in defframe.type_params
@@ -3426,86 +3494,83 @@ class VariablesChecker(BaseChecker):
             )
         del self._to_consume
 
-    def _check_metaclasses(self, node: nodes.Module | nodes.FunctionDef) -> None:
-        """Update consumption analysis for metaclasses."""
-        consumed: list[tuple[NamesConsumer, str, list[nodes.NodeNG]]] = []
+    def _check_metaclass(self, klass: nodes.ClassDef) -> None:
+        """Update consumption analysis for the names used in the metaclass of klass.
 
-        for child_node in node.get_children():
-            if isinstance(child_node, nodes.ClassDef):
-                consumed.extend(self._check_classdef_metaclasses(child_node, node))
-
-        # Mark the consumed items properly so they move from to_consume
-        # to consumed, avoiding unused-import/unused-variable false positives
-        # while still allowing subsequent references to resolve.
-        for consumer, name, found_nodes in consumed:
-            if name in consumer.to_consume:
-                consumer.mark_as_consumed(name, found_nodes)
-
-    def _check_classdef_metaclasses(
-        self,
-        klass: nodes.ClassDef,
-        parent_node: nodes.Module | nodes.FunctionDef,
-    ) -> list[tuple[NamesConsumer, str, list[nodes.NodeNG]]]:
+        ``metaclass=`` is not a child of the class node, so these names are not
+        visited like the ones of the bases and of the other class keywords.
+        """
         if not klass._metaclass:
             # Skip if this class doesn't use explicitly a metaclass, but inherits it from ancestors
-            return []
+            return
 
-        consumed: list[tuple[NamesConsumer, str, list[nodes.NodeNG]]] = []
         metaclass = klass.metaclass()
-        name = ""
-        match klass._metaclass:
-            case nodes.Name(name=name):
-                # bind name
-                pass
-            case nodes.Attribute(expr=attr):
-                while isinstance(attr, nodes.Attribute):
-                    attr = attr.expr
-                if isinstance(attr, nodes.Name):
-                    name = attr.name
-            case nodes.Call(func=nodes.Name(name=name)):
-                # bind name
-                pass
-            case _ if metaclass:
-                name = metaclass.root().name
+        undefined: set[str] = set()
+        for name_node in klass._metaclass.nodes_of_class(nodes.Name):
+            name = name_node.name
+            if (
+                not self._is_bound_in_metaclass(klass, name_node)
+                and not self._consume_metaclass_name(klass, name_node)
+                and not metaclass
+                and name not in undefined
+                and not (
+                    name in nodes.Module.scope_attrs
+                    or utils.is_builtin(name)
+                    or name in self.linter.config.additional_builtins
+                )
+            ):
+                undefined.add(name)
+                self.add_message("undefined-variable", node=klass, args=(name,))
 
-        found = False
-        name = METACLASS_NAME_TRANSFORMS.get(name, name)
-        if name:
-            # check enclosing scopes starting from most local
-            for to_consume in self._to_consume[::-1]:
-                scope_locals = to_consume.to_consume
-                found_nodes = scope_locals.get(name, [])
-                for found_node in found_nodes:
+    def _is_bound_in_metaclass(
+        self, klass: nodes.ClassDef, name_node: nodes.Name
+    ) -> bool:
+        """Return whether a lambda or a comprehension of the metaclass of klass binds
+        the name, like the parameter of ``(lambda meta: meta)``.
+        """
+        return any(
+            isinstance(scope, (nodes.Lambda, nodes.ComprehensionScope))
+            and name_node.name in scope.locals
+            and self._in_lambda_or_comprehension_body(name_node, scope.parent)
+            for scope in itertools.takewhile(
+                lambda node: node is not klass, name_node.node_ancestors()
+            )
+        )
+
+    def _consume_metaclass_name(
+        self, klass: nodes.ClassDef, name_node: nodes.Name
+    ) -> bool:
+        """Mark the definition of a name used in the metaclass of klass as consumed.
+
+        Return whether the name is defined.
+        """
+        name = name_node.name
+        # The class statement runs in the innermost scope, after the definitions
+        # preceding it, and can use any definition of an enclosing scope. A class
+        # body is not visible from the functions defined in it, nor from the body
+        # of a lambda or of a comprehension.
+        innermost = self._to_consume[-1]
+        in_nested_scope = self._in_lambda_or_comprehension_body(name_node, klass)
+        for consumer in reversed(self._to_consume):
+            if consumer.scope_type == "class" and (
+                consumer is not innermost or in_nested_scope
+            ):
+                continue
+            definitions = consumer.node.locals.get(name, [])
+            if consumer is innermost:
+                definitions = [
+                    definition
+                    for definition in definitions
                     # A binding without a line number (e.g. a synthetic or
                     # builtin node such as ``__annotations__``) cannot be
-                    # ordered against the class definition, so treat it as
-                    # consumed/resolved rather than crashing on the comparison.
-                    if found_node.lineno is None or found_node.lineno <= klass.lineno:
-                        consumed.append((to_consume, name, found_nodes))
-                        found = True
-                        break
-            # Check parent scope
-            nodes_in_parent_scope = parent_node.locals.get(name, [])
-            for found_node_parent in nodes_in_parent_scope:
-                if (
-                    found_node_parent.lineno is None
-                    or found_node_parent.lineno <= klass.lineno
-                ):
-                    found = True
-                    break
-        if (
-            name
-            and not found
-            and not metaclass
-            and not (
-                name in nodes.Module.scope_attrs
-                or utils.is_builtin(name)
-                or name in self.linter.config.additional_builtins
-            )
-        ):
-            self.add_message("undefined-variable", node=klass, args=(name,))
-
-        return consumed
+                    # ordered against the class definition.
+                    if definition.lineno is None or definition.lineno <= klass.lineno
+                ]
+            if definitions:
+                if name in consumer.to_consume:
+                    consumer.mark_as_consumed(name, consumer.to_consume[name])
+                return True
+        return False
 
     def visit_subscript(self, node: nodes.Subscript) -> None:
         inferred_slice = utils.safe_infer(node.slice)

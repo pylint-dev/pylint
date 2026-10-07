@@ -534,11 +534,12 @@ def _emit_no_member(
     #   * Check if condition can be inferred as `Const`,
     #       would evaluate as `False`,
     #       and whether the node is part of the `body`.
-    #   * Continue checking until scope of node is reached.
-    scope: nodes.NodeNG = node.scope()
+    #   * Continue checking until frame of node is reached: a comprehension
+    #       runs in the branch that contains it.
+    frame: nodes.NodeNG = node.frame()
     node_origin: nodes.NodeNG = node
     parent: nodes.NodeNG = node.parent
-    while parent != scope:
+    while parent != frame:
         if isinstance(parent, (nodes.If, nodes.IfExp)):
             inferred = safe_infer(parent.test)
             if (  # pylint: disable=too-many-boolean-expressions
