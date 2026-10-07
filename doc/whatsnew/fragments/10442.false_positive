@@ -1,0 +1,4 @@
+Allow the ``__main__`` module name in the ``camelCase``, ``PascalCase`` and
+``UPPER_CASE`` naming styles without reporting ``invalid-name``.
+
+Closes #10442

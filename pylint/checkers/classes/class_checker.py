@@ -30,16 +30,18 @@ from pylint.checkers.utils import (
     is_attr_protected,
     is_builtin_object,
     is_comprehension,
+    is_in_stub_file,
     is_iterable,
+    is_overload_stub,
     is_property_setter,
     is_property_setter_or_deleter,
+    is_typing_member,
     node_frame_class,
     only_required_for_messages,
     safe_infer,
     safe_mro,
     safe_slots,
     unimplemented_abstract_methods,
-    uninferable_final_decorators,
 )
 from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
@@ -139,7 +141,7 @@ def _definition_equivalent_to_call(
             return False
     elif call.starred_args:
         return False
-    if any(kw not in call.kws for kw in definition.kwonlyargs):
+    if any(call.kws.get(kw) != kw for kw in definition.kwonlyargs):
         return False
     if definition.args != call.args:
         return False
@@ -419,6 +421,35 @@ def _has_data_descriptor(cls: nodes.ClassDef, attr: str) -> bool:
                         return True
         except astroid.InferenceError:
             # Can't infer, avoid emitting a false positive in this case.
+            return True
+    return False
+
+
+def _is_classic_property_setter(func: nodes.FunctionDef) -> bool:
+    """Check if *func* is used as the ``fset`` argument of an old-style,
+    non-decorator ``property(fget, fset)`` call in its enclosing class body.
+    """
+    if not isinstance(func, nodes.FunctionDef):
+        return False
+    frame = func.parent
+    if not isinstance(frame, nodes.ClassDef):
+        return False
+    for node in frame.body:
+        if not isinstance(node, nodes.Assign) or not isinstance(node.value, nodes.Call):
+            continue
+        call = node.value
+        inferred_func = safe_infer(call.func)
+        if not (
+            isinstance(inferred_func, nodes.ClassDef)
+            and is_builtin_object(inferred_func)
+            and inferred_func.name == "property"
+        ):
+            continue
+        fset_arg: nodes.NodeNG | None = call.args[1] if len(call.args) > 1 else None
+        for keyword in call.keywords or ():
+            if keyword.arg == "fset":
+                fset_arg = keyword.value
+        if isinstance(fset_arg, nodes.Name) and fset_arg.name == func.name:
             return True
     return False
 
@@ -1134,15 +1165,16 @@ a metaclass class method.",
             if not ancestor:
                 continue
 
-            if isinstance(ancestor, nodes.ClassDef) and (
-                decorated_with(ancestor, ["typing.final"])
-                or uninferable_final_decorators(ancestor.decorators)
-            ):
-                self.add_message(
-                    "subclassed-final-class",
-                    args=(node.name, ancestor.name),
-                    node=node,
-                )
+            if isinstance(ancestor, nodes.ClassDef):
+                decorators = ancestor.decorators.nodes if ancestor.decorators else []
+                if decorated_with(ancestor, ["typing.final"]) or any(
+                    is_typing_member(decorator, ("final",)) for decorator in decorators
+                ):
+                    self.add_message(
+                        "subclassed-final-class",
+                        args=(node.name, ancestor.name),
+                        node=node,
+                    )
 
     @only_required_for_messages(
         "unused-private-member",
@@ -1344,7 +1376,9 @@ a metaclass class method.",
             # or if we have the attribute defined in a setter.
             frames = (node.frame() for node in filtered_nodes)
             if any(
-                frame.name in defining_methods or is_property_setter(frame)
+                frame.name in defining_methods
+                or is_property_setter(frame)
+                or _is_classic_property_setter(frame)
                 for frame in frames
             ):
                 continue
@@ -1449,6 +1483,15 @@ a metaclass class method.",
                 continue
             if not isinstance(parent_function, nodes.FunctionDef):
                 continue
+            if is_overload_stub(parent_function):
+                # Compare with the implementation, not the first overload stub.
+                implementations = [
+                    n
+                    for n in overridden.locals[node.name]
+                    if isinstance(n, nodes.FunctionDef) and not is_overload_stub(n)
+                ]
+                if implementations:
+                    parent_function = implementations[-1]
             self._check_signature(node, parent_function, klass)
             self._check_invalid_overridden_method(node, parent_function)
             break
@@ -1663,9 +1706,15 @@ a metaclass class method.",
                 args=(function_node.name, "non-async", "async"),
                 node=function_node,
             )
+
+        decorators = (
+            parent_function_node.decorators.nodes
+            if parent_function_node.decorators
+            else []
+        )
         if (
             decorated_with(parent_function_node, ["typing.final"])
-            or uninferable_final_decorators(parent_function_node.decorators)
+            or any(is_typing_member(decorator, ("final",)) for decorator in decorators)
         ) and self._py38_plus:
             self.add_message(
                 "overridden-final-method",
@@ -2440,6 +2489,9 @@ a metaclass class method.",
             "super-init-not-called"
         ) and not self.linter.is_message_enabled("non-parent-init-called"):
             return
+        # A stub's __init__ body is `...`: there is no call to look for.
+        if is_in_stub_file(node):
+            return
         to_call = _ancestors_to_call(klass_node)
         not_called_yet = dict(to_call)
         parents_with_called_inits: set[bases.UnboundMethod] = set()
@@ -2528,6 +2580,9 @@ a metaclass class method.",
         # Ignore setters, they have an implicit extra argument,
         # which shouldn't be taken in consideration.
         if is_property_setter(method1):
+            return
+        # Ignore overload stubs, only the implementation overrides the method.
+        if is_overload_stub(method1):
             return
 
         arg_differ_output = _different_parameters(

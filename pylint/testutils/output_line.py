@@ -20,7 +20,7 @@ class MessageTest(NamedTuple):
     line: int | None = None
     node: nodes.NodeNG | None = None
     args: Any | None = None
-    confidence: Confidence = UNDEFINED
+    confidence: Confidence | None = UNDEFINED
     col_offset: int | None = None
     end_line: int | None = None
     end_col_offset: int | None = None

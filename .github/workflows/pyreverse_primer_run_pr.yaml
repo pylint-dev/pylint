@@ -78,6 +78,10 @@ jobs:
         id: download-main-run
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
+          # Return the commit as a bare string: the default JSON encoding would
+          # wrap it in double quotes, and those end up inside the ref name when
+          # the shell expands the environment variable holding it.
+          result-encoding: string
           script: |
             const fs = require('fs');
             const artifactNames = [
