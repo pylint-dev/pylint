@@ -2,7 +2,7 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
-# pylint: disable=too-many-arguments, redefined-builtin
+# pylint: disable=too-many-arguments
 
 """Deprecated option actions."""
 

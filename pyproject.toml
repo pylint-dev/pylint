@@ -40,10 +40,8 @@ dependencies = [
   # Also upgrade test-min dependency group and requirements_test_min.txt.
   # Pinned to dev of second minor update to allow editable installs and fix primer issues,
   # see https://github.com/pylint-dev/astroid/issues/1341
-  "astroid>=4.3.2,<=4.4",
+  "astroid>=4.3.3,<=4.4",
   "colorama>=0.4.5; sys_platform=='win32'",
-  # Python 3.15 support has not been released yet, so we pin to a specific commit that supports it.
-  "dill @ git+https://github.com/uqfoundation/dill@2308ffb0d0c605b9c050fa4c9fd5793d65c67022 ; python_version>='3.15'",
   "dill>=0.2; python_version<'3.11'",
   "dill>=0.3.6; python_version>='3.11'",
   "dill>=0.3.7; python_version>='3.12'",
@@ -72,12 +70,12 @@ scripts.symilar = "pylint:run_symilar"
 
 [dependency-groups]
 dev = [
-  "contributors-txt>=1",
+  "contributors-txt>=1.1.3",
   "pre-commit",
   "tbump~=6.11.0",
 ]
 test = [
-  "coverage~=7.10",
+  "coverage[toml]~=7.10",
   "pytest-cov>=6.2,<8",
   "pytest-xdist~=3.8",
   "six",
@@ -93,7 +91,11 @@ docs = [
 # Configuration for the build system
 test-min = [
   # Base test dependencies
-  "astroid==4.3.2",                     # Pinned to a specific version for tests
+  # Pinned to a specific version for tests
+  "astroid==4.3.3",
+  # PyPI rejects a git dependency in the published metadata, so the dill commit
+  # supporting Python 3.15 is only pinned for the tests until it is released.
+  "dill @ git+https://github.com/uqfoundation/dill@2308ffb0d0c605b9c050fa4c9fd5793d65c67022 ; python_version>='3.15'",
   "py~=1.11.0",
   "pytest>=8.4,<10",
   "pytest-benchmark~=5.1",
@@ -291,6 +293,24 @@ ini_options.filterwarnings = [
   "ignore:'break' in a 'finally' block:SyntaxWarning",
   "ignore:'continue' in a 'finally' block:SyntaxWarning",
   "ignore:'return' in a 'finally' block:SyntaxWarning",
+]
+
+[tool.coverage]
+run.branch = true
+paths.source = [ "pylint" ]
+report.include = [ "pylint/*" ]
+report.omit = [ "*/test/*" ]
+report.exclude_also = [
+  # Overload signatures are only read by type checkers
+  "@overload",
+  # Debug-only code
+  "def __repr__",
+  # Type checking code not executed during pytest runs
+  "if TYPE_CHECKING:",
+  # Fallback cases which should never be executed
+  "raise AssertionError",
+  # Abstract methods are not executed during pytest runs
+  "raise NotImplementedError()",
 ]
 
 [tool.aliases]

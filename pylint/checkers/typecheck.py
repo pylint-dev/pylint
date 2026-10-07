@@ -534,11 +534,12 @@ def _emit_no_member(
     #   * Check if condition can be inferred as `Const`,
     #       would evaluate as `False`,
     #       and whether the node is part of the `body`.
-    #   * Continue checking until scope of node is reached.
-    scope: nodes.NodeNG = node.scope()
+    #   * Continue checking until frame of node is reached: a comprehension
+    #       runs in the branch that contains it.
+    frame: nodes.NodeNG = node.frame()
     node_origin: nodes.NodeNG = node
     parent: nodes.NodeNG = node.parent
-    while parent != scope:
+    while parent != frame:
         if isinstance(parent, (nodes.If, nodes.IfExp)):
             inferred = safe_infer(parent.test)
             if (  # pylint: disable=too-many-boolean-expressions
@@ -1462,7 +1463,7 @@ accessed. Python regular expressions are accepted.",
 
         try:
             attrs = klass._proxied.getattr(node.func.attrname)
-        except astroid.NotFoundError:
+        except (astroid.NotFoundError, astroid.InferenceError):
             return
 
         for attr in attrs:
@@ -2106,6 +2107,17 @@ accessed. Python regular expressions are accepted.",
                             inferred_name = inferred.pytype().rsplit(".", 1)[-1]
                         self.add_message(
                             "not-context-manager", node=node, args=(inferred_name,)
+                        )
+                    except AttributeError:
+                        # Some inferred results (e.g. a TypeVar bound by a
+                        # `type` statement) are not class-like nodes and have
+                        # no ``getattr``: they can never be context managers,
+                        # so report ``not-context-manager`` with the inferred
+                        # type's name instead of crashing.
+                        self.add_message(
+                            "not-context-manager",
+                            node=node,
+                            args=(inferred.pytype().rsplit(".", 1)[-1],),
                         )
 
     @only_required_for_messages("invalid-unary-operand-type")

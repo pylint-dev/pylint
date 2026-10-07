@@ -1,3 +1,0 @@
-Fix a crash in the comparison checker when a NaN comparison operand is a call to a name that cannot be inferred, such as ``1 == b('nan')``.
-
-Closes #11224
