@@ -318,11 +318,15 @@ def _assigned_locally(name_node: nodes.Name) -> bool:
         name_node.name, name_node_scope
     ):
         return True
-    # Parameters of this lambda, or of directly enclosing lambdas, are bindings.
-    # Defaults and annotations are not. See #9126.
+    # Parameters of this lambda, or of enclosing lambdas (possibly through
+    # comprehensions), are bindings. Defaults and annotations are not. See #9126.
     scope = name_node_scope
-    while isinstance(scope, nodes.Lambda):
-        if name_node.name in scope.argnames() and not scope.args.parent_of(name_node):
+    while isinstance(scope, (nodes.Lambda, nodes.ComprehensionScope)):
+        if (
+            isinstance(scope, nodes.Lambda)
+            and name_node.name in scope.argnames()
+            and not scope.args.parent_of(name_node)
+        ):
             return True
         scope = scope.parent.scope()
     return False
