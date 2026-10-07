@@ -323,8 +323,22 @@ def defnode_in_scope(
         for expr, ids in scope.items:
             if expr.parent_of(var_node):
                 break
-            if ids and isinstance(ids, nodes.AssignName) and ids.name == varname:
-                return ids
+            if ids is None:
+                continue
+            # A target such as ``(first, store[first])`` is bound left to right,
+            # so a name read inside it can only use names bound before it there.
+            in_target = ids.parent_of(var_node)
+            # The target can be a name, or a (possibly nested) tuple or list of names
+            for ass_node in ids.nodes_of_class(nodes.AssignName):
+                if in_target and (ass_node.lineno, ass_node.col_offset) > (
+                    var_node.lineno,
+                    var_node.col_offset,
+                ):
+                    break
+                if ass_node.name == varname:
+                    return ass_node
+            if in_target:
+                break
     elif isinstance(scope, (nodes.Lambda, nodes.FunctionDef)):
         if scope.args.is_argument(varname):
             # If the name is found inside a default value
