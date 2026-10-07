@@ -688,6 +688,17 @@ def test_add_message_at_node(linter: PyLinter) -> None:
     assert msg.location.module == "my_module"
 
 
+def test_add_message_at_node_skips_disabled(linter: PyLinter) -> None:
+    """Disabled messages are filtered before reaching the reporter."""
+    linter.set_reporter(testutils.GenericTestReporter())
+    linter.open()
+    linter.set_current_module("0123")
+    linter.disable("C0321")
+    module_node = astroid.parse("\n\nx = 1; y = 2", module_name="my_module")
+    linter.add_message_at_node("C0321", module_node.body[0])
+    assert linter.reporter.messages == []
+
+
 def test_addmessage_invalid(linter: PyLinter) -> None:
     linter.set_reporter(testutils.GenericTestReporter())
     linter.open()

@@ -1345,6 +1345,9 @@ class PyLinter(
                 if end_col_offset is None:
                     end_col_offset = node.end_col_offset
 
+        if self._is_disabled(message_definition, line, confidence):
+            return
+
         # get module and object
         if node is None:
             module, obj = self.current_name, ""
@@ -1362,7 +1365,7 @@ class PyLinter(
             end_lineno,
             end_col_offset,
         )
-        self._filter_and_emit(message_definition, args, confidence, location)
+        self._emit_message(message_definition, args, confidence, location)
 
     def _emit_message(
         self,
@@ -1444,9 +1447,6 @@ class PyLinter(
         non-AST callers, and skips ``_add_one_message`` entirely so a
         disabled message pays for nothing beyond the filter check.
         """
-        # Derive location once. These are the same for every message_definition
-        # this msgid maps to (multiple definitions only happen for the rare
-        # ``old_names`` aliases).
         pos = node.position
         if pos is not None:
             line = pos.lineno
@@ -1458,13 +1458,23 @@ class PyLinter(
             col_offset = node.col_offset
             end_lineno = node.end_lineno
             end_col_offset = node.end_col_offset
-        module, obj = utils.get_module_and_frameid(node)
-        abspath = node.root().file
-        location = self._build_location(
-            abspath, module or "", obj, line, col_offset, end_lineno, end_col_offset
-        )
+        # Only build the location for definitions that are enabled. Several
+        # definitions only happen for an old name that was split into several
+        # messages (e.g. ``missing-docstring``), so this is rarely repeated.
         for message_definition in self.msgs_store.get_message_definitions(msgid):
-            self._filter_and_emit(message_definition, args, confidence, location)
+            if self._is_disabled(message_definition, line, confidence):
+                continue
+            module, obj = utils.get_module_and_frameid(node)
+            location = self._build_location(
+                node.root().file,
+                module or "",
+                obj,
+                line,
+                col_offset,
+                end_lineno,
+                end_col_offset,
+            )
+            self._emit_message(message_definition, args, confidence, location)
 
     def add_message_at_location(
         self,
@@ -1487,11 +1497,13 @@ class PyLinter(
         findings like duplicate-code).
         """
         abspath = filepath if filepath is not None else self.current_file
-        location = self._build_location(
-            abspath, module, "", lineno or 1, col_offset, end_lineno, end_col_offset
-        )
         for message_definition in self.msgs_store.get_message_definitions(msgid):
-            self._filter_and_emit(message_definition, args, confidence, location)
+            if self._is_disabled(message_definition, lineno, confidence):
+                continue
+            location = self._build_location(
+                abspath, module, "", lineno or 1, col_offset, end_lineno, end_col_offset
+            )
+            self._emit_message(message_definition, args, confidence, location)
 
     def _build_location(
         self,
@@ -1519,26 +1531,26 @@ class PyLinter(
             end_col_offset,
         )
 
-    def _filter_and_emit(
+    def _is_disabled(
         self,
         message_definition: MessageDefinition,
-        args: Any | None,
+        line: int | None,
         confidence: interfaces.Confidence,
-        location: MessageLocationTuple,
-    ) -> None:
-        """Filter and emit one message at an already-built ``location``."""
-        if not self.is_message_enabled(
-            message_definition.msgid, location.line, confidence
-        ):
-            self.file_state.handle_ignored_message(
-                self._get_message_state_scope(
-                    message_definition.msgid, location.line, confidence
-                ),
-                message_definition.msgid,
-                location.line,
-            )
-            return
-        self._emit_message(message_definition, args, confidence, location)
+    ) -> bool:
+        """Return whether the message is disabled at ``line``, recording it as
+        ignored if so.
+
+        Callers check this before building the message location, so a disabled
+        message costs nothing more.
+        """
+        if self.is_message_enabled(message_definition.msgid, line, confidence):
+            return False
+        self.file_state.handle_ignored_message(
+            self._get_message_state_scope(message_definition.msgid, line, confidence),
+            message_definition.msgid,
+            line,
+        )
+        return True
 
     def add_ignored_message(
         self,
