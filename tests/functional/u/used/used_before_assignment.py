@@ -327,3 +327,8 @@ SELF_REFERENCING = [ref for port in range(3) if (ref := ref)]  # [used-before-as
 # A name inside a nested scope of the walrus value is not a self-reference
 SHADOWED_COMP = [shadow for port in range(3) if (shadow := [shadow * 2 for shadow in [port]])]
 SHADOWED_LAMBDA = [arg for port in range(3) if (arg := sorted([port], key=lambda arg: -arg))]
+NESTED_SELF_REF = [
+    nr for port in range(3) if (nr := max([port], key=lambda _: nr))  # [used-before-assignment]
+]
+# A walrus outside a comprehension condition is still checked
+OUTSIDE_COMP = (outside, (outside := 1))  # [used-before-assignment]
