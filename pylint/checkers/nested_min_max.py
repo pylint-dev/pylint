@@ -120,9 +120,7 @@ class NestedMinMaxChecker(BaseChecker):
 
         for idx, arg in enumerate(fixed_node.args):
             if not isinstance(arg, nodes.Const):
-                if id(arg) in splattable_args and self._is_splattable_expression(
-                    arg
-                ):
+                if id(arg) in splattable_args and self._is_splattable_expression(arg):
                     splat_node = nodes.Starred(
                         ctx=Context.Load,
                         lineno=arg.lineno,
