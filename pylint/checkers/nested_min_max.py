@@ -91,6 +91,14 @@ class NestedMinMaxChecker(BaseChecker):
             return
 
         fixed_node = copy.copy(node)
+        # Identities (``id()``) of the arguments lifted out of a *single*
+        # argument inner min/max call. Only those represent an iterable whose
+        # elements must be splatted into the outer call, e.g.
+        # ``max(3, max(elems))`` -> ``max(3, *elems)``. Arguments taken from a
+        # multi-argument inner call are compared as whole objects and must be
+        # kept as-is, e.g. ``max([1, 2], max([3, 4], [5, 6]))`` flattens to
+        # ``max([1, 2], [3, 4], [5, 6])``, not ``max(*[1, 2], *[3, 4], *[5, 6])``.
+        splattable_args: set[int] = set()
         while len(redundant_calls) > 0:
             for i, arg in enumerate(fixed_node.args):
                 # Exclude any calls with generator expressions as there is no
@@ -101,6 +109,8 @@ class NestedMinMaxChecker(BaseChecker):
                     return
 
                 if arg in redundant_calls:
+                    if len(arg.args) == 1:
+                        splattable_args.add(id(arg.args[0]))
                     fixed_node.args = (
                         fixed_node.args[:i] + arg.args + fixed_node.args[i + 1 :]
                     )
@@ -110,7 +120,9 @@ class NestedMinMaxChecker(BaseChecker):
 
         for idx, arg in enumerate(fixed_node.args):
             if not isinstance(arg, nodes.Const):
-                if self._is_splattable_expression(arg):
+                if id(arg) in splattable_args and self._is_splattable_expression(
+                    arg
+                ):
                     splat_node = nodes.Starred(
                         ctx=Context.Load,
                         lineno=arg.lineno,

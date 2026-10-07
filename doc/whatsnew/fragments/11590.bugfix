@@ -1,0 +1,7 @@
+``nested-min-max`` no longer suggests splatting (``*``) arguments that come from
+an inner ``min``/``max`` call comparing several sequences. The sequences are
+compared as whole objects, so the previous suggestion changed the result, e.g.
+``max([1, 2], max([3, 4], [5, 6]))`` was rewritten to the non-equivalent
+``max(*[1, 2], *[3, 4], *[5, 6])``.
+
+Refs #11590
