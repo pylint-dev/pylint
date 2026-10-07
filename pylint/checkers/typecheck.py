@@ -32,6 +32,7 @@ from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
     decorated_with,
     decorated_with_property,
+    get_inferred_name,
     has_known_bases,
     is_builtin_object,
     is_comprehension,
@@ -2087,26 +2088,10 @@ accessed. Python regular expressions are accepted.",
                                 if inferred.name[-5:].lower() == "mixin":
                                     continue
 
-                        # Only read ``name`` from nodes known to define it; any
-                        # other inferred result (e.g. a ``Slice`` from
-                        # ``slice(...)``) has no ``name``, so fall back to the
-                        # inferred type's name to keep the message informative
-                        # without risking an ``AttributeError``.
-                        if isinstance(
-                            inferred,
-                            (
-                                nodes.ClassDef,
-                                nodes.FunctionDef,
-                                nodes.Lambda,
-                                nodes.Module,
-                                bases.BaseInstance,
-                            ),
-                        ):
-                            inferred_name = inferred.name
-                        else:
-                            inferred_name = inferred.pytype().rsplit(".", 1)[-1]
                         self.add_message(
-                            "not-context-manager", node=node, args=(inferred_name,)
+                            "not-context-manager",
+                            node=node,
+                            args=(get_inferred_name(inferred),),
                         )
                     except AttributeError:
                         # Some inferred results (e.g. a TypeVar bound by a

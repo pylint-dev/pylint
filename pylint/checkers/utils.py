@@ -1494,6 +1494,28 @@ def is_none(node: nodes.NodeNG) -> bool:
     return False
 
 
+def get_inferred_name(inferred: SuccessfulInferenceResult) -> str:
+    """Return the name to display in a message for an inferred result.
+
+    Only read ``name`` from nodes known to define it; any other inferred
+    result (e.g. a ``Slice`` from ``slice(...)``) has no ``name``, so fall
+    back to the inferred type's name to keep the message informative without
+    risking an ``AttributeError``.
+    """
+    if isinstance(
+        inferred,
+        (
+            nodes.ClassDef,
+            nodes.FunctionDef,
+            nodes.Lambda,
+            nodes.Module,
+            bases.BaseInstance,
+        ),
+    ):
+        return inferred.name  # type: ignore[no-any-return]
+    return inferred.pytype().rsplit(".", 1)[-1]  # type: ignore[no-any-return]
+
+
 def node_type(node: nodes.NodeNG) -> SuccessfulInferenceResult | None:
     """Return the inferred type for `node`.
 
