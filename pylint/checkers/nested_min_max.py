@@ -91,13 +91,8 @@ class NestedMinMaxChecker(BaseChecker):
             return
 
         fixed_node = copy.copy(node)
-        # Identities (``id()``) of the arguments lifted out of a *single*
-        # argument inner min/max call. Only those represent an iterable whose
-        # elements must be splatted into the outer call, e.g.
-        # ``max(3, max(elems))`` -> ``max(3, *elems)``. Arguments taken from a
-        # multi-argument inner call are compared as whole objects and must be
-        # kept as-is, e.g. ``max([1, 2], max([3, 4], [5, 6]))`` flattens to
-        # ``max([1, 2], [3, 4], [5, 6])``, not ``max(*[1, 2], *[3, 4], *[5, 6])``.
+        # Only args lifted from a single-argument inner call may be splatted;
+        # args from a multi-arg inner call are compared as whole objects, so keep them.
         splattable_args: set[int] = set()
         while len(redundant_calls) > 0:
             for i, arg in enumerate(fixed_node.args):
