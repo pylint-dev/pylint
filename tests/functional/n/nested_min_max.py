@@ -75,3 +75,10 @@ max(1, max(5, 3), key=abs)  # [nested-min-max]
 LIST3 = [1, 2, 3]
 max(max(LIST3), 5, 7)  # [nested-min-max]
 max(4, max(LIST3), 7)  # [nested-min-max]
+
+# Regression guard: an inner call that compares several sequences must be
+# flattened WITHOUT splatting -- the sequences are compared as whole objects,
+# so ``max([1, 2], max([3, 4], [5, 6]))`` equals ``max([1, 2], [3, 4], [5, 6])``
+# (which yields ``[5, 6]``), not the non-equivalent ``max(*[1, 2], *[3, 4],
+# *[5, 6])`` (which yields ``6``).
+max([1, 2], max([3, 4], [5, 6]))  # [nested-min-max]
