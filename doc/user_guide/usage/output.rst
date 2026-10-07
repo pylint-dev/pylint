@@ -10,14 +10,19 @@ with the ``--output=<filename>`` option.
 The default format for the output is raw text. You can change this by passing
 pylint the ``--output-format=<value>`` option. Possible values are:
 
-* ``text``
+* ``text``: messages are grouped under a ``************* Module <name>`` header
+  for each module
+* ``no-header``: same as ``text``, without the module headers
 * ``parseable``
-* ``colorized``
+* ``colorized``: same as ``text``, with ANSI colors
 * ``json2``: improved json format
 * ``json``: old json format
 * ``msvs``: visual studio
 * ``github``: `GitHub action messages <https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions>`_
 * ``junit``: JUnit XML for CI/CD integration (Jenkins, Azure DevOps, GitLab CI, GitHub Actions)
+
+You can also give the fully qualified name of your own reporter class, for
+example ``--output-format=mypackage.mymodule.MyReporterClass``.
 
 Multiple output formats can be used at the same time by passing
 a comma-separated list of formats to ``--output-format``.
@@ -118,7 +123,7 @@ A few other examples:
 
     {path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
 
-The ``--msg-template`` option can only be combined with text-based reporters (``--output-format`` either unspecified or one of: parseable, colorized or msvs).
+The ``--msg-template`` option can only be combined with text-based reporters (``--output-format`` either unspecified or one of: text, no-header, parseable, colorized or msvs).
 If both ``--output-format`` and ``--msg-template`` are specified, the ``--msg-template`` option will take precedence over the default line format defined by the reporter class.
 
 If ``end_line`` or ``end_column`` are ``None``, they will be represented as an empty string

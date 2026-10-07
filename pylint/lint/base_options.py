@@ -103,7 +103,8 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "short": "f",
                 "group": "Reports",
                 "help": "Set the output format. Available formats are: 'text', "
-                "'parseable', 'colorized', 'json2' (improved json format), 'json' "
+                "'no-header' (text without module headers), 'parseable', "
+                "'colorized', 'json2' (improved json format), 'json' "
                 "(old json format), 'msvs' (visual studio), 'github' (GitHub actions) "
                 "and 'junit' (JUnit XML). "
                 "You can also give a reporter class, e.g. mypackage.mymodule."
