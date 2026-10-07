@@ -8,6 +8,9 @@ https://github.com/pylint-dev/pylint/issues/9134
 """
 # pylint: disable=missing-class-docstring,missing-function-docstring
 # pylint: disable=too-few-public-methods,invalid-name,unused-argument
+import operator
+from datetime import timezone
+from functools import cached_property
 from os import path
 from string import Template
 
@@ -56,6 +59,22 @@ class BuiltinShadowedByMethod:
         return self
 
 
+class ModuleNameShadowedByProperty:
+    equals = operator.eq
+
+    @property
+    def operator(self):
+        return self.equals
+
+
+class ModuleNameShadowedByCachedProperty:
+    default = timezone.utc
+
+    @cached_property
+    def timezone(self):
+        return self.default
+
+
 class NameOnlyDefinedByLaterMethod:
     joined = missing.join("a")  # [used-before-assignment]
 
@@ -65,7 +84,7 @@ class NameOnlyDefinedByLaterMethod:
 
 class NameUsedInsideMethodBody:
     def method(self):
-        return path.join("a"), Template("$a")
+        return path.join("a"), Template("$a"), operator.eq, timezone.utc
 
     def path(self):
         return self
@@ -76,3 +95,35 @@ class NameUsedAfterMethod:
         return self
 
     joined = path(None)
+
+
+class ModuleNameDefinedAfterClass:
+    value = defined_later(1)  # [used-before-assignment]
+
+    def defined_later(self):
+        return self
+
+
+defined_later = len
+
+
+class ModuleNameDefinedAfterClassByAssignment:
+    # Known false negative, the same as for any other assignment in a class body.
+    value = assigned_later(1)
+
+    assigned_later = 2
+
+
+assigned_later = len
+
+
+def enclosing_function():
+    from os import sep  # pylint: disable=import-outside-toplevel,unused-import
+
+    class Inner:
+        joined = sep.join("a")  # [used-before-assignment]
+
+        def sep(self):
+            return self
+
+    return Inner
