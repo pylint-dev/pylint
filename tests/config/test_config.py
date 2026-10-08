@@ -16,6 +16,7 @@ from pytest import CaptureFixture
 from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.interfaces import CONFIDENCE_LEVEL_NAMES
 from pylint.lint import Run as LintRun
+from pylint.reporters import MultiReporter
 from pylint.testutils import create_files
 from pylint.testutils._run import _Run as Run
 from pylint.testutils.configuration_test import run_using_a_configuration_file
@@ -115,10 +116,14 @@ def test_several_output_formats_writing_to_stdout(
 def test_one_output_format_writing_to_stdout(tmp_path: Path) -> None:
     """Formats sent to a file can be combined with one format on stdout."""
     json_file = tmp_path / "out.json"
-    Run(
+    runner = Run(
         [str(EMPTY_MODULE), f"--output-format=json2:{json_file},colorized"],
         exit=False,
     )
+    # Ensure the output file is flushed and closed
+    reporter = runner.linter.reporter
+    assert isinstance(reporter, MultiReporter)
+    reporter.close_output_files()
     assert json_file.exists()
 
 
