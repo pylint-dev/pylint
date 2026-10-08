@@ -1,0 +1,4 @@
+Avoid emitting ``unreachable`` for a ``yield`` immediately after ``raise`` that
+marks a function as a generator, matching the existing handling of ``return``.
+
+Closes #8909
