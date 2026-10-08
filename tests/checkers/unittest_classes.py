@@ -2,6 +2,7 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
+import sys
 from pathlib import Path
 
 import astroid
@@ -81,3 +82,31 @@ def test_super_init_not_called_is_not_raised_in_a_stub(
         exit=False,
     )
     assert [message.symbol for message in run.linter.reporter.messages] == expected
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "class C(slice(1, 2)):\n    pass\n",
+        pytest.param(
+            "from typing import Unpack\nclass C(Unpack()[:]):\n    pass\n",
+            marks=pytest.mark.skipif(
+                sys.version_info < (3, 11),
+                reason="typing.Unpack was introduced in Python 3.11",
+            ),
+        ),
+    ],
+    ids=["slice_call", "unpack_slice"],
+)
+def test_slice_base_does_not_crash(tmp_path: Path, code: str) -> None:
+    """Regression test for issue 11609: slice base expression should not crash."""
+    path = tmp_path / "foo.py"
+    path.write_text(code, encoding="utf-8")
+    run = Run(
+        ["--disable=all", "--enable=inherit-non-class", str(path)],
+        reporter=CollectingReporter(),
+        exit=False,
+    )
+    assert [message.symbol for message in run.linter.reporter.messages] == [
+        "inherit-non-class"
+    ]

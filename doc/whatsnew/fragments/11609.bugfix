@@ -1,0 +1,3 @@
+Fixed an ``AttributeError`` crash in the class checker when a class inherits from a slice expression (e.g. ``Unpack()[:]``).
+
+Closes #11609
