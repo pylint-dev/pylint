@@ -310,9 +310,22 @@ def _assigned_locally(name_node: nodes.Name) -> bool:
     """Checks if name_node has corresponding assign statement in same scope."""
     name_node_scope = name_node.scope()
     assign_stmts = name_node_scope.nodes_of_class(nodes.AssignName)
-    return any(a.name == name_node.name for a in assign_stmts) or _find_frame_imports(
+    if any(a.name == name_node.name for a in assign_stmts) or _find_frame_imports(
         name_node.name, name_node_scope
-    )
+    ):
+        return True
+    # Parameters of this lambda, or of enclosing lambdas (possibly through
+    # comprehensions), are bindings. Defaults and annotations are not. See #9126.
+    scope = name_node_scope
+    while isinstance(scope, (nodes.Lambda, nodes.ComprehensionScope)):
+        if (
+            isinstance(scope, nodes.Lambda)
+            and name_node.name in scope.argnames()
+            and not scope.args.parent_of(name_node)
+        ):
+            return True
+        scope = scope.parent.scope()
+    return False
 
 
 def _is_before(node: nodes.NodeNG, reference_node: nodes.NodeNG) -> bool:
