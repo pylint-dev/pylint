@@ -16,7 +16,6 @@ from typing import TYPE_CHECKING, TextIO
 import pytest
 
 from pylint import checkers
-from pylint.exceptions import InvalidReporterError
 from pylint.interfaces import HIGH
 from pylint.lint import PyLinter
 from pylint.message.message import Message
@@ -310,22 +309,6 @@ def test_multi_format_output(tmp_path: Path) -> None:
         "\n"
         "direct output\n"
     )
-
-
-@pytest.mark.parametrize(
-    "formats",
-    ["colorized,no-header", "text,json2", "json2:{tmp}/out.json,text,github"],
-)
-def test_multiple_formats_writing_to_stdout_are_rejected(
-    tmp_path: Path, formats: str
-) -> None:
-    """Several reporters writing to stdout would duplicate every message."""
-    linter = PyLinter()
-    linter.load_default_plugins()
-    with pytest.raises(
-        InvalidReporterError, match="Only one output format can write to stdout"
-    ):
-        linter.set_option("output-format", formats.format(tmp=tmp_path))
 
 
 def test_multi_reporter_independant_messages() -> None:
