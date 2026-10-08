@@ -312,9 +312,21 @@ class CodeStyleChecker(BaseChecker):
 
         match prev_sibling:
             case nodes.Assign(
-                targets=[nodes.AssignName(name=target_name)]
-            ) | nodes.AnnAssign(target=nodes.AssignName(name=target_name)):
-                return target_name == name and prev_sibling.value is not None
+                targets=[nodes.AssignName(name=target_name) as target_node]
+            ) | nodes.AnnAssign(
+                target=nodes.AssignName(name=target_name) as target_node
+            ):
+                if target_name != name or prev_sibling.value is None:
+                    return False
+                if (
+                    target_name.isupper()
+                    or utils.is_assign_name_annotated_with(target_node, "Final")
+                    or utils.is_assign_name_annotated_with_class_var_typing_name(
+                        target_node, "Final"
+                    )
+                ):
+                    return False
+                return True
         return False
 
     @staticmethod

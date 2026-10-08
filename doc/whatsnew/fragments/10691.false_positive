@@ -1,0 +1,4 @@
+Fix a false positive for :ref:`consider-using-assignment-expr` when an assignment
+is to an uppercase constant name or an identifier annotated with ``Final``.
+
+Closes #10691
