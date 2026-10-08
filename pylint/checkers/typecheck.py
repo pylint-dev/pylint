@@ -23,7 +23,7 @@ import astroid.exceptions
 import astroid.helpers
 import astroid.interpreter
 import astroid.modutils
-from astroid import arguments, bases, nodes, objects, util
+from astroid import arguments, bases, nodes, objects, protocols, util
 from astroid.exceptions import InferenceError
 from astroid.nodes import _base_nodes
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
@@ -702,6 +702,84 @@ def _determine_callable(
             return callable_obj, parameters, "constructor"
 
     raise ValueError
+
+
+def _find_arg_annotation(args_node: nodes.Arguments, name: str) -> nodes.NodeNG | None:
+    for arg_list, ann_list in (
+        (args_node.posonlyargs, args_node.posonlyargs_annotations),
+        (args_node.args, args_node.annotations),
+        (args_node.kwonlyargs, args_node.kwonlyargs_annotations),
+    ):
+        for arg, ann in zip(arg_list or (), ann_list or ()):
+            if arg.name == name and ann is not None:
+                return ann
+    return None
+
+
+def _find_receiver_annotation(expr: nodes.NodeNG) -> nodes.NodeNG | None:
+    match expr:
+        case nodes.Name(name=name):
+            scope = expr.scope()
+            if isinstance(scope, nodes.FunctionDef):
+                ann = _find_arg_annotation(scope.args, name)
+                if ann is not None:
+                    return ann
+            _, stmts = scope.lookup(name)
+            for stmt in stmts:
+                if isinstance(stmt.parent, nodes.AnnAssign):
+                    return stmt.parent.annotation
+        case nodes.Attribute(expr=receiver, attrname=attrname):
+            owner = safe_infer(receiver)
+            if isinstance(owner, bases.Instance):
+                owner_class = owner._proxied
+                for target in owner_class.locals.get(attrname, []):
+                    if isinstance(target.parent, nodes.AnnAssign):
+                        return target.parent.annotation
+                try:
+                    instance_attrs = owner_class.instance_attr(attrname)
+                except (
+                    astroid.exceptions.AttributeInferenceError,
+                    astroid.exceptions.NotFoundError,
+                ):
+                    instance_attrs = []
+                for assign_attr in instance_attrs:
+                    if isinstance(assign_attr.parent, nodes.AnnAssign):
+                        return assign_attr.parent.annotation
+                    if isinstance(assign_attr.parent, nodes.Assign) and isinstance(
+                        assign_attr.parent.value, nodes.Name
+                    ):
+                        fn = assign_attr.frame()
+                        if isinstance(fn, nodes.FunctionDef):
+                            ann = _find_arg_annotation(
+                                fn.args, assign_attr.parent.value.name
+                            )
+                            if ann is not None:
+                                return ann
+    return None
+
+
+def _infer_callable_from_annotated_receiver(
+    func_node: nodes.Attribute,
+) -> SuccessfulInferenceResult | None:
+    """Attempt to recover callable from an explicitly annotated receiver when
+    normal runtime inference yields Uninferable (#10731).
+    """
+    ann = _find_receiver_annotation(func_node.expr)
+    if ann is None:
+        return None
+    for inst in protocols.infer_instance_from_annotation(ann):
+        if isinstance(inst, bases.Instance):
+            try:
+                for method in inst.igetattr(func_node.attrname):
+                    if isinstance(method, (bases.BoundMethod, nodes.FunctionDef)):
+                        return method
+            except (
+                astroid.exceptions.AttributeInferenceError,
+                astroid.exceptions.NotFoundError,
+                InferenceError,
+            ):
+                pass
+    return None
 
 
 def _has_parent_of_type(
@@ -1574,6 +1652,10 @@ accessed. Python regular expressions are accepted.",
         and that passed arguments match the parameters in the inferred function.
         """
         called = safe_infer(node.func, compare_constructors=True)
+        if (called is None or called is util.Uninferable) and isinstance(
+            node.func, nodes.Attribute
+        ):
+            called = _infer_callable_from_annotated_receiver(node.func)
 
         self._check_not_callable(node, called)
 
