@@ -288,3 +288,31 @@ def decorated_by_uninferable_return(junk=None):
 
 
 decorated_by_uninferable_return(internal_arg=2)
+
+
+def pass_through_or_none(func):
+    if func.__doc__:
+        return func
+    return None
+
+
+@pass_through_or_none
+def decorated_by_pass_through_or_none(junk=None):
+    print(junk)
+
+
+decorated_by_pass_through_or_none(internal_arg=2)  # [unexpected-keyword-arg]
+
+
+def uninferable_or_non_param_decorator(func):
+    if func.__doc__:
+        return unknown_decorator(func)
+    return non_param_decorator(func)
+
+
+@uninferable_or_non_param_decorator
+def decorated_by_uninferable_or_non_param(junk=None):
+    print(junk)
+
+
+decorated_by_uninferable_or_non_param(internal_arg=2)  # [unexpected-keyword-arg]

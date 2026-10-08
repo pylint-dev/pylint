@@ -1847,10 +1847,13 @@ accessed. Python regular expressions are accepted.",
             except InferenceError:
                 return False
 
+            if all(isinstance(value, util.UninferableBase) for value in return_values):
+                # An opaque decorator may return a wrapper that accepts the keyword
+                return True
+
             for return_value in return_values:
-                # An opaque return may still be a wrapper that accepts the keyword
                 if isinstance(return_value, util.UninferableBase):
-                    return True
+                    continue
 
                 # infer_call_result() returns nodes.Const.None for None return values
                 # so this also catches non-returning decorators
