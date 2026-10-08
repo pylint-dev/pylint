@@ -152,3 +152,9 @@ def raising_generator_with_unreachable_statement():
 def raising_generator_with_yield_from():
     raise ValueError("failure")
     yield from ()
+
+
+def exiting_generator():
+    """sys.exit() raises SystemExit, so it only exits on iteration too."""
+    sys.exit(1)
+    yield

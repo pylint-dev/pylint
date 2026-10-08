@@ -1,4 +1,5 @@
-Avoid emitting ``unreachable`` for a ``yield`` immediately after ``raise`` that
-marks a function as a generator, matching the existing handling of ``return``.
+Avoid emitting ``unreachable`` for a ``yield`` immediately after ``raise`` or
+``sys.exit()`` that marks a function as a generator, matching the existing
+handling of ``return``.
 
 Closes #8909
