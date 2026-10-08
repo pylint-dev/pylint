@@ -2426,6 +2426,13 @@ accessed. Python regular expressions are accepted.",
                     return
                 case nodes.FunctionDef() | nodes.Lambda():
                     break
+                case nodes.GeneratorExp():
+                    # The first iterable of a generator expression is evaluated in
+                    # the enclosing scope. Anywhere else, ``await`` makes it an
+                    # asynchronous generator expression, which is valid in any scope.
+                    first_iter = node_scope.generators[0].iter
+                    if node is not first_iter and not first_iter.parent_of(node):
+                        return
             node_scope = node_scope.parent.scope()
         self.add_message("await-outside-async", node=node)
 
