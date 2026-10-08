@@ -91,6 +91,37 @@ def test_unknown_confidence(capsys: CaptureFixture) -> None:
     assert "argument --confidence: UNKNOWN_CONFIG should be in" in output.err
 
 
+@pytest.mark.parametrize(
+    "output_format",
+    ["colorized,no-header", "text,json2", "json2:{tmp}/out.json,text,github"],
+)
+def test_several_output_formats_writing_to_stdout(
+    capsys: CaptureFixture, tmp_path: Path, output_format: str
+) -> None:
+    """Check that we error when more than one output format writes to stdout."""
+    with pytest.raises(SystemExit):
+        Run(
+            [
+                str(EMPTY_MODULE),
+                f"--output-format={output_format.format(tmp=tmp_path)}",
+            ],
+            exit=False,
+        )
+    output = capsys.readouterr()
+    assert "usage: pylint" in output.err
+    assert "only one output format can write to stdout" in output.err
+
+
+def test_one_output_format_writing_to_stdout(tmp_path: Path) -> None:
+    """Formats sent to a file can be combined with one format on stdout."""
+    json_file = tmp_path / "out.json"
+    Run(
+        [str(EMPTY_MODULE), f"--output-format=json2:{json_file},colorized"],
+        exit=False,
+    )
+    assert json_file.exists()
+
+
 def test_empty_confidence() -> None:
     """An empty confidence value indicates all errors should be emitted."""
     r = Run([str(EMPTY_MODULE), "--confidence="], exit=False)
