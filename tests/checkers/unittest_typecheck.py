@@ -78,6 +78,31 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
+    def test_enum_init_without_arguments_no_crash(self) -> None:
+        """Regression test for issue 11608: Enum __init__ with no parameters."""
+        self.checker.open()
+        node = astroid.extract_node("""
+        from enum import Enum
+
+        class C(Enum):
+            def __init__():
+                pass
+
+        C.A  #@
+        """)
+        message = MessageTest(
+            "no-member",
+            node=node,
+            args=("Class", "C", "A", ""),
+            confidence=INFERENCE,
+            line=8,
+            col_offset=0,
+            end_line=8,
+            end_col_offset=3,
+        )
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
 
 class TestTypeCheckerOnDecorators(CheckerTestCase):
     """Tests for pylint.checkers.typecheck on decorated functions."""

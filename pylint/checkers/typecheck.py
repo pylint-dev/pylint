@@ -620,7 +620,12 @@ def _enum_has_attribute(
             )
 
     # Find attributes defined in __init__
-    if dunder_init and dunder_init.body and dunder_init.args:
+    if (
+        dunder_init
+        and dunder_init.body
+        and dunder_init.args
+        and dunder_init.args.arguments
+    ):
         # Grab the name referring to `self` from the function def
         enum_attributes |= _get_all_attribute_assignments(
             dunder_init, dunder_init.args.arguments[0].name
