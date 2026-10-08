@@ -1181,6 +1181,22 @@ def test_no_false_positive_from_pyi_stub() -> None:
     assert not run.linter.stats.by_msg
 
 
+def test_no_false_positive_from_stub_without_implementation() -> None:
+    """A function whose body is only ``...`` is not inferred as returning None.
+
+    https://github.com/pylint-dev/pylint/issues/9354
+    """
+    run = Run(
+        [
+            "--recursive",
+            "y",
+            join(REGRTEST_DATA_DIR, "uses_stub_without_implementation.py"),
+        ],
+        exit=False,
+    )
+    assert not run.linter.stats.by_msg
+
+
 @pytest.mark.parametrize(
     "ignore_parameter,ignore_parameter_value",
     [
