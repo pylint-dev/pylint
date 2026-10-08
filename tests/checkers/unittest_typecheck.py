@@ -78,6 +78,67 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
+    def test_no_value_for_parameter_on_annotated_instances_in_class(
+        self,
+    ) -> None:
+        """Test E1120 is emitted for method calls on typed attributes/arguments inside classes (#10731)."""
+        module = astroid.parse("""
+        class Bird:
+            def flap(self, wing):
+                return wing
+
+        seagull = Bird()
+        seagull.flap()
+
+        class BirdTester:
+            class_bird: Bird
+
+            def __init__(self, bird: Bird):
+                self.bird = bird
+
+            def bar1(self):
+                bird: Bird = self.bird
+                bird.flap()
+
+            def bar2(self):
+                self.bird.flap()
+
+            def bar3(self, bird: Bird):
+                bird.flap()
+
+            def bar4(self, bird: 'Bird'):
+                bird.flap()
+
+            def bar5(self):
+                self.class_bird.flap()
+
+            def valid(self, bird: Bird):
+                bird.flap("left_wing")
+                self.bird.flap("right_wing")
+
+            def untyped(self, dynamic_obj):
+                dynamic_obj.flap()
+        """)
+        calls = [
+            n
+            for n in module.nodes_of_class(astroid.nodes.Call)
+            if getattr(n.func, "attrname", None) == "flap"
+        ]
+        # calls 0..5 are missing the mandatory 'wing' parameter
+        for call_node in calls[:6]:
+            msg = MessageTest(
+                "no-value-for-parameter",
+                node=call_node,
+                args=("'wing'", "method"),
+            )
+            with self.assertAddsMessages(msg, ignore_position=True):
+                self.checker.visit_call(call_node)
+
+        # calls 6..8 are valid or untyped (no message expected)
+        for call_node in calls[6:]:
+            with self.assertNoMessages():
+                self.checker.visit_call(call_node)
+
 
 class TestTypeCheckerOnDecorators(CheckerTestCase):
     """Tests for pylint.checkers.typecheck on decorated functions."""
