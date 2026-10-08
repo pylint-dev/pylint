@@ -1,0 +1,3 @@
+not-callable:79:0:79:27::ChildReturnsNone().method is not callable:UNDEFINED
+not-callable:80:0:80:25::ChildAttribute().method is not callable:UNDEFINED
+not-callable:90:0:90:26::NotOnlyEllipsis().method is not callable:UNDEFINED
