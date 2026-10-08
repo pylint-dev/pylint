@@ -505,7 +505,6 @@ class PyLinter(
             return
         sub_reporters = []
         output_files = []
-        stdout_reporter_names = []
         no_color, force_color = self._color_env
         with contextlib.ExitStack() as stack:
             for reporter_name in reporter_names.split(","):
@@ -519,22 +518,11 @@ class PyLinter(
                     reporter.out = output_file
                     output_files.append(output_file)
                 else:
-                    stdout_reporter_names.append(reporter_name)
                     # Only the reporter writing to stdout follows the environment
                     reporter = _handle_force_color_no_color(
                         reporter, no_color=no_color, force_color=force_color
                     )
                 sub_reporters.append(reporter)
-
-            if len(stdout_reporter_names) > 1:
-                # Several reporters writing to stdout would print every message
-                # more than once, interleaved.
-                names = ", ".join(f"'{name}'" for name in stdout_reporter_names)
-                raise exceptions.InvalidReporterError(
-                    f"Only one output format can write to stdout, but {names} "
-                    "would all write to it. Send the others to a file with "
-                    "'format:path' (for example 'json2:report.json')."
-                )
 
             # Extend the lifetime of all opened output files
             close_output_files = stack.pop_all().close
