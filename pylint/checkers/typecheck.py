@@ -716,6 +716,20 @@ def _has_parent_of_type(
     return isinstance(parent, node_type)
 
 
+def _returns_first_argument(func: nodes.FunctionDef) -> bool:
+    """Return whether every return of ``func`` is its own first parameter."""
+    params = (func.args.posonlyargs or []) + (func.args.args or [])
+    if not params:
+        return False
+    first_param = params[0]
+    returns = list(func.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef))
+    return bool(returns) and all(
+        isinstance(ret.value, nodes.Name)
+        and ret.value.lookup(ret.value.name)[1] == [first_param]
+        for ret in returns
+    )
+
+
 def _no_context_variadic_keywords(node: nodes.Call, scope: nodes.Lambda) -> bool:
     statement = node.statement()
     variadics = []
@@ -1811,6 +1825,7 @@ accessed. Python regular expressions are accepted.",
         if not func.decorators:
             return False
 
+        has_signature_changing_decorator = False
         for decorator in func.decorators.nodes:
             inferred = safe_infer(decorator)
 
@@ -1823,12 +1838,24 @@ accessed. Python regular expressions are accepted.",
             if not isinstance(inferred, nodes.FunctionDef):
                 return False
 
+            if _returns_first_argument(inferred):
+                # A pass-through decorator leaves the signature unchanged
+                continue
+
+            has_signature_changing_decorator = True
             try:
                 return_values = list(inferred.infer_call_result(caller=None))
             except InferenceError:
                 return False
 
+            if all(isinstance(value, util.UninferableBase) for value in return_values):
+                # An opaque decorator may return a wrapper that accepts the keyword
+                return True
+
             for return_value in return_values:
+                if isinstance(return_value, util.UninferableBase):
+                    continue
+
                 # infer_call_result() returns nodes.Const.None for None return values
                 # so this also catches non-returning decorators
                 if not isinstance(return_value, nodes.FunctionDef):
@@ -1844,7 +1871,7 @@ accessed. Python regular expressions are accepted.",
 
                 return False
 
-        return True
+        return has_signature_changing_decorator
 
     def _check_invalid_sequence_index(self, subscript: nodes.Subscript) -> None:
         # Look for index operations where the parent is a sequence type.

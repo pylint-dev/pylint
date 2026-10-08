@@ -1,0 +1,4 @@
+Fixed a false positive for ``unexpected-keyword-arg`` when a decorator that
+returns its argument unchanged is stacked above a decorator accepting ``**kwargs``.
+
+Closes #10831
