@@ -364,3 +364,50 @@ class TestExpandModules(CheckerTestCase):
         }
         assert {k for k, v in modules.items() if not v["isignored"]} == expected_keys
         assert not errors
+
+
+@pytest.mark.parametrize(
+    "initializer_name", ["__init__.py", "__Init__.py", "__INIT__.PY"]
+)
+def test_case_insensitive_package_initializer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, initializer_name: str
+) -> None:
+    """Case-insensitive initializer spellings identify the same input file."""
+    package = tmp_path / "package"
+    package.mkdir()
+    initializer = package / "__init__.py"
+    initializer.write_text("", encoding="utf-8")
+    supplied = package / initializer_name
+    supplied.write_text("", encoding="utf-8")
+    # Model Windows name comparison on every host; both spellings exist on POSIX.
+    monkeypatch.setattr(os.path, "normcase", str.casefold)
+
+    expected, expected_errors = expand_modules(
+        [str(initializer)], [str(tmp_path)], [], [], []
+    )
+    modules, errors = expand_modules(
+        [str(supplied), str(initializer)], [str(tmp_path)], [], [], []
+    )
+
+    assert not errors
+    assert not expected_errors
+    assert modules == expected
+    assert modules[str(initializer)]["name"] == "package.__init__"
+    assert modules[str(initializer)]["isarg"]
+
+
+def test_case_sensitive_initializer_spelling_is_preserved(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """On case-sensitive hosts, a differently spelled file is an ordinary module."""
+    monkeypatch.setattr(os.path, "normcase", lambda path: path)
+    package = tmp_path / "package"
+    package.mkdir()
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    module = package / "__Init__.py"
+    module.write_text("", encoding="utf-8")
+
+    modules, errors = expand_modules([str(module)], [str(tmp_path)], [], [], [])
+
+    assert not errors
+    assert modules[str(module)]["name"] == "package.__Init__"
