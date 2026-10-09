@@ -339,7 +339,9 @@ class TestRunTC:
             # Using config file...  line
             actual_output = actual_output[actual_output.find("\n") :]
         if "which is less than fail-under=" in actual_output:
-            actual_output = actual_output[:actual_output.rfind("Code has been rated at")].strip()
+            actual_output = actual_output[
+                : actual_output.rfind("Code has been rated at")
+            ].strip()
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
     def test_progress_reporting(self) -> None:
@@ -370,7 +372,9 @@ class TestRunTC:
         {module1} (2 of 2)
         """)
         if "which is less than fail-under=" in actual_output:
-            actual_output = actual_output[:actual_output.rfind("Code has been rated at")].strip()
+            actual_output = actual_output[
+                : actual_output.rfind("Code has been rated at")
+            ].strip()
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
     def test_progress_reporting_not_shown_if_not_verbose(self) -> None:
@@ -393,7 +397,9 @@ class TestRunTC:
         {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
         """)
         if "which is less than fail-under=" in actual_output:
-            actual_output = actual_output[:actual_output.rfind("Code has been rated at")].strip()
+            actual_output = actual_output[
+                : actual_output.rfind("Code has been rated at")
+            ].strip()
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
     def test_type_annotation_names(self) -> None:
