@@ -646,7 +646,9 @@ class BasicChecker(_BasicChecker):
             confidence=INFERENCE,
         )
 
-    @utils.only_required_for_messages("unreachable", "lost-exception")
+    @utils.only_required_for_messages(
+        "unreachable", "lost-exception", "return-in-finally"
+    )
     def visit_return(self, node: nodes.Return) -> None:
         """Return node visitor.
 
@@ -658,6 +660,7 @@ class BasicChecker(_BasicChecker):
         self._check_unreachable(node)
         # Is it inside final body of a try...finally block ?
         self._check_not_in_finally(node, "return", (nodes.FunctionDef,))
+        self._check_return_in_finally(node)
 
     @utils.only_required_for_messages("unreachable")
     def visit_continue(self, node: nodes.Continue) -> None:
@@ -773,10 +776,6 @@ class BasicChecker(_BasicChecker):
         """Update try block flag."""
         self._trys.append(node)
 
-        for final_node in node.finalbody:
-            for return_node in final_node.nodes_of_class(nodes.Return):
-                self.add_message("return-in-finally", node=return_node, confidence=HIGH)
-
     def leave_try(self, _: nodes.Try) -> None:
         """Update try block flag."""
         self._trys.pop()
@@ -800,6 +799,21 @@ class BasicChecker(_BasicChecker):
             self.add_message(
                 "unreachable", node=unreachable_statement, confidence=confidence
             )
+
+    def _check_return_in_finally(self, node: nodes.Return) -> None:
+        """Check that a return does not exit a 'finally' clause of its own function.
+
+        Only the innermost enclosing 'finally' clause is reported, and a return
+        in a function defined inside the 'finally' clause is fine.
+        """
+        child: nodes.NodeNG = node
+        for parent in node.node_ancestors():
+            if isinstance(parent, nodes.FunctionDef):
+                return
+            if isinstance(parent, nodes.Try) and child in parent.finalbody:
+                self.add_message("return-in-finally", node=node, confidence=HIGH)
+                return
+            child = parent
 
     def _check_not_in_finally(
         self,
