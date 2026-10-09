@@ -21,6 +21,19 @@ from pylint.pyreverse.utils import LocalsVisitor
 
 # diagram generators ##########################################################
 
+_ClassDefinitionKey = tuple[str | None, str, int | None, int | None]
+
+
+def _class_definition_key(node: nodes.ClassDef) -> _ClassDefinitionKey:
+    """Return a key identifying the class definition ``node`` comes from.
+
+    Some astroid brains (e.g. the one for ``numpy.ndarray``) build a brand-new
+    ``ClassDef`` every time they are inferred, and the attributes of that class can
+    infer to yet another copy of it. These copies are distinct objects built from
+    the same definition, so they have to be recognized as the same class.
+    """
+    return (node.root().file, node.qname(), node.lineno, node.col_offset)
+
 
 class DiaDefGenerator:
     """Handle diagram generation options."""
@@ -33,6 +46,8 @@ class DiaDefGenerator:
         self._set_default_options()
         self.linker = linker
         self.classdiagram: ClassDiagram  # defined by subclasses
+        # Definitions of the classes extracted into ``self.classdiagram``
+        self._extracted_classes: set[_ClassDefinitionKey] = set()
         # Only pre-calculate depths if user has requested a max_depth
         if handler.config.max_depth is not None:
             # Detect which of the args are leaf nodes
@@ -173,8 +188,10 @@ class DiaDefGenerator:
         self, klass_node: nodes.ClassDef, anc_level: int, association_level: int
     ) -> None:
         """Extract recursively classes related to klass_node."""
-        if self.classdiagram.has_node(klass_node) or not self.show_node(klass_node):
+        key = _class_definition_key(klass_node)
+        if key in self._extracted_classes or not self.show_node(klass_node):
             return
+        self._extracted_classes.add(key)
         self.add_class(klass_node)
 
         for ancestor in self.get_ancestors(klass_node, anc_level):
@@ -208,6 +225,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         else:
             self.pkgdiagram = None
         self.classdiagram = ClassDiagram(f"classes {node.name}", mode, self.linker)
+        self._extracted_classes = set()
 
     def leave_project(self, _: Project) -> Any:
         """Leave the pyreverse.utils.Project node.
@@ -250,6 +268,7 @@ class ClassDiadefGenerator(DiaDefGenerator):
         """Return a class diagram definition for the class and related classes."""
         klass_name = klass
         self.classdiagram = ClassDiagram(klass, self.config.mode, self.linker)
+        self._extracted_classes = set()
         if len(project.modules) > 1:
             module, klass = klass.rsplit(".", 1)
             module = project.get_module(module)

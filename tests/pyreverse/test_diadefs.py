@@ -15,6 +15,10 @@ from unittest.mock import Mock
 
 import pytest
 from astroid import extract_node, nodes, parse
+from astroid.bases import Instance
+from astroid.context import InferenceContext
+from astroid.inference_tip import inference_tip
+from astroid.manager import AstroidManager
 
 from pylint.pyreverse.diadefslib import (
     ClassDiadefGenerator,
@@ -300,6 +304,65 @@ def test_class_diagram_warns_for_uninferable_target(HANDLER: DiadefsHandler) -> 
         )
 
     assert diagram.objects == []
+
+
+def _infer_fresh_class_instance(
+    _node: nodes.Call, _context: InferenceContext | None = None
+) -> Iterator[Instance]:
+    """Mimic astroid's numpy brain: build a new class each time we are inferred."""
+    klass = extract_node("""
+    class Fresh:
+        def __init__(self):
+            self.child = make_fresh()
+    """)
+    return iter([klass.instantiate_class()])
+
+
+def _is_make_fresh_call(node: nodes.Call) -> bool:
+    return isinstance(node.func, nodes.Name) and node.func.name == "make_fresh"
+
+
+@pytest.fixture
+def fresh_class_transform() -> Iterator[None]:
+    manager = AstroidManager()
+    transform = inference_tip(_infer_fresh_class_instance)
+    manager.register_transform(nodes.Call, transform, _is_make_fresh_call)
+    try:
+        yield
+    finally:
+        manager.unregister_transform(nodes.Call, transform, _is_make_fresh_call)
+
+
+@pytest.mark.usefixtures("fresh_class_transform")
+@pytest.mark.parametrize("classes", [[], ["Holder"]])
+def test_all_associated_with_classes_rebuilt_on_each_inference(
+    default_args: Sequence[str], classes: list[str]
+) -> None:
+    """Regression test for https://github.com/pylint-dev/pylint/issues/3602.
+
+    Some astroid brains (e.g. the one for ``numpy.ndarray``) return a new ``ClassDef``
+    on every inference, whose attributes infer to yet another copy of it.
+    ``--all-associated`` used to follow these copies until hitting the recursion limit.
+    """
+    module = parse(
+        """
+    class Holder:
+        def __init__(self):
+            self.fresh = make_fresh()
+    """,
+        module_name="sample",
+    )
+    project = Project("sample")
+    project.add_module(module)
+    config = PyreverseConfig(all_associated=True, classes=classes, module_names=False)
+    handler = DiadefsHandler(config=config, args=default_args)
+
+    diagram = handler.get_diadefs(project, Linker(project))[-1]
+
+    assert sorted(obj.title for obj in diagram.objects) == ["Fresh", "Holder"]
+    assert _process_relations(diagram.relationships) == [
+        ("composition", "Fresh", "Holder")
+    ]
 
 
 def test_regression_dataclasses_inference(
