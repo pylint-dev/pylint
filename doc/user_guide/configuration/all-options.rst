@@ -1576,7 +1576,7 @@ Standard Checkers
 """""""""""""""""
 *List of qualified names (i.e., library.method) which require a timeout parameter e.g. 'requests.api.get,requests.api.post'*
 
-**Default:**  ``('requests.api.delete', 'requests.api.get', 'requests.api.head', 'requests.api.options', 'requests.api.patch', 'requests.api.post', 'requests.api.put', 'requests.api.request')``
+**Default:**  ``('requests.api.delete', 'requests.api.get', 'requests.api.head', 'requests.api.options', 'requests.api.patch', 'requests.api.post', 'requests.api.put', 'requests.api.request', 'requests.sessions.Session.delete', 'requests.sessions.Session.get', 'requests.sessions.Session.head', 'requests.sessions.Session.options', 'requests.sessions.Session.patch', 'requests.sessions.Session.post', 'requests.sessions.Session.put', 'requests.sessions.Session.request')``
 
 
 
@@ -1590,7 +1590,7 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.method_args]
-   timeout-methods = ["requests.api.delete", "requests.api.get", "requests.api.head", "requests.api.options", "requests.api.patch", "requests.api.post", "requests.api.put", "requests.api.request"]
+   timeout-methods = ["requests.api.delete", "requests.api.get", "requests.api.head", "requests.api.options", "requests.api.patch", "requests.api.post", "requests.api.put", "requests.api.request", "requests.sessions.Session.delete", "requests.sessions.Session.get", "requests.sessions.Session.head", "requests.sessions.Session.options", "requests.sessions.Session.patch", "requests.sessions.Session.post", "requests.sessions.Session.put", "requests.sessions.Session.request"]
 
 
 

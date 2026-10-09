@@ -1,4 +1,4 @@
-You can add new methods that should have a defined ```timeout`` argument as qualified names
+You can add new methods that should have a defined ``timeout`` argument as qualified names
 in the ``timeout-methods`` option, for example:
 
 * ``requests.api.get``
@@ -8,3 +8,6 @@ in the ``timeout-methods`` option, for example:
 * ``requests.api.post``
 * ``requests.api.put``
 * ``requests.api.request``
+* ``requests.sessions.Session.get``
+* ``requests.sessions.Session.post``
+* ``requests.sessions.Session.request``
