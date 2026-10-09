@@ -1,0 +1,14 @@
+classDiagram
+  class Namespace {
+    color
+  }
+  class Point {
+    x
+    y
+  }
+  class Shape {
+    options
+    origin
+  }
+  Namespace --* Shape : options
+  Point --* Shape : origin
