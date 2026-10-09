@@ -1,0 +1,4 @@
+Explain the maintainability rationale for ``too-many-locals`` and how the
+documented refactoring example reduces the number of local variables.
+
+Closes #8196
