@@ -1,1 +1,3 @@
 Normalize the spelling of explicitly supplied ``__init__.py`` paths on Windows, so variants such as ``__Init__.py`` identify the same module rather than producing a spurious ``invalid-name`` message or duplicate lint inputs.
+
+Refs #10137
