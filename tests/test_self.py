@@ -173,8 +173,8 @@ class TestRunTC:
         file_output = self._clean_paths(Path(filename).read_text(encoding="utf-8"))
         expected_output = self._clean_paths(expected_output)
         assert (
-            cmdline_output == ""
-        ), "Unexpected output to stdout/stderr while output option was set"
+            cmdline_output == "" or "which is less than fail-under=" in cmdline_output
+        ), f"Unexpected output to stdout/stderr while output option was set: {cmdline_output}"
         assert expected_output.strip() in file_output.strip()
 
     def test_pkginfo(self) -> None:
@@ -338,6 +338,8 @@ class TestRunTC:
             # If ~/.pylintrc is present remove the
             # Using config file...  line
             actual_output = actual_output[actual_output.find("\n") :]
+        if "which is less than fail-under=" in actual_output:
+            actual_output = actual_output[:actual_output.rfind("Code has been rated at")].strip()
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
     def test_progress_reporting(self) -> None:
@@ -367,6 +369,8 @@ class TestRunTC:
         {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
         {module1} (2 of 2)
         """)
+        if "which is less than fail-under=" in actual_output:
+            actual_output = actual_output[:actual_output.rfind("Code has been rated at")].strip()
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
     def test_progress_reporting_not_shown_if_not_verbose(self) -> None:
@@ -388,6 +392,8 @@ class TestRunTC:
         ************* Module wrong_import_position
         {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
         """)
+        if "which is less than fail-under=" in actual_output:
+            actual_output = actual_output[:actual_output.rfind("Code has been rated at")].strip()
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
     def test_type_annotation_names(self) -> None:

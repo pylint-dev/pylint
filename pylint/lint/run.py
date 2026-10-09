@@ -269,6 +269,11 @@ group are mutually exclusive.",
                 else:
                     # We need to make sure we return a failing exit code in this case.
                     # So we use self.linter.msg_status if that is non-zero, otherwise we just return 1.
+                    print(
+                        f"Code has been rated at {score_value:.2f}/10, "
+                        f"which is less than fail-under={linter.config.fail_under:.2f}",
+                        file=sys.stderr,
+                    )
                     sys.exit(self.linter.msg_status or 1)
             else:
                 sys.exit(self.linter.msg_status)
