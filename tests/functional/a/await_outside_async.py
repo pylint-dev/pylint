@@ -32,3 +32,22 @@ def outer_func():
 # pylint: disable=unnecessary-lambda-assignment
 async def func3():
     f = lambda: await nested() # [await-outside-async]
+
+
+# An ``await`` inside a generator expression makes it an asynchronous generator
+# expression, which is allowed outside of an async function (#10074).
+# The first iterable is evaluated in the enclosing scope, so ``await`` there
+# is still reported.
+def sync_with_async_genexp(items):
+    print(await item for item in items)
+    print(item for item in await nested())  # [await-outside-async]
+    print(other for item in items for other in await item)
+    print(item for item in items if await item)
+    print((await item for item in items) for _ in items)
+    print((item for item in await nested()) for _ in items)
+    print([(item for item in await nested()) for _ in items])  # [await-outside-async]
+    print((lambda: await nested()) for _ in items)  # [await-outside-async]
+
+
+ASYNC_GENEXP = (await item for item in range(5))
+NOT_ASYNC_GENEXP = (item for item in await nested())  # [await-outside-async]
