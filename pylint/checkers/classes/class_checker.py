@@ -1537,7 +1537,8 @@ a metaclass class method.",
         # pylint: disable = too-many-try-statements
         try:
             overridden = klass.instance_attr(node.name)[0]
-            overridden_frame = overridden.frame()
+            assigning_method = overridden.frame()
+            overridden_frame = assigning_method
             match overridden_frame:
                 case nodes.FunctionDef(type="method"):
                     overridden_frame = overridden_frame.parent.frame()
@@ -1546,6 +1547,23 @@ a metaclass class method.",
                 and klass.is_subtype_of(overridden_frame.qname())
             ):
                 return
+
+            # If the attribute is only ever assigned inside an ancestor's
+            # __init__, and this class overrides __init__ without calling
+            # that ancestor's __init__, the assignment never runs for
+            # instances of this class, so the method can't actually be hidden.
+            if (
+                isinstance(assigning_method, nodes.FunctionDef)
+                and assigning_method.name == "__init__"
+            ):
+                own_init = klass.locals.get("__init__")
+                if own_init and isinstance(own_init[0], nodes.FunctionDef):
+                    init_method = own_init[0]
+                    if (
+                        init_method is not assigning_method
+                        and not _calls_ancestor_init(init_method, overridden_frame)
+                    ):
+                        return
 
             # If a subclass defined the method then it's not our fault.
             for ancestor in klass.ancestors():
@@ -2690,3 +2708,27 @@ def _ancestors_to_call(
         except astroid.InferenceError:
             continue
     return to_call
+
+
+def _calls_ancestor_init(
+    init_node: nodes.FunctionDef, ancestor: nodes.ClassDef
+) -> bool:
+    """Return True if `init_node` calls `ancestor`'s __init__, directly or via
+    super().
+    """
+    for call in init_node.nodes_of_class(nodes.Call):
+        expr = call.func
+        if not (isinstance(expr, nodes.Attribute) and expr.attrname == "__init__"):
+            continue
+        match expr.expr:
+            case nodes.Call(func=nodes.Name(name="super")):
+                return True
+        try:
+            for inferred in expr.expr.infer():
+                if isinstance(inferred, util.UninferableBase):  # pragma: no cover
+                    continue
+                if inferred is ancestor:
+                    return True
+        except astroid.InferenceError:  # pragma: no cover
+            continue
+    return False
