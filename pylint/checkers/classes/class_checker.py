@@ -210,7 +210,7 @@ def _positional_parameters(method: nodes.FunctionDef) -> list[nodes.AssignName]:
     positional = [*method.args.posonlyargs, *method.args.args]
     if method.is_bound() and method.type in {"classmethod", "method"}:
         positional = positional[1:]
-    return positional  # type: ignore[no-any-return]
+    return positional
 
 
 class _DefaultMissing:
@@ -283,6 +283,11 @@ def _has_different_parameters(
                 continue
             except astroid.NoDefault:
                 return ["Number of parameters "]
+
+        # A positional-only parameter cannot be passed by name,
+        # so renaming it in the override is safe.
+        if original_param in original_param.parent.posonlyargs:
+            continue
 
         # check for the arguments' name
         names = [param.name for param in (original_param, overridden_param)]
