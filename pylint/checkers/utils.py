@@ -1950,6 +1950,9 @@ def _binds_module_member(
     _, assignments = name.lookup(name.name)
     return any(
         isinstance(assignment, nodes.ImportFrom)
+        # ``from .attr import s`` has the same ``modname`` as ``from attr import s``
+        # but imports a local module. ``level`` is None for an absolute import.
+        and not assignment.level
         and assignment.modname == modname
         and any(
             real in members and (alias or real) == name.name

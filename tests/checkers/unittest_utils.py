@@ -523,6 +523,28 @@ def test_is_module_member_import_in_a_block() -> None:
     assert utils.is_module_member(code, "sys.version_info") is True
 
 
+def test_is_module_member_relative_import() -> None:
+    """A relative import brings in a local module that only shares the name.
+
+    ``from .sys import version_info`` has the same ``modname`` as the absolute
+    import, only its ``level`` tells them apart.
+    """
+    code = astroid.extract_node("""
+    from sys import version_info
+    from .sys import version_info as local_version_info
+    from ..sys import hexversion
+
+    version_info  #@
+    local_version_info  #@
+    hexversion  #@
+    """)
+    assert isinstance(code, list) and len(code) == 3
+
+    assert utils.is_module_member(code[0], "sys.version_info") is True
+    assert utils.is_module_member(code[1], "sys.version_info") is False
+    assert utils.is_module_member(code[2], "sys.hexversion") is False
+
+
 def test_if_sys_guard() -> None:
     code = astroid.extract_node("""
     import sys
