@@ -1,0 +1,5 @@
+Fix a false positive for ``protected-access`` when a subclass of a subscripted
+generic base, such as ``class Child(Parent[T])``, accesses a protected member
+through that base, such as ``Parent._foo(self)``.
+
+Closes #8600
