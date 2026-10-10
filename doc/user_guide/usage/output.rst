@@ -27,6 +27,7 @@ example ``--output-format=mypackage.mymodule.MyReporterClass``.
 Multiple output formats can be used at the same time by passing
 a comma-separated list of formats to ``--output-format``.
 This output can be redirected to a file by giving a filename after a colon.
+Only one of the formats can write to stdout; the others must be given a file.
 
 For example, to save a json report to ``somefile.json`` and print
 a colorized report to stdout at the same time:
