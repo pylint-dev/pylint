@@ -301,6 +301,32 @@ def is_defined_in_scope(
     return defnode_in_scope(var_node, varname, scope) is not None
 
 
+def _defnode_in_targets(
+    var_node: nodes.NodeNG,
+    varname: str,
+    targets: Iterable[nodes.NodeNG],
+    scope: nodes.LocalsDictNodeNG,
+) -> nodes.AssignName | None:
+    """Return the node binding ``varname`` in ``targets`` before ``var_node``.
+
+    Targets are bound left to right, so a name read inside a target, as in
+    ``a = b[a] = 0`` or ``with f() as (a, b[a]):``, can only use a name bound
+    before it.
+    """
+    for target in targets:
+        for ass_node in target.nodes_of_class(nodes.AssignName):
+            if (ass_node.lineno, ass_node.col_offset) > (
+                var_node.lineno,
+                var_node.col_offset,
+            ):
+                return None
+            # Skip names bound in a nested scope, such as a lambda or
+            # comprehension inside a subscript
+            if ass_node.name == varname and ass_node.scope() is scope:
+                return ass_node
+    return None
+
+
 # pylint: disable = too-many-branches
 def defnode_in_scope(
     var_node: nodes.NodeNG,
@@ -320,25 +346,17 @@ def defnode_in_scope(
             if ass_node.name == varname:
                 return ass_node
     elif isinstance(scope, nodes.With):
-        for expr, ids in scope.items:
-            if expr.parent_of(var_node):
-                break
-            if ids is None:
-                continue
-            # A target such as ``(first, store[first])`` is bound left to right,
-            # so a name read inside it can only use names bound before it there.
-            in_target = ids.parent_of(var_node)
-            # The target can be a name, or a (possibly nested) tuple or list of names
-            for ass_node in ids.nodes_of_class(nodes.AssignName):
-                if in_target and (ass_node.lineno, ass_node.col_offset) > (
-                    var_node.lineno,
-                    var_node.col_offset,
-                ):
-                    break
-                if ass_node.name == varname:
-                    return ass_node
-            if in_target:
-                break
+        # Each item's target is bound after its context manager is evaluated
+        return _defnode_in_targets(
+            var_node,
+            varname,
+            (ids for _, ids in scope.items if ids is not None),
+            scope.scope(),
+        )
+    elif isinstance(scope, nodes.Assign):
+        # The targets are bound after the value is evaluated
+        if any(target.parent_of(var_node) for target in scope.targets):
+            return _defnode_in_targets(var_node, varname, scope.targets, scope.scope())
     elif isinstance(scope, (nodes.Lambda, nodes.FunctionDef)):
         if scope.args.is_argument(varname):
             # If the name is found inside a default value
@@ -378,6 +396,9 @@ def is_defined_before(var_node: nodes.Name) -> bool:
         defnode = defnode_in_scope(var_node, varname, parent)
         if defnode is None:
             continue
+        if isinstance(parent, nodes.Assign):
+            # Bound by an earlier target of the same assignment
+            return True
         defnode_scope = defnode.scope()
         if isinstance(
             defnode_scope, (*COMP_NODE_TYPES, nodes.Lambda, nodes.FunctionDef)

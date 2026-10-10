@@ -77,3 +77,8 @@ def target_reads_name_bound_by_later_tuple_target(store):
 def target_reads_name_bound_by_later_name_target(store):
     with pair() as store[first], pair() as first:  # [used-before-assignment]
         print(first)
+
+
+def target_reads_name_bound_in_comprehension(store, values):
+    with pair() as (store[len([0 for first in values]), first], first):  # [used-before-assignment]
+        print(first, store)
