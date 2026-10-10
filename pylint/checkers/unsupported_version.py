@@ -78,6 +78,7 @@ class UnsupportedVersionChecker(BaseChecker):
         """Initialize visit variables and statistics."""
         py_version = self.linter.config.py_version
         self._py36_plus = py_version >= (3, 6)
+        self._py37_plus = py_version >= (3, 7)
         self._py38_plus = py_version >= (3, 8)
         self._py311_plus = py_version >= (3, 11)
         self._py312_plus = py_version >= (3, 12)
@@ -89,6 +90,18 @@ class UnsupportedVersionChecker(BaseChecker):
         if not self._py36_plus:
             self.add_message(
                 "using-f-string-in-unsupported-version", node=node, confidence=HIGH
+            )
+
+    @only_required_for_messages("syntax-error")
+    def visit_importfrom(self, node: nodes.ImportFrom) -> None:
+        if self._py37_plus or node.modname != "__future__":
+            return
+        if any(name == "annotations" for name, _ in node.names):
+            self.add_message(
+                "syntax-error",
+                line=node.lineno,
+                args="future feature annotations is not defined",
+                confidence=HIGH,
             )
 
     @only_required_for_messages("using-assignment-expression-in-unsupported-version")
