@@ -1,4 +1,0 @@
-Fix a false positive for ``used-before-assignment`` when a name bound by an earlier
-target of the same assignment is used by a later target, as in ``a = b[a] = 0``.
-
-Closes #5955

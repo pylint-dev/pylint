@@ -1,4 +1,0 @@
-Fix a crash in ``pyreverse`` when a diagram includes a class created by
-``namedtuple``, or an ``argparse.Namespace``.
-
-Closes #10767
