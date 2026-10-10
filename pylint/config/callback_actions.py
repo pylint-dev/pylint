@@ -429,7 +429,21 @@ class _OutputFormatAction(_AccessLinterObjectAction):
             values[0], str
         ), "'output-format' should be a comma separated string of reporters"
         self._reporter_names.append(values[0])
-        self.linter._load_reporters(",".join(self._reporter_names))
+        reporter_names = ",".join(self._reporter_names)
+
+        # Every format without a ':path' writes to stdout. More than one of them
+        # would print every message several times, interleaved.
+        stdout_formats = [name for name in reporter_names.split(",") if ":" not in name]
+        if len(stdout_formats) > 1:
+            names = ", ".join(f"'{name}'" for name in stdout_formats)
+            raise argparse.ArgumentError(
+                self,
+                f"only one output format can write to stdout, but {names} would all "
+                "write to it. Send the others to a file with 'format:path' "
+                "(for example 'json2:report.json').",
+            )
+
+        self.linter._load_reporters(reporter_names)
 
 
 class _AccessParserAction(_CallbackAction):
