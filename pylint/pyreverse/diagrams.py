@@ -18,6 +18,19 @@ from pylint.pyreverse.utils import FilterMixIn, get_annotation_label
 if TYPE_CHECKING:
     from pylint.pyreverse.inspector import Linker
 
+_ClassDefinitionKey = tuple[str | None, str, int | None, int | None]
+
+
+def _class_definition_key(node: nodes.ClassDef) -> _ClassDefinitionKey:
+    """Return a key identifying the class definition ``node`` comes from.
+
+    Some astroid brains (e.g. the one for ``numpy.ndarray``) build a brand-new
+    ``ClassDef`` every time they are inferred, and the attributes of that class can
+    infer to yet another copy of it. These copies are distinct objects built from
+    the same definition, so they have to be recognized as the same class.
+    """
+    return (node.root().file, node.qname(), node.lineno, node.col_offset)
+
 
 class Figure:
     """Base class for counter handling."""
@@ -94,6 +107,7 @@ class ClassDiagram(Figure, FilterMixIn):
         self.objects: list[Any] = []
         self.relationships: dict[str, list[Relationship]] = {}
         self._nodes: dict[nodes.NodeNG, DiagramEntity] = {}
+        self._class_definitions: dict[_ClassDefinitionKey, DiagramEntity] = {}
 
     def get_relationships(self, role: str) -> Iterable[Relationship]:
         # sorted to get predictable (hence testable) results
@@ -180,6 +194,7 @@ class ClassDiagram(Figure, FilterMixIn):
         assert node not in self._nodes
         ent = ClassEntity(title, node)
         self._nodes[node] = ent
+        self._class_definitions.setdefault(_class_definition_key(node), ent)
         self.objects.append(ent)
 
     def class_names(self, nodes_lst: Iterable[nodes.NodeNG]) -> list[str]:
@@ -207,11 +222,21 @@ class ClassDiagram(Figure, FilterMixIn):
 
     def has_node(self, node: nodes.NodeNG) -> bool:
         """Return true if the given node is included in the diagram."""
-        return node in self._nodes
+        try:
+            self.object_from_node(node)
+        except KeyError:
+            return False
+        return True
 
     def object_from_node(self, node: nodes.NodeNG) -> DiagramEntity:
-        """Return the diagram object mapped to node."""
-        return self._nodes[node]
+        """Return the diagram object mapped to node.
+
+        A class rebuilt by astroid on each inference maps to the object of the first
+        copy added to the diagram.
+        """
+        if node in self._nodes or not isinstance(node, nodes.ClassDef):
+            return self._nodes[node]
+        return self._class_definitions[_class_definition_key(node)]
 
     def classes(self) -> list[ClassEntity]:
         """Return all class nodes in the diagram."""
