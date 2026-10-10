@@ -7,11 +7,11 @@ from __future__ import annotations
 import json
 import re
 from collections import defaultdict
-from collections.abc import Callable, Hashable, Iterator
+from collections.abc import Callable, Hashable, Iterator, Mapping
 from difflib import SequenceMatcher
 from operator import itemgetter
 from pathlib import Path
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 from pylint.reporters.json_reporter import JSONMessage
 from pylint.testutils._primer.primer_command import PackageData, PackageMessages
@@ -338,6 +338,16 @@ def _caret_hint(old: str, new: str) -> str:
     return "".join(carets).rstrip()
 
 
+def iter_common_keys(base: Mapping[str, Any], new: Mapping[str, Any]) -> Iterator[str]:
+    """Yield sorted keys present in both primer runs.
+
+    The two JSON snapshots can drift when the primer config changes
+    between the main artifact and the PR run. Compare only common
+    targets instead of crashing on removed keys.
+    """
+    yield from sorted(set(base) & set(new))
+
+
 class Comparator:
     """Cross-reference two primer JSON outputs and iterate over differences."""
 
@@ -390,7 +400,8 @@ class Comparator:
         main_data = self._main_data
         pr_data = self._pr_data
 
-        for package, data in main_data.items():
+        for package in iter_common_keys(main_data, pr_data):
+            data = main_data[package]
             # First pass: exact-match removal.
             pr_messages = list(pr_data[package]["messages"])
             residual_old: list[JSONMessage] = []

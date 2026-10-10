@@ -13,6 +13,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 from __future__ import annotations
 
+import re
 import tokenize
 from functools import reduce
 from re import Match
@@ -30,6 +31,17 @@ from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragm
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
+
+# Trailing pragmas from other tooling, discounted from line length like Pylint's own (see #10172).
+_IGNORED_PRAGMA_RGX = re.compile(
+    r"[ \t]*#[ \t]*"
+    r"(?:"
+    r"type:[ \t]*ignore(?:\[[^\]\n]*\])?"  # mypy
+    r"|pyright:[ \t]*ignore(?:\[[^\]\n]*\])?"  # pyright
+    r"|noqa\b(?::[ \t\w,]*)?"  # flake8 / ruff
+    r"|pragma:[ \t]*no[ \t]?(?:cover|branch)"  # coverage.py
+    r")"
+)
 
 _KEYWORD_TOKENS = {
     "assert",
@@ -115,9 +127,17 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 
 
 def _last_token_on_line_is(tokens: TokenWrapper, line_end: int, token: str) -> bool:
-    return (line_end > 0 and tokens.token(line_end - 1) == token) or (
+    # Only an operator token counts. Since PEP 701 (Python 3.12) the text of an
+    # f-string is its own FSTRING_MIDDLE token, so ``f"{b};" \`` ends the line
+    # with a ``;`` that is string content, not a statement terminator.
+    return (
+        line_end > 0
+        and tokens.token(line_end - 1) == token
+        and tokens.type(line_end - 1) == tokenize.OP
+    ) or (
         line_end > 1
         and tokens.token(line_end - 2) == token
+        and tokens.type(line_end - 2) == tokenize.OP
         and tokens.type(line_end - 1) == tokenize.COMMENT
     )
 
@@ -142,6 +162,9 @@ class TokenWrapper:
 
     def line(self, idx: int) -> str:
         return self._tokens[idx][4]
+
+    def __len__(self) -> int:
+        return len(self._tokens)
 
 
 class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
@@ -620,6 +643,24 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 self.add_message("line-too-long", line=i, args=(len(line), max_chars))
 
     @staticmethod
+    def _first_comment_offset(
+        tokens: TokenWrapper, line_start: int, lines: str, lineno: int
+    ) -> int | None:
+        """Offset in ``lines`` of the first comment token they contain, if any."""
+        last_lineno = lineno + lines.count("\n")
+        for idx in range(line_start, len(tokens)):
+            row = tokens.start_line(idx)
+            if row > last_lineno:
+                break
+            if tokens.type(idx) != tokenize.COMMENT or row < lineno:
+                continue
+            offset = 0
+            for _ in range(row - lineno):
+                offset = lines.index("\n", offset) + 1
+            return offset + tokens.start_col(idx)
+        return None
+
+    @staticmethod
     def remove_pylint_option_from_lines(options_pattern_obj: Match[str]) -> str:
         """Remove the `# pylint ...` pattern from lines."""
         lines = options_pattern_obj.string
@@ -709,13 +750,22 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             return
 
         # Line length check may be deactivated through `pylint: disable` comment
-        mobj = OPTION_PO.search(lines)
+        # When the lines hold a comment, the pragma is in it: start the search
+        # there, so a ``#`` inside a string before it is not taken for the pragma
+        # (#11440). Without one, a pragma written inside a docstring still counts.
+        comment_offset = self._first_comment_offset(tokens, line_start, lines, lineno)
+        mobj = OPTION_PO.search(lines, comment_offset or 0)
         checker_off = False
         if mobj:
             if not self.is_line_length_check_activated(mobj):
                 checker_off = True
             # The 'pylint: disable whatever' should not be taken into account for line length count
             lines = self.remove_pylint_option_from_lines(mobj)
+
+        # Trailing pragmas from other tooling (``type: ignore`` for mypy, ``noqa``
+        # for flake8, ``pragma: no cover`` for coverage, ...) should not be taken
+        # into account for the line length count either.
+        lines = _IGNORED_PRAGMA_RGX.sub("", lines)
 
         ignore_pattern_in_long_lines = self.linter.config.ignore_pattern_in_long_lines
         if ignore_pattern_in_long_lines:

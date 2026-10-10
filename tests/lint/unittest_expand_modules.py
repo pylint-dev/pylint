@@ -30,6 +30,40 @@ def test__is_in_ignore_list_re_match() -> None:
     assert _is_in_ignore_list_re("src/tests/whatever.xml", patterns)
 
 
+@pytest.mark.parametrize("is_package", [False, True])
+@pytest.mark.parametrize("reverse", [False, True])
+def test_package_expansion_order(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, is_package: bool, reverse: bool
+) -> None:
+    package = tmp_path / "package"
+    nested = package / "nested"
+    nested.mkdir(parents=True)
+    paths = [
+        package / "z.py",
+        package / "a.py",
+        nested / "__init__.py",
+        nested / "z.py",
+        nested / "a.py",
+    ]
+    if is_package:
+        paths.append(package / "__init__.py")
+    for path in paths:
+        path.touch()
+
+    original_walk = os.walk
+
+    def ordered_walk(top: str) -> Iterator[tuple[str, list[str], list[str]]]:
+        for root, directories, files in original_walk(top):
+            directories.sort(reverse=reverse)
+            files.sort(reverse=reverse)
+            yield root, directories, files
+
+    monkeypatch.setattr(os, "walk", ordered_walk)
+    modules, errors = expand_modules([str(package)], [], [], [], [])
+    assert not errors
+    assert list(modules) == sorted(str(path) for path in paths)
+
+
 TEST_DIRECTORY = Path(__file__).parent.parent
 INIT_PATH = str(TEST_DIRECTORY / "lint/__init__.py")
 EXPAND_MODULES_BASE = "unittest_expand_modules.py"
@@ -150,6 +184,14 @@ test_reporters = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "isarg": False,
         "name": "reporters.unittest_json_reporter",
         "path": str(REPORTERS_PATH / "unittest_json_reporter.py"),
+        "isignored": False,
+    },
+    str(REPORTERS_PATH / "unittest_junit_reporter.py"): {
+        "basename": "reporters",
+        "basepath": str(REPORTERS_PATH / "__init__.py"),
+        "isarg": False,
+        "name": "reporters.unittest_junit_reporter",
+        "path": str(REPORTERS_PATH / "unittest_junit_reporter.py"),
         "isignored": False,
     },
     str(REPORTERS_PATH / "unittest_reporting.py"): {

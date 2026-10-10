@@ -259,6 +259,20 @@ DELETED_MESSAGE_METADATA: dict[str, tuple[str, str | None]] = {
         "2.14.0",
         "Name 'async' will become a keyword in Python 3.7",
     ),
+    # Issue #1896 — Python 2 only checks, first absent in pylint 2.2.0
+    "old-style-class": ("2.2.0", "Old-style class defined."),
+    "slots-on-old-class": ("2.2.0", "Use of __slots__ on an old style class"),
+    "super-on-old-class": ("2.2.0", "Use of super on an old style class"),
+    "deprecated-lambda": (
+        "2.2.0",
+        "map/filter on lambda could be replaced by comprehension",
+    ),
+    "lowercase-l-suffix": ("2.2.0", 'Use of "l" as long integer identifier'),
+    "nonstandard-exception": (
+        "2.2.0",
+        'Exception doesn\'t inherit from standard "Exception" class',
+    ),
+    "property-on-old-class": ("2.2.0", 'Use of "property" on an old style class'),
 }
 
 
@@ -498,14 +512,29 @@ def _get_message_data_path(message: MessageDefinition) -> Path:
     return PYLINT_MESSAGES_DATA_PATH / message.symbol[0] / message.symbol
 
 
+def _get_newest_mtime(path: Path) -> float:
+    """Return the mtime of 'path', or the newest mtime it contains if it's a dir."""
+    if path.is_dir():
+        return max(
+            (_get_newest_mtime(child) for child in path.iterdir()),
+            default=path.stat().st_mtime,
+        )
+    return path.stat().st_mtime
+
+
 def _message_needs_update(message_data: MessageData, category: str) -> bool:
     """Do we need to regenerate this message .rst ?"""
     message_path = _get_message_path(category, message_data)
     if not message_path.exists():
         return True
     message_path_stats = message_path.stat().st_mtime
-    checker_path_stats = Path(message_data.checker_module_path).stat().st_mtime
-    return checker_path_stats > message_path_stats
+    source_path_stats = Path(message_data.checker_module_path).stat().st_mtime
+    # The page also embeds the examples, the details and the related links, so
+    # editing those has to regenerate it too.
+    data_path = _get_message_data_path(message_data.definition)
+    if data_path.exists():
+        source_path_stats = max(source_path_stats, _get_newest_mtime(data_path))
+    return source_path_stats > message_path_stats
 
 
 def _get_category_directory(category: str) -> Path:
@@ -630,6 +659,17 @@ def _write_messages_list_page(
 .. docs extension in 'doc/exts/pylint_messages.py'.
 
 Pylint can emit the following messages:
+
+Find a message by ID or symbol:
+
+.. raw:: html
+
+   <form onsubmit="location='./'+encodeURIComponent(this.message.value);return false">
+     <label for="message-search">Message ID or symbol</label>
+     <input id="message-search" name="message" type="search"
+       placeholder="C0114 or missing-module-docstring" pattern="[A-Za-z0-9-]+" required>
+     <button type="submit">Open message</button>
+   </form>
 
 """)
         # Iterate over tuple to keep same order
@@ -783,7 +823,15 @@ def _write_redirect_old_page(
         stream.write(content)
 
 
-# pylint: disable-next=unused-argument
+def _register_message_redirect(
+    app: Sphinx, target: str, shorthands: tuple[str, str, str]
+) -> None:
+    for shorthand in shorthands:
+        source = f"user_guide/messages/{shorthand}"
+        app.config.redirects[source] = target
+        app.config.redirects[f"{source}/index.html"] = f"../{target}"
+
+
 def build_messages_pages(app: Sphinx | None) -> None:
     """Overwrite messages files by printing the documentation to a stream.
 
@@ -794,6 +842,20 @@ def build_messages_pages(app: Sphinx | None) -> None:
     _register_all_checkers_and_extensions(linter)
     messages, old_messages = _get_all_messages(linter)
     deleted_messages = _get_deleted_messages()
+
+    if app is not None:
+        for category, category_messages in messages.items():
+            for message in category_messages:
+                target = f"{category}/{message.name}.html"
+                _register_message_redirect(
+                    app, target, (message.id, message.id.lower(), message.name)
+                )
+        for category, category_old_messages in old_messages.items():
+            for old_name in category_old_messages:
+                target = f"{category}/{old_name[0]}.html"
+                _register_message_redirect(
+                    app, target, (old_name[1], old_name[1].lower(), old_name[0])
+                )
 
     # Write message and category pages
     _write_message_page(messages)

@@ -1,0 +1,4 @@
+Fix a false positive for :ref:`unnecessary-negation` when negating a comparison
+between instances of a ``set`` or ``frozenset`` subclass.
+
+Refs #11513

@@ -24,6 +24,12 @@
 # fail-on =
 # Specify a score threshold under which the program will exit with error.
 main.fail-under = 10
+# The files to lint. The flag can also be omitted as pylint will try to lint any
+# file passed as argument. This can be used to set files to a directory in a
+# configuration file and invoke pylint by only typing pylint on the command line.
+# Any file passed as argument will overwrite any file set in the configuration
+# file.
+# files =
 # Interpret the stdin as a python script, whose filename needs to be passed as
 # the module_or_package argument.
 # from-stdin =
@@ -71,24 +77,31 @@ main.py-version = "3.12"
 # 'convention', and 'info' which contain the number of messages in each category,
 # as well as 'statement' which is the total number of statements analyzed. This
 # score is used by the global evaluation report (RP0004).
-reports.evaluation = "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))"
+reports.evaluation = """\
+  max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))\
+  """
 # Template used to display messages. This is a python new-style format string
 # used to format the message information. See doc for all details.
 # msg-template =
 # Set the output format. Available formats are: 'text', 'parseable', 'colorized',
-# 'json2' (improved json format), 'json' (old json format), msvs (visual studio)
-# and 'github' (GitHub actions). You can also give a reporter class, e.g.
-# mypackage.mymodule.MyReporterClass.
+# 'json2' (improved json format), 'json' (old json format), 'msvs' (visual
+# studio), 'github' (GitHub actions) and 'junit' (JUnit XML). You can also give a
+# reporter class, e.g. mypackage.mymodule.MyReporterClass.
 # output-format =
 # Tells whether to display a full report or only the messages.
 # reports =
 # Activate the evaluation score.
 reports.score = true
-# Enable the message, report, category or checker with the given id(s). You can
-# either give multiple identifier separated by comma (,) or put this option
-# multiple time (only on the command line, not in the configuration file where it
-# should appear only once). See also the "--disable" option for examples.
-# enable =
+# Discover python modules and packages in the file system subtree.
+# recursive =
+# Add paths to the list of the source roots. Supports globbing patterns. The
+# source root is an absolute path or a path relative to the current working
+# directory used to determine a package namespace for modules located under the
+# source root.
+# source-roots =
+# Allow loading of arbitrary C extensions. Extensions are imported into the
+# active Python interpreter and may run arbitrary code.
+# unsafe-load-any-extension =
 # Naming style matching correct argument names.
 basic.argument-naming-style = "snake_case"
 # Regular expression matching correct argument names. Overrides argument-naming-
@@ -187,6 +200,9 @@ basic.variable-naming-style = "snake_case"
 # expected-line-ending-format =
 # Regexp for a line that is allowed to be longer than the limit.
 format.ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
+# Regexp for a part of a line that will not be counted when calculating the line
+# length.
+# ignore-pattern-in-long-lines =
 # Number of spaces of indent required inside a hanging or continued line.
 format.indent-after-paren = 4
 # String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1
@@ -262,11 +278,11 @@ exceptions.overgeneral-exceptions = [ "builtins.BaseException", "builtins.Except
 # Output a graph (.gv or any supported image format) of internal dependencies to
 # the given file (report RP0402 must not be disabled).
 # int-import-graph =
+# Force import order to recognize a module as part of a first party library.
+# known-first-party =
 # Force import order to recognize a module as part of the standard compatibility
 # libraries.
 # known-standard-library =
-# Force import order to recognize a module as part of a third party library.
-# known-first-party =
 # Force import order to recognize a module as part of a third party library.
 imports.known-third-party = [ "enchant" ]
 # Couples of modules and preferred modules, separated by a comma.
@@ -277,16 +293,11 @@ logging.logging-format-style = "old"
 # Logging modules to check that the string format arguments are in logging
 # function parameter format.
 logging.logging-modules = [ "logging" ]
-# Discover python modules and packages in the file system subtree.
-# recursive =
-# Add paths to the list of the source roots. Supports globbing patterns. The
-# source root is an absolute path or a path relative to the current working
-# directory used to determine a package namespace for modules located under the
-# source root.
-# source-roots =
-# Allow loading of arbitrary C extensions. Extensions are imported into the
-# active Python interpreter and may run arbitrary code.
-# unsafe-load-any-extension =
+# Enable the message, report, category or checker with the given id(s). You can
+# either give multiple identifier separated by comma (,) or put this option
+# multiple time (only on the command line, not in the configuration file where it
+# should appear only once). See also the "--disable" option for examples.
+# enable =
 # List of qualified names (i.e., library.method) which require a timeout
 # parameter e.g. 'requests.api.get,requests.api.post'
 method_args.timeout-methods = [
@@ -318,7 +329,8 @@ similarities.ignore-docstrings = true
 similarities.ignore-imports = true
 # Signatures are removed from the similarity computation
 similarities.ignore-signatures = true
-# Minimum lines number of a similarity.
+# Minimum lines number of a similarity. Setting it to 0 will disable the check,
+# but you should use disable=duplicate-code instead.
 similarities.min-similarity-lines = 4
 # Limits count of emitted suggestions for spelling mistakes.
 spelling.max-spelling-suggestions = 4
@@ -360,12 +372,17 @@ typecheck.ignored-checks-for-mixins = [
   "no-member",
   "not-async-context-manager",
   "not-context-manager",
-  "attribute-defined-outside-init",
+  "attribute-defined-outside-init"
 ]
 # List of class names for which member attributes should not be checked (useful
 # for classes with dynamically set attributes). This supports the use of
 # qualified names.
 typecheck.ignored-classes = [ "_thread._local", "argparse.Namespace", "optparse.Values", "thread._local" ]
+# Couples of functions with side effects that are often believed to return
+# something and the equivalent function that does return something, separated by
+# a comma. Used to hint at the right function to use in the 'assignment-from-no-
+# return' message.
+typecheck.known-side-effects-only-functions = [ "reverse:reversed", "sort:sorted" ]
 # Show a hint with possible names when a member name was not found. The aspect of
 # finding the hint is based on edit distance.
 typecheck.missing-member-hint = true

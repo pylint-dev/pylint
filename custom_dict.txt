@@ -58,6 +58,7 @@ classobj
 CLI
 cls
 cmp
+cnode
 codebase
 codec
 codecs
@@ -110,6 +111,7 @@ encodings
 endswith
 enum
 enums
+env
 epilog
 epylint
 epytext
@@ -144,6 +146,7 @@ grey
 guido's
 gv
 hashable
+hashlib
 hmac
 html
 iattrs
@@ -174,6 +177,8 @@ iTerm
 jn
 jpg
 json
+junit
+JUnit
 jx
 jython
 # class is a reserved word
@@ -201,6 +206,7 @@ mapfile
 mapreduce
 maxsize
 maxsplit
+mccabe
 mcs
 mermaidjs
 metaclass
@@ -226,6 +232,7 @@ myfunction
 mymain
 mymethod
 mymodule
+mypackage
 mypy
 namedtuple
 namespace
@@ -255,6 +262,7 @@ overridable
 params
 paren
 parens
+parseable
 passthru
 pathlib
 patternerror
@@ -278,7 +286,9 @@ pylintrc
 pyproject
 pypy
 pyreverse
+pyright
 pytest
+pytest's
 qname
 rawcheckers
 rc
@@ -332,6 +342,7 @@ subparts
 subprocess
 subscriptable
 subscripted
+substitutability
 subtree
 supcls
 superclass
@@ -342,6 +353,8 @@ sys
 tbump
 tempfile
 testcase
+testcases
+testsuite
 testdata
 testoptions
 tmp
@@ -377,6 +390,7 @@ unicode
 uninferable
 Uninferable
 unittest
+unittest's
 unraisablehook
 untriggered
 # prefix for string

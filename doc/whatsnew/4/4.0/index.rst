@@ -74,6 +74,311 @@ to your liking.
 
 .. towncrier release notes start
 
+What's new in Pylint 4.0.10?
+----------------------------
+Release date: 2026-09-29
+
+
+False Positives Fixed
+---------------------
+
+- Fix false positives for :ref:`unnecessary-lambda` when a variable referenced in
+  the called expression is assigned, reassigned, or deleted later in the same scope.
+
+  Closes #8192 (`#8192 <https://github.com/pylint-dev/pylint/issues/8192>`_)
+
+- Fix a false positive for ``unused-argument`` in dataclass ``__new__`` methods
+  when the arguments are consumed by a generated ``__init__`` method.
+
+  Closes #9843 (`#9843 <https://github.com/pylint-dev/pylint/issues/9843>`_)
+
+- Fix a false positive for ``missing-kwoa`` when keyword-only arguments are passed
+  through a ``**kwargs`` dictionary that is not a literal at the call site, for
+  example one filled with ``options["key"] = value`` after its creation.
+
+  Closes #10029 (`#10029 <https://github.com/pylint-dev/pylint/issues/10029>`_)
+
+- ``ungrouped-imports`` no longer reports imports inside mutually exclusive
+  OS guard branches (``if os.name == "nt":`` / ``if sys.platform == "win32":``),
+  matching the existing behavior for ``sys.version_info`` guards.
+
+  Closes #10460 (`#10460 <https://github.com/pylint-dev/pylint/issues/10460>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- A ``TypeError`` crash could occur when checking a ``for`` loop that
+  iterates over a subscript with non-numeric constant bounds or a zero
+  step, e.g. ``for a, b in {"k": [][0: ""]}.values():``.
+
+  Closes #11472 (`#11472 <https://github.com/pylint-dev/pylint/issues/11472>`_)
+
+- Fix a crash (``AttributeError: 'ClassDef' object has no attribute 'expr'``) in the
+  ``import-private-name`` extension when an annotated assignment's value is an
+  attribute access on a call rooted at a non-``Name`` node, e.g. ``x: str = ''().a``.
+
+  Closes #11479 (`#11479 <https://github.com/pylint-dev/pylint/issues/11479>`_)
+
+
+
+What's new in Pylint 4.0.9?
+---------------------------
+Release date: 2026-09-23
+
+
+Security Fixes
+--------------
+
+- Someone without access to the configuration or the linted code, but with write
+  access to the cache directory (a predictable ``PYLINTHOME`` on a multi-user
+  host), can no longer write a crafted pickle that runs arbitrary code when pylint
+  reads its stats cache. The results cache is now stored as JSON instead of
+  pickle, which prevents code execution. If you cannot upgrade, do not point
+  ``PYLINTHOME`` to an untrusted, shared, or group-writable directory. The
+  default, ``~/.cache/pylint`` on Linux, is writable only by the user running
+  pylint. A CVE with the same information is pending.
+
+  Refs #11449 (`#11449 <https://github.com/pylint-dev/pylint/issues/11449>`_)
+
+
+
+False Positives Fixed
+---------------------
+
+- Fixed a false positive for ``no-self-use`` on a method that only uses
+  ``self`` before a locally defined class (or other nested method), because
+  the checker's could-be-a-function tracking state was not restored after
+  visiting the nested method.
+
+  Closes #3705 (`#3705 <https://github.com/pylint-dev/pylint/issues/3705>`_)
+
+- Fix a false positive for :ref:`not-callable` when calling functions constructed with
+  ``types.FunctionType`` or ``types.LambdaType``.
+
+  Closes #7500 (`#7500 <https://github.com/pylint-dev/pylint/issues/7500>`_)
+
+- Fix a false positive for ``unnecessary-direct-lambda-call`` when a directly called
+  lambda in a class body wraps a comprehension containing an assignment expression.
+  PEP 572 makes that a ``SyntaxError`` without the lambda's scope, so following the
+  message produced code that would not compile.
+
+  Closes #9294 (`#9294 <https://github.com/pylint-dev/pylint/issues/9294>`_)
+
+- Fix a false positive for :ref:`unnecessary-ellipsis` when an ellipsis is the
+  sole body statement of a method defined on a ``Protocol``.
+
+  Closes #9319 (`#9319 <https://github.com/pylint-dev/pylint/issues/9319>`_)
+
+- Fix a false positive for :ref:`bad-exception-cause` when the bases of the class
+  being raised from cannot be inferred, such as an exception deriving from a
+  C extension class. :ref:`raising-non-exception` and
+  :ref:`catching-non-exception` already guard the same ``inherit_from_std_ex``
+  helper with ``has_known_bases``.
+
+  Refs #11399 (`#11399 <https://github.com/pylint-dev/pylint/issues/11399>`_)
+
+
+
+False Negatives Fixed
+---------------------
+
+- ``method-hidden`` is no longer silenced when the hidden method shares its name with
+  a builtin function or with a function defined at module level. Only members of the
+  ancestor classes themselves can excuse the method now.
+
+  Refs #11361 (`#11361 <https://github.com/pylint-dev/pylint/issues/11361>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix a block-scoped ``# pylint: disable=`` directive placed inside an ``if``
+  body leaking into sibling ``elif``/``else`` blocks for messages such as
+  ``stop-iteration-return``, which default to a line-based (rather than
+  node-based) message scope.
+
+  Closes #3136 (`#3136 <https://github.com/pylint-dev/pylint/issues/3136>`_)
+
+- Fix a false positive for ``declare-non-slot`` when a class variable is
+  annotated with ``ClassVar`` without an initial value.
+
+  Closes #9950 (`#9950 <https://github.com/pylint-dev/pylint/issues/9950>`_)
+
+- Fix a crash in the ``no-member`` checker when attribute lookup raises an
+  ``InferenceError``.
+
+  Closes #11356 (`#11356 <https://github.com/pylint-dev/pylint/issues/11356>`_)
+
+- Fix a crash in the ``unnecessary-default-type-args`` check when a ``Generator``
+  or ``AsyncGenerator`` subscript holds an empty tuple, such as ``Generator[()]``.
+
+  Closes #11357 (`#11357 <https://github.com/pylint-dev/pylint/issues/11357>`_)
+
+- Fix a crash in ``method-hidden`` when a method shadows a name that ``builtins``
+  binds to a node without a statement, such as ``help`` or ``license``. Every class
+  inherits from ``object``, which lives in the ``builtins`` module, so no base class
+  was needed to trigger it.
+
+  Closes #11361
+  Closes #8079 (`#11361 <https://github.com/pylint-dev/pylint/issues/11361>`_)
+
+
+
+What's new in Pylint 4.0.8?
+---------------------------
+Release date: 2026-08-29
+
+
+False Positives Fixed
+---------------------
+
+- Fix a false positive for :ref:`unspecified-encoding` when an ``open`` call uses a mode
+  argument that cannot be inferred.
+
+  Closes #10201 (`#10201 <https://github.com/pylint-dev/pylint/issues/10201>`_)
+
+- Fix a false positive for ``invalid-name`` (C0103) on names assigned in an
+  ``if __name__ == "__main__":`` block. Such a block reads like a script body, so
+  a name there is now accepted if it matches either the constant or the variable
+  naming style.
+
+  Closes #10766 (`#10766 <https://github.com/pylint-dev/pylint/issues/10766>`_)
+
+- Fix false positives for :ref:`invalid-str-returned`, :ref:`invalid-repr-returned`,
+  :ref:`invalid-format-returned`, :ref:`invalid-bytes-returned`, :ref:`invalid-hash-returned`,
+  :ref:`invalid-index-returned`, :ref:`invalid-length-returned`,
+  :ref:`invalid-length-hint-returned`, :ref:`invalid-getnewargs-returned` and
+  :ref:`invalid-getnewargs-ex-returned` when the returned value is an instance of a
+  subclass of the expected builtin type, such as ``self`` in a ``str`` subclass or a
+  ``namedtuple``.
+
+  Closes #11306 (`#11306 <https://github.com/pylint-dev/pylint/issues/11306>`_)
+
+- Fix false positives for :ref:`bad-string-format-type` when the argument is an
+  instance of a subclass of ``int``, ``float`` or ``str``, such as ``bool`` or an
+  ``IntEnum`` member formatted with ``%d``.
+
+  Closes #11315 (`#11315 <https://github.com/pylint-dev/pylint/issues/11315>`_)
+
+
+
+False Negatives Fixed
+---------------------
+
+- ``redundant-unittest-assert`` now also flags ``assertEqual`` and ``assertNotEqual``
+  when both compared values are constants, e.g. ``self.assertEqual(5, 5)``.
+
+  Closes #11321 (`#11321 <https://github.com/pylint-dev/pylint/issues/11321>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix a crash in the ``docparams`` extension when a raised name does not infer to an exception, such as ``raise sum`` or ``raise some_module``. Such objects have no ``ancestors()``, which aborted the whole file with an ``astroid-error`` fatal message.
+
+  Closes #11228 (`#11228 <https://github.com/pylint-dev/pylint/issues/11228>`_)
+
+- Fix a crash in the ``use-yield-from`` checker (``AttributeError: 'Subscript' object has no attribute 'name'``) when a loop target is a subscript, attribute, or tuple.
+
+  Closes #11286 (`#11286 <https://github.com/pylint-dev/pylint/issues/11286>`_)
+
+- Fix a crash in the ``docparams`` extension (``AttributeError: 'AssignName' object has no attribute 'decorators'``) when a class has non-function attributes sharing the name of a property setter.
+
+  Closes #11287 (`#11287 <https://github.com/pylint-dev/pylint/issues/11287>`_)
+
+
+
+Other Changes
+-------------
+
+- Upgrade the ``isort`` upper bound so ``isort`` 9 can be installed alongside pylint.
+
+  Closes #11351 (`#11351 <https://github.com/pylint-dev/pylint/issues/11351>`_)
+
+
+
+What's new in Pylint 4.0.7?
+---------------------------
+Release date: 2026-08-09
+
+
+False Positives Fixed
+---------------------
+
+- Fix a false positive for ``invalid-name`` when a module-level variable is assigned
+  an instance of a ``TypedDict`` subclass. Such a name is a value, not a type
+  definition, so it is now checked against the constant or variable regex instead
+  of ``class-rgx``.
+
+  Closes #11231 (`#11231 <https://github.com/pylint-dev/pylint/issues/11231>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix a crash in the ``bad-open-mode`` check when the ``mode`` argument of
+  ``open`` is the ``NotImplemented`` constant (Python >= 3.14).
+
+  Closes #11099 (`#11099 <https://github.com/pylint-dev/pylint/issues/11099>`_)
+
+- Fix a crash in the ``not-context-manager`` and ``not-async-context-manager``
+  checks when the context manager infers to a value without a name, such as the
+  ``slice`` returned by ``with slice(...)`` / ``async with slice(...)``.
+
+  Closes #11102 (`#11102 <https://github.com/pylint-dev/pylint/issues/11102>`_)
+
+- Fix a false positive for ``nested-min-max`` (``W3301``) when the inner ``min``/``max`` call carries a keyword argument such as ``key=``. Flattening the call dropped the keyword and changed the result, so nested calls whose inner call has keyword arguments are no longer flagged.
+
+  Closes #11130 (`#11130 <https://github.com/pylint-dev/pylint/issues/11130>`_)
+
+- Fix a false suggestion from ``nested-min-max`` (``W3301``): when rewriting a nested ``min``/``max`` into a splat call, arguments positioned after the splatted call were silently dropped, so the suggested code changed the result.
+
+  Closes #11134 (`#11134 <https://github.com/pylint-dev/pylint/issues/11134>`_)
+
+- Fix a false positive for ``too-many-locals`` (``R0914``): PEP 695 type parameters, i.e. the ``T1`` and ``T2`` in a generic ``def f[T1, T2]`` signature, were counted as local variables. They are type-system constructs, not runtime locals, and are now excluded from the local-variable count.
+
+  Closes #11136 (`#11136 <https://github.com/pylint-dev/pylint/issues/11136>`_)
+
+- Fix `literal-comparison` (`R0123`) emitting a corrupted suggestion for identifiers
+  that contain ``is`` (e.g. ``axis is 5`` was rendered ``ax== == 5``). The suggestion
+  is now rebuilt from the operands and operator.
+
+  Closes #11146 (`#11146 <https://github.com/pylint-dev/pylint/issues/11146>`_)
+
+- Fix false positives in `bad-string-format-type` (`E1307`) for valid ``%`` formatting:
+  ``%i``/``%u`` applied to a float (both truncate like ``%d``) and ``%a`` applied to any
+  non-int type (``%a`` is type-agnostic like ``%s``/``%r``).
+
+  Closes #11147 (`#11147 <https://github.com/pylint-dev/pylint/issues/11147>`_)
+
+- Fix a false positive for :ref:`useless-parent-delegation` when an override changes
+  the default value of a positional-only parameter.
+
+  Closes #11148 (`#11148 <https://github.com/pylint-dev/pylint/issues/11148>`_)
+
+- Fixed a crash in ``comparison-with-callable`` when comparing a lambda assigned as a class attribute.
+
+  Closes #11175 (`#11175 <https://github.com/pylint-dev/pylint/issues/11175>`_)
+
+- ``too-many-lines`` could be reported at the line of a ``# pylint: disable=too-many-lines``
+  pragma found in a previously linted module. Pragma positions are now reset between
+  modules, so the message is reported at line 1 (or at the current module's own pragma)
+  regardless of which files were linted before.
+
+  Refs #11191 (`#11191 <https://github.com/pylint-dev/pylint/issues/11191>`_)
+
+- Fix a crash when a call unpacks a dictionary whose keys are not string
+  constants, e.g. ``copy.copy(**{-1: 1})``.
+
+  Closes #11222 (`#11222 <https://github.com/pylint-dev/pylint/issues/11222>`_)
+
+
+
 What's new in Pylint 4.0.6?
 ---------------------------
 Release date: 2026-06-14

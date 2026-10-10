@@ -82,7 +82,7 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
                         return True
                 return False
         """
-        if not len(if_children) == 2:
+        if len(if_children) != 2:
             # The If node has only a comparison and return
             return False
         if not returns_bool(if_children[1]):

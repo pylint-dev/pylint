@@ -97,6 +97,13 @@ BUILTINS_IMPLICIT_RETURN_NONE = {
         "update",
     },
 }
+KNOWN_SIDE_EFFECTS_ONLY_FUNCTIONS = {
+    "reverse": "reversed",
+    "sort": "sorted",
+}
+"""Functions that only have side effects and return None, mapped to the
+equivalent function returning a new value that is often expected instead.
+"""
 
 
 class VERSION_COMPATIBLE_OVERLOAD:
@@ -241,7 +248,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "callable object.",
     ),
     "E1111": (
-        "Assigning result of a function call, where the function has no return",
+        "Assigning result of a function call, but %r returns None%s",
         "assignment-from-no-return",
         "Used when an assignment is done on a function call but the "
         "inferred function doesn't return anything.",
@@ -527,11 +534,12 @@ def _emit_no_member(
     #   * Check if condition can be inferred as `Const`,
     #       would evaluate as `False`,
     #       and whether the node is part of the `body`.
-    #   * Continue checking until scope of node is reached.
-    scope: nodes.NodeNG = node.scope()
+    #   * Continue checking until frame of node is reached: a comprehension
+    #       runs in the branch that contains it.
+    frame: nodes.NodeNG = node.frame()
     node_origin: nodes.NodeNG = node
     parent: nodes.NodeNG = node.parent
-    while parent != scope:
+    while parent != frame:
         if isinstance(parent, (nodes.If, nodes.IfExp)):
             inferred = safe_infer(parent.test)
             if (  # pylint: disable=too-many-boolean-expressions
@@ -612,7 +620,12 @@ def _enum_has_attribute(
             )
 
     # Find attributes defined in __init__
-    if dunder_init and dunder_init.body and dunder_init.args:
+    if (
+        dunder_init
+        and dunder_init.body
+        and dunder_init.args
+        and dunder_init.args.arguments
+    ):
         # Grab the name referring to `self` from the function def
         enum_attributes |= _get_all_attribute_assignments(
             dunder_init, dunder_init.args.arguments[0].name
@@ -706,6 +719,20 @@ def _has_parent_of_type(
     while not isinstance(parent, node_type) and statement.parent_of(parent):
         parent = parent.parent
     return isinstance(parent, node_type)
+
+
+def _returns_first_argument(func: nodes.FunctionDef) -> bool:
+    """Return whether every return of ``func`` is its own first parameter."""
+    params = (func.args.posonlyargs or []) + (func.args.args or [])
+    if not params:
+        return False
+    first_param = params[0]
+    returns = list(func.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef))
+    return bool(returns) and all(
+        isinstance(ret.value, nodes.Name)
+        and ret.value.lookup(ret.value.name)[1] == [first_param]
+        for ret in returns
+    )
 
 
 def _no_context_variadic_keywords(node: nodes.Call, scope: nodes.Lambda) -> bool:
@@ -1017,6 +1044,21 @@ accessed. Python regular expressions are accepted.",
                 "a decorated function.",
             },
         ),
+        (
+            "known-side-effects-only-functions",
+            {
+                "default": tuple(
+                    f"{function}:{suggestion}"
+                    for function, suggestion in KNOWN_SIDE_EFFECTS_ONLY_FUNCTIONS.items()
+                ),
+                "type": "csv",
+                "metavar": "<function:suggestion>",
+                "help": "Couples of functions with side effects that are often believed "
+                "to return something and the equivalent function that does return "
+                "something, separated by a comma. Used to hint at the right function "
+                "to use in the 'assignment-from-no-return' message.",
+            },
+        ),
     )
 
     def open(self) -> None:
@@ -1025,6 +1067,12 @@ accessed. Python regular expressions are accepted.",
         self._py314_plus = py_version >= (3, 14)
         self._postponed_evaluation_enabled = False
         self._mixin_class_rgx = self.linter.config.mixin_class_rgx
+        # Build a mapping {'function': 'suggestion'}
+        self._known_side_effects_only_functions = dict(
+            function.split(":", maxsplit=1)
+            for function in self.linter.config.known_side_effects_only_functions
+            if ":" in function
+        )
 
     def visit_module(self, node: nodes.Module) -> None:
         self._postponed_evaluation_enabled = (
@@ -1178,10 +1226,13 @@ accessed. Python regular expressions are accepted.",
 
             try:
                 attr_nodes = owner.getattr(node.attrname)
-            except AttributeError:
+            except (AttributeError, astroid.DuplicateBasesError):
                 continue
-            except astroid.DuplicateBasesError:
-                continue
+            except astroid.InferenceError:
+                # Nothing is known about this owner, so it may have the
+                # attribute: judging the other inferred owners alone would
+                # emit a false positive, bail out as for opaque inference.
+                return
             except astroid.NotFoundError:
                 # Avoid false positive in case a decorator supplies member.
                 if (
@@ -1314,7 +1365,10 @@ accessed. Python regular expressions are accepted.",
         # Handle builtins such as list.sort() or dict.update()
         if self._is_builtin_no_return(node):
             self.add_message(
-                "assignment-from-no-return", node=node, confidence=INFERENCE
+                "assignment-from-no-return",
+                node=node,
+                args=self._assignment_from_no_return_args(node.value),
+                confidence=INFERENCE,
             )
             return
 
@@ -1325,7 +1379,12 @@ accessed. Python regular expressions are accepted.",
             function_node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
         )
         if not return_nodes:
-            self.add_message("assignment-from-no-return", node=node)
+            self.add_message(
+                "assignment-from-no-return",
+                node=node,
+                args=self._assignment_from_no_return_args(node.value),
+                confidence=INFERENCE,
+            )
         else:
             for ret_node in return_nodes:
                 match ret_node.value:
@@ -1370,13 +1429,26 @@ accessed. Python regular expressions are accepted.",
                 )
         return False
 
+    def _assignment_from_no_return_args(self, call: nodes.Call) -> tuple[str, str]:
+        """Get the name of the called function and a hint about what to use instead."""
+        match call.func:
+            case nodes.Attribute(attrname=name) | nodes.Name(name=name):
+                pass
+            case _:
+                name = call.func.as_string()
+        suggestion = self._known_side_effects_only_functions.get(name)
+        hint = (
+            f", did you mean to use '{suggestion}(...)' instead?" if suggestion else ""
+        )
+        return name, hint
+
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:
         """Check a string is assigned to self.__name__."""
         # Check the left-hand side of the assignment is <something>.__name__
         lhs = node.targets[0]
         if not isinstance(lhs, nodes.AssignAttr):
             return
-        if not lhs.attrname == "__name__":
+        if lhs.attrname != "__name__":
             return
 
         # If the right-hand side is not a string
@@ -1410,7 +1482,7 @@ accessed. Python regular expressions are accepted.",
 
         try:
             attrs = klass._proxied.getattr(node.func.attrname)
-        except astroid.NotFoundError:
+        except (astroid.NotFoundError, astroid.InferenceError):
             return
 
         for attr in attrs:
@@ -1699,15 +1771,27 @@ accessed. Python regular expressions are accepted.",
                 )
 
         # 3. Match the **kwargs, if any.
-        if node.kwargs:
+        # CallSite unpacks literal ``**{...}`` operands into keyword_arguments
+        # in step 2. We therefore only assume **kwargs covers the remaining
+        # named and keyword-only parameters when its full key set is not
+        # statically provable: the enclosing scope forwards a variadic kwarg
+        # without context (``def wrap(**kw): f(**kw)``), or at least one
+        # ``**operand`` is not a literal Dict (Name, Call, subscript, ...).
+        # A name bound to a dict literal is not enough, the dict can be
+        # filled after its creation (``d["y"] = ...``, see #10029). A literal
+        # ``f(**{"y": ...})`` keeps the gate closed and lets
+        # ``no-value-for-parameter`` and ``missing-kwoa`` fire (see #8785).
+        kwargs_might_supply_more = any(
+            not isinstance(kw.value, nodes.Dict) for kw in node.kwargs
+        )
+        if node.kwargs and (
+            has_no_context_keywords_variadic or kwargs_might_supply_more
+        ):
             for i, [(name, _defval), _assigned] in enumerate(parameters):
-                # Assume that *kwargs provides values for all remaining
-                # unassigned named parameters.
                 if name is not None:
                     parameters[i] = (parameters[i][0], True)
-                else:
-                    # **kwargs can't assign to tuples.
-                    pass
+            for kwparam in kwparams.values():
+                kwparam[1] = True
 
         # Check that any parameters without a default have been assigned
         # values.
@@ -1746,6 +1830,7 @@ accessed. Python regular expressions are accepted.",
         if not func.decorators:
             return False
 
+        has_signature_changing_decorator = False
         for decorator in func.decorators.nodes:
             inferred = safe_infer(decorator)
 
@@ -1758,12 +1843,24 @@ accessed. Python regular expressions are accepted.",
             if not isinstance(inferred, nodes.FunctionDef):
                 return False
 
+            if _returns_first_argument(inferred):
+                # A pass-through decorator leaves the signature unchanged
+                continue
+
+            has_signature_changing_decorator = True
             try:
                 return_values = list(inferred.infer_call_result(caller=None))
             except InferenceError:
                 return False
 
+            if all(isinstance(value, util.UninferableBase) for value in return_values):
+                # An opaque decorator may return a wrapper that accepts the keyword
+                return True
+
             for return_value in return_values:
+                if isinstance(return_value, util.UninferableBase):
+                    continue
+
                 # infer_call_result() returns nodes.Const.None for None return values
                 # so this also catches non-returning decorators
                 if not isinstance(return_value, nodes.FunctionDef):
@@ -1779,7 +1876,7 @@ accessed. Python regular expressions are accepted.",
 
                 return False
 
-        return True
+        return has_signature_changing_decorator
 
     def _check_invalid_sequence_index(self, subscript: nodes.Subscript) -> None:
         # Look for index operations where the parent is a sequence type.
@@ -1875,8 +1972,8 @@ accessed. Python regular expressions are accepted.",
             # Ignore descriptor instances
             if "__get__" in inferred_call.locals:
                 return
-            # NamedTuple instances are callable
-            if inferred_call.qname() == "typing.NamedTuple":
+            # These instances are callable despite not exposing __call__ in astroid.
+            if inferred_call.qname() in {"builtins.function", "typing.NamedTuple"}:
                 return
 
         self.add_message("not-callable", node=node, args=node.func.as_string())
@@ -2042,6 +2139,17 @@ accessed. Python regular expressions are accepted.",
                             inferred_name = inferred.pytype().rsplit(".", 1)[-1]
                         self.add_message(
                             "not-context-manager", node=node, args=(inferred_name,)
+                        )
+                    except AttributeError:
+                        # Some inferred results (e.g. a TypeVar bound by a
+                        # `type` statement) are not class-like nodes and have
+                        # no ``getattr``: they can never be context managers,
+                        # so report ``not-context-manager`` with the inferred
+                        # type's name instead of crashing.
+                        self.add_message(
+                            "not-context-manager",
+                            node=node,
+                            args=(inferred.pytype().rsplit(".", 1)[-1],),
                         )
 
     @only_required_for_messages("invalid-unary-operand-type")
@@ -2416,25 +2524,37 @@ class IterableChecker(BaseChecker):
         for kwarg in node.kwargs:
             self._check_mapping(kwarg.value)
 
-    @only_required_for_messages("not-an-iterable")
-    def visit_listcomp(self, node: nodes.ListComp) -> None:
+    def _check_comprehension_generators(self, node: nodes.ComprehensionScope) -> None:
         for gen in node.generators:
             self._check_iterable(gen.iter, check_async=gen.is_async)
 
+    def _check_comprehension(
+        self, node: nodes.ListComp | nodes.SetComp | nodes.GeneratorExp
+    ) -> None:
+        self._check_comprehension_generators(node)
+        # PEP 798 unpacking: ``[*element for ... ]`` iterates the element too.
+        if isinstance(node.elt, nodes.Starred):
+            self._check_iterable(node.elt.value)
+
     @only_required_for_messages("not-an-iterable")
+    def visit_listcomp(self, node: nodes.ListComp) -> None:
+        self._check_comprehension(node)
+
+    @only_required_for_messages("not-an-iterable", "not-a-mapping")
     def visit_dictcomp(self, node: nodes.DictComp) -> None:
-        for gen in node.generators:
-            self._check_iterable(gen.iter, check_async=gen.is_async)
+        self._check_comprehension_generators(node)
+        # PEP 798 unpacking: ``{**element for ...}`` merges the element, which
+        # astroid represents with a ``DictUnpack`` key.
+        if isinstance(node.key, nodes.DictUnpack):
+            self._check_mapping(node.value)
 
     @only_required_for_messages("not-an-iterable")
     def visit_setcomp(self, node: nodes.SetComp) -> None:
-        for gen in node.generators:
-            self._check_iterable(gen.iter, check_async=gen.is_async)
+        self._check_comprehension(node)
 
     @only_required_for_messages("not-an-iterable")
     def visit_generatorexp(self, node: nodes.GeneratorExp) -> None:
-        for gen in node.generators:
-            self._check_iterable(gen.iter, check_async=gen.is_async)
+        self._check_comprehension(node)
 
 
 def register(linter: PyLinter) -> None:

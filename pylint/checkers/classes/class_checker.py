@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from functools import cached_property
 from itertools import chain, zip_longest
 from re import Pattern
@@ -30,14 +30,18 @@ from pylint.checkers.utils import (
     is_attr_protected,
     is_builtin_object,
     is_comprehension,
+    is_in_stub_file,
     is_iterable,
+    is_overload_stub,
     is_property_setter,
     is_property_setter_or_deleter,
+    is_typing_member,
     node_frame_class,
     only_required_for_messages,
     safe_infer,
+    safe_mro,
+    safe_slots,
     unimplemented_abstract_methods,
-    uninferable_final_decorators,
 )
 from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
@@ -50,6 +54,10 @@ _AccessNodes: TypeAlias = nodes.Attribute | nodes.AssignAttr
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
 BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
+# Special methods that build or configure the class itself. A subclass routinely
+# takes different arguments there without breaking substitutability, because
+# callers name the concrete class instead of going through the base one.
+CONSTRUCTOR_METHODS = {"__new__", "__init__", "__init_subclass__", "__post_init__"}
 ASTROID_TYPE_COMPARATORS = {
     nodes.Const: lambda a, b: a.value == b.value,
     nodes.ClassDef: lambda a, b: a.qname == b.qname,
@@ -133,7 +141,7 @@ def _definition_equivalent_to_call(
             return False
     elif call.starred_args:
         return False
-    if any(kw not in call.kws for kw in definition.kwonlyargs):
+    if any(call.kws.get(kw) != kw for kw in definition.kwonlyargs):
         return False
     if definition.args != call.args:
         return False
@@ -378,13 +386,18 @@ def _different_parameters(
     if kwarg_lost or vararg_lost:
         output_messages += ["Variadics removed in"]
 
-    if original.name in PYMETHODS:
-        # Ignore the difference for special methods. If the parameter
-        # numbers are different, then that is going to be caught by
-        # unexpected-special-method-signature.
-        # If the names are different, it doesn't matter, since they can't
-        # be used as keyword arguments anyway.
+    if original.name in CONSTRUCTOR_METHODS:
+        # Ignore every difference for the constructor family, overriding those
+        # with another signature is idiomatic.
         output_messages.clear()
+    elif original.name in PYMETHODS:
+        # For the other special methods, only keep the difference in the number
+        # of parameters. If the names are different, it doesn't matter, since
+        # they can't be used as keyword arguments anyway, and losing variadics
+        # is fine as long as the remaining parameters still match.
+        output_messages[:] = [
+            message for message in output_messages if "Number" in message
+        ]
 
     return output_messages
 
@@ -408,6 +421,35 @@ def _has_data_descriptor(cls: nodes.ClassDef, attr: str) -> bool:
                         return True
         except astroid.InferenceError:
             # Can't infer, avoid emitting a false positive in this case.
+            return True
+    return False
+
+
+def _is_classic_property_setter(func: nodes.FunctionDef) -> bool:
+    """Check if *func* is used as the ``fset`` argument of an old-style,
+    non-decorator ``property(fget, fset)`` call in its enclosing class body.
+    """
+    if not isinstance(func, nodes.FunctionDef):
+        return False
+    frame = func.parent
+    if not isinstance(frame, nodes.ClassDef):
+        return False
+    for node in frame.body:
+        if not isinstance(node, nodes.Assign) or not isinstance(node.value, nodes.Call):
+            continue
+        call = node.value
+        inferred_func = safe_infer(call.func)
+        if not (
+            isinstance(inferred_func, nodes.ClassDef)
+            and is_builtin_object(inferred_func)
+            and inferred_func.name == "property"
+        ):
+            continue
+        fset_arg: nodes.NodeNG | None = call.args[1] if len(call.args) > 1 else None
+        for keyword in call.keywords or ():
+            if keyword.arg == "fset":
+                fset_arg = keyword.value
+        if isinstance(fset_arg, nodes.Name) and fset_arg.name == func.name:
             return True
     return False
 
@@ -447,6 +489,67 @@ def _called_in_methods(
     return False
 
 
+def _setattr_attr_name(node: nodes.Call, frame: nodes.FunctionDef) -> str | None:
+    """The attribute name of a literal ``setattr(self, "name", value)`` in *frame*.
+
+    Returns None when *node* is not such a call.
+    """
+    match node.func, node.args:
+        case (
+            nodes.Name(name="setattr"),
+            [nodes.Name(name=instance_name), nodes.Const(value=str() as attr), _, *_],
+        ):
+            pass
+        case _:
+            return None
+    if frame.type in {"classmethod", "staticmethod"}:
+        return None
+    # Same first argument logic as in '_check_first_arg_for_type': a method
+    # whose only parameter is '*args' does not receive the instance by name.
+    if frame.args.posonlyargs:
+        first_arg = frame.args.posonlyargs[0].name
+    elif frame.args.args:
+        first_arg = frame.argnames()[0]
+    else:
+        return None
+    if instance_name != first_arg:
+        return None
+    inferred = safe_infer(node.func)
+    if not (
+        isinstance(inferred, nodes.FunctionDef)
+        and is_builtin_object(inferred)
+        and inferred.name == "setattr"
+    ):
+        return None
+    return attr
+
+
+def _setattr_names_in_defining_methods(
+    klass: nodes.ClassDef, defining_methods: Sequence[str]
+) -> set[str]:
+    """Names set by ``setattr(self, "name", ...)`` in *klass*' defining methods.
+
+    Only the defining methods are scanned, and only once a message is about to
+    be reported, so this stays cheap. It cannot rely on state gathered while
+    walking, because *klass* may live in a module that is never walked at all,
+    or that is only walked later on.
+    """
+    if klass.type == "metaclass":
+        return set()
+    names: set[str] = set()
+    for method_name in defining_methods:
+        for method in klass.locals.get(method_name, ()):
+            if not isinstance(method, nodes.FunctionDef):
+                continue
+            for call in method.nodes_of_class(nodes.Call):
+                if call.frame() is not method:
+                    continue
+                attr = _setattr_attr_name(call, method)
+                if attr is not None:
+                    names.add(attr)
+    return names
+
+
 def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
     """Check if the given attribute *name* is a property in the given *klass*.
 
@@ -478,17 +581,42 @@ def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
 
 
 def _has_same_layout_slots(
-    slots: list[nodes.Const | None], assigned_value: nodes.Name
+    slots: list[nodes.Const | None], assigned_value: nodes.NodeNG
 ) -> bool:
-    inferred = next(assigned_value.infer())
+    try:
+        inferred = next(assigned_value.infer())
+    except astroid.InferenceError:
+        # An unresolvable value gets the same answer as any other
+        # value that is not a class definition.
+        return False
     if isinstance(inferred, nodes.ClassDef):
-        other_slots = inferred.slots()
+        other_slots = safe_slots(inferred)
+        if other_slots is None:
+            # A class without ``__slots__`` anywhere in its mro has a
+            # different layout, which CPython rejects at runtime too.
+            return False
         if all(
             first_slot and second_slot and first_slot.value == second_slot.value
             for (first_slot, second_slot) in zip_longest(slots, other_slots)
         ):
             return True
     return False
+
+
+def _assigned_value(node: nodes.AssignAttr) -> nodes.NodeNG | None:
+    """Return the value bound to ``node``, if a single one can be pinpointed.
+
+    An assignment statement carries the value it binds, and a starred target
+    (``head, *foo.attr = ...``) is resolved by astroid through the target
+    itself. A for-loop, ``with``, or comprehension target has no such value,
+    and neither has a bare annotation (``foo.attr: int``).
+    """
+    parent = node.parent
+    if not isinstance(
+        parent, (nodes.Assign, nodes.AnnAssign, nodes.AugAssign, nodes.Starred)
+    ):
+        return None
+    return parent.value
 
 
 MSGS: dict[str, MessageDefinitionTuple] = {
@@ -848,12 +976,14 @@ a metaclass class method.",
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
         self._accessed = ScopeAccessMap()
+        self._setattr_attrs: dict[nodes.ClassDef, dict[str, list[nodes.Call]]] = {}
         self._first_attrs: list[str | None] = []
 
     def open(self) -> None:
         self._mixin_class_rgx = self.linter.config.mixin_class_rgx
         py_version = self.linter.config.py_version
         self._py38_plus = py_version >= (3, 8)
+        self._setattr_attrs = {}
 
     @cached_property
     def _dummy_rgx(self) -> Pattern[str]:
@@ -918,7 +1048,9 @@ a metaclass class method.",
             match child:
                 case nodes.AnnAssign(
                     target=nodes.AssignName(name=name), value=None
-                ) if (name not in slot_names):
+                ) if name not in slot_names and not utils.is_assign_name_annotated_with(
+                    child.target, "ClassVar"
+                ):
                     self.add_message(
                         "declare-non-slot",
                         args=child.target.name,
@@ -1033,15 +1165,16 @@ a metaclass class method.",
             if not ancestor:
                 continue
 
-            if isinstance(ancestor, nodes.ClassDef) and (
-                decorated_with(ancestor, ["typing.final"])
-                or uninferable_final_decorators(ancestor.decorators)
-            ):
-                self.add_message(
-                    "subclassed-final-class",
-                    args=(node.name, ancestor.name),
-                    node=node,
-                )
+            if isinstance(ancestor, nodes.ClassDef):
+                decorators = ancestor.decorators.nodes if ancestor.decorators else []
+                if decorated_with(ancestor, ["typing.final"]) or any(
+                    is_typing_member(decorator, ("final",)) for decorator in decorators
+                ):
+                    self.add_message(
+                        "subclassed-final-class",
+                        args=(node.name, ancestor.name),
+                        node=node,
+                    )
 
     @only_required_for_messages(
         "unused-private-member",
@@ -1191,6 +1324,7 @@ a metaclass class method.",
                 self.add_message("unused-private-member", node=assign_attr, args=args)
 
     def _check_attribute_defined_outside_init(self, cnode: nodes.ClassDef) -> None:
+        setattr_attrs = self._setattr_attrs.pop(cnode, None)
         # check access to existent members on non metaclass classes
         if (
             "attribute-defined-outside-init"
@@ -1210,58 +1344,115 @@ a metaclass class method.",
             return
         defining_methods = self.linter.config.defining_attr_methods
         current_module = cnode.root()
-        for attr, nodes_lst in cnode.instance_attrs.items():
+        parent_setattr_names: set[str] | None = None
+        instance_attrs: Mapping[str, Sequence[nodes.NodeNG]]
+        if setattr_attrs:
+            merged: dict[str, list[nodes.NodeNG]] = {
+                attr: list(attr_nodes)
+                for attr, attr_nodes in cnode.instance_attrs.items()
+            }
+            for attr, setattr_nodes in setattr_attrs.items():
+                merged.setdefault(attr, []).extend(setattr_nodes)
+            instance_attrs = merged
+        else:
+            instance_attrs = cnode.instance_attrs
+        for attr, nodes_lst in instance_attrs.items():
             # Exclude `__dict__` as it is already defined.
             if attr == "__dict__":
                 continue
 
             # Skip nodes which are not in the current module and it may screw up
             # the output, while it's not worth it
-            nodes_lst = [
+            filtered_nodes = [
                 n
                 for n in nodes_lst
                 if not isinstance(n.statement(), (nodes.Delete, nodes.AugAssign))
                 and n.root() is current_module
             ]
-            if not nodes_lst:
+            if not filtered_nodes:
                 continue  # error detected by typechecking
 
             # Check if any method attr is defined in is a defining method
             # or if we have the attribute defined in a setter.
-            frames = (node.frame() for node in nodes_lst)
+            frames = (node.frame() for node in filtered_nodes)
             if any(
-                frame.name in defining_methods or is_property_setter(frame)
+                frame.name in defining_methods
+                or is_property_setter(frame)
+                or _is_classic_property_setter(frame)
                 for frame in frames
             ):
                 continue
 
-            # check attribute is defined in a parent's __init__
-            for parent in cnode.instance_attr_ancestors(attr):
-                attr_defined = False
-                # check if any parent method attr is defined in is a defining method
-                for node in parent.instance_attrs[attr]:
-                    if node.frame().name in defining_methods:
-                        attr_defined = True
-                if attr_defined:
-                    # we're done :)
-                    break
-            else:
-                # check attribute is defined as a class attribute
-                try:
-                    cnode.local_attr(attr)
-                except astroid.NotFoundError:
-                    for node in nodes_lst:
-                        if node.frame().name not in defining_methods:
-                            # If the attribute was set by a call in any
-                            # of the defining methods, then don't emit
-                            # the warning.
-                            if _called_in_methods(
-                                node.frame(), cnode, defining_methods
-                            ):
-                                continue
-                            self.add_message(
-                                "attribute-defined-outside-init", args=attr, node=node
-                            )
+            # check attribute is defined as a class attribute
+            try:
+                cnode.local_attr(attr)
+                continue
+            except astroid.NotFoundError:
+                pass
+
+            if self._defined_in_parent_init(cnode, attr, defining_methods):
+                continue
+
+            if parent_setattr_names is None:
+                parent_setattr_names = self._parent_setattr_names(
+                    cnode, defining_methods
+                )
+            if attr in parent_setattr_names:
+                continue
+
+            # If the attribute was set by a call made in any of the defining
+            # methods, then it is initialized after all: don't emit for any of
+            # the assignments.
+            if any(
+                _called_in_methods(node.frame(), cnode, defining_methods)
+                for node in filtered_nodes
+            ):
+                continue
+
+            for node in filtered_nodes:
+                self.add_message("attribute-defined-outside-init", args=attr, node=node)
+
+    def _defined_in_parent_init(
+        self, cnode: nodes.ClassDef, attr: str, defining_methods: Sequence[str]
+    ) -> bool:
+        # check attribute is defined in a parent's defining method, either
+        # directly or in a method called from a defining method
+        return any(
+            node.frame().name in defining_methods
+            or _called_in_methods(node.frame(), parent, defining_methods)
+            for parent in cnode.instance_attr_ancestors(attr)
+            for node in parent.instance_attrs[attr]
+        )
+
+    def _parent_setattr_names(
+        self, cnode: nodes.ClassDef, defining_methods: Sequence[str]
+    ) -> set[str]:
+        """Names an ancestor of *cnode* sets with ``setattr`` in a defining method."""
+        names: set[str] = set()
+        for parent in cnode.ancestors():
+            if parent.root().name == "builtins":
+                continue
+            names |= _setattr_names_in_defining_methods(parent, defining_methods)
+        return names
+
+    @only_required_for_messages("attribute-defined-outside-init")
+    def visit_call(self, node: nodes.Call) -> None:
+        if not (isinstance(node.func, nodes.Name) and node.func.name == "setattr"):
+            return
+        frame = node.frame()
+        if not (isinstance(frame, nodes.FunctionDef) and frame.is_method()):
+            return
+        frame_class = node_frame_class(node)
+        # In a metaclass method the first argument is the class itself, so
+        # ``setattr(cls, "name", value)`` defines a class attribute, exactly
+        # like ``cls.name = value`` does.
+        if frame_class is None or frame_class.type == "metaclass":
+            return
+        attr = _setattr_attr_name(node, frame)
+        if attr is not None:
+            self._setattr_attrs.setdefault(frame_class, {}).setdefault(attr, []).append(
+                node
+            )
 
     # pylint: disable = too-many-branches, too-many-return-statements
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
@@ -1292,6 +1483,15 @@ a metaclass class method.",
                 continue
             if not isinstance(parent_function, nodes.FunctionDef):
                 continue
+            if is_overload_stub(parent_function):
+                # Compare with the implementation, not the first overload stub.
+                implementations = [
+                    n
+                    for n in overridden.locals[node.name]
+                    if isinstance(n, nodes.FunctionDef) and not is_overload_stub(n)
+                ]
+                if implementations:
+                    parent_function = implementations[-1]
             self._check_signature(node, parent_function, klass)
             self._check_invalid_overridden_method(node, parent_function)
             break
@@ -1351,7 +1551,7 @@ a metaclass class method.",
             for ancestor in klass.ancestors():
                 if node.name in ancestor.instance_attrs and is_attr_private(node.name):
                     return
-                for obj in ancestor.lookup(node.name)[1]:
+                for obj in ancestor.locals.get(node.name, ()):
                     if isinstance(obj, nodes.FunctionDef):
                         return
             args = (overridden.root().name, overridden.fromlineno)
@@ -1506,9 +1706,15 @@ a metaclass class method.",
                 args=(function_node.name, "non-async", "async"),
                 node=function_node,
             )
+
+        decorators = (
+            parent_function_node.decorators.nodes
+            if parent_function_node.decorators
+            else []
+        )
         if (
             decorated_with(parent_function_node, ["typing.final"])
-            or uninferable_final_decorators(parent_function_node.decorators)
+            or any(is_typing_member(decorator, ("final",)) for decorator in decorators)
         ) and self._py38_plus:
             self.add_message(
                 "overridden-final-method",
@@ -1634,7 +1840,7 @@ a metaclass class method.",
         ancestors_slots_names = {
             slot.value
             for ancestor in node.local_attr_ancestors("__slots__")
-            for slot in ancestor.slots() or []
+            for slot in safe_slots(ancestor) or []
         }
 
         # Slots which are common to `node` and its parent classes
@@ -1735,9 +1941,17 @@ a metaclass class method.",
         self._check_invalid_class_object(node)
 
     def _check_invalid_class_object(self, node: nodes.AssignAttr) -> None:
-        if not node.attrname == "__class__":
+        if node.attrname != "__class__":
             return
-        if isinstance(node.parent, nodes.Tuple):
+        if isinstance(node.parent, (nodes.Tuple, nodes.List)):
+            assign_node = node.parent.parent
+            if not isinstance(assign_node, nodes.Assign) or not isinstance(
+                assign_node.value, (nodes.Tuple, nodes.List)
+            ):
+                # A for-loop or ``with`` tuple target, a nested tuple, or an
+                # unpacked call result: the value assigned to ``__class__``
+                # cannot be pinpointed, keep quiet to avoid false positives.
+                return
             class_index = -1
             for i, elt in enumerate(node.parent.elts):
                 if hasattr(elt, "attrname") and elt.attrname == "__class__":
@@ -1746,9 +1960,17 @@ a metaclass class method.",
                 # This should not happen because we checked that the node name
                 # is '__class__' earlier, but let's not be too confident here
                 return  # pragma: no cover
-            inferred = safe_infer(node.parent.parent.value.elts[class_index])
+            if class_index >= len(assign_node.value.elts):
+                # Unbalanced unpacking, which fails at runtime anyway.
+                return
+            inferred = safe_infer(assign_node.value.elts[class_index])
         else:
-            inferred = safe_infer(node.parent.value)
+            assigned_value = _assigned_value(node)
+            if assigned_value is None:
+                # A for-loop, ``with``, or comprehension target, or a bare
+                # annotation: there is no assigned value to check.
+                return
+            inferred = safe_infer(assigned_value)
         match inferred:
             case nodes.ClassDef() | util.UninferableBase() | None:
                 # If uninferable, we allow it to prevent false positives
@@ -1777,19 +1999,19 @@ a metaclass class method.",
         # what will happen when assigning to an attribute.
         if any(
             base.locals.get("__setattr__")
-            for base in klass.mro()
+            for base in safe_mro(klass)
             if base.qname() != "builtins.object"
         ):
             return
 
         # If 'typing.Generic' is a base of bases of klass, the cached version
         # of 'slots()' might have been evaluated incorrectly, thus deleted cache entry.
-        if any(base.qname() == "typing.Generic" for base in klass.mro()):
+        if any(base.qname() == "typing.Generic" for base in safe_mro(klass)):
             cache = getattr(klass, "__cache", None)
             if cache and cache.get(klass.slots) is not None:
                 del cache[klass.slots]
 
-        slots = klass.slots()
+        slots = safe_slots(klass)
         if slots is None:
             return
         # If any ancestor doesn't use slots, the slots
@@ -1824,10 +2046,15 @@ a metaclass class method.",
                     if _has_data_descriptor(klass, node.attrname):
                         # Descriptors circumvent the slots mechanism as well.
                         return
-                if node.attrname == "__class__" and _has_same_layout_slots(
-                    slots, node.parent.value
-                ):
-                    return
+                if node.attrname == "__class__":
+                    # Without a single assigned value there is no slots layout
+                    # to compare against, e.g. for a for-loop, ``with``, or
+                    # tuple-unpacking target.
+                    assigned_value = _assigned_value(node)
+                    if assigned_value is None:
+                        return
+                    if _has_same_layout_slots(slots, assigned_value):
+                        return
                 self.add_message(
                     "assigning-non-slot",
                     args=(node.attrname,),
@@ -1954,8 +2181,14 @@ a metaclass class method.",
             outer_klass = get_outer_class(outer_klass)
 
         # We are in a class, one remaining valid cases, Klass._attr inside
-        # Klass
-        if not (inside_klass or callee in klass.basenames):
+        # Klass. Also compare against the bases without their subscript, so
+        # that Parent._attr is accepted for a generic base like Parent[T].
+        base_names = {
+            base.value.as_string()
+            for base in klass.bases
+            if isinstance(base, nodes.Subscript)
+        }.union(klass.basenames)
+        if not (inside_klass or callee in base_names):
             # Detect property assignments in the body of the class.
             # This is acceptable:
             #
@@ -2094,7 +2327,26 @@ a metaclass class method.",
                     # it's defined, it's accessed after the initial assignment
                     frame = defstmt.frame()
                     lno = defstmt.fromlineno
+                    access_nodes: dict[_AccessNodes, None] = dict.fromkeys(nodes_lst)
                     for _node in nodes_lst:
+                        method = _node.frame()
+                        if (
+                            frame.name == "__init__"
+                            and isinstance(method, nodes.FunctionDef)
+                            and method.parent is node
+                        ):
+                            # A method called on self before the assignment does
+                            # not see the attribute either: its call sites in
+                            # __init__ stand in for the accesses made inside it.
+                            access_nodes.update(
+                                dict.fromkeys(
+                                    method_attr
+                                    for method_attr in accessed.get(method.name, ())
+                                    if isinstance(method_attr.parent, nodes.Call)
+                                    and method_attr.parent.func is method_attr
+                                )
+                            )
+                    for _node in access_nodes:
                         if (
                             _node.frame() is frame
                             and _node.fromlineno < lno
@@ -2243,6 +2495,9 @@ a metaclass class method.",
             "super-init-not-called"
         ) and not self.linter.is_message_enabled("non-parent-init-called"):
             return
+        # A stub's __init__ body is `...`: there is no call to look for.
+        if is_in_stub_file(node):
+            return
         to_call = _ancestors_to_call(klass_node)
         not_called_yet = dict(to_call)
         parents_with_called_inits: set[bases.UnboundMethod] = set()
@@ -2331,6 +2586,9 @@ a metaclass class method.",
         # Ignore setters, they have an implicit extra argument,
         # which shouldn't be taken in consideration.
         if is_property_setter(method1):
+            return
+        # Ignore overload stubs, only the implementation overrides the method.
+        if is_overload_stub(method1):
             return
 
         arg_differ_output = _different_parameters(

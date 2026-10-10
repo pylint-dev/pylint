@@ -1,0 +1,5 @@
+Fix a ``no-member`` false positive in a comprehension inside a branch that
+cannot run, such as ``if sys.platform == "win32":`` on Linux. Like the rest of
+the branch, the comprehension is no longer checked for missing members.
+
+Closes #7240

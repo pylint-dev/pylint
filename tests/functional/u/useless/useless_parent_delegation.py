@@ -350,6 +350,15 @@ class NotUselessSuperPy3:
     def passing_keyword_only_with_modifications(self, first, *, second):
         return super().passing_keyword_only_with_modifications(first, second + 1)
 
+    def passing_keyword_only_with_modified_value(self, *, first=None):
+        return super().passing_keyword_only_with_modified_value(first=first or "default")
+
+    def passing_keyword_only_with_constant(self, *, first=None):
+        return super().passing_keyword_only_with_constant(first="default")
+
+    def passing_keyword_only_swapped(self, *, first, second):
+        return super().passing_keyword_only_swapped(first=second, second=first)
+
 
 class AlsoNotUselessSuperPy3(NotUselessSuperPy3):
     def not_passing_keyword_only(self, first, *, second="second"):
@@ -449,4 +458,10 @@ class MyDict(dict):
 # object() accepts nothing besides self, so this override really is useless.
 class PlainObject:
     def __init__(self):  # [useless-parent-delegation]
+        super().__init__()
+
+
+# https://github.com/pylint-dev/pylint/issues/9359
+class MyListInit(list):
+    def __init__(self):
         super().__init__()

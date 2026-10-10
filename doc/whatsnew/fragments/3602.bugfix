@@ -1,0 +1,5 @@
+Fix ``pyreverse`` hanging or crashing with a ``RecursionError`` when
+``--all-associated`` (``-S``) follows an attribute whose inferred class is rebuilt by
+astroid on every inference, such as a ``numpy`` array.
+
+Closes #3602

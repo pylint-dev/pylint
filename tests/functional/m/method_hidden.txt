@@ -1,3 +1,7 @@
 method-hidden:20:4:20:12:Cdef.abcd:An attribute defined in functional.m.method_hidden line 14 hides this method:UNDEFINED
 method-hidden:88:4:88:11:One.one:An attribute defined in functional.m.method_hidden line 86 hides this method:UNDEFINED
 method-hidden:116:4:116:18:Child._protected:An attribute defined in functional.m.method_hidden line 111 hides this method:UNDEFINED
+method-hidden:159:4:159:12:BuiltinNameChild.help:An attribute defined in functional.m.method_hidden line 154 hides this method:UNDEFINED
+method-hidden:162:4:162:14:BuiltinNameChild.format:An attribute defined in functional.m.method_hidden line 155 hides this method:UNDEFINED
+method-hidden:172:4:172:15:BuiltinNameSameClass.license:An attribute defined in functional.m.method_hidden line 170 hides this method:UNDEFINED
+method-hidden:186:4:186:13:ModuleFunctionNameChild.color:An attribute defined in functional.m.method_hidden line 182 hides this method:UNDEFINED

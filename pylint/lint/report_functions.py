@@ -56,7 +56,7 @@ def report_messages_by_module_stats(
     by_mod: defaultdict[str, dict[str, int | float]] = collections.defaultdict(dict)
     for m_type in ("fatal", "error", "warning", "refactor", "convention"):
         total = stats.get_global_message_count(m_type)
-        for module in module_stats.keys():
+        for module in module_stats:
             mod_total = stats.get_module_message_count(module, m_type)
             percent = 0 if total == 0 else float(mod_total * 100) / total
             by_mod[module][m_type] = percent

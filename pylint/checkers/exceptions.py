@@ -12,7 +12,7 @@ from collections.abc import Generator
 from typing import TYPE_CHECKING, Any
 
 import astroid
-from astroid import nodes, objects, util
+from astroid import bases, nodes, objects, util
 from astroid.context import InferenceContext
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
@@ -366,6 +366,13 @@ class ExceptionsChecker(checkers.BaseChecker):
         elif not isinstance(cause, nodes.ClassDef) and not utils.inherit_from_std_ex(
             cause
         ):
+            if isinstance(cause, bases.Instance) and not utils.has_known_bases(
+                cause._proxied
+            ):
+                # A base of the cause's class could not be inferred, so whether it
+                # derives from BaseException is unknown. raising-non-exception and
+                # catching-non-exception stay silent in that case too.
+                return
             self.add_message("bad-exception-cause", node=node, confidence=INFERENCE)
 
     def _check_raise_missing_from(self, node: nodes.Raise) -> None:

@@ -77,6 +77,8 @@ class MessageWithOptionsChecker(BaseChecker):
 def test_base_checker_doc() -> None:
     basic = OtherBasicChecker()
     expected_beginning = """\
+.. _basic-checker:
+
 Basic checker
 ~~~~~~~~~~~~~
 
