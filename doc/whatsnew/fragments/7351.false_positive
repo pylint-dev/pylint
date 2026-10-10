@@ -1,0 +1,5 @@
+Fixed a false positive for ``unnecessary-dunder-call`` on calls built from
+``unittest.mock.call``, such as ``call.method.__setitem__(1, 2)``, which
+describe expected calls on a mock.
+
+Closes #7351
