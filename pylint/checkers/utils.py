@@ -930,6 +930,27 @@ def decorated_with(
     return False
 
 
+def _attrs_generated_field_names(
+    obj: nodes.NodeNG, ancestor: nodes.ClassDef
+) -> tuple[str, ...]:
+    """Return attrs-generated field names represented by an Astroid Unknown node."""
+    if not isinstance(obj, nodes.Unknown) or "__attrs_attrs__" not in ancestor.locals:
+        return ()
+
+    assignment = obj.parent
+    if isinstance(assignment, nodes.AnnAssign):
+        if isinstance(assignment.target, nodes.AssignName):
+            return (assignment.target.name,)
+        return ()
+    if isinstance(assignment, nodes.Assign):
+        return tuple(
+            target.name
+            for target in assignment.targets
+            if isinstance(target, nodes.AssignName)
+        )
+    return ()
+
+
 @lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(
     node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef | None = None
@@ -953,6 +974,11 @@ def unimplemented_abstract_methods(
     for ancestor in mro:
         for obj in ancestor.values():
             inferred = obj
+            attrs_field_names = _attrs_generated_field_names(obj, ancestor)
+            if attrs_field_names:
+                for field_name in attrs_field_names:
+                    visited.pop(field_name, None)
+                continue
             if isinstance(obj, nodes.AssignName):
                 inferred = safe_infer(obj)
                 if not inferred:
