@@ -92,3 +92,22 @@ if Z in ("a", "b"):
     pass
 if Z in ("Version " + "String"):
     pass
+
+# Parentheses wrapping an entire ``and``/``or`` condition are superfluous (#10084),
+# but they are required after ``not`` or when the parenthesised expression is an
+# operand of a following binary operator such as ``in``.
+if (A == 5 and B == 3):  # [superfluous-parens]
+    pass
+if (A is None and A is not None):  # [superfluous-parens]
+    pass
+while (A == 5 or B == 3):  # [superfluous-parens]
+    pass
+if not (A == 5 and B == 3):
+    pass
+if (A == 5 or B == 3) in (True, False):
+    pass
+if (A == 5 and B == 3) or Z == "4":
+    pass
+if (A == 5
+        and B == 3):
+    pass
