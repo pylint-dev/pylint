@@ -26,6 +26,7 @@ from pylint.typing import (
     ReportsCallable,
 )
 from pylint.utils import get_rst_section, get_rst_title
+from pylint.utils.utils import _escape_rst_backslashes
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -136,7 +137,8 @@ class BaseChecker(_ArgumentsProvider):
                 msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[0])
             ):
                 msg_def = self.create_message_definition_from_tuple(msgid, msg)
-                result += f"{msg_def.format_help(checkerref=False)}\n"
+                msg_help = msg_def.format_help(checkerref=False)
+                result += f"{_escape_rst_backslashes(msg_help)}\n"
             result += "\n"
         if reports:
             result += get_rst_title(f"{checker_title} Reports", "^")

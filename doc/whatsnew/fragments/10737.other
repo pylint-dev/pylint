@@ -1,0 +1,5 @@
+Backslashes in message and option descriptions are now escaped in the generated
+documentation and in ``--full-documentation``, so ``use "\b" instead`` no longer
+renders as ``use "b" instead``.
+
+Closes #10737
