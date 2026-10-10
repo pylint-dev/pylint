@@ -21,3 +21,13 @@ dangerous-default-value:101:0:101:14:function22:Dangerous default value UserDict
 dangerous-default-value:105:0:105:14:function23:Dangerous default value UserList() as argument:INFERENCE
 dangerous-default-value:109:0:109:14:function24:Dangerous default value [] as argument:INFERENCE
 dangerous-default-value:116:4:116:16:Clazz.__init__:Dangerous default value {} as argument:INFERENCE
+dangerous-default-value:129:0:129:19:call_in_default:Dangerous default value default_key() as argument:INFERENCE
+dangerous-default-value:133:0:133:18:call_in_kwonly:Dangerous default value default_key() as argument:INFERENCE
+dangerous-default-value:137:0:137:18:call_attribute:Dangerous default value 'a'.upper() as argument:INFERENCE
+dangerous-default-value:141:0:141:15:call_nested:Dangerous default value default_key() as argument:INFERENCE
+dangerous-default-value:145:0:145:22:call_in_expression:Dangerous default value len() as argument:INFERENCE
+dangerous-default-value:149:0:149:13:two_calls:Dangerous default value default_key() as argument:INFERENCE
+dangerous-default-value:149:0:149:13:two_calls:Dangerous default value default_key() as argument:INFERENCE
+dangerous-default-value:153:0:153:20:call_async:Dangerous default value default_key() as argument:INFERENCE
+dangerous-default-value:159:4:159:14:WithCall.method:Dangerous default value default_key() as argument:INFERENCE
+dangerous-default-value:163:0:163:30:mutable_call_reported_once:Dangerous default value list() as argument:INFERENCE

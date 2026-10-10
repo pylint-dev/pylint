@@ -16,7 +16,7 @@ from astroid import bases, nodes, objects, util
 
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
-from pylint.interfaces import HIGH, INFERENCE, Confidence
+from pylint.interfaces import HIGH, INFERENCE, UNDEFINED, Confidence
 from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
 
@@ -112,6 +112,32 @@ class BasicChecker(_BasicChecker):
     """
 
     name = "basic"
+    options = (
+        (
+            "allowed-default-calls",
+            {
+                "default": (
+                    "builtins.bool",
+                    "builtins.bytes",
+                    "builtins.complex",
+                    "builtins.float",
+                    "builtins.frozenset",
+                    "builtins.int",
+                    "builtins.object",
+                    "builtins.range",
+                    "builtins.str",
+                    "builtins.tuple",
+                ),
+                "type": "csv",
+                "metavar": "<comma separated list>",
+                "help": "List of qualified names (i.e., library.function) of calls "
+                "that are allowed in default arguments, because they return an "
+                "immutable value or are meant to run once, e.g. "
+                "'fastapi.Depends,fastapi.Query'. A name that cannot be inferred is "
+                "matched as written in the source.",
+            },
+        ),
+    )
     msgs = {
         "W0101": (
             "Unreachable code",
@@ -123,7 +149,9 @@ class BasicChecker(_BasicChecker):
             "Dangerous default value %s as argument",
             "dangerous-default-value",
             "Used when a mutable value as list or dictionary is detected in "
-            "a default value for an argument.",
+            "a default value for an argument, or when a function call is used "
+            "as a default value: it is evaluated once, when the function is "
+            "defined, and not on each call.",
         ),
         "W0104": (
             "Statement seems to have no effect",
@@ -609,10 +637,60 @@ class BasicChecker(_BasicChecker):
     def _check_dangerous_default(
         self, default: nodes.NodeNG, msg_node: nodes.NodeNG
     ) -> None:
-        """Emit dangerous-default-value if the inferred default is mutable."""
+        """Emit dangerous-default-value for a mutable default or a call in it."""
+        if not self._check_mutable_default(default, msg_node):
+            self._check_default_calls(default, msg_node)
+
+    def _check_default_calls(
+        self, default: nodes.NodeNG, msg_node: nodes.NodeNG
+    ) -> None:
+        """Emit dangerous-default-value for each call evaluated at definition time."""
+        # The body of a lambda only runs when it is called, so the calls
+        # inside it are not evaluated at definition time.
+        if isinstance(default, nodes.Lambda):
+            return
+        allowed = self.linter.config.allowed_default_calls
+        for call in default.nodes_of_class(nodes.Call, skip_klass=nodes.Lambda):
+            written_name = call.func.as_string()
+            if written_name in allowed:
+                continue
+            inferred = utils.safe_infer(call.func)
+            if (
+                isinstance(inferred, (nodes.LocalsDictNodeNG, bases.Proxy))
+                and inferred.qname() in allowed
+            ):
+                continue
+            if isinstance(inferred, nodes.ClassDef) and self._inherits_from_allowed(
+                inferred, allowed
+            ):
+                continue
+            self.add_message(
+                "dangerous-default-value",
+                node=msg_node,
+                args=(f"{written_name}()",),
+                confidence=INFERENCE if inferred else UNDEFINED,
+            )
+
+    @staticmethod
+    def _inherits_from_allowed(klass: nodes.ClassDef, allowed: list[str]) -> bool:
+        """Whether the class derives from an allowed call, e.g. a frozenset
+        subclass.
+        """
+        try:
+            return any(base.qname() in allowed for base in klass.ancestors())
+        except astroid.InferenceError:  # pragma: no cover
+            return False
+
+    def _check_mutable_default(
+        self, default: nodes.NodeNG, msg_node: nodes.NodeNG
+    ) -> bool:
+        """Emit dangerous-default-value if the inferred default is mutable.
+
+        Return whether the message was emitted.
+        """
         value = utils.safe_infer(default)
         if not isinstance(value, astroid.Instance):
-            return
+            return False
         qname = value.qname()
         if qname not in DEFAULT_ARGUMENT_SYMBOLS:
             # The inferred type itself isn't a known mutable, but it might
@@ -627,9 +705,9 @@ class BasicChecker(_BasicChecker):
                     "",
                 )
             except astroid.InferenceError:  # pragma: no cover
-                return
+                return False
             if not qname:
-                return
+                return False
         if value is default:
             # Literal: [], {}, {1, 2}
             msg = DEFAULT_ARGUMENT_SYMBOLS[qname]
@@ -645,6 +723,7 @@ class BasicChecker(_BasicChecker):
             args=(msg,),
             confidence=INFERENCE,
         )
+        return True
 
     @utils.only_required_for_messages("unreachable", "lost-exception")
     def visit_return(self, node: nodes.Return) -> None:

@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, use-list-literal, use-dict-literal
+# pylint: disable=missing-docstring, use-list-literal, use-dict-literal, line-too-long, unnecessary-lambda-assignment, unnecessary-lambda
 import collections
 
 HEHE = {}
@@ -120,3 +120,61 @@ class Clazz:
         kk: dict = {},
     ) -> None:
         pass
+
+
+def default_key() -> str:
+    return f"{collections.OrderedDict()}.json"
+
+
+def call_in_default(key=default_key()):  # [dangerous-default-value]
+    return key
+
+
+def call_in_kwonly(*, key=default_key()):  # [dangerous-default-value]
+    return key
+
+
+def call_attribute(name="a".upper()):  # [dangerous-default-value]
+    return name
+
+
+def call_nested(values=(default_key(),)):  # [dangerous-default-value]
+    return values
+
+
+def call_in_expression(value=1 + len("abc")):  # [dangerous-default-value]
+    return value
+
+
+def two_calls(a=default_key(), b=default_key()):  # [dangerous-default-value, dangerous-default-value]
+    return a, b
+
+
+async def call_async(key=default_key()):  # [dangerous-default-value]
+    return key
+
+
+class WithCall:
+    # pylint: disable=too-few-public-methods
+    def method(self, key=default_key()):  # [dangerous-default-value]
+        return key
+
+
+def mutable_call_reported_once(value=list()):  # [dangerous-default-value]
+    return value
+
+
+def immutable_calls(a=tuple(), b=frozenset(), c=int("1"), d=str(), e=object()):
+    return a, b, c, d, e
+
+
+def callable_defaults(factory=default_key, callback=lambda: default_key()):
+    return factory, callback
+
+
+class FrozenStore(frozenset):
+    pass
+
+
+def subclass_of_immutable(store=FrozenStore()):
+    return store
