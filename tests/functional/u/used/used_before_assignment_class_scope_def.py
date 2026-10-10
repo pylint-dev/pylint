@@ -1,0 +1,129 @@
+"""A class body may use a module-level or builtin name that a later method shadows.
+
+Names in a class body are looked up in the class namespace first and then in the
+globals and builtins. A ``def`` or ``class`` further down the class body has not
+run yet, so it does not shadow the outer name at that point.
+
+https://github.com/pylint-dev/pylint/issues/9134
+"""
+# pylint: disable=missing-class-docstring,missing-function-docstring
+# pylint: disable=too-few-public-methods,invalid-name,unused-argument
+import operator
+from datetime import timezone
+from functools import cached_property
+from os import path
+from string import Template
+
+
+class ModuleNameShadowedByMethod:
+    joined = path.join("a", "b")
+
+    def path(self):
+        return self
+
+
+class ModuleNameShadowedByNestedClass:
+    joined = path.join("a", "b")
+
+    class path:
+        pass
+
+
+class ModuleNameShadowedByAsyncMethod:
+    joined = path.join("a", "b")
+
+    async def path(self):
+        return self
+
+
+class ModuleClassShadowedByMethod:
+    template = Template("$a")
+
+    def Template(self):
+        return self
+
+
+class ModuleNameUsedInDecorator:
+    @staticmethod
+    def make(arg=path.join("a")):
+        return arg
+
+    def path(self):
+        return self
+
+
+class BuiltinShadowedByMethod:
+    length = len("abc")
+
+    def len(self):
+        return self
+
+
+class ModuleNameShadowedByProperty:
+    equals = operator.eq
+
+    @property
+    def operator(self):
+        return self.equals
+
+
+class ModuleNameShadowedByCachedProperty:
+    default = timezone.utc
+
+    @cached_property
+    def timezone(self):
+        return self.default
+
+
+class NameOnlyDefinedByLaterMethod:
+    joined = missing.join("a")  # [used-before-assignment]
+
+    def missing(self):
+        return self
+
+
+class NameUsedInsideMethodBody:
+    def method(self):
+        return path.join("a"), Template("$a"), operator.eq, timezone.utc
+
+    def path(self):
+        return self
+
+
+class NameUsedAfterMethod:
+    def path(self):
+        return self
+
+    joined = path(None)
+
+
+class ModuleNameDefinedAfterClass:
+    value = defined_later(1)  # [used-before-assignment]
+
+    def defined_later(self):
+        return self
+
+
+defined_later = len
+
+
+class ModuleNameDefinedAfterClassByAssignment:
+    # Known false negative, the same as for any other assignment in a class body.
+    value = assigned_later(1)
+
+    assigned_later = 2
+
+
+assigned_later = len
+
+
+def enclosing_function():
+    from os import sep  # pylint: disable=import-outside-toplevel,unused-import
+
+    class Inner:
+        joined = sep.join("a")  # [used-before-assignment]
+
+        def sep(self):
+            return self
+
+    return Inner
