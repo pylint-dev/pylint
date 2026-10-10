@@ -1,0 +1,5 @@
+Fix a false positive for ``invalid-overridden-method`` when overriding
+``Enum.value``, ``Enum.name``, or other attributes decorated with
+``types.DynamicClassAttribute`` or custom property subclasses.
+
+Closes #9905
