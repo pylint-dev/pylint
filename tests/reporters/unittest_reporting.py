@@ -304,8 +304,8 @@ def test_multi_format_output(tmp_path: Path) -> None:
         "\n"
         "\n"
         "\n"
-        "-----------------------------------\n"
-        "Your code has been rated at 0.00/10\n"
+        "----------------------------------------------------------------------\n"
+        "Your code has been rated at 0.00/10 -- below fail-under threshold (10)\n"
         "\n"
         "direct output\n"
     )
