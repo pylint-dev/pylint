@@ -32,10 +32,10 @@ from pylint.checkers.utils import (
     is_comprehension,
     is_in_stub_file,
     is_iterable,
+    is_module_member,
     is_overload_stub,
     is_property_setter,
     is_property_setter_or_deleter,
-    is_typing_member,
     node_frame_class,
     only_required_for_messages,
     safe_infer,
@@ -1168,7 +1168,8 @@ a metaclass class method.",
             if isinstance(ancestor, nodes.ClassDef):
                 decorators = ancestor.decorators.nodes if ancestor.decorators else []
                 if decorated_with(ancestor, ["typing.final"]) or any(
-                    is_typing_member(decorator, ("final",)) for decorator in decorators
+                    is_module_member(decorator, "typing.final")
+                    for decorator in decorators
                 ):
                     self.add_message(
                         "subclassed-final-class",
@@ -1714,7 +1715,9 @@ a metaclass class method.",
         )
         if (
             decorated_with(parent_function_node, ["typing.final"])
-            or any(is_typing_member(decorator, ("final",)) for decorator in decorators)
+            or any(
+                is_module_member(decorator, "typing.final") for decorator in decorators
+            )
         ) and self._py38_plus:
             self.add_message(
                 "overridden-final-method",
