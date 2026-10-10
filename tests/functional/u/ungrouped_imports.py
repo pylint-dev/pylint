@@ -33,6 +33,21 @@ if TYPE_CHECKING:
     import re
     from typing import List
 
+# Imports in a version guard should not either, however `sys.version_info`
+# is spelled
+from sys import version_info
+if version_info >= (3, 9):
+    from typing import Any
+if (3, 9) <= version_info:
+    from os import altsep
+if version_info[:2] >= (3, 9):
+    from typing import Optional
+
+# Another package's version says nothing about the interpreter
+from astroid import __version__ as astroid_version
+if astroid_version >= (3, 9):
+    from os import devnull  # [ungrouped-imports]
+
 
 # https://github.com/pylint-dev/pylint/issues/10460
 # Imports in mutually exclusive OS guard branches (`os.name` / `sys.platform`)

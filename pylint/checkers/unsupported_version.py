@@ -14,7 +14,7 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
-    is_typing_member,
+    is_module_member,
     only_required_for_messages,
 )
 from pylint.interfaces import HIGH
@@ -124,7 +124,7 @@ class UnsupportedVersionChecker(BaseChecker):
         decorators = [
             decorator
             for decorator in node.get_children()
-            if is_typing_member(decorator, ("final",))
+            if is_module_member(decorator, "typing.final")
         ]
 
         for decorator in decorators:
