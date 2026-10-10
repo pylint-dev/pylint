@@ -25,3 +25,9 @@ with one as first:
 # ambiguous looking with statement
 with one as first, two:  # [confusing-with-statement]
     pass
+
+
+async def test_async_with(cm1, cm2):
+    """async with has the same ambiguity as with"""
+    async with cm1 as _a, cm2:  # [confusing-with-statement]
+        pass
