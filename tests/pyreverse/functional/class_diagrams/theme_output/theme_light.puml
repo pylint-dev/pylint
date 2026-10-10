@@ -1,0 +1,10 @@
+@startuml classes
+set namespaceSeparator none
+class "Animal" as theme_light.Animal {
+  {abstract}speak()
+}
+class "Dog" as theme_light.Dog {
+  speak()
+}
+theme_light.Dog --|> theme_light.Animal
+@enduml
