@@ -242,7 +242,7 @@ Standard Checkers
 
 --init-hook
 """""""""""
-*Python code to execute, usually for sys.path manipulation such as pygtk.require().*
+*Python code to execute, usually for sys.path manipulation such as pygtk.require(). A common use is to make a virtual environment's site-packages importable, so pylint does not analyse against the system interpreter's packages and report spurious no-name-in-module errors, for example: init-hook='import sys; sys.path.append("/path/to/venv/lib/python3.11/site-packages/")'*
 
 **Default:**  ``None``
 
