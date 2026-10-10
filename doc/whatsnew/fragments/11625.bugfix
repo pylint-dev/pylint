@@ -1,0 +1,4 @@
+Fix a crash in the ``duplicate-code`` checker when ``min-similarity-lines`` is set to ``0``.
+The checker is now disabled in that case, as documented.
+
+Closes #11625

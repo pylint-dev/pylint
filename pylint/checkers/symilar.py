@@ -752,7 +752,10 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
 
     name = "similarities"
     msgs = MSGS
-    MIN_SIMILARITY_HELP = "Minimum lines number of a similarity."
+    MIN_SIMILARITY_HELP = (
+        "Minimum lines number of a similarity. Setting it to 0 will disable the "
+        "check, but you should use disable=duplicate-code instead."
+    )
     IGNORE_COMMENTS_HELP = "Comments are removed from the similarity computation"
     IGNORE_DOCSTRINGS_HELP = "Docstrings are removed from the similarity computation"
     IGNORE_IMPORTS_HELP = "Imports are removed from the similarity computation"
@@ -830,6 +833,8 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
 
         stream must implement the readlines method
         """
+        if self.namespace.min_similarity_lines == 0:
+            return
         if self.linter.current_name is None:
             # TODO: 4.0 Fix current_name
             warnings.warn(
