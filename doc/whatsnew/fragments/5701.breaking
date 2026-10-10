@@ -1,0 +1,10 @@
+``pylint`` invoked without any module or package now lints the current working
+directory, as if ``pylint .`` had been run, instead of exiting with code 32 and
+``No files to lint: exiting.``. The ``files`` option, which now defaults to ``.``,
+still sets what to lint from the configuration file. The help is still available
+with ``pylint --help`` or ``pylint --long-help``. ``--from-stdin`` still requires
+a file name, and now exits with code 32 instead of a traceback when it is missing.
+When every message is disabled (``--disable=all``), pylint now prints
+``No messages to check: exiting.``.
+
+Closes #5701
