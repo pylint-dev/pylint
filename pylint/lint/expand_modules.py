@@ -97,7 +97,7 @@ def expand_modules(
             }
             continue
         # On Windows, differently cased initializer paths still name the package.
-        if os.path.normcase(basename) == "__init__.py":
+        if sys.platform == "win32" and os.path.normcase(basename) == "__init__.py":
             basename = "__init__.py"
             something = os.path.join(os.path.dirname(something), basename)
         module_package_path = discover_package_path(something, source_roots)

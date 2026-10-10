@@ -7,12 +7,15 @@ from __future__ import annotations
 import copy
 import os
 import re
+import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
+import pylint.lint.expand_modules as expand_modules_module
 from pylint.checkers import BaseChecker
 from pylint.lint.expand_modules import _is_in_ignore_list_re, expand_modules
 from pylint.testutils import CheckerTestCase, set_config
@@ -380,6 +383,9 @@ def test_case_insensitive_package_initializer(
     supplied = package / initializer_name
     supplied.write_text("", encoding="utf-8")
     # Model Windows name comparison on every host; both spellings exist on POSIX.
+    monkeypatch.setattr(
+        expand_modules_module, "sys", SimpleNamespace(platform="win32", path=sys.path)
+    )
     monkeypatch.setattr(os.path, "normcase", str.casefold)
 
     expected, expected_errors = expand_modules(
@@ -400,7 +406,16 @@ def test_case_sensitive_initializer_spelling_is_preserved(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """On case-sensitive hosts, a differently spelled file is an ordinary module."""
-    monkeypatch.setattr(os.path, "normcase", lambda path: path)
+    monkeypatch.setattr(
+        expand_modules_module, "sys", SimpleNamespace(platform="linux", path=sys.path)
+    )
+    normcase_calls = []
+
+    def normcase(path: str) -> str:
+        normcase_calls.append(path)
+        return path
+
+    monkeypatch.setattr(os.path, "normcase", normcase)
     package = tmp_path / "package"
     package.mkdir()
     (package / "__init__.py").write_text("", encoding="utf-8")
@@ -411,3 +426,4 @@ def test_case_sensitive_initializer_spelling_is_preserved(
 
     assert not errors
     assert modules[str(module)]["name"] == "package.__Init__"
+    assert "__Init__.py" not in normcase_calls
