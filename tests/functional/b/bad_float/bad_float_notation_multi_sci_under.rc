@@ -1,0 +1,4 @@
+[main]
+enable=bad-float-notation
+float-notation-style=scientific,underscore
+float-notation-threshold=1e6
