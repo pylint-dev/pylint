@@ -29,3 +29,6 @@ invalid-envvar-default:79:0:79:36::os.getenv default type is builtins.bytes. Exp
 invalid-envvar-default:80:0:80:36::os.getenv default type is builtins.list. Expected str or None.:UNDEFINED
 invalid-envvar-default:81:0:81:53::os.getenv default type is builtins.list. Expected str or None.:UNDEFINED
 invalid-envvar-default:84:0:84:54::os.getenv default type is builtins.bytes. Expected str or None.:UNDEFINED
+invalid-envvar-value:86:0:86:26::os.getenv does not support builtins.bytes type argument:UNDEFINED
+invalid-envvar-default:88:0:88:39::os.getenv default type is builtins.bytes. Expected str or None.:UNDEFINED
+invalid-envvar-default:89:0:89:46::os.getenv default type is builtins.list. Expected str or None.:UNDEFINED

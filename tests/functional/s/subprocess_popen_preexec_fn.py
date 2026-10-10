@@ -9,3 +9,10 @@ def foo():
 subprocess.Popen(preexec_fn=foo) # [subprocess-popen-preexec-fn]
 
 subprocess.Popen()
+subprocess.Popen(**{"preexec_fn": foo})  # [subprocess-popen-preexec-fn]
+subprocess.Popen(["ls"], **{"text": True, "preexec_fn": foo})  # [subprocess-popen-preexec-fn]
+subprocess.Popen(["ls"], **{"text": True})
+
+
+def popen_with_opaque_options(options):
+    return subprocess.Popen(["ls"], **options)

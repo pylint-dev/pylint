@@ -2777,16 +2777,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             case _:
                 return
 
-        preliminary_confidence = HIGH
-        try:
-            iterable_arg = utils.get_argument_from_call(
-                node.iter, position=0, keyword="iterable"
-            )
-        except utils.NoSuchArgumentError:
-            iterable_arg = utils.infer_kwarg_from_call(node.iter, keyword="iterable")
-            preliminary_confidence = INFERENCE
+        iterable_argument = utils.find_call_argument(
+            node.iter, keyword="iterable", position=0
+        )
+        preliminary_confidence = iterable_argument.confidence
 
-        if not isinstance(iterable_arg, nodes.Name):
+        if not isinstance(iterable_argument.value, nodes.Name):
             return
 
         match node.target:
@@ -2813,7 +2809,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             else confidence
         )
 
-        iterating_object_name = iterable_arg.name
+        iterating_object_name = iterable_argument.value.name
 
         # Store potential violations. These will only be reported if we don't
         # discover any writes to the collection during the loop.
