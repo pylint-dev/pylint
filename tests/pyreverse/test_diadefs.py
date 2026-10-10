@@ -343,10 +343,16 @@ def test_all_associated_with_classes_rebuilt_on_each_inference(
     Some astroid brains (e.g. the one for ``numpy.ndarray``) return a new ``ClassDef``
     on every inference, whose attributes infer to yet another copy of it.
     ``--all-associated`` used to follow these copies until hitting the recursion limit.
+    All the copies must be drawn as one class that every holder is linked to.
     """
     module = parse(
         """
     class Holder:
+        def __init__(self):
+            self.fresh = make_fresh()
+            self.other = OtherHolder()
+
+    class OtherHolder:
         def __init__(self):
             self.fresh = make_fresh()
     """,
@@ -359,9 +365,16 @@ def test_all_associated_with_classes_rebuilt_on_each_inference(
 
     diagram = handler.get_diadefs(project, Linker(project))[-1]
 
-    assert sorted(obj.title for obj in diagram.objects) == ["Fresh", "Holder"]
+    assert sorted(obj.title for obj in diagram.objects) == [
+        "Fresh",
+        "Holder",
+        "OtherHolder",
+    ]
     assert _process_relations(diagram.relationships) == [
-        ("composition", "Fresh", "Holder")
+        ("composition", "Fresh", "Fresh"),
+        ("composition", "Fresh", "Holder"),
+        ("composition", "Fresh", "OtherHolder"),
+        ("composition", "OtherHolder", "Holder"),
     ]
 
 
