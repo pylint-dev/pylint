@@ -1,0 +1,4 @@
+Stop emitting :ref:`redefined-variable-type` when the bare ``_`` variable is
+reused to discard values of different types.
+
+Closes #10374

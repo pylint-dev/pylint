@@ -108,3 +108,20 @@ class AsyncFunctions:
     async def funtion2(self):
         potato = {}
         print(potato)
+
+
+# The bare ``_`` discards unrelated values, so its type may change
+# https://github.com/pylint-dev/pylint/issues/10374
+
+_ = []
+_ = object()
+
+def discard_in_function():
+    _ = []
+    _ = object()
+
+
+class UnderscoreAttribute:
+    def __init__(self):
+        self._ = []
+        self._ = object()  # [redefined-variable-type]
