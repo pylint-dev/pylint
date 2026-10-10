@@ -1308,6 +1308,7 @@ class PyLinter(
             self.reporter.display_reports(sect)
         return note
 
+    # pylint: disable-next=too-many-arguments
     def _add_one_message(
         self,
         message_definition: MessageDefinition,
@@ -1318,6 +1319,8 @@ class PyLinter(
         col_offset: int | None,
         end_lineno: int | None,
         end_col_offset: int | None,
+        module: str | None = None,
+        filepath: str | None = None,
     ) -> None:
         """After various checks have passed a single Message is
         passed to the reporter and added to stats.
@@ -1371,11 +1374,15 @@ class PyLinter(
             msg %= args
         # get module and object
         if node is None:
-            module, obj = self.current_name, ""
+            _module, obj = self.current_name, ""
             abspath = self.current_file
         else:
-            module, obj = utils.get_module_and_frameid(node)
+            _module, obj = utils.get_module_and_frameid(node)
             abspath = node.root().file
+        if module is not None:
+            _module = module
+        if filepath is not None:
+            abspath = filepath
         if abspath is not None:
             path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
         else:
@@ -1388,7 +1395,7 @@ class PyLinter(
                 MessageLocationTuple(
                     abspath or "",
                     path,
-                    module or "",
+                    _module or "",
                     obj,
                     line or 1,
                     col_offset or 0,
@@ -1400,6 +1407,7 @@ class PyLinter(
             )
         )
 
+    # pylint: disable-next=too-many-arguments
     def add_message(
         self,
         msgid: str,
@@ -1410,6 +1418,8 @@ class PyLinter(
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
+        module: str | None = None,
+        filepath: str | None = None,
     ) -> None:
         """Adds a message given by ID or name.
 
@@ -1418,6 +1428,9 @@ class PyLinter(
         AST checkers must provide the node argument (but may optionally
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
+
+        The module and filepath parameters allow overriding the module name
+        and file path reported in the message location.
         """
         confidence = _confidence_or_undefined(confidence, stacklevel=2)
         message_definitions = self.msgs_store.get_message_definitions(msgid)
@@ -1431,6 +1444,8 @@ class PyLinter(
                 col_offset,
                 end_lineno,
                 end_col_offset,
+                module=module,
+                filepath=filepath,
             )
 
     def add_ignored_message(
