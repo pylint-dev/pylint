@@ -4,6 +4,7 @@
 # pylint: disable=no-self-argument, undefined-variable, unused-variable
 
 import os
+from typing import Generic, TypeVar
 
 # Test that exclude-protected can be used to exclude names from protected-access warning
 class Protected:
@@ -40,3 +41,18 @@ print(os._exit)
 # and does not emit a `protected-access` message:
 class BaseTomato:
     _sauce = 42
+
+
+# Calling a protected method through a subscripted generic base is fine,
+# as it is for a plain base class.
+T = TypeVar("T")
+
+
+class GenericParent(Generic[T]):
+    def _foo(self):
+        pass
+
+
+class GenericChild(GenericParent[T]):
+    def _foo(self):
+        GenericParent._foo(self)

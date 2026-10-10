@@ -2181,8 +2181,13 @@ a metaclass class method.",
             outer_klass = get_outer_class(outer_klass)
 
         # We are in a class, one remaining valid cases, Klass._attr inside
-        # Klass
-        if not (inside_klass or callee in klass.basenames):
+        # Klass. Compare against the bases without their subscript, so that
+        # Parent._attr is accepted for a generic base like Parent[T].
+        base_names = {
+            (base.value if isinstance(base, nodes.Subscript) else base).as_string()
+            for base in klass.bases
+        }
+        if not (inside_klass or callee in base_names):
             # Detect property assignments in the body of the class.
             # This is acceptable:
             #
