@@ -1,0 +1,2 @@
+no-member:9:6:9:23::Class 'str' has no 'nonexistent' member:INFERENCE
+no-member:12:6:12:26::Class 'str' has no '__value__' member:INFERENCE
