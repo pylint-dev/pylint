@@ -262,6 +262,51 @@ def _fix_dot_imports(
     return sorted(names.items(), key=lambda a: a[1].fromlineno)
 
 
+def _unused_sibling_submodule_imports(
+    module: nodes.Module, name: str
+) -> list[nodes.NodeNG]:
+    """Return the ``import pkg.a`` statements hidden by a used ``import pkg.b``.
+
+    Both bind ``pkg``, so using either one consumes them all (#2583).
+    """
+    imported = {
+        dotted: stmt
+        for stmt in module.locals[name]
+        if isinstance(stmt, nodes.Import)
+        for dotted, alias in stmt.names
+        if alias is None and dotted.startswith(f"{name}.")
+    }
+    statements = list(dict.fromkeys(imported.values()))
+    if len(statements) < 2:
+        return []
+    used = set()
+    for use in module.nodes_of_class(nodes.Name):
+        if use.name != name:
+            continue
+        access: nodes.NodeNG = use
+        while isinstance(access.parent, nodes.Attribute):
+            access = access.parent
+        path = f"{access.as_string()}."
+        reached = [dotted for dotted in imported if path.startswith(f"{dotted}.")]
+        if not reached:
+            # e.g. a bare ``pkg``: it could reach any sibling
+            return []
+        used.add(imported[max(reached, key=len)])
+    return [stmt for stmt in statements if stmt not in used]
+
+
+def _recover_unreferenced_dotted_imports(
+    node: nodes.Module, not_consumed: Consumption
+) -> None:
+    """Re-flag sibling submodule imports a used sibling wrongly consumed (#2583)."""
+    for name in node.locals:
+        if name in not_consumed:
+            continue
+        unused = _unused_sibling_submodule_imports(node, name)
+        if unused:
+            not_consumed[name] = unused
+
+
 def _find_frame_imports(name: str, frame: nodes.LocalsDictNodeNG) -> bool:
     """Detect imports in the frame, with the required *name*.
 
@@ -1538,7 +1583,7 @@ class VariablesChecker(BaseChecker):
         if not self.linter.config.init_import and node.package:
             return
 
-        self._check_imports(not_consumed)
+        self._check_imports(node, not_consumed)
         self._type_annotation_names = []
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
@@ -3417,7 +3462,8 @@ class VariablesChecker(BaseChecker):
                 self.add_message("unused-variable", args=(name,), node=node)
 
     # pylint: disable = too-many-branches
-    def _check_imports(self, not_consumed: Consumption) -> None:
+    def _check_imports(self, node: nodes.Module, not_consumed: Consumption) -> None:
+        _recover_unreferenced_dotted_imports(node, not_consumed)
         local_names = _fix_dot_imports(not_consumed)
         checked = set()
         unused_wildcard_imports: defaultdict[
