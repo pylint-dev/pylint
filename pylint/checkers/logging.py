@@ -330,7 +330,10 @@ class LoggingChecker(checkers.BaseChecker):
         format_string = node.args[format_arg].value
         required_num_args = 0
         if isinstance(format_string, bytes):
-            format_string = format_string.decode()
+            # ``logging`` applies ``str()`` to the message before interpolation,
+            # so mirror that here. ``bytes.decode()`` would raise
+            # ``UnicodeDecodeError`` on non-UTF-8 bytes and crash the checker.
+            format_string = str(format_string)
         if isinstance(format_string, str):
             try:
                 if self._format_style == "old":
