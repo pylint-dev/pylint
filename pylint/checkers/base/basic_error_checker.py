@@ -561,6 +561,8 @@ class BasicErrorChecker(_BasicChecker):
         self, node: nodes.Continue | nodes.Break, node_name: str
     ) -> None:
         """Check that a node is inside a for or while loop."""
+        in_finally = False
+        child: nodes.NodeNG = node
         for parent in node.node_ancestors():
             if isinstance(parent, (nodes.For, nodes.While)):
                 if node not in parent.orelse:
@@ -568,18 +570,19 @@ class BasicErrorChecker(_BasicChecker):
 
             if isinstance(parent, (nodes.ClassDef, nodes.FunctionDef)):
                 break
+            # The statement can be nested anywhere in the finally clause,
+            # e.g. under an ``if``, as long as the loop it exits is outside.
             if (
-                isinstance(parent, nodes.Try)
-                and node in parent.finalbody
-                and isinstance(node, nodes.Continue)
+                not in_finally
+                and isinstance(parent, nodes.Try)
+                and child in parent.finalbody
             ):
-                self.add_message("continue-in-finally", node=node)
-            if (
-                isinstance(parent, nodes.Try)
-                and node in parent.finalbody
-                and isinstance(node, nodes.Break)
-            ):
-                self.add_message("break-in-finally", node=node)
+                in_finally = True
+                if isinstance(node, nodes.Continue):
+                    self.add_message("continue-in-finally", node=node)
+                else:
+                    self.add_message("break-in-finally", node=node)
+            child = parent
 
         self.add_message("not-in-loop", node=node, args=node_name)
 

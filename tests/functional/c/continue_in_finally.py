@@ -21,3 +21,46 @@ while True:
         pass
     else:
         continue
+
+
+def nested_in_finally(items, lock):
+    for item in items:
+        try:
+            pass
+        finally:
+            if item:
+                continue  # [continue-in-finally]
+            with lock:
+                break  # [break-in-finally]
+
+
+def nested_try_finally_in_finally(items):
+    for _ in items:
+        try:
+            pass
+        finally:
+            try:
+                pass
+            finally:
+                break  # [break-in-finally]
+
+
+def loop_inside_finally(items):
+    try:
+        pass
+    finally:
+        for item in items:
+            if item:
+                continue
+            break
+
+
+def break_in_except_not_finally(items):
+    for _ in items:
+        try:
+            pass
+        except Exception:
+            if items:
+                break
+        finally:
+            pass

@@ -1,0 +1,5 @@
+``break-in-finally`` and ``continue-in-finally`` are now emitted when the
+statement is nested inside the ``finally`` clause, for example under an ``if``
+or ``with``, matching the ``SyntaxWarning`` raised by Python 3.14.
+
+Refs #99999
