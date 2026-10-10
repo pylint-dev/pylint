@@ -94,6 +94,9 @@ class MultipleTypesChecker(BaseChecker):
         target = node.targets[0]
         if isinstance(target, (nodes.Tuple, nodes.Subscript)):
             return
+        # The bare underscore conventionally discards unrelated results.
+        if isinstance(target, nodes.AssignName) and target.name == "_":
+            return
         # ignore NoneType
         if is_none(node):
             return
