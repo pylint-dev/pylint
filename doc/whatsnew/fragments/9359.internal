@@ -1,0 +1,4 @@
+Add a regression test for the ``useless-parent-delegation`` false positive on a
+parameterless ``__init__`` delegating to ``list.__init__``, which no longer occurs.
+
+Closes #9359

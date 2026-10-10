@@ -1,0 +1,4 @@
+Add a regression test for the ``arguments-differ`` false positive on a dataclass
+``__post_init__`` override that receives ``InitVar`` fields, which no longer occurs.
+
+Closes #9804

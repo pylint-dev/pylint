@@ -1,0 +1,4 @@
+Add a regression test for the ``invalid-sequence-index`` false positive when
+indexing with ``range.start`` / ``range.stop``, which no longer occurs.
+
+Closes #9683
