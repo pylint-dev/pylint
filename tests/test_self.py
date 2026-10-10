@@ -211,13 +211,34 @@ class TestRunTC:
     def test_nonexistent_config_file(self) -> None:
         self._runtest(["--rcfile=/tmp/this_file_does_not_exist"], code=32)
 
-    def test_error_missing_arguments(self) -> None:
-        self._runtest([], code=32)
+    def test_no_argument_lints_current_directory(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """``pylint`` alone lints the current working directory, like ``pylint .``."""
+        (tmp_path / "module.py").write_text("import os\n", encoding="utf-8")
+        monkeypatch.chdir(tmp_path)
+        args = ["--disable=all", "--enable=unused-import"]
+        out = StringIO()
+        self._runtest(args, out=out, code=4)
+        assert (
+            "module.py:1:0: W0611: Unused import os (unused-import)" in out.getvalue()
+        )
+        out_with_dot = StringIO()
+        self._runtest([".", *args], out=out_with_dot, code=4)
+        assert out.getvalue() == out_with_dot.getvalue()
+
+    def test_no_files_in_configuration(self, tmp_path: Path) -> None:
+        """An explicitly empty ``files`` option means there is nothing to lint."""
+        config = tmp_path / "pylintrc"
+        config.write_text("[MAIN]\nfiles =\n", encoding="utf-8")
+        out = StringIO()
+        self._runtest([f"--rcfile={config}"], out=out, code=32)
+        assert "No files to lint: exiting." in out.getvalue().strip()
 
     def test_disable_all(self) -> None:
         out = StringIO()
         self._runtest([UNNECESSARY_LAMBDA, "--disable=all"], out=out, code=32)
-        assert "No files to lint: exiting." in out.getvalue().strip()
+        assert "No messages to check: exiting." in out.getvalue().strip()
 
     def test_disable_all_enable_invalid(self) -> None:
         # Reproduces issue #9403. If disable=all is used no error was raised for invalid messages unless
@@ -575,8 +596,9 @@ class TestRunTC:
         )
 
     def test_no_crash_with_formatting_regex_defaults(self) -> None:
+        path = join(HERE, "regrtest_data", "empty.py")
         self._runtest(
-            ["--ignore-patterns=a"], reporter=TextReporter(StringIO()), code=32
+            [path, "--ignore-patterns=a"], reporter=TextReporter(StringIO()), code=0
         )
 
     def test_getdefaultencoding_crashes_with_lc_ctype_utf8(self) -> None:
@@ -629,8 +651,11 @@ class TestRunTC:
             )
             assert mock_stdin.call_count == 1
 
-    def test_stdin_missing_modulename(self) -> None:
-        self._runtest(["--from-stdin"], code=32)
+    @pytest.mark.parametrize("args", [[], ["."], ["a.py", "b.py"]])
+    def test_stdin_missing_modulename(self, args: list[str]) -> None:
+        out = StringIO()
+        self._runtest(["--from-stdin", *args], out=out, code=32)
+        assert "Missing filename required for --from-stdin" in out.getvalue()
 
     @pytest.mark.parametrize("write_bpy_to_disk", [False, True])
     def test_relative_imports(self, write_bpy_to_disk: bool, tmp_path: Path) -> None:

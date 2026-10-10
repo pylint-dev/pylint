@@ -419,12 +419,14 @@ def _make_linter_options(linter: PyLinter) -> Options:
             "files",
             {
                 "type": "csv",
-                "default": [],
+                "default": ["."],
                 "help": "The files to lint. The flag can also be omitted as pylint will "
                 "try to lint any file passed as argument. This can be used to set files "
                 "to a directory in a configuration file and invoke pylint by only typing "
                 "pylint on the command line. Any file passed as argument will overwrite any "
-                "file set in the configuration file.",
+                "file set in the configuration file. Defaults to the current working "
+                "directory, so running pylint without any argument is the same as "
+                "running 'pylint .'.",
             },
         ),
     )

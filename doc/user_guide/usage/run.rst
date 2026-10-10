@@ -7,9 +7,13 @@ On module packages or directories
 
 Pylint is meant to be called from the command line. The usage is ::
 
-   pylint [options] modules_or_packages
+   pylint [options] [modules_or_packages]
 
-By default the ``pylint`` command only accepts a list of python modules and packages.
+Without any module or package, ``pylint`` lints the current working directory, as if
+``pylint .`` had been run. Set the :ref:`files <files-option>` option in your
+configuration file to lint something else by default.
+
+The ``pylint`` command only accepts a list of python modules and packages.
 On versions below 2.15, specifying a directory that is not an explicit package
 (with ``__init__.py``) results in an error::
 
