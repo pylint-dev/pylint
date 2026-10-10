@@ -56,3 +56,4 @@ class GenericParent(Generic[T]):
 class GenericChild(GenericParent[T]):
     def _foo(self):
         GenericParent._foo(self)
+        GenericParent[T]._foo(self)
