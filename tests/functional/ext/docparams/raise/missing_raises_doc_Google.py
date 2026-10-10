@@ -190,3 +190,12 @@ class Foo:
         if True:  # [using-constant-test]
             raise AttributeError()
         raise RuntimeError()
+
+
+def test_google_raises_non_exception(self):
+    """This is a Google docstring.
+
+    Raises:
+        TypeError: Never, ``sum`` is a builtin function and not an exception.
+    """
+    raise sum  # [raising-bad-type]

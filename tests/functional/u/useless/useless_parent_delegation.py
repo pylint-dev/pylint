@@ -350,6 +350,15 @@ class NotUselessSuperPy3:
     def passing_keyword_only_with_modifications(self, first, *, second):
         return super().passing_keyword_only_with_modifications(first, second + 1)
 
+    def passing_keyword_only_with_modified_value(self, *, first=None):
+        return super().passing_keyword_only_with_modified_value(first=first or "default")
+
+    def passing_keyword_only_with_constant(self, *, first=None):
+        return super().passing_keyword_only_with_constant(first="default")
+
+    def passing_keyword_only_swapped(self, *, first, second):
+        return super().passing_keyword_only_swapped(first=second, second=first)
+
 
 class AlsoNotUselessSuperPy3(NotUselessSuperPy3):
     def not_passing_keyword_only(self, first, *, second="second"):
@@ -430,3 +439,23 @@ class Lemon(Fruit):
 class CustomError(Exception):
     def __init__(self, message="default"):
         super().__init__(message)
+
+
+# https://github.com/pylint-dev/pylint/issues/9994
+# The signature of a C-level parent such as Exception.__init__ cannot be
+# inspected, so an override taking only ``self`` still narrows the accepted
+# arguments (Exception accepts *args) and is therefore not useless.
+class MyException(Exception):
+    def __init__(self):
+        super().__init__()
+
+
+class MyDict(dict):
+    def __init__(self):
+        super().__init__()
+
+
+# object() accepts nothing besides self, so this override really is useless.
+class PlainObject:
+    def __init__(self):  # [useless-parent-delegation]
+        super().__init__()

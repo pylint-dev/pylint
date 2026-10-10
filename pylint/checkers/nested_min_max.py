@@ -72,6 +72,11 @@ class NestedMinMaxChecker(BaseChecker):
                 # Allow: max(max([[1, 2, 3], [4, 5, 6]]))
                 # Meaning, redundant call only if parent max call has more than 1 arg.
                 and len(arg.parent.args) > 1
+                # An inner call carrying keyword arguments (e.g. ``key=`` or
+                # ``default=``) must not be flattened: the keyword would be
+                # silently dropped and the suggested call would change the
+                # result, e.g. ``max(a, max(b, c, key=k))``.
+                and not arg.keywords
             )
         ]
 
@@ -86,6 +91,9 @@ class NestedMinMaxChecker(BaseChecker):
             return
 
         fixed_node = copy.copy(node)
+        # Only args lifted from a single-argument inner call may be splatted;
+        # args from a multi-arg inner call are compared as whole objects, so keep them.
+        splattable_args: set[int] = set()
         while len(redundant_calls) > 0:
             for i, arg in enumerate(fixed_node.args):
                 # Exclude any calls with generator expressions as there is no
@@ -96,6 +104,8 @@ class NestedMinMaxChecker(BaseChecker):
                     return
 
                 if arg in redundant_calls:
+                    if len(arg.args) == 1:
+                        splattable_args.add(id(arg.args[0]))
                     fixed_node.args = (
                         fixed_node.args[:i] + arg.args + fixed_node.args[i + 1 :]
                     )
@@ -105,7 +115,7 @@ class NestedMinMaxChecker(BaseChecker):
 
         for idx, arg in enumerate(fixed_node.args):
             if not isinstance(arg, nodes.Const):
-                if self._is_splattable_expression(arg):
+                if id(arg) in splattable_args and self._is_splattable_expression(arg):
                     splat_node = nodes.Starred(
                         ctx=Context.Load,
                         lineno=arg.lineno,
@@ -124,7 +134,7 @@ class NestedMinMaxChecker(BaseChecker):
                     fixed_node.args = [
                         *fixed_node.args[:idx],
                         splat_node,
-                        *fixed_node.args[idx + 1 : idx],
+                        *fixed_node.args[idx + 1 :],
                     ]
         func_name = (
             node.func.attrname

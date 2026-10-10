@@ -35,6 +35,10 @@ def unnecessary_negation():
         pass
     if not someint == 'test':  # [unnecessary-negation]
         pass
+    if not someint is not 1:  # [unnecessary-negation]
+        pass
+    if not someint not in [3, 4]:  # [unnecessary-negation]
+        pass
 
 
 def tolerated_statements():
@@ -55,9 +59,29 @@ def tolerated_statements():
         pass
     if not frozenset(something) <= 3:
         pass
+    if not {}.items() <= {}.items():
+        pass
+    if not {}.keys() <= {}.keys():
+        pass
 
 
 class Klass:
     """This is also ok"""
     def __ne__(self, other):
         return not self == other
+
+
+class SetSubclass(set):
+    """Ordered by inclusion, like set"""
+
+
+class FrozenSetSubclass(frozenset):
+    """Ordered by inclusion, like frozenset"""
+
+
+def tolerated_set_subclass_statements():
+    """Subclasses of set and frozenset keep the partial ordering"""
+    if not SetSubclass('bar') <= SetSubclass('foobaz'):
+        pass
+    if not FrozenSetSubclass('bar') < FrozenSetSubclass('foobaz'):
+        pass

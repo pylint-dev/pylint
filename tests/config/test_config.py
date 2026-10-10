@@ -16,6 +16,7 @@ from pytest import CaptureFixture
 from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.interfaces import CONFIDENCE_LEVEL_NAMES
 from pylint.lint import Run as LintRun
+from pylint.reporters import MultiReporter
 from pylint.testutils import create_files
 from pylint.testutils._run import _Run as Run
 from pylint.testutils.configuration_test import run_using_a_configuration_file
@@ -89,6 +90,41 @@ def test_unknown_confidence(capsys: CaptureFixture) -> None:
         Run([str(EMPTY_MODULE), "--confidence=UNKNOWN_CONFIG"], exit=False)
     output = capsys.readouterr()
     assert "argument --confidence: UNKNOWN_CONFIG should be in" in output.err
+
+
+@pytest.mark.parametrize(
+    "output_format",
+    ["colorized,no-header", "text,json2", "json2:{tmp}/out.json,text,github"],
+)
+def test_several_output_formats_writing_to_stdout(
+    capsys: CaptureFixture, tmp_path: Path, output_format: str
+) -> None:
+    """Check that we error when more than one output format writes to stdout."""
+    with pytest.raises(SystemExit):
+        Run(
+            [
+                str(EMPTY_MODULE),
+                f"--output-format={output_format.format(tmp=tmp_path)}",
+            ],
+            exit=False,
+        )
+    output = capsys.readouterr()
+    assert "usage: pylint" in output.err
+    assert "only one output format can write to stdout" in output.err
+
+
+def test_one_output_format_writing_to_stdout(tmp_path: Path) -> None:
+    """Formats sent to a file can be combined with one format on stdout."""
+    json_file = tmp_path / "out.json"
+    runner = Run(
+        [str(EMPTY_MODULE), f"--output-format=json2:{json_file},colorized"],
+        exit=False,
+    )
+    # Ensure the output file is flushed and closed
+    reporter = runner.linter.reporter
+    assert isinstance(reporter, MultiReporter)
+    reporter.close_output_files()
+    assert json_file.exists()
 
 
 def test_empty_confidence() -> None:

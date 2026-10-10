@@ -1,0 +1,2 @@
+protected-access:14:11:14:23:first_line_of_else_block:Access to a protected member _color of a client class:UNDEFINED
+protected-access:28:11:28:23:control:Access to a protected member _color of a client class:UNDEFINED

@@ -385,6 +385,63 @@ def test_if_sys_guard() -> None:
     assert utils.is_sys_guard(code[5]) is False
 
 
+def test_if_platform_guard() -> None:
+    code = astroid.extract_node("""
+    import os
+    if os.name == "nt":  #@
+        pass
+
+    if os.name != "posix":  #@
+        pass
+
+    if os.something_else:  #@
+        pass
+
+    import sys
+    if sys.platform == "win32":  #@
+        pass
+
+    if sys.platform != "linux":  #@
+        pass
+
+    if sys.platformish:  #@
+        pass
+
+    if sys.version_info > (3, 8):  #@
+        pass
+
+    if sys.platform[:3] == "win":  #@
+        pass
+
+    if os.environ["HOME"] == "/root":  #@
+        pass
+    """)
+    assert isinstance(code, list) and len(code) == 9
+
+    assert isinstance(code[0], nodes.If)
+    assert utils.is_platform_guard(code[0]) is True
+    assert isinstance(code[1], nodes.If)
+    assert utils.is_platform_guard(code[1]) is True
+
+    assert isinstance(code[2], nodes.If)
+    assert utils.is_platform_guard(code[2]) is False
+
+    assert isinstance(code[3], nodes.If)
+    assert utils.is_platform_guard(code[3]) is True
+    assert isinstance(code[4], nodes.If)
+    assert utils.is_platform_guard(code[4]) is True
+
+    assert isinstance(code[5], nodes.If)
+    assert utils.is_platform_guard(code[5]) is False
+    assert isinstance(code[6], nodes.If)
+    assert utils.is_platform_guard(code[6]) is False
+
+    assert isinstance(code[7], nodes.If)
+    assert utils.is_platform_guard(code[7]) is True
+    assert isinstance(code[8], nodes.If)
+    assert utils.is_platform_guard(code[8]) is False
+
+
 def test_if_typing_guard() -> None:
     code = astroid.extract_node("""
     import typing
@@ -610,3 +667,75 @@ def test_is_terminating_func_overload_with_noreturn_implementation() -> None:
 """)
     result = utils.is_terminating_func(node)
     assert result is True
+
+
+def test_safe_mro_returns_the_ancestors_of_a_usable_class() -> None:
+    """A class whose bases resolve gets its real MRO back."""
+    node = astroid.extract_node("""
+    class Base:
+        pass
+
+    class Child(Base):  #@
+        pass
+    """)
+    assert [ancestor.name for ancestor in utils.safe_mro(node)] == [
+        "Child",
+        "Base",
+        "object",
+    ]
+
+
+def test_safe_mro_returns_nothing_for_duplicate_bases() -> None:
+    """Duplicate bases leave the class without an MRO, so there is nothing to walk."""
+    node = astroid.extract_node("""
+    class Duplicates(str, str):  #@
+        pass
+    """)
+    assert utils.safe_mro(node) == []
+
+
+def test_safe_mro_returns_nothing_for_inconsistent_bases() -> None:
+    """Bases that cannot be put in a consistent order are the other way to lose it."""
+    node = astroid.extract_node("""
+    class First:
+        pass
+
+    class Second(First):
+        pass
+
+    class Inconsistent(First, Second):  #@
+        pass
+    """)
+    assert utils.safe_mro(node) == []
+
+
+def test_safe_slots_returns_the_slots_of_a_usable_class() -> None:
+    """A class whose bases resolve gets its real slots back."""
+    node = astroid.extract_node("""
+    class Basket:  #@
+        __slots__ = ("fruit",)
+    """)
+    slots = utils.safe_slots(node)
+    assert slots is not None
+    assert [slot.value for slot in slots] == ["fruit"]
+
+
+def test_safe_slots_returns_nothing_for_duplicate_bases() -> None:
+    """Duplicate bases leave the class without an MRO, so its slots are unknowable."""
+    node = astroid.extract_node("""
+    class Basket(list, list):  #@
+        __slots__ = ("fruit",)
+    """)
+    assert utils.safe_slots(node) is None
+
+
+def test_safe_slots_returns_nothing_for_inconsistent_bases() -> None:
+    """Bases that cannot be put in a consistent order are the other way to lose them."""
+    node = astroid.extract_node("""
+    class Str(str):
+        pass
+
+    class Inconsistent(str, Str):  #@
+        __slots__ = ("label",)
+    """)
+    assert utils.safe_slots(node) is None

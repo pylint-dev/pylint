@@ -1,0 +1,4 @@
+Using several output formats that all write to stdout (for example ``--output-format=colorized,no-header``)
+now raises an error instead of printing every message more than once.
+
+Closes #11597

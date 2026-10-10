@@ -1,0 +1,22 @@
+{
+  "astroid": {
+    "commit": "1234567890abcdef",
+    "messages": [
+      {
+        "type": "refactor",
+        "module": "astroid.arguments",
+        "obj": "",
+        "line": 1,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/arguments.py",
+        "symbol": "duplicate-code",
+        "message": "Similar lines in 2 files\n==astroid.arguments:[10:14]\n==astroid.bases:[20:24]\n    result = []\n    for arg in args:\n        result.append(arg)",
+        "messageId": "R0801",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/arguments.py"
+      }
+    ]
+  }
+}

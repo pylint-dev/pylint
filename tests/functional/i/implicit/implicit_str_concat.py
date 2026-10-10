@@ -41,3 +41,10 @@ print(
 
 with open("myfile.txt" "a+b", encoding="utf8") as f:  # [implicit-str-concat]
     content = f.read()
+
+
+# Mixing a raw and a non-raw string cannot be a forgotten comma since the two
+# cannot be merged into a single literal, so no warning is emitted (#6663).
+MIXED_RAW1 = [r"\d" "\n"]
+MIXED_RAW2 = "\n" r"\d"
+MIXED_RAW3 = (r"\override Stem" "\n", "other")

@@ -35,28 +35,31 @@ jobs:
   run-primer:
     name: Run / ${{ matrix.python-version }} / batch index ${{ matrix.batchIdx }}
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # Up to twice the time of 'Primer / Main' when it lints 'main' too
+    timeout-minutes: 75
     strategy:
       matrix:
-        python-version: ["3.10", "3.14"]
+        python-version: ["3.10", "3.15"]
         batches: [4]
         batchIdx: [0, 1, 2, 3]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v6.2.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
           check-latest: true
 
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache/restore@v5.0.5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: venv
           key:
@@ -75,7 +78,7 @@ jobs:
       # Save cached Python environment (explicit because cancel-in-progress: true)
       - name: Save Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: venv
           key:
@@ -83,11 +86,19 @@ jobs:
             env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
             'requirements_test.txt', 'requirements_test_min.txt',
             'requirements_test_pre_commit.txt') }}
+      # The cached venv contains the pylint that was installed when the cache was
+      # created, which can be stale or even broken if it was created on an earlier
+      # (force-pushed away) commit of this PR. Reinstall from the current checkout
+      # so every following step uses the right code (see #11153).
+      - name: Install pylint from the current checkout
+        run: |
+          . venv/bin/activate
+          pip install . --no-deps
 
       # Cache primer packages
       - name: Download last 'main' run info
         id: download-main-run
-        uses: actions/github-script@v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           COMMIT_STRING_ARTIFACT: primer_commitstring_${{ matrix.python-version }}
           OUTPUT_ARTIFACT:
@@ -95,17 +106,30 @@ jobs:
         with:
           script: |
             const { COMMIT_STRING_ARTIFACT, OUTPUT_ARTIFACT } = process.env
-            // Download 'main' pylint output
             const fs = require('fs');
+            // Without the output of the 'Primer / Main' run of the 'main' commit
+            // this PR is merged into, the next steps lint that commit themselves.
+            const lintMainHere = "'main' will be linted in this job instead."
+            // Look up the run by commit: listing the latest runs sometimes returns
+            // a stale page, with old runs only.
+            const { stdout } = await exec.getExecOutput("git", ["rev-parse", "HEAD^1"]);
+            const mainSha = stdout.trim()
             const runs = await github.rest.actions.listWorkflowRuns({
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: ".github/workflows/primer_run_main.yaml",
-              status: "success"
+              head_sha: mainSha,
             });
-            const lastRunMain = runs.data.workflow_runs.reduce(function(prev, current) {
-                return (prev.run_number > current.run_number) ? prev : current
-            })
+            const lastRunMain = runs.data.workflow_runs.find((run) => run.conclusion === "success")
+            if (!lastRunMain) {
+              // Right after a merge, the 'main' primer of the new commit is still running.
+              const pendingRun = runs.data.workflow_runs.find((run) => run.status !== "completed")
+              const reason = pendingRun
+                ? `The primer on 'main' for ${mainSha} has not finished yet (${pendingRun.html_url}).`
+                : `No successful primer run on 'main' for ${mainSha}.`
+              core.notice(`${reason} ${lintMainHere}`)
+              return false
+            }
             console.log("Last run on main:")
             console.log(lastRunMain.html_url)
             const artifacts_main = await github.rest.actions.listWorkflowRunArtifacts({
@@ -113,36 +137,40 @@ jobs:
                repo: context.repo.repo,
                run_id: lastRunMain.id,
             });
-
-            // Get commitstring
-            const [matchArtifactMain] = artifacts_main.data.artifacts.filter((artifact) =>
-              artifact.name === COMMIT_STRING_ARTIFACT);
-            const downloadWorkflow = await github.rest.actions.downloadArtifact({
-               owner: context.repo.owner,
-               repo: context.repo.repo,
-               artifact_id: matchArtifactMain.id,
-               archive_format: "zip",
-            });
-            fs.writeFileSync(`${COMMIT_STRING_ARTIFACT}.zip`, Buffer.from(downloadWorkflow.data));
-
-            // Get output
-            const [matchArtifactMainOutput] = artifacts_main.data.artifacts.filter((artifact) =>
-              artifact.name === OUTPUT_ARTIFACT);
-            const downloadWorkflowTwo = await github.rest.actions.downloadArtifact({
-               owner: context.repo.owner,
-               repo: context.repo.repo,
-               artifact_id: matchArtifactMainOutput.id,
-               archive_format: "zip",
-            });
-            fs.writeFileSync(`${OUTPUT_ARTIFACT}.zip`, Buffer.from(downloadWorkflowTwo.data));
-            return lastRunMain.head_sha;
+            const artifactsByName = new Map(
+              artifacts_main.data.artifacts
+                .filter((artifact) => !artifact.expired)
+                .map((artifact) => [artifact.name, artifact])
+            );
+            const artifactNames = [COMMIT_STRING_ARTIFACT, OUTPUT_ARTIFACT]
+            if (artifactNames.some((name) => !artifactsByName.has(name))) {
+              core.notice(`The artifacts of ${lastRunMain.html_url} are missing or expired. ${lintMainHere}`)
+              return false
+            }
+            for (const name of artifactNames) {
+              const downloaded = await github.rest.actions.downloadArtifact({
+                 owner: context.repo.owner,
+                 repo: context.repo.repo,
+                 artifact_id: artifactsByName.get(name).id,
+                 archive_format: "zip",
+              });
+              fs.writeFileSync(`${name}.zip`, Buffer.from(downloaded.data));
+            }
+            return true
       - name: Copy and unzip the commit string
+        if: steps.download-main-run.outputs.result == 'true'
         run: |
           unzip primer_commitstring_${{ matrix.python-version }}.zip
           cp commit_string_${{ matrix.python-version }}.txt tests/.pylint_primer_tests/commit_string_${{ matrix.python-version }}.txt
       - name: Unzip the output of 'main'
+        if: steps.download-main-run.outputs.result == 'true'
         run: |
           unzip primer_output_main_${{ matrix.python-version }}_batch${{ matrix.batchIdx }}.zip
+      - name: Make commit string
+        if: steps.download-main-run.outputs.result != 'true'
+        run: |
+          . venv/bin/activate
+          python tests/primer/__main__.py prepare --make-commit-string
       - name: Get commit string
         id: commitstring
         run: |
@@ -151,7 +179,7 @@ jobs:
           echo "commitstring=$output" >> $GITHUB_OUTPUT
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache/restore@v5.0.5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: tests/.pylint_primer_tests/
           key: >-
@@ -164,7 +192,7 @@ jobs:
           python tests/primer/__main__.py prepare --clone
       - name: Save projects cache
         if: steps.cache-projects.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5.0.5
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: tests/.pylint_primer_tests/
           key: >-
@@ -175,29 +203,32 @@ jobs:
           . venv/bin/activate
           python tests/primer/__main__.py prepare --check
 
-      # Merge the 'main' commit of last successful run
-      - name: Pull 'main'
-        shell: bash
+      # Like mypy_primer: lint the 'main' commit this PR is merged into
+      - name: Run pylint primer on 'main'
+        if: steps.download-main-run.outputs.result != 'true'
         run: |
-          git config --global user.email "primer@example.com"
-          git config --global user.name "Pylint Primer"
-          git pull origin ${{ steps.download-main-run.outputs.result }} --no-edit --no-commit --no-rebase
+          . venv/bin/activate
+          git worktree add --detach "$RUNNER_TEMP/pylint-main" HEAD^1
+          pip install "$RUNNER_TEMP/pylint-main" --no-deps
+          python tests/primer/__main__.py run --type=main --batches=${{ matrix.batches }} --batchIdx=${{ matrix.batchIdx }}
+          cp tests/.pylint_primer_tests/output_${{ matrix.python-version }}_main_batch${{ matrix.batchIdx }}.txt .
 
       # Run primer
       - name: Run pylint primer
+        id: run-primer
         run: |
           . venv/bin/activate
           pip install . --no-deps
           python tests/primer/__main__.py run --type=pr --batches=${{ matrix.batches }} --batchIdx=${{ matrix.batchIdx }} 2>warnings.txt
       - name: Echo warnings
-        if: success() || failure()
+        if: (success() || failure()) && steps.run-primer.outcome != 'skipped'
         run: |
           WARNINGS=$(head -c 65000 < warnings.txt)
           if [[ $WARNINGS ]]
           then echo "::warning ::$WARNINGS"
           fi
       - name: Upload output of PR
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name:
             primer_output_pr_${{ matrix.python-version }}_batch${{ matrix.batchIdx }}
@@ -205,7 +236,7 @@ jobs:
             tests/.pylint_primer_tests/output_${{ matrix.python-version }}_pr_batch${{
             matrix.batchIdx }}.txt
       - name: Upload output of 'main'
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name:
             primer_output_main_${{ matrix.python-version }}_batch${{ matrix.batchIdx }}
@@ -219,7 +250,7 @@ jobs:
         if:
           startsWith(steps.python.outputs.python-version, '3.10') && matrix.batchIdx ==
           0
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pr_number
           path: pr_number.txt

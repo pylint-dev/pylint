@@ -55,3 +55,10 @@ def github_issue_3031(arg=()):
 
     if arg is not ():
         pass
+
+
+def variable_name_containing_is():
+    # Regression test: the suggested replacement must not corrupt an identifier
+    # that contains the substring "is" (e.g. ``axis`` was rendered ``ax==``).
+    axis = 5
+    return axis is 5  # [literal-comparison]

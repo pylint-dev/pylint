@@ -1,0 +1,2 @@
+deprecated-class:12:4:12:36::Using deprecated class Iterable of module collections:UNDEFINED
+deprecated-module:15:4:15:46::Deprecated module 'xml.etree.cElementTree':UNDEFINED

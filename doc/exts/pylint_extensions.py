@@ -71,8 +71,7 @@ def builder_inited(app: Sphinx | None) -> None:
 
 """)
         stream.write("Pylint provides the following optional plugins:\n\n")
-        for module in modules:
-            stream.write(f"- :ref:`{module}`\n")
+        stream.writelines(f"- :ref:`{module}`\n" for module in modules)
         stream.write("\n")
         stream.write(
             "You can activate any or all of these extensions "

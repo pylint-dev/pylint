@@ -35,11 +35,12 @@ from pylint.constants import (
     MSG_TYPES_STATUS,
     WarningScope,
 )
-from pylint.interfaces import HIGH
+from pylint.interfaces import HIGH, _confidence_or_undefined
 from pylint.lint.base_options import _make_linter_options
 from pylint.lint.caching import load_results, save_results
 from pylint.lint.expand_modules import (
     _is_ignored_file,
+    _is_in_ignore_list_re,
     discover_package_path,
     expand_modules,
 )
@@ -51,11 +52,13 @@ from pylint.lint.report_functions import (
     report_total_messages_stats,
 )
 from pylint.lint.utils import (
+    _is_env_set_and_non_empty,
     augmented_sys_path,
     get_fatal_error_message,
     prepare_crash_report,
 )
 from pylint.message import Message, MessageDefinition, MessageDefinitionStore
+from pylint.reporters import ReporterWarning
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.progress_reporters import ProgressReporter
 from pylint.reporters.text import ColorizedTextReporter, TextReporter
@@ -72,6 +75,13 @@ from pylint.typing import (
 from pylint.utils import ASTWalker, FileState, LinterStats, utils
 
 MANAGER = astroid.MANAGER
+
+NO_COLOR = "NO_COLOR"
+FORCE_COLOR = "FORCE_COLOR"
+
+WARN_FORCE_COLOR_SET = "FORCE_COLOR is set; ignoring `text` at stdout"
+WARN_NO_COLOR_SET = "NO_COLOR is set; ignoring `colorized` at stdout"
+WARN_BOTH_COLOR_SET = "Both NO_COLOR and FORCE_COLOR are set! (disabling colors)"
 
 
 class GetAstProtocol(Protocol):
@@ -254,6 +264,59 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 }
 
 
+def _read_color_env() -> tuple[bool, bool]:
+    """Return whether ``NO_COLOR`` and ``FORCE_COLOR`` are set and non-empty.
+
+    ``NO_COLOR`` wins when both are set.
+    """
+    no_color = _is_env_set_and_non_empty(NO_COLOR)
+    force_color = _is_env_set_and_non_empty(FORCE_COLOR)
+    if no_color and force_color:
+        warnings.warn(WARN_BOTH_COLOR_SET, ReporterWarning, stacklevel=3)
+        force_color = False
+    return no_color, force_color
+
+
+def _handle_force_color_no_color(
+    reporter: BaseReporter,
+    *,
+    no_color: bool,
+    force_color: bool,
+    explicit_format: bool = True,
+) -> BaseReporter:
+    """Swap a reporter that writes to stdout according to ``NO_COLOR`` and
+    ``FORCE_COLOR``.
+
+    Overriding an explicit ``--output-format`` warns, swapping the default
+    reporter does not: that is exactly what the variable asked for.
+
+    Rules are presented in this table:
+    +--------------+---------------+-----------------+------------------------------------------------------------+
+    | `NO_COLOR`   | `FORCE_COLOR` | `output-format` | Behavior                                                   |
+    +==============+===============+=================+============================================================+
+    | `bool: True` | `bool: True`  | colorized       | not colorized + warnings (override + inconsistent env var) |
+    | `bool: True` | `bool: True`  | /               | not colorized + warnings (inconsistent env var)            |
+    | unset        | `bool: True`  | colorized       | colorized                                                  |
+    | unset        | `bool: True`  | text            | colorized + warnings (override)                            |
+    | unset        | `bool: True`  | /               | colorized                                                  |
+    | `bool: True` | unset         | colorized       | not colorized + warnings (override)                        |
+    | `bool: True` | unset         | /               | not colorized                                              |
+    | unset        | unset         | colorized       | colorized                                                  |
+    | unset        | unset         | /               | not colorized                                              |
+    +--------------+---------------+-----------------+------------------------------------------------------------+
+    """
+    if no_color and isinstance(reporter, ColorizedTextReporter):
+        warnings.warn(WARN_NO_COLOR_SET, ReporterWarning, stacklevel=3)
+        return TextReporter()
+    # Subclasses of TextReporter (parseable, Visual Studio) keep their own format
+    # pylint: disable-next=unidiomatic-typecheck
+    if force_color and type(reporter) is TextReporter:
+        if explicit_format:
+            warnings.warn(WARN_FORCE_COLOR_SET, ReporterWarning, stacklevel=3)
+        return ColorizedTextReporter()
+    return reporter
+
+
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class PyLinter(
     _ArgumentsManager,
@@ -313,6 +376,8 @@ class PyLinter(
             self.set_reporter(reporter)
         else:
             self.set_reporter(TextReporter())
+        self._color_env: tuple[bool, bool] = (False, False)
+        """``NO_COLOR`` and ``FORCE_COLOR`` for the stdout reporter, set by ``Run``."""
         self._reporters: dict[str, type[reporters.BaseReporter]] = {}
         """Dictionary of possible but non-initialized reporters."""
 
@@ -440,18 +505,24 @@ class PyLinter(
             return
         sub_reporters = []
         output_files = []
+        no_color, force_color = self._color_env
         with contextlib.ExitStack() as stack:
             for reporter_name in reporter_names.split(","):
                 reporter_name, *reporter_output = reporter_name.split(":", 1)
 
                 reporter = self._load_reporter_by_name(reporter_name)
-                sub_reporters.append(reporter)
                 if reporter_output:
                     output_file = stack.enter_context(
                         open(reporter_output[0], "w", encoding="utf-8")
                     )
                     reporter.out = output_file
                     output_files.append(output_file)
+                else:
+                    # Only the reporter writing to stdout follows the environment
+                    reporter = _handle_force_color_no_color(
+                        reporter, no_color=no_color, force_color=force_color
+                    )
+                sub_reporters.append(reporter)
 
             # Extend the lifetime of all opened output files
             close_output_files = stack.pop_all().close
@@ -562,7 +633,7 @@ class PyLinter(
                         self.fail_on_symbols.append(msg.symbol)
 
     def any_fail_on_issues(self) -> bool:
-        return any(x in self.fail_on_symbols for x in self.stats.by_msg.keys())
+        return any(x in self.fail_on_symbols for x in self.stats.by_msg)
 
     def pass_fail_on_config_to_color_reporter(self) -> None:
         """Pass fail_on symbol configuration to colorized text reporter."""
@@ -665,33 +736,54 @@ class PyLinter(
 
         Returns iterator of paths to discovered modules and packages.
         """
+
+        def is_ignored_name(name: str) -> bool:
+            # os.walk already gives base names, unlike _is_ignored_file we do
+            # not need to resolve the absolute path to get one.
+            return name in self.config.ignore or _is_in_ignore_list_re(
+                name, self.config.ignore_patterns
+            )
+
         for something in files_or_modules:
             if os.path.isdir(something) and not os.path.isfile(
                 os.path.join(something, "__init__.py")
             ):
-                skip_subtrees: list[str] = []
-                for root, _, files in os.walk(something):
-                    if any(root.startswith(s) for s in skip_subtrees):
-                        # Skip subtree of already discovered package.
-                        continue
+                if _is_ignored_file(
+                    something,
+                    self.config.ignore,
+                    self.config.ignore_patterns,
+                    self.config.ignore_paths,
+                ):
+                    continue
+                for root, dirnames, files in os.walk(something, topdown=True):
+                    # Prune ignored directories in place, so that os.walk does
+                    # not descend into them. ignore-paths needs the full path.
+                    dirnames[:] = [
+                        dirname
+                        for dirname in dirnames
+                        if not is_ignored_name(dirname)
+                        and not _is_in_ignore_list_re(
+                            os.path.normpath(os.path.join(root, dirname)),
+                            self.config.ignore_paths,
+                        )
+                    ]
 
-                    if _is_ignored_file(
-                        root,
-                        self.config.ignore,
-                        self.config.ignore_patterns,
-                        self.config.ignore_paths,
-                    ):
-                        skip_subtrees.append(root + os.sep)
-                        continue
+                    # os.walk yields entries in the order of the file system,
+                    # sort them so that files are discovered in the same order
+                    # everywhere.
+                    dirnames.sort()
 
                     if "__init__.py" in files:
-                        skip_subtrees.append(root + os.sep)
+                        # The package is expanded as a whole later on, do not
+                        # descend into it.
+                        dirnames.clear()
                         yield root
                     else:
                         yield from (
                             os.path.join(root, file)
-                            for file in files
+                            for file in sorted(files)
                             if file.endswith((".py", ".pyi"))
+                            and not is_ignored_name(file)
                         )
             else:
                 yield something
@@ -1224,7 +1316,7 @@ class PyLinter(
         line: int | None,
         node: nodes.NodeNG | None,
         args: Any | None,
-        confidence: interfaces.Confidence,
+        confidence: interfaces.Confidence | None,
         col_offset: int | None,
         end_lineno: int | None,
         end_col_offset: int | None,
@@ -1316,7 +1408,7 @@ class PyLinter(
         line: int | None = None,
         node: nodes.NodeNG | None = None,
         args: Any | None = None,
-        confidence: interfaces.Confidence = interfaces.UNDEFINED,
+        confidence: interfaces.Confidence | None = interfaces.UNDEFINED,
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
@@ -1329,6 +1421,7 @@ class PyLinter(
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
         """
+        confidence = _confidence_or_undefined(confidence, stacklevel=2)
         message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
             self._add_one_message(
@@ -1347,7 +1440,7 @@ class PyLinter(
         msgid: str,
         line: int,
         node: nodes.NodeNG | None = None,
-        confidence: interfaces.Confidence = interfaces.UNDEFINED,
+        confidence: interfaces.Confidence | None = interfaces.UNDEFINED,
     ) -> None:
         """Prepares a message to be added to the ignored message storage.
 
@@ -1356,6 +1449,7 @@ class PyLinter(
         This creates false positives for useless-suppression.
         This function avoids this by adding those message to the ignored msgs attribute
         """
+        confidence = _confidence_or_undefined(confidence, stacklevel=2)
         message_definitions = self.msgs_store.get_message_definitions(msgid)
         for message_definition in message_definitions:
             message_definition.check_message_definition(line, node)

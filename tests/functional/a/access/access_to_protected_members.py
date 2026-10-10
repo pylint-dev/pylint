@@ -274,3 +274,19 @@ class Issue3066:
             @staticmethod
             def _bar(i):
                 """Docstring."""
+
+
+class Issue11160:
+    """https://github.com/pylint-dev/pylint/issues/11160"""
+
+    _attr = None
+
+    def access_via_self_class(self):
+        """self.__class__ is equivalent to type(self) and should be accepted."""
+        if self.__class__._attr is None:
+            return self.__class__._attr
+        return None
+
+    def access_via_other_object_class(self, other):
+        """Accessing a protected member through another object's class warns."""
+        return other.__class__._attr  # [protected-access]

@@ -19,10 +19,14 @@ Or if you want to also check spelling with ``enchant`` (you might need to
 
 The newest pylint supports all Python interpreters that are not past end of life.
 
-We recommend to use the latest interpreter because we rely on the ``ast`` builtin
-module that gets better with each new Python interpreter. For example a Python
-3.6 interpreter can't analyse 3.8 syntax (amongst others, because of the new walrus operator) while a 3.8
-interpreter can also deal with Python 3.6. See :ref:`using pylint with multiple interpreters <continuous-integration>` for more details.
+Pylint relies on the ``ast`` module provided by the Python interpreter that runs
+it, so that interpreter must be able to parse the syntax used by the code. Newer
+interpreters generally provide a more capable parser. However, for projects that
+support multiple Python versions, running Pylint on the oldest supported interpreter
+is usually the most reliable way to match the compatibility floor. If the lint
+environment uses a newer interpreter, set ``py-version`` to the oldest supported
+version for version-aware checks; it does not emulate the older interpreter. See
+:ref:`using pylint with multiple interpreters <continuous-integration>` for more details.
 
 .. note::
     You can also use ``conda`` or your system package manager on debian based OS.

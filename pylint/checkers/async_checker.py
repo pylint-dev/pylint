@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import sys
 from typing import TYPE_CHECKING
 
 import astroid
@@ -48,9 +47,7 @@ class AsyncChecker(checkers.BaseChecker):
     @checker_utils.only_required_for_messages("yield-inside-async-function")
     def visit_asyncfunctiondef(self, node: nodes.AsyncFunctionDef) -> None:
         for child in node.nodes_of_class(nodes.Yield):
-            if child.scope() is node and (
-                sys.version_info[:2] == (3, 5) or isinstance(child, nodes.YieldFrom)
-            ):
+            if child.scope() is node and isinstance(child, nodes.YieldFrom):
                 self.add_message("yield-inside-async-function", node=child)
 
     @checker_utils.only_required_for_messages("not-async-context-manager")
@@ -88,8 +85,25 @@ class AsyncChecker(checkers.BaseChecker):
                                 continue
                     else:
                         continue
+            # Only read ``name`` from nodes known to define it; any other
+            # inferred result (e.g. a ``Slice`` from ``slice(...)``) has no
+            # ``name``, so fall back to the inferred type's name to keep the
+            # message informative without risking an ``AttributeError``.
+            if isinstance(
+                inferred,
+                (
+                    nodes.ClassDef,
+                    nodes.FunctionDef,
+                    nodes.Lambda,
+                    nodes.Module,
+                    astroid.bases.BaseInstance,
+                ),
+            ):
+                inferred_name = inferred.name
+            else:
+                inferred_name = inferred.pytype().rsplit(".", 1)[-1]
             self.add_message(
-                "not-async-context-manager", node=node, args=(inferred.name,)
+                "not-async-context-manager", node=node, args=(inferred_name,)
             )
 
 

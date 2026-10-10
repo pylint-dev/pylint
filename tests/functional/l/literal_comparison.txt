@@ -13,3 +13,4 @@ literal-comparison:31:3:31:22::In '() is not {1, 2, 3}', use '!=' when comparing
 literal-comparison:38:3:38:13::In 'CONST is 0', use '==' when comparing constant literals not 'is' ('CONST == 0'):HIGH
 literal-comparison:41:3:41:13::In 'CONST is 1', use '==' when comparing constant literals not 'is' ('CONST == 1'):HIGH
 literal-comparison:44:3:44:14::In 'CONST is 42', use '==' when comparing constant literals not 'is' ('CONST == 42'):HIGH
+literal-comparison:64:11:64:20:variable_name_containing_is:In 'axis is 5', use '==' when comparing constant literals not 'is' ('axis == 5'):HIGH

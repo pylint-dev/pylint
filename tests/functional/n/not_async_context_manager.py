@@ -58,6 +58,8 @@ async def bad_coro():
         pass
     async with SecondPartialAsyncContextManager(): # [not-async-context-manager]
         pass
+    async with slice(None): # [not-async-context-manager]
+        pass
 
 
 async def good_coro():
