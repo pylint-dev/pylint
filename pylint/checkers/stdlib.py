@@ -586,6 +586,19 @@ def _infer_mode_arg(mode_arg: nodes.NodeNG) -> tuple[InferenceResult | None, boo
     return inferred, True
 
 
+def _is_key_in_every_inferred_dict(node: nodes.NodeNG, key: str) -> bool:
+    """Check if every value ``node`` can be inferred to is a dict defining ``key``."""
+    inferred_values = utils.infer_all(node)
+    return bool(inferred_values) and all(
+        isinstance(inferred, nodes.Dict)
+        and any(
+            isinstance(dict_key, nodes.Const) and dict_key.value == key
+            for dict_key, _ in inferred.items
+        )
+        for inferred in inferred_values
+    )
+
+
 class StdlibChecker(DeprecatedMixin, BaseChecker):
     name = "stdlib"
 
@@ -754,8 +767,12 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
     def _check_for_check_kw_in_run(self, node: nodes.Call) -> None:
         kwargs = {keyword.arg for keyword in (node.keywords or ())}
-        if "check" not in kwargs:
-            self.add_message("subprocess-run-check", node=node, confidence=INFERENCE)
+        if "check" in kwargs or any(
+            _is_key_in_every_inferred_dict(kwarg.value, "check")
+            for kwarg in node.kwargs
+        ):
+            return
+        self.add_message("subprocess-run-check", node=node, confidence=INFERENCE)
 
     def _check_shallow_copy_environ(self, node: nodes.Call) -> None:
         confidence = HIGH
