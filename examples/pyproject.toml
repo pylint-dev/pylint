@@ -71,7 +71,7 @@ main.persistent = true
 # prefer-stubs =
 # Minimum Python version to use for version dependent checks. Will default to the
 # version used to run pylint.
-main.py-version = "3.12"
+main.py-version = "3.10"
 # Python expression which should return a score less than or equal to 10. You
 # have access to the variables 'fatal', 'error', 'warning', 'refactor',
 # 'convention', and 'info' which contain the number of messages in each category,
@@ -333,8 +333,8 @@ similarities.ignore-signatures = true
 similarities.min-similarity-lines = 4
 # Limits count of emitted suggestions for spelling mistakes.
 spelling.max-spelling-suggestions = 4
-# Spelling dictionary name. Available dictionaries: en (aspell), en_AU (aspell),
-# en_CA (aspell), en_GB (aspell), en_US (aspell).
+# Spelling dictionary name. No available dictionaries : You need to install both
+# the python package and the system dependency for enchant to work.
 # spelling-dict =
 # List of comma separated words that should be considered directives if they
 # appear at the beginning of a comment and should not be checked.

@@ -28,3 +28,4 @@ build-stamp
 .pytest_cache/
 .mypy_cache/
 .benchmarks/
+release_notes.md
