@@ -1,0 +1,4 @@
+Fix a false positive for ``unsubscriptable-object`` when subscribing generic
+protocol classes and type aliases.
+
+Closes #9863
