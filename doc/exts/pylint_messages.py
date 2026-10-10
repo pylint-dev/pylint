@@ -660,6 +660,17 @@ def _write_messages_list_page(
 
 Pylint can emit the following messages:
 
+Find a message by ID or symbol:
+
+.. raw:: html
+
+   <form onsubmit="location='./'+encodeURIComponent(this.message.value);return false">
+     <label for="message-search">Message ID or symbol</label>
+     <input id="message-search" name="message" type="search"
+       placeholder="C0114 or missing-module-docstring" pattern="[A-Za-z0-9-]+" required>
+     <button type="submit">Open message</button>
+   </form>
+
 """)
         # Iterate over tuple to keep same order
         for category in (
@@ -812,7 +823,15 @@ def _write_redirect_old_page(
         stream.write(content)
 
 
-# pylint: disable-next=unused-argument
+def _register_message_redirect(
+    app: Sphinx, target: str, shorthands: tuple[str, str, str]
+) -> None:
+    for shorthand in shorthands:
+        source = f"user_guide/messages/{shorthand}"
+        app.config.redirects[source] = target
+        app.config.redirects[f"{source}/index.html"] = f"../{target}"
+
+
 def build_messages_pages(app: Sphinx | None) -> None:
     """Overwrite messages files by printing the documentation to a stream.
 
@@ -823,6 +842,20 @@ def build_messages_pages(app: Sphinx | None) -> None:
     _register_all_checkers_and_extensions(linter)
     messages, old_messages = _get_all_messages(linter)
     deleted_messages = _get_deleted_messages()
+
+    if app is not None:
+        for category, category_messages in messages.items():
+            for message in category_messages:
+                target = f"{category}/{message.name}.html"
+                _register_message_redirect(
+                    app, target, (message.id, message.id.lower(), message.name)
+                )
+        for category, category_old_messages in old_messages.items():
+            for old_name in category_old_messages:
+                target = f"{category}/{old_name[0]}.html"
+                _register_message_redirect(
+                    app, target, (old_name[1], old_name[1].lower(), old_name[0])
+                )
 
     # Write message and category pages
     _write_message_page(messages)
