@@ -309,7 +309,7 @@ def test_class_diagram_warns_for_uninferable_target(HANDLER: DiadefsHandler) -> 
 def _infer_fresh_class_instance(
     _node: nodes.Call, _context: InferenceContext | None = None
 ) -> Iterator[Instance]:
-    """Mimic astroid's numpy brain: build a new class each time we are inferred."""
+    """Mimic the numpy brain of astroid: build a new class each time we are inferred."""
     klass = extract_node("""
     class Fresh:
         def __init__(self):
