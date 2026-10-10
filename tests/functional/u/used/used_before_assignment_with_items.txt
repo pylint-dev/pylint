@@ -3,3 +3,4 @@ used-before-assignment:53:16:53:21:used_before_later_item:Using variable 'third'
 used-before-assignment:68:26:68:31:target_reads_name_bound_later_in_same_target:Using variable 'first' before assignment:HIGH
 used-before-assignment:73:25:73:30:target_reads_name_bound_by_later_tuple_target:Using variable 'first' before assignment:HIGH
 used-before-assignment:78:25:78:30:target_reads_name_bound_by_later_name_target:Using variable 'first' before assignment:HIGH
+used-before-assignment:83:56:83:61:target_reads_name_bound_in_comprehension:Using variable 'first' before assignment:HIGH
