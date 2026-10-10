@@ -761,8 +761,11 @@ Other Changes
   ``files`` to ``files = my_source_directory`` and invoking ``pylint`` with only
   the ``pylint`` command similar to how other CLI tools allow to do so.
   The help message can always be invoked with ``pylint -h`` or ``pylint --help``.
+  Without ``files`` in the configuration and without positional arguments, ``pylint``
+  still exits with ``No files to lint``: linting the current directory by default is
+  planned for pylint 5.0.
 
-  Closes #5701 (`#5701 <https://github.com/pylint-dev/pylint/issues/5701>`_)
+  Refs #5701 (`#5701 <https://github.com/pylint-dev/pylint/issues/5701>`_)
 
 - Removed messages (such as ``print-statement`` or ``apply-builtin``) now have
   their own page in the documentation, with a link to the change that removed
