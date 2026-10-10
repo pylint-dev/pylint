@@ -69,7 +69,7 @@ def merge_family(left, right) -> None:
             result[kl] = vl + vr
     left.update(result)
 
-families = {  # [dict-init-mutate]
+families = {
     "_base": {"testcase": ["classname", "name"]},
     "_base_legacy": {"testcase": ["file", "line", "url"]},
 }
@@ -86,3 +86,27 @@ settings["d"] = 4
 settings["e"] = 5
 settings["f"] = 6
 settings["g"] = 7
+
+
+def make_counts(key):
+    """The updated value depends on the initialized dictionary."""
+    counts = {"int64": 1, "object": 1}
+    counts[key] = 3 + counts.get(key, 0)
+    return counts
+
+
+recursive = {}
+recursive["self"] = recursive
+
+indexed = {"key": "name"}
+indexed[indexed["key"]] = 1
+
+# Only the assignments before the first dictionary reference can be combined.
+values = {}  # [dict-init-mutate]
+values["first"] = 1
+values["second"] = values["first"]
+values["third"] = 3
+
+keys = {}  # [dict-init-mutate]
+keys["key"] = "second"
+keys[keys["key"]] = 2
