@@ -459,3 +459,9 @@ class MyDict(dict):
 class PlainObject:
     def __init__(self):  # [useless-parent-delegation]
         super().__init__()
+
+
+# https://github.com/pylint-dev/pylint/issues/9359
+class MyListInit(list):
+    def __init__(self):
+        super().__init__()
