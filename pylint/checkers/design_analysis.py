@@ -67,7 +67,8 @@ MSGS: dict[str, MessageDefinitionTuple] = (
         "R0914": (
             "Too many local variables (%s/%s)",
             "too-many-locals",
-            "Used when a function or method has too many local variables.",
+            "Used when a function or method has too many local variables, "
+            "which may make it difficult to follow, maintain or test.",
         ),
         "R0915": (
             "Too many statements (%s/%s)",
