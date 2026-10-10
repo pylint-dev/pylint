@@ -1754,7 +1754,7 @@ Standard Checkers
 
 --min-similarity-lines
 """"""""""""""""""""""
-*Minimum lines number of a similarity.*
+*Minimum lines number of a similarity. Setting it to 0 will disable the check, but you should use disable=duplicate-code instead.*
 
 **Default:**  ``4``
 
