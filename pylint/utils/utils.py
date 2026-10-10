@@ -96,10 +96,9 @@ def get_module_and_frameid(node: nodes.NodeNG) -> tuple[str, str]:
             module = frame.name
         else:
             obj.append(getattr(frame, "name", "<lambda>"))
-        try:
-            frame = frame.parent.frame()
-        except AttributeError:
+        if frame.parent is None:
             break
+        frame = frame.parent.frame()
     return module, ".".join(reversed(obj))
 
 
