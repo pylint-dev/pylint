@@ -49,7 +49,7 @@ for additional fixes, features, and performance improvements applicable to pylin
 
 What's new in Pylint 4.1.3?
 ---------------------------
-Release date: 2026-10-10
+Release date: 2026-10-11
 
 
 False Positives Fixed
@@ -177,13 +177,6 @@ False Positives Fixed
   between instances of a ``set`` or ``frozenset`` subclass.
 
   Refs #11513 (`#11513 <https://github.com/pylint-dev/pylint/issues/11513>`_)
-
-- Fixed a false positive for ``arguments-differ`` when an overriding method declares
-  a parameter as positional-only (``/``) that is a regular parameter in the
-  overridden method. Positional-only parameters are now counted as positional
-  parameters in the comparison.
-
-  Closes #11567 (`#11567 <https://github.com/pylint-dev/pylint/issues/11567>`_)
 
 
 
