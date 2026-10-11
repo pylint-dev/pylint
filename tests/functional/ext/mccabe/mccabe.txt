@@ -33,3 +33,4 @@ too-complex:378:0:378:24:non_exhaustive_match:'non_exhaustive_match' is too comp
 too-complex:390:0:390:22:match_capture_name:'match_capture_name' is too complex. The McCabe rating is 3:HIGH
 too-complex:403:0:403:26:match_guarded_wildcard:'match_guarded_wildcard' is too complex. The McCabe rating is 3:HIGH
 too-complex:436:4:436:17:PropertyAccessors.attribute:'attribute' is too complex. The McCabe rating is 1:HIGH
+too-complex:441:0:441:20:exception_groups:'exception_groups' is too complex. The McCabe rating is 1:HIGH
