@@ -1,0 +1,6 @@
+Fixed a false positive for ``arguments-differ`` when an overriding method declares
+a parameter as positional-only (``/``) that is a regular parameter in the
+overridden method. Positional-only parameters are now counted as positional
+parameters in the comparison.
+
+Closes #11567
