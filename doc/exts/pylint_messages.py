@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import os
 from collections import defaultdict
-from enum import Enum
+from enum import StrEnum
 from inspect import getmodule
 from itertools import chain, groupby
 from pathlib import Path
@@ -72,7 +72,7 @@ class MessageData(NamedTuple):
     default_enabled: bool = True
 
 
-class ExampleType(str, Enum):
+class ExampleType(StrEnum):
     GOOD = "good"
     BAD = "bad"
 
