@@ -5,9 +5,11 @@
 """Unit tests for the imports checker."""
 
 import os
+from pathlib import Path
 
 import astroid
-from pytest import CaptureFixture
+import pytest
+from pytest import CaptureFixture, MonkeyPatch
 
 from pylint.checkers import imports
 from pylint.interfaces import UNDEFINED
@@ -20,6 +22,100 @@ REGR_DATA = os.path.join(os.path.dirname(__file__), "..", "regrtest_data", "")
 
 class TestImportsChecker(CheckerTestCase):
     CHECKER_CLASS = imports.ImportsChecker
+
+    @staticmethod
+    @pytest.mark.parametrize("is_package", [False, True])
+    @pytest.mark.parametrize("statement", ["import pack", "from pack import X"])
+    @pytest.mark.parametrize("script_first", [False, True])
+    def test_script_imports_same_named_module(
+        tmp_path: Path,
+        monkeypatch: MonkeyPatch,
+        capsys: CaptureFixture[str],
+        is_package: bool,
+        statement: str,
+        script_first: bool,
+    ) -> None:
+        """A script and the module it imports can have the same basename."""
+        if is_package:
+            target = tmp_path / "pack"
+            target.mkdir()
+            source = target / "__init__.py"
+        else:
+            target = source = tmp_path / "pack.py"
+        source.write_text("X = 1\n", encoding="utf-8")
+        script = tmp_path / "scripts" / "pack"
+        script.parent.mkdir()
+        script.write_text(f"{statement}\n", encoding="utf-8")
+        monkeypatch.chdir(tmp_path)
+        targets = [str(target), str(script)]
+        if script_first:
+            targets.reverse()
+
+        astroid.MANAGER.clear_cache()
+        for _ in range(2):
+            Run(
+                [*targets, "--disable=all", "--enable=import-self", "--persistent=no"],
+                exit=False,
+            )
+            output, errors = capsys.readouterr()
+            assert "import-self" not in output
+            assert not errors
+
+    @staticmethod
+    @pytest.mark.parametrize("is_package", [False, True])
+    @pytest.mark.parametrize("statement", ["import pack", "from pack import X"])
+    def test_import_self_still_reported(
+        tmp_path: Path,
+        monkeypatch: MonkeyPatch,
+        capsys: CaptureFixture[str],
+        is_package: bool,
+        statement: str,
+    ) -> None:
+        if is_package:
+            target = tmp_path / "pack"
+            target.mkdir()
+            source = target / "__init__.py"
+        else:
+            target = source = tmp_path / "pack.py"
+        source.write_text(f"X = 1\n{statement}\n", encoding="utf-8")
+        monkeypatch.chdir(tmp_path)
+        astroid.MANAGER.clear_cache()
+        Run(
+            [str(target), "--disable=all", "--enable=import-self", "--persistent=no"],
+            exit=False,
+        )
+        output, errors = capsys.readouterr()
+        assert output.count("(import-self)") == 1
+        assert not errors
+
+    @pytest.mark.parametrize("resolution", ["same", "different", "builtin", "missing"])
+    def test_import_self_file_resolution(
+        self, tmp_path: Path, monkeypatch: MonkeyPatch, resolution: str
+    ) -> None:
+        module = astroid.parse("import pack", module_name="pack")
+        module.file = str(tmp_path / "pack.py")
+        node = module.body[0]
+        monkeypatch.setattr(astroid.modutils, "get_module_part", lambda name: name)
+
+        def resolve(modpath: list[str]) -> str | None:
+            assert modpath == ["pack"]
+            if resolution == "missing":
+                raise ImportError("No importable module")
+            if resolution == "builtin":
+                return None
+            if resolution == "same":
+                return str(tmp_path / "directory" / ".." / "pack.py")
+            return str(tmp_path / "other" / "pack.py")
+
+        monkeypatch.setattr(astroid.modutils, "file_from_modpath", resolve)
+        if resolution in {"same", "missing"}:
+            with self.assertAddsMessages(
+                MessageTest(msg_id="import-self", node=node), ignore_position=True
+            ):
+                self.checker._add_imported_module(node, "pack")
+        else:
+            with self.assertNoMessages():
+                self.checker._add_imported_module(node, "pack")
 
     def test_relative_beyond_top_level(self) -> None:
         module = astroid.MANAGER.ast_from_module_name("beyond_top", REGR_DATA)

@@ -1,0 +1,4 @@
+Fix false-positive ``import-self`` messages when an extensionless script imports
+a module or package with the same name.
+
+Closes #10025
