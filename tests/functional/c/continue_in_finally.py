@@ -64,3 +64,15 @@ def break_in_except_not_finally(items):
                 break
         finally:
             pass
+
+
+def nested_in_inner_loop_else(items):
+    for _ in items:
+        try:
+            pass
+        finally:
+            for _ in items:
+                pass
+            else:
+                if items:
+                    break  # [break-in-finally]
