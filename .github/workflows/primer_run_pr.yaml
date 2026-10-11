@@ -39,7 +39,7 @@ jobs:
     timeout-minutes: 75
     strategy:
       matrix:
-        python-version: ["3.10", "3.15"]
+        python-version: ["3.11", "3.15"]
         batches: [4]
         batchIdx: [0, 1, 2, 3]
     steps:
@@ -248,7 +248,7 @@ jobs:
           echo ${{ github.event.pull_request.number }} | tee pr_number.txt
       - name: Upload PR number
         if:
-          startsWith(steps.python.outputs.python-version, '3.10') && matrix.batchIdx ==
+          startsWith(steps.python.outputs.python-version, '3.11') && matrix.batchIdx ==
           0
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
