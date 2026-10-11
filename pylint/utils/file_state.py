@@ -158,6 +158,15 @@ class FileState:
                 if line in lines:  # state change in the same block
                     state = lines[line]
                     original_lineno = line
+                elif (
+                    msg.scope == WarningScope.NODE
+                    and firstchildlineno < lineno
+                    and line < lineno
+                    and line not in self._module_msgs_state.get(msg.msgid, ())
+                ):
+                    # The pragma does not apply before its own line: leave these
+                    # lines to the configuration instead of enabling the message.
+                    continue
 
                 self._set_message_state_on_line(msg, line, state, original_lineno)
 
