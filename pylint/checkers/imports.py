@@ -556,7 +556,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             self._check_module_dunders(node)
 
     def _check_module_dunders(self, node: nodes.Module) -> None:
-        """Check that independent module dunders precede regular imports."""
+        """Check that independent module dunder names precede regular imports."""
         regular_import_seen = False
 
         for statement in node.body:

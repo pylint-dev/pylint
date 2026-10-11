@@ -1,6 +1,6 @@
 """Test valid __all__ format."""
 
-# pylint: disable=import-error, unused-import
+# pylint: disable=import-error, unused-import, misplaced-module-dunder
 
 from foo import bar
 

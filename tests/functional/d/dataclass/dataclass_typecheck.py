@@ -3,7 +3,7 @@
 Tests for regressions from https://github.com/pylint-dev/astroid/pull/1126
 """
 
-# pylint: disable=missing-docstring,too-few-public-methods,pointless-statement,redefined-builtin, fixme
+# pylint: disable=missing-docstring,too-few-public-methods,pointless-statement,redefined-builtin, fixme, misplaced-module-dunder
 
 # Disabled because of a bug with pypy 3.8 see
 # https://github.com/pylint-dev/pylint/pull/7918#issuecomment-1352737369

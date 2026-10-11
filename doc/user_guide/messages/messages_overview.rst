@@ -531,6 +531,7 @@ All messages in the convention category:
    convention/invalid-name
    convention/line-too-long
    convention/misplaced-comparison-constant
+   convention/misplaced-module-dunder
    convention/missing-class-docstring
    convention/missing-final-newline
    convention/missing-function-docstring
