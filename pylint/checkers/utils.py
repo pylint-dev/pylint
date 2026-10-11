@@ -327,7 +327,7 @@ def _defnode_in_targets(
     return None
 
 
-# pylint: disable = too-many-branches
+# pylint: disable = too-many-branches, too-many-return-statements
 def defnode_in_scope(
     var_node: nodes.NodeNG,
     varname: str,
@@ -357,23 +357,32 @@ def defnode_in_scope(
         # The targets are bound after the value is evaluated
         if any(target.parent_of(var_node) for target in scope.targets):
             return _defnode_in_targets(var_node, varname, scope.targets, scope.scope())
-    elif isinstance(scope, (nodes.Lambda, nodes.FunctionDef)):
-        if scope.args.is_argument(varname):
-            # If the name is found inside a default value
-            # of a function, then let the search continue
-            # in the parent's tree.
-            if scope.args.parent_of(var_node):
-                try:
-                    scope.args.default_value(varname)
-                    scope = scope.parent
-                    defnode = defnode_in_scope(var_node, varname, scope)
-                except astroid.NoDefault:
-                    pass
-                else:
-                    return defnode
-            return scope
-        if getattr(scope, "name", None) == varname:
-            return scope
+    elif isinstance(scope, nodes.Decorators):
+        for ass_node in scope.nodes_of_class(nodes.AssignName):
+            if ass_node.name == varname:
+                return ass_node
+    elif isinstance(scope, (nodes.Lambda, nodes.FunctionDef, nodes.ClassDef)):
+        if getattr(scope, "decorators", None):
+            for ass_node in scope.decorators.nodes_of_class(nodes.AssignName):
+                if ass_node.name == varname:
+                    return ass_node
+        if isinstance(scope, (nodes.Lambda, nodes.FunctionDef)):
+            if scope.args.is_argument(varname):
+                # If the name is found inside a default value
+                # of a function, then let the search continue
+                # in the parent's tree.
+                if scope.args.parent_of(var_node):
+                    try:
+                        scope.args.default_value(varname)
+                        scope = scope.parent
+                        defnode = defnode_in_scope(var_node, varname, scope)
+                    except astroid.NoDefault:
+                        pass
+                    else:
+                        return defnode
+                return scope
+            if getattr(scope, "name", None) == varname:
+                return scope
     elif isinstance(scope, nodes.ExceptHandler):
         if isinstance(scope.name, nodes.AssignName):
             ass_node = scope.name
@@ -399,6 +408,22 @@ def is_defined_before(var_node: nodes.Name) -> bool:
         if isinstance(parent, nodes.Assign):
             # Bound by an earlier target of the same assignment
             return True
+        if isinstance(defnode.parent, nodes.NamedExpr):
+            named_expr = defnode.parent
+            if (
+                not named_expr.value.parent_of(var_node)
+                and defnode.lineno is not None
+                and var_node.lineno is not None
+            ):
+                if defnode.lineno < var_node.lineno:
+                    return True
+                if (
+                    defnode.lineno == var_node.lineno
+                    and defnode.col_offset is not None
+                    and var_node.col_offset is not None
+                ):
+                    return bool(defnode.col_offset < var_node.col_offset)
+            return False
         defnode_scope = defnode.scope()
         if isinstance(
             defnode_scope, (*COMP_NODE_TYPES, nodes.Lambda, nodes.FunctionDef)
