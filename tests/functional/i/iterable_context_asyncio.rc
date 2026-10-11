@@ -1,5 +1,0 @@
-[main]
-py-version=3.9
-
-[testoptions]
-max_pyver=3.11
