@@ -1,0 +1,2 @@
+undefined-variable:51:8:51:9:test_undefined_after:Undefined variable 'x':HIGH
+undefined-variable:64:11:64:12:test_reversed_filter:Undefined variable 'x':HIGH

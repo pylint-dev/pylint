@@ -1,0 +1,5 @@
+Fixed a false positive ``undefined-variable`` (E0602) when a variable assigned
+with the walrus operator (``:=``) in comprehension filters or generators is
+referenced in comprehension elements after a blank type annotation.
+
+Closes #11647
