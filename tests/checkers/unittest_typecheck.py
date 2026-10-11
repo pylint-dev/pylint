@@ -103,6 +103,30 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
+    def test_enum_exception_instance_attribute_no_crash(self) -> None:
+        """Regression test for issue 11638: Enum exception instance attribute access."""
+        self.checker.open()
+        node = astroid.extract_node("""
+        from enum import Enum
+
+        try:
+            pass
+        except Enum as e:
+            e.message  #@
+        """)
+        message = MessageTest(
+            "no-member",
+            node=node,
+            args=("Instance of", "Enum", "message", ""),
+            confidence=INFERENCE,
+            line=7,
+            col_offset=4,
+            end_line=7,
+            end_col_offset=13,
+        )
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
 
 class TestTypeCheckerOnDecorators(CheckerTestCase):
     """Tests for pylint.checkers.typecheck on decorated functions."""

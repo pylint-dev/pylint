@@ -1,0 +1,3 @@
+Fixed an ``AssertionError`` crash in the typecheck checker when accessing an attribute on an ``Enum`` exception instance.
+
+Closes #11638
