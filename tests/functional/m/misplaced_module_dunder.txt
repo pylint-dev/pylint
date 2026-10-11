@@ -1,0 +1,2 @@
+misplaced-module-dunder:14:0:14:13::Module-level dunder name __copyright__ should be placed before imports:UNDEFINED
+misplaced-module-dunder:15:0:15:11::Module-level dunder name __credits__ should be placed before imports:UNDEFINED
