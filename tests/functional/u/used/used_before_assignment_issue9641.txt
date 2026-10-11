@@ -1,0 +1,2 @@
+used-before-assignment:18:5:18:20::Using variable 'undefined_order' before assignment:HIGH
+used-before-assignment:25:17:25:25::Using variable 'self_ref' before assignment:HIGH
