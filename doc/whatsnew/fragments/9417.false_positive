@@ -1,4 +1,0 @@
-Fix a false positive for :ref:`unused-argument` in ``.pyi`` stub files, where
-function bodies are ``...`` and cannot use their arguments.
-
-Closes #9417

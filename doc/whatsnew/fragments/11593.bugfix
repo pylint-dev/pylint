@@ -1,4 +1,0 @@
-Fixed ``nested-min-max`` suggesting a non-equivalent rewrite when an inner
-``min``/``max`` call had multiple arguments.
-
-Refs #11593

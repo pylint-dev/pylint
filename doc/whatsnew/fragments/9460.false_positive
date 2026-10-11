@@ -1,5 +1,0 @@
-Fix a false positive for ``used-before-assignment`` when a name assigned with an
-assignment expression in the condition of a comprehension is used in its element,
-for example ``[y for x in data if (y := f(x))]``.
-
-Closes #9460

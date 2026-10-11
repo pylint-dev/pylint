@@ -1,5 +1,0 @@
-Fix a false positive for :ref:`possibly-used-before-assignment` when a lambda
-uses its parameters, including from a nested lambda, and that name is assigned
-later in the module.
-
-Closes #9126
