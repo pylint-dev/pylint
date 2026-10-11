@@ -1,7 +1,7 @@
 """Regression test for https://github.com/pylint-dev/pylint/issues/9641
 Walrus operator assignment in stacked decorators should not trigger used-before-assignment.
 """
-# pylint: disable=missing-function-docstring,unused-argument
+# pylint: disable=missing-function-docstring,missing-class-docstring,too-few-public-methods,unused-argument
 
 
 def dec(*args):
@@ -46,3 +46,23 @@ def test_same_line():
 @dec(same_b, same_b := 1)  # [used-before-assignment]
 def test_same_line_reversed():
     pass
+
+
+# Single decorator walrus directly used in default argument
+@dec(single_dec := [1, 2])
+def test_direct_default(x=single_dec):
+    return x
+
+
+# Comprehension walrus should not be affected by decorator walrus checks
+def test_comprehension_walrus(items):
+    return [
+        val if (val := item) else None
+        for item in items
+    ]
+
+
+# Class decorator walrus used in class body
+@dec(class_walrus := [1, 2])
+class DecoratedClass:
+    class_attr = class_walrus
