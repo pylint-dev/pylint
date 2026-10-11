@@ -1,3 +1,0 @@
-Fixed an ``IndexError`` crash in the typecheck checker when an ``Enum`` class defines an ``__init__`` method without arguments.
-
-Closes #11608
