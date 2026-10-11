@@ -15,6 +15,7 @@ import subprocess
 import sys
 import tempfile
 import textwrap
+import tomllib
 import warnings
 from collections.abc import Iterator
 from copy import copy
@@ -43,12 +44,6 @@ from pylint.testutils.utils import (
     _test_sys_path,
 )
 from pylint.utils import utils
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
-
 
 if TYPE_CHECKING:
     from pylint.reporters.ureports.nodes import Section

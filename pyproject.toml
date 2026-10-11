@@ -46,7 +46,6 @@ dependencies = [
   "isort>=5,!=5.13,<10",
   "mccabe>=0.6,<0.8",
   "platformdirs>=2.2",
-  "tomli>=1.1; python_version<'3.11'",
   "tomlkit>=0.10.1",
 ]
 optional-dependencies.spelling = [ "pyenchant~=3.2" ]
