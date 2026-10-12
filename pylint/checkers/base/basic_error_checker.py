@@ -564,8 +564,10 @@ class BasicErrorChecker(_BasicChecker):
         in_finally = False
         child: nodes.NodeNG = node
         for parent in node.node_ancestors():
+            # A loop's ``else`` clause is not inside the loop, wherever the
+            # statement sits in it.
             if isinstance(parent, (nodes.For, nodes.While)):
-                if node not in parent.orelse:
+                if child not in parent.orelse:
                     return
 
             if isinstance(parent, (nodes.ClassDef, nodes.FunctionDef)):
@@ -574,7 +576,7 @@ class BasicErrorChecker(_BasicChecker):
             # e.g. under an ``if``, as long as the loop it exits is outside.
             if (
                 not in_finally
-                and isinstance(parent, nodes.Try)
+                and isinstance(parent, (nodes.Try, nodes.TryStar))
                 and child in parent.finalbody
             ):
                 in_finally = True
