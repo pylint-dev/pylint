@@ -15,13 +15,28 @@ from astroid import modutils
 from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
 
 
+def _is_namespace_package_path(inner_path: str, parts: list[str]) -> bool:
+    """Consider existing directories as namespace packages (PEP 420)."""
+    return os.path.isdir(os.path.join(inner_path, *parts))
+
+
 def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> list[str]:
     def _is_package_cb(inner_path: str, parts: list[str]) -> bool:
         return modutils.check_modpath_has_init(inner_path, parts) or is_namespace
 
-    return modutils.modpath_from_file_with_callback(  # type: ignore[no-any-return]
-        filename, path=path, is_package_cb=_is_package_cb
-    )
+    try:
+        return modutils.modpath_from_file_with_callback(  # type: ignore[no-any-return]
+            filename, path=path, is_package_cb=_is_package_cb
+        )
+    except ImportError:
+        # check_modpath_has_init() consults astroid's is_namespace(), which reports
+        # "not a namespace package" as soon as one portion of the package lives in
+        # site-packages or in the standard library. Retry without requiring
+        # __init__.py files to still resolve such packages.
+        # See https://github.com/pylint-dev/pylint/issues/10278
+        return modutils.modpath_from_file_with_callback(  # type: ignore[no-any-return]
+            filename, path=path, is_package_cb=_is_namespace_package_path
+        )
 
 
 def discover_package_path(modulepath: str, source_roots: Sequence[str]) -> str:
@@ -102,7 +117,7 @@ def expand_modules(
             # this is a file or a directory
             try:
                 modname = ".".join(
-                    modutils.modpath_from_file(something, path=additional_search_path)
+                    _modpath_from_file(something, False, path=additional_search_path)
                 )
             except ImportError:
                 modname = os.path.splitext(basename)[0]
