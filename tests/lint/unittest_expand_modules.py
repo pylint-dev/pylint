@@ -35,7 +35,7 @@ def test__is_in_ignore_list_re_match() -> None:
 def test_package_expansion_order(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, is_package: bool, reverse: bool
 ) -> None:
-    package = tmp_path / "package"
+    package = tmp_path / "package_for_expansion_order"
     nested = package / "nested"
     nested.mkdir(parents=True)
     paths = [
