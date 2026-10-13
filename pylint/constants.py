@@ -114,11 +114,11 @@ HUMAN_READABLE_TYPES = {
 INCOMPATIBLE_WITH_USELESS_SUPPRESSION = frozenset(
     [
         "R0401",  # cyclic-import
-        "W0402",  # deprecated-module
-        "W1505",  # deprecated-method
-        "W1511",  # deprecated-argument
-        "W1512",  # deprecated-class
-        "W1513",  # deprecated-decorator
+        "W4901",  # deprecated-module
+        "W4902",  # deprecated-method
+        "W4903",  # deprecated-argument
+        "W4904",  # deprecated-class
+        "W4905",  # deprecated-decorator
         "R0801",  # duplicate-code
     ]
 )
