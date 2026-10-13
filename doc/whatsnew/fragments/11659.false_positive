@@ -2,4 +2,4 @@
 defined in a ``finally`` clause, and is emitted only once for a ``return`` in a
 ``finally`` clause nested inside another ``finally`` clause.
 
-Refs #99901
+Refs #11659
