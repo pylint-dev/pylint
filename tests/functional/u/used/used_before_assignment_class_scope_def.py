@@ -127,3 +127,24 @@ def enclosing_function():
             return self
 
     return Inner
+
+
+def late_bound_module_name():
+    class A:
+        x = later([1])
+
+        def later(self): ...
+
+    return A
+
+
+later = len
+late_bound_module_name()
+
+
+class OuterClass:
+    class NestedClass:
+        joined = path.join("a", "b")
+
+        def path(self):
+            return self
