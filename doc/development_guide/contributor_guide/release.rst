@@ -48,8 +48,8 @@ For example:
    example: ``v2.4.0``)
 -  Push the tag.
 -  Release the version on GitHub with the same name as the tag and copy
-   and paste the appropriate changelog in the description. This triggers
-   the PyPI release.
+   and paste ``release_notes.md``, written by ``tbump``, in the description.
+   This triggers the PyPI release.
 -  Create a ``maintenance/X.Y.x`` (For example: ``maintenance/2.4.x``
    from the ``v2.4.0`` tag.)
 -  Upgrade the pattern for the protected branches in the settings under
@@ -115,13 +115,23 @@ branch and has been cherry-picked on the maintenance branch.
    run the CI tests for this branch.
 -  Create and push the tag.
 -  Release the version on GitHub with the same name as the tag and copy
-   and paste the changelog from the ReadtheDoc generated documentation
-   from the pull request pipeline in the description. This triggers the
-   PyPI release.
+   and paste ``release_notes.md``, written by ``tbump``, in the description.
+   This triggers the PyPI release.
 -  Merge the ``maintenance/X.Y.x`` branch on the main branch. The main
    branch should have the changelog for ``X.Y-1.Z+1`` (For example
    ``v2.3.6``). This merge is required so ``pre-commit autoupdate``
-   works for pylint.
+   works for pylint. Remove the news fragments the patch release already
+   consumed as part of the merge, otherwise git keeps main's copy and the
+   next minor release lists these fixes a second time:
+
+   .. code:: bash
+
+      git merge --no-commit origin/maintenance/X.Y.x
+      # Fragments deleted on the maintenance branch since the last merge
+      git log --diff-filter=D --name-only --format= HEAD..MERGE_HEAD -- doc/whatsnew/fragments \
+          | xargs -r git rm -q --ignore-unmatch
+      git commit
+
 -  Fix version conflicts properly, or bump the version to ``X.Y.0-devZ``
    (For example: ``2.4.0-dev6``) before pushing on the main branch
 -  Close the current milestone and create the new one (For example:
