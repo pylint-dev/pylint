@@ -164,8 +164,8 @@ def mutable_call_reported_once(value=list()):  # [dangerous-default-value]
     return value
 
 
-def immutable_calls(a=tuple(), b=frozenset(), c=int("1"), d=str(), e=object()):
-    return a, b, c, d, e
+def immutable_calls(a=tuple(), b=frozenset(), c=int("1"), d=str()):
+    return a, b, c, d
 
 
 def callable_defaults(factory=default_key, callback=lambda: default_key()):

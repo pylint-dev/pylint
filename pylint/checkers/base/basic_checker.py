@@ -16,6 +16,7 @@ from astroid import bases, nodes, objects, util
 
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
+from pylint.checkers.match_statements_checker import MATCH_CLASS_SELF_NAMES
 from pylint.interfaces import HIGH, INFERENCE, UNDEFINED, Confidence
 from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
@@ -112,32 +113,6 @@ class BasicChecker(_BasicChecker):
     """
 
     name = "basic"
-    options = (
-        (
-            "allowed-default-calls",
-            {
-                "default": (
-                    "builtins.bool",
-                    "builtins.bytes",
-                    "builtins.complex",
-                    "builtins.float",
-                    "builtins.frozenset",
-                    "builtins.int",
-                    "builtins.object",
-                    "builtins.range",
-                    "builtins.str",
-                    "builtins.tuple",
-                ),
-                "type": "csv",
-                "metavar": "<comma separated list>",
-                "help": "List of qualified names (i.e., library.function) of calls "
-                "that are allowed in default arguments, because they return an "
-                "immutable value or are meant to run once, e.g. "
-                "'fastapi.Depends,fastapi.Query'. A name that cannot be inferred is "
-                "matched as written in the source.",
-            },
-        ),
-    )
     msgs = {
         "W0101": (
             "Unreachable code",
@@ -649,11 +624,9 @@ class BasicChecker(_BasicChecker):
         # inside it are not evaluated at definition time.
         if isinstance(default, nodes.Lambda):
             return
-        allowed = self.linter.config.allowed_default_calls
+        allowed = MATCH_CLASS_SELF_NAMES
         for call in default.nodes_of_class(nodes.Call, skip_klass=nodes.Lambda):
             written_name = call.func.as_string()
-            if written_name in allowed:
-                continue
             inferred = utils.safe_infer(call.func)
             if (
                 isinstance(inferred, (nodes.LocalsDictNodeNG, bases.Proxy))
@@ -661,7 +634,7 @@ class BasicChecker(_BasicChecker):
             ):
                 continue
             if isinstance(inferred, nodes.ClassDef) and self._inherits_from_allowed(
-                inferred, allowed
+                inferred, list(allowed)
             ):
                 continue
             self.add_message(
