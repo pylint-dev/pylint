@@ -1,0 +1,5 @@
+``unsupported-binary-operation`` is no longer emitted for ``X | Y`` in a
+``.pyi`` stub when ``py-version`` is older than 3.10. Stubs are not executed,
+and that syntax is the PEP 604 union form.
+
+Closes #9624
