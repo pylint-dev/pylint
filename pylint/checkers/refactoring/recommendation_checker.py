@@ -122,22 +122,15 @@ class RecommendationChecker(checkers.BaseChecker):
         ):
             return
 
-        confidence = HIGH
-        try:
-            sep = utils.get_argument_from_call(node, 0, "sep")
-        except utils.NoSuchArgumentError:
-            sep = utils.infer_kwarg_from_call(node, keyword="sep")
-            confidence = INFERENCE
-            if not sep:
-                return
-
-        try:
-            # Ignore if maxsplit arg has been set
-            utils.get_argument_from_call(node, 1, "maxsplit")
+        sep_argument = utils.find_call_argument(node, keyword="sep", position=0)
+        sep = sep_argument.value
+        if sep is None:
             return
-        except utils.NoSuchArgumentError:
-            if utils.infer_kwarg_from_call(node, keyword="maxsplit"):
-                return
+        confidence = sep_argument.confidence
+
+        # Ignore if maxsplit arg has been set
+        if utils.find_call_argument(node, keyword="maxsplit", position=1).value:
+            return
 
         if isinstance(node.parent, nodes.Subscript):
             try:

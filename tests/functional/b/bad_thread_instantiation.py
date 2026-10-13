@@ -19,6 +19,29 @@ thread = threading.Thread(thread_target, args=(10,))  # [bad-thread-instantiatio
 
 
 kw = {'target_typo': lambda x: x}
-threading.Thread(None, **kw)  # [unexpected-keyword-arg, bad-thread-instantiation]
+# kw may have gained a target since its assignment
+threading.Thread(None, **kw)  # [unexpected-keyword-arg]
 
 threading.Thread(None, target_typo=lambda x: x)  # [unexpected-keyword-arg, bad-thread-instantiation]
+
+threading.Thread(**{"target": thread_target})
+threading.Thread(None, **{"target": thread_target})
+threading.Thread(**{"name": "worker"})  # [bad-thread-instantiation]
+threading.Thread(None, **{})  # [bad-thread-instantiation]
+threading.Thread(*[None, thread_target])
+
+
+def thread_with_forwarded_kwargs(**kwargs):
+    return threading.Thread(**kwargs)
+
+
+def thread_with_opaque_options(options):
+    return threading.Thread(**options)
+
+
+def thread_with_extra_options(options):
+    return threading.Thread(**{"name": "worker", **options})
+
+
+def thread_with_variable_key(key):
+    return threading.Thread(**{key: thread_target})
