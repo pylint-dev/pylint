@@ -1,5 +1,5 @@
 Fix a crash when linting a package whose parent directory is an implicit namespace package
-that also exists in ``site-packages``: the module paths of the files inside it could not be
+that also exists in ``site-packages`` or the standard library: the module paths of the files inside it could not be
 resolved, and the given package was reported without its package prefix.
 
 Closes #10278
