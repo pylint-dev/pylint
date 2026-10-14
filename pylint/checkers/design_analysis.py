@@ -14,7 +14,11 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import is_enum, only_required_for_messages
+from pylint.checkers.utils import (
+    creates_non_class_object,
+    is_enum,
+    only_required_for_messages,
+)
 from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
 
@@ -459,7 +463,12 @@ class MisdesignChecker(BaseChecker):
             STDLIB_CLASSES_IGNORE_ANCESTOR.union(self.linter.config.ignored_parents),
         )
         nb_parents = len(parents)
-        if nb_parents > self.linter.config.max_parents:
+        # The ancestors of a class statement that does not create a class include
+        # the ancestors of the type building it, which are not its parents
+        if (
+            nb_parents > self.linter.config.max_parents
+            and not creates_non_class_object(node)
+        ):
             self.add_message(
                 "too-many-ancestors",
                 node=node,

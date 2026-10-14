@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 from pylint.checkers.typecheck import _similar_names
 from pylint.checkers.utils import (
     class_is_abstract,
+    creates_non_class_object,
     in_for_else_branch,
     infer_all,
     is_overload_stub,
@@ -25,6 +26,7 @@ def clear_lru_caches() -> None:
     """Clear caches holding references to AST nodes."""
     caches_holding_node_references: list[_lru_cache_wrapper[Any]] = [
         class_is_abstract,
+        creates_non_class_object,
         in_for_else_branch,
         infer_all,
         is_overload_stub,

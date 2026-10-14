@@ -22,6 +22,7 @@ from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
     PYMETHODS,
     class_is_abstract,
+    creates_non_class_object,
     decorated_with,
     decorated_with_property,
     get_outer_class,
@@ -32,6 +33,7 @@ from pylint.checkers.utils import (
     is_comprehension,
     is_in_stub_file,
     is_iterable,
+    is_non_type_metaclass_instance,
     is_module_member,
     is_overload_stub,
     is_property_setter,
@@ -1141,6 +1143,7 @@ a metaclass class method.",
             if isinstance(ancestor, astroid.Instance) and (
                 ancestor.is_subtype_of("builtins.type")
                 or ancestor.is_subtype_of(".Protocol")
+                or is_non_type_metaclass_instance(ancestor)
             ):
                 continue
 
@@ -1467,11 +1470,16 @@ a metaclass class method.",
         if not node.is_method():
             return
 
+        # 'is_method()' is called and makes sure that this is a 'nodes.ClassDef'
+        klass: nodes.ClassDef = node.parent.frame()
+        if creates_non_class_object(klass):
+            # Not an actual method, its first argument is not bound to an instance
+            self._first_attrs.append(None)
+            return
+
         self._check_useless_super_delegation(node)
         self._check_property_with_parameters(node)
 
-        # 'is_method()' is called and makes sure that this is a 'nodes.ClassDef'
-        klass: nodes.ClassDef = node.parent.frame()
         # check first argument is self if this is actually a method
         self._check_first_arg_for_type(node, klass.type == "metaclass")
         if node.name == "__init__":

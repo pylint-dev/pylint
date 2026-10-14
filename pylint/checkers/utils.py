@@ -1458,6 +1458,54 @@ def class_constructors_are_ambiguous(
     return function_arguments_are_ambiguous(constructor1, constructor2)
 
 
+def is_non_type_metaclass_instance(node: InferenceResult | None) -> bool:
+    """Return True if ``node`` is an instance used as a base by a class statement
+    building an instance of its type, which is not a subclass of ``type``.
+
+    When a base of a class statement is not a class, Python calls the type of
+    that base with ``(name, bases, namespace)`` to build the new object, like
+    ``zope.interface.Interface`` does. The result is then not a class.
+    """
+    if not isinstance(node, bases.Instance) or node.is_subtype_of("builtins.type"):
+        return False
+    klass = node._proxied
+    try:
+        constructor = klass.local_attr("__init__")[0]
+    except astroid.NotFoundError:
+        return False
+    if not isinstance(constructor, nodes.FunctionDef) or any(
+        "__mro_entries__" in ancestor.locals for ancestor in (klass, *klass.ancestors())
+    ):
+        return False
+    args = constructor.args
+    if args.args is None:
+        # Unknown signature, e.g. for builtins
+        return False
+    # The ``(name, bases, namespace)`` arguments, plus the instance itself
+    nb_call_args = 4
+    nb_positional = len(args.posonlyargs) + len(args.args)
+    return (
+        nb_positional - len(args.defaults) <= nb_call_args
+        and (nb_positional >= nb_call_args or args.vararg is not None)
+        and None not in args.kw_defaults
+    )
+
+
+@lru_cache(maxsize=1024)
+def creates_non_class_object(node: nodes.ClassDef) -> bool:
+    """Return True if the class statement does not create a class.
+
+    This happens when it, or one of its ancestors, has an instance as base whose
+    type is not a subclass of ``type``, e.g. ``zope.interface`` interfaces.
+    Functions defined in the body of such a statement are not methods.
+    """
+    return any(
+        is_non_type_metaclass_instance(safe_infer(base))
+        for klass in (node, *node.ancestors())
+        for base in klass.bases
+    )
+
+
 def has_known_bases(
     klass: nodes.ClassDef, context: InferenceContext | None = None
 ) -> bool:
