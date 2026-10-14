@@ -413,6 +413,20 @@ def _has_locals_call_after_node(stmt: nodes.NodeNG, scope: nodes.FunctionDef) ->
     return False
 
 
+def _is_typing_cast_type_argument(node: nodes.NodeNG) -> bool:
+    """Check if ``node`` is part of the type argument of a ``typing.cast`` call."""
+    call, argument = utils.get_node_first_ancestor_of_type_and_its_child(
+        node, nodes.Call
+    )
+    if call is None:
+        return False
+    if isinstance(argument, nodes.Keyword):
+        is_type_argument = argument.arg == "typ"
+    else:
+        is_type_argument = argument in call.args[:1]
+    return is_type_argument and utils.is_typing_member(call.func, ("cast",))
+
+
 MSGS: dict[str, MessageDefinitionTuple] = {
     "E0601": (
         "Using variable %r before assignment",
@@ -3632,10 +3646,15 @@ class VariablesChecker(BaseChecker):
     def visit_const(self, node: nodes.Const) -> None:
         """Take note of names that appear inside string literal type annotations
         unless the string is a parameter to `typing.Literal` or `typing.Annotation`.
+
+        The type argument of `typing.cast` is treated as a type annotation too.
         """
         if node.pytype() != "builtins.str":
             return
-        if not utils.is_node_in_type_annotation_context(node):
+        if not (
+            utils.is_node_in_type_annotation_context(node)
+            or _is_typing_cast_type_argument(node)
+        ):
             return
 
         # Check if parent's or grandparent's first child is typing.Literal
