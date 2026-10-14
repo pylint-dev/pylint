@@ -1,0 +1,9 @@
+# Check that ``extend-ignore`` can be set in a TOML configuration file. It adds to
+# the default ``ignore`` list instead of replacing it.
+# See https://github.com/pylint-dev/pylint/issues/5701
+
+[tool.pylint.main]
+extend-ignore = [
+    "migrations",
+    "generated",
+]

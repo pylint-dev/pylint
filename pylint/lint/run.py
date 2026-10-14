@@ -210,15 +210,27 @@ group are mutually exclusive.",
                 sys.exit(code)
             return
 
-        # Display help if there are no files to lint or only internal checks enabled (`--disable=all`)
+        # ``files`` defaults to the current directory, so this is only reachable
+        # when the configuration explicitly sets it to nothing.
+        if not linter.config.files:
+            print("No files to lint: exiting.")
+            sys.exit(32)
+
+        if linter.config.from_stdin and (
+            len(linter.config.files) != 1 or os.path.isdir(linter.config.files[0])
+        ):
+            print("Missing filename required for --from-stdin", file=sys.stderr)
+            sys.exit(32)
+
+        # Exit early when only internal checks are enabled (`--disable=all`)
         disable_all_msg_set = {msg.symbol for msg in linter.msgs_store.messages} - {
             msg[1] for msg in linter.default_enabled_messages.values()
         }
-        if not linter.config.files or (
+        if (
             len(linter.config.enable) == 0
             and set(linter.config.disable) == disable_all_msg_set
         ):
-            print("No files to lint: exiting.")
+            print("No messages to check: exiting.")
             sys.exit(32)
 
         if linter.config.jobs < 0:
