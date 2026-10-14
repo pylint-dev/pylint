@@ -46,7 +46,7 @@ Standard Checkers
 """""""""
 *Disable the message, report, category or checker with the given id(s). You can either give multiple identifiers separated by comma (,) or put this option multiple times (only on the command line, not in the configuration file where it should appear only once). You can also use "--disable=all" to disable everything first and then re-enable specific checks. For example, if you want to run only the similarities checker, you can use "--disable=all --enable=similarities". If you want to run only the classes checker, but have no Warning level messages displayed, use "--disable=all --enable=classes --disable=W".*
 
-**Default:**  ``()``
+**Default:**  ``['bad-inline-option', 'deprecated-pragma', 'file-ignored', 'locally-disabled', 'raw-checker-failed', 'suppressed-message', 'use-implicit-booleaness-not-comparison-to-string', 'use-implicit-booleaness-not-comparison-to-zero', 'use-symbolic-message-instead', 'useless-suppression']``
 
 
 .. _enable-option:
@@ -55,7 +55,7 @@ Standard Checkers
 """"""""
 *Enable the message, report, category or checker with the given id(s). You can either give multiple identifier separated by comma (,) or put this option multiple time (only on the command line, not in the configuration file where it should appear only once). See also the "--disable" option for examples.*
 
-**Default:**  ``()``
+**Default:**  ``[]``
 
 
 .. _enable-all-extensions-option:
@@ -489,7 +489,7 @@ Standard Checkers
 
    confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
 
-   disable = ["bad-inline-option", "consider-using-augmented-assign", "deprecated-pragma", "file-ignored", "locally-disabled", "prefer-typing-namedtuple", "raw-checker-failed", "suppressed-message", "use-implicit-booleaness-not-comparison-to-string", "use-implicit-booleaness-not-comparison-to-zero", "use-symbolic-message-instead", "useless-suppression"]
+   disable = ["bad-inline-option", "deprecated-pragma", "file-ignored", "locally-disabled", "raw-checker-failed", "suppressed-message", "use-implicit-booleaness-not-comparison-to-string", "use-implicit-booleaness-not-comparison-to-zero", "use-symbolic-message-instead", "useless-suppression"]
 
    enable = []
 

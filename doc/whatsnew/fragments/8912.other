@@ -1,0 +1,4 @@
+Show the initialized ``--enable`` and ``--disable`` values in the generated
+all-options documentation.
+
+Closes #8912
