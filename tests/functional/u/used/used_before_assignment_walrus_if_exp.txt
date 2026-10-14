@@ -1,0 +1,2 @@
+used-before-assignment:48:28:48:33:read_in_test_before_walrus:Using variable 'first' before assignment:HIGH
+used-before-assignment:52:18:52:23:walrus_in_other_if_exp:Using variable 'first' before assignment:HIGH
