@@ -7,8 +7,8 @@ import re
 import sys
 from pathlib import Path
 
-import pytest
 import astroid
+import pytest
 from astroid import nodes
 
 from pylint.checkers import variables
@@ -321,4 +321,3 @@ class TestUsedBeforeAssignmentInLoops(CheckerTestCase):
         emitted_msg_ids = {m.msg_id for m in self.linter.release_messages()}
         assert "possibly-used-before-assignment" not in emitted_msg_ids
         assert "used-before-assignment" not in emitted_msg_ids
-

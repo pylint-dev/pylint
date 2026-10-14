@@ -939,10 +939,13 @@ scope_type : {self.scope_type}
                     if inferred.items:
                         return False
                 case nodes.Const():
-                    if not isinstance(
-                        inferred.value,
-                        (str, bytes, list, tuple, set, frozenset, dict),
-                    ) or len(inferred.value) > 0:
+                    if (
+                        not isinstance(
+                            inferred.value,
+                            (str, bytes, list, tuple, set, frozenset, dict),
+                        )
+                        or len(inferred.value) > 0
+                    ):
                         return False
                 case _:
                     return False
@@ -951,11 +954,7 @@ scope_type : {self.scope_type}
     @staticmethod
     def _is_always_false_condition(test_node: nodes.NodeNG) -> bool:
         """Return True if test_node is known to always evaluate to False."""
-        test = (
-            test_node.value
-            if isinstance(test_node, nodes.NamedExpr)
-            else test_node
-        )
+        test = test_node.value if isinstance(test_node, nodes.NamedExpr) else test_node
         all_inferred = utils.infer_all(test)
         if not all_inferred:
             return False
@@ -975,7 +974,9 @@ scope_type : {self.scope_type}
         node: nodes.NodeNG,
     ) -> list[nodes.NodeNG]:
         """Identify nodes of uncertain execution because they are defined inside
-        a loop that never runs (e.g. empty iterable in for-loop or False condition in while-loop).
+        a loop that never runs (e.g. empty iterable in for-loop or False condition in.
+
+        while-loop).
         """
         uncertain_nodes = []
         for other_node in found_nodes:
@@ -999,10 +1000,7 @@ scope_type : {self.scope_type}
                 ):
                     continue
                 # If node is in the same loop body, skip
-                if any(
-                    stmt.parent_of(node) or stmt == node
-                    for stmt in ancestor.body
-                ):
+                if any(stmt.parent_of(node) or stmt == node for stmt in ancestor.body):
                     continue
 
                 is_empty_loop = False
