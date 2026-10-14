@@ -395,7 +395,10 @@ class RecommendationChecker(checkers.BaseChecker):
             and node.parent.attrname == "format"
         ):
             # Don't warn on referencing / assigning .format without calling it
-            if not isinstance(node.parent.parent, nodes.Call):
+            if (
+                not isinstance(node.parent.parent, nodes.Call)
+                or node.parent.parent.func is not node.parent
+            ):
                 return
 
             # Don't raise message on bad format string
