@@ -21,9 +21,23 @@ PACKAGE_TESTS = get_functional_test_packages(FUNCTIONAL_DIR / "packages")
 PACKAGE_TESTS += get_functional_test_packages(FUNCTIONAL_DIR / "package_diagrams")
 
 
+def _test_marks(marker: str, reason: str) -> tuple[pytest.MarkDecorator, ...]:
+    if not marker:
+        return ()
+    if marker == "xfail":
+        return (pytest.mark.xfail(reason=reason, strict=True, raises=AssertionError),)
+    return (pytest.mark.skip(reason=reason),)
+
+
 @pytest.mark.parametrize(
     "testfile",
-    CLASS_DIAGRAM_TESTS,
+    [
+        pytest.param(
+            testfile,
+            marks=_test_marks(testfile.options["marker"], testfile.options["reason"]),
+        )
+        for testfile in CLASS_DIAGRAM_TESTS
+    ],
     ids=CLASS_DIAGRAM_TEST_IDS,
 )
 def test_class_diagrams(testfile: FunctionalPyreverseTestfile, tmp_path: Path) -> None:
@@ -36,16 +50,7 @@ def test_class_diagrams(testfile: FunctionalPyreverseTestfile, tmp_path: Path) -
         pytest.param(
             testfile,
             id=testfile.source.name,
-            # Keep the regression separate from the test infrastructure change.
-            marks=(
-                pytest.mark.xfail(
-                    reason="Missing inheritance links for flat folders (#7686)",
-                    strict=True,
-                    raises=AssertionError,
-                )
-                if testfile.source.name == "complex_inheritance"
-                else ()
-            ),
+            marks=_test_marks(testfile.options["marker"], testfile.options["reason"]),
         )
         for testfile in PACKAGE_TESTS
     ],

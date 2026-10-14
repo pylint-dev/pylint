@@ -160,11 +160,20 @@ All layouts use the same options in the ``.rc`` file's ``[testoptions]`` section
    * - ``command_line_args``
      - Additional Pyreverse arguments; quoted values are supported.
      - None
+   * - ``marker``
+     - ``xfail`` for an expected assertion failure, or ``skip`` to omit the test.
+     - None (must pass)
+   * - ``reason``
+     - Explanation required when ``marker`` is set.
+     - None
 
 Relative source roots start from the input file's parent or the input directory.
 Only the selected diagram type's text is compared with expected output.
 Directory names do not select it: ``package_diagrams`` tests must set
 ``diagram_type=packages``.
+
+For a known bug, use ``marker=xfail`` and a short ``reason``, ideally with an issue
+number. An unexpected pass fails the suite, so remove the marker when fixed.
 
 Run with::
 

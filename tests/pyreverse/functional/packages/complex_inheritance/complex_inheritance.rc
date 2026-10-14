@@ -1,2 +1,4 @@
 [testoptions]
 command_line_args=-ASmy
+marker=xfail
+reason=Missing inheritance links for flat folders (#7686)

@@ -81,6 +81,8 @@ class TestFileOptions(TypedDict):
     output_formats: list[str]
     command_line_args: list[str]
     diagram_type: str
+    marker: str
+    reason: str
 
 
 class FunctionalPyreverseTestfile(NamedTuple):
@@ -123,6 +125,17 @@ def _read_config(config_file: Path) -> TestFileOptions:
     config = configparser.ConfigParser()
     config.read(str(config_file))
     source_roots = config.get("testoptions", "source_roots", fallback=None)
+    marker = config.get("testoptions", "marker", fallback="").strip()
+    reason = config.get("testoptions", "reason", fallback="").strip()
+    if marker not in ("", "xfail", "skip"):
+        raise ValueError(
+            f"Unsupported test marker {marker!r} in {config_file}: "
+            "expected 'xfail', 'skip', or an empty value."
+        )
+    if marker and not reason:
+        raise ValueError(
+            f"Test marker {marker!r} in {config_file} requires a non-empty reason."
+        )
     return {
         "source_roots": source_roots.split(",") if source_roots else [],
         "output_formats": config.get(
@@ -132,4 +145,6 @@ def _read_config(config_file: Path) -> TestFileOptions:
             config.get("testoptions", "command_line_args", fallback="")
         ),
         "diagram_type": config.get("testoptions", "diagram_type", fallback="classes"),
+        "marker": marker,
+        "reason": reason,
     }
