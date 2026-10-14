@@ -100,6 +100,15 @@ Standard Checkers
 **Default:**  ``False``
 
 
+.. _extend-ignore-option:
+
+--extend-ignore
+"""""""""""""""
+*Files or directories to be skipped in addition to the ones in 'ignore'. They should be base names, not paths. This keeps the default of 'ignore' while adding your own entries.*
+
+**Default:**  ``()``
+
+
 .. _extension-pkg-allow-list-option:
 
 --extension-pkg-allow-list
@@ -206,7 +215,7 @@ Standard Checkers
 
 --ignore
 """"""""
-*Files or directories to be skipped. They should be base names, not paths. The default skips version control, virtual environment, build and cache directories; setting this option replaces that list.*
+*Files or directories to be skipped. They should be base names, not paths. The default skips version control, virtual environment, build and cache directories; setting this option replaces that list, use 'extend-ignore' to add to it.*
 
 **Default:**  ``('.bzr', '.direnv', '.eggs', '.git', '.git-rewrite', '.hg', '.mypy_cache', '.nox', '.pants.d', '.pytype', '.ruff_cache', '.svn', '.tox', '.venv', 'CVS', '__pypackages__', '_build', 'buck-out', 'dist', 'node_modules', 'venv')``
 
@@ -496,6 +505,8 @@ Standard Checkers
    evaluation = "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))"
 
    exit-zero = false
+
+   extend-ignore = []
 
    extension-pkg-allow-list = []
 

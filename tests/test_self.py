@@ -250,6 +250,10 @@ class TestRunTC:
         self._runtest(["--ignore=module.py", *args], out=out, code=4)
         assert "module.py" not in out.getvalue()
         assert out.getvalue().count("generated.py:1:0: W0611") == 6
+        out = StringIO()
+        self._runtest(["--extend-ignore=module.py", *args], out=out, code=0)
+        assert "module.py" not in out.getvalue()
+        assert "generated.py" not in out.getvalue()
 
     def test_no_files_in_configuration(self, tmp_path: Path) -> None:
         """An explicitly empty ``files`` option means there is nothing to lint."""

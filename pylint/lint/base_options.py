@@ -48,7 +48,18 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "help": "Files or directories to be skipped. "
                 "They should be base names, not paths. The default skips version "
                 "control, virtual environment, build and cache directories; setting "
-                "this option replaces that list.",
+                "this option replaces that list, use 'extend-ignore' to add to it.",
+            },
+        ),
+        (
+            "extend-ignore",
+            {
+                "type": "csv",
+                "metavar": "<file>[,<file>...]",
+                "default": (),
+                "help": "Files or directories to be skipped in addition to the ones "
+                "in 'ignore'. They should be base names, not paths. This keeps the "
+                "default of 'ignore' while adding your own entries.",
             },
         ),
         (
