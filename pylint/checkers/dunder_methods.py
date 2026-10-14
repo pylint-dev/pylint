@@ -30,7 +30,8 @@ class DunderCallChecker(BaseChecker):
     Additionally, we exclude classes that are not instantiated since these
     might be used to access the dunder methods of a base class of an instance.
     We also exclude dunder method calls on super() since
-    these can't be written in an alternative manner.
+    these can't be written in an alternative manner, and calls built from
+    unittest.mock.call since these describe expected calls on a mock.
     """
 
     name = "unnecessary-dunder-call"
@@ -71,6 +72,24 @@ class DunderCallChecker(BaseChecker):
             and node.func.attrname in UNNECESSARY_DUNDER_CALL_LAMBDA_EXCEPTIONS
         )
 
+    @staticmethod
+    def is_built_from_mock_call(node: nodes.NodeNG) -> bool:
+        """Check if ``node`` is ``unittest.mock.call`` or built from it."""
+        while True:
+            inferred = safe_infer(node)
+            if (
+                isinstance(inferred, Instance)
+                and inferred.qname() == "unittest.mock._Call"
+            ):
+                return True
+            match node:
+                case nodes.Attribute():
+                    node = node.expr
+                case nodes.Call():
+                    node = node.func
+                case _:
+                    return False
+
     def visit_call(self, node: nodes.Call) -> None:
         """Check if method being called is an unnecessary dunder method."""
         if (
@@ -88,6 +107,8 @@ class DunderCallChecker(BaseChecker):
                 inf_expr is None or isinstance(inf_expr, (Instance, UninferableBase))
             ):
                 # Skip dunder calls to non instantiated classes.
+                return
+            if self.is_built_from_mock_call(node.func.expr):
                 return
 
             self.add_message(
