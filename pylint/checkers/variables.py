@@ -623,6 +623,19 @@ scope_type : {self.scope_type}
         else:
             del self.to_consume[name]
 
+    def _filter_uncertain(
+        self,
+        name: str,
+        found_nodes: list[nodes.NodeNG],
+        uncertain_nodes: list[nodes.NodeNG],
+    ) -> list[nodes.NodeNG]:
+        """Record uncertain nodes and filter them from found_nodes."""
+        if not uncertain_nodes:
+            return found_nodes
+        self.consumed_uncertain[name] += uncertain_nodes
+        uncertain_nodes_set = set(uncertain_nodes)
+        return [n for n in found_nodes if n not in uncertain_nodes_set]
+
     def get_next_to_consume(self, node: nodes.Name) -> list[nodes.NodeNG] | None:
         """Return a list of the nodes that define `node` from this scope.
 
@@ -680,11 +693,15 @@ scope_type : {self.scope_type}
 
         # Filter out assignments guarded by always false conditions
         if found_nodes:
-            uncertain_nodes = self._uncertain_nodes_if_tests(found_nodes, node)
-            uncertain_nodes_from_if = uncertain_nodes
-            self.consumed_uncertain[node.name] += uncertain_nodes
-            uncertain_nodes_set = set(uncertain_nodes)
-            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
+            uncertain_nodes_from_if = self._uncertain_nodes_if_tests(found_nodes, node)
+            found_nodes = self._filter_uncertain(
+                name, found_nodes, uncertain_nodes_from_if
+            )
+
+        # Filter out assignments inside loops that never run (e.g. empty for-loop or while False)
+        if found_nodes:
+            uncertain_nodes = self._uncertain_nodes_loop_tests(found_nodes, node)
+            found_nodes = self._filter_uncertain(name, found_nodes, uncertain_nodes)
 
         # Filter out assignments in an Except clause that the node is not
         # contained in, assuming they may fail
@@ -692,10 +709,8 @@ scope_type : {self.scope_type}
             uncertain_nodes = self._uncertain_nodes_in_except_blocks(
                 found_nodes, node, node_statement
             )
-            self.consumed_uncertain[node.name] += uncertain_nodes
             uncertain_nodes_from_try.extend(uncertain_nodes)
-            uncertain_nodes_set = set(uncertain_nodes)
-            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
+            found_nodes = self._filter_uncertain(name, found_nodes, uncertain_nodes)
 
         # If this node is in a Finally block of a Try/Finally,
         # filter out assignments in the try portion, assuming they may fail
@@ -705,10 +720,8 @@ scope_type : {self.scope_type}
                     found_nodes, node_statement, name
                 )
             )
-            self.consumed_uncertain[node.name] += uncertain_nodes
             uncertain_nodes_from_try.extend(uncertain_nodes)
-            uncertain_nodes_set = set(uncertain_nodes)
-            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
+            found_nodes = self._filter_uncertain(name, found_nodes, uncertain_nodes)
 
         # If this node is in an ExceptHandler,
         # filter out assignments in the try portion, assuming they may fail
@@ -718,10 +731,8 @@ scope_type : {self.scope_type}
                     found_nodes, node_statement
                 )
             )
-            self.consumed_uncertain[node.name] += uncertain_nodes
             uncertain_nodes_from_try.extend(uncertain_nodes)
-            uncertain_nodes_set = set(uncertain_nodes)
-            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
+            found_nodes = self._filter_uncertain(name, found_nodes, uncertain_nodes)
 
         # A bare annotation does not supply a value when all assignments may
         # fail in try/except control flow. Preserve existing if/elif inference.
@@ -766,7 +777,19 @@ scope_type : {self.scope_type}
                     for handler in handlers
                 )
 
-            case nodes.With() | nodes.For() | nodes.While():
+            case nodes.For():
+                if self._is_empty_iterable(node.iter):
+                    return self._branch_handles_name(name, node.orelse)
+                return NamesConsumer._defines_name_raises_or_returns_recursive(
+                    name, node
+                )
+            case nodes.While():
+                if self._is_always_false_condition(node.test):
+                    return self._branch_handles_name(name, node.orelse)
+                return NamesConsumer._defines_name_raises_or_returns_recursive(
+                    name, node
+                )
+            case nodes.With():
                 return NamesConsumer._defines_name_raises_or_returns_recursive(
                     name, node
                 )
@@ -898,6 +921,105 @@ scope_type : {self.scope_type}
                 continue
 
             uncertain_nodes.append(other_node)
+
+        return uncertain_nodes
+
+    @staticmethod
+    def _is_empty_iterable(iter_node: nodes.NodeNG) -> bool:
+        """Return True if iter_node is known to be an empty iterable."""
+        all_inferred = utils.infer_all(iter_node)
+        if not all_inferred:
+            return False
+        for inferred in all_inferred:
+            match inferred:
+                case nodes.List() | nodes.Tuple() | nodes.Set():
+                    if inferred.elts:
+                        return False
+                case nodes.Dict():
+                    if inferred.items:
+                        return False
+                case nodes.Const():
+                    if not isinstance(
+                        inferred.value,
+                        (str, bytes, list, tuple, set, frozenset, dict),
+                    ) or len(inferred.value) > 0:
+                        return False
+                case _:
+                    return False
+        return True
+
+    @staticmethod
+    def _is_always_false_condition(test_node: nodes.NodeNG) -> bool:
+        """Return True if test_node is known to always evaluate to False."""
+        test = (
+            test_node.value
+            if isinstance(test_node, nodes.NamedExpr)
+            else test_node
+        )
+        all_inferred = utils.infer_all(test)
+        if not all_inferred:
+            return False
+        for inferred in all_inferred:
+            if not isinstance(inferred, nodes.Const):
+                return False
+            val = inferred.value
+            if val is NotImplemented:
+                return False
+            if bool(val):
+                return False
+        return True
+
+    def _uncertain_nodes_loop_tests(
+        self,
+        found_nodes: list[nodes.NodeNG],
+        node: nodes.NodeNG,
+    ) -> list[nodes.NodeNG]:
+        """Identify nodes of uncertain execution because they are defined inside
+        a loop that never runs (e.g. empty iterable in for-loop or False condition in while-loop).
+        """
+        uncertain_nodes = []
+        for other_node in found_nodes:
+            match other_node:
+                case nodes.AssignName():
+                    name = other_node.name
+                case nodes.Import() | nodes.ImportFrom():
+                    name = node.name
+                case nodes.FunctionDef() | nodes.ClassDef():
+                    name = other_node.name
+                case _:
+                    continue
+
+            for ancestor in other_node.node_ancestors():
+                if not isinstance(ancestor, (nodes.For, nodes.While)):
+                    continue
+                # If other_node is not in the loop body (e.g. it is in orelse), skip
+                if not any(
+                    stmt.parent_of(other_node) or stmt == other_node
+                    for stmt in ancestor.body
+                ):
+                    continue
+                # If node is in the same loop body, skip
+                if any(
+                    stmt.parent_of(node) or stmt == node
+                    for stmt in ancestor.body
+                ):
+                    continue
+
+                is_empty_loop = False
+                if isinstance(ancestor, nodes.For) and self._is_empty_iterable(
+                    ancestor.iter
+                ):
+                    is_empty_loop = True
+                elif isinstance(
+                    ancestor, nodes.While
+                ) and self._is_always_false_condition(ancestor.test):
+                    is_empty_loop = True
+
+                if is_empty_loop:
+                    if not self._branch_handles_name(name, ancestor.orelse):
+                        self.names_defined_under_one_branch_only.add(name)
+                        uncertain_nodes.append(other_node)
+                        break
 
         return uncertain_nodes
 
