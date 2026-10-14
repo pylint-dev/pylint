@@ -127,42 +127,48 @@ on the current output by appending ``--update-functional-output`` to the command
 Pyreverse functional tests
 --------------------------
 
-Pyreverse functional tests compare generated diagrams with expected output files.
-Run them with::
+Tests under ``tests/pyreverse/functional`` use two input layouts:
+
+- ``class_diagrams``: each Python file is one test.
+- ``packages``: each direct subdirectory is one multi-file test.
+- ``package_diagrams``: the same multi-file layout, for package dependency tests.
+
+Nested directories belong to their parent test; ``__init__.py`` is optional.
+Test case names starting with ``_`` are ignored, excluding ``__pycache__``.
+
+Put expected output and optional ``.rc`` configuration beside the input file or
+inside the input directory, using the input's name: ``example.mmd`` or
+``example/example.mmd``, and ``example.rc`` or ``example/example.rc``.
+
+All layouts use the same options in the ``.rc`` file's ``[testoptions]`` section:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Option
+     - Description
+     - Default
+   * - ``diagram_type``
+     - Compare ``classes`` or ``packages`` (package dependencies).
+     - ``classes``
+   * - ``output_formats``
+     - Comma-separated formats, such as ``mmd,dot,puml``.
+     - ``mmd``
+   * - ``source_roots``
+     - Comma-separated source-root paths.
+     - None
+   * - ``command_line_args``
+     - Additional Pyreverse arguments; quoted values are supported.
+     - None
+
+Relative source roots start from the input file's parent or the input directory.
+Only the selected diagram type's text is compared with expected output.
+Directory names do not select it: ``package_diagrams`` tests must set
+``diagram_type=packages``.
+
+Run with::
 
     python -m pytest tests/pyreverse/test_pyreverse_functional.py
-
-Single-file tests reside under ``tests/pyreverse/functional/class_diagrams``.
-Each Python file not starting with an underscore is a test case. Put the expected
-output beside it, with the same name and the output format's extension.
-
-For multi-file tests, create a directory directly under
-``tests/pyreverse/functional/packages``. Each direct subdirectory not starting with
-an underscore is one test case. Nested directories belong to that test case.
-An ``__init__.py`` file is not required, so namespace packages are supported.
-For a directory without ``__init__.py``, the test runner passes its Python files
-to Pyreverse explicitly.
-Put the expected output inside the test directory, using the directory's name,
-for example ``example/example.mmd``.
-
-Package dependency diagram tests use the same directory layout under
-``tests/pyreverse/functional/package_diagrams``.
-
-An optional ``.rc`` file beside the single Python file or inside the test directory
-can configure the test. Use the same name as the file or directory, for example
-``example/example.rc``::
-
-    [testoptions]
-    source_roots=..
-    output_formats=mmd,dot,puml
-    command_line_args=-mn
-    diagram_type=classes
-
-``source_roots`` is a comma-separated list of paths relative to the Python file's
-parent directory or the test directory. ``output_formats`` defaults to ``mmd``.
-``command_line_args`` supplies additional Pyreverse options and supports quoted
-arguments. ``diagram_type`` selects the generated output to compare: ``classes``
-(the default) or ``packages`` for a package dependency diagram.
 
 
 .. _writing_config_functional_tests:
