@@ -124,6 +124,47 @@ on the current output by appending ``--update-functional-output`` to the command
     python tests/test_functional.py --update-functional-output -k "test_functional[len_checks]"
 
 
+Pyreverse functional tests
+--------------------------
+
+Pyreverse functional tests compare generated diagrams with expected output files.
+Run them with::
+
+    python -m pytest tests/pyreverse/test_pyreverse_functional.py
+
+Single-file tests reside under ``tests/pyreverse/functional/class_diagrams``.
+Each Python file not starting with an underscore is a test case. Put the expected
+output beside it, with the same name and the output format's extension.
+
+For multi-file tests, create a directory directly under
+``tests/pyreverse/functional/packages``. Each direct subdirectory not starting with
+an underscore is one test case. Nested directories belong to that test case.
+An ``__init__.py`` file is not required, so namespace packages are supported.
+For a directory without ``__init__.py``, the test runner passes its Python files
+to Pyreverse explicitly.
+Put the expected output inside the test directory, using the directory's name,
+for example ``example/example.mmd``.
+
+Package dependency diagram tests use the same directory layout under
+``tests/pyreverse/functional/package_diagrams``.
+
+An optional ``.rc`` file beside the single Python file or inside the test directory
+can configure the test. Use the same name as the file or directory, for example
+``example/example.rc``::
+
+    [testoptions]
+    source_roots=..
+    output_formats=mmd,dot,puml
+    command_line_args=-mn
+    diagram_type=classes
+
+``source_roots`` is a comma-separated list of paths relative to the Python file's
+parent directory or the test directory. ``output_formats`` defaults to ``mmd``.
+``command_line_args`` supplies additional Pyreverse options and supports quoted
+arguments. ``diagram_type`` selects the generated output to compare: ``classes``
+(the default) or ``packages`` for a package dependency diagram.
+
+
 .. _writing_config_functional_tests:
 
 Functional tests for configurations
