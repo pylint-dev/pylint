@@ -263,6 +263,7 @@ class TestUsedBeforeAssignmentInLoops(CheckerTestCase):
             "while 0:",
             "while '':",
             "while None:",
+            "while (cond := False):",
         ],
     )
     def test_possibly_used_before_assignment_in_empty_loop(
@@ -273,6 +274,29 @@ class TestUsedBeforeAssignmentInLoops(CheckerTestCase):
             {loop_stmt}
                 val = 42
             print(val)
+        """
+        node = astroid.parse(code)
+        self.walk(node)
+        emitted_msg_ids = {m.msg_id for m in self.linter.release_messages()}
+        assert "possibly-used-before-assignment" in emitted_msg_ids
+
+    @pytest.mark.parametrize(
+        "definition, usage",
+        [
+            ("def helper(): pass", "helper()"),
+            ("class Helper: pass", "Helper()"),
+            ("import math", "math.sin(1)"),
+            ("from math import sin", "sin(1)"),
+        ],
+    )
+    def test_possibly_used_before_assignment_definitions_in_empty_loop(
+        self, definition: str, usage: str
+    ) -> None:
+        code = f"""
+        def f():
+            for i in []:
+                {definition}
+            {usage}
         """
         node = astroid.parse(code)
         self.walk(node)
@@ -291,6 +315,15 @@ class TestUsedBeforeAssignmentInLoops(CheckerTestCase):
                     val = 10
                 print(val)
             """,
+            # Loop with assignment in else branch only
+            """
+            def f():
+                for i in []:
+                    pass
+                else:
+                    val = 10
+                print(val)
+            """,
             # Variable defined before the empty loop
             """
             def f():
@@ -299,10 +332,22 @@ class TestUsedBeforeAssignmentInLoops(CheckerTestCase):
                     val = 42
                 print(val)
             """,
-            # Non-empty loop
+            # Non-empty loops (list, dict, bytes)
             """
             def f():
                 for i in [1, 2]:
+                    val = 42
+                print(val)
+            """,
+            """
+            def f():
+                for i in {'k': 1}:
+                    val = 42
+                print(val)
+            """,
+            """
+            def f():
+                for i in b'abc':
                     val = 42
                 print(val)
             """,
@@ -312,6 +357,19 @@ class TestUsedBeforeAssignmentInLoops(CheckerTestCase):
                 for i in []:
                     val = 42
                     print(val)
+            """,
+            # Unknown or non-constant condition in while
+            """
+            def f(x):
+                while x:
+                    val = 42
+                print(val)
+            """,
+            """
+            def f():
+                while NotImplemented:
+                    val = 42
+                print(val)
             """,
         ],
     )
