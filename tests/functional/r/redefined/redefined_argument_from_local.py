@@ -67,3 +67,18 @@ def apply_filter(objects, filt=lambda obj: True):
     for obj in objects:
         if filt(obj):
             yield obj
+
+
+async def test_redefined_in_async_for(name, things):
+    async for name in things:  # [redefined-argument-from-local]
+        pass
+
+
+async def test_redefined_in_async_with(name, ctx):
+    async with ctx as name:  # [redefined-argument-from-local]
+        pass
+
+
+async def test_not_redefined_in_async_for(name, things):
+    async for other in things:
+        pass
