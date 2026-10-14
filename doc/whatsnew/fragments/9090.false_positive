@@ -1,0 +1,3 @@
+Fix false positive :ref:`unexpected-keyword-arg` when initializing dataclass with field alias (e.g. Pydantic ``Field(alias=...)``).
+
+Closes #9090
