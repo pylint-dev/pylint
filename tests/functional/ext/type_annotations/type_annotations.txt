@@ -1,0 +1,24 @@
+missing-return-type-annotation:10:0:10:23:missing_return_type:Missing return type annotation for function 'missing_return_type':UNDEFINED
+missing-param-type-annotation:14:0:14:23:missing_param_types:Missing type annotation for parameter 'x' in function 'missing_param_types':UNDEFINED
+missing-param-type-annotation:14:0:14:23:missing_param_types:Missing type annotation for parameter 'y' in function 'missing_param_types':UNDEFINED
+missing-param-type-annotation:18:0:18:15:missing_all:Missing type annotation for parameter 'x' in function 'missing_all':UNDEFINED
+missing-param-type-annotation:18:0:18:15:missing_all:Missing type annotation for parameter 'y' in function 'missing_all':UNDEFINED
+missing-return-type-annotation:18:0:18:15:missing_all:Missing return type annotation for function 'missing_all':UNDEFINED
+missing-param-type-annotation:26:0:26:12:variadic:Missing type annotation for parameter 'args' in function 'variadic':UNDEFINED
+missing-param-type-annotation:26:0:26:12:variadic:Missing type annotation for parameter 'kwargs' in function 'variadic':UNDEFINED
+missing-return-type-annotation:26:0:26:12:variadic:Missing return type annotation for function 'variadic':UNDEFINED
+missing-param-type-annotation:34:0:34:16:keyword_only:Missing type annotation for parameter 'x' in function 'keyword_only':UNDEFINED
+missing-param-type-annotation:38:0:38:19:positional_only:Missing type annotation for parameter 'x' in function 'positional_only':UNDEFINED
+missing-param-type-annotation:38:0:38:19:positional_only:Missing type annotation for parameter 'y' in function 'positional_only':UNDEFINED
+missing-return-type-annotation:42:0:42:30:async_missing_return:Missing return type annotation for function 'async_missing_return':UNDEFINED
+missing-param-type-annotation:51:4:51:16:Example.__init__:Missing type annotation for parameter 'value' in function '__init__':UNDEFINED
+missing-return-type-annotation:54:4:54:17:Example.get_value:Missing return type annotation for function 'get_value':UNDEFINED
+missing-param-type-annotation:57:4:57:17:Example.set_value:Missing type annotation for parameter 'value' in function 'set_value':UNDEFINED
+missing-return-type-annotation:57:4:57:17:Example.set_value:Missing return type annotation for function 'set_value':UNDEFINED
+missing-param-type-annotation:64:4:64:18:Example.from_value:Missing type annotation for parameter 'value' in function 'from_value':UNDEFINED
+missing-return-type-annotation:64:4:64:18:Example.from_value:Missing return type annotation for function 'from_value':UNDEFINED
+missing-param-type-annotation:68:4:68:24:Example.static_with_self:Missing type annotation for parameter 'self' in function 'static_with_self':UNDEFINED
+missing-param-type-annotation:68:4:68:24:Example.static_with_self:Missing type annotation for parameter 'x' in function 'static_with_self':UNDEFINED
+missing-return-type-annotation:68:4:68:24:Example.static_with_self:Missing return type annotation for function 'static_with_self':UNDEFINED
+missing-param-type-annotation:87:4:87:18:Example.overloaded:Missing type annotation for parameter 'x' in function 'overloaded':UNDEFINED
+missing-return-type-annotation:87:4:87:18:Example.overloaded:Missing return type annotation for function 'overloaded':UNDEFINED
