@@ -34,6 +34,17 @@ def test_file_without_options() -> None:
     assert test_file.options["diagram_type"] == "classes"
 
 
+def test_directories_with_python_suffix_are_not_test_files(tmp_path: Path) -> None:
+    directory = tmp_path / "example.py"
+    directory.mkdir()
+    source = directory / "nested.py"
+    source.touch()
+
+    testfiles = pyreverse.get_functional_test_files(tmp_path)
+
+    assert [testfile.source for testfile in testfiles] == [source]
+
+
 @pytest.mark.parametrize("with_config", [False, True])
 def test_package_discovery(tmp_path: Path, with_config: bool) -> None:
     package = tmp_path / "package"

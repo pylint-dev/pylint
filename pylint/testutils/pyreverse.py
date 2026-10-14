@@ -99,7 +99,7 @@ def get_functional_test_files(
             source=path, options=_read_config(path.with_suffix(".rc"))
         )
         for path in sorted(root_directory.rglob("*.py"))
-        if not path.stem.startswith("_")
+        if path.is_file() and not path.stem.startswith("_")
     ]
 
 
