@@ -10,12 +10,41 @@ import astroid
 from pytest import CaptureFixture
 
 from pylint.checkers import imports
-from pylint.interfaces import UNDEFINED
+from pylint.checkers.unsupported_version import UnsupportedVersionChecker
+from pylint.interfaces import HIGH, UNDEFINED
 from pylint.lint import augmented_sys_path, discover_package_path
 from pylint.testutils import CheckerTestCase, MessageTest
 from pylint.testutils._run import _Run as Run
 
 REGR_DATA = os.path.join(os.path.dirname(__file__), "..", "regrtest_data", "")
+
+
+class TestUnsupportedVersionChecker(CheckerTestCase):
+    CHECKER_CLASS = UnsupportedVersionChecker
+    CONFIG = {"py_version": (3, 6)}
+
+    def test_annotations_future(self) -> None:
+        node = astroid.extract_node("from __future__ import annotations")
+        message = MessageTest(
+            "syntax-error",
+            line=1,
+            args="future feature annotations is not defined",
+            confidence=HIGH,
+        )
+        with self.assertAddsMessages(message, ignore_position=True):
+            self.checker.visit_importfrom(node)
+
+    def test_supported_imports(self) -> None:
+        for source, py_version in (
+            ("from __future__ import annotations", (3, 7)),
+            ("from __future__ import generators", (3, 6)),
+            ("from typing import annotations", (3, 6)),
+        ):
+            self.linter.config.py_version = py_version
+            self.checker.open()
+            node = astroid.extract_node(source)
+            with self.assertNoMessages():
+                self.checker.visit_importfrom(node)
 
 
 class TestImportsChecker(CheckerTestCase):

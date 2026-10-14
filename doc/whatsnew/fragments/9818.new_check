@@ -1,0 +1,3 @@
+Emit ``syntax-error`` for ``from __future__ import annotations`` when ``py-version`` is set below Python 3.7.
+
+Closes #9818
