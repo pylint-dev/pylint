@@ -25,7 +25,7 @@ PACKAGE_TESTS += get_functional_test_packages(FUNCTIONAL_DIR / "package_diagrams
 
 @pytest.fixture(autouse=True)
 def isolated_astroid_cache() -> Iterator[None]:
-    """Keep functional test projects independent of Astroid's global caches."""
+    """Clear the astroid cache before and after each functional test."""
     astroid.MANAGER.clear_cache()
     yield
     astroid.MANAGER.clear_cache()
