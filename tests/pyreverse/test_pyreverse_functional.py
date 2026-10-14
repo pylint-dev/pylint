@@ -2,8 +2,10 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 import os
+from collections.abc import Iterator
 from pathlib import Path
 
+import astroid
 import pytest
 
 from pylint.pyreverse.main import Run
@@ -19,6 +21,14 @@ CLASS_DIAGRAM_TESTS = get_functional_test_files(CLASS_DIAGRAMS_DIR)
 CLASS_DIAGRAM_TEST_IDS = [testfile.source.stem for testfile in CLASS_DIAGRAM_TESTS]
 PACKAGE_TESTS = get_functional_test_packages(FUNCTIONAL_DIR / "packages")
 PACKAGE_TESTS += get_functional_test_packages(FUNCTIONAL_DIR / "package_diagrams")
+
+
+@pytest.fixture(autouse=True)
+def isolated_astroid_cache() -> Iterator[None]:
+    """Keep functional test projects independent of Astroid's global caches."""
+    astroid.MANAGER.clear_cache()
+    yield
+    astroid.MANAGER.clear_cache()
 
 
 def _test_marks(marker: str, reason: str) -> tuple[pytest.MarkDecorator, ...]:
