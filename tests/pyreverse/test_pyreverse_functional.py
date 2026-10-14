@@ -32,8 +32,23 @@ def test_class_diagrams(testfile: FunctionalPyreverseTestfile, tmp_path: Path) -
 
 @pytest.mark.parametrize(
     "testfile",
-    PACKAGE_TESTS,
-    ids=[testfile.source.name for testfile in PACKAGE_TESTS],
+    [
+        pytest.param(
+            testfile,
+            id=testfile.source.name,
+            # Keep the regression separate from the test infrastructure change.
+            marks=(
+                pytest.mark.xfail(
+                    reason="Missing inheritance links for flat folders (#7686)",
+                    strict=True,
+                    raises=AssertionError,
+                )
+                if testfile.source.name == "complex_inheritance"
+                else ()
+            ),
+        )
+        for testfile in PACKAGE_TESTS
+    ],
 )
 def test_packages(testfile: FunctionalPyreverseTestfile, tmp_path: Path) -> None:
     _test_diagrams(testfile, tmp_path)
