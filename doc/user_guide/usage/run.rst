@@ -11,7 +11,9 @@ Pylint is meant to be called from the command line. The usage is ::
 
 Without any module or package, ``pylint`` lints the current working directory, as if
 ``pylint .`` had been run. Set the :ref:`files <files-option>` option in your
-configuration file to lint something else by default.
+configuration file to lint something else by default. Directories that never hold
+your own code (``.git``, ``.venv``, ``venv``, ``.tox``, ``node_modules``, ``dist``...)
+are skipped, see the :ref:`ignore <ignore-option>` option for the full list.
 
 The ``pylint`` command only accepts a list of python modules and packages.
 On versions below 2.15, specifying a directory that is not an explicit package

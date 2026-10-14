@@ -227,6 +227,30 @@ class TestRunTC:
         self._runtest([".", *args], out=out_with_dot, code=4)
         assert out.getvalue() == out_with_dot.getvalue()
 
+    @pytest.mark.parametrize("recursive", ["n", "y"])
+    def test_default_ignore_skips_generated_directories(
+        self, recursive: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Version control, virtual environments, build artefacts and caches are
+        never linted unless ``ignore`` is set to something else.
+        """
+        for directory in (".git", ".venv", "venv", ".tox", "node_modules", "dist"):
+            (tmp_path / directory).mkdir()
+            (tmp_path / directory / "generated.py").write_text(
+                "import os\n", encoding="utf-8"
+            )
+        (tmp_path / "module.py").write_text("import os\n", encoding="utf-8")
+        monkeypatch.chdir(tmp_path)
+        args = [f"--recursive={recursive}", "--disable=all", "--enable=unused-import"]
+        out = StringIO()
+        self._runtest(args, out=out, code=4)
+        assert "module.py:1:0: W0611" in out.getvalue()
+        assert "generated.py" not in out.getvalue()
+        out = StringIO()
+        self._runtest(["--ignore=module.py", *args], out=out, code=4)
+        assert "module.py" not in out.getvalue()
+        assert out.getvalue().count("generated.py:1:0: W0611") == 6
+
     def test_no_files_in_configuration(self, tmp_path: Path) -> None:
         """An explicitly empty ``files`` option means there is nothing to lint."""
         config = tmp_path / "pylintrc"

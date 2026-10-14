@@ -76,7 +76,32 @@ MAIN_CHECKER_NAME = "main"
 
 DEFAULT_PYLINT_HOME = platformdirs.user_cache_dir("pylint")
 
-DEFAULT_IGNORE_LIST = ("CVS",)
+# Directories that never hold the code of a project: version control, virtual
+# environments, build artefacts and tool caches. This is ruff's ``exclude``
+# default plus the historical ``CVS``.
+DEFAULT_IGNORE_LIST = (
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "CVS",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "dist",
+    "node_modules",
+    "venv",
+)
 
 
 class WarningScope:

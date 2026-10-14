@@ -206,9 +206,9 @@ Standard Checkers
 
 --ignore
 """"""""
-*Files or directories to be skipped. They should be base names, not paths.*
+*Files or directories to be skipped. They should be base names, not paths. The default skips version control, virtual environment, build and cache directories; setting this option replaces that list.*
 
-**Default:**  ``('CVS',)``
+**Default:**  ``('.bzr', '.direnv', '.eggs', '.git', '.git-rewrite', '.hg', '.mypy_cache', '.nox', '.pants.d', '.pytype', '.ruff_cache', '.svn', '.tox', '.venv', 'CVS', '__pypackages__', '_build', 'buck-out', 'dist', 'node_modules', 'venv')``
 
 
 .. _ignore-paths-option:
@@ -509,7 +509,7 @@ Standard Checkers
 
    from-stdin = false
 
-   ignore = ["CVS"]
+   ignore = [".bzr", ".direnv", ".eggs", ".git", ".git-rewrite", ".hg", ".mypy_cache", ".nox", ".pants.d", ".pytype", ".ruff_cache", ".svn", ".tox", ".venv", "CVS", "__pypackages__", "_build", "buck-out", "dist", "node_modules", "venv"]
 
    ignore-paths = []
 

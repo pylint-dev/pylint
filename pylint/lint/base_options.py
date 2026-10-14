@@ -46,7 +46,9 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "kwargs": {"old_names": ["black_list"]},
                 "default": constants.DEFAULT_IGNORE_LIST,
                 "help": "Files or directories to be skipped. "
-                "They should be base names, not paths.",
+                "They should be base names, not paths. The default skips version "
+                "control, virtual environment, build and cache directories; setting "
+                "this option replaces that list.",
             },
         ),
         (
