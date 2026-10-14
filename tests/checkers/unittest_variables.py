@@ -7,6 +7,7 @@ import re
 import sys
 from pathlib import Path
 
+import pytest
 import astroid
 from astroid import nodes
 
@@ -239,3 +240,85 @@ class TestUnusedArgumentInStubFile(CheckerTestCase):
         assert {
             (message.msg_id, message.args) for message in self.linter.release_messages()
         } == {("unused-argument", "path"), ("unused-argument", "value")}
+
+
+class TestUsedBeforeAssignmentInLoops(CheckerTestCase):
+    """Regression tests for used-before-assignment / possibly-used-before-assignment
+    in loops (e.g. empty collections or loops that never run).
+
+    https://github.com/pylint-dev/pylint/issues/9642
+    """
+
+    CHECKER_CLASS = variables.VariablesChecker
+
+    @pytest.mark.parametrize(
+        "loop_stmt",
+        [
+            "for i in []:",
+            "for i in ():",
+            "for i in '':",
+            "for i in set():",
+            "for i in {}:",
+            "while False:",
+            "while 0:",
+            "while '':",
+            "while None:",
+        ],
+    )
+    def test_possibly_used_before_assignment_in_empty_loop(
+        self, loop_stmt: str
+    ) -> None:
+        code = f"""
+        def f():
+            {loop_stmt}
+                val = 42
+            print(val)
+        """
+        node = astroid.parse(code)
+        self.walk(node)
+        emitted_msg_ids = {m.msg_id for m in self.linter.release_messages()}
+        assert "possibly-used-before-assignment" in emitted_msg_ids
+
+    @pytest.mark.parametrize(
+        "code",
+        [
+            # Loop with else branch defining the variable
+            """
+            def f():
+                for i in []:
+                    val = 42
+                else:
+                    val = 10
+                print(val)
+            """,
+            # Variable defined before the empty loop
+            """
+            def f():
+                val = 0
+                for i in []:
+                    val = 42
+                print(val)
+            """,
+            # Non-empty loop
+            """
+            def f():
+                for i in [1, 2]:
+                    val = 42
+                print(val)
+            """,
+            # Usage inside the loop body itself
+            """
+            def f():
+                for i in []:
+                    val = 42
+                    print(val)
+            """,
+        ],
+    )
+    def test_no_possibly_used_before_assignment(self, code: str) -> None:
+        node = astroid.parse(code)
+        self.walk(node)
+        emitted_msg_ids = {m.msg_id for m in self.linter.release_messages()}
+        assert "possibly-used-before-assignment" not in emitted_msg_ids
+        assert "used-before-assignment" not in emitted_msg_ids
+
