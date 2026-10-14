@@ -2352,7 +2352,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
             case _:
                 return
-        if expr_list == target_list and expr_list:
+        if (
+            expr_list == target_list
+            and expr_list
+            and not self._iterable_yields_non_tuple(node)
+        ):
             self.add_message(
                 "unnecessary-comprehension",
                 node=node.parent,
@@ -2387,6 +2391,35 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             case _:  # pragma: no cover
                 raise AssertionError
         return (f"{func}({node.iter.as_string()})",)
+
+    @staticmethod
+    def _iterable_yields_non_tuple(node: nodes.Comprehension) -> bool:
+        """Whether ``node.iter`` is known to yield an item that is not a tuple.
+
+        An element such as ``(x, y)`` is a freshly built tuple, so
+        ``[(x, y) for x, y in a]`` only stands in for ``a`` when ``a`` already
+        holds tuples: with ``a = [[1, 2]]`` the comprehension gives ``(1, 2)``
+        while ``a`` gives ``[1, 2]``. Iterables whose items cannot be inferred
+        are still reported, and a comprehension whose element is a plain name
+        yields the item itself, whatever its type.
+        """
+        match node.parent:
+            case nodes.ListComp(elt=nodes.Tuple()) | nodes.SetComp(elt=nodes.Tuple()):
+                pass
+            case _:
+                return False
+        match utils.safe_infer(node.iter):
+            case nodes.List(elts=elts) | nodes.Set(elts=elts) | nodes.Tuple(elts=elts):
+                pass
+            case nodes.Dict(items=items):
+                elts = [key for key, _ in items]
+            case _:
+                return False
+        for elt in elts:
+            inferred = utils.safe_infer(elt)
+            if inferred is not None and not isinstance(inferred, nodes.Tuple):
+                return True
+        return False
 
     @staticmethod
     def _is_and_or_ternary(node: nodes.NodeNG | None) -> bool:
