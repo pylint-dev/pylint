@@ -100,3 +100,13 @@ def test_break_in_orelse_deep3():
     else:
         return True
     return False
+
+
+async def test_async_for_return(ait):
+    """else clause on an async for is as useless as on a for"""
+    async for i in ait:
+        if i:
+            return i
+    else:  # [useless-else-on-loop]
+        print("no break")
+    return None
