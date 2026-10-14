@@ -1,0 +1,13 @@
+@startuml classes
+set namespaceSeparator none
+class "AbstractParent" as namespace_inheritance.parents.parent.AbstractParent {
+}
+class "Child" as namespace_inheritance.child.Child {
+}
+class "ConcreteChild" as namespace_inheritance.child.ConcreteChild {
+}
+class "GenericParent" as namespace_inheritance.parents.parent.GenericParent {
+}
+namespace_inheritance.child.Child --|> namespace_inheritance.parents.parent.AbstractParent
+namespace_inheritance.child.ConcreteChild --|> namespace_inheritance.parents.parent.GenericParent
+@enduml
