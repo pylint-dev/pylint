@@ -160,6 +160,39 @@ def _is_singledispatchmethod_registration(node: nodes.FunctionDef) -> bool:
     return False
 
 
+def _enclosing_match_case(
+    node: nodes.NodeNG, match: nodes.Match
+) -> nodes.MatchCase | None:
+    """Return the case of ``match`` that holds ``node``, if any."""
+    child = node
+    for parent in node.node_ancestors():
+        if parent is match:
+            return child if isinstance(child, nodes.MatchCase) else None
+        child = parent
+    return None
+
+
+def _in_exclusive_match_cases(node: nodes.NodeNG, other: nodes.NodeNG) -> bool:
+    """Return True if the two nodes are in different cases of the same match.
+
+    The cases of a match statement are mutually exclusive, like the branches of
+    an if statement, but ``astroid.are_exclusive`` only knows about if and try
+    statements.
+    """
+    for ancestor in node.node_ancestors():
+        if not isinstance(ancestor, nodes.Match):
+            continue
+        node_case = _enclosing_match_case(node, ancestor)
+        other_case = _enclosing_match_case(other, ancestor)
+        if (
+            node_case is not None
+            and other_case is not None
+            and node_case is not other_case
+        ):
+            return True
+    return False
+
+
 class BasicErrorChecker(_BasicChecker):
     msgs = {
         "E0100": (
@@ -599,7 +632,11 @@ class BasicErrorChecker(_BasicChecker):
             (local for local in redefinitions if not utils.is_overload_stub(local)),
             node,
         )
-        if defined_self is not node and not astroid.are_exclusive(node, defined_self):
+        if (
+            defined_self is not node
+            and not astroid.are_exclusive(node, defined_self)
+            and not _in_exclusive_match_cases(node, defined_self)
+        ):
             # Additional checks for methods which are not considered
             # redefined, since they are already part of the base API.
             if (
