@@ -1,3 +1,7 @@
-Normalize the spelling of explicitly supplied ``__init__.py`` paths on Windows, so variants such as ``__Init__.py`` identify the same module rather than producing a spurious ``invalid-name`` message or duplicate lint inputs.
+On Windows, a path spelled differently from the file system (such as
+``Tests\\Package\\mod.py`` for ``tests\\package\\mod.py``) no longer changes the
+derived module name, which avoids spurious ``invalid-name`` messages and linting
+the same file twice when two spellings are given. Differently cased
+``__init__.py`` paths are covered as well.
 
-Refs #10137
+Closes #10137
