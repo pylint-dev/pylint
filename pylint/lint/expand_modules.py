@@ -29,7 +29,7 @@ def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> li
             filename, path=path, is_package_cb=_is_package_cb
         )
     except ImportError:
-        # check_modpath_has_init() consults astroid's is_namespace(), which reports
+        # check_modpath_has_init() consults is_namespace() from astroid, which reports
         # "not a namespace package" as soon as one portion of the package lives in
         # site-packages or in the standard library. Retry without requiring
         # __init__.py files to still resolve such packages.

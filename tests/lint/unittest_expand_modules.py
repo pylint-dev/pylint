@@ -35,7 +35,7 @@ def test_expand_modules_with_shadowed_namespace_package(
     subpackage.mkdir(parents=True)
     (subpackage / "__init__.py").touch()
     (subpackage / "module.py").touch()
-    # astroid's is_namespace() reports "not a namespace package" as soon as one
+    # is_namespace() from astroid reports "not a namespace package" as soon as one
     # portion of the package is in site-packages or in the standard library. Fake it
     # instead of writing into the site-packages of the test environment.
     shadowing_site_packages = tmp_path / "site-packages"
