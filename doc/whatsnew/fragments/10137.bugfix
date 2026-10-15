@@ -1,0 +1,6 @@
+On case-insensitive file systems, a path spelled differently from the file system
+(such as ``Tests\\Package\\mod.py`` for ``tests\\package\\mod.py``) no longer
+changes the derived module name, which avoids spurious ``invalid-name`` messages
+and linting the same file twice when two spellings are given.
+
+Closes #10137
