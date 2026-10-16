@@ -2652,6 +2652,10 @@ a metaclass class method.",
         elif (
             len(method1.args.defaults) < len(refmethod.args.defaults)
             and not method1.args.vararg
+        ) or (
+            sum(1 for d in method1.args.kw_defaults if d is not None)
+            < sum(1 for d in refmethod.args.kw_defaults if d is not None)
+            and not method1.args.kwarg
         ):
             class_type = "overridden"
             self.add_message(

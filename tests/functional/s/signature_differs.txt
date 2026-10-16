@@ -1,1 +1,2 @@
 signature-differs:21:4:21:12:Cdef.abcd:Signature differs from overridden 'abcd' method:UNDEFINED
+signature-differs:41:4:41:17:ChildKwonly.statement:Signature differs from overridden 'statement' method:UNDEFINED
