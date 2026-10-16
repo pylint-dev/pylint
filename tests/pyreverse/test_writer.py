@@ -45,6 +45,7 @@ DOT_FILES = ["packages_No_Name.dot", "classes_No_Name.dot"]
 COLORIZED_DOT_FILES = ["packages_colorized.dot", "classes_colorized.dot"]
 PUML_FILES = ["packages_No_Name.puml", "classes_No_Name.puml"]
 COLORIZED_PUML_FILES = ["packages_colorized.puml", "classes_colorized.puml"]
+DARK_PUML_FILES = ["packages_dark.puml", "classes_dark.puml"]
 MMD_FILES = ["packages_No_Name.mmd", "classes_No_Name.mmd"]
 HTML_FILES = ["packages_No_Name.html", "classes_No_Name.html"]
 NO_STANDALONE_FILES = ["classes_no_standalone.dot", "packages_no_standalone.dot"]
@@ -152,6 +153,17 @@ def setup_colorized_puml(
 
 
 @pytest.fixture()
+def setup_dark_puml(
+    dark_puml_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
+) -> Iterator[None]:
+    writer = DiagramWriter(dark_puml_config)
+    project = get_project(TEST_DATA_DIR, name="dark")
+    yield from _setup(project, dark_puml_config, default_args, writer)
+
+
+@pytest.fixture()
 def setup_mmd(
     mmd_config: PyreverseConfig,
     default_args: Sequence[str],
@@ -252,6 +264,12 @@ def test_colorized_puml_files(generated_file: str) -> None:
     _assert_files_are_equal(generated_file)
 
 
+@pytest.mark.usefixtures("setup_dark_puml")
+@pytest.mark.parametrize("generated_file", DARK_PUML_FILES)
+def test_dark_puml_files(generated_file: str) -> None:
+    _assert_files_are_equal(generated_file)
+
+
 @pytest.mark.parametrize("default_max_depth", [0, 1])
 @pytest.mark.usefixtures("setup_depth_limited")
 def test_depth_limited_write(default_max_depth: int) -> None:
@@ -282,6 +300,28 @@ def test_color_for_stdlib_module(default_config: PyreverseConfig) -> None:
     obj.node = Mock()
     obj.node.qname.return_value = "collections"
     assert writer.get_shape_color(obj) == "grey"
+
+
+def test_mmd_rejects_dark_theme() -> None:
+    """Plain '.mmd' output may be embedded in a page with its own Mermaid
+    theme, so it must reject a non-light theme instead of silently
+    ignoring it.
+    """
+    config = PyreverseConfig(output_format="mmd", theme="dark")
+    writer = DiagramWriter(config)
+    with pytest.raises(SystemExit) as exc_info:
+        writer.set_printer("classes.mmd", "classes")
+    assert exc_info.value.code == 32
+
+
+def test_html_accepts_dark_theme() -> None:
+    """HTMLMermaidJSPrinter is a standalone document, so a dark theme is
+    supported and must not be rejected the way plain '.mmd' is.
+    """
+    config = PyreverseConfig(output_format="html", theme="dark")
+    writer = DiagramWriter(config)
+    writer.set_printer("classes.html", "classes")
+    assert writer.printer.theme == "dark"
 
 
 def test_package_name_with_slash(default_config: PyreverseConfig) -> None:

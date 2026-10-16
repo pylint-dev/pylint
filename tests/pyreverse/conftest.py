@@ -59,6 +59,14 @@ def colorized_puml_config() -> PyreverseConfig:
 
 
 @pytest.fixture()
+def dark_puml_config() -> PyreverseConfig:
+    return PyreverseConfig(
+        output_format="puml",
+        theme="dark",
+    )
+
+
+@pytest.fixture()
 def mmd_config() -> PyreverseConfig:
     return PyreverseConfig(
         output_format="mmd",
