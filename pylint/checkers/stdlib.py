@@ -1100,7 +1100,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             message == "invalid-envvar-default"
             and isinstance(node.parent, nodes.Call)
             and isinstance(node.parent.func, nodes.Name)
-            and node.parent.func.name in {"int", "float"}
+            and node.parent.func.name in {"bool", "float", "int"}
         ):
             return
 
