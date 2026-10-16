@@ -818,19 +818,18 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 if name == COPY_COPY:
                     self._check_shallow_copy_environ(node)
                 elif name in ENV_GETTERS:
-                    self._check_env_function(node, inferred)
+                    self._check_env_function(node, name)
                 elif name == SUBPROCESS_RUN:
                     self._check_for_check_kw_in_run(node)
                 elif name in DEBUG_BREAKPOINTS:
                     self.add_message("forgotten-debug-statement", node=node)
             elif (
                 isinstance(inferred, astroid.BoundMethod)
-                and self._is_os_environ_get(node)
-                and utils.is_builtin_object(inferred)
+                and inferred.name == "get"
+                and isinstance(inferred.bound, astroid.Instance)
+                and inferred.bound.qname() == OS_ENVIRON
             ):
-                # when os.environ.get() is inferred it creates a "builtins.dict" and "_collections_abc.Mapping"
-                self._check_env_function(node, inferred)
-
+                self._check_env_function(node, "os.environ.get")
             self.check_deprecated_method(node, inferred)
 
     @utils.only_required_for_messages("boolean-datetime")
@@ -1047,9 +1046,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                         "unspecified-encoding", node=node, confidence=confidence
                     )
 
-    def _check_env_function(
-        self, node: nodes.Call, infer: nodes.FunctionDef | astroid.BoundMethod
-    ) -> None:
+    def _check_env_function(self, node: nodes.Call, name: str) -> None:
         env_name_kwarg = "key"
         env_value_kwarg = "default"
         if node.keywords:
@@ -1068,7 +1065,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 node=node,
                 message="invalid-envvar-value",
                 call_arg=utils.safe_infer(env_name_arg),
-                infer=infer,
+                name=name,
                 allow_none=False,
             )
 
@@ -1082,7 +1079,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if env_value_arg:
             self._check_invalid_envvar_value(
                 node=node,
-                infer=infer,
+                name=name,
                 message="invalid-envvar-default",
                 call_arg=utils.safe_infer(env_value_arg),
                 allow_none=True,
@@ -1091,7 +1088,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def _check_invalid_envvar_value(
         self,
         node: nodes.Call,
-        infer: nodes.FunctionDef | astroid.BoundMethod,
+        name: str,
         message: str,
         call_arg: InferenceResult | None,
         allow_none: bool,
@@ -1107,7 +1104,6 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ):
             return
 
-        name = infer.qname()
         if isinstance(call_arg, nodes.Const):
             emit = False
             match call_arg.value:
@@ -1118,34 +1114,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 case _:
                     emit = True
             if emit:
-                self.add_message(
-                    message,
-                    node=node,
-                    args=(
-                        "os.environ.get" if self._is_os_environ_get(node) else name,
-                        call_arg.pytype(),
-                    ),
-                )
+                self.add_message(message, node=node, args=(name, call_arg.pytype()))
         else:
-            self.add_message(
-                message,
-                node=node,
-                args=(
-                    "os.environ.get" if self._is_os_environ_get(node) else name,
-                    call_arg.pytype(),
-                ),
-            )
-
-    def _is_os_environ_get(self, node: nodes.Call) -> bool:
-        try:
-            return (
-                isinstance(node.func, nodes.Attribute)
-                and node.func.attrname == "get"
-                and node.func.expr.attrname == "environ"
-                and node.func.expr.expr.name == "os"
-            )
-        except AttributeError:
-            return False
+            self.add_message(message, node=node, args=(name, call_arg.pytype()))
 
     def deprecated_methods(self) -> set[str]:
         return self._deprecated_methods

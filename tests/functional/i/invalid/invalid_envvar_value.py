@@ -1,6 +1,8 @@
-# pylint: disable=useless-return,missing-docstring
+# pylint: disable=useless-return,missing-docstring,reimported
 import os
-from os import getenv
+import os as operating_system
+from os import environ, getenv
+from os import environ as env_vars
 
 
 def function_returning_list():
@@ -153,4 +155,22 @@ os.environ.get(key='TEST', default=function_returning_list())  # [invalid-envvar
 os.environ.get(key='TEST', default=function_returning_none())
 os.environ.get(key='TEST', default=function_returning_string())
 os.environ.get(key='TEST', default=function_returning_bytes())  # [invalid-envvar-default]
-os.environ.get(key='TEST', default=function_returning_bytes())  # [invalid-envvar-default]
+
+# os.environ is recognized however it is imported
+environ.get(b"TEST")  # [invalid-envvar-value]
+env_vars.get("TEST", b"123")  # [invalid-envvar-default]
+operating_system.environ.get(None)  # [invalid-envvar-value]
+
+
+def shadowed_os():
+    """A local class named `os` reads like the module without being it."""
+
+    class os:  # pylint: disable=redefined-outer-name,invalid-name,too-few-public-methods
+        environ = {}
+
+    os.environ.get(b"TEST")
+
+
+# An alias of os.environ is followed too
+environ_alias = os.environ
+environ_alias.get(b"TEST")  # [invalid-envvar-value]
