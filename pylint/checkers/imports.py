@@ -1095,6 +1095,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         module_file = node.root().file
         context_name = node.root().name
         base = os.path.splitext(os.path.basename(module_file))[0]
+        original_importedmodname = importedmodname
 
         try:
             if isinstance(node, nodes.ImportFrom) and node.level:
@@ -1107,7 +1108,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             pass
 
         if context_name == importedmodname:
-            self.add_message("import-self", node=node)
+            if not self._is_missing_name_from_self(
+                node, context_name, original_importedmodname
+            ):
+                self.add_message("import-self", node=node)
 
         elif not astroid.modutils.is_stdlib_module(importedmodname):
             # if this is not a package __init__ module
@@ -1128,6 +1132,30 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 "cyclic-import", line=node.lineno
             ) or in_type_checking_block(node):
                 self._excluded_edges[context_name].add(importedmodname)
+
+    @staticmethod
+    def _is_missing_name_from_self(
+        node: ImportNode, context_name: str, importedmodname: str
+    ) -> bool:
+        """Return True for ``from <this package> import <name>`` where ``<name>``
+        is not actually defined in this module.
+
+        ``astroid.modutils.get_module_part`` falls back to the enclosing package
+        when ``<name>`` is not an importable submodule, so such an import looks
+        like a self-import. It is only a genuine self-import when ``<name>`` is a
+        real attribute defined here; a name bound solely by the (broken) import
+        itself is an import-error, not import-self (see #3748).
+        """
+        if not isinstance(node, nodes.ImportFrom):
+            return False
+        prefix = f"{context_name}."
+        if not importedmodname.startswith(prefix):
+            return False
+        name = importedmodname[len(prefix) :]
+        return all(
+            isinstance(binding, (nodes.Import, nodes.ImportFrom))
+            for binding in node.root().locals.get(name, [])
+        )
 
     def _check_preferred_module(self, node: ImportNode, mod_path: str) -> None:
         """Check if the module has a preferred replacement."""
