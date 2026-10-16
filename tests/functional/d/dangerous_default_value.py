@@ -168,6 +168,10 @@ def immutable_calls(a=tuple(), b=frozenset(), c=int("1"), d=str()):
     return a, b, c, d
 
 
+def immutable_object_calls(a=object(), b=complex(), c=range(3)):
+    return a, b, c
+
+
 def callable_defaults(factory=default_key, callback=lambda: default_key()):
     return factory, callback
 

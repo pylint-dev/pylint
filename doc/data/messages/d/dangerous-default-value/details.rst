@@ -16,5 +16,4 @@ argument shares its result (the same uuid, the same timestamp...):
         ...
 
 Use ``None`` as the default and create the value inside the function body instead. Calls that
-return an immutable value, such as ``tuple()`` or ``int("1")``, are allowed. Add other calls
-that are safe or intentional (e.g. ``fastapi.Depends``) to the ``allowed-default-calls`` option.
+return an immutable value, such as ``tuple()`` or ``int("1")``, are allowed.

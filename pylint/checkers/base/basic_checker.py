@@ -38,6 +38,11 @@ SEQUENCE_PROTOCOL_METHODS = ("__getitem__", "__len__")
 REVERSED_METHODS = (SEQUENCE_PROTOCOL_METHODS, (REVERSED_PROTOCOL_METHOD,))
 # A mapping from qname -> symbol, to be used when generating messages
 # about dangerous default values as arguments
+# Builtin calls that return an immutable value and are allowed in defaults,
+# in addition to MATCH_CLASS_SELF_NAMES
+_IMMUTABLE_DEFAULT_CALLS = frozenset(
+    {"builtins.object", "builtins.complex", "builtins.range"}
+)
 DEFAULT_ARGUMENT_SYMBOLS = dict(
     zip(
         [".".join(["builtins", x]) for x in ("set", "dict", "list")],
@@ -624,7 +629,7 @@ class BasicChecker(_BasicChecker):
         # inside it are not evaluated at definition time.
         if isinstance(default, nodes.Lambda):
             return
-        allowed = MATCH_CLASS_SELF_NAMES
+        allowed = MATCH_CLASS_SELF_NAMES | _IMMUTABLE_DEFAULT_CALLS
         for call in default.nodes_of_class(nodes.Call, skip_klass=nodes.Lambda):
             written_name = call.func.as_string()
             inferred = utils.safe_infer(call.func)
