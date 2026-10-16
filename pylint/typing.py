@@ -118,6 +118,7 @@ class ExtraMessageOptions(TypedDict, total=False):
     minversion: tuple[int, int]
     shared: bool
     default_enabled: bool
+    fixable: bool
 
 
 MessageDefinitionTuple = (

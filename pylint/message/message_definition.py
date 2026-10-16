@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from pylint.checkers import BaseChecker
 
 
-class MessageDefinition:
+class MessageDefinition:  # pylint: disable=too-many-instance-attributes
     # pylint: disable-next=too-many-arguments
     def __init__(
         self,
@@ -32,6 +32,7 @@ class MessageDefinition:
         old_names: list[tuple[str, str]] | None = None,
         shared: bool = False,
         default_enabled: bool = True,
+        fixable: bool = False,
     ) -> None:
         self.checker_name = checker.name
         self.check_msgid(msgid)
@@ -44,6 +45,7 @@ class MessageDefinition:
         self.maxversion = maxversion
         self.shared = shared
         self.default_enabled = default_enabled
+        self.fixable = fixable
         self.old_names: list[tuple[str, str]] = []
         if old_names:
             for old_msgid, old_symbol in old_names:
@@ -99,6 +101,8 @@ class MessageDefinition:
                 desc += (
                     f" This message can't be emitted when using Python {restriction}."
                 )
+        if self.fixable:
+            desc += " This message can be fixed automatically, see --fix."
         msg_help = normalize_text(" ".join(desc.split()), indent="  ")
         message_id = f"{self.symbol} ({self.msgid})"
         if title != "%s":

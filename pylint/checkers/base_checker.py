@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import abc
 import functools
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from inspect import cleandoc
 from tokenize import TokenInfo
 from typing import TYPE_CHECKING, Any
@@ -17,6 +17,7 @@ from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import UNDEFINED, Confidence, _confidence_or_undefined
+from pylint.message.fix import Fix
 from pylint.message.message_definition import MessageDefinition
 from pylint.typing import (
     ExtraMessageOptions,
@@ -156,10 +157,19 @@ class BaseChecker(_ArgumentsProvider):
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
+        fix: Fix | Callable[[], Fix | None] | None = None,
     ) -> None:
         confidence = _confidence_or_undefined(confidence, stacklevel=2)
         self.linter.add_message(
-            msgid, line, node, args, confidence, col_offset, end_lineno, end_col_offset
+            msgid,
+            line,
+            node,
+            args,
+            confidence,
+            col_offset,
+            end_lineno,
+            end_col_offset,
+            fix,
         )
 
     def check_consistency(self) -> None:
