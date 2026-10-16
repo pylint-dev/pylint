@@ -322,6 +322,54 @@ def _make_linter_options(linter: PyLinter) -> Options:
             },
         ),
         (
+            "fix",
+            {
+                "action": "store_true",
+                "default": False,
+                "metavar": "<flag>",
+                "help": (
+                    "Apply the safe automatic fixes of the messages to the files, "
+                    "then report the messages that are left. Commit your work "
+                    "first, and run your code formatter afterwards."
+                ),
+            },
+        ),
+        (
+            "unsafe-fixes",
+            {
+                "action": "store_true",
+                "default": False,
+                "metavar": "<flag>",
+                "help": (
+                    "With --fix or --fix-diff, also apply the unsafe fixes, "
+                    "which may change the behavior of the code or remove comments."
+                ),
+            },
+        ),
+        (
+            "fix-diff",
+            {
+                "action": "store_true",
+                "default": False,
+                "metavar": "<flag>",
+                "help": (
+                    "Print the changes --fix would make as a unified diff, "
+                    "without modifying any file."
+                ),
+            },
+        ),
+        (
+            "unfixable",
+            {
+                "type": "csv",
+                "metavar": "<msg ids>",
+                "default": [],
+                "help": (
+                    "Messages, given by symbol or id, whose fixes are never applied."
+                ),
+            },
+        ),
+        (
             "from-stdin",
             {
                 "action": "store_true",
