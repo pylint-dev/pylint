@@ -1926,7 +1926,13 @@ def _resolves_to_module(expr: nodes.NodeNG, modname: str) -> bool:
         return any(
             isinstance(assignment, nodes.Import)
             and any(
-                real == modname and (alias or real) == expr.name
+                # ``import os.path`` binds ``os``, ``import os.path as p`` binds
+                # ``os.path``.
+                (
+                    (real == modname and alias == expr.name)
+                    if alias
+                    else real.partition(".")[0] == modname == expr.name
+                )
                 for real, alias in assignment.names
             )
             for assignment in assignments

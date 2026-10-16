@@ -450,6 +450,33 @@ def test_is_module_member_aliases() -> None:
     assert utils.is_module_member(code[3], "sys.version_info") is False
 
 
+def test_is_module_member_after_a_dotted_import() -> None:
+    """``import os.path`` binds ``os`` too, so it counts as importing ``os``.
+
+    It does not when aliased: ``import os.path as path`` binds ``os.path`` itself.
+    """
+    code = astroid.extract_node("""
+    import os
+    import os.path
+    import sys.monitoring
+    import sys.monitoring as sys
+
+    os.environ  #@
+    sys.version_info  #@
+    """)
+    assert isinstance(code, list) and len(code) == 2
+
+    assert utils.is_module_member(code[0], "os.environ") is True
+    assert utils.is_module_member(code[1], "sys.version_info") is False
+
+    only_dotted = astroid.extract_node("""
+    import sys.monitoring
+
+    sys.version_info  #@
+    """)
+    assert utils.is_module_member(only_dotted, "sys.version_info") is True
+
+
 def test_is_module_member_dotted_module() -> None:
     """A module reached through a dotted name is resolved by inference.
 
