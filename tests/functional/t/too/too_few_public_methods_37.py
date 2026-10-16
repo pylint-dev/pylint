@@ -9,7 +9,7 @@ import typing
 from dataclasses import dataclass
 
 import attrs  # pylint: disable=import-error
-from attrs import define, frozen  # pylint: disable=import-error
+from attrs import define, frozen, mutable  # pylint: disable=import-error
 
 
 @dataclasses.dataclass
@@ -65,5 +65,17 @@ class AttrsQualifiedPoint:
 
 @attrs.frozen
 class AttrsQualifiedFrozenPoint:
+    x: float
+    y: float
+
+
+@mutable
+class AttrsBareMutablePoint:
+    x: float
+    y: float
+
+
+@attrs.mutable
+class AttrsQualifiedMutablePoint:
     x: float
     y: float
