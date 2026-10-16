@@ -1,0 +1,3 @@
+Do not emit ``redefined-outer-name`` for a function-local import that binds the same module as an outer import.
+
+Closes #2589
