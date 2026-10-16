@@ -214,3 +214,42 @@ def defined_by_walrus_in_type_checking() -> weakref:
     """Usage of variables defined in TYPE_CHECKING blocks"""
     print(enum)
     return weakref
+
+
+def typing_and_assignment_expression_in_comprehension_condition():
+    """The condition of a comprehension is evaluated before its element"""
+    var: int
+    return [
+        var
+        for i in range(2)
+        if (var := i)
+    ]
+
+
+def typing_and_assignment_expression_in_dict_comprehension_condition():
+    """The condition of a dict comprehension is evaluated before its key and value"""
+    var: int
+    return {
+        var: i
+        for i in range(2)
+        if (var := i)
+    }
+
+
+def typing_and_self_referencing_assignment_expression_in_comprehension():
+    """The variable gets assigned in a comprehension condition that references itself"""
+    var: int
+    return [
+        var  # [undefined-variable]
+        for i in range(2)
+        if (var := var + i)
+    ]
+
+
+def typing_without_assignment_in_comprehension():
+    """The variable only gets a type annotation, never a value"""
+    var: int
+    return [
+        var  # [undefined-variable]
+        for i in range(2)
+    ]

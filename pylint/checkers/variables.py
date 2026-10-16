@@ -2626,7 +2626,18 @@ class VariablesChecker(BaseChecker):
                 # Local refs are ordered, so we break.
                 #     print(var)
                 #     var = 1  # <- irrelevant
-                if defstmt_frame == node_frame and ref_node.lineno > node.lineno:
+                # EXCEPTION: a comprehension condition runs before its element
+                #     [var for x in data if (var := x)]
+                if (
+                    defstmt_frame == node_frame
+                    and ref_node.lineno > node.lineno
+                    and not (
+                        isinstance(ref_node.parent, nodes.NamedExpr)
+                        and _is_assigned_in_comprehension_condition(
+                            node, ref_node.parent
+                        )
+                    )
+                ):
                     break
 
                 # If the parent of the local reference is anything but an AnnAssign
