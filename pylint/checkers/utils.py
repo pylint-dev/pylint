@@ -56,6 +56,13 @@ TYPING_PROTOCOLS = frozenset(
     {"typing.Protocol", "typing_extensions.Protocol", ".Protocol"}
 )
 COMMUTATIVE_OPERATORS = frozenset({"*", "+", "^", "&", "|"})
+REVERSED_COMPS = {"<": ">", "<=": ">=", ">": "<", ">=": "<=", "==": "==", "!=": "!="}
+"""Comparators mapped to the comparator to use once the operands are swapped.
+
+Membership and identity operators are left out on purpose: unlike for
+:func:`get_inverse_comparator`, swapping the operands of ``in`` or ``is``
+changes the meaning of the comparison.
+"""
 ITER_METHOD = "__iter__"
 AITER_METHOD = "__aiter__"
 NEXT_METHOD = "__next__"
@@ -1965,20 +1972,33 @@ def is_sys_guard(node: nodes.If) -> bool:
     >>> import sys
     >>> from typing import Literal
     """
-    if isinstance(node.test, nodes.Compare):
-        value = node.test.left
-        if isinstance(value, nodes.Subscript):
-            value = value.value
-        if (
-            isinstance(value, nodes.Attribute)
-            and value.as_string() == "sys.version_info"
-        ):
-            return True
-    elif isinstance(node.test, nodes.Attribute) and node.test.as_string() in {
-        "six.PY2",
-        "six.PY3",
-    }:
-        return True
+    tests = [node.test]
+    while tests:
+        test = tests.pop()
+        match test:
+            case nodes.BoolOp():
+                tests.extend(test.values)
+            case nodes.UnaryOp(op="not"):
+                tests.append(test.operand)
+            case nodes.Compare():
+                values = []
+                for operand in [test.left] + [operand for _, operand in test.ops]:
+                    values.append(operand)
+                    match operand:
+                        # Detects ``version_info[:2]`` and ``version_info.major`` but
+                        # not ``version_info[:2][0]``: a compromise between performance
+                        # and what people actually write.
+                        case nodes.Subscript(value=inner) | nodes.Attribute(expr=inner):
+                            values.append(inner)
+                if any(
+                    is_module_member(value, "sys.version_info", "sys.hexversion")
+                    for value in values
+                ):
+                    return True
+            case _:
+                # A bare truthiness guard: only six's version flags qualify.
+                if is_module_member(test, "six.PY2", "six.PY3"):
+                    return True
     return False
 
 
