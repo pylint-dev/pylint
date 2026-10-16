@@ -1,0 +1,4 @@
+A message disabled in the configuration is no longer reported on the lines before a
+``# pylint: disable`` pragma for the same message.
+
+Closes #3945
