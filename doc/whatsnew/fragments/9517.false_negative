@@ -1,0 +1,7 @@
+``missing-timeout`` is now also raised for calls to the HTTP methods of a
+``requests.Session`` object (``session.get()``, ``session.post()``,
+``session.request()``, ...) made without a ``timeout`` argument, since the
+``requests.sessions.Session`` methods are now part of the default
+``timeout-methods`` option.
+
+Closes #9517
