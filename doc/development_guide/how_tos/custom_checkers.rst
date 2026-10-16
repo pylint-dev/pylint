@@ -189,6 +189,81 @@ Add the ``register`` function to the top level of the file.
 
 We are now ready to debug and test our checker!
 
+Providing an automatic fix
+--------------------------
+A message can come with a fix that ``pylint --fix`` applies (see :ref:`autofix`).
+First, declare that the message can be fixed with the ``fixable`` option:
+
+.. code-block:: python
+
+  msgs = {
+      "C9902": (
+          "Use 'not %s' to check if the collection is empty",
+          "compare-length-to-zero",
+          "Emitted when the length of a collection is compared to zero.",
+          {"fixable": True},
+      ),
+  }
+
+Then give a ``Fix`` to ``add_message``. A fix is a list of ``Edit``, each one
+replacing a part of the file with new text. The edits of a fix are applied
+together or not at all.
+
+.. code-block:: python
+
+  from pylint.message import Applicability, Edit, Fix, source_segment
+
+  def visit_compare(self, node: nodes.Compare) -> None:
+      # Looking for: len(basket) == 0
+      ...
+      basket = source_segment(node.left.args[0])
+      self.add_message(
+          "compare-length-to-zero",
+          node=node,
+          args=(basket,),
+          fix=lambda: Fix.create(
+              "Use 'not' to check if the collection is empty",
+              Edit.replace(node, f"not ({basket})"),
+              applicability=Applicability.UNSAFE,
+          ),
+      )
+
+Some rules for writing a fix:
+
+* Pass a function returning the fix, like the ``lambda`` above: it is only
+  called when the message is enabled, so a disabled message costs nothing.
+* ``Edit.replace``, ``Edit.delete``, ``Edit.insert_before`` and
+  ``Edit.insert_after`` take a node and return ``None`` when the node has no
+  position in the file, for example a node created by an astroid brain.
+  ``Fix.create`` then returns ``None`` too, and the message has no fix. Only
+  edit the file of the message: a fix touching a node inferred from another file
+  is dropped.
+* Build the new text from ``source_segment(node)``, the code exactly as the
+  user wrote it, quotes and comments included. Don't use ``node.as_string()``
+  for code that already exists: it rewrites the quotes and spacing, and drops
+  comments.
+* The parentheses around an expression are not part of its node: in
+  ``len((apple + pear))``, the code of the argument is ``apple + pear``. Add
+  parentheses when the new code needs them, like ``not (basket)`` above.
+  Without them, ``apple + pear * 2`` would not mean ``(apple + pear) * 2``.
+* Choose the ``applicability`` carefully. ``SAFE`` is only for fixes that can
+  never change what the code does. A fix that relies on inference, or that may
+  remove a comment, is ``UNSAFE``, and its documentation should say why.
+  ``DISPLAY_ONLY`` is for suggestions that are never applied. The default is
+  ``UNSAFE``. The applicability can be different for each message: a fix can
+  be safe for a list and unsafe for an unknown type.
+* Don't format the new code, the user runs a formatter afterwards.
+
+Columns of an ``Edit`` count UTF-8 bytes, like the ``col_offset`` of astroid
+nodes. A token checker gets character columns from ``tokenize`` and should use
+``Edit.from_character_columns``.
+
+To test the fix, add a ``.fixed`` file next to the functional test, with the
+code expected after applying the fixes once. Running
+``python tests/test_functional.py --update-functional-output -k <test>`` writes
+it for you. Unsafe fixes are applied in the test when its ``.rc`` file sets
+``unsafe-fixes=yes``.
+
 Debugging a Checker
 -------------------
 It is very simple to get to a point where we can use ``pdb``.
