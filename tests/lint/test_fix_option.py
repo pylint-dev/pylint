@@ -12,7 +12,9 @@ import json
 import os
 from pathlib import Path
 
+import astroid
 import pytest
+from astroid import nodes
 
 from pylint.lint import PyLinter
 from pylint.lint.fixer import fix_files
@@ -215,3 +217,22 @@ def test_fix_files_reports_files_that_did_not_converge(sample: Path) -> None:
     summary = fix_files(linter, [str(sample)], {Applicability.SAFE}, max_passes=1)
     assert summary.not_converged == [str(sample)]
     assert summary.applied == 3
+
+
+def test_fix_keeps_the_transforms_of_plugins(sample: Path) -> None:
+    """Plugins like pylint-django register astroid transforms, a pass must not
+    forget them when it makes astroid parse the fixed files again.
+    """
+    transformed: list[str] = []
+
+    def transform(node: nodes.FunctionDef) -> None:
+        transformed.append(node.name)
+
+    astroid.MANAGER.register_transform(nodes.FunctionDef, transform)
+    try:
+        fix_files(_linter_with_plugin(), [str(sample)], {Applicability.SAFE})
+        transformed.clear()
+        astroid.parse("def apple():\n    pass\n")
+    finally:
+        astroid.MANAGER.unregister_transform(nodes.FunctionDef, transform)
+    assert transformed == ["apple"]

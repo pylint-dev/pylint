@@ -15,6 +15,8 @@ from collections.abc import Collection, Iterable, Sequence
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from astroid.inference_tip import clear_inference_tip_cache
+
 from pylint.checkers.clear_lru_cache import clear_lru_caches
 from pylint.message import Applicability, Fix, Message
 from pylint.message.fix import _byte_to_character_column
@@ -234,14 +236,25 @@ class FixSummary:
 
 
 def _reset_linter_state(linter: PyLinter) -> None:
-    """Forget the ASTs and the counts of the previous pass."""
+    """Forget the counts of the previous pass."""
+    linter.stats = LinterStats()
+    linter.msg_status = 0
+
+
+def _forget_files(paths: Collection[str]) -> None:
+    """Make astroid parse the given files again, after they were fixed.
+
+    ``MANAGER.clear_cache()`` would also forget the transforms registered by
+    plugins, so only the modules of these files are removed from the cache.
+    """
     # pylint: disable-next=import-outside-toplevel
     from pylint.lint.pylinter import MANAGER
 
+    for name, module in list(MANAGER.astroid_cache.items()):
+        if module.file in paths:
+            del MANAGER.astroid_cache[name]
+    clear_inference_tip_cache()
     clear_lru_caches()
-    MANAGER.clear_cache()
-    linter.stats = LinterStats()
-    linter.msg_status = 0
 
 
 class _FileFixer:
@@ -317,6 +330,7 @@ def fix_files(
         targets = [
             path for path, fixes in fixes_by_file.items() if file_fixer.fix(path, fixes)
         ]
+        _forget_files(targets)
         if not targets:
             return summary
     if write:
