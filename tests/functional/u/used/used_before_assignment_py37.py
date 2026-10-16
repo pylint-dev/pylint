@@ -1,5 +1,5 @@
 """Tests for used-before-assignment with functions added in python 3.7"""
-# pylint: disable=missing-function-docstring
+# pylint: disable=missing-function-docstring,dangerous-default-value
 from __future__ import annotations
 from collections import namedtuple
 from typing import List
