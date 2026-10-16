@@ -1107,7 +1107,18 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             pass
 
         if context_name == importedmodname:
-            self.add_message("import-self", node=node)
+            # A script without a Python extension can share an importable
+            # module's name without being the module that the import resolves to.
+            try:
+                imported_file = astroid.modutils.file_from_modpath(
+                    importedmodname.split(".")
+                )
+            except ImportError:
+                imported_file = module_file
+            if imported_file is not None and os.path.normcase(
+                os.path.realpath(imported_file)
+            ) == os.path.normcase(os.path.realpath(module_file)):
+                self.add_message("import-self", node=node)
 
         elif not astroid.modutils.is_stdlib_module(importedmodname):
             # if this is not a package __init__ module
