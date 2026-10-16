@@ -2626,7 +2626,28 @@ class VariablesChecker(BaseChecker):
                 # Local refs are ordered, so we break.
                 #     print(var)
                 #     var = 1  # <- irrelevant
-                if defstmt_frame == node_frame and ref_node.lineno > node.lineno:
+                comp = next(
+                    (
+                        ancestor
+                        for ancestor in node.node_ancestors()
+                        if isinstance(ancestor, utils.COMP_NODE_TYPES)
+                        and ancestor.parent_of(ref_node)
+                    ),
+                    None,
+                )
+                if comp:
+                    node_in_gen = any(gen.parent_of(node) for gen in comp.generators)
+                    ref_in_gen = any(gen.parent_of(ref_node) for gen in comp.generators)
+                    if node_in_gen and not ref_in_gen:
+                        continue
+                    is_later = (
+                        not (not node_in_gen and ref_in_gen)
+                        and ref_node.lineno > node.lineno
+                    )
+                else:
+                    is_later = ref_node.lineno > node.lineno
+
+                if defstmt_frame == node_frame and is_later:
                     break
 
                 # If the parent of the local reference is anything but an AnnAssign
