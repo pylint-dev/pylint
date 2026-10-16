@@ -128,6 +128,56 @@ def _get_unpacking_extra_info(node: nodes.Assign, inferred: InferenceResult) -> 
     return more
 
 
+def _is_bound_before_class(
+    class_node: nodes.ClassDef,
+    lookup_scope: nodes.LocalsDictNodeNG,
+    bindings: list[nodes.NodeNG],
+) -> bool:
+    """Whether a module-level or builtin binding exists when the class body runs."""
+    if not bindings:
+        return False
+    if lookup_scope is not class_node.root():
+        return True
+    if any(
+        isinstance(ancestor, (nodes.FunctionDef, nodes.Lambda))
+        for ancestor in class_node.node_ancestors()
+    ):
+        # The class body runs when the function is called, which can be after
+        # the module-level binding.
+        return True
+    return any(
+        binding.lineno is not None and binding.lineno < class_node.lineno
+        for binding in bindings
+    )
+
+
+def _is_def_in_class_body(
+    defstmt: _base_nodes.Statement, frame: nodes.LocalsDictNodeNG
+) -> bool:
+    """Whether defstmt is a def or class statement directly in the class body frame.
+
+    Such a statement is its own frame, but it binds its name in the class body.
+    """
+    return (
+        isinstance(defstmt, (nodes.FunctionDef, nodes.ClassDef))
+        and isinstance(frame, nodes.ClassDef)
+        and defstmt.parent.frame() is frame
+    )
+
+
+def _has_outer_binding(
+    name: str, defframe: nodes.LocalsDictNodeNG, class_node: nodes.ClassDef | None
+) -> bool:
+    """Whether name has a module-level or builtin binding.
+
+    When class_node is given, the binding must also exist when its body runs.
+    """
+    lookup_scope, bindings = defframe.root().lookup(name)
+    if class_node is None:
+        return bool(bindings)
+    return _is_bound_before_class(class_node, lookup_scope, bindings)
+
+
 def _detect_global_scope(
     node: nodes.Name,
     frame: nodes.LocalsDictNodeNG,
@@ -2374,6 +2424,9 @@ class VariablesChecker(BaseChecker):
         maybe_before_assign = True
         annotation_return = False
         use_outer_definition = False
+        def_in_class_body = _is_def_in_class_body(defstmt, frame)
+        if def_in_class_body:
+            defframe = frame
         if frame is not defframe:
             maybe_before_assign = _detect_global_scope(node, frame, defframe)
         elif defframe.parent is None:
@@ -2394,7 +2447,9 @@ class VariablesChecker(BaseChecker):
                 isinstance(frame, nodes.FunctionDef)
                 or isinstance(node.frame(), nodes.Lambda)
             ) and _assigned_locally(node)
-            if not forbid_lookup and defframe.root().lookup(node.name)[1]:
+            if not forbid_lookup and _has_outer_binding(
+                node.name, defframe, frame if def_in_class_body else None
+            ):
                 maybe_before_assign = False
                 use_outer_definition = stmt == defstmt and not isinstance(
                     defnode, nodes.Comprehension
