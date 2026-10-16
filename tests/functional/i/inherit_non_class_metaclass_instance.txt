@@ -1,0 +1,13 @@
+too-many-ancestors:46:0:46:11:Child:Too many ancestors (2/1):UNDEFINED
+inherit-non-class:65:0:65:9:Bad:"Inheriting ""TooFewArgs('name')"", which is not a class.":UNDEFINED
+no-method-argument:66:4:66:14:Bad.method:Method 'method' has no argument:UNDEFINED
+inherit-non-class:75:0:75:10:Bad1:Inheriting 'TooManyArgs(1, 2, 3, 4)', which is not a class.:UNDEFINED
+no-method-argument:76:4:76:14:Bad1.method:Method 'method' has no argument:UNDEFINED
+inherit-non-class:85:0:85:10:Bad2:Inheriting 'RequiredKeywordOnly(1, 2, 3, other=4)', which is not a class.:UNDEFINED
+no-method-argument:86:4:86:14:Bad2.method:Method 'method' has no argument:UNDEFINED
+inherit-non-class:98:0:98:20:WithMroEntries:Inheriting 'MroEntries(1, 2, 3)', which is not a class.:UNDEFINED
+no-method-argument:99:4:99:14:WithMroEntries.method:Method 'method' has no argument:UNDEFINED
+inherit-non-class:111:0:111:13:Unknown:Inheriting 'AssignedInit(1, 2, 3)', which is not a class.:UNDEFINED
+no-method-argument:112:4:112:14:Unknown.method:Method 'method' has no argument:UNDEFINED
+inherit-non-class:120:0:120:14:Unknown1:Inheriting 'UnknownBase()', which is not a class.:UNDEFINED
+no-method-argument:121:4:121:14:Unknown1.method:Method 'method' has no argument:UNDEFINED

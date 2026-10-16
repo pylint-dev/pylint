@@ -1,0 +1,7 @@
+Fix false positives for ``no-method-argument``, ``no-self-argument``,
+``arguments-differ``, ``inherit-non-class`` and ``too-many-ancestors`` when a class
+statement has a base whose type is not a subclass of ``type``, like
+``zope.interface`` interfaces. Such a class statement does not create a class, so
+the functions defined in its body are not methods.
+
+Closes #11651
