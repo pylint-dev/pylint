@@ -313,6 +313,14 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when an import statement is used anywhere other than the module "
         "toplevel. Move this import to the top of the file.",
     ),
+    "C0416": (
+        "Module-level dunder name %s should be placed before imports",
+        "misplaced-module-dunder",
+        "Used when a module-level dunder is defined after a regular import. "
+        "Module-level dunders should be placed after the module docstring and "
+        "future imports but before any other imports, unless they depend on an "
+        "imported name.",
+    ),
     "W0416": (
         "Shadowed %r (imported line %s)",
         "shadowed-import",
@@ -544,6 +552,62 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     def visit_module(self, node: nodes.Module) -> None:
         """Store if current module is a package, i.e. an __init__ file."""
         self._current_module_package = node.package
+        if self.linter.is_message_enabled("misplaced-module-dunder"):
+            self._check_module_dunders(node)
+
+    def _check_module_dunders(self, node: nodes.Module) -> None:
+        """Check that independent module dunder names precede regular imports."""
+        regular_import_seen = False
+
+        for statement in node.body:
+            if isinstance(statement, nodes.Import) or (
+                isinstance(statement, nodes.ImportFrom)
+                and statement.modname != "__future__"
+            ):
+                regular_import_seen = True
+                continue
+
+            if not regular_import_seen or not isinstance(
+                statement, (nodes.Assign, nodes.AnnAssign)
+            ):
+                continue
+
+            if self._assignment_depends_on_import(statement):
+                continue
+
+            assignment_targets = (
+                statement.targets
+                if isinstance(statement, nodes.Assign)
+                else (statement.target,)
+            )
+            for assignment_target in assignment_targets:
+                for target in assignment_target.nodes_of_class(nodes.AssignName):
+                    if not (
+                        len(target.name) > 4
+                        and target.name.startswith("__")
+                        and target.name.endswith("__")
+                    ):
+                        continue
+                    self.add_message(
+                        "misplaced-module-dunder",
+                        node=target,
+                        args=target.name,
+                    )
+
+    @staticmethod
+    def _assignment_depends_on_import(
+        assignment: nodes.Assign | nodes.AnnAssign,
+    ) -> bool:
+        """Return whether an assignment uses a name imported above it."""
+        for name in assignment.nodes_of_class(nodes.Name):
+            _, definitions = name.lookup(name.name)
+            if any(
+                isinstance(definition, (nodes.Import, nodes.ImportFrom))
+                and definition.fromlineno < assignment.fromlineno
+                for definition in definitions
+            ):
+                return True
+        return False
 
     def visit_import(self, node: nodes.Import) -> None:
         """Triggered when an import statement is seen."""
