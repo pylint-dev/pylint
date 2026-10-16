@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import itertools
 import re
 from collections import defaultdict
 from collections.abc import Iterator
@@ -14,7 +15,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import is_enum, only_required_for_messages
+from pylint.checkers.utils import is_enum, only_required_for_messages, safe_infer
 from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
 
@@ -183,10 +184,43 @@ STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
 )
 
 
+def _get_subscript_classes(base: nodes.NodeNG) -> Iterator[nodes.ClassDef]:
+    """Infer the underlying class of a subscripted base node."""
+    if isinstance(base, nodes.Subscript):
+        inferred = safe_infer(base.value)
+        if isinstance(inferred, nodes.ClassDef):
+            yield inferred
+
+
+def _iter_all_ancestors(node: nodes.ClassDef) -> Iterator[nodes.ClassDef]:
+    """Iterate over all ancestors of node, including subscripted generic classes.
+
+    In astroid, ``ClassDef.ancestors()`` skips subscripted bases (e.g. GenericModel[int])
+    when their ``__class_getitem__`` inference yields Uninferable. This fallback
+    inspects the subscript value to ensure generic parent classes and their
+    ancestors are properly accounted for.
+    """
+    yielded: set[nodes.ClassDef] = {node}
+    for ancestor in node.ancestors():
+        yielded.add(ancestor)
+        yield ancestor
+
+    queue = [node]
+    while queue:
+        current = queue.pop(0)
+        for base in current.bases:
+            for cls in _get_subscript_classes(base):
+                for candidate in (cls, *cls.ancestors()):
+                    if candidate not in yielded:
+                        yielded.add(candidate)
+                        yield candidate
+                        queue.append(candidate)
+
+
 def _is_exempt_from_public_methods(node: nodes.ClassDef) -> bool:
     """Check if a class is exempt from too-few-public-methods."""
     # If it's a typing.Namedtuple, typing.TypedDict or an Enum
-    for ancestor in node.ancestors():
+    for ancestor in _iter_all_ancestors(node):
         if is_enum(ancestor):
             return True
         if ancestor.qname() in (
@@ -236,7 +270,14 @@ def _count_boolean_expressions(bool_op: nodes.BoolOp) -> int:
 
 
 def _count_methods_in_class(node: nodes.ClassDef) -> int:
-    all_methods = sum(1 for method in node.methods() if not method.name.startswith("_"))
+    methods: dict[str, nodes.FunctionDef] = {}
+    for cls in itertools.chain(iter((node,)), _iter_all_ancestors(node)):
+        for meth in cls.mymethods():
+            if meth.name not in methods:
+                methods[meth.name] = meth
+    all_methods = sum(
+        1 for method in methods.values() if not method.name.startswith("_")
+    )
     # Special methods count towards the number of public methods,
     # but don't count towards there being too many methods.
     for method in node.mymethods():
@@ -505,7 +546,7 @@ class MisdesignChecker(BaseChecker):
 
         # Stop here if the class is excluded via configuration.
         if node.type == "class" and self._exclude_too_few_public_methods:
-            for ancestor in node.ancestors():
+            for ancestor in _iter_all_ancestors(node):
                 if any(
                     pattern.match(ancestor.qname())
                     for pattern in self._exclude_too_few_public_methods
