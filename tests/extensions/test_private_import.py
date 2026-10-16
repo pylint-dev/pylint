@@ -71,3 +71,42 @@ class TestPrivateImport(CheckerTestCase):
         )
         with self.assertAddsMessages(msg):
             self.checker.visit_importfrom(import_from)
+
+    def test_type_annotations_are_collected_per_module(self) -> None:
+        """The result for one module must not depend on the modules checked before it.
+
+        https://github.com/pylint-dev/pylint/issues/11466
+        """
+        other = astroid.parse(
+            "from pathlib import Path\nDIRECTORY = Path('.')\n", path="other.py"
+        )
+        annotated = astroid.parse(
+            """
+from _external_private.types import PublicType
+
+def get_type() -> PublicType:
+    raise NotImplementedError
+""",
+            path="annotated.py",
+        )
+        runtime = astroid.parse(
+            "from _external_private.types import PublicType\nVALUE = PublicType()\n",
+            path="runtime.py",
+        )
+
+        with self.assertNoMessages():
+            self.walk(other)
+            self.walk(annotated)
+
+        msg = MessageTest(
+            msg_id="import-private-name",
+            node=runtime.body[0],
+            line=1,
+            col_offset=0,
+            end_line=1,
+            end_col_offset=46,
+            args=("module", "_external_private.types"),
+            confidence=HIGH,
+        )
+        with self.assertAddsMessages(msg):
+            self.walk(runtime)

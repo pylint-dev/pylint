@@ -35,8 +35,7 @@ class MermaidJSPrinter(Printer):
 
     def _escape_mermaid_text(self, text: str) -> str:
         """Escape characters that conflict with Markdown formatting."""
-        text = text.replace("__", r"\_\_")  # Double underscore → escaped
-        return text
+        return text.replace("__", r"\_\_")  # Double underscore → escaped
 
     def emit_node(
         self,
@@ -61,20 +60,32 @@ class MermaidJSPrinter(Printer):
             body.extend(escaped_attrs)
         if properties.methods:
             for func in properties.methods:
-                args = self._get_method_arguments(func)
                 # Escape method name and arguments
                 escaped_method_name = self._escape_mermaid_text(func.name)
-                escaped_args = [self._escape_mermaid_text(arg) for arg in args]
-                line = f"{escaped_method_name}({', '.join(escaped_args)})"
+                if self.show_signatures:
+                    args = self._get_method_arguments(func)
+                    escaped_args = [self._escape_mermaid_text(arg) for arg in args]
+                    line = f"{escaped_method_name}({', '.join(escaped_args)})"
+                else:
+                    line = f"{escaped_method_name}()"
                 line += "*" if func.is_abstract() else ""
-                if func.returns:
+                if self.show_signatures and func.returns:
                     # Escape return type annotation
                     return_type = get_annotation_label(func.returns)
                     escaped_return_type = self._escape_mermaid_text(return_type)
                     line += f" {escaped_return_type}"
                 body.append(line)
         name = name.split(".")[-1]
-        self.emit(f"{nodetype} {name} {{")
+        header = f"{nodetype} {name}"
+        # The id stays the bare class name; a label carries anything longer,
+        # such as the module-qualified title ``--module-names=y`` asks for.
+        if (
+            type_ is NodeType.CLASS
+            and properties.label is not None
+            and properties.label != name
+        ):
+            header += f'["{properties.label}"]'
+        self.emit(f"{header} {{")
         self._inc_indent()
         for line in body:
             self.emit(line)

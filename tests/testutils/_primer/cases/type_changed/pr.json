@@ -1,0 +1,37 @@
+{
+  "astroid": {
+    "commit": "123456789abcdef",
+    "messages": [
+      {
+        "type": "warning",
+        "module": "astroid.node_classes",
+        "obj": "my_function",
+        "line": 50,
+        "column": 0,
+        "endLine": 50,
+        "endColumn": 20,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/node_classes.py",
+        "symbol": "line-too-long",
+        "message": "Line too long (120/100)",
+        "messageId": "C0301",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/node_classes.py"
+      },
+      {
+        "type": "warning",
+        "module": "astroid",
+        "obj": "",
+        "line": 91,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/__init__.py",
+        "symbol": "unknown-option-value",
+        "message": "Unknown option value for 'disable', expected a valid pylint message and got 'Ellipsis'",
+        "messageId": "W0012",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/__init__.py"
+      }
+    ]
+  }
+}

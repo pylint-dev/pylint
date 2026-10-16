@@ -18,9 +18,11 @@ from sphinx.application import Sphinx
 from pylint.checkers import initialize as initialize_checkers
 from pylint.checkers.base_checker import BaseChecker
 from pylint.extensions import initialize as initialize_extensions
-from pylint.lint import PyLinter
+from pylint.lint import PyLinter, Run
+from pylint.lint.base_options import _make_run_options
 from pylint.typing import OptionDict
 from pylint.utils import get_rst_title
+from pylint.utils.utils import _unquote
 
 
 class OptionsData(NamedTuple):
@@ -40,6 +42,18 @@ PYLINT_USERGUIDE_PATH = PYLINT_BASE_PATH / "doc" / "user_guide"
 
 DYNAMICALLY_DEFINED_OPTIONS: dict[str, dict[str, str]] = {
     # Option name, key / values we want to modify
+    "indent-string": {
+        # reStructuredText collapses consecutive regular spaces, hiding the
+        # actual default. Wrap it in quotes and use en spaces (U+2002) in the
+        # help so the four spaces stay visible in the rendered docs without
+        # altering the real default value or the CLI '--help' output. The
+        # backslash in "\t" is doubled because reStructuredText treats a lone
+        # backslash as an escape character, which would otherwise render as a
+        # bare "t".
+        "default": '"    "',
+        "help": "String used as indentation unit. This is usually "
+        '"    " (4 spaces) or "\\\\t" (1 tab).',  # noqa: RUF001
+    },
     "py-version": {"default": "sys.version_info[:2]"},
     "spelling-dict": {
         "choices": "Values from 'enchant.Broker().list_dicts()' depending on your local enchant installation",
@@ -94,6 +108,11 @@ def _create_checker_section(
     checker_table = tomlkit.table()
 
     for option in sorted(options, key=lambda x: x.name):
+        # Anchor so the documentation can link to a single option with
+        # ``:ref:`--option-name <option-name-option>``` instead of only to the
+        # checker's section. The '-option' suffix keeps those labels from ever
+        # clashing with the message labels, which are bare message symbols.
+        checker_string += f".. _{option.name}-option:\n\n"
         checker_string += get_rst_title(f"--{option.name}", '"')
         checker_string += f"*{option.optdict.get('help')}*\n\n"
         if option.optdict.get("default") == "":
@@ -103,11 +122,17 @@ def _create_checker_section(
 
         # Start adding the option to the toml example
         if option.optdict.get("hide_from_config_file"):
+            checker_string += (
+                "**This option is only available on the command line.**\n\n\n"
+            )
             continue
 
         # Get current value of option
         try:
-            value = DYNAMICALLY_DEFINED_OPTIONS[option.name]["default"]
+            # The dynamic default is a display string for the rendered docs
+            # (e.g. indent-string is quoted so spaces stay visible). Unquote it
+            # so the TOML example shows the real value it would be parsed back to.
+            value = _unquote(DYNAMICALLY_DEFINED_OPTIONS[option.name]["default"])
         except KeyError:
             value = getattr(linter.config, option.name.replace("-", "_"))
 
@@ -199,8 +224,11 @@ def build_options_page(app: Sphinx | None) -> None:
 
     Documentation is written in ReST format.
     """
-    # Create linter, register all checkers and extensions and get all options
-    linter = PyLinter()
+    # ``_make_run_options`` only stores the uninitialized ``Run`` instance in
+    # callback action kwargs. The callbacks are never invoked while generating
+    # this page, so the instance is not dereferenced here.
+    run = object.__new__(Run)
+    linter = PyLinter(_make_run_options(run))
     _register_all_checkers_and_extensions(linter)
 
     options = _get_all_options(linter)

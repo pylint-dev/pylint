@@ -37,13 +37,13 @@ def define_constant():
 def global_with_import():
     """should only warn for global-statement when using `Import` node"""
     global sys  # [global-statement]
-    import sys
+    import sys  # [unused-import]
 
 
 def global_with_import_from():
     """should only warn for global-statement when using `ImportFrom` node"""
     global namedtuple  # [global-statement]
-    from collections import namedtuple
+    from collections import namedtuple  # [unused-import]
 
 
 def global_no_assign():

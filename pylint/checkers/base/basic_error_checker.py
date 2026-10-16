@@ -27,10 +27,10 @@ def _get_break_loop_node(break_node: nodes.Break) -> nodes.For | nodes.While | N
     """Returns the loop node that holds the break node in arguments.
 
     Args:
-        break_node (astroid.Break): the break node of interest.
+        break_node (nodes.Break): the break node of interest.
 
     Returns:
-        astroid.For or astroid.While: the loop node holding the break node.
+        nodes.For or nodes.While: the loop node holding the break node.
     """
     loop_nodes = (nodes.For, nodes.While)
     parent = break_node.parent
@@ -48,7 +48,7 @@ def _loop_exits_early(loop: nodes.For | nodes.While) -> bool:
     """Returns true if a loop may end with a break statement.
 
     Args:
-        loop (astroid.For, astroid.While): the loop node inspected.
+        loop (nodes.For, nodes.While): the loop node inspected.
 
     Returns:
         bool: True if the loop may end with a break statement, False otherwise.
@@ -92,6 +92,71 @@ def redefined_by_decorator(node: nodes.FunctionDef) -> bool:
                 and getattr(decorator.expr, "name", None) == node.name
             ):
                 return True
+    return False
+
+
+def _extract_register_target(dec: nodes.NodeNG) -> nodes.NodeNG | None:
+    """
+    If decorator `dec` looks like `@func.register(...)` or `@func.register`,
+    return the `func` target node (Name or Attribute). Otherwise return None.
+    """
+    if isinstance(dec, nodes.Call):
+        func_part = dec.func
+        if isinstance(func_part, nodes.Attribute) and func_part.attrname == "register":
+            return func_part.expr
+        return None
+
+    if isinstance(dec, nodes.Attribute) and dec.attrname == "register":
+        return dec.expr
+
+    return None
+
+
+def _inferred_has_singledispatchmethod(target: nodes.NodeNG) -> bool:
+    """
+    Infer `target` and return True if the inferred object has a
+    @singledispatchmethod decorator.
+    """
+    inferred = utils.safe_infer(target)
+    if not inferred:
+        return False
+
+    if isinstance(inferred, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
+        decorators = inferred.decorators
+        if isinstance(decorators, nodes.Decorators):
+            for dec in decorators.nodes:
+                inferred_dec = utils.safe_infer(dec)
+                if (
+                    inferred_dec
+                    and inferred_dec.qname() == "functools.singledispatchmethod"
+                ):
+                    return True
+
+    return False
+
+
+def _is_singledispatchmethod_registration(node: nodes.FunctionDef) -> bool:
+    """
+    Return True if `node` is a function decorated like:
+
+        @func.register(...)
+        def _(…): ...
+
+    where `func` is a singledispatchmethod (i.e. its base was decorated
+    with @singledispatchmethod).
+    """
+    decorators = node.decorators
+    if not decorators:
+        return False
+
+    for dec in decorators.nodes:
+        target = _extract_register_target(dec)
+        if target is None:
+            continue
+
+        if _inferred_has_singledispatchmethod(target):
+            return True
+
     return False
 
 
@@ -218,26 +283,25 @@ class BasicErrorChecker(_BasicChecker):
     def _too_many_starred_for_tuple(self, assign_tuple: nodes.Tuple) -> bool:
         starred_count = 0
         for elem in assign_tuple.itered():
-            if isinstance(elem, nodes.Tuple):
-                return self._too_many_starred_for_tuple(elem)
-            if isinstance(elem, nodes.Starred):
-                starred_count += 1
+            match elem:
+                case nodes.Tuple():
+                    return self._too_many_starred_for_tuple(elem)
+                case nodes.Starred():
+                    starred_count += 1
         return starred_count > 1
 
     @utils.only_required_for_messages(
         "too-many-star-expressions", "invalid-star-assignment-target"
     )
     def visit_assign(self, node: nodes.Assign) -> None:
-        # Check *a, *b = ...
-        assign_target = node.targets[0]
-        # Check *a = b
-        if isinstance(node.targets[0], nodes.Starred):
-            self.add_message("invalid-star-assignment-target", node=node)
-
-        if not isinstance(assign_target, nodes.Tuple):
-            return
-        if self._too_many_starred_for_tuple(assign_target):
-            self.add_message("too-many-star-expressions", node=node)
+        match assign_target := node.targets[0]:
+            case nodes.Starred():
+                # Check *a = b
+                self.add_message("invalid-star-assignment-target", node=node)
+            case nodes.Tuple():
+                # Check *a, *b = ...
+                if self._too_many_starred_for_tuple(assign_target):
+                    self.add_message("too-many-star-expressions", node=node)
 
     @utils.only_required_for_messages("star-needs-assignment-target")
     def visit_starred(self, node: nodes.Starred) -> None:
@@ -248,6 +312,13 @@ class BasicErrorChecker(_BasicChecker):
             return
         if isinstance(node.parent, (nodes.List, nodes.Tuple, nodes.Set, nodes.Dict)):
             # PEP 448 unpacking.
+            return
+        if (
+            isinstance(node.parent, (nodes.ListComp, nodes.SetComp, nodes.GeneratorExp))
+            and node.parent.elt is node
+        ):
+            # PEP 798 unpacking in comprehensions (Python 3.15+), e.g.
+            # ``[*L for L in lists]``.
             return
 
         stmt = node.statement()
@@ -480,9 +551,9 @@ class BasicErrorChecker(_BasicChecker):
             self.add_message(
                 "useless-else-on-loop",
                 node=node,
-                # This is not optimal, but the line previous
-                # to the first statement in the else clause
-                # will usually be the one that contains the else:.
+                # The else keyword has no AST node; the line before
+                # the first statement in the else clause is the best
+                # approximation of its location.
                 line=node.orelse[0].lineno - 1,
             )
 
@@ -537,32 +608,29 @@ class BasicErrorChecker(_BasicChecker):
             ):
                 return
 
+            if _is_singledispatchmethod_registration(node):
+                return
+
             # Skip typing.overload() functions.
             if utils.is_overload_stub(node):
                 return
 
             # Exempt functions redefined on a condition.
             if isinstance(node.parent, nodes.If):
-                # Exempt "if not <func>" cases
-                if (
-                    isinstance(node.parent.test, nodes.UnaryOp)
-                    and node.parent.test.op == "not"
-                    and isinstance(node.parent.test.operand, nodes.Name)
-                    and node.parent.test.operand.name == node.name
-                ):
-                    return
-
-                # Exempt "if <func> is not None" cases
-                # pylint: disable=too-many-boolean-expressions
-                if (
-                    isinstance(node.parent.test, nodes.Compare)
-                    and isinstance(node.parent.test.left, nodes.Name)
-                    and node.parent.test.left.name == node.name
-                    and node.parent.test.ops[0][0] == "is"
-                    and isinstance(node.parent.test.ops[0][1], nodes.Const)
-                    and node.parent.test.ops[0][1].value is None
-                ):
-                    return
+                match node.parent.test:
+                    case nodes.UnaryOp(op="not", operand=nodes.Name(name=name)) if (
+                        name == node.name
+                    ):
+                        # Exempt "if not <func>" cases
+                        return
+                    case nodes.Compare(
+                        left=nodes.Name(name=name),
+                        ops=[["is", nodes.Const(value=None)]],
+                    ) if (
+                        name == node.name
+                    ):
+                        # Exempt "if <func> is not None" cases
+                        return
 
             # Check if we have forward references for this node.
             try:

@@ -8,19 +8,22 @@ import collections
 import copy
 import itertools
 import tokenize
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
+from dataclasses import dataclass, field
 from functools import cached_property, reduce
 from re import Pattern
-from typing import TYPE_CHECKING, Any, NamedTuple, TypeAlias, cast
+from typing import TYPE_CHECKING, Any, TypeAlias, cast
 
 import astroid
-from astroid import bases, nodes
+from astroid import bases, nodes, objects
 from astroid.util import UninferableBase
 
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.base.basic_error_checker import _loop_exits_early
-from pylint.checkers.utils import node_frame_class
+from pylint.checkers.utils import node_frame_class, truncated_dict_suggestion
+from pylint.constants import WarningScope
+from pylint.graph import get_cycles, get_paths
 from pylint.interfaces import HIGH, INFERENCE, Confidence
 
 if TYPE_CHECKING:
@@ -29,8 +32,88 @@ if TYPE_CHECKING:
 
 NodesWithNestedBlocks: TypeAlias = nodes.Try | nodes.While | nodes.For | nodes.If
 
+# An operand of a comparison we can reason about. A number is held as itself,
+# because ``_link_constants`` needs to order it. Everything else is held as the
+# text it was written with: ``a``, ``obj.MAX``, ``len(items)``. Ordering never
+# needs the value, only the relations between operands, so an expression we
+# cannot evaluate is still a perfectly good node. Its text is only ever a bare
+# identifier when it *is* a variable, which keeps the two apart.
+_ComparisonOperand: TypeAlias = str | int | float
+_ComparisonEdge: TypeAlias = tuple[_ComparisonOperand, _ComparisonOperand]
+
 KNOWN_INFINITE_ITERATORS = {"itertools.count", "itertools.cycle"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
+_REVERSED_COMPARE = {">": "<", ">=": "<=", "==": "=="}
+# Give up above this many distinct operands in one run of comparisons. Both the
+# cycle search and the path search are recursive, so a machine-generated
+# condition would hit the interpreter's recursion limit and be reported as a
+# fatal error. No hand-written condition comes close.
+_MAX_COMPARISON_OPERANDS = 64
+# Stop adding parts to a suggestion once it is this long.
+_MAX_SUGGESTION_LENGTH = 64
+# Evaluating one of these can have a side effect or hand back something new,
+# so two occurrences of the same text need not be the same value.
+_IMPURE_NODES = (
+    nodes.Await,
+    nodes.Call,
+    nodes.NamedExpr,
+    nodes.Yield,
+    nodes.YieldFrom,
+)
+
+
+def _numeric_operand_value(node: nodes.NodeNG) -> int | float | None:
+    """Return the number ``node`` is written as, or ``None``.
+
+    Python has no negative literals: ``-1`` is a minus applied to ``1``, so a
+    plain ``Const`` test misses every negative number in the source.
+    """
+    if isinstance(node, nodes.UnaryOp) and node.op in {"-", "+"}:
+        operand_value = _numeric_operand_value(node.operand)
+        if operand_value is None:
+            return None
+        return -operand_value if node.op == "-" else operand_value
+    if isinstance(node, nodes.Const) and isinstance(node.value, (int, float)):
+        return node.value
+    return None
+
+
+@dataclass
+class _ComparisonGraph:
+    """Directed graph of operands extracted from a chain of ``and``-ed comparisons.
+
+    ``<`` and ``<=`` are flipped so every inequality edge points from the
+    larger operand to the smaller one. This way ``a < b`` and ``b > a``
+    produce the same edge (``b -> a``). Equality edges keep their source-order
+    direction so ``b == 2`` renders as written.
+
+    Attributes:
+        ``edges``: outgoing neighbors of each node.
+        ``symbols``: the operator on each ``(left, right)`` edge. One of
+            ``>``, ``>=`` or ``==`` once the inequalities have been flipped.
+        ``indegree``: number of edges pointing at each node. Nodes with no
+            incoming edge are the roots from which path search starts.
+        ``frequency``: how many times each edge was contributed by the
+            source comparisons. Decremented as paths are extracted so a
+            single edge doesn't get rendered twice.
+        ``source_count``: how many source-level ``Compare`` statements were
+            folded into this graph. Used to tell whether path extraction
+            actually shortened the chain.
+    """
+
+    edges: dict[_ComparisonOperand, set[_ComparisonOperand]] = field(
+        default_factory=lambda: collections.defaultdict(set)
+    )
+    symbols: dict[_ComparisonEdge, str] = field(default_factory=dict)
+    indegree: dict[_ComparisonOperand, int] = field(
+        default_factory=lambda: collections.defaultdict(int)
+    )
+    frequency: dict[_ComparisonEdge, int] = field(
+        default_factory=lambda: collections.defaultdict(int)
+    )
+    source_count: int = 0
+
+
 CALLS_THAT_COULD_BE_REPLACED_BY_WITH = frozenset(
     (
         "threading.lock.acquire",
@@ -59,6 +142,22 @@ CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
         "tarfile.TarFile.open",
         "multiprocessing.context.BaseContext.Pool",
         "subprocess.Popen",
+    )
+)
+CALLS_THAT_SHOULD_USE_GENERATOR = frozenset(
+    # 'any', 'all', definitely should use generator, while 'list', 'tuple',
+    # 'sum', 'max', and 'min' need to be considered first
+    # See https://github.com/pylint-dev/pylint/pull/3309#discussion_r576683109
+    # https://github.com/pylint-dev/pylint/pull/6595#issuecomment-1125704244
+    # and https://peps.python.org/pep-0289/
+    (
+        "any",
+        "all",
+        "sum",
+        "max",
+        "min",
+        "list",
+        "tuple",
     )
 )
 
@@ -183,26 +282,42 @@ def _is_part_of_assignment_target(node: nodes.NodeNG) -> bool:
     This requires recursive checking, because destructuring assignment can have
     arbitrarily nested tuples and lists to unpack.
     """
-    if isinstance(node.parent, nodes.Assign):
-        return node in node.parent.targets
-
-    if isinstance(node.parent, nodes.AugAssign):
-        return node == node.parent.target  # type: ignore[no-any-return]
-
-    if isinstance(node.parent, (nodes.Tuple, nodes.List)):
-        return _is_part_of_assignment_target(node.parent)
+    match node.parent:
+        case nodes.Assign():
+            return node in node.parent.targets
+        case nodes.AugAssign():
+            return node == node.parent.target  # type: ignore[no-any-return]
+        case nodes.Tuple() | nodes.List():
+            return _is_part_of_assignment_target(node.parent)
 
     return False
 
 
-class ConsiderUsingWithStack(NamedTuple):
+def _is_asynchronous_comprehension(comp: nodes.ListComp) -> bool:
+    """Check whether a comprehension would become an asynchronous generator.
+
+    That is the case when it uses ``async for``, or awaits anywhere but in its
+    outermost iterable, the only part evaluated outside of the generator.
+    """
+    if any(generator.is_async for generator in comp.generators):
+        return True
+
+    outermost_iterable = comp.generators[0].iter
+    return any(
+        node is not outermost_iterable and not outermost_iterable.parent_of(node)
+        for node in comp.nodes_of_class(nodes.Await)
+    )
+
+
+@dataclass
+class ConsiderUsingWithStack:
     """Stack for objects that may potentially trigger a R1732 message
     if they are not used in a ``with`` block later on.
     """
 
-    module_scope: dict[str, nodes.NodeNG] = {}
-    class_scope: dict[str, nodes.NodeNG] = {}
-    function_scope: dict[str, nodes.NodeNG] = {}
+    module_scope: dict[str, nodes.NodeNG] = field(default_factory=dict)
+    class_scope: dict[str, nodes.NodeNG] = field(default_factory=dict)
+    function_scope: dict[str, nodes.NodeNG] = field(default_factory=dict)
 
     def __iter__(self) -> Iterator[dict[str, nodes.NodeNG]]:
         yield from (self.function_scope, self.class_scope, self.module_scope)
@@ -211,10 +326,11 @@ class ConsiderUsingWithStack(NamedTuple):
         self, frame: nodes.FunctionDef | nodes.ClassDef | nodes.Module
     ) -> dict[str, nodes.NodeNG]:
         """Get the stack corresponding to the scope of the given frame."""
-        if isinstance(frame, nodes.FunctionDef):
-            return self.function_scope
-        if isinstance(frame, nodes.ClassDef):
-            return self.class_scope
+        match frame:
+            case nodes.FunctionDef():
+                return self.function_scope
+            case nodes.ClassDef():
+                return self.class_scope
         return self.module_scope
 
     def clear_all(self) -> None:
@@ -305,6 +421,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "According to PEP479, the raise of StopIteration to end the loop of "
             "a generator may lead to hard to find bugs. This PEP specify that "
             "raise StopIteration has to be replaced by a simple return statement",
+            {"scope": WarningScope.NODE},
         ),
         "R1710": (
             "Either all return statements in a function should return an expression, "
@@ -354,7 +471,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "more idiomatic, although sometimes a bit slower",
         ),
         "R1716": (
-            "Simplify chained comparison between the operands",
+            "Simplify chained comparison between the operands: %s",
             "chained-comparison",
             "This message is emitted when pylint encounters boolean operation like "
             '"a < b and b < c", suggesting instead to refactor it to "a < b < c"',
@@ -490,6 +607,19 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Yielding directly from the iterator is faster and arguably cleaner code than yielding each element "
             "one by one in the loop.",
         ),
+        "R1738": (
+            "Simplify chained comparison cycle to equality between the operands: %s",
+            "chained-comparison-all-equal",
+            "Emitted when the operands of a boolean condition form a cycle of weak "
+            "inequalities (``<=`` or ``>=``). The condition is equivalent to checking "
+            "that all the operands are equal.",
+        ),
+        "R1739": (
+            "This comparison always evaluates to False",
+            "impossible-comparison",
+            "Emitted when a boolean condition contains a chain of comparisons that "
+            "is logically contradictory and can never be true (e.g. ``a > b and b > a``).",
+        ),
     }
     options = (
         (
@@ -570,10 +700,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Unfortunately we need to know the exact type in certain
         cases.
         """
-        if isinstance(node.parent, nodes.If):
-            orelse = node.parent.orelse
-            # current if node must directly follow an "else"
-            if orelse and orelse == [node]:
+        match node.parent:
+            case nodes.If(orelse=[n]) if n == node:
+                # current if node must directly follow an "else"
                 if (node.lineno, node.col_offset) in self._elifs:
                     return True
         return False
@@ -590,45 +719,47 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if self._is_actual_elif(node):
             # Not interested in if statements with multiple branches.
             return
-        if len(node.orelse) != 1 or len(node.body) != 1:
-            return
+        match node:
+            case nodes.If(body=[first_branch], orelse=[else_branch]):
+                pass
+            case _:
+                return
 
         # Check if both branches can be reduced.
-        first_branch = node.body[0]
-        else_branch = node.orelse[0]
-        if isinstance(first_branch, nodes.Return):
-            if not isinstance(else_branch, nodes.Return):
-                return
-            first_branch_is_bool = self._is_bool_const(first_branch)
-            else_branch_is_bool = self._is_bool_const(else_branch)
-            reduced_to = "'return bool(test)'"
-        elif isinstance(first_branch, nodes.Assign):
-            if not isinstance(else_branch, nodes.Assign):
+        match first_branch:
+            case nodes.Return():
+                if not isinstance(else_branch, nodes.Return):
+                    return
+                first_branch_is_bool = self._is_bool_const(first_branch)
+                else_branch_is_bool = self._is_bool_const(else_branch)
+                reduced_to = "'return bool(test)'"
+            case nodes.Assign():
+                if not isinstance(else_branch, nodes.Assign):
+                    return
+
+                # Check if we assign to the same value
+                first_branch_targets = [
+                    target.name
+                    for target in first_branch.targets
+                    if isinstance(target, nodes.AssignName)
+                ]
+                else_branch_targets = [
+                    target.name
+                    for target in else_branch.targets
+                    if isinstance(target, nodes.AssignName)
+                ]
+                if not (first_branch_targets and else_branch_targets):
+                    return
+                if sorted(first_branch_targets) != sorted(else_branch_targets):
+                    return
+
+                first_branch_is_bool = self._is_bool_const(first_branch)
+                else_branch_is_bool = self._is_bool_const(else_branch)
+                reduced_to = "'var = bool(test)'"
+            case _:
                 return
 
-            # Check if we assign to the same value
-            first_branch_targets = [
-                target.name
-                for target in first_branch.targets
-                if isinstance(target, nodes.AssignName)
-            ]
-            else_branch_targets = [
-                target.name
-                for target in else_branch.targets
-                if isinstance(target, nodes.AssignName)
-            ]
-            if not first_branch_targets or not else_branch_targets:
-                return
-            if sorted(first_branch_targets) != sorted(else_branch_targets):
-                return
-
-            first_branch_is_bool = self._is_bool_const(first_branch)
-            else_branch_is_bool = self._is_bool_const(else_branch)
-            reduced_to = "'var = bool(test)'"
-        else:
-            return
-
-        if not first_branch_is_bool or not else_branch_is_bool:
+        if not (first_branch_is_bool and else_branch_is_bool):
             return
         if not first_branch.value.value:
             # This is a case that can't be easily simplified and
@@ -799,7 +930,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ):
             orelse = node.orelse[0]
             if (orelse.lineno, orelse.col_offset) in self._elifs:
-                args = ("elif", 'remove the leading "el" from "elif"')
+                args = ("elif", 'replace only that "elif" with "if"')
             else:
                 args = ("else", 'remove the "else" and de-indent the code inside it')
             self.add_message(msg_id, node=node, args=args, confidence=HIGH)
@@ -826,60 +957,53 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _type_and_name_are_equal(node_a: Any, node_b: Any) -> bool:
-        if isinstance(node_a, nodes.Name) and isinstance(node_b, nodes.Name):
-            return node_a.name == node_b.name  # type: ignore[no-any-return]
-        if isinstance(node_a, nodes.AssignName) and isinstance(
-            node_b, nodes.AssignName
-        ):
-            return node_a.name == node_b.name  # type: ignore[no-any-return]
-        if isinstance(node_a, nodes.Const) and isinstance(node_b, nodes.Const):
-            return node_a.value == node_b.value  # type: ignore[no-any-return]
+        match (node_a, node_b):
+            case (
+                [nodes.Name(name=a), nodes.Name(name=b)]
+                | [nodes.AssignName(name=a), nodes.AssignName(name=b)]
+                | [nodes.Const(value=a), nodes.Const(value=b)]
+            ):
+                return a == b  # type: ignore[no-any-return]
         return False
 
     def _is_dict_get_block(self, node: nodes.If) -> bool:
-        # "if <compare node>"
-        if not isinstance(node.test, nodes.Compare):
-            return False
-
-        # Does not have a single statement in the guard's body
-        if len(node.body) != 1:
-            return False
-
-        # Look for a single variable assignment on the LHS and a subscript on RHS
-        stmt = node.body[0]
-        if not (
-            isinstance(stmt, nodes.Assign)
-            and len(node.body[0].targets) == 1
-            and isinstance(node.body[0].targets[0], nodes.AssignName)
-            and isinstance(stmt.value, nodes.Subscript)
-        ):
-            return False
+        match node:
+            case nodes.If(
+                test=nodes.Compare() as test,
+                body=[
+                    nodes.Assign(
+                        targets=[nodes.AssignName()],
+                        value=nodes.Subscript(slice=slice_value, value=value),
+                    )
+                ],
+            ):
+                # "if <compare node>"
+                # Does not have a single statement in the guard's body
+                # Look for a single variable assignment on the LHS and a subscript on RHS
+                pass
+            case _:
+                return False
 
         # The subscript's slice needs to be the same as the test variable.
-        slice_value = stmt.value.slice
         if not (
-            self._type_and_name_are_equal(stmt.value.value, node.test.ops[0][1])
-            and self._type_and_name_are_equal(slice_value, node.test.left)
+            self._type_and_name_are_equal(value, test.ops[0][1])
+            and self._type_and_name_are_equal(slice_value, test.left)
         ):
             return False
 
         # The object needs to be a dictionary instance
-        return isinstance(utils.safe_infer(node.test.ops[0][1]), nodes.Dict)
+        return isinstance(utils.safe_infer(test.ops[0][1]), nodes.Dict)
 
     def _check_consider_get(self, node: nodes.If) -> None:
-        if_block_ok = self._is_dict_get_block(node)
-        if if_block_ok and not node.orelse:
-            self.add_message("consider-using-get", node=node)
-        elif (
-            if_block_ok
-            and len(node.orelse) == 1
-            and isinstance(node.orelse[0], nodes.Assign)
-            and self._type_and_name_are_equal(
-                node.orelse[0].targets[0], node.body[0].targets[0]
-            )
-            and len(node.orelse[0].targets) == 1
-        ):
-            self.add_message("consider-using-get", node=node)
+        if not self._is_dict_get_block(node):
+            return
+        match node:
+            case nodes.If(orelse=[]):
+                self.add_message("consider-using-get", node=node)
+            case nodes.If(
+                body=[nodes.Assign(targets=[t1])], orelse=[nodes.Assign(targets=[t2])]
+            ) if self._type_and_name_are_equal(t1, t2):
+                self.add_message("consider-using-get", node=node)
 
     @utils.only_required_for_messages(
         "too-many-nested-blocks",
@@ -926,34 +1050,27 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # extremely helpful for Call or BinOp
             return node.as_string()  # type: ignore[no-any-return]
 
-        body = node.body[0]
-        # Check if condition can be reduced.
-        if not hasattr(body, "targets") or len(body.targets) != 1:
-            return
-
-        target = body.targets[0]
-        if not (
-            isinstance(node.test, nodes.Compare)
-            and not isinstance(target, nodes.Subscript)
-            and not isinstance(node.test.left, nodes.Subscript)
-            and isinstance(body, nodes.Assign)
-        ):
-            return
-        # Assign body line has one requirement and that is the assign target
-        # is of type name or attribute. Attribute referring to NamedTuple.x perse.
-        # So we have to check that target is of these types
-
-        if not (hasattr(target, "name") or hasattr(target, "attrname")):
-            return
+        match node:
+            case nodes.If(
+                test=nodes.Compare(left=left, ops=[[operator, right_statement]]),
+                body=[
+                    nodes.Assign(
+                        targets=[nodes.AssignName() | nodes.AssignAttr() as target],
+                        value=value,
+                    ),
+                    *_,
+                ],
+            ) if not isinstance(left, nodes.Subscript):
+                # Assign body line has one requirement and that is the assign target
+                # is of type name or attribute. Attribute referring to NamedTuple.x perse.
+                # So we have to check that target is of these types
+                pass
+            case _:
+                return
 
         target_assignation = get_node_name(target)
-
-        if len(node.test.ops) > 1:
-            return
-        operator, right_statement = node.test.ops[0]
-
-        body_value = get_node_name(body.value)
-        left_operand = get_node_name(node.test.left)
+        body_value = get_node_name(value)
+        left_operand = get_node_name(left)
         right_statement_value = get_node_name(right_statement)
 
         if left_operand == target_assignation:
@@ -968,47 +1085,48 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if body_value not in (right_statement_value, left_operand):
             return
 
-        if operator in {"<", "<="}:
-            reduced_to = (
-                f"{target_assignation} = max({target_assignation}, {body_value})"
-            )
-            self.add_message(
-                "consider-using-max-builtin", node=node, args=(reduced_to,)
-            )
-        elif operator in {">", ">="}:
-            reduced_to = (
-                f"{target_assignation} = min({target_assignation}, {body_value})"
-            )
-            self.add_message(
-                "consider-using-min-builtin", node=node, args=(reduced_to,)
-            )
+        match operator:
+            case "<" | "<=":
+                reduced_to = (
+                    f"{target_assignation} = max({target_assignation}, {body_value})"
+                )
+                self.add_message(
+                    "consider-using-max-builtin", node=node, args=(reduced_to,)
+                )
+            case ">" | ">=":
+                reduced_to = (
+                    f"{target_assignation} = min({target_assignation}, {body_value})"
+                )
+                self.add_message(
+                    "consider-using-min-builtin", node=node, args=(reduced_to,)
+                )
 
     @utils.only_required_for_messages("simplifiable-if-expression")
     def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_simplifiable_ifexp(node)
 
     def _check_simplifiable_ifexp(self, node: nodes.IfExp) -> None:
-        if not isinstance(node.body, nodes.Const) or not isinstance(
-            node.orelse, nodes.Const
-        ):
-            return
-
-        if not isinstance(node.body.value, bool) or not isinstance(
-            node.orelse.value, bool
-        ):
-            return
+        match node:
+            case nodes.IfExp(
+                body=nodes.Const(value=bool() as body_value),
+                orelse=nodes.Const(value=bool() as orelse_value),
+            ):
+                pass
+            case _:
+                return
 
         if isinstance(node.test, nodes.Compare):
             test_reduced_to = "test"
         else:
             test_reduced_to = "bool(test)"
 
-        if (node.body.value, node.orelse.value) == (True, False):
-            reduced_to = f"'{test_reduced_to}'"
-        elif (node.body.value, node.orelse.value) == (False, True):
-            reduced_to = "'not test'"
-        else:
-            return
+        match (body_value, orelse_value):
+            case [True, False]:
+                reduced_to = f"'{test_reduced_to}'"
+            case [False, True]:
+                reduced_to = "'not test'"
+            case _:
+                return
 
         self.add_message("simplifiable-if-expression", node=node, args=(reduced_to,))
 
@@ -1049,14 +1167,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_stop_iteration_inside_generator(self, node: nodes.Raise) -> None:
         """Check if an exception of type StopIteration is raised inside a generator."""
         frame = node.frame()
-        if not isinstance(frame, nodes.FunctionDef) or not frame.is_generator():
+        if not (isinstance(frame, nodes.FunctionDef) and frame.is_generator()):
             return
         if utils.node_ignores_exception(node, StopIteration):
             return
         if not node.exc:
             return
         exc = utils.safe_infer(node.exc)
-        if not exc or not isinstance(exc, (bases.Instance, nodes.ClassDef)):
+        if not isinstance(exc, (bases.Instance, nodes.ClassDef)):
             return
         if self._check_exception_inherit_from_stopiteration(exc):
             self.add_message("stop-iteration-return", node=node, confidence=INFERENCE)
@@ -1067,17 +1185,28 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     ) -> bool:
         """Return True if the exception node in argument inherit from StopIteration."""
         stopiteration_qname = f"{utils.EXCEPTIONS_MODULE}.StopIteration"
-        return any(_class.qname() == stopiteration_qname for _class in exc.mro())
+        # A class that lost its MRO still knows its bases, and they are all this
+        # lookup needs, so ``ancestors()`` keeps the message the MRO cannot give.
+        ancestors = utils.safe_mro(exc) or exc.ancestors()
+        return any(_class.qname() == stopiteration_qname for _class in ancestors)
 
     def _check_consider_using_comprehension_constructor(self, node: nodes.Call) -> None:
-        if (
-            isinstance(node.func, nodes.Name)
-            and node.args
-            and isinstance(node.args[0], nodes.ListComp)
-        ):
-            if node.func.name == "dict":
-                element = node.args[0].elt
+        match node:
+            case nodes.Call(
+                func=nodes.Name(name=name), args=[nodes.ListComp(elt=element), *_]
+            ):
+                pass
+            case _:
+                return
+        match name:
+            case "dict":
                 if isinstance(element, nodes.Call):
+                    return
+
+                # ``dict([*pair_list for pair_list in pairs])`` (PEP 798)
+                # flattens its argument, so it is not equivalent to a
+                # key/value dict comprehension.
+                if isinstance(element, nodes.Starred):
                     return
 
                 # If we have an `IfExp` here where both the key AND value
@@ -1099,45 +1228,42 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
                 message_name = "consider-using-dict-comprehension"
                 self.add_message(message_name, node=node)
-            elif node.func.name == "set":
+            case "set":
                 message_name = "consider-using-set-comprehension"
                 self.add_message(message_name, node=node)
 
     def _check_consider_using_generator(self, node: nodes.Call) -> None:
-        # 'any', 'all', definitely should use generator, while 'list', 'tuple',
-        # 'sum', 'max', and 'min' need to be considered first
-        # See https://github.com/pylint-dev/pylint/pull/3309#discussion_r576683109
-        # https://github.com/pylint-dev/pylint/pull/6595#issuecomment-1125704244
-        # and https://peps.python.org/pep-0289/
-        checked_call = ["any", "all", "sum", "max", "min", "list", "tuple"]
-        if (
-            isinstance(node, nodes.Call)
-            and node.func
-            and isinstance(node.func, nodes.Name)
-            and node.func.name in checked_call
-        ):
-            # functions in checked_calls take exactly one positional argument
-            # check whether the argument is list comprehension
-            if len(node.args) == 1 and isinstance(node.args[0], nodes.ListComp):
-                # remove square brackets '[]'
-                inside_comp = node.args[0].as_string()[1:-1]
-                if node.keywords:
-                    inside_comp = f"({inside_comp})"
-                    inside_comp += ", "
-                    inside_comp += ", ".join(kw.as_string() for kw in node.keywords)
-                call_name = node.func.name
-                if call_name in {"any", "all"}:
-                    self.add_message(
-                        "use-a-generator",
-                        node=node,
-                        args=(call_name, inside_comp),
-                    )
-                else:
-                    self.add_message(
-                        "consider-using-generator",
-                        node=node,
-                        args=(call_name, inside_comp),
-                    )
+        match node:
+            case nodes.Call(
+                func=nodes.Name(name=call_name), args=[nodes.ListComp() as comp]
+            ) if (call_name in CALLS_THAT_SHOULD_USE_GENERATOR):
+                # functions in checked_calls take exactly one positional argument
+                # check whether the argument is list comprehension
+                pass
+            case _:
+                return
+
+        if _is_asynchronous_comprehension(comp):
+            # The generator expression would be an asynchronous generator,
+            # which none of these functions can consume.
+            return
+
+        inside_comp = comp.as_string()[1:-1]  # remove square brackets '[]'
+        if node.keywords:
+            inside_comp = f"({inside_comp})"
+            inside_comp += ", "
+            inside_comp += ", ".join(kw.as_string() for kw in node.keywords)
+        message_name = (
+            "use-a-generator"
+            if call_name in {"any", "all"}
+            else "consider-using-generator"
+        )
+        self.add_message(
+            message_name,
+            node=node,
+            args=(call_name, inside_comp),
+            confidence=HIGH,
+        )
 
     @utils.only_required_for_messages(
         "stop-iteration-return",
@@ -1163,22 +1289,23 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @utils.only_required_for_messages("use-yield-from")
     def visit_yield(self, node: nodes.Yield) -> None:
-        if not isinstance(node.value, nodes.Name):
-            return
-
-        loop_node = node.parent.parent
-        if (
-            not isinstance(loop_node, nodes.For)
-            or isinstance(loop_node, nodes.AsyncFor)
-            or len(loop_node.body) != 1
-            # Avoid a false positive if the return value from `yield` is used,
-            # (such as via Assign, AugAssign, etc).
-            or not isinstance(node.parent, nodes.Expr)
-        ):
-            return
-
-        if loop_node.target.name != node.value.name:
-            return
+        match node:
+            case nodes.Yield(
+                value=nodes.Name(name=name),
+                parent=nodes.Expr(
+                    parent=nodes.For(
+                        target=nodes.AssignName(name=target_name),
+                        body=[_],
+                    ) as loop_node
+                ),
+            ) if (
+                not isinstance(loop_node, nodes.AsyncFor) and target_name == name
+            ):
+                pass
+            case _:
+                # Avoid a false positive if the return value from `yield` is used,
+                # (such as via Assign, AugAssign, etc).
+                return
 
         if isinstance(node.frame(), nodes.AsyncFunctionDef):
             return
@@ -1193,28 +1320,28 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
 
     def _check_quit_exit_call(self, node: nodes.Call) -> None:
-        if isinstance(node.func, nodes.Name) and node.func.name in BUILTIN_EXIT_FUNCS:
-            # If we have `exit` imported from `sys` in the current or global scope,
-            # exempt this instance.
-            local_scope = node.scope()
-            if self._has_exit_in_scope(local_scope) or self._has_exit_in_scope(
-                node.root()
-            ):
-                return
-            self.add_message("consider-using-sys-exit", node=node, confidence=HIGH)
+        match node.func:
+            case nodes.Name(name=name) if name in BUILTIN_EXIT_FUNCS:
+                # If we have `exit` imported from `sys` in the current or global scope,
+                # exempt this instance.
+                local_scope = node.scope()
+                if self._has_exit_in_scope(local_scope) or self._has_exit_in_scope(
+                    node.root()
+                ):
+                    return
+                self.add_message("consider-using-sys-exit", node=node, confidence=HIGH)
 
     def _check_super_with_arguments(self, node: nodes.Call) -> None:
-        if not isinstance(node.func, nodes.Name) or node.func.name != "super":
-            return
-
-        if (
-            len(node.args) != 2
-            or not all(isinstance(arg, nodes.Name) for arg in node.args)
-            or node.args[1].name != "self"
-            or (frame_class := node_frame_class(node)) is None
-            or node.args[0].name != frame_class.name
-        ):
-            return
+        match node:
+            case nodes.Call(
+                func=nodes.Name(name="super"),
+                args=[nodes.Name(name=name), nodes.Name(name="self")],
+            ) if (
+                frame_class := node_frame_class(node)
+            ) is not None and name == frame_class.name:
+                pass
+            case _:
+                return
 
         self.add_message("super-with-arguments", node=node)
 
@@ -1323,11 +1450,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         all_types: collections.defaultdict[str, set[str]] = collections.defaultdict(set)
 
         for call in node.values:
-            if not isinstance(call, nodes.Call) or len(call.args) != 2:
+            if not (isinstance(call, nodes.Call) and len(call.args) == 2):
                 continue
 
             inferred = utils.safe_infer(call.func)
-            if not inferred or not utils.is_builtin_object(inferred):
+            if not (inferred and utils.is_builtin_object(inferred)):
                 continue
 
             if inferred.name != "isinstance":
@@ -1369,18 +1496,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_consider_using_in(self, node: nodes.BoolOp) -> None:
         allowed_ops = {"or": "==", "and": "!="}
 
-        if node.op not in allowed_ops or len(node.values) < 2:
+        if not (node.op in allowed_ops and len(node.values) >= 2):
             return
 
         for value in node.values:
-            if (
-                not isinstance(value, nodes.Compare)
-                or len(value.ops) != 1
-                or value.ops[0][0] not in allowed_ops[node.op]
-            ):
-                return
-            for comparable in value.left, value.ops[0][1]:
-                if isinstance(comparable, nodes.Call):
+            match value:
+                case nodes.Compare(left=nodes.Call()) | nodes.Compare(
+                    ops=[tuple((_, nodes.Call()))]
+                ):
+                    return
+                case nodes.Compare(ops=[tuple((op, _))]) if op in allowed_ops[node.op]:
+                    pass
+                case _:
                     return
 
         # Gather variables and values from comparisons
@@ -1400,7 +1527,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         # Gather information for the suggestion
-        common_variable = sorted(list(common_variables))[0]
+        common_variable = min(common_variables)
         values = list(collections.OrderedDict.fromkeys(values))
         values.remove(common_variable)
         values_string = ", ".join(values) if len(values) != 1 else values[0] + ","
@@ -1412,61 +1539,427 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             confidence=HIGH,
         )
 
-    def _check_chained_comparison(self, node: nodes.BoolOp) -> None:
-        """Check if there is any chained comparison in the expression.
-
-        Add a refactoring message if a boolOp contains comparison like a < b and b < c,
-        which can be chained as a < b < c.
-
-        Care is taken to avoid simplifying a < b < c and b < d.
-        """
-        if node.op != "and" or len(node.values) < 2:
+    def _check_comparisons(self, node: nodes.BoolOp) -> None:
+        segments = self._segment_comparisons(node)
+        if segments is None:
             return
 
-        def _find_lower_upper_bounds(
-            comparison_node: nodes.Compare,
-            uses: collections.defaultdict[str, dict[str, set[nodes.Compare]]],
-        ) -> None:
-            left_operand = comparison_node.left
-            for operator, right_operand in comparison_node.ops:
-                for operand in (left_operand, right_operand):
-                    value = None
-                    if isinstance(operand, nodes.Name):
-                        value = operand.name
-                    elif isinstance(operand, nodes.Const):
-                        value = operand.value
+        # Bail on the first cycle. Reporting both ``impossible-comparison`` and
+        # ``chained-comparison`` on the same node would be noisy and the cycle
+        # is the strictly more important finding.
+        for segment in segments:
+            if isinstance(segment, _ComparisonGraph) and self._emit_cycles(
+                node, segment
+            ):
+                return
 
-                    if value is None:
-                        continue
-
-                    if operator in {"<", "<="}:
-                        if operand is left_operand:
-                            uses[value]["lower_bound"].add(comparison_node)
-                        elif operand is right_operand:
-                            uses[value]["upper_bound"].add(comparison_node)
-                    elif operator in {">", ">="}:
-                        if operand is left_operand:
-                            uses[value]["upper_bound"].add(comparison_node)
-                        elif operand is right_operand:
-                            uses[value]["lower_bound"].add(comparison_node)
-                left_operand = right_operand
-
-        uses: collections.defaultdict[str, dict[str, set[nodes.Compare]]] = (
-            collections.defaultdict(
-                lambda: {"lower_bound": set(), "upper_bound": set()}
+        rendered: list[str] = []
+        for segment in segments:
+            if isinstance(segment, str):
+                rendered.append(segment)
+                continue
+            paths = get_paths(segment.edges, segment.indegree, segment.frequency)
+            rendered.extend(
+                sorted(
+                    self._render_path(piece, segment.symbols)
+                    for path in paths
+                    for piece in self._split_at_literal_equalities(
+                        path, segment.symbols
+                    )
+                )
             )
-        )
-        for comparison_node in node.values:
-            if isinstance(comparison_node, nodes.Compare):
-                _find_lower_upper_bounds(comparison_node, uses)
 
-        for bounds in uses.values():
-            num_shared = len(bounds["lower_bound"].intersection(bounds["upper_bound"]))
-            num_lower_bounds = len(bounds["lower_bound"])
-            num_upper_bounds = len(bounds["upper_bound"])
-            if num_shared < num_lower_bounds and num_shared < num_upper_bounds:
-                self.add_message("chained-comparison", node=node)
-                break
+        if len(rendered) < len(node.values):
+            self.add_message(
+                "chained-comparison",
+                node=node,
+                args=(self._join_suggestion(rendered),),
+                confidence=HIGH,
+            )
+
+    def _segment_comparisons(
+        self, node: nodes.BoolOp
+    ) -> list[_ComparisonGraph | str] | None:
+        """Split ``node.values`` into runs of consecutive processable Compares.
+
+        Any statement we can't fold into the graph (function calls, ``!=``,
+        ``in``...) acts as a boundary: chaining across it would change the
+        short-circuit evaluation order, so ``_is_int(v) and v >= 0 and v <=
+        999`` must always render the type guard before the numeric range.
+        Each run is wrapped in a ``_ComparisonGraph`` (which may then yield
+        a chain); each boundary statement is kept verbatim as a string.
+
+        Returns ``None`` when nothing in ``node.values`` is foldable, which
+        also covers the trivial single-statement or pure ``==`` cases the
+        original check already ignored.
+        """
+        if node.op != "and" or len(node.values) < 2:
+            return None
+
+        usable_texts = self._usable_operand_texts(node)
+        segments: list[_ComparisonGraph | str] = []
+        pending: list[tuple[_ComparisonGraph, list[int | float]]] = []
+        current = _ComparisonGraph()
+        const_values: list[int | float] = []
+        for statement in node.values:
+            if self._add_compare_to_graph(
+                statement, current, const_values, usable_texts
+            ):
+                continue
+            if current.source_count > 0:
+                pending.append((current, const_values))
+                segments.append(current)
+            segments.append(self._render_boundary(statement))
+            current = _ComparisonGraph()
+            const_values = []
+        if current.source_count > 0:
+            pending.append((current, const_values))
+            segments.append(current)
+
+        if not pending:
+            return None
+        if any(len(graph.edges) > _MAX_COMPARISON_OPERANDS for graph, _ in pending):
+            return None
+        # Bail before constant linking. ``value == 1 and value == 2`` would
+        # otherwise gain a synthetic ``2 > 1`` edge and look chain-collapsible
+        # to ``value == 2``, which is wrong (the original is impossible). The
+        # plain all-``==`` case was silent in the pre-PR check, keep it that
+        # way.
+        if all(symbol == "==" for g, _ in pending for symbol in g.symbols.values()):
+            return None
+        for graph, consts in pending:
+            self._link_constants(graph, consts)
+        return segments
+
+    @staticmethod
+    def _usable_operand_texts(node: nodes.BoolOp) -> set[str]:
+        """Texts of the operands that may stand for a value in ``node``.
+
+        A name stands for one value however often it is written, and a number
+        is its own value, but any other expression is only known by its text.
+        The same text is the same value as long as reading it cannot do
+        anything: ``-x`` and ``obj.limit`` are as steady as a name.
+
+        A call is not. ``next(it) > 0 and next(it) < 10`` reads the iterator
+        twice, so a text holding a call is only usable when the condition
+        writes it once.
+        """
+        counts: collections.Counter[str] = collections.Counter()
+        impure_texts: set[str] = set()
+        for statement in node.values:
+            if not isinstance(statement, nodes.Compare):
+                continue
+            for operand in (statement.left, *(right for _, right in statement.ops)):
+                if isinstance(operand, nodes.Name):
+                    continue
+                if _numeric_operand_value(operand) is not None:
+                    continue
+                text: str = operand.as_string()
+                counts[text] += 1
+                if next(operand.nodes_of_class(_IMPURE_NODES), None) is not None:
+                    impure_texts.add(text)
+        return {
+            text
+            for text, count in counts.items()
+            if count == 1 or text not in impure_texts
+        }
+
+    def _emit_cycles(self, node: nodes.BoolOp, graph: _ComparisonGraph) -> bool:
+        """Emit ``impossible-comparison`` / ``chained-comparison-all-equal``
+        for any cycle in ``graph``.
+
+        Returns whether anything was emitted.
+        """
+        # ``get_cycles`` picks a canonical start for each cycle with ``min()``,
+        # so it needs a graph whose nodes can all be compared with each other.
+        # Feed it the string spelling of every operand and keep the way back:
+        # ``symbols`` is keyed by the operands themselves, and the ``int`` ``5``
+        # does not compare equal to the ``str`` ``"5"``.
+        by_str = {str(operand): operand for operand in graph.edges}
+        str_edges = {
+            str(key): {str(dest) for dest in graph.edges[key]} for key in graph.edges
+        }
+        cycles = get_cycles(str_edges)
+        if not cycles:
+            return False
+        self._handle_cycles(
+            node, graph, [[by_str[name] for name in cycle] for cycle in cycles]
+        )
+        return True
+
+    @staticmethod
+    def _render_boundary(statement: nodes.NodeNG) -> str:
+        """Render a statement that can't be folded into the graph, verbatim.
+
+        The parts of the suggestion are joined with ``and``, so a statement
+        that binds more loosely than ``and`` has to keep its parentheses.
+        Without them ``a > 1 and a < 10 and (b or c)`` would be suggested as
+        ``1 < a < 10 and b or c``, which is a different expression.
+        """
+        text = statement.as_string()
+        # ``NamedExpr`` is absent on purpose: astroid already renders it as
+        # ``(b := c)``.
+        needs_parentheses = isinstance(
+            statement, (nodes.IfExp, nodes.Lambda, nodes.Yield, nodes.YieldFrom)
+        ) or (isinstance(statement, nodes.BoolOp) and statement.op == "or")
+        return f"({text})" if needs_parentheses else text
+
+    @staticmethod
+    def _split_at_literal_equalities(
+        path: tuple[_ComparisonOperand, ...],
+        symbols: dict[_ComparisonEdge, str],
+    ) -> Iterator[tuple[_ComparisonOperand, ...]]:
+        """Cut ``path`` wherever it passes through an equality with a literal.
+
+        ``x == 0`` is a fact about ``x`` alone, so using that ``0`` as a link
+        in a chain relates two conditions that have nothing to do with each
+        other: ``neg_ct == 0 and result < 0`` would be reported as
+        ``result < 0 == neg_ct``, which is harder to read than the code it
+        replaces. A literal is still welcome at either end of a chain, and
+        two inequalities may still meet on one (``startValue < 0 <= minV``).
+        """
+        start = 0
+        for index in range(1, len(path) - 1):
+            if isinstance(path[index], str):
+                continue
+            if "==" not in (
+                symbols[path[index - 1], path[index]],
+                symbols[path[index], path[index + 1]],
+            ):
+                continue
+            yield path[start : index + 1]
+            start = index
+        yield path[start:]
+
+    @staticmethod
+    def _join_suggestion(parts: list[str]) -> str:
+        """Join the parts of a suggestion, truncating an overlong one.
+
+        A condition can hold many operands, and a part that we could not fold
+        into the graph is spliced in verbatim, so the suggestion has no
+        natural length limit.
+        """
+        kept: list[str] = []
+        for part in parts:
+            if kept and len(" and ".join(kept)) >= _MAX_SUGGESTION_LENGTH:
+                return " and ".join((*kept, "..."))
+            kept.append(part)
+        return " and ".join(kept)
+
+    @staticmethod
+    def _render_path(
+        path: tuple[_ComparisonOperand, ...],
+        symbols: dict[_ComparisonEdge, str],
+    ) -> str:
+        """Render a graph path as the suggested simplified Python expression.
+
+        The graph is built largest-first so a ``>=``/``>`` path reads
+        ``999 >= v >= 0``. We flip it to smallest-first (``0 <= v <= 999``)
+        which is how Python code idiomatically writes a range check.
+
+        Flipping only pays off when the chain surrounds something. A path
+        keeps its original direction when it is all equalities (``b == 2``,
+        not ``2 == b``) and when a lone variable heads it (``a > 10``, not
+        ``10 < a``).
+        """
+        edge_symbols = [symbols[path[i], path[i + 1]] for i in range(len(path) - 1)]
+        lone_variable_first = isinstance(path[0], str) and not any(
+            isinstance(operand, str) for operand in path[1:]
+        )
+        if lone_variable_first or all(symbol == "==" for symbol in edge_symbols):
+            rendered = str(path[0])
+            for i, symbol in enumerate(edge_symbols):
+                rendered += f" {symbol} {path[i + 1]}"
+            return rendered
+        rendered = str(path[-1])
+        for i in range(len(path) - 1, 0, -1):
+            symbol = _REVERSED_COMPARE[symbols[path[i - 1], path[i]]]
+            rendered += f" {symbol} {path[i - 1]}"
+        return rendered
+
+    def _add_compare_to_graph(
+        self,
+        statement: nodes.NodeNG,
+        graph: _ComparisonGraph,
+        const_values: list[int | float],
+        usable_texts: set[str],
+    ) -> bool:
+        """Try to fold ``statement`` into ``graph``.
+
+        Returns ``True`` when every operator is one we order by and every
+        operand can be a node. Returns ``False`` otherwise so the caller can
+        keep the original text and mention it verbatim in the suggestion.
+
+        The graph is only mutated when the whole statement is processable, so
+        a partially-valid Compare doesn't leave half-committed edges behind.
+        """
+        if not isinstance(statement, nodes.Compare):
+            return False
+        pending_consts: list[int | float] = []
+        left = self._get_compare_operand_value(
+            statement.left, pending_consts, usable_texts
+        )
+        if left is None:
+            return False
+        operands: list[_ComparisonOperand] = [left]
+        operators: list[str] = []
+        for operator, right_node in statement.ops:
+            if operator not in {"<", ">", "==", "<=", ">="}:
+                return False
+            right = self._get_compare_operand_value(
+                right_node, pending_consts, usable_texts
+            )
+            if right is None:
+                return False
+            operators.append(operator)
+            operands.append(right)
+
+        # A comparison of an operand with itself would become a self-loop, and
+        # a self-loop is a cycle: ``a >= a``, which is always True, would be
+        # reported as a one-operand ``chained-comparison-all-equal``. Leave it
+        # to ``comparison-with-itself`` and treat the statement as a boundary
+        # so it still shows up verbatim in any suggestion.
+        if any(left == right for left, right in itertools.pairwise(operands)):
+            return False
+
+        const_values.extend(pending_consts)
+        for i, operator in enumerate(operators):
+            left, right = operands[i], operands[i + 1]
+            # Make the graph always point from larger to smaller.
+            if operator == "<":
+                operator = ">"
+                left, right = right, left
+            elif operator == "<=":
+                operator = ">="
+                left, right = right, left
+            graph.edges[left].add(right)
+            graph.edges.setdefault(right, set())
+            graph.symbols[(left, right)] = operator
+            graph.indegree[left] += 0
+            graph.indegree[right] += 1
+            graph.frequency[(left, right)] += 1
+        graph.source_count += 1
+        return True
+
+    @staticmethod
+    def _components(
+        graph: _ComparisonGraph,
+    ) -> dict[_ComparisonOperand, int]:
+        """Group the operands that are already compared with one another.
+
+        Two operands share a component when a path of comparisons runs between
+        them, whichever way the edges point.
+        """
+        neighbors: dict[_ComparisonOperand, set[_ComparisonOperand]] = (
+            collections.defaultdict(set)
+        )
+        for left, rights in graph.edges.items():
+            for right in rights:
+                neighbors[left].add(right)
+                neighbors[right].add(left)
+
+        components: dict[_ComparisonOperand, int] = {}
+        for index, start in enumerate(list(graph.edges)):
+            if start in components:
+                continue
+            to_visit = [start]
+            while to_visit:
+                operand = to_visit.pop()
+                if operand in components:
+                    continue
+                components[operand] = index
+                to_visit.extend(neighbors.get(operand, ()))
+        return components
+
+    @classmethod
+    def _link_constants(
+        cls, graph: _ComparisonGraph, const_values: list[int | float]
+    ) -> None:
+        """Add synthetic ``>`` edges between the constants of one component.
+
+        Without this, ``a > 1 and a > 10`` wouldn't notice that ``10 > 1``, so
+        it would render as two chains instead of collapsing to ``a > 10``.
+
+        Constants of *different* components stay unlinked: in
+        ``a < b and b < 0 and c == 786`` the ``786`` has nothing to do with
+        the rest, and a synthetic ``786 > 0`` edge would splice the two
+        conditions into ``a < b < 0 < 786 == c``.
+        """
+        components = cls._components(graph)
+        sorted_consts = sorted(const_values)
+        while sorted_consts:
+            largest = sorted_consts.pop()
+            for smaller in set(sorted_consts):
+                if smaller >= largest:
+                    continue
+                if components.get(largest) != components.get(smaller):
+                    continue
+                graph.symbols[(largest, smaller)] = ">"
+                graph.indegree[smaller] += 1
+                graph.frequency[(largest, smaller)] += 1
+                graph.edges[largest].add(smaller)
+                # Drop redundant shortcut edges from ``largest`` to ``smaller``'s
+                # symbol neighbors so they're not rendered twice.
+                for adj in graph.edges[smaller]:
+                    if isinstance(adj, str):
+                        graph.edges[largest].discard(adj)
+
+    @staticmethod
+    def _get_compare_operand_value(
+        node: nodes.NodeNG,
+        const_values: list[int | float],
+        usable_texts: set[str],
+    ) -> _ComparisonOperand | None:
+        if isinstance(node, nodes.Name):
+            # ``Name.name`` is typed ``Any``; pin it down for mypy.
+            name: str = node.name
+            return name
+        value = _numeric_operand_value(node)
+        if value is not None:
+            const_values.append(value)
+            return value
+        # ``as_string`` is typed ``Any``; pin it down for mypy.
+        text: str = node.as_string()
+        # ``isidentifier`` keeps a text that looks like a variable (``None``)
+        # out of the graph, where it could be mistaken for one.
+        if text in usable_texts and not text.isidentifier():
+            return text
+        return None
+
+    def _handle_cycles(
+        self,
+        node: nodes.BoolOp,
+        graph: _ComparisonGraph,
+        cycles: Sequence[list[_ComparisonOperand]],
+    ) -> None:
+        all_equal_cycles: list[list[_ComparisonOperand]] = []
+        for cycle in cycles:
+            # ``get_cycles`` starts each cycle at its alphabetically smallest
+            # operand, which puts a literal first. Rotate to a variable so the
+            # suggestion reads ``a == 5`` rather than ``5 == a``.
+            first_name = next(
+                (i for i, operand in enumerate(cycle) if isinstance(operand, str)), 0
+            )
+            cycle = cycle[first_name:] + cycle[:first_name]
+            edges = [(cycle[i], cycle[i + 1]) for i in range(len(cycle) - 1)]
+            edges.append((cycle[-1], cycle[0]))
+            if all(graph.symbols[edge] == ">=" for edge in edges):
+                all_equal_cycles.append(cycle)
+                continue
+            # One strict cycle already makes the whole condition unsatisfiable.
+            # A second ``impossible-comparison`` on the same node would be an
+            # exact duplicate, and the equality groups of the other cycles are
+            # moot once nothing can be true.
+            self.add_message("impossible-comparison", node=node, confidence=HIGH)
+            return
+
+        for cycle in all_equal_cycles:
+            self.add_message(
+                "chained-comparison-all-equal",
+                node=node,
+                args=(" == ".join(str(operand) for operand in cycle),),
+                confidence=HIGH,
+            )
 
     @staticmethod
     def _apply_boolean_simplification_rules(
@@ -1553,26 +2046,26 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "consider-merging-isinstance",
         "consider-using-in",
         "chained-comparison",
+        "chained-comparison-all-equal",
+        "impossible-comparison",
         "simplifiable-condition",
         "condition-evals-to-constant",
     )
     def visit_boolop(self, node: nodes.BoolOp) -> None:
         self._check_consider_merging_isinstance(node)
         self._check_consider_using_in(node)
-        self._check_chained_comparison(node)
+        self._check_comparisons(node)
         self._check_simplifiable_condition(node)
 
     @staticmethod
     def _is_simple_assignment(node: nodes.NodeNG | None) -> bool:
-        return (
-            isinstance(node, nodes.Assign)
-            and len(node.targets) == 1
-            and isinstance(node.targets[0], nodes.AssignName)
-            and isinstance(node.value, nodes.Name)
-        )
+        match node:
+            case nodes.Assign(targets=[nodes.AssignName()], value=nodes.Name()):
+                return True
+        return False
 
     def _check_swap_variables(self, node: nodes.Return | nodes.Assign) -> None:
-        if not node.next_sibling() or not node.next_sibling().next_sibling():
+        if not (node.next_sibling() and node.next_sibling().next_sibling()):
             return
         assignments = [node, node.next_sibling(), node.next_sibling().next_sibling()]
         if not all(self._is_simple_assignment(node) for node in assignments):
@@ -1649,10 +2142,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if not isinstance(value, nodes.Call):
                 continue
             inferred = utils.safe_infer(value.func)
-            if (
-                not inferred
-                or inferred.qname() not in CALLS_RETURNING_CONTEXT_MANAGERS
-                or not isinstance(assignee, (nodes.AssignName, nodes.AssignAttr))
+            if not (
+                inferred
+                and inferred.qname() in CALLS_RETURNING_CONTEXT_MANAGERS
+                and isinstance(assignee, (nodes.AssignName, nodes.AssignAttr))
             ):
                 continue
             stack = self._consider_using_with_stack.get_stack_for_frame(node.frame())
@@ -1691,8 +2184,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # checked when leaving the scope.
             return
         inferred = utils.safe_infer(node.func)
-        if not inferred or not isinstance(
-            inferred, (nodes.FunctionDef, nodes.ClassDef, bases.BoundMethod)
+        if not (
+            inferred
+            and isinstance(
+                inferred, (nodes.FunctionDef, nodes.ClassDef, bases.BoundMethod)
+            )
         ):
             return
         could_be_used_in_with = (
@@ -1717,7 +2213,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_use_dict_literal(self, node: nodes.Call) -> None:
         """Check if dict is created by using the literal {}."""
-        if not isinstance(node.func, astroid.Name) or node.func.name != "dict":
+        if not (isinstance(node.func, nodes.Name) and node.func.name == "dict"):
             return
         inferred = utils.safe_infer(node.func)
         if (
@@ -1735,18 +2231,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     @staticmethod
     def _dict_literal_suggestion(node: nodes.Call) -> str:
         """Return a suggestion of reasonable length."""
-        elements: list[str] = []
-        for keyword in node.keywords:
-            if len(", ".join(elements)) >= 64:
-                break
-            if keyword not in node.kwargs:
-                elements.append(f'"{keyword.arg}": {keyword.value.as_string()}')
-        for keyword in node.kwargs:
-            if len(", ".join(elements)) >= 64:
-                break
-            elements.append(f"**{keyword.value.as_string()}")
-        suggestion = ", ".join(elements)
-        return f"{{{suggestion}{', ... '  if len(suggestion) > 64 else ''}}}"
+
+        def _elements() -> Iterator[str]:
+            for keyword in node.keywords:
+                if keyword not in node.kwargs:
+                    yield f'"{keyword.arg}": {keyword.value.as_string()}'
+            for keyword in node.kwargs:
+                yield f"**{keyword.value.as_string()}"
+
+        return truncated_dict_suggestion(_elements())
 
     def _name_to_concatenate(self, node: nodes.NodeNG) -> str | None:
         """Try to extract the name used in a concatenation loop."""
@@ -1758,7 +2251,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         values = [
             value for value in node.values if isinstance(value, nodes.FormattedValue)
         ]
-        if len(values) != 1 or not isinstance(values[0].value, nodes.Name):
+        if not (len(values) == 1 and isinstance(values[0].value, nodes.Name)):
             return None
         # If there are more values in joined string than formatted values,
         # they are probably separators.
@@ -1777,7 +2270,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             result += number  # aug_assign
         """
         for_loop = aug_assign.parent
-        if not isinstance(for_loop, nodes.For) or len(for_loop.body) > 1:
+        if not (isinstance(for_loop, nodes.For) and len(for_loop.body) == 1):
             return
         assign = for_loop.previous_sibling()
         if not isinstance(assign, nodes.Assign):
@@ -1815,85 +2308,85 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_unnecessary_list_index_lookup(node)
 
     def _check_unnecessary_comprehension(self, node: nodes.Comprehension) -> None:
-        if (
-            isinstance(node.parent, nodes.GeneratorExp)
-            or len(node.ifs) != 0
-            or len(node.parent.generators) != 1
-            or node.is_async
+        if isinstance(node.parent, nodes.GeneratorExp) or not (
+            len(node.ifs) == 0
+            and len(node.parent.generators) == 1
+            and node.is_async is False
         ):
             return
 
-        if (
-            isinstance(node.parent, nodes.DictComp)
-            and isinstance(node.parent.key, nodes.Name)
-            and isinstance(node.parent.value, nodes.Name)
-            and isinstance(node.target, nodes.Tuple)
-            and all(isinstance(elt, nodes.AssignName) for elt in node.target.elts)
-        ):
-            expr_list = [node.parent.key.name, node.parent.value.name]
-            target_list = [elt.name for elt in node.target.elts]
+        match node:
+            case nodes.Comprehension(
+                target=nodes.Tuple(elts=elts),
+                parent=nodes.DictComp(
+                    key=nodes.Name(name=key_name),
+                    value=nodes.Name(name=value_name),
+                ),
+            ) if all(isinstance(elt, nodes.AssignName) for elt in elts):
+                expr_list = [key_name, value_name]
+                target_list = [elt.name for elt in elts]
 
-        elif isinstance(node.parent, (nodes.ListComp, nodes.SetComp)):
-            expr = node.parent.elt
-            if isinstance(expr, nodes.Name):
-                expr_list = expr.name
-            elif isinstance(expr, nodes.Tuple):
-                if any(not isinstance(elt, nodes.Name) for elt in expr.elts):
-                    return
-                expr_list = [elt.name for elt in expr.elts]
-            else:
-                expr_list = []
-            target = node.parent.generators[0].target
-            target_list = (
-                target.name
-                if isinstance(target, nodes.AssignName)
-                else (
-                    [
-                        elt.name
-                        for elt in target.elts
-                        if isinstance(elt, nodes.AssignName)
-                    ]
-                    if isinstance(target, nodes.Tuple)
-                    else []
-                )
-            )
-        else:
-            return
+            case nodes.Comprehension(
+                parent=nodes.ListComp() | nodes.SetComp() as parent
+            ):
+                match expr := parent.elt:
+                    case nodes.Name(name=expr_list):
+                        pass
+                    case nodes.Tuple():
+                        if not all(isinstance(elt, nodes.Name) for elt in expr.elts):
+                            return
+                        expr_list = [elt.name for elt in expr.elts]
+                    case _:
+                        expr_list = []
+                match target := parent.generators[0].target:
+                    case nodes.AssignName(name=target_list):
+                        pass
+                    case nodes.Tuple():
+                        target_list = [
+                            elt.name
+                            for elt in target.elts
+                            if isinstance(elt, nodes.AssignName)
+                        ]
+                    case _:
+                        target_list = []
+
+            case _:
+                return
         if expr_list == target_list and expr_list:
-            args: tuple[str] | None = None
-            inferred = utils.safe_infer(node.iter)
-            if isinstance(node.parent, nodes.DictComp) and isinstance(
-                inferred, astroid.objects.DictItems
-            ):
-                args = (f"dict({node.iter.func.expr.as_string()})",)
-            elif isinstance(node.parent, nodes.ListComp) and isinstance(
-                inferred, nodes.List
-            ):
-                args = (f"list({node.iter.as_string()})",)
-            elif isinstance(node.parent, nodes.SetComp) and isinstance(
-                inferred, nodes.Set
-            ):
-                args = (f"set({node.iter.as_string()})",)
-            if args:
-                self.add_message(
-                    "unnecessary-comprehension", node=node.parent, args=args
-                )
-                return
-
-            if isinstance(node.parent, nodes.DictComp):
-                func = "dict"
-            elif isinstance(node.parent, nodes.ListComp):
-                func = "list"
-            elif isinstance(node.parent, nodes.SetComp):
-                func = "set"
-            else:
-                return
-
             self.add_message(
                 "unnecessary-comprehension",
                 node=node.parent,
-                args=(f"{func}({node.iter.as_string()})",),
+                args=self._unnecessary_comprehension_suggestion(node),
             )
+
+    @staticmethod
+    def _unnecessary_comprehension_suggestion(
+        node: nodes.Comprehension,
+    ) -> tuple[str]:
+        """Build the replacement suggested by ``unnecessary-comprehension``."""
+        inferred = utils.safe_infer(node.iter)
+        match (node.parent, inferred):
+            case [nodes.DictComp(), objects.DictItems()]:
+                return (f"dict({node.iter.func.expr.as_string()})",)
+            case [nodes.DictComp(), nodes.Dict()]:
+                # Iterating a dict yields its keys, so the comprehension
+                # rebuilds a dict from them; ``dict(d)`` would just copy ``d``
+                # and is the wrong suggestion (see #8256).
+                return (f"dict({node.iter.as_string()}.keys())",)
+            case [nodes.ListComp(), nodes.List()]:
+                return (f"list({node.iter.as_string()})",)
+            case [nodes.SetComp(), nodes.Set()]:
+                return (f"set({node.iter.as_string()})",)
+        match node.parent:
+            case nodes.DictComp():
+                func = "dict"
+            case nodes.ListComp():
+                func = "list"
+            case nodes.SetComp():
+                func = "set"
+            case _:  # pragma: no cover
+                raise AssertionError
+        return (f"{func}({node.iter.as_string()})",)
 
     @staticmethod
     def _is_and_or_ternary(node: nodes.NodeNG | None) -> bool:
@@ -1901,16 +2394,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         All of: condition, true_value and false_value should not be a complex boolean expression
         """
-        return (
-            isinstance(node, nodes.BoolOp)
-            and node.op == "or"
-            and len(node.values) == 2
-            and isinstance(node.values[0], nodes.BoolOp)
-            and not isinstance(node.values[1], nodes.BoolOp)
-            and node.values[0].op == "and"
-            and not isinstance(node.values[0].values[1], nodes.BoolOp)
-            and len(node.values[0].values) == 2
-        )
+        match node:
+            case nodes.BoolOp(
+                op="or", values=[nodes.BoolOp(op="and", values=[_, v1]), v2]
+            ) if not (isinstance(v2, nodes.BoolOp) or isinstance(v1, nodes.BoolOp)):
+                return True
+        return False
 
     @staticmethod
     def _and_or_ternary_arguments(
@@ -2023,44 +2512,44 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Returns:
             bool: True if the node ends with an explicit statement, False otherwise.
         """
-        # Recursion base case
-        if isinstance(node, nodes.Return):
-            return True
-        if isinstance(node, nodes.Call):
-            return any(
-                (
-                    isinstance(maybe_func, (nodes.FunctionDef, bases.BoundMethod))
+        match node:
+            case nodes.Return():
+                # Recursion base case
+                return True
+            case nodes.Call():
+                if utils.is_terminating_func(node):
+                    return True
+                return any(
+                    isinstance(
+                        maybe_func,
+                        (nodes.FunctionDef, bases.BoundMethod, bases.UnboundMethod),
+                    )
                     and self._is_function_def_never_returning(maybe_func)
+                    for maybe_func in utils.infer_all(node.func)
                 )
-                for maybe_func in utils.infer_all(node.func)
-            )
-        if isinstance(node, nodes.While):
-            # A while-loop is considered return-ended if it has a
-            # truthy test and no break statements
-            return (node.test.bool_value() and not _loop_exits_early(node)) or any(
-                self._is_node_return_ended(child) for child in node.orelse
-            )
-        if isinstance(node, nodes.Raise):
-            return self._is_raise_node_return_ended(node)
-        if isinstance(node, nodes.If):
-            return self._is_if_node_return_ended(node)
-        if isinstance(node, nodes.Try):
-            handlers = {
-                _child
-                for _child in node.get_children()
-                if isinstance(_child, nodes.ExceptHandler)
-            }
-            all_but_handler = set(node.get_children()) - handlers
-            return any(
-                self._is_node_return_ended(_child) for _child in all_but_handler
-            ) and all(self._is_node_return_ended(_child) for _child in handlers)
-        if (
-            isinstance(node, nodes.Assert)
-            and isinstance(node.test, nodes.Const)
-            and not node.test.value
-        ):
-            # consider assert False as a return node
-            return True
+            case nodes.While():
+                # A while-loop is considered return-ended if it has a
+                # truthy test and no break statements
+                return (node.test.bool_value() and not _loop_exits_early(node)) or any(
+                    self._is_node_return_ended(child) for child in node.orelse
+                )
+            case nodes.Raise():
+                return self._is_raise_node_return_ended(node)
+            case nodes.If():
+                return self._is_if_node_return_ended(node)
+            case nodes.Try():
+                handlers = {
+                    _child
+                    for _child in node.get_children()
+                    if isinstance(_child, nodes.ExceptHandler)
+                }
+                all_but_handler = set(node.get_children()) - handlers
+                return any(
+                    self._is_node_return_ended(_child) for _child in all_but_handler
+                ) and all(self._is_node_return_ended(_child) for _child in handlers)
+            case nodes.Assert(test=nodes.Const(value=False | 0)):
+                # consider assert False as a return node
+                return True
         # recurses on the children of the node
         return any(self._is_node_return_ended(_child) for _child in node.get_children())
 
@@ -2075,12 +2564,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False
 
     def _is_function_def_never_returning(
-        self, node: nodes.FunctionDef | astroid.BoundMethod
+        self,
+        node: nodes.FunctionDef | astroid.BoundMethod | astroid.UnboundMethod,
     ) -> bool:
         """Return True if the function never returns, False otherwise.
 
         Args:
-            node (nodes.FunctionDef or astroid.BoundMethod): function definition node to be analyzed.
+            node (nodes.FunctionDef, astroid.BoundMethod, or astroid.UnboundMethod):
+                function definition node to be analyzed.
 
         Returns:
             bool: True if the function never returns, False otherwise.
@@ -2096,10 +2587,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         except AttributeError:
             return False  # the BoundMethod proxy may be a lambda without a returns
 
-        return (
-            isinstance(returns, nodes.Attribute)
-            and returns.attrname in {"NoReturn", "Never"}
-        ) or (isinstance(returns, nodes.Name) and returns.name in {"NoReturn", "Never"})
+        match returns:
+            case nodes.Attribute(attrname=name) | nodes.Name(name=name):
+                return name in {"NoReturn", "Never"}
+        return False
 
     def _check_return_at_the_end(self, node: nodes.FunctionDef) -> None:
         """Check for presence of a *single* return statement at the end of a
@@ -2125,12 +2616,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         while isinstance(last, (nodes.If, nodes.Try, nodes.ExceptHandler)):
             last = last.last_child()
 
-        if isinstance(last, nodes.Return):
-            # e.g. "return"
-            if last.value is None:
+        match last:
+            case nodes.Return(value=None):
+                # e.g. "return"
                 self.add_message("useless-return", node=node)
-            # return None"
-            elif isinstance(last.value, nodes.Const) and (last.value.value is None):
+            case nodes.Return(value=nodes.Const(value=None)):
+                # return None"
                 self.add_message("useless-return", node=node)
 
     def _check_unnecessary_dict_index_lookup(
@@ -2141,153 +2632,150 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # that the object which is iterated is used as a subscript in the
         # body of the for.
         # Is it a proper items call?
-        if (
-            isinstance(node.iter, nodes.Call)
-            and isinstance(node.iter.func, nodes.Attribute)
-            and node.iter.func.attrname == "items"
-        ):
-            inferred = utils.safe_infer(node.iter.func)
-            if not isinstance(inferred, astroid.BoundMethod):
+        match node.iter:
+            case nodes.Call(func=nodes.Attribute(attrname="items", expr=expr)):
+                pass
+            case _:
                 return
-            iterating_object_name = node.iter.func.expr.as_string()
+        inferred = utils.safe_infer(node.iter.func)
+        if not isinstance(inferred, astroid.BoundMethod):
+            return
+        iterating_object_name = expr.as_string()
 
-            # Store potential violations. These will only be reported if we don't
-            # discover any writes to the collection during the loop.
-            messages = []
+        # Store potential violations. These will only be reported if we don't
+        # discover any writes to the collection during the loop.
+        messages = []
 
-            # Verify that the body of the for loop uses a subscript
-            # with the object that was iterated. This uses some heuristics
-            # in order to make sure that the same object is used in the
-            # for body.
+        # Verify that the body of the for loop uses a subscript
+        # with the object that was iterated. This uses some heuristics
+        # in order to make sure that the same object is used in the
+        # for body.
 
-            children = (
-                node.body
-                if isinstance(node, nodes.For)
-                else list(node.parent.get_children())
-            )
+        children = (
+            node.body
+            if isinstance(node, nodes.For)
+            else list(node.parent.get_children())
+        )
 
-            # Check if there are any for / while loops within the loop in question;
-            # If so, we will be more conservative about reporting errors as we
-            # can't yet do proper control flow analysis to be sure when
-            # reassignment will affect us
-            nested_loops = itertools.chain.from_iterable(
-                child.nodes_of_class((nodes.For, nodes.While)) for child in children
-            )
-            has_nested_loops = next(nested_loops, None) is not None
+        # Check if there are any for / while loops within the loop in question;
+        # If so, we will be more conservative about reporting errors as we
+        # can't yet do proper control flow analysis to be sure when
+        # reassignment will affect us
+        nested_loops = itertools.chain.from_iterable(
+            child.nodes_of_class((nodes.For, nodes.While)) for child in children
+        )
+        has_nested_loops = next(nested_loops, None) is not None
 
-            for child in children:
-                for subscript in child.nodes_of_class(nodes.Subscript):
-                    if not isinstance(subscript.value, (nodes.Name, nodes.Attribute)):
+        for child in children:
+            for subscript in child.nodes_of_class(nodes.Subscript):
+                if not isinstance(subscript.value, (nodes.Name, nodes.Attribute)):
+                    continue
+
+                value = subscript.slice
+
+                if isinstance(node, nodes.For) and _is_part_of_assignment_target(
+                    subscript
+                ):
+                    # Ignore this subscript if it is the target of an assignment
+                    # Early termination; after reassignment dict index lookup will be necessary
+                    return
+
+                if isinstance(subscript.parent, nodes.Delete):
+                    # Ignore this subscript if it's used with the delete keyword
+                    return
+
+                # Case where .items is assigned to k,v (i.e., for k, v in d.items())
+                if isinstance(value, nodes.Name):
+                    if not (
+                        isinstance(node.target, nodes.Tuple)
+                        # Ignore 1-tuples: for k, in d.items()
+                        and len(node.target.elts) >= 2
+                        and value.name == node.target.elts[0].name
+                        and iterating_object_name == subscript.value.as_string()
+                    ):
                         continue
 
-                    value = subscript.slice
-
-                    if isinstance(node, nodes.For) and _is_part_of_assignment_target(
-                        subscript
+                    if (
+                        isinstance(node, nodes.For)
+                        and value.lookup(value.name)[1][-1].lineno > node.lineno
                     ):
-                        # Ignore this subscript if it is the target of an assignment
-                        # Early termination; after reassignment dict index lookup will be necessary
-                        return
+                        # Ignore this subscript if it has been redefined after
+                        # the for loop. This checks for the line number using .lookup()
+                        # to get the line number where the iterating object was last
+                        # defined and compare that to the for loop's line number
+                        continue
 
-                    if isinstance(subscript.parent, nodes.Delete):
-                        # Ignore this subscript if it's used with the delete keyword
-                        return
+                    if has_nested_loops:
+                        messages.append(
+                            {
+                                "node": subscript,
+                                "variable": node.target.elts[1].as_string(),
+                            }
+                        )
+                    else:
+                        self.add_message(
+                            "unnecessary-dict-index-lookup",
+                            node=subscript,
+                            args=(node.target.elts[1].as_string(),),
+                        )
 
-                    # Case where .items is assigned to k,v (i.e., for k, v in d.items())
-                    if isinstance(value, nodes.Name):
-                        if (
-                            not isinstance(node.target, nodes.Tuple)
-                            # Ignore 1-tuples: for k, in d.items()
-                            or len(node.target.elts) < 2
-                            or value.name != node.target.elts[0].name
-                            or iterating_object_name != subscript.value.as_string()
-                        ):
-                            continue
+                # Case where .items is assigned to single var (i.e., for item in d.items())
+                elif isinstance(value, nodes.Subscript):
+                    if not (
+                        isinstance(node.target, nodes.AssignName)
+                        and isinstance(value.value, nodes.Name)
+                        and node.target.name == value.value.name
+                        and iterating_object_name == subscript.value.as_string()
+                    ):
+                        continue
 
-                        if (
-                            isinstance(node, nodes.For)
-                            and value.lookup(value.name)[1][-1].lineno > node.lineno
-                        ):
-                            # Ignore this subscript if it has been redefined after
-                            # the for loop. This checks for the line number using .lookup()
-                            # to get the line number where the iterating object was last
-                            # defined and compare that to the for loop's line number
-                            continue
+                    if (
+                        isinstance(node, nodes.For)
+                        and value.value.lookup(value.value.name)[1][-1].lineno
+                        > node.lineno
+                    ):
+                        # Ignore this subscript if it has been redefined after
+                        # the for loop. This checks for the line number using .lookup()
+                        # to get the line number where the iterating object was last
+                        # defined and compare that to the for loop's line number
+                        continue
 
-                        if has_nested_loops:
-                            messages.append(
-                                {
-                                    "node": subscript,
-                                    "variable": node.target.elts[1].as_string(),
-                                }
-                            )
-                        else:
-                            self.add_message(
-                                "unnecessary-dict-index-lookup",
-                                node=subscript,
-                                args=(node.target.elts[1].as_string(),),
-                            )
+                    # check if subscripted by 0 (key)
+                    inferred = utils.safe_infer(value.slice)
+                    if not (isinstance(inferred, nodes.Const) and inferred.value == 0):
+                        continue
 
-                    # Case where .items is assigned to single var (i.e., for item in d.items())
-                    elif isinstance(value, nodes.Subscript):
-                        if (
-                            not isinstance(node.target, nodes.AssignName)
-                            or not isinstance(value.value, nodes.Name)
-                            or node.target.name != value.value.name
-                            or iterating_object_name != subscript.value.as_string()
-                        ):
-                            continue
-
-                        if (
-                            isinstance(node, nodes.For)
-                            and value.value.lookup(value.value.name)[1][-1].lineno
-                            > node.lineno
-                        ):
-                            # Ignore this subscript if it has been redefined after
-                            # the for loop. This checks for the line number using .lookup()
-                            # to get the line number where the iterating object was last
-                            # defined and compare that to the for loop's line number
-                            continue
-
-                        # check if subscripted by 0 (key)
-                        inferred = utils.safe_infer(value.slice)
-                        if not isinstance(inferred, nodes.Const) or inferred.value != 0:
-                            continue
-
-                        if has_nested_loops:
-                            messages.append(
-                                {
-                                    "node": subscript,
-                                    "variable": "1".join(
-                                        value.as_string().rsplit("0", maxsplit=1)
-                                    ),
-                                }
-                            )
-                        else:
-                            self.add_message(
-                                "unnecessary-dict-index-lookup",
-                                node=subscript,
-                                args=(
-                                    "1".join(value.as_string().rsplit("0", maxsplit=1)),
+                    if has_nested_loops:
+                        messages.append(
+                            {
+                                "node": subscript,
+                                "variable": "1".join(
+                                    value.as_string().rsplit("0", maxsplit=1)
                                 ),
-                            )
+                            }
+                        )
+                    else:
+                        self.add_message(
+                            "unnecessary-dict-index-lookup",
+                            node=subscript,
+                            args=("1".join(value.as_string().rsplit("0", maxsplit=1)),),
+                        )
 
-            for message in messages:
-                self.add_message(
-                    "unnecessary-dict-index-lookup",
-                    node=message["node"],
-                    args=(message["variable"],),
-                )
+        for message in messages:
+            self.add_message(
+                "unnecessary-dict-index-lookup",
+                node=message["node"],
+                args=(message["variable"],),
+            )
 
     def _check_unnecessary_list_index_lookup(
         self, node: nodes.For | nodes.Comprehension
     ) -> None:
-        if (
-            not isinstance(node.iter, nodes.Call)
-            or not isinstance(node.iter.func, nodes.Name)
-            or not node.iter.func.name == "enumerate"
-        ):
-            return
+        match node.iter:
+            case nodes.Call(func=nodes.Name(name="enumerate")):
+                pass
+            case _:
+                return
 
         preliminary_confidence = HIGH
         try:
@@ -2301,14 +2789,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not isinstance(iterable_arg, nodes.Name):
             return
 
-        if not isinstance(node.target, nodes.Tuple) or len(node.target.elts) < 2:
-            # enumerate() result is being assigned without destructuring
-            return
-
-        if not isinstance(node.target.elts[1], nodes.AssignName):
-            # The value is not being assigned to a single variable, e.g. being
-            # destructured, so we can't necessarily use it.
-            return
+        match node.target:
+            case nodes.Tuple(
+                elts=[nodes.AssignName(name=name1), nodes.AssignName(name=name2), *_]
+            ):
+                pass
+            case _:
+                # enumerate() result is being assigned without destructuring
+                # The value is not being assigned to a single variable, e.g. being
+                # destructured, so we can't necessarily use it.
+                return
 
         has_start_arg, confidence = self._enumerate_with_start(node)
         if has_start_arg:
@@ -2324,7 +2814,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
 
         iterating_object_name = iterable_arg.name
-        value_variable = node.target.elts[1]
 
         # Store potential violations. These will only be reported if we don't
         # discover any writes to the collection during the loop.
@@ -2369,15 +2858,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
                 index = subscript.slice
                 if isinstance(index, nodes.Name):
-                    if (
-                        index.name != node.target.elts[0].name
-                        or iterating_object_name != subscript.value.as_string()
+                    if not (
+                        index.name == name1
+                        and iterating_object_name == subscript.value.as_string()
                     ):
                         continue
 
                     if (
                         isinstance(node, nodes.For)
-                        and index.lookup(index.name)[1][-1].lineno > node.lineno
+                        and (lookup_results := index.lookup(index.name)[1])
+                        and lookup_results[-1].lineno > node.lineno
                     ):
                         # Ignore this subscript if it has been redefined after
                         # the for loop.
@@ -2385,8 +2875,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
                     if (
                         isinstance(node, nodes.For)
-                        and index.lookup(value_variable.name)[1][-1].lineno
-                        > node.lineno
+                        and index.lookup(name2)[1][-1].lineno > node.lineno
                     ):
                         # The variable holding the value from iteration has been
                         # reassigned on a later line, so it can't be used.
@@ -2403,7 +2892,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         self.add_message(
                             "unnecessary-list-index-lookup",
                             node=subscript,
-                            args=(node.target.elts[1].name,),
+                            args=(name2,),
                             confidence=confidence,
                         )
 
@@ -2411,7 +2900,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self.add_message(
                 "unnecessary-list-index-lookup",
                 node=subscript,
-                args=(node.target.elts[1].name,),
+                args=(name2,),
                 confidence=confidence,
             )
 
@@ -2438,14 +2927,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             start_val, confidence = self._get_start_value(start_arg)
             if start_val is None:
                 return False, confidence
-            return not start_val == 0, confidence
+            return start_val != 0, confidence
 
         for keyword in node.iter.keywords:
             if keyword.arg == "start":
                 start_val, confidence = self._get_start_value(keyword.value)
                 if start_val is None:
                     return False, confidence
-                return not start_val == 0, confidence
+                return start_val != 0, confidence
 
         return False, confidence
 
@@ -2453,10 +2942,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # Most common use cases are a constant integer or minus a constant integer. We
         # don't need inference for that. If that's not the case, we assume arbitrary
         # complexity and we use inference.
-        if isinstance(node, nodes.Const):
-            return node.value, HIGH
-        if isinstance(node, nodes.UnaryOp) and isinstance(node.operand, nodes.Const):
-            return node.operand.value, HIGH
+        match node:
+            case nodes.Const():
+                return node.value, HIGH
+            case nodes.UnaryOp(operand=nodes.Const()):
+                return node.operand.value, HIGH
         inferred = utils.safe_infer(node)
         if isinstance(inferred, nodes.Const):
             return inferred.value, INFERENCE

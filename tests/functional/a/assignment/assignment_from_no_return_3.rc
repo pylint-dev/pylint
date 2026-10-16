@@ -1,0 +1,2 @@
+[TYPECHECK]
+known-side-effects-only-functions=shuffle:sample

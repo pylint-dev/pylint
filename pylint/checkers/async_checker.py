@@ -6,11 +6,12 @@
 
 from __future__ import annotations
 
-import sys
 from typing import TYPE_CHECKING
 
 import astroid
-from astroid import nodes, util
+import astroid.bases
+import astroid.exceptions
+from astroid import nodes
 
 from pylint import checkers
 from pylint.checkers import utils as checker_utils
@@ -46,49 +47,63 @@ class AsyncChecker(checkers.BaseChecker):
     @checker_utils.only_required_for_messages("yield-inside-async-function")
     def visit_asyncfunctiondef(self, node: nodes.AsyncFunctionDef) -> None:
         for child in node.nodes_of_class(nodes.Yield):
-            if child.scope() is node and (
-                sys.version_info[:2] == (3, 5) or isinstance(child, nodes.YieldFrom)
-            ):
+            if child.scope() is node and isinstance(child, nodes.YieldFrom):
                 self.add_message("yield-inside-async-function", node=child)
 
     @checker_utils.only_required_for_messages("not-async-context-manager")
     def visit_asyncwith(self, node: nodes.AsyncWith) -> None:
         for ctx_mgr, _ in node.items:
-            inferred = checker_utils.safe_infer(ctx_mgr)
-            if inferred is None or isinstance(inferred, util.UninferableBase):
-                continue
-
-            if isinstance(inferred, nodes.AsyncFunctionDef):
-                # Check if we are dealing with a function decorated
-                # with contextlib.asynccontextmanager.
-                if decorated_with(inferred, self._async_generators):
+            match inferred := checker_utils.safe_infer(ctx_mgr):
+                case _ if not inferred:
                     continue
-            elif isinstance(inferred, astroid.bases.AsyncGenerator):
-                # Check if we are dealing with a function decorated
-                # with contextlib.asynccontextmanager.
-                if decorated_with(inferred.parent, self._async_generators):
-                    continue
+                case nodes.AsyncFunctionDef():
+                    # Check if we are dealing with a function decorated
+                    # with contextlib.asynccontextmanager.
+                    if decorated_with(inferred, self._async_generators):
+                        continue
+                case astroid.bases.AsyncGenerator():
+                    # Check if we are dealing with a function decorated
+                    # with contextlib.asynccontextmanager.
+                    if decorated_with(inferred.parent, self._async_generators):
+                        continue
+                case _:
+                    try:
+                        inferred.getattr("__aenter__")
+                        inferred.getattr("__aexit__")
+                    except astroid.exceptions.NotFoundError:
+                        if isinstance(inferred, astroid.Instance):
+                            # If we do not know the bases of this class,
+                            # just skip it.
+                            if not checker_utils.has_known_bases(inferred):
+                                continue
+                            # Ignore mixin classes if they match the rgx option.
+                            if (
+                                "not-async-context-manager"
+                                in self.linter.config.ignored_checks_for_mixins
+                                and self._mixin_class_rgx.match(inferred.name)
+                            ):
+                                continue
+                    else:
+                        continue
+            # Only read ``name`` from nodes known to define it; any other
+            # inferred result (e.g. a ``Slice`` from ``slice(...)``) has no
+            # ``name``, so fall back to the inferred type's name to keep the
+            # message informative without risking an ``AttributeError``.
+            if isinstance(
+                inferred,
+                (
+                    nodes.ClassDef,
+                    nodes.FunctionDef,
+                    nodes.Lambda,
+                    nodes.Module,
+                    astroid.bases.BaseInstance,
+                ),
+            ):
+                inferred_name = inferred.name
             else:
-                try:
-                    inferred.getattr("__aenter__")
-                    inferred.getattr("__aexit__")
-                except astroid.exceptions.NotFoundError:
-                    if isinstance(inferred, astroid.Instance):
-                        # If we do not know the bases of this class,
-                        # just skip it.
-                        if not checker_utils.has_known_bases(inferred):
-                            continue
-                        # Ignore mixin classes if they match the rgx option.
-                        if (
-                            "not-async-context-manager"
-                            in self.linter.config.ignored_checks_for_mixins
-                            and self._mixin_class_rgx.match(inferred.name)
-                        ):
-                            continue
-                else:
-                    continue
+                inferred_name = inferred.pytype().rsplit(".", 1)[-1]
             self.add_message(
-                "not-async-context-manager", node=node, args=(inferred.name,)
+                "not-async-context-manager", node=node, args=(inferred_name,)
             )
 
 

@@ -13,7 +13,7 @@ from git.repo import Repo
 
 from pylint.lint import Run
 from pylint.message import Message
-from pylint.reporters.json_reporter import JSONReporter, OldJsonExport
+from pylint.reporters.json_reporter import JSON2Reporter, JSONMessage
 from pylint.testutils._primer.package_to_lint import PackageToLint
 from pylint.testutils._primer.primer_command import (
     PackageData,
@@ -57,12 +57,12 @@ class RunCommand(PrimerCommand):
 
     @staticmethod
     def _filter_fatal_errors(
-        messages: list[OldJsonExport],
+        messages: list[JSONMessage],
     ) -> list[Message]:
         """Separate fatal errors so we can report them independently."""
         fatal_msgs: list[Message] = []
         for raw_message in messages:
-            message = JSONReporter.deserialize(raw_message)
+            message = JSON2Reporter.deserialize(raw_message)
             if message.category == "fatal":
                 if GITHUB_CRASH_TEMPLATE_LOCATION in message.msg:
                     # Remove the crash template location if we're running on GitHub.
@@ -73,11 +73,11 @@ class RunCommand(PrimerCommand):
 
     @staticmethod
     def _print_msgs(msgs: list[Message]) -> str:
-        return "\n".join(f"- {JSONReporter.serialize(m)}" for m in msgs)
+        return "\n".join(f"- {JSON2Reporter.serialize(m)}" for m in msgs)
 
     def _lint_package(
         self, package_name: str, data: PackageToLint
-    ) -> tuple[list[OldJsonExport], list[Message]]:
+    ) -> tuple[list[JSONMessage], list[Message]]:
         # We want to test all the code we can
         enables = ["--enable-all-extensions", "--enable=all"]
         # Duplicate code takes too long and is relatively safe
@@ -86,7 +86,7 @@ class RunCommand(PrimerCommand):
         additional = ["--clear-cache-post-run=y"]
         arguments = data.pylint_args + enables + disables + additional
         output = StringIO()
-        reporter = JSONReporter(output)
+        reporter = JSON2Reporter(output)
         print(f"Running 'pylint {', '.join(arguments)}'")
         pylint_exit_code = -1
         try:
@@ -94,7 +94,7 @@ class RunCommand(PrimerCommand):
         except SystemExit as e:
             pylint_exit_code = int(e.code)  # type: ignore[arg-type]
         readable_messages: str = output.getvalue()
-        messages: list[OldJsonExport] = json.loads(readable_messages)
+        messages: list[JSONMessage] = json.loads(readable_messages)["messages"]
         fatal_msgs: list[Message] = []
         if pylint_exit_code % 2 == 0:
             print(f"Successfully primed {package_name}.")

@@ -1,0 +1,4 @@
+Clarify the distinction between the built-in design checker and the optional
+McCabe extension, including how to disable their messages individually.
+
+Fixes part of #9174

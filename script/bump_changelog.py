@@ -5,6 +5,7 @@
 """This script updates towncrier.toml and creates a new newsfile and intermediate
 folders if necessary.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -15,7 +16,18 @@ from subprocess import check_call
 NEWSFILE_PATTERN = re.compile(r"doc/whatsnew/\d/\d.\d+/index\.rst")
 NEWSFILE_PATH = "doc/whatsnew/{major}/{major}.{minor}/index.rst"
 TOWNCRIER_CONFIG_FILE = Path("towncrier.toml")
-TOWNCRIER_VERSION_PATTERN = re.compile(r"version = \"(\d+\.\d+\.\d+)\"")
+# 'major.minor.patch' followed by an optional pre-release suffix, written either the
+# semantic versioning way ('4.1.0-dev0') or the PEP 440 one ('3.3.5a0'). Pylint has
+# used both.
+VERSION_PATTERN = (
+    r"(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)"
+    r"(?P<suffix>-?[a-zA-Z][0-9a-zA-Z.-]*)?"
+)
+NEW_VERSION_PATTERN = re.compile(rf"^{VERSION_PATTERN}$")
+# Between releases towncrier.toml holds a pre-release version, so the suffix has to
+# be part of the pattern. Matching only 'major.minor.patch' left the version
+# untouched, and towncrier then titled the new section with the stale version.
+TOWNCRIER_VERSION_PATTERN = re.compile(rf"version = \"{VERSION_PATTERN}\"")
 
 NEWSFILE_CONTENT_TEMPLATE = """
 ***************************
@@ -48,16 +60,15 @@ def main() -> None:
 
     if "dev" in args.version:
         print("'-devXY' will be cut from version in towncrier.toml")
-    match = re.match(
-        r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-?\w+\d*)*", args.version
-    )
+    match = NEW_VERSION_PATTERN.match(args.version)
     if not match:
         print(
             "Fatal error - new version did not match the "
-            "expected format (major.minor.patch[.*]). Abort!"
+            "expected format (major.minor.patch[suffix]). Abort!"
         )
         return
-    major, minor, patch, suffix = match.groups()
+    major, minor, patch = match["major"], match["minor"], match["patch"]
+    suffix = match["suffix"]
     new_version = f"{major}.{minor}.{patch}"
 
     new_newsfile = NEWSFILE_PATH.format(major=major, minor=minor)
@@ -96,6 +107,11 @@ def create_new_newsfile_if_necessary(
 
 def patch_towncrier_toml(new_newsfile: str, version: str, dry_run: bool) -> None:
     file_content = TOWNCRIER_CONFIG_FILE.read_text(encoding="utf-8")
+    if not TOWNCRIER_VERSION_PATTERN.search(file_content):
+        raise ValueError(
+            f"Could not find the version to replace in {TOWNCRIER_CONFIG_FILE}. "
+            "Without it towncrier would use a stale version in the changelog title."
+        )
     patched_newsfile_path = NEWSFILE_PATTERN.sub(new_newsfile, file_content)
     new_file_content = TOWNCRIER_VERSION_PATTERN.sub(
         f'version = "{version}"', patched_newsfile_path

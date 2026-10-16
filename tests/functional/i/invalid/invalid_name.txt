@@ -8,3 +8,4 @@ invalid-name:82:23:82:29:FooBar.__init__:"Argument name ""fooBar"" doesn't confo
 invalid-name:88:8:88:14:FooBar.func1:"Argument name ""fooBar"" doesn't conform to snake_case naming style":HIGH
 invalid-name:108:8:108:15:FooBar.test_disable_mixed:"Argument name ""fooBar2"" doesn't conform to snake_case naming style":HIGH
 invalid-name:119:4:119:25:FooBarSubclass:"Class attribute name ""tearDownNotInAncestor"" doesn't conform to snake_case naming style":HIGH
+invalid-name:135:0:135:11::"Constant name ""myTypedDict"" doesn't conform to UPPER_CASE naming style":HIGH

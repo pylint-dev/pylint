@@ -3,7 +3,20 @@ You can now use this plugin for finding complexity issues in your code base.
 Activate it through ``pylint --load-plugins=pylint.extensions.mccabe``. It introduces
 a new warning, ``too-complex``, which is emitted when a code block has a complexity
 higher than a preestablished value, which can be controlled through the
-``max-complexity`` option, such as in this example::
+``max-complexity`` option.
+
+.. note::
+
+    Both this extension and Pylint's built-in design checker are named ``design``.
+    The built-in checker is enabled by default and reports messages such as
+    ``too-many-arguments`` and ``too-many-branches``, even when this extension is
+    not loaded. The ``too-complex`` message and ``max-complexity`` option are only
+    available after loading ``pylint.extensions.mccabe``.
+
+    To disable individual design checks while keeping ``too-complex``, disable
+    their message names. ``--disable=design`` disables both checkers' messages.
+
+For example::
 
     $ cat a.py
     def f10():

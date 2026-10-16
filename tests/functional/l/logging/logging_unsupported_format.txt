@@ -1,0 +1,3 @@
+logging-unsupported-format:17:0:17:27::Unsupported logging format character 't' (0x74) at index 1:UNDEFINED
+logging-unsupported-format:18:0:18:30::Unsupported logging format character 'b' (0x62) at index 1:UNDEFINED
+logging-unsupported-format:19:0:19:53::Unsupported logging format character 'z' (0x7a) at index 21:UNDEFINED

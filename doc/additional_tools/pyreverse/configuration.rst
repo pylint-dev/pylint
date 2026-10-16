@@ -129,6 +129,13 @@ Display Options
 **Default:**  ``None``
 
 
+--no-signatures
+---------------
+*Show method names without parameter lists or return type annotations.*
+
+**Default:**  ``False``
+
+
 --no-standalone
 ---------------
 *Only show nodes with connections.*

@@ -49,3 +49,8 @@ my_set = set()
 ITEMS = {k: v for k, v in my_dict.items()} # [unnecessary-comprehension]
 {k: my_dict[k] for k in my_dict} # [consider-using-dict-items]
 {elem for elem in my_set}  # [unnecessary-comprehension]
+
+# Iterating a dict yields its keys, so suggest ``dict(d.keys())`` rather than
+# ``dict(d)``, which would just copy the dict (#8256).
+DICT_WITH_TUPLE_KEYS = {(1, 2): 3}
+{a: b for a, b in DICT_WITH_TUPLE_KEYS}  # [unnecessary-comprehension]

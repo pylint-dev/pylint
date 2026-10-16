@@ -45,3 +45,129 @@ class MyClass1:
     def __init__(self):
         self.first += 5  # [access-member-before-definition]
         self.first = 0
+
+
+class BareAnnotationNotADefinition:
+    def process(self):
+        _ = self.widget  # known false negative
+        self.widget: int
+
+
+class AnnotatedAssignmentIsADefinition:
+    def process(self):
+        _ = self.widget  # [access-member-before-definition]
+        self.widget: int = 5
+
+
+class AccessInCalledMethod:
+    def __init__(self, other):
+        str()
+        other.use_later()
+
+        def nested():
+            self.use_later()
+
+        self.use_later()  # [access-member-before-definition]
+        self.later = 1
+        nested()
+
+    def use_later(self):
+        return self.later + self.later
+
+
+class DefinedBeforeCalledMethod:
+    def __init__(self):
+        self.defined = 1
+        self.use_defined()
+
+    def use_defined(self):
+        return self.defined
+
+
+class AccessInLambda:
+    def __init__(self):
+        self.callback = lambda: self.later
+        self.later = 1
+
+
+class MethodReferenceIsNotCalled:
+    def __init__(self):
+        _ = self.use_later
+        self.later = 1
+
+    def use_later(self):
+        return self.later
+
+
+class StreamBase:
+    def body(self):
+        self.read()
+        self._stream = object()
+
+    def read(self):
+        return self._stream
+
+
+class StreamRequest(StreamBase):
+    def __init__(self):
+        self._stream = object()
+
+
+class NestedFunctionNamedLikeMethod:
+    def __init__(self):
+        self.helper()
+        self.later = 1
+
+    def helper(self):
+        return None
+
+    def run(self):
+        def helper():
+            return self.later
+
+        return helper()
+
+
+def identity(func):
+    return func
+
+
+class DecoratedCalledMethod:
+    def __init__(self):
+        self.use_later()  # [access-member-before-definition]
+        self.later = 1
+
+    @identity
+    def use_later(self):
+        return self.later
+
+
+class CalledMethodReadsTwoMembers:
+    def __init__(self):
+        self.use_both()  # [access-member-before-definition, access-member-before-definition]
+        self.first = 1
+        self.second = 2
+
+    def use_both(self):
+        return self.first + self.second
+
+
+class CalledMethodAssignsFirst:
+    def __init__(self):
+        self.setup()
+        self.later = 1
+
+    def setup(self):
+        self.later = 0
+        return self.later
+
+
+class CalledOutsideInit:
+    def reset(self):
+        self.use_later()
+
+    def __init__(self):
+        self.later = 1
+
+    def use_later(self):
+        return self.later

@@ -11,7 +11,6 @@ from collections import defaultdict
 from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
-import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
@@ -127,6 +126,7 @@ STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
         "_collections_abc.Reversible",
         "_collections_abc.Sized",
         "_collections_abc.Container",
+        "_collections_abc.Callable",
         "_collections_abc.Collection",
         "_collections_abc.Set",
         "_collections_abc.MutableSet",
@@ -139,6 +139,7 @@ STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
         "_collections_abc.Sequence",
         "_collections_abc.MutableSequence",
         "_collections_abc.ByteString",
+        "_collections_abc.Buffer",
         "typing.Tuple",
         "typing.List",
         "typing.Dict",
@@ -182,7 +183,7 @@ STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
 )
 
 
-def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
+def _is_exempt_from_public_methods(node: nodes.ClassDef) -> bool:
     """Check if a class is exempt from too-few-public-methods."""
     # If it's a typing.Namedtuple, typing.TypedDict or an Enum
     for ancestor in node.ancestors():
@@ -201,14 +202,13 @@ def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
 
     root_locals = set(node.root().locals)
     for decorator in node.decorators.nodes:
-        if isinstance(decorator, astroid.Call):
+        if isinstance(decorator, nodes.Call):
             decorator = decorator.func
-        if not isinstance(decorator, (astroid.Name, astroid.Attribute)):
-            continue
-        if isinstance(decorator, astroid.Name):
-            name = decorator.name
-        else:
-            name = decorator.attrname
+        match decorator:
+            case nodes.Name(name=name) | nodes.Attribute(attrname=name):
+                pass
+            case _:
+                continue
         if name in DATACLASSES_DECORATORS and (
             root_locals.intersection(DATACLASSES_DECORATORS)
             or DATACLASS_IMPORT in root_locals
@@ -228,7 +228,7 @@ def _count_boolean_expressions(bool_op: nodes.BoolOp) -> int:
     """
     nb_bool_expr = 0
     for bool_expr in bool_op.get_children():
-        if isinstance(bool_expr, astroid.BoolOp):
+        if isinstance(bool_expr, nodes.BoolOp):
             nb_bool_expr += _count_boolean_expressions(bool_expr)
         else:
             nb_bool_expr += 1
@@ -544,11 +544,13 @@ class MisdesignChecker(BaseChecker):
         # init branch and returns counters
         self._returns.append(0)
         # check number of arguments
-        args = node.args.args + node.args.posonlyargs + node.args.kwonlyargs
-        pos_args = node.args.args + node.args.posonlyargs
+        pos_args = node.args.posonlyargs + node.args.args
+        if node.type in {"method", "classmethod"}:
+            pos_args = pos_args[1:]
+        args = pos_args + node.args.kwonlyargs
         ignored_argument_names = self.linter.config.ignored_argument_names
-        if args is not None:
-            ignored_args_num = 0
+        ignored_args_num = 0
+        if args:
             if ignored_argument_names:
                 ignored_pos_args_num = sum(
                     1 for arg in pos_args if ignored_argument_names.match(arg.name)
@@ -560,27 +562,27 @@ class MisdesignChecker(BaseChecker):
                 )
                 ignored_args_num = ignored_pos_args_num + ignored_kwonly_args_num
 
-            argnum = len(args) - ignored_args_num
-            if argnum > self.linter.config.max_args:
+            args_num = len(args) - ignored_args_num
+            if args_num > self.linter.config.max_args:
                 self.add_message(
                     "too-many-arguments",
                     node=node,
-                    args=(len(args), self.linter.config.max_args),
+                    args=(args_num, self.linter.config.max_args),
                 )
-            pos_args_count = (
-                len(args) - len(node.args.kwonlyargs) - ignored_pos_args_num
-            )
-            if pos_args_count > self.linter.config.max_positional_arguments:
+            pos_args_num = len(pos_args) - ignored_pos_args_num
+            if pos_args_num > self.linter.config.max_positional_arguments:
                 self.add_message(
                     "too-many-positional-arguments",
                     node=node,
-                    args=(pos_args_count, self.linter.config.max_positional_arguments),
+                    args=(pos_args_num, self.linter.config.max_positional_arguments),
                     confidence=HIGH,
                 )
-        else:
-            ignored_args_num = 0
+
         # check number of local variables
-        locnum = len(node.locals) - ignored_args_num
+        # PEP 695 type parameters live in the function's ``locals`` but are
+        # type-system constructs, not runtime local variables, so exclude them.
+        type_param_names = {param.name.name for param in node.type_params}
+        locnum = len(set(node.locals) - type_param_names) - ignored_args_num
 
         # decrement number of local variables if '_' is one of them
         if "_" in node.locals:
@@ -662,8 +664,8 @@ class MisdesignChecker(BaseChecker):
         self._check_boolean_expressions(node)
         branches = 1
         # don't double count If nodes coming from some 'elif'
-        if node.orelse and (
-            len(node.orelse) > 1 or not isinstance(node.orelse[0], astroid.If)
+        if node.orelse and not (
+            len(node.orelse) == 1 and isinstance(node.orelse[0], nodes.If)
         ):
             branches += 1
         self._inc_branch(node, branches)
@@ -674,7 +676,7 @@ class MisdesignChecker(BaseChecker):
         if the 'if' node test is a BoolOp node.
         """
         condition = node.test
-        if not isinstance(condition, astroid.BoolOp):
+        if not isinstance(condition, nodes.BoolOp):
             return
         nb_bool_expr = _count_boolean_expressions(condition)
         if nb_bool_expr > self.linter.config.max_bool_expr:
@@ -692,6 +694,11 @@ class MisdesignChecker(BaseChecker):
         self._inc_branch(node, branches)
 
     visit_for = visit_while
+
+    def visit_match(self, node: nodes.Match) -> None:
+        """Increments the branches counter."""
+        self._inc_all_stmts(1)
+        self._inc_branch(node, len(node.cases))
 
     def _inc_branch(self, node: nodes.NodeNG, branchesnum: int = 1) -> None:
         """Increments the branches counter."""

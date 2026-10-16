@@ -95,10 +95,10 @@ def test_global():
     """
     # pylint: disable=redefined-outer-name
     global PATH, OS, collections, deque  # [global-statement]
-    from os import path as PATH
-    import os as OS
-    import collections
-    from collections import deque
+    from os import path as PATH  # [unused-import]
+    import os as OS  # [unused-import]
+    import collections  # [unused-import]
+    from collections import deque  # [unused-import]
     # make sure that these triggers unused-variable
     from sys import platform  # [unused-import]
     from sys import version as VERSION  # [unused-import]

@@ -100,7 +100,7 @@ False Positives Fixed
 False Negatives Fixed
 ---------------------
 
-- Extend broad-exception-raised and broad-exception-caught to except*.
+- Extend :ref:`broad-exception-raised` and :ref:`broad-exception-caught` to except*.
 
   Closes #8827 (`#8827 <https://github.com/pylint-dev/pylint/issues/8827>`_)
 
@@ -113,7 +113,7 @@ False Negatives Fixed
 Other Bug Fixes
 ---------------
 
-- Improve the message provided for wrong-import-order check.  Instead of the import statement ("import x"), the message now specifies the import that is out of order and which imports should come after it.  As reported in the issue, this is particularly helpful if there are multiple imports on a single line that do not follow the PEP8 convention.
+- Improve the message provided for :ref:`wrong-import-order` check.  Instead of the import statement ("import x"), the message now specifies the import that is out of order and which imports should come after it.  As reported in the issue, this is particularly helpful if there are multiple imports on a single line that do not follow the PEP8 convention.
 
   The message will report imports as follows:
   For "import X", it will report "(standard/third party/first party/local) import X"

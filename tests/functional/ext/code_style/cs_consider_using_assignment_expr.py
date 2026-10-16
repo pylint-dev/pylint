@@ -31,7 +31,7 @@ def func_a():
     if a6 is None:
         ...
 
-# Previous unrelate note should not match
+# Previous unrelated note should not match
 print("")
 if a7:
     ...
@@ -157,3 +157,8 @@ class A:
 A.var = 2
 if A.var:
     ...
+
+
+i: int
+if i:  # pylint: disable=used-before-assignment
+    pass

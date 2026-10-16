@@ -161,11 +161,11 @@ class ForwardSlashChunker(Chunker):  # type: ignore[misc]
             pre_text, post_text = self._text.split("/", 1)
             self._text = post_text
             self._offset = 0
-            if (
-                not pre_text
-                or not post_text
-                or not pre_text[-1].isalpha()
-                or not post_text[0].isalpha()
+            if not (
+                pre_text
+                and post_text
+                and pre_text[-1].isalpha()
+                and post_text[0].isalpha()
             ):
                 self._text = ""
                 self._offset = 0
@@ -177,9 +177,9 @@ class ForwardSlashChunker(Chunker):  # type: ignore[misc]
             if "/" not in self._text:
                 return self._text, 0
             pre_text, post_text = self._text.split("/", 1)
-            if not pre_text or not post_text:
+            if not (pre_text and post_text):
                 break
-            if not pre_text[-1].isalpha() or not post_text[0].isalpha():
+            if not (pre_text[-1].isalpha() and post_text[0].isalpha()):
                 raise StopIteration()
             self._text = pre_text + " " + post_text
         raise StopIteration()

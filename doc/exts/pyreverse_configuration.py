@@ -29,8 +29,7 @@ PYREVERSE_PATH = (
 
 def _write_config_page(run: Run) -> None:
     """Create or overwrite the configuration page."""
-    sections: list[str] = [
-        f"""\
+    sections: list[str] = [f"""\
 .. This file is auto-generated. Make any changes to the associated
 .. docs extension in 'doc/exts/pyreverse_configuration.py'.
 
@@ -49,8 +48,7 @@ The available options are organized into the following categories:
 * :ref:`display-options` - Customize the visual appearance including colors and labels
 * :ref:`output-control` - Select output formats and set the destination directory
 * :ref:`project-configuration` - Define project settings like source roots and ignored files
-"""
-    ]
+"""]
     options: list[OptionsData] = [OptionsData(name, info) for name, info in run.options]
     option_groups: dict[str, list[str]] = {g: [] for g in OPTIONS_GROUPS.values()}
 
@@ -67,14 +65,12 @@ The available options are organized into the following categories:
 
     for group_title in OPTIONS_GROUPS.values():
         ref_title = group_title.lower().replace(" ", "-")
-        sections.append(
-            f"""\
+        sections.append(f"""\
 .. _{ref_title}:
 
 {get_rst_title(group_title, "=")}
 
-{"".join(option_groups[group_title])}"""
-        )
+{"".join(option_groups[group_title])}""")
 
     # Join all sections and remove the final two newlines
     final_page = "\n\n".join(sections)[:-2]

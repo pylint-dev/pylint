@@ -243,3 +243,26 @@ ATTRIBUTES = {
 
 for key, (name, validate) in ATTRIBUTES.items():
     name = validate(1)
+
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/7500
+import types
+
+FUNCTION_CODE = compile("pass", "<string>", "exec")
+types.FunctionType(FUNCTION_CODE, {})()
+types.LambdaType(FUNCTION_CODE, {})()
+
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/10422:
+# an attribute name built with an f-string is as unknown as one built with %.
+class MethodByName:
+    meth_name = fields.Char(default="test")
+
+    def _call_test(self):
+        pass
+
+    def call_provider(self):
+        method = getattr(self, f"_call_{self.meth_name}", None)
+        method()
+        method = getattr(self, "_call_%s" % self.meth_name, None)  # pylint: disable=consider-using-f-string
+        method()

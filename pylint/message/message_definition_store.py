@@ -86,10 +86,10 @@ class MessageDefinitionStore:
                     msgids_or_symbol
                 ):
                     print(message_definition.format_help(checkerref=True))
-                    print("")
+                    print()
             except UnknownMessageError as ex:
                 print(ex)
-                print("")
+                print()
                 continue
 
     def list_messages(self) -> None:
@@ -101,7 +101,7 @@ class MessageDefinitionStore:
         print("\nNon-emittable messages with current interpreter:")
         for msg in non_emittable:
             print(msg.format_help(checkerref=False))
-        print("")
+        print()
 
     def find_emittable_messages(
         self,

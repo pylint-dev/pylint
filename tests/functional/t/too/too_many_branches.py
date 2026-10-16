@@ -10,10 +10,6 @@ def wrong(): # [too-many-branches]
         pass
     elif 1:
         pass
-    elif 1:
-        pass
-    elif 1:
-        pass
     try:
         pass
     except TypeError:
@@ -24,6 +20,11 @@ def wrong(): # [too-many-branches]
         pass
     while True:
         pass
+    match 1:
+        case 1:
+            pass
+        case 2:
+            pass
     if 1:
         pass
     elif 2:

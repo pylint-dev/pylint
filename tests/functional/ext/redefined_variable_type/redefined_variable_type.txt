@@ -8,3 +8,4 @@ redefined-variable-type:51:0:51:29::Redefinition of SOME_FLOAT type from float t
 redefined-variable-type:71:8:71:16:func2:Redefinition of var3 type from str to int:UNDEFINED
 redefined-variable-type:75:4:75:11:func2:Redefinition of var type from bool to int:UNDEFINED
 redefined-variable-type:85:8:85:20:func2:Redefinition of var4 type from float to str:UNDEFINED
+redefined-variable-type:127:8:127:25:UnderscoreAttribute.__init__:Redefinition of self._ type from list to object:UNDEFINED

@@ -69,3 +69,20 @@ if a == eventually_raise:
     # Does not emit comparison-with-callable because the
     # function (eventually) raises
     pass
+
+
+class LambdaAttribute:  # pylint: disable=too-few-public-methods
+    # https://github.com/pylint-dev/pylint/issues/11175
+    lam = lambda self: 1  # pylint: disable=unnecessary-lambda-assignment
+
+    def check(self):
+        # ``self.lam`` infers to a BoundMethod proxying a Lambda, which has
+        # neither ``decoratornames()`` nor a list ``body``.
+        return self.lam == 1
+
+
+def compare_unbound_methods(obj):
+    # ``object.__init__`` infers to a bare ``UnboundMethod``, which is not a
+    # bare callable here: this is a legitimate identity check.
+    init = getattr(obj, "__init__", None)
+    return init != object.__init__

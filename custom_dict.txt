@@ -24,6 +24,7 @@ asynccontextmanager
 attr
 attrib
 attrname
+attrs
 backport
 BaseChecker
 basename
@@ -40,6 +41,7 @@ boundmethod
 builtins
 bw
 callables
+callee
 cardinality
 cd
 cfg
@@ -56,6 +58,7 @@ classobj
 CLI
 cls
 cmp
+cnode
 codebase
 codec
 codecs
@@ -108,6 +111,7 @@ encodings
 endswith
 enum
 enums
+env
 epilog
 epylint
 epytext
@@ -142,8 +146,10 @@ grey
 guido's
 gv
 hashable
+hashlib
 hmac
 html
+iattrs
 idgeneratormixin
 ifexpr
 igetattr
@@ -171,6 +177,8 @@ iTerm
 jn
 jpg
 json
+junit
+JUnit
 jx
 jython
 # class is a reserved word
@@ -198,6 +206,7 @@ mapfile
 mapreduce
 maxsize
 maxsplit
+mccabe
 mcs
 mermaidjs
 metaclass
@@ -223,9 +232,11 @@ myfunction
 mymain
 mymethod
 mymodule
+mypackage
 mypy
 namedtuple
 namespace
+NaN
 newsfile
 newstyle
 nl
@@ -251,6 +262,7 @@ overridable
 params
 paren
 parens
+parseable
 passthru
 pathlib
 patternerror
@@ -274,7 +286,9 @@ pylintrc
 pyproject
 pypy
 pyreverse
+pyright
 pytest
+pytest's
 qname
 rawcheckers
 rc
@@ -284,6 +298,7 @@ readlines
 recognise
 recurse
 recurses
+recursing
 redef
 reportid
 rgx
@@ -327,6 +342,7 @@ subparts
 subprocess
 subscriptable
 subscripted
+substitutability
 subtree
 supcls
 superclass
@@ -337,6 +353,8 @@ sys
 tbump
 tempfile
 testcase
+testcases
+testsuite
 testdata
 testoptions
 tmp
@@ -350,6 +368,7 @@ tomlkit
 toplevel
 towncrier
 tp
+traceback
 truthey
 truthness
 truthy
@@ -364,12 +383,14 @@ uid
 uml
 un
 unary
+unboundmethod
 unflattens
 unhandled
 unicode
 uninferable
 Uninferable
 unittest
+unittest's
 unraisablehook
 untriggered
 # prefix for string

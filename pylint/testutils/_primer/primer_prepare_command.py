@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import sys
 
-from git.cmd import Git
 from git.repo import Repo
 
 from pylint.testutils._primer.primer_command import PrimerCommand
@@ -27,12 +26,12 @@ class PrepareCommand(PrimerCommand):
                 print(f"Found '{package}' at commit '{local_commit}'.")
                 commit_string += local_commit[:8] + "_"
         elif self.config.make_commit_string:
+            # Use the pinned commits so that runs which only differ by upstream
+            # branch tips share the same cache (and thus the same on-disk file
+            # order, which message positions and inference depend on).
             for package, data in self.packages.items():
-                remote_sha1_commit = (
-                    Git().ls_remote(data.url, data.branch).split("\t")[0][:8]
-                )
-                print(f"'{package}' remote is at commit '{remote_sha1_commit}'.")
-                commit_string += remote_sha1_commit + "_"
+                print(f"'{package}' is pinned to commit '{data.commit[:8]}'.")
+                commit_string += data.commit[:8] + "_"
         elif self.config.read_commit_string:
             with open(
                 self.primer_directory / f"commit_string_{version_string}.txt",

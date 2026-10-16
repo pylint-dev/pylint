@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import NamedTuple
 
 __all__ = (
@@ -36,3 +37,18 @@ UNDEFINED = Confidence("UNDEFINED", "Warning without any associated confidence l
 CONFIDENCE_LEVELS = [HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED]
 CONFIDENCE_LEVEL_NAMES = [i.name for i in CONFIDENCE_LEVELS]
 CONFIDENCE_MAP = {i.name: i for i in CONFIDENCE_LEVELS}
+
+
+def _confidence_or_undefined(
+    confidence: Confidence | None, stacklevel: int
+) -> Confidence:
+    """Turn the deprecated ``confidence=None`` into ``UNDEFINED``."""
+    if confidence is not None:
+        return confidence
+    warnings.warn(
+        "Passing 'confidence=None' is deprecated and will raise an error in "
+        "pylint 5.0. Use 'pylint.interfaces.UNDEFINED' or omit the argument.",
+        DeprecationWarning,
+        stacklevel=stacklevel + 1,
+    )
+    return UNDEFINED

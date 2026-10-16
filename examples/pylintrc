@@ -41,6 +41,13 @@ fail-on=
 # Specify a score threshold under which the program will exit with error.
 fail-under=10
 
+# The files to lint. The flag can also be omitted as pylint will try to lint
+# any file passed as argument. This can be used to set files to a directory in
+# a configuration file and invoke pylint by only typing pylint on the command
+# line. Any file passed as argument will overwrite any file set in the
+# configuration file.
+files=
+
 # Interpret the stdin as a python script, whose filename needs to be passed as
 # the module_or_package argument.
 #from-stdin=
@@ -230,6 +237,11 @@ name-group=
 # not require a docstring.
 no-docstring-rgx=^_
 
+# Regular expression matching correct parameter specification variable names.
+# If left empty, parameter specification variable names will be checked with
+# the set naming style.
+#paramspec-rgx=
+
 # List of decorators that produce properties, such as abc.abstractproperty. Add
 # to this list to register other decorators that produce valid properties.
 # These decorators are taken in consideration only for invalid-name.
@@ -242,6 +254,10 @@ property-classes=abc.abstractproperty
 # Regular expression matching correct type variable names. If left empty, type
 # variable names will be checked with the set naming style.
 #typevar-rgx=
+
+# Regular expression matching correct type variable tuple names. If left empty,
+# type variable tuple names will be checked with the set naming style.
+#typevartuple-rgx=
 
 # Naming style matching correct variable names.
 variable-naming-style=snake_case
@@ -333,6 +349,10 @@ expected-line-ending-format=
 # Regexp for a line that is allowed to be longer than the limit.
 ignore-long-lines=^\s*(# )?<?https?://\S+>?$
 
+# Regexp for a part of a line that will not be counted when calculating the
+# line length.
+#ignore-pattern-in-long-lines=
+
 # Number of spaces of indent required inside a hanging or continued line.
 indent-after-paren=4
 
@@ -340,7 +360,9 @@ indent-after-paren=4
 # tab).
 indent-string='    '
 
-# Maximum number of characters on a single line.
+# Maximum number of characters on a single line. Pylint's default of 100 is
+# based on PEP 8's guidance that teams may choose line lengths up to 99
+# characters.
 max-line-length=100
 
 # Maximum number of lines in a module.
@@ -382,6 +404,9 @@ import-graph=
 # Output a graph (.gv or any supported image format) of internal dependencies
 # to the given file (report RP0402 must not be disabled).
 int-import-graph=
+
+# Force import order to recognize a module as part of a first party library.
+known-first-party=
 
 # Force import order to recognize a module as part of the standard
 # compatibility libraries.
@@ -495,9 +520,9 @@ evaluation=max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor 
 msg-template=
 
 # Set the output format. Available formats are: 'text', 'parseable',
-# 'colorized', 'json2' (improved json format), 'json' (old json format), msvs
-# (visual studio) and 'github' (GitHub actions). You can also give a reporter
-# class, e.g. mypackage.mymodule.MyReporterClass.
+# 'colorized', 'json2' (improved json format), 'json' (old json format), 'msvs'
+# (visual studio), 'github' (GitHub actions) and 'junit' (JUnit XML). You can
+# also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.
 #output-format=
 
 # Tells whether to display a full report or only the messages.
@@ -521,7 +546,8 @@ ignore-imports=yes
 # Signatures are removed from the similarity computation
 ignore-signatures=yes
 
-# Minimum lines number of a similarity.
+# Minimum lines number of a similarity. Setting it to 0 will disable the check,
+# but you should use disable=duplicate-code instead.
 min-similarity-lines=4
 
 
@@ -594,6 +620,12 @@ ignored-checks-for-mixins=no-member,
 # for classes with dynamically set attributes). This supports the use of
 # qualified names.
 ignored-classes=optparse.Values,thread._local,_thread._local,argparse.Namespace
+
+# Couples of functions with side effects that are often believed to return
+# something and the equivalent function that does return something, separated
+# by a comma. Used to hint at the right function to use in the 'assignment-
+# from-no-return' message.
+known-side-effects-only-functions=reverse:reversed,sort:sorted
 
 # Show a hint with possible names when a member name was not found. The aspect
 # of finding the hint is based on edit distance.

@@ -27,14 +27,44 @@ class TestTypeChecker(CheckerTestCase):
 
     CHECKER_CLASS = typecheck.TypeChecker
 
+    def test_assignment_from_no_return_hint_args(self) -> None:
+        """The no-return message can name attributes, names, and complex calls."""
+        self.linter.config.known_side_effects_only_functions = (
+            "reverse:reversed",
+            "shuffle:sample",
+            "malformed-entry-without-suggestion",
+        )
+        self.checker.open()
+        module = astroid.parse("""
+            items = []
+            result = items.reverse()
+            result = shuffle(items)
+            functions = [shuffle]
+            result = functions[0](items)
+            """)
+        reverse_assign = module.body[1]
+        shuffle_assign = module.body[2]
+        subscript_assign = module.body[4]
+
+        assert self.checker._assignment_from_no_return_args(reverse_assign.value) == (
+            "reverse",
+            ", did you mean to use 'reversed(...)' instead?",
+        )
+        assert self.checker._assignment_from_no_return_args(shuffle_assign.value) == (
+            "shuffle",
+            ", did you mean to use 'sample(...)' instead?",
+        )
+        assert self.checker._assignment_from_no_return_args(subscript_assign.value) == (
+            "functions[0]",
+            "",
+        )
+
     @needs_c_extension
     def test_nomember_on_c_extension_info_msg(self) -> None:
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         from coverage import tracer
         tracer.CTracer  #@
-        """
-        )
+        """)
         message = MessageTest(
             "c-extension-no-member",
             node=node,
@@ -44,6 +74,31 @@ class TestTypeChecker(CheckerTestCase):
             col_offset=0,
             end_line=3,
             end_col_offset=14,
+        )
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
+    def test_enum_init_without_arguments_no_crash(self) -> None:
+        """Regression test for issue 11608: Enum __init__ with no parameters."""
+        self.checker.open()
+        node = astroid.extract_node("""
+        from enum import Enum
+
+        class C(Enum):
+            def __init__():
+                pass
+
+        C.A  #@
+        """)
+        message = MessageTest(
+            "no-member",
+            node=node,
+            args=("Class", "C", "A", ""),
+            confidence=INFERENCE,
+            line=8,
+            col_offset=0,
+            end_line=8,
+            end_col_offset=3,
         )
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
@@ -79,12 +134,10 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
 
     def getitem_on_modules(self) -> None:
         """Mainly validate the code won't crash if we're not having a function."""
-        module = astroid.parse(
-            """
+        module = astroid.parse("""
         import collections
         test = collections[int]
-        """
-        )
+        """)
         subscript = module.body[-1].value
         with self.assertAddsMessages(
             MessageTest(
@@ -101,27 +154,22 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
             self.checker.visit_subscript(subscript)
 
     def typing_objects_are_subscriptable(self, generic: str) -> None:
-        module = astroid.parse(
-            f"""
+        module = astroid.parse(f"""
         import typing
         test = typing.{generic}[int]
-        """
-        )
+        """)
         subscript = module.body[-1].value
         with self.assertNoMessages():
             self.checker.visit_subscript(subscript)
 
     def decorated_by_a_subscriptable_class(self, decorators: str) -> None:
-        module = astroid.parse(
-            decorators
-            + """
+        module = astroid.parse(decorators + """
         @Subscriptable
         def decorated():
             ...
 
         test = decorated[None]
-        """
-        )
+        """)
         subscript = module.body[-1].value
         with self.assertNoMessages():
             self.checker.visit_subscript(subscript)
@@ -129,17 +177,14 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
     def decorated_by_subscriptable_then_unsubscriptable_class(
         self, decorators: str
     ) -> None:
-        module = astroid.parse(
-            decorators
-            + """
+        module = astroid.parse(decorators + """
         @Unsubscriptable
         @Subscriptable
         def decorated():
             ...
 
         test = decorated[None]
-        """
-        )
+        """)
         subscript = module.body[-1].value
         with self.assertAddsMessages(
             MessageTest(
@@ -158,32 +203,26 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
     def decorated_by_unsubscriptable_then_subscriptable_class(
         self, decorators: str
     ) -> None:
-        module = astroid.parse(
-            decorators
-            + """
+        module = astroid.parse(decorators + """
         @Subscriptable
         @Unsubscriptable
         def decorated():
             ...
 
         test = decorated[None]
-        """
-        )
+        """)
         subscript = module.body[-1].value
         with self.assertNoMessages():
             self.checker.visit_subscript(subscript)
 
     def decorated_by_an_unsubscriptable_class(self, decorators: str) -> None:
-        module = astroid.parse(
-            decorators
-            + """
+        module = astroid.parse(decorators + """
         @Unsubscriptable
         def decorated():
             ...
 
         test = decorated[None]
-        """
-        )
+        """)
         subscript = module.body[-1].value
         with self.assertAddsMessages(
             MessageTest(

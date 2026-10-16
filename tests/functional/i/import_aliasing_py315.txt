@@ -1,0 +1,3 @@
+consider-using-from-import:3:0:3:34::Use 'from collections import abc' instead:UNDEFINED
+useless-import-alias:4:0:4:24::Import alias does not rename original package:HIGH
+useless-import-alias:5:0:5:32::Import alias does not rename original package:HIGH

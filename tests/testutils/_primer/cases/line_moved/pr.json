@@ -1,0 +1,22 @@
+{
+  "astroid": {
+    "commit": "123456789abcdef",
+    "messages": [
+      {
+        "type": "convention",
+        "module": "astroid.node_classes",
+        "obj": "my_function",
+        "line": 103,
+        "column": 0,
+        "endLine": 103,
+        "endColumn": 15,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/node_classes.py",
+        "symbol": "too-complex",
+        "message": "'my_function' is too complex. The McCabe rating is 18",
+        "messageId": "R1260",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/node_classes.py"
+      }
+    ]
+  }
+}

@@ -14,7 +14,7 @@ on:
 env:
   CACHE_VERSION: 3
   KEY_PREFIX: base-venv
-  DEFAULT_PYTHON: "3.13"
+  DEFAULT_PYTHON: "3.14"
   PRE_COMMIT_CACHE: ~/.cache/pre-commit
 
 concurrency:
@@ -33,11 +33,15 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
       pre-commit-key: ${{ steps.generate-pre-commit-key.outputs.key }}
     steps:
-      - name: Check out code from GitHub
-        uses: actions/checkout@v5.0.0
-      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+      - &checkout
+        name: Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - &setup-python
+        name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
@@ -50,7 +54,7 @@ jobs:
           $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: venv
           key: >-
@@ -61,7 +65,7 @@ jobs:
         run: |
           python -m venv venv
           . venv/bin/activate
-          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --upgrade pip
           pip install --upgrade --requirement requirements_test.txt --requirement doc/requirements.txt
           pip install pre-commit
       - name: Generate pre-commit restore key
@@ -71,7 +75,7 @@ jobs:
             hashFiles('.pre-commit-config.yaml') }}" >> $GITHUB_OUTPUT
       - name: Restore pre-commit environment
         id: cache-precommit
-        uses: actions/cache@v4.2.4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.PRE_COMMIT_CACHE }}
           key: >-
@@ -86,19 +90,14 @@ jobs:
     name: pylint
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: prepare-base
+    needs: [prepare-base]
     steps:
-      - name: Check out code from GitHub
-        uses: actions/checkout@v5.0.0
-      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
-        id: python
-        uses: actions/setup-python@v5.6.0
-        with:
-          python-version: ${{ env.DEFAULT_PYTHON }}
-          check-latest: true
-      - name: Restore Python virtual environment
+      - *checkout
+      - *setup-python
+      - &cache-restore-python
+        name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache/restore@v4.2.4
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: venv
           fail-on-cache-miss: true
@@ -107,7 +106,7 @@ jobs:
             needs.prepare-base.outputs.python-key }}
       - name: Restore pre-commit environment
         id: cache-precommit
-        uses: actions/cache/restore@v4.2.4
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.PRE_COMMIT_CACHE }}
           fail-on-cache-miss: true
@@ -127,25 +126,11 @@ jobs:
     name: spelling tests
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: prepare-base
+    needs: [prepare-base]
     steps:
-      - name: Check out code from GitHub
-        uses: actions/checkout@v5.0.0
-      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
-        id: python
-        uses: actions/setup-python@v5.6.0
-        with:
-          python-version: ${{ env.DEFAULT_PYTHON }}
-          check-latest: true
-      - name: Restore Python virtual environment
-        id: cache-venv
-        uses: actions/cache/restore@v4.2.4
-        with:
-          path: venv
-          fail-on-cache-miss: true
-          key:
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            needs.prepare-base.outputs.python-key }}
+      - *checkout
+      - *setup-python
+      - *cache-restore-python
       - name: Run spelling checks
         run: |
           . venv/bin/activate
@@ -156,25 +141,11 @@ jobs:
     name: documentation
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: prepare-base
+    needs: [prepare-base]
     steps:
-      - name: Check out code from GitHub
-        uses: actions/checkout@v5.0.0
-      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
-        id: python
-        uses: actions/setup-python@v5.6.0
-        with:
-          python-version: ${{ env.DEFAULT_PYTHON }}
-          check-latest: true
-      - name: Restore Python virtual environment
-        id: cache-venv
-        uses: actions/cache/restore@v4.2.4
-        with:
-          path: venv
-          fail-on-cache-miss: true
-          key:
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            needs.prepare-base.outputs.python-key }}
+      - *checkout
+      - *setup-python
+      - *cache-restore-python
       - name: Run checks on documentation code examples
         run: |
           . venv/bin/activate
@@ -189,3 +160,9 @@ jobs:
             echo "Make sure that 'tox -e docs' succeed without any modifications locally." ; \
             exit 1; \
           }
+      - name: Check that generated documentation is up to date
+        run: |
+          if ! git diff --exit-code; then
+            echo "::error::Generated documentation is out of date. Run 'tox -e docs' locally and commit the changes."
+            exit 1
+          fi

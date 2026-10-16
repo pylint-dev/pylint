@@ -16,7 +16,7 @@ from astroid import nodes
 from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
-from pylint.interfaces import Confidence
+from pylint.interfaces import UNDEFINED, Confidence, _confidence_or_undefined
 from pylint.message.message_definition import MessageDefinition
 from pylint.typing import (
     ExtraMessageOptions,
@@ -107,6 +107,13 @@ class BaseChecker(_ArgumentsProvider):
         if module:
             # Provide anchor to link against
             result += f".. _{module}:\n\n"
+        else:
+            # Provide anchor to link against, so the documentation can point at
+            # a checker instead of at one of the messages it happens to raise.
+            # Only for the checkers shipped by default, since an extension can
+            # extend one of them and reuse its name, as 'mccabe' does with
+            # 'design', and two identical anchors are an error.
+            result += f".. _{self.name}-checker:\n\n"
         result += f"{get_rst_title(checker_title, '~')}\n"
         if module:
             result += f"This checker is provided by ``{module}``.\n"
@@ -126,7 +133,7 @@ class BaseChecker(_ArgumentsProvider):
         if msgs:
             result += get_rst_title(f"{checker_title} Messages", "^")
             for msgid, msg in sorted(
-                msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
+                msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[0])
             ):
                 msg_def = self.create_message_definition_from_tuple(msgid, msg)
                 result += f"{msg_def.format_help(checkerref=False)}\n"
@@ -145,11 +152,12 @@ class BaseChecker(_ArgumentsProvider):
         line: int | None = None,
         node: nodes.NodeNG | None = None,
         args: Any = None,
-        confidence: Confidence | None = None,
+        confidence: Confidence | None = UNDEFINED,
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
     ) -> None:
+        confidence = _confidence_or_undefined(confidence, stacklevel=2)
         self.linter.add_message(
             msgid, line, node, args, confidence, col_offset, end_lineno, end_col_offset
         )
@@ -188,10 +196,10 @@ class BaseChecker(_ArgumentsProvider):
             default_scope = WarningScope.NODE
         options: ExtraMessageOptions = {}
         if len(msg_tuple) == 4:
-            (msg, symbol, descr, msg_options) = msg_tuple
+            msg, symbol, descr, msg_options = msg_tuple
             options = ExtraMessageOptions(**msg_options)
         elif len(msg_tuple) == 3:
-            (msg, symbol, descr) = msg_tuple
+            msg, symbol, descr = msg_tuple
         else:
             error_msg = """Messages should have a msgid, a symbol and a description. Something like this :
 

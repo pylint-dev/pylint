@@ -92,9 +92,34 @@ DEPRECATED_ARGUMENTS: dict[
         "coroutine.throw": ((1, "value"), (2, "traceback")),
         "email.utils.localtime": ((1, "isdst"),),
         "shutil.rmtree": ((2, "onerror"),),
+        "sysconfig.is_python_build": ((0, "check_home"),),
     },
     (3, 13, 0): {
         "dis.get_instructions": ((2, "show_caches"),),
+    },
+    (3, 14, 0): {
+        "argparse.ArgumentParser.add_argument_group": ((None, "prefix_chars"),),
+        "threading.RLock": ((0, "x"),),
+    },
+    (3, 15, 0): {
+        # 'hashlib' aliases 'new' to '__hash_new' when OpenSSL is available
+        # and to '__py_new' otherwise. Both are inferred for a call to
+        # 'hashlib.new', so listing both would report it twice.
+        "hashlib.__hash_new": ((None, "string"),),
+        "hashlib.blake2b": ((None, "string"),),
+        "hashlib.blake2s": ((None, "string"),),
+        "hashlib.md5": ((None, "string"),),
+        "hashlib.sha1": ((None, "string"),),
+        "hashlib.sha224": ((None, "string"),),
+        "hashlib.sha256": ((None, "string"),),
+        "hashlib.sha384": ((None, "string"),),
+        "hashlib.sha512": ((None, "string"),),
+        "hashlib.sha3_224": ((None, "string"),),
+        "hashlib.sha3_256": ((None, "string"),),
+        "hashlib.sha3_384": ((None, "string"),),
+        "hashlib.sha3_512": ((None, "string"),),
+        "hashlib.shake_128": ((None, "string"),),
+        "hashlib.shake_256": ((None, "string"),),
     },
 }
 
@@ -238,13 +263,6 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "binascii.a2b_hqx",
             "binascii.rlecode_hqx",
             "binascii.rledecode_hqx",
-            "importlib.resources.contents",
-            "importlib.resources.is_resource",
-            "importlib.resources.open_binary",
-            "importlib.resources.open_text",
-            "importlib.resources.path",
-            "importlib.resources.read_binary",
-            "importlib.resources.read_text",
         },
         (3, 10, 0): {
             "_sqlite3.enable_shared_cache",
@@ -264,7 +282,7 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "cgi.log",
         },
         (3, 11, 0): {
-            "locale.getdefaultlocale",
+            "importlib.resources.contents",
             "locale.resetlocale",
             "re.template",
             "unittest.findTestCases",
@@ -301,6 +319,19 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "wave.Wave_write.getmark",
             "wave.Wave_write.getmarkers",
             "wave.Wave_write.setmark",
+        },
+        (3, 14, 0): {
+            "asyncio.iscoroutinefunction",
+            "asyncio.get_event_loop_policy",
+            "asyncio.set_event_loop_policy",
+            "codecs.open",
+            "symtable.Class.get_methods",
+            "sys._clear_type_cache",
+            "sysconfig.expand_makefile_vars",
+        },
+        (3, 15, 0): {
+            "http.cookies.BaseCookie.js_output",
+            "http.cookies.Morsel.js_output",
         },
     },
 }
@@ -402,6 +433,44 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
             "CGIHTTPRequestHandler",
         },
     },
+    (3, 14, 0): {
+        "argparse": {
+            "FileType",
+        },
+        "asyncio": {
+            "AbstractEventLoopPolicy",
+            "DefaultEventLoopPolicy",
+            "WindowsSelectorEventLoopPolicy",
+            "WindowsProactorEventLoopPolicy",
+        },
+        "shutil": {
+            "ExecError",
+        },
+        "typing": {
+            "._UnionGenericAlias",
+        },
+    },
+    (3, 15, 0): {
+        # The abstract nodes, instantiating them is deprecated
+        "ast": {
+            "AST",
+            "boolop",
+            "cmpop",
+            "excepthandler",
+            "expr",
+            "expr_context",
+            "mod",
+            "operator",
+            "pattern",
+            "stmt",
+            "type_ignore",
+            "type_param",
+            "unaryop",
+        },
+        "webbrowser": {
+            "MacOSXOSAScript",
+        },
+    },
 }
 
 
@@ -423,6 +492,34 @@ DEPRECATED_ATTRIBUTES: DeprecationDict = {
         "tarfile.TarFile.tarfile",
         "traceback.TracebackException.exc_type",
         "typing.AnyStr",
+    },
+    (3, 15, 0): {
+        "imaplib.IMAP4.file",
+        # The version attributes of the standard library, use 'sys.version_info'
+        "argparse.__version__",
+        "csv.__version__",
+        "ctypes.__version__",
+        "ctypes.macholib.__version__",
+        "decimal.__version__",
+        "http.server.__version__",
+        "imaplib.__version__",
+        "ipaddress.__version__",
+        "json.__version__",
+        "logging.__date__",
+        "logging.__version__",
+        "optparse.__version__",
+        "platform.__version__",
+        "re.__version__",
+        "socketserver.__version__",
+        "tabnanny.__version__",
+        "tarfile.version",
+        "tkinter.font.__version__",
+        "tkinter.ttk.__version__",
+        "wsgiref.simple_server.__version__",
+        "xml.etree.ElementTree.VERSION",
+        "xml.sax.expatreader.version",
+        "xml.sax.handler.version",
+        "zlib.__version__",
     },
 }
 
@@ -457,6 +554,38 @@ def _check_mode_str(mode: Any) -> bool:
     return True
 
 
+def _infer_mode_arg(mode_arg: nodes.NodeNG) -> tuple[InferenceResult | None, bool]:
+    """Infer the mode argument of an ``open`` call.
+
+    Return the inferred node and whether it comes from a parameter default.
+    A mode that is a parameter of the enclosing function cannot be inferred from
+    the function body alone, but its default value is what the call uses unless
+    the caller overrides it, so fall back on that default before giving up.
+    """
+    inferred = utils.safe_infer(mode_arg)
+    if isinstance(inferred, util.UninferableBase):
+        # safe_infer hands back Uninferable itself when it is the only result.
+        inferred = None
+    if inferred is not None or not isinstance(mode_arg, nodes.Name):
+        return inferred, False
+    _, assignments = mode_arg.lookup(mode_arg.name)
+    if len(assignments) != 1:
+        return None, False
+    (parameter,) = assignments
+    if not isinstance(parameter, nodes.AssignName) or not isinstance(
+        parameter.parent, nodes.Arguments
+    ):
+        return None, False
+    try:
+        default = parameter.parent.default_value(mode_arg.name)
+    except astroid.NoDefault:
+        return None, False
+    inferred = utils.safe_infer(default)
+    if inferred is None or isinstance(inferred, util.UninferableBase):
+        return None, False
+    return inferred, True
+
+
 class StdlibChecker(DeprecatedMixin, BaseChecker):
     name = "stdlib"
 
@@ -488,7 +617,8 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "The first argument of assertTrue and assertFalse is "
             "a condition. If a constant is passed as parameter, that "
             "condition will be always true. In this case a warning "
-            "should be emitted.",
+            "should be emitted. The same applies to assertEqual and "
+            "assertNotEqual when both compared values are constants.",
         ),
         "W1506": (
             "threading.Thread needs the target function",
@@ -555,6 +685,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "It is better to specify an encoding when opening documents. "
             "Using the system default implicitly can create problems on other operating systems. "
             "See https://peps.python.org/pep-0597/",
+            {"maxversion": (3, 15)},
         ),
         "W1515": (
             "Leaving functions creating breakpoints in production code is not recommended",
@@ -610,7 +741,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if "target" in func_kwargs:
             return
 
-        if len(node.args) < 2 and (not node.kwargs or "target" not in func_kwargs):
+        if len(node.args) < 2 and not (node.kwargs and "target" in func_kwargs):
             self.add_message(
                 "bad-thread-instantiation", node=node, confidence=interfaces.HIGH
             )
@@ -802,15 +933,27 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             )
 
     def _check_redundant_assert(self, node: nodes.Call, infer: InferenceResult) -> None:
+        if not isinstance(infer, astroid.BoundMethod):
+            return
         if (
-            isinstance(infer, astroid.BoundMethod)
-            and node.args
+            node.args
             and isinstance(node.args[0], nodes.Const)
             and infer.name in {"assertTrue", "assertFalse"}
         ):
             self.add_message(
                 "redundant-unittest-assert",
                 args=(infer.name, node.args[0].value),
+                node=node,
+            )
+        elif (
+            len(node.args) > 1
+            and isinstance(node.args[0], nodes.Const)
+            and isinstance(node.args[1], nodes.Const)
+            and infer.name in {"assertEqual", "assertNotEqual"}
+        ):
+            self.add_message(
+                "redundant-unittest-assert",
+                args=(infer.name, (node.args[0].value, node.args[1].value)),
                 node=node,
             )
 
@@ -846,39 +989,43 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             if mode_arg:
                 confidence = INFERENCE
 
+        mode_from_default = False
         if mode_arg:
-            mode_arg = utils.safe_infer(mode_arg)
-            if (
-                func_name in OPEN_FILES_MODE
-                and isinstance(mode_arg, nodes.Const)
-                and not _check_mode_str(mode_arg.value)
-            ):
-                self.add_message(
-                    "bad-open-mode",
-                    node=node,
-                    args=mode_arg.value or str(mode_arg.value),
-                    confidence=confidence,
-                )
+            mode_arg, mode_from_default = _infer_mode_arg(mode_arg)
+            if mode_from_default:
+                confidence = INFERENCE
+            if func_name in OPEN_FILES_MODE:
+                if not isinstance(mode_arg, nodes.Const):
+                    return  # mode may be binary - don't guess
+                if not _check_mode_str(mode_arg.value):
+                    self.add_message(
+                        "bad-open-mode",
+                        node=node,
+                        # avoid a boolean context on the constant ``bool(NotImplemented)``
+                        # raises a TypeError on Python >= 3.14
+                        args=str(mode_arg.value),
+                        confidence=confidence,
+                    )
 
         if not mode_arg or (
-            isinstance(mode_arg, nodes.Const)
-            and (not mode_arg.value or "b" not in str(mode_arg.value))
+            isinstance(mode_arg, nodes.Const) and "b" not in str(mode_arg.value)
         ):
-            confidence = HIGH
+            confidence = INFERENCE if mode_from_default else HIGH
             try:
                 if open_module in PATHLIB_MODULE:
-                    if node.func.attrname == "read_text":
-                        encoding_arg = utils.get_argument_from_call(
-                            node, position=0, keyword="encoding"
-                        )
-                    elif node.func.attrname == "write_text":
-                        encoding_arg = utils.get_argument_from_call(
-                            node, position=1, keyword="encoding"
-                        )
-                    else:
-                        encoding_arg = utils.get_argument_from_call(
-                            node, position=2, keyword="encoding"
-                        )
+                    match node.func.attrname:
+                        case "read_text":
+                            encoding_arg = utils.get_argument_from_call(
+                                node, position=0, keyword="encoding"
+                            )
+                        case "write_text":
+                            encoding_arg = utils.get_argument_from_call(
+                                node, position=1, keyword="encoding"
+                            )
+                        case _:
+                            encoding_arg = utils.get_argument_from_call(
+                                node, position=2, keyword="encoding"
+                            )
                 else:
                     encoding_arg = utils.get_argument_from_call(
                         node, position=3, keyword="encoding"
@@ -963,10 +1110,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         name = infer.qname()
         if isinstance(call_arg, nodes.Const):
             emit = False
-            if call_arg.value is None:
-                emit = not allow_none
-            elif not isinstance(call_arg.value, str):
-                emit = True
+            match call_arg.value:
+                case None:
+                    emit = not allow_none
+                case str():
+                    pass
+                case _:
+                    emit = True
             if emit:
                 self.add_message(
                     message,

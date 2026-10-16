@@ -1,7 +1,7 @@
 Good function signatures don’t have many positional parameters. For almost all
 interfaces, comprehensibility suffers beyond a handful of arguments.
 
-Positional arguments work well for cases where the the use cases are
+Positional arguments work well for cases where the use cases are
 self-evident, such as unittest's ``assertEqual(first, second, "assert msg")``
 or ``zip(fruits, vegetables)``.
 

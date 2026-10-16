@@ -1,0 +1,13 @@
+consider-math-not-float:3:12:3:24::Consider math.inf instead of float('inf'):INFERENCE
+consider-math-not-float:4:16:4:29::Consider -math.inf instead of float('-inf'):INFERENCE
+consider-math-not-float:5:16:5:29::Consider math.inf instead of float('+inf'):INFERENCE
+consider-math-not-float:6:17:6:34::Consider math.inf instead of float('infinity'):INFERENCE
+consider-math-not-float:7:21:7:39::Consider -math.inf instead of float('-infinity'):INFERENCE
+consider-math-not-float:11:20:11:31::Consider math.inf instead of float('in'):INFERENCE
+consider-math-not-float:12:21:12:41::Consider math.inf instead of float('in', base=10):INFERENCE
+consider-math-not-float:13:12:13:24::Consider math.nan instead of float('nan'):INFERENCE
+consider-math-not-float:14:16:14:29::Consider math.nan instead of float('-nan'):INFERENCE
+consider-math-not-float:15:16:15:29::Consider math.nan instead of float('+nan'):INFERENCE
+consider-math-not-float:16:18:16:30::Consider math.nan instead of float('NaN'):INFERENCE
+consider-math-not-float:17:17:17:30::Consider math.nan instead of float('nani'):INFERENCE
+consider-math-not-float:18:23:18:35::Consider math.nan instead of float('nna'):INFERENCE

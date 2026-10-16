@@ -22,3 +22,9 @@ def test_decoding_stream_known_encoding() -> None:
     binary_io = io.BytesIO("€".encode("cp1252"))
     stream = utils.decoding_stream(binary_io, "cp1252")
     assert stream.read() == "€"
+
+
+def test_diff_string() -> None:
+    assert utils.diff_string(1.0, 1.0) == "="
+    assert utils.diff_string(1.0, 2.0) == "+1.00"
+    assert utils.diff_string(2.0, 1.0) == "-1.00"

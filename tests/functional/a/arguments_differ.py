@@ -368,3 +368,85 @@ class InitSubclassParent:
 class InitSubclassChild(InitSubclassParent):
     def __init_subclass__(cls, /, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
+
+
+# A special method called through the base class keeps the same
+# number of parameters:
+class CallParent:
+    def __call__(self, arg1, arg2):
+        ...
+
+class CallChild(CallParent):
+    def __call__(self, arg1, arg2, arg3):  # [arguments-differ]
+        ...
+
+
+# ... but widening it with variadics is fine, every base call still works:
+class CallChildWithVarargs(CallParent):
+    def __call__(self, *args):
+        ...
+
+
+# Exclude `__new__` from the check:
+class NewParent:
+    def __new__(cls, arg1):
+        return object.__new__(cls)
+
+class NewChild(NewParent):
+    def __new__(cls, arg1, arg2):
+        return object.__new__(cls)
+
+
+# https://github.com/pylint-dev/pylint/issues/9804
+# ``__post_init__`` receives the dataclass's ``InitVar`` fields, so an override
+# that adds parameters for them does not change how it is called.
+from dataclasses import InitVar, dataclass  # pylint: disable=wrong-import-position
+
+
+@dataclass
+class PostInitParent:
+    x: int
+
+    def __post_init__(self):
+        self.x += 1
+
+
+@dataclass
+class PostInitChild(PostInitParent):
+    y: InitVar[int]
+
+    def __post_init__(self, y):
+        super().__post_init__()
+        self.x += y
+
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/11567
+# Positional-only parameters are positional parameters too.
+class PosonlyBase:
+    def method(self, key):
+        return key
+
+
+class PosonlyChild(PosonlyBase):
+    def method(self, key, /):
+        return key
+
+
+class PosonlyMixedBase:
+    def method(self, first, second):
+        return first, second
+
+
+class PosonlyMixedChild(PosonlyMixedBase):
+    def method(self, first, /, second):
+        return first, second
+
+
+class PosonlyMissingBase:
+    def method(self, first, second):
+        return first, second
+
+
+class PosonlyMissingChild(PosonlyMissingBase):
+    def method(self, first, /):  # [arguments-differ]
+        return first

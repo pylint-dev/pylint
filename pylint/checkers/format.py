@@ -13,6 +13,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 from __future__ import annotations
 
+import re
 import tokenize
 from functools import reduce
 from re import Match
@@ -30,6 +31,17 @@ from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragm
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
+
+# Trailing pragmas from other tooling, discounted from line length like Pylint's own (see #10172).
+_IGNORED_PRAGMA_RGX = re.compile(
+    r"[ \t]*#[ \t]*"
+    r"(?:"
+    r"type:[ \t]*ignore(?:\[[^\]\n]*\])?"  # mypy
+    r"|pyright:[ \t]*ignore(?:\[[^\]\n]*\])?"  # pyright
+    r"|noqa\b(?::[ \t\w,]*)?"  # flake8 / ruff
+    r"|pragma:[ \t]*no[ \t]?(?:cover|branch)"  # coverage.py
+    r")"
+)
 
 _KEYWORD_TOKENS = {
     "assert",
@@ -92,7 +104,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "C0321": (
         "More than one statement on a single line",
         "multiple-statements",
-        "Used when more than on statement are found on the same line.",
+        "Used when more than one statement is found on the same line.",
         {"scope": WarningScope.NODE},
     ),
     "C0325": (
@@ -115,9 +127,17 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 
 
 def _last_token_on_line_is(tokens: TokenWrapper, line_end: int, token: str) -> bool:
-    return (line_end > 0 and tokens.token(line_end - 1) == token) or (
+    # Only an operator token counts. Since PEP 701 (Python 3.12) the text of an
+    # f-string is its own FSTRING_MIDDLE token, so ``f"{b};" \`` ends the line
+    # with a ``;`` that is string content, not a statement terminator.
+    return (
+        line_end > 0
+        and tokens.token(line_end - 1) == token
+        and tokens.type(line_end - 1) == tokenize.OP
+    ) or (
         line_end > 1
         and tokens.token(line_end - 2) == token
+        and tokens.type(line_end - 2) == tokenize.OP
         and tokens.type(line_end - 1) == tokenize.COMMENT
     )
 
@@ -143,6 +163,9 @@ class TokenWrapper:
     def line(self, idx: int) -> str:
         return self._tokens[idx][4]
 
+    def __len__(self) -> int:
+        return len(self._tokens)
+
 
 class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     """Formatting checker.
@@ -166,7 +189,11 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 "default": 100,
                 "type": "int",
                 "metavar": "<int>",
-                "help": "Maximum number of characters on a single line.",
+                "help": (
+                    "Maximum number of characters on a single line. "
+                    "Pylint's default of 100 is based on PEP 8's guidance that teams "
+                    "may choose line lengths up to 99 characters."
+                ),
             },
         ),
         (
@@ -177,6 +204,18 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 "default": r"^\s*(# )?<?https?://\S+>?$",
                 "help": (
                     "Regexp for a line that is allowed to be longer than the limit."
+                ),
+            },
+        ),
+        (
+            "ignore-pattern-in-long-lines",
+            {
+                "type": "regexp",
+                "metavar": "<regexp>",
+                "default": None,
+                "help": (
+                    "Regexp for a part of a line that will not be counted when "
+                    "calculating the line length."
                 ),
             },
         ),
@@ -339,38 +378,48 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     if found_and_or:
                         return
                     if keyword_token == "in":
-                        # This special case was added in https://github.com/pylint-dev/pylint/pull/4948
-                        # but it could be removed in the future. Avoid churn for now.
-                        return
+                        # Parentheses around a tuple after ``in`` are required, so
+                        # they were given a blanket pass in pull request #4948.
+                        # Parentheses around a single literal (e.g. ``x in ("a")``)
+                        # are still superfluous, so report only those and leave
+                        # anything more complex untouched to avoid the false
+                        # positives #4948 guarded against.
+                        single_literal = i == start + 3 and tokens[start + 2].type in {
+                            tokenize.STRING,
+                            tokenize.NUMBER,
+                        }
+                        if not single_literal:
+                            return
                     self.add_message(
                         "superfluous-parens", line=line_num, args=keyword_token
                     )
                 return
             elif depth == 1:
-                # This is a tuple, which is always acceptable.
-                if token[1] == ",":
-                    return
-                # 'and' and 'or' are the only boolean operators with lower precedence
-                # than 'not', so parens are only required when they are found.
-                if token[1] in {"and", "or"}:
-                    found_and_or = True
-                # A yield inside an expression must always be in parentheses,
-                # quit early without error.
-                elif token[1] == "yield":
-                    return
-                # A generator expression always has a 'for' token in it, and
-                # the 'for' token is only legal inside parens when it is in a
-                # generator expression.  The parens are necessary here, so bail
-                # without an error.
-                elif token[1] == "for":
-                    return
-                # A generator expression can have an 'else' token in it.
-                # We check the rest of the tokens to see if any problems occur after
-                # the 'else'.
-                elif token[1] == "else":
-                    if "(" in (i.string for i in tokens[i:]):
-                        self._check_keyword_parentheses(tokens[i:], 0)
-                    return
+                match token[1]:
+                    case ",":
+                        # This is a tuple, which is always acceptable.
+                        return
+                    case "and" | "or":
+                        # 'and' and 'or' are the only boolean operators with lower precedence
+                        # than 'not', so parens are only required when they are found.
+                        found_and_or = True
+                    case "yield":
+                        # A yield inside an expression must always be in parentheses,
+                        # quit early without error.
+                        return
+                    case "for":
+                        # A generator expression always has a 'for' token in it, and
+                        # the 'for' token is only legal inside parens when it is in a
+                        # generator expression.  The parens are necessary here, so bail
+                        # without an error.
+                        return
+                    case "else":
+                        # A generator expression can have an 'else' token in it.
+                        # We check the rest of the tokens to see if any problems occur after
+                        # the 'else'.
+                        if "(" in (i.string for i in tokens[i:]):
+                            self._check_keyword_parentheses(tokens[i:], 0)
+                        return
 
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         """Process tokens and search for:
@@ -397,42 +446,42 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 else:
                     self.new_line(TokenWrapper(tokens), idx - 1, idx)
 
-            if tok_type == tokenize.NEWLINE:
-                # a program statement, or ENDMARKER, will eventually follow,
-                # after some (possibly empty) run of tokens of the form
-                #     (NL | COMMENT)* (INDENT | DEDENT+)?
-                # If an INDENT appears, setting check_equal is wrong, and will
-                # be undone when we see the INDENT.
-                check_equal = True
-                self._check_line_ending(string, line_num)
-            elif tok_type == tokenize.INDENT:
-                check_equal = False
-                self.check_indent_level(string, indents[-1] + 1, line_num)
-                indents.append(indents[-1] + 1)
-            elif tok_type == tokenize.DEDENT:
-                # there's nothing we need to check here!  what's important is
-                # that when the run of DEDENTs ends, the indentation of the
-                # program statement (or ENDMARKER) that triggered the run is
-                # equal to what's left at the top of the indents stack
-                check_equal = True
-                if len(indents) > 1:
-                    del indents[-1]
-            elif tok_type == tokenize.NL:
-                if not line.strip("\r\n"):
-                    last_blank_line_num = line_num
-            elif tok_type not in (tokenize.COMMENT, tokenize.ENCODING):
-                # This is the first concrete token following a NEWLINE, so it
-                # must be the first token of the next program statement, or an
-                # ENDMARKER; the "line" argument exposes the leading white-space
-                # for this statement; in the case of ENDMARKER, line is an empty
-                # string, so will properly match the empty string with which the
-                # "indents" stack was seeded
-                if check_equal:
+            match tok_type:
+                case tokenize.NEWLINE:
+                    # a program statement, or ENDMARKER, will eventually follow,
+                    # after some (possibly empty) run of tokens of the form
+                    #     (NL | COMMENT)* (INDENT | DEDENT+)?
+                    # If an INDENT appears, setting check_equal is wrong, and will
+                    # be undone when we see the INDENT.
+                    check_equal = True
+                    self._check_line_ending(string, line_num)
+                case tokenize.INDENT:
                     check_equal = False
-                    self.check_indent_level(line, indents[-1], line_num)
-
-            if tok_type == tokenize.NUMBER and string.endswith("l"):
-                self.add_message("lowercase-l-suffix", line=line_num)
+                    self.check_indent_level(string, indents[-1] + 1, line_num)
+                    indents.append(indents[-1] + 1)
+                case tokenize.DEDENT:
+                    # there's nothing we need to check here!  what's important is
+                    # that when the run of DEDENTs ends, the indentation of the
+                    # program statement (or ENDMARKER) that triggered the run is
+                    # equal to what's left at the top of the indents stack
+                    check_equal = True
+                    if len(indents) > 1:
+                        del indents[-1]
+                case tokenize.NL:
+                    if not line.strip("\r\n"):
+                        last_blank_line_num = line_num
+                case tokenize.COMMENT | tokenize.ENCODING:
+                    pass
+                case _:
+                    # This is the first concrete token following a NEWLINE, so it
+                    # must be the first token of the next program statement, or an
+                    # ENDMARKER; the "line" argument exposes the leading white-space
+                    # for this statement; in the case of ENDMARKER, line is an empty
+                    # string, so will properly match the empty string with which the
+                    # "indents" stack was seeded
+                    if check_equal:
+                        check_equal = False
+                        self.check_indent_level(line, indents[-1], line_num)
 
             if string in _KEYWORD_TOKENS:
                 self._check_keyword_parentheses(tokens, idx)
@@ -546,30 +595,26 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
 
     def _check_multi_statement_line(self, node: nodes.NodeNG, line: int) -> None:
         """Check for lines containing multiple statements."""
-        if isinstance(node, nodes.With):
-            # Do not warn about multiple nested context managers in with statements.
-            return
-        if (
-            isinstance(node.parent, nodes.If)
-            and not node.parent.orelse
-            and self.linter.config.single_line_if_stmt
-        ):
-            return
-        if (
-            isinstance(node.parent, nodes.ClassDef)
-            and len(node.parent.body) == 1
-            and self.linter.config.single_line_class_stmt
-        ):
-            return
-
-        # Functions stubs and class with ``Ellipsis`` as body are exempted.
-        if (
-            isinstance(node, nodes.Expr)
-            and isinstance(node.parent, (nodes.FunctionDef, nodes.ClassDef))
-            and isinstance(node.value, nodes.Const)
-            and node.value.value is Ellipsis
-        ):
-            return
+        match node:
+            case nodes.With():
+                # Do not warn about multiple nested context managers in with statements.
+                return
+            case nodes.NodeNG(
+                parent=nodes.If(orelse=[])
+            ) if self.linter.config.single_line_if_stmt:
+                return
+            case nodes.NodeNG(
+                parent=nodes.ClassDef(body=[_])
+            ) if self.linter.config.single_line_class_stmt:
+                return
+            case nodes.Expr(
+                parent=nodes.FunctionDef() | nodes.ClassDef(),
+                value=nodes.Const(value=value),
+            ) if (
+                value is Ellipsis
+            ):
+                # Functions stubs and class with ``Ellipsis`` as body are exempted.
+                return
 
         self.add_message("multiple-statements", node=node, confidence=HIGH)
         self._visited_lines[line] = 2
@@ -598,14 +643,31 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 self.add_message("line-too-long", line=i, args=(len(line), max_chars))
 
     @staticmethod
+    def _first_comment_offset(
+        tokens: TokenWrapper, line_start: int, lines: str, lineno: int
+    ) -> int | None:
+        """Offset in ``lines`` of the first comment token they contain, if any."""
+        last_lineno = lineno + lines.count("\n")
+        for idx in range(line_start, len(tokens)):
+            row = tokens.start_line(idx)
+            if row > last_lineno:
+                break
+            if tokens.type(idx) != tokenize.COMMENT or row < lineno:
+                continue
+            offset = 0
+            for _ in range(row - lineno):
+                offset = lines.index("\n", offset) + 1
+            return offset + tokens.start_col(idx)
+        return None
+
+    @staticmethod
     def remove_pylint_option_from_lines(options_pattern_obj: Match[str]) -> str:
         """Remove the `# pylint ...` pattern from lines."""
         lines = options_pattern_obj.string
-        purged_lines = (
+        return (
             lines[: options_pattern_obj.start(1)].rstrip()
             + lines[options_pattern_obj.end(1) :]
         )
-        return purged_lines
 
     @staticmethod
     def is_line_length_check_activated(pylint_pattern_match_object: Match[str]) -> bool:
@@ -688,13 +750,26 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             return
 
         # Line length check may be deactivated through `pylint: disable` comment
-        mobj = OPTION_PO.search(lines)
+        # When the lines hold a comment, the pragma is in it: start the search
+        # there, so a ``#`` inside a string before it is not taken for the pragma
+        # (#11440). Without one, a pragma written inside a docstring still counts.
+        comment_offset = self._first_comment_offset(tokens, line_start, lines, lineno)
+        mobj = OPTION_PO.search(lines, comment_offset or 0)
         checker_off = False
         if mobj:
             if not self.is_line_length_check_activated(mobj):
                 checker_off = True
             # The 'pylint: disable whatever' should not be taken into account for line length count
             lines = self.remove_pylint_option_from_lines(mobj)
+
+        # Trailing pragmas from other tooling (``type: ignore`` for mypy, ``noqa``
+        # for flake8, ``pragma: no cover`` for coverage, ...) should not be taken
+        # into account for the line length count either.
+        lines = _IGNORED_PRAGMA_RGX.sub("", lines)
+
+        ignore_pattern_in_long_lines = self.linter.config.ignore_pattern_in_long_lines
+        if ignore_pattern_in_long_lines:
+            lines = ignore_pattern_in_long_lines.sub("", lines)
 
         # here we re-run specific_splitlines since we have filtered out pylint options above
         for offset, line in enumerate(self.specific_splitlines(lines)):

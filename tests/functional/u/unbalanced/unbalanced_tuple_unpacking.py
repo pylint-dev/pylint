@@ -167,3 +167,14 @@ x, y, z = (1, 2)  # [unbalanced-tuple-unpacking]
 # Using a lot of args, so we have a high probability to still trigger the problem if
 # we add arguments to our unittest command later
 (p, q, r, s, t, u, v, w, x, y, z) = sys.argv  # pylint: disable=invalid-name
+
+
+# https://github.com/pylint-dev/pylint/issues/10721
+def fruit(apple: int, pear: int, kiwi: int | None = None) -> tuple[int, int] | tuple[int, int, int]:
+    return (apple, pear) if kiwi is None else (apple, pear, kiwi)
+
+def main():
+    _, _ = fruit(1, 2)
+    _, _ = fruit(1, 2, 3)  # known false negative, requires better None comprehension in astroid
+    _, _, _ = fruit(1, 2)  # known false negative, requires better None comprehension in astroid
+    _, _, _ = fruit(1, 2, 3)

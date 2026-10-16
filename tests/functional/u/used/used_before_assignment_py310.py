@@ -1,4 +1,5 @@
 """Tests for used-before-assignment with python 3.10's pattern matching"""
+# pylint: disable=wrong-import-position
 
 match ("example", "one"):
     case (x, y) if x == "example":
@@ -11,11 +12,7 @@ match ("example", "one"):
 
 # https://github.com/pylint-dev/pylint/issues/9668
 from enum import Enum
-from pylint.constants import PY311_PLUS
-if PY311_PLUS:
-    from typing import assert_never  # pylint: disable=no-name-in-module
-else:
-    from typing_extensions import assert_never
+from typing import assert_never
 
 class Example(Enum):
     FOO = 1

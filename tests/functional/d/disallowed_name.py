@@ -6,6 +6,6 @@ def baz():  # [disallowed-name]
 class foo():  # [disallowed-name]
     pass
 
-foo = {}.keys()  # [disallowed-name]
+foo = {}.keys()  # Should raise disallowed-name once _check_name() is refactored.
 foo = 42  # [disallowed-name]
 aaa = 42  # [invalid-name]

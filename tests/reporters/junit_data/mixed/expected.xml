@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites tests="4" errors="0" failures="3" disabled="0" time="0">
+  <testsuite name="junit_mixed_package" tests="1" errors="0" failures="1" skipped="0" disabled="0" time="0">
+    <testcase name="junit_mixed_package:1:0" classname="pylint" file="junit_mixed_package/__init__.py" line="1" class="convention">
+      <failure type="convention" message="missing-module-docstring">C0114:Missing module docstring
+junit_mixed_package/__init__.py:1:0:import os</failure>
+      <system-out>junit_mixed_package/__init__.py:1:0:import os</system-out>
+      <system-err>C0114:Missing module docstring
+junit_mixed_package/__init__.py:1:0:import os</system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="junit_mixed_package.clean_module" tests="1" errors="0" failures="0" skipped="0" disabled="0" time="0">
+    <testcase name="junit_mixed_package.clean_module:0:0" classname="pylint" file="junit_mixed_package/clean_module.py">
+      <system-out>All checks passed for: junit_mixed_package/clean_module.py</system-out>
+    </testcase>
+  </testsuite>
+  <testsuite name="junit_mixed_package.failing_module" tests="2" errors="0" failures="2" skipped="0" disabled="0" time="0">
+    <testcase name="junit_mixed_package.failing_module:6:0" classname="pylint" file="junit_mixed_package/failing_module.py" line="6" class="convention">
+      <failure type="convention" message="missing-function-docstring">C0116:Missing function or method docstring
+junit_mixed_package/failing_module.py:6:0:def function(arg):</failure>
+      <system-out>junit_mixed_package/failing_module.py:6:0:def function(arg):</system-out>
+      <system-err>C0116:Missing function or method docstring
+junit_mixed_package/failing_module.py:6:0:def function(arg):</system-err>
+    </testcase>
+    <testcase name="junit_mixed_package.failing_module:3:0" classname="pylint" file="junit_mixed_package/failing_module.py" line="3" class="warning">
+      <failure type="warning" message="unused-import">W0611:Unused import sys
+junit_mixed_package/failing_module.py:3:0:import sys  # &lt;tag&gt; &amp; "quote" must be escaped</failure>
+      <system-out>junit_mixed_package/failing_module.py:3:0:import sys  # &lt;tag&gt; &amp; "quote" must be escaped</system-out>
+      <system-err>W0611:Unused import sys
+junit_mixed_package/failing_module.py:3:0:import sys  # &lt;tag&gt; &amp; "quote" must be escaped</system-err>
+    </testcase>
+  </testsuite>
+</testsuites>

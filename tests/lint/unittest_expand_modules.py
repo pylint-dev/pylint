@@ -70,6 +70,15 @@ this_file_from_init_deduplicated = {
     "isignored": False,
 }
 
+unittest_discover_files = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": False,
+    "name": "lint.unittest_discover_files",
+    "path": str(TEST_DIRECTORY / "lint/unittest_discover_files.py"),
+    "isignored": False,
+}
+
 unittest_lint = {
     "basename": "lint",
     "basepath": INIT_PATH,
@@ -143,6 +152,14 @@ test_reporters = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "path": str(REPORTERS_PATH / "unittest_json_reporter.py"),
         "isignored": False,
     },
+    str(REPORTERS_PATH / "unittest_junit_reporter.py"): {
+        "basename": "reporters",
+        "basepath": str(REPORTERS_PATH / "__init__.py"),
+        "isarg": False,
+        "name": "reporters.unittest_junit_reporter",
+        "path": str(REPORTERS_PATH / "unittest_junit_reporter.py"),
+        "isignored": False,
+    },
     str(REPORTERS_PATH / "unittest_reporting.py"): {
         "basename": "reporters",
         "basepath": str(REPORTERS_PATH / "__init__.py"),
@@ -165,6 +182,7 @@ def _list_expected_package_modules(
         test_run_pylint,
         test_utils,
         this_file_from_init_deduplicated if deduplicating else this_file_from_init,
+        unittest_discover_files,
         unittest_lint,
     )
 
@@ -325,4 +343,24 @@ class TestExpandModules(CheckerTestCase):
             self.linter.config.ignore_paths,
         )
         assert {k: v for k, v in modules.items() if not v["isignored"]} == expected
+        assert not errors
+
+    @set_config(ignore=["test"])
+    def test_expand_modules_with_ignore_list(self) -> None:
+        """Test expand_modules with a non-default value of ignore."""
+        ignore_list: list[str] = self.linter.config.ignore
+        ignore_list_re = [re.compile("^\\.#")]
+        path = Path(__file__).parent.parent / "regrtest_data" / "ignore_option_10669"
+        modules, errors = expand_modules(
+            [str(path)],
+            [],
+            ignore_list,
+            ignore_list_re,
+            [],
+        )
+        expected_keys = {
+            str(path / "__init__.py"),
+            str(path / "main.py"),
+        }
+        assert {k for k, v in modules.items() if not v["isignored"]} == expected_keys
         assert not errors

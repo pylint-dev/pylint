@@ -16,6 +16,7 @@ from pytest import CaptureFixture
 from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.interfaces import CONFIDENCE_LEVEL_NAMES
 from pylint.lint import Run as LintRun
+from pylint.reporters import MultiReporter
 from pylint.testutils import create_files
 from pylint.testutils._run import _Run as Run
 from pylint.testutils.configuration_test import run_using_a_configuration_file
@@ -45,14 +46,12 @@ def check_configuration_file_reader(
 def test_can_read_toml_env_variable(tmp_path: Path, file_to_lint_path: str) -> None:
     """We can read and open a properly formatted toml file."""
     config_file = tmp_path / "pyproject.toml"
-    config_file.write_text(
-        """
+    config_file.write_text("""
 [tool.pylint."messages control"]
 disable = "logging-not-lazy,logging-format-interpolation"
 jobs = "10"
 reports = "yes"
-"""
-    )
+""")
     env_var = "tmp_path_env"
     os.environ[env_var] = str(config_file)
     runner = run_using_a_configuration_file(f"${env_var}", file_to_lint_path)
@@ -91,6 +90,41 @@ def test_unknown_confidence(capsys: CaptureFixture) -> None:
         Run([str(EMPTY_MODULE), "--confidence=UNKNOWN_CONFIG"], exit=False)
     output = capsys.readouterr()
     assert "argument --confidence: UNKNOWN_CONFIG should be in" in output.err
+
+
+@pytest.mark.parametrize(
+    "output_format",
+    ["colorized,no-header", "text,json2", "json2:{tmp}/out.json,text,github"],
+)
+def test_several_output_formats_writing_to_stdout(
+    capsys: CaptureFixture, tmp_path: Path, output_format: str
+) -> None:
+    """Check that we error when more than one output format writes to stdout."""
+    with pytest.raises(SystemExit):
+        Run(
+            [
+                str(EMPTY_MODULE),
+                f"--output-format={output_format.format(tmp=tmp_path)}",
+            ],
+            exit=False,
+        )
+    output = capsys.readouterr()
+    assert "usage: pylint" in output.err
+    assert "only one output format can write to stdout" in output.err
+
+
+def test_one_output_format_writing_to_stdout(tmp_path: Path) -> None:
+    """Formats sent to a file can be combined with one format on stdout."""
+    json_file = tmp_path / "out.json"
+    runner = Run(
+        [str(EMPTY_MODULE), f"--output-format=json2:{json_file},colorized"],
+        exit=False,
+    )
+    # Ensure the output file is flushed and closed
+    reporter = runner.linter.reporter
+    assert isinstance(reporter, MultiReporter)
+    reporter.close_output_files()
+    assert json_file.exists()
 
 
 def test_empty_confidence() -> None:
@@ -244,3 +278,39 @@ def test_enable_before_disable_all_takes_effect() -> None:
         / "toml_with_specific_enable_before_disable_all.toml",
     )
     assert toml_runner.linter.is_message_enabled("fixme")
+
+
+def test_files_option_parsed_from_toml() -> None:
+    """The ``files`` option is read from a TOML configuration file."""
+    runner = run_using_a_configuration_file(
+        HERE / "functional" / "toml" / "toml_with_files.toml",
+        file_to_lint=None,
+    )
+    assert runner.linter.config.files == ["src", "tests/regression"]
+
+
+def test_files_option_parsed_from_ini() -> None:
+    """The ``files`` option is read from an INI configuration file."""
+    runner = run_using_a_configuration_file(
+        HERE / "functional" / "ini" / "pylintrc_with_files.ini",
+        file_to_lint=None,
+    )
+    assert runner.linter.config.files == ["src", "tests/regression"]
+
+
+def test_files_option_overridden_by_positional_args() -> None:
+    """Positional CLI arguments override ``files`` set in a config file."""
+    runner = run_using_a_configuration_file(
+        HERE / "functional" / "toml" / "toml_with_files.toml",
+        file_to_lint=str(EMPTY_MODULE),
+    )
+    assert runner.linter.config.files == [str(EMPTY_MODULE)]
+
+
+def test_files_option_overridden_by_files_flag() -> None:
+    """The ``--files`` CLI flag overrides ``files`` set in a config file."""
+    config_path = HERE / "functional" / "toml" / "toml_with_files.toml"
+    runner = Run(
+        ["--rcfile", str(config_path), "--files", str(EMPTY_MODULE)], exit=False
+    )
+    assert runner.linter.config.files == [str(EMPTY_MODULE)]

@@ -10,6 +10,8 @@ Pyreverse
 - Class hierarchies and relationships
 - Method and attribute organization
 
+For a detailed external guide explaining the meaning of each arrow and relationship, please see this `UML Class Diagram Arrows Guide <https://paulrumyancev.medium.com/uml-class-diagram-arrows-guide-37e4b1bb11e>`_.
+
 Output Formats
 ==============
 

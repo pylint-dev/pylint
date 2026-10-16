@@ -1,0 +1,1 @@
+undefined-variable:22:8:22:20:_Outer._method._Inner:Undefined variable '__annotations__':UNDEFINED

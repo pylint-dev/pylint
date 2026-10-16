@@ -1,0 +1,14 @@
+🤖 **Effect of this PR on checked open source code:** 🤖
+
+
+**Effect on [astropy](https://github.com/astropy/astropy):**
+
+⚠️ Reintroduced false positives:
+
+<details>
+
+1) False positive for 'unspecified-encoding' (disabled by user) reintroduced at
+https://github.com/astropy/astropy/blob/1fb40bc1f22f176254ef583065aa155f53f3b414/astropy/io/fits/file.py#L700
+</details>
+
+*This comment was generated for commit v2.14.2*

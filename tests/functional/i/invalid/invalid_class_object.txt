@@ -3,3 +3,7 @@ invalid-class-object:21:0:21:11::Invalid assignment to '__class__'. Should be a 
 invalid-class-object:50:8:50:22:Pylint7429Good.class_defining_function_bad:Invalid assignment to '__class__'. Should be a class definition but got a 'Const':INFERENCE
 invalid-class-object:58:15:58:29:Pylint7429Good.class_defining_function_bad_inverted:Invalid assignment to '__class__'. Should be a class definition but got a 'Const':INFERENCE
 invalid-class-object:62:15:62:29:Pylint7429Good.class_defining_function_complex_bad:Invalid assignment to '__class__'. Should be a class definition but got a 'Const':INFERENCE
+invalid-class-object:120:9:120:23:CrashRegression11267.dunder_class_in_list_target:Invalid assignment to '__class__'. Should be a class definition but got a 'Const':INFERENCE
+invalid-class-object:128:9:128:23:CrashRegression11267.dunder_class_as_starred_target:Invalid assignment to '__class__'. Should be a class definition but got a 'List':INFERENCE
+invalid-class-object:132:21:132:35:CrashRegression11267.dunder_class_as_trailing_starred_target:Invalid assignment to '__class__'. Should be a class definition but got a 'List':INFERENCE
+invalid-class-object:135:13:135:27:CrashRegression11267.dunder_class_as_starred_loop_target:Invalid assignment to '__class__'. Should be a class definition but got a 'List':INFERENCE

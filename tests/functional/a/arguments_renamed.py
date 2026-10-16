@@ -98,3 +98,19 @@ class FruitOverrideConditional(FruitConditional):
         if override_condiment:
             def eat_with_condiment(self, fruit_name: str, condiment: Condiment, error: str): # [arguments-differ]
                 print(f"Eating a fruit named {fruit_name} with {condiment}")
+
+
+# Positional-only parameters cannot be passed by keyword, so renaming them is safe.
+class PosonlyParent:
+    def match(self, value, /):
+        return value
+
+
+class PosonlyRenamedToRegular(PosonlyParent):
+    def match(self, path):
+        return path
+
+
+class PosonlyRenamedToPosonly(PosonlyParent):
+    def match(self, path, /):
+        return path

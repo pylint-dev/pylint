@@ -84,7 +84,7 @@ False Positives Fixed
 
   Closes #9246 (`#9246 <https://github.com/pylint-dev/pylint/issues/9246>`_)
 
-- Fixed false positive nested-min-max for nested lists.
+- Fixed false positive :ref:`nested-min-max` for nested lists.
 
   Closes #9307 (`#9307 <https://github.com/pylint-dev/pylint/issues/9307>`_)
 
@@ -117,10 +117,10 @@ False Positives Fixed
 
   Closes #9148 (`#9148 <https://github.com/pylint-dev/pylint/issues/9148>`_)
 
-- Fixed incorrect suggestion for shallow copy in unnecessary-comprehension
+- Fixed incorrect suggestion for shallow copy in :ref:`unnecessary-comprehension`
 
   Example of the suggestion:
-  #pylint: disable=missing-module-docstring
+  #pylint: disable=:ref:`missing-module-docstring`
   a = [1, 2, 3]
   b = [x for x in a]
   b[0] = 0
@@ -437,7 +437,7 @@ False Positives Fixed
 
 - When checking for unbalanced dict unpacking in for-loops, Pylint will now test whether the length of each value to be
   unpacked matches the number of unpacking targets. Previously, Pylint would test the number of values for the loop
-  iteration, which would produce a false unbalanced-dict-unpacking warning.
+  iteration, which would produce a false :ref:`unbalanced-dict-unpacking` warning.
 
   Closes #8156 (`#8156 <https://github.com/pylint-dev/pylint/issues/8156>`_)
 
@@ -456,7 +456,7 @@ False Positives Fixed
 
   Closes #8410 (`#8410 <https://github.com/pylint-dev/pylint/issues/8410>`_)
 
-- Fix false positive for isinstance-second-argument-not-valid-type when union types contains None.
+- Fix false positive for :ref:`isinstance-second-argument-not-valid-type` when union types contains None.
 
   Closes #8424 (`#8424 <https://github.com/pylint-dev/pylint/issues/8424>`_)
 
@@ -694,7 +694,7 @@ Other Changes
 
   Closes #8760 (`#8760 <https://github.com/pylint-dev/pylint/issues/8760>`_)
 
-- Renamed the "unneeded-not" error into "unnecessary_negation" to be clearer.
+- Renamed the ":ref:`unneeded-not`" error into "unnecessary_negation" to be clearer.
 
   Closes #8789 (`#8789 <https://github.com/pylint-dev/pylint/issues/8789>`_)
 

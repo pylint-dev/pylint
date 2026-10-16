@@ -41,11 +41,10 @@ class DunderChecker(BaseChecker):
     )
 
     def open(self) -> None:
-        self._dunder_methods = (
-            EXTRA_DUNDER_METHODS
-            + DUNDER_PROPERTIES
-            + self.linter.config.good_dunder_names
-        )
+        self._dunder_methods = DUNDER_PROPERTIES + self.linter.config.good_dunder_names
+        for since_vers, extra_dunder_methods in EXTRA_DUNDER_METHODS.items():
+            if since_vers <= self.linter.config.py_version:
+                self._dunder_methods.extend(extra_dunder_methods)
         for since_vers, dunder_methods in DUNDER_METHODS.items():
             if since_vers <= self.linter.config.py_version:
                 self._dunder_methods.extend(list(dunder_methods.keys()))

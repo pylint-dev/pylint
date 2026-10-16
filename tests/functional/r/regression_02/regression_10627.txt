@@ -1,0 +1,2 @@
+unused-variable:6:15:6:21:test_deleted_index:Unused variable 'letter':UNDEFINED
+unnecessary-list-index-lookup:8:14:8:28:test_deleted_index:Unnecessary list index lookup, use 'letter' instead:HIGH

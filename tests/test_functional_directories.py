@@ -3,6 +3,7 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Test that the directory structure of the functional tests is correct."""
+
 from pathlib import Path
 
 from pylint.testutils.functional.find_functional_tests import (

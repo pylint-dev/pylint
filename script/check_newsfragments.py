@@ -23,6 +23,7 @@ VALID_ISSUES_KEYWORDS = [
 ]
 VALID_FILE_TYPE = frozenset(
     [
+        "security",
         "breaking",
         "user_action",
         "feature",
@@ -90,8 +91,7 @@ def check_file(file: Path, verbose: bool) -> bool:
         if verbose:
             echo(f"Checked '{file}': LGTM 🤖👍")
         return True
-    echo(
-        f"""\
+    echo(f"""\
 {file}: does not respect the standard format 🤖👎
 
 The standard format is:
@@ -109,8 +109,7 @@ For example:
 ``pylint.x.y`` is now a private API.
 
 Refs #1234
-"""
-    )
+""")
     return False
 
 

@@ -23,7 +23,7 @@ DICT_TYPES = (
     objects.DictValues,
     objects.DictKeys,
     objects.DictItems,
-    nodes.node_classes.Dict,
+    nodes.Dict,
 )
 
 
@@ -46,41 +46,54 @@ class NestedMinMaxChecker(BaseChecker):
     }
 
     @classmethod
-    def is_min_max_call(cls, node: nodes.NodeNG) -> bool:
-        if not isinstance(node, nodes.Call):
-            return False
-
+    def maybe_get_inferred_min_max_call(
+        cls, node: nodes.Call
+    ) -> nodes.FunctionDef | None:
         inferred = safe_infer(node.func)
-        return (
+        if (
             isinstance(inferred, nodes.FunctionDef)
             and inferred.qname() in cls.FUNC_NAMES
-        )
+        ):
+            return inferred
+        return None
 
     @classmethod
-    def get_redundant_calls(cls, node: nodes.Call) -> list[nodes.Call]:
+    def get_redundant_calls(
+        cls, node: nodes.Call, inferred_call: nodes.FunctionDef
+    ) -> list[nodes.Call]:
         return [
             arg
             for arg in node.args
             if (
-                cls.is_min_max_call(arg)
-                and arg.func.name == node.func.name
+                isinstance(arg, nodes.Call)
+                and (inferred := cls.maybe_get_inferred_min_max_call(arg))
+                and inferred.qname == inferred_call.qname
                 # Nesting is useful for finding the maximum in a matrix.
                 # Allow: max(max([[1, 2, 3], [4, 5, 6]]))
                 # Meaning, redundant call only if parent max call has more than 1 arg.
                 and len(arg.parent.args) > 1
+                # An inner call carrying keyword arguments (e.g. ``key=`` or
+                # ``default=``) must not be flattened: the keyword would be
+                # silently dropped and the suggested call would change the
+                # result, e.g. ``max(a, max(b, c, key=k))``.
+                and not arg.keywords
             )
         ]
 
     @only_required_for_messages("nested-min-max")
     def visit_call(self, node: nodes.Call) -> None:
-        if not self.is_min_max_call(node):
+        inferred = self.maybe_get_inferred_min_max_call(node)
+        if inferred is None:
             return
 
-        redundant_calls = self.get_redundant_calls(node)
+        redundant_calls = self.get_redundant_calls(node, inferred)
         if not redundant_calls:
             return
 
         fixed_node = copy.copy(node)
+        # Only args lifted from a single-argument inner call may be splatted;
+        # args from a multi-arg inner call are compared as whole objects, so keep them.
+        splattable_args: set[int] = set()
         while len(redundant_calls) > 0:
             for i, arg in enumerate(fixed_node.args):
                 # Exclude any calls with generator expressions as there is no
@@ -91,16 +104,18 @@ class NestedMinMaxChecker(BaseChecker):
                     return
 
                 if arg in redundant_calls:
+                    if len(arg.args) == 1:
+                        splattable_args.add(id(arg.args[0]))
                     fixed_node.args = (
                         fixed_node.args[:i] + arg.args + fixed_node.args[i + 1 :]
                     )
                     break
 
-            redundant_calls = self.get_redundant_calls(fixed_node)
+            redundant_calls = self.get_redundant_calls(fixed_node, inferred)
 
         for idx, arg in enumerate(fixed_node.args):
             if not isinstance(arg, nodes.Const):
-                if self._is_splattable_expression(arg):
+                if id(arg) in splattable_args and self._is_splattable_expression(arg):
                     splat_node = nodes.Starred(
                         ctx=Context.Load,
                         lineno=arg.lineno,
@@ -119,13 +134,17 @@ class NestedMinMaxChecker(BaseChecker):
                     fixed_node.args = [
                         *fixed_node.args[:idx],
                         splat_node,
-                        *fixed_node.args[idx + 1 : idx],
+                        *fixed_node.args[idx + 1 :],
                     ]
-
+        func_name = (
+            node.func.attrname
+            if isinstance(node.func, nodes.Attribute)
+            else node.func.name
+        )
         self.add_message(
             "nested-min-max",
             node=node,
-            args=(node.func.name, fixed_node.as_string()),
+            args=(func_name, fixed_node.as_string()),
             confidence=INFERENCE,
         )
 

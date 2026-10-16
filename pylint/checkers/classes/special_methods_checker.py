@@ -18,7 +18,6 @@ from pylint.checkers.utils import (
     PYMETHODS,
     SPECIAL_METHODS_PARAMS,
     decorated_with,
-    is_function_body_ellipsis,
     only_required_for_messages,
     safe_infer,
 )
@@ -182,11 +181,7 @@ class SpecialMethodsChecker(BaseChecker):
 
         inferred = _safe_infer_call_result(node, node)
         # Only want to check types that we are able to infer
-        if (
-            inferred
-            and node.name in self._protocol_map
-            and not is_function_body_ellipsis(node)
-        ):
+        if inferred and node.name in self._protocol_map:
             self._protocol_map[node.name](node, inferred)
 
         if node.name in PYMETHODS:
@@ -246,10 +241,16 @@ class SpecialMethodsChecker(BaseChecker):
 
     @staticmethod
     def _is_wrapped_type(node: InferenceResult, type_: str) -> bool:
+        """Check whether ``node`` is an instance of the builtin ``type_``.
+
+        Instances of subclasses of the builtin type are accepted too: returning
+        ``self`` from the ``__str__`` of a ``str`` subclass or a ``namedtuple``
+        from ``__getnewargs__`` is valid.
+        """
         return (
             isinstance(node, bases.Instance)
-            and node.name == type_
             and not isinstance(node, nodes.Const)
+            and node.is_subtype_of(f"builtins.{type_}")
         )
 
     @staticmethod
@@ -296,27 +297,27 @@ class SpecialMethodsChecker(BaseChecker):
 
     @staticmethod
     def _is_iterator(node: InferenceResult) -> bool:
-        if isinstance(node, bases.Generator):
-            # Generators can be iterated.
-            return True
-        if isinstance(node, nodes.ComprehensionScope):
-            # Comprehensions can be iterated.
-            return True
-
-        if isinstance(node, bases.Instance):
-            try:
-                node.local_attr(NEXT_METHOD)
+        match node:
+            case bases.Generator():
+                # Generators can be iterated.
                 return True
-            except astroid.NotFoundError:
-                pass
-        elif isinstance(node, nodes.ClassDef):
-            metaclass = node.metaclass()
-            if metaclass and isinstance(metaclass, nodes.ClassDef):
+            case nodes.ComprehensionScope():
+                # Comprehensions can be iterated.
+                return True
+            case bases.Instance():
                 try:
-                    metaclass.local_attr(NEXT_METHOD)
+                    node.local_attr(NEXT_METHOD)
                     return True
                 except astroid.NotFoundError:
                     pass
+            case nodes.ClassDef():
+                metaclass = node.metaclass()
+                if metaclass and isinstance(metaclass, nodes.ClassDef):
+                    try:
+                        metaclass.local_attr(NEXT_METHOD)
+                        return True
+                    except astroid.NotFoundError:
+                        pass
         return False
 
     def _check_iter(self, node: nodes.FunctionDef, inferred: InferenceResult) -> None:
@@ -379,7 +380,7 @@ class SpecialMethodsChecker(BaseChecker):
             return
 
         if not isinstance(inferred, nodes.Tuple):
-            # If it's not an astroid.Tuple we can't analyze it further
+            # If it's not an nodes.Tuple we can't analyze it further
             return
 
         found_error = False

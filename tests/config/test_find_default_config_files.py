@@ -60,9 +60,6 @@ def fake_home() -> Iterator[None]:
         shutil.rmtree(folder, ignore_errors=True)
 
 
-# pylint: enable=duplicate-code
-
-
 @contextlib.contextmanager
 def tempdir() -> Iterator[str]:
     """Create a temp directory and change the current location to it.
@@ -81,6 +78,9 @@ def tempdir() -> Iterator[str]:
     finally:
         os.chdir(current_dir)
         shutil.rmtree(abs_tmp)
+
+
+# pylint: enable=duplicate-code
 
 
 @pytest.mark.usefixtures("pop_pylintrc")

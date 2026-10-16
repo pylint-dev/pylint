@@ -9,7 +9,6 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
-import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
@@ -46,7 +45,7 @@ class DocstringParameterChecker(BaseChecker):
     name = "parameter_documentation"
     msgs = {
         "W9005": (
-            '"%s" has constructor parameters documented in class and __init__',
+            '"%s" has constructor parameters documented in class and %s',
             "multiple-constructor-doc",
             "Please remove parameter declarations in the class or constructor.",
         ),
@@ -202,6 +201,7 @@ class DocstringParameterChecker(BaseChecker):
         node_doc = utils.docstringify(
             node.doc_node, self.linter.config.default_docstring_type
         )
+        self.check_constructor_params_are_not_documented_twice(node, node_doc)
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
@@ -228,7 +228,6 @@ class DocstringParameterChecker(BaseChecker):
                 class_doc = utils.docstringify(
                     class_node.doc_node, self.linter.config.default_docstring_type
                 )
-                self.check_single_constructor_params(class_doc, node_doc, class_node)
 
                 # __init__ or class docstrings can have no parameters documented
                 # as long as the other documents them.
@@ -251,13 +250,28 @@ class DocstringParameterChecker(BaseChecker):
             node_doc, node.args, node, node_allow_no_param
         )
 
+    def check_constructor_params_are_not_documented_twice(
+        self, node: nodes.FunctionDef, node_doc: Docstring
+    ) -> None:
+        if node.name not in self.constructor_names:
+            return
+
+        class_node = checker_utils.node_frame_class(node)
+        if class_node is None:
+            return
+
+        class_doc = utils.docstringify(
+            class_node.doc_node, self.linter.config.default_docstring_type
+        )
+        self.check_single_constructor_params(class_doc, node_doc, class_node, node.name)
+
     def check_functiondef_returns(
         self, node: nodes.FunctionDef, node_doc: Docstring
     ) -> None:
         if (not node_doc.supports_yields and node.is_generator()) or node.is_abstract():
             return
 
-        return_nodes = node.nodes_of_class(astroid.Return)
+        return_nodes = node.nodes_of_class(nodes.Return)
         if (node_doc.has_returns() or node_doc.has_rtype()) and not any(
             utils.returns_something(ret_node) for ret_node in return_nodes
         ):
@@ -276,7 +290,7 @@ class DocstringParameterChecker(BaseChecker):
 
     def visit_raise(self, node: nodes.Raise) -> None:
         func_node = node.frame()
-        if not isinstance(func_node, astroid.FunctionDef):
+        if not isinstance(func_node, nodes.FunctionDef):
             return
 
         # skip functions smaller than 'docstring-min-length'
@@ -340,7 +354,7 @@ class DocstringParameterChecker(BaseChecker):
         if self.linter.config.accept_no_return_doc:
             return
 
-        func_node: astroid.FunctionDef = node.frame()
+        func_node: nodes.FunctionDef = node.frame()
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
@@ -370,7 +384,7 @@ class DocstringParameterChecker(BaseChecker):
         if self._is_shorter_than_min_length(node):
             return
 
-        func_node: astroid.FunctionDef = node.frame()
+        func_node: nodes.FunctionDef = node.frame()
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
@@ -509,8 +523,8 @@ class DocstringParameterChecker(BaseChecker):
     def check_arguments_in_docstring(
         self,
         doc: Docstring,
-        arguments_node: astroid.Arguments,
-        warning_node: astroid.NodeNG,
+        arguments_node: nodes.Arguments,
+        warning_node: nodes.NodeNG,
         accept_no_param_doc: bool | None = None,
     ) -> None:
         """Check that all parameters are consistent with the parameters mentioned
@@ -534,10 +548,10 @@ class DocstringParameterChecker(BaseChecker):
 
         :param arguments_node: Arguments node for the function, method or
             class constructor.
-        :type arguments_node: :class:`astroid.scoped_nodes.Arguments`
+        :type arguments_node: :class:`astroid.nodes.Arguments`
 
         :param warning_node: The node to assign the warnings to
-        :type warning_node: :class:`astroid.scoped_nodes.Node`
+        :type warning_node: :class:`astroid.nodes.NodeNG`
 
         :param accept_no_param_doc: Whether to allow no parameters to be
             documented. If None then this value is read from the configuration.
@@ -646,12 +660,16 @@ class DocstringParameterChecker(BaseChecker):
         )
 
     def check_single_constructor_params(
-        self, class_doc: Docstring, init_doc: Docstring, class_node: nodes.ClassDef
+        self,
+        class_doc: Docstring,
+        init_doc: Docstring,
+        class_node: nodes.ClassDef,
+        constructor_name: str,
     ) -> None:
         if class_doc.has_params() and init_doc.has_params():
             self.add_message(
                 "multiple-constructor-doc",
-                args=(class_node.name,),
+                args=(class_node.name, constructor_name),
                 node=class_node,
                 confidence=HIGH,
             )
@@ -681,7 +699,7 @@ class DocstringParameterChecker(BaseChecker):
         """Returns true on functions smaller than 'docstring-min-length'.
 
         :param node: Node for a function or method definition in the AST
-        :type node: :class:`astroid.scoped_nodes.Function`
+        :type node: :class:`astroid.nodes.FunctionDef`
 
         :rtype: bool
         """

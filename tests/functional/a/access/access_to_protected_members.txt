@@ -26,3 +26,4 @@ protected-access:266:16:266:31:Issue3066.Aclass.Bclass.foobar:Access to a protec
 protected-access:267:16:267:38:Issue3066.Aclass.Bclass.foobar:Access to a protected member _attr of a client class:UNDEFINED
 protected-access:270:16:270:30:Issue3066.Aclass.Bclass.foobar:Access to a protected member _bar of a client class:UNDEFINED
 protected-access:271:16:271:37:Issue3066.Aclass.Bclass.foobar:Access to a protected member _bar of a client class:UNDEFINED
+protected-access:292:15:292:36:Issue11160.access_via_other_object_class:Access to a protected member _attr of a client class:UNDEFINED

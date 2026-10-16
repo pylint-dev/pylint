@@ -11,8 +11,6 @@ from pylint.utils.docs import print_full_documentation
 from pylint.utils.file_state import FileState
 from pylint.utils.linterstats import LinterStats, ModuleStats, merge_stats
 from pylint.utils.utils import (
-    HAS_ISORT_5,
-    IsortDriver,
     _check_csv,
     _check_regexp_csv,
     _splitstrip,
@@ -29,10 +27,8 @@ from pylint.utils.utils import (
 )
 
 __all__ = [
-    "HAS_ISORT_5",
     "ASTWalker",
     "FileState",
-    "IsortDriver",
     "LinterStats",
     "ModuleStats",
     "_check_csv",

@@ -1,3 +1,0 @@
-Fix double underscores erroneously rendering as bold in pyreverse's Mermaid output.
-
-Closes #10402

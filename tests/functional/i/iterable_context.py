@@ -198,3 +198,10 @@ for elem in HasDynamicGetattr():
 
 # Regression test for https://github.com/pylint-dev/pylint/issues/6372
 string_twos = "".join(str(*y) for _, *y in [[1, 2], [1, 2]])
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/9729
+class Model:
+    field: list[int] | None = None
+
+    def method(self):
+        return [f + 1 for f in self.field] if self.field else None

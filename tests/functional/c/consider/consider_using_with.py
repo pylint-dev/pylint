@@ -1,4 +1,4 @@
-# pylint: disable=missing-function-docstring, missing-module-docstring, invalid-name, import-outside-toplevel
+# pylint: disable=missing-function-docstring, missing-module-docstring, invalid-name, import-outside-toplevel, deprecated-method
 import codecs
 import contextlib
 import multiprocessing

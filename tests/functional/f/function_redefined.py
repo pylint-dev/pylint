@@ -80,7 +80,7 @@ def dummy_func():
     """First dummy function"""
     pass
 
-def dummy_func():
+def dummy_func2():
     """Second dummy function, don't emit function-redefined message
     because of the dummy name"""
     pass

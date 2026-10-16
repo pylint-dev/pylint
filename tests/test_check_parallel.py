@@ -24,6 +24,7 @@ import pylint.interfaces
 import pylint.lint.parallel
 from pylint.checkers import BaseRawFileChecker
 from pylint.checkers.imports import ImportsChecker
+from pylint.config.config_initialization import _config_initialization
 from pylint.lint import PyLinter, augmented_sys_path
 from pylint.lint.parallel import _worker_check_single_file as worker_check_single_file
 from pylint.lint.parallel import _worker_initialize as worker_initialize
@@ -45,12 +46,11 @@ def _gen_file_data(idx: int = 0) -> FileItem:
     filepath = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "input", "similar1")
     )
-    file_data = FileItem(
+    return FileItem(
         f"--test-file_data-name-{idx}--",
         filepath,
         f"--test-file_data-modname-{idx}--",
     )
-    return file_data
 
 
 def _gen_file_datas(count: int = 1) -> list[FileItem]:
@@ -216,6 +216,59 @@ class TestCheckParallelFramework:
             max_workers=2, initializer=worker_initialize, initargs=(dill.dumps(linter),)
         ) as executor:
             executor.map(print, [1, 2])
+
+    def test_worker_initialize_custom_plugins(self) -> None:
+        """Test plugins are initialized (only once) and messages are set to
+        enabled and disabled correctly, after the worker linter is initialized.
+        """
+        linter = PyLinter(reporter=Reporter())
+        linter.load_default_plugins()
+        config_data = {
+            "load-plugins": (
+                "pylint.extensions.code_style,"
+                "pylint.extensions.typing,"
+                "pylint.checkers.raw_metrics,"  # Custom report
+            ),
+        }
+        config_args = [
+            "--enable=consider-using-augmented-assign",
+            "--disable=consider-alternative-union-syntax",
+        ]
+        with patch(
+            "pylint.config.config_file_parser._ConfigurationFileParser.parse_config_file",
+            return_value=(config_data, config_args),
+        ):
+            _config_initialization(linter, [])
+        assert len(linter._checkers["code_style"]) == 1
+        assert len(linter._checkers["typing"]) == 1
+        assert len(linter._checkers["metrics"]) == 2
+        old_metrics_checker = linter._checkers["metrics"][-1]
+        assert len(linter._reports[old_metrics_checker]) == 2
+        assert linter.is_message_enabled("consider-using-augmented-assign") is True
+        assert (  # default disabled
+            linter.is_message_enabled("prefer-typing-namedtuple") is False
+        )
+        assert linter.is_message_enabled("consider-alternative-union-syntax") is False
+
+        worker_initialize(linter=dill.dumps(linter))
+        worker_linter = pylint.lint.parallel._worker_linter
+        assert isinstance(worker_linter, PyLinter)
+        assert len(worker_linter._registered_dynamic_plugin_checkers) == 3
+        assert len(worker_linter._checkers["code_style"]) == 1
+        assert len(worker_linter._checkers["typing"]) == 1
+        assert len(worker_linter._checkers["metrics"]) == 2
+        # The base checker overwrite __eq__ and __hash__ to only compare name and msgs.
+        # Thus, while the ids for the metrics checker are different, they have the same
+        # hash. That is used as key for the '_reports' dict.
+        new_metrics_checker = worker_linter._checkers["metrics"][-1]
+        assert id(old_metrics_checker) != id(new_metrics_checker)
+        assert old_metrics_checker == new_metrics_checker
+        assert len(worker_linter._reports[new_metrics_checker]) == 2
+        assert linter.is_message_enabled("consider-using-augmented-assign") is True
+        assert (  # default disabled
+            linter.is_message_enabled("prefer-typing-namedtuple") is False
+        )
+        assert linter.is_message_enabled("consider-alternative-union-syntax") is False
 
     def test_worker_check_single_file_uninitialised(self) -> None:
         pylint.lint.parallel._worker_linter = None
@@ -725,3 +778,39 @@ class TestCheckParallel:
             )
 
         assert "cyclic-import" not in linter.stats.by_msg
+
+    @pytest.mark.needs_two_cores
+    def test_parallel_message_stats_are_not_inflated(self) -> None:
+        """The final message report stats must match emitted diagnostics.
+
+        Each worker can process more than one file. The stats returned for a
+        worker invocation must therefore be per-file stats, not cumulative
+        worker-process stats, otherwise merge_stats() counts messages repeatedly.
+        """
+        num_files = 10
+        linter = PyLinter(reporter=Reporter())
+        linter.register_checker(MessageEmittingSequentialTestChecker(linter))
+
+        check_parallel(linter, jobs=2, files=_gen_file_datas(num_files))
+
+        assert len(linter.reporter.messages) == num_files
+        assert linter.stats.by_msg == {
+            "message-emitting-sequential-test-check": num_files
+        }
+
+
+class MessageEmittingSequentialTestChecker(BaseRawFileChecker):
+    """A sequential checker that emits one message per processed module."""
+
+    name = "message-emitting-sequential-checker"
+    msgs = {
+        "R9998": (
+            "Test",
+            "message-emitting-sequential-test-check",
+            "Some helpful text.",
+        )
+    }
+
+    def process_module(self, node: nodes.Module) -> None:
+        """Emit exactly one message per checked module."""
+        self.add_message("R9998")

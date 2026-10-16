@@ -22,19 +22,14 @@ from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.config.utils import _preprocess_options
 from pylint.constants import full_version
 from pylint.lint.base_options import _make_run_options
-from pylint.lint.pylinter import MANAGER, PyLinter
+from pylint.lint.pylinter import (
+    MANAGER,
+    PyLinter,
+    _handle_force_color_no_color,
+    _read_color_env,
+)
+from pylint.reporters import MultiReporter
 from pylint.reporters.base_reporter import BaseReporter
-
-try:
-    import multiprocessing
-    from multiprocessing import synchronize  # noqa pylint: disable=unused-import
-except ImportError:
-    multiprocessing = None  # type: ignore[assignment]
-
-try:
-    from concurrent.futures import ProcessPoolExecutor
-except ImportError:
-    ProcessPoolExecutor = None  # type: ignore[assignment,misc]
 
 
 def _query_cpu() -> int | None:
@@ -110,10 +105,13 @@ def _cpu_count() -> int:
     # pylint: disable=not-callable,using-constant-test,useless-suppression
     if sched_getaffinity:
         cpu_count = len(sched_getaffinity(0))
-    elif multiprocessing:
-        cpu_count = multiprocessing.cpu_count()
     else:
-        cpu_count = 1
+        try:
+            import multiprocessing  # pylint: disable=import-outside-toplevel
+
+            cpu_count = multiprocessing.cpu_count()
+        except ImportError:
+            cpu_count = 1
     if sys.platform == "win32":
         # See also https://github.com/python/cpython/issues/94242
         cpu_count = min(cpu_count, 56)  # pragma: no cover
@@ -172,8 +170,9 @@ group are mutually exclusive.",
         self.linter = linter = self.LinterClass(
             _make_run_options(self),
             option_groups=self.option_groups,
-            pylintrc=self._rcfile,
         )
+        if reporter is None and not self._output:
+            linter._color_env = _read_color_env()
         # register standard checkers
         linter.load_default_plugins()
         # load command line plugins
@@ -184,9 +183,20 @@ group are mutually exclusive.",
         if self._is_pylint_config:
             _register_generate_config_options(linter._arg_parser)
 
-        args = _config_initialization(
+        _config_initialization(
             linter, args, reporter, config_file=self._rcfile, verbose_mode=self.verbose
         )
+        # Without --output-format the default reporter never went through
+        # _load_reporters, which handles NO_COLOR / FORCE_COLOR otherwise
+        if not isinstance(linter.reporter, MultiReporter):
+            stdout_reporter = _handle_force_color_no_color(
+                linter.reporter,
+                no_color=linter._color_env[0],
+                force_color=linter._color_env[1],
+                explicit_format=False,
+            )
+            if stdout_reporter is not linter.reporter:
+                linter.set_reporter(stdout_reporter)
 
         # Handle the 'pylint-config' command
         if self._is_pylint_config:
@@ -201,10 +211,10 @@ group are mutually exclusive.",
             return
 
         # Display help if there are no files to lint or only internal checks enabled (`--disable=all`)
-        disable_all_msg_set = set(
-            msg.symbol for msg in linter.msgs_store.messages
-        ) - set(msg[1] for msg in linter.default_enabled_messages.values())
-        if not args or (
+        disable_all_msg_set = {msg.symbol for msg in linter.msgs_store.messages} - {
+            msg[1] for msg in linter.default_enabled_messages.values()
+        }
+        if not linter.config.files or (
             len(linter.config.enable) == 0
             and set(linter.config.disable) == disable_all_msg_set
         ):
@@ -218,26 +228,29 @@ group are mutually exclusive.",
             )
             sys.exit(32)
         if linter.config.jobs > 1 or linter.config.jobs == 0:
-            if ProcessPoolExecutor is None:
+            try:
+                # pylint: disable-next=import-outside-toplevel,unused-import
+                from concurrent.futures import ProcessPoolExecutor  # noqa: F401
+            except ImportError:
                 print(
                     "concurrent.futures module is missing, fallback to single process",
                     file=sys.stderr,
                 )
                 linter.set_option("jobs", 1)
-            elif linter.config.jobs == 0:
+            if linter.config.jobs == 0:
                 linter.config.jobs = _cpu_count()
 
         if self._output:
             try:
                 with open(self._output, "w", encoding="utf-8") as output:
                     linter.reporter.out = output
-                    linter.check(args)
+                    linter.check(linter.config.files)
                     score_value = linter.generate_reports(verbose=self.verbose)
             except OSError as ex:
                 print(ex, file=sys.stderr)
                 sys.exit(32)
         else:
-            linter.check(args)
+            linter.check(linter.config.files)
             score_value = linter.generate_reports(verbose=self.verbose)
         if linter.config.clear_cache_post_run:
             clear_lru_caches()

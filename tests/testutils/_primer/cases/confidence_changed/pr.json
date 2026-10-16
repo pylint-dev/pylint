@@ -1,0 +1,22 @@
+{
+  "astroid": {
+    "commit": "123456789abcdef",
+    "messages": [
+      {
+        "type": "warning",
+        "module": "astroid.inference",
+        "obj": "infer_call",
+        "line": 42,
+        "column": 0,
+        "endLine": 42,
+        "endColumn": 15,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/inference.py",
+        "symbol": "dangerous-default-value",
+        "message": "Dangerous default value [] as argument",
+        "messageId": "W0102",
+        "confidence": "HIGH",
+        "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/inference.py"
+      }
+    ]
+  }
+}

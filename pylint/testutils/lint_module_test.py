@@ -316,7 +316,7 @@ class LintModuleTest:
             error_msg += expected_csv.getvalue()
         return error_msg
 
-    def safe_write_output_line(self, writer: _csv._writer, line: OutputLine) -> None:
+    def safe_write_output_line(self, writer: _csv.Writer, line: OutputLine) -> None:
         """Write an OutputLine to the CSV writer, handling UnicodeEncodeError."""
         try:
             writer.writerow(line.to_csv())

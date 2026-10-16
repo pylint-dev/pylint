@@ -1,0 +1,4 @@
+using-comprehension-unpacking-in-unsupported-version:6:9:6:40::Unpacking in comprehensions is not supported by all versions included in the py-version setting:HIGH
+using-comprehension-unpacking-in-unsupported-version:8:9:8:40::Unpacking in comprehensions is not supported by all versions included in the py-version setting:HIGH
+using-comprehension-unpacking-in-unsupported-version:10:12:10:43::Unpacking in comprehensions is not supported by all versions included in the py-version setting:HIGH
+using-comprehension-unpacking-in-unsupported-version:12:9:12:38::Unpacking in comprehensions is not supported by all versions included in the py-version setting:HIGH

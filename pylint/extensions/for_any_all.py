@@ -82,7 +82,7 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
                         return True
                 return False
         """
-        if not len(if_children) == 2:
+        if len(if_children) != 2:
             # The If node has only a comparison and return
             return False
         if not returns_bool(if_children[1]):
@@ -147,12 +147,13 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
         loop_iter = node.iter.as_string()
         test_node = next(node.body[0].get_children())
 
-        if isinstance(test_node, nodes.UnaryOp) and test_node.op == "not":
-            # The condition is negated. Advance the node to the operand and modify the suggestion
-            test_node = test_node.operand
-            suggested_function = "all" if final_return_bool else "not all"
-        else:
-            suggested_function = "not any" if final_return_bool else "any"
+        match test_node:
+            case nodes.UnaryOp(op="not"):
+                # The condition is negated. Advance the node to the operand and modify the suggestion
+                test_node = test_node.operand
+                suggested_function = "all" if final_return_bool else "not all"
+            case _:
+                suggested_function = "not any" if final_return_bool else "any"
 
         test = test_node.as_string()
         return f"{suggested_function}({test} for {loop_var} in {loop_iter})"

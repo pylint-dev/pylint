@@ -77,3 +77,18 @@ except Exception as ex:
     if isinstance(ex, FoobarException):
         ex.foobar
     raise
+
+
+# https://github.com/pylint-dev/pylint/issues/7240
+# A comprehension in a guarded branch is guarded as well
+import os  # pylint: disable=wrong-import-position
+import sys  # pylint: disable=wrong-import-position
+
+if sys.platform == "not-a-platform":
+    print(os.not_a_function())
+    print([str(group) for group in os.not_a_function()])
+    print({str(group) for group in os.not_a_function()})
+    print({group: str(group) for group in os.not_a_function()})
+    print(sum(group for group in os.not_a_function()))
+
+print([str(group) for group in os.not_a_function()])  # [no-member]

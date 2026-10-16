@@ -11,6 +11,17 @@ Messages overview
 
 Pylint can emit the following messages:
 
+Find a message by ID or symbol:
+
+.. raw:: html
+
+   <form onsubmit="location='./'+encodeURIComponent(this.message.value);return false">
+     <label for="message-search">Message ID or symbol</label>
+     <input id="message-search" name="message" type="search"
+       placeholder="C0114 or missing-module-docstring" pattern="[A-Za-z0-9-]+" required>
+     <button type="submit">Open message</button>
+   </form>
+
 
 .. _fatal-category:
 
@@ -53,6 +64,7 @@ All messages in the error category:
    error/assigning-non-slot
    error/assignment-from-no-return
    error/assignment-from-none
+   error/async-context-manager-with-regular-with
    error/await-outside-async
    error/bad-configuration-section
    error/bad-except-order
@@ -100,6 +112,7 @@ All messages in the error category:
    error/invalid-index-returned
    error/invalid-length-hint-returned
    error/invalid-length-returned
+   error/invalid-match-args-definition
    error/invalid-metaclass
    error/invalid-repr-returned
    error/invalid-sequence-index
@@ -123,6 +136,7 @@ All messages in the error category:
    error/mixed-format-string
    error/modified-iterating-dict
    error/modified-iterating-set
+   error/multiple-class-sub-patterns
    error/no-member
    error/no-method-argument
    error/no-name-in-module
@@ -157,6 +171,7 @@ All messages in the error category:
    error/too-few-format-args
    error/too-many-format-args
    error/too-many-function-args
+   error/too-many-positional-sub-patterns
    error/too-many-star-expressions
    error/truncated-format-string
    error/undefined-all-variable
@@ -190,6 +205,21 @@ All renamed messages in the error category:
    error/old-non-iterator-returned-2
    error/old-unbalanced-tuple-unpacking
    error/unhashable-dict-key
+
+All permanently deleted messages in the error category:
+
+.. toctree::
+   :maxdepth: 1
+   :titlesonly:
+
+   error/backtick
+   error/import-star-module-level
+   error/old-raise-syntax
+   error/parameter-unpacking
+   error/print-statement
+   error/slots-on-old-class
+   error/super-on-old-class
+   error/unpacking-in-except
 
 .. _warning-category:
 
@@ -272,6 +302,7 @@ All messages in the warning category:
    warning/logging-format-interpolation
    warning/logging-fstring-interpolation
    warning/logging-not-lazy
+   warning/looping-through-iterator
    warning/lost-exception
    warning/method-cache-max-size-none
    warning/misplaced-future
@@ -351,6 +382,7 @@ All messages in the warning category:
    warning/useless-type-doc
    warning/useless-with-lock
    warning/using-assignment-expression-in-unsupported-version
+   warning/using-comprehension-unpacking-in-unsupported-version
    warning/using-constant-test
    warning/using-exception-groups-in-unsupported-version
    warning/using-f-string-in-unsupported-version
@@ -386,6 +418,87 @@ All renamed messages in the warning category:
    warning/old-unidiomatic-typecheck
    warning/old-unpacking-non-sequence
    warning/useless-super-delegation
+
+All permanently deleted messages in the warning category:
+
+.. toctree::
+   :maxdepth: 1
+   :titlesonly:
+
+   warning/apply-builtin
+   warning/assign-to-new-keyword
+   warning/bad-python3-import
+   warning/basestring-builtin
+   warning/buffer-builtin
+   warning/cmp-builtin
+   warning/cmp-method
+   warning/coerce-builtin
+   warning/coerce-method
+   warning/comprehension-escape
+   warning/delslice-method
+   warning/deprecated-itertools-function
+   warning/deprecated-lambda
+   warning/deprecated-operator-function
+   warning/deprecated-str-translate-call
+   warning/deprecated-string-function
+   warning/deprecated-sys-function
+   warning/deprecated-types-field
+   warning/deprecated-urllib-function
+   warning/dict-items-not-iterating
+   warning/dict-iter-method
+   warning/dict-keys-not-iterating
+   warning/dict-values-not-iterating
+   warning/dict-view-method
+   warning/div-method
+   warning/exception-escape
+   warning/exception-message-attribute
+   warning/execfile-builtin
+   warning/file-builtin
+   warning/filter-builtin-not-iterating
+   warning/getslice-method
+   warning/hex-method
+   warning/idiv-method
+   warning/implicit-map-evaluation
+   warning/indexing-exception
+   warning/input-builtin
+   warning/intern-builtin
+   warning/invalid-str-codec
+   warning/long-builtin
+   warning/lowercase-l-suffix
+   warning/map-builtin-not-iterating
+   warning/metaclass-assignment
+   warning/mixed-indentation
+   warning/next-method-called
+   warning/next-method-defined
+   warning/no-absolute-import
+   warning/no-init
+   warning/nonstandard-exception
+   warning/nonzero-method
+   warning/oct-method
+   warning/old-backtick
+   warning/old-division
+   warning/old-indexing-exception
+   warning/old-old-raise-syntax
+   warning/old-raising-string
+   warning/old-unpacking-in-except
+   warning/property-on-old-class
+   warning/raising-string
+   warning/range-builtin-not-iterating
+   warning/raw_input-builtin
+   warning/rdiv-method
+   warning/reduce-builtin
+   warning/reload-builtin
+   warning/round-builtin
+   warning/setslice-method
+   warning/standarderror-builtin
+   warning/star-args
+   warning/sys-max-int
+   warning/unichr-builtin
+   warning/unicode-builtin
+   warning/using-cmp-argument
+   warning/xrange-builtin
+   warning/xreadlines-attribute
+   warning/zip-builtin-not-iterating
 
 .. _convention-category:
 
@@ -470,6 +583,19 @@ All renamed messages in the convention category:
    convention/old-non-ascii-name
    convention/unneeded-not
 
+All permanently deleted messages in the convention category:
+
+.. toctree::
+   :maxdepth: 1
+   :titlesonly:
+
+   convention/bad-continuation
+   convention/bad-whitespace
+   convention/no-space-after-comma
+   convention/no-space-after-operator
+   convention/no-space-before-operator
+   convention/old-style-class
+
 .. _refactor-category:
 
 Refactor
@@ -482,11 +608,13 @@ All messages in the refactor category:
    :titlesonly:
 
    refactor/chained-comparison
+   refactor/chained-comparison-all-equal
    refactor/comparison-of-constants
    refactor/comparison-with-itself
    refactor/condition-evals-to-constant
    refactor/confusing-consecutive-elif
    refactor/consider-alternative-union-syntax
+   refactor/consider-math-not-float
    refactor/consider-merging-isinstance
    refactor/consider-refactoring-into-while-condition
    refactor/consider-swap-variables
@@ -511,9 +639,12 @@ All messages in the refactor category:
    refactor/duplicate-code
    refactor/else-if-used
    refactor/empty-comment
+   refactor/impossible-comparison
    refactor/inconsistent-return-statements
    refactor/literal-comparison
    refactor/magic-value-comparison
+   refactor/match-class-bind-self
+   refactor/match-class-positional-attributes
    refactor/no-classmethod-decorator
    refactor/no-else-break
    refactor/no-else-continue
@@ -568,6 +699,15 @@ All renamed messages in the refactor category:
    refactor/old-no-self-use
    refactor/old-simplifiable-if-statement
    refactor/old-too-many-nested-blocks
+
+All permanently deleted messages in the refactor category:
+
+.. toctree::
+   :maxdepth: 1
+   :titlesonly:
+
+   refactor/abstract-class-little-used
+   refactor/abstract-class-not-used
 
 .. _information-category:
 

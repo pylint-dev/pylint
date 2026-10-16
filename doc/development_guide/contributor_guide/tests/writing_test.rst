@@ -119,7 +119,7 @@ current environment in order to have faster feedback. Run from Pylint root direc
 
 You can use all the options you would use for pytest_, for example ``-k "test_functional[len_checks]"``.
 Furthermore, if required the .txt file with expected messages can be regenerated based
-on the the current output by appending ``--update-functional-output`` to the command line::
+on the current output by appending ``--update-functional-output`` to the command line::
 
     python tests/test_functional.py --update-functional-output -k "test_functional[len_checks]"
 

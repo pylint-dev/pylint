@@ -38,6 +38,13 @@ class PrivateImportChecker(BaseChecker):
         self.populated_annotations = False
 
     @utils.only_required_for_messages("import-private-name")
+    def visit_module(self, _: nodes.Module) -> None:
+        # Type annotations are collected per module, so that one module's
+        # annotations do not decide the result for the next one.
+        self.all_used_type_annotations = {}
+        self.populated_annotations = False
+
+    @utils.only_required_for_messages("import-private-name")
     def visit_import(self, node: nodes.Import) -> None:
         if utils.in_type_checking_block(node):
             return
@@ -108,7 +115,7 @@ class PrivateImportChecker(BaseChecker):
         return (
             bool(name)
             and name[0] == "_"
-            and (len(name) <= 4 or name[1] != "_" or name[-2:] != "__")
+            and not (len(name) > 4 and name[1] == "_" and name[-2:] == "__")
         )
 
     def _get_type_annotation_names(
@@ -147,14 +154,15 @@ class PrivateImportChecker(BaseChecker):
                 if isinstance(usage_node, nodes.AssignName) and isinstance(
                     usage_node.parent, (nodes.AnnAssign, nodes.Assign)
                 ):
-                    assign_parent = usage_node.parent
-                    if isinstance(assign_parent, nodes.AnnAssign):
-                        name_assignments.append(assign_parent)
-                        private_name = self._populate_type_annotations_annotation(
-                            usage_node.parent.annotation, all_used_type_annotations
-                        )
-                    elif isinstance(assign_parent, nodes.Assign):
-                        name_assignments.append(assign_parent)
+                    match assign_parent := usage_node.parent:
+                        case nodes.AnnAssign():
+                            name_assignments.append(assign_parent)
+                            private_name = self._populate_type_annotations_annotation(
+                                assign_parent.annotation,
+                                all_used_type_annotations,
+                            )
+                        case nodes.Assign():
+                            name_assignments.append(assign_parent)
 
                 if isinstance(usage_node, nodes.FunctionDef):
                     self._populate_type_annotations_function(
@@ -194,24 +202,25 @@ class PrivateImportChecker(BaseChecker):
         """Handles the possibility of an annotation either being a Name, i.e. just type,
         or a Subscript e.g. `Optional[type]` or an Attribute, e.g. `pylint.lint.linter`.
         """
-        if isinstance(node, nodes.Name) and node.name not in all_used_type_annotations:
-            all_used_type_annotations[node.name] = True
-            return node.name  # type: ignore[no-any-return]
-        if isinstance(node, nodes.Subscript):  # e.g. Optional[List[str]]
-            # slice is the next nested type
-            self._populate_type_annotations_annotation(
-                node.slice, all_used_type_annotations
-            )
-            # value is the current type name: could be a Name or Attribute
-            return self._populate_type_annotations_annotation(
-                node.value, all_used_type_annotations
-            )
-        if isinstance(node, nodes.Attribute):
-            # An attribute is a type like `pylint.lint.pylinter`. node.expr is the next level
-            # up, could be another attribute
-            return self._populate_type_annotations_annotation(
-                node.expr, all_used_type_annotations
-            )
+        match node:
+            case nodes.Name(name=name) if name not in all_used_type_annotations:
+                all_used_type_annotations[name] = True
+                return name  # type: ignore[no-any-return]
+            case nodes.Subscript():  # e.g. Optional[List[str]]
+                # slice is the next nested type
+                self._populate_type_annotations_annotation(
+                    node.slice, all_used_type_annotations
+                )
+                # value is the current type name: could be a Name or Attribute
+                return self._populate_type_annotations_annotation(
+                    node.value, all_used_type_annotations
+                )
+            case nodes.Attribute():
+                # An attribute is a type like `pylint.lint.pylinter`. node.expr is the next level
+                # up, could be another attribute
+                return self._populate_type_annotations_annotation(
+                    node.expr, all_used_type_annotations
+                )
         return None
 
     @staticmethod
@@ -224,19 +233,19 @@ class PrivateImportChecker(BaseChecker):
             # possible illegal access elsewhere
             return False
         for assignment in assignments:
-            current_attribute = None
-            if isinstance(assignment.value, nodes.Call):
-                current_attribute = assignment.value.func
-            elif isinstance(assignment.value, nodes.Attribute):
-                current_attribute = assignment.value
-            elif isinstance(assignment.value, nodes.Name):
-                current_attribute = assignment.value.name
-            if not current_attribute:
-                continue
+            match assignment.value:
+                case (
+                    nodes.Call(func=current_attribute)
+                    | (nodes.Attribute() as current_attribute)
+                    | nodes.Name(name=current_attribute)
+                ):
+                    pass
+                case _:
+                    continue
             while isinstance(current_attribute, (nodes.Attribute, nodes.Call)):
                 if isinstance(current_attribute, nodes.Call):
                     current_attribute = current_attribute.func
-                if not isinstance(current_attribute, nodes.Name):
+                elif isinstance(current_attribute, nodes.Attribute):
                     current_attribute = current_attribute.expr
             if (
                 isinstance(current_attribute, nodes.Name)

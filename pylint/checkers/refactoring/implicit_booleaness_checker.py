@@ -17,9 +17,7 @@ from pylint.interfaces import HIGH, INFERENCE
 def _is_constant_zero(node: str | nodes.NodeNG) -> bool:
     # We have to check that node.value is not False because node.value == 0 is True
     # when node.value is False
-    return (
-        isinstance(node, astroid.Const) and node.value == 0 and node.value is not False
-    )
+    return isinstance(node, nodes.Const) and node.value == 0 and node.value is not False
 
 
 class ImplicitBooleanessChecker(checkers.BaseChecker):
@@ -124,6 +122,8 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         # this len() call is part of a test condition
         if not utils.is_test_condition(node, parent):
             return
+        if not node.args:
+            return
         len_arg = node.args[0]
         if isinstance(len_arg, (nodes.ListComp, nodes.SetComp, nodes.DictComp)):
             # The node is a comprehension as in len([x for x in ...])
@@ -195,7 +195,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             return
 
         negation_redundant_ops = {"!=", "is not"}
-        # note: astroid.Compare has the left most operand in node.left
+        # note: nodes.Compare has the left most operand in node.left
         # while the rest are a list of tuples in node.ops
         # the format of the tuple is ('compare operator sign', node)
         # here we squash everything into `ops` to make it easier for processing later
@@ -322,10 +322,11 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             "dict": "{}",
         }.get(description, "iterable")
         instance_name = "x"
-        if isinstance(target_node, nodes.Call) and target_node.func:
-            instance_name = f"{target_node.func.as_string()}(...)"
-        elif isinstance(target_node, (nodes.Attribute, nodes.Name)):
-            instance_name = target_node.as_string()
+        match target_node:
+            case nodes.Call():
+                instance_name = f"{target_node.func.as_string()}(...)"
+            case nodes.Attribute() | nodes.Name():
+                instance_name = target_node.as_string()
         original_comparison = f"{instance_name} {operator} {collection_literal}"
         suggestion = self._get_suggestion(node, instance_name, operator, {"!="})
         return original_comparison, suggestion, description
@@ -361,53 +362,49 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         """
         current, parent = node, node.parent
         while parent:
-            if (
-                isinstance(parent, (nodes.If, nodes.While, nodes.Assert))
-                and current is parent.test
-            ):
-                return True
+            match parent:
+                case nodes.If() | nodes.While() | nodes.Assert() if (
+                    current is parent.test
+                ):
+                    return True
+                case nodes.IfExp() if current is parent.test:
+                    return True
 
-            if isinstance(parent, nodes.IfExp) and current is parent.test:
-                return True
+                case nodes.UnaryOp(op="not") if current is parent.operand:
+                    return True
 
-            if (
-                isinstance(parent, nodes.UnaryOp)
-                and parent.op == "not"
-                and current is parent.operand
-            ):
-                return True
+                case nodes.Comprehension() if current in parent.ifs:
+                    return True
 
-            if isinstance(parent, nodes.Comprehension) and current in parent.ifs:
-                return True
+                case nodes.GeneratorExp() if (
+                    current is parent.elt
+                    and (
+                        utils.is_call_of_name(parent.parent, "all")
+                        or utils.is_call_of_name(parent.parent, "any")
+                    )
+                    and parent in parent.parent.args
+                ):
+                    return True
 
-            if (
-                isinstance(parent, nodes.GeneratorExp)
-                and current is parent.elt
-                and (
-                    utils.is_call_of_name(parent.parent, "all")
-                    or utils.is_call_of_name(parent.parent, "any")
-                )
-                and parent in parent.parent.args
-            ):
-                return True
+                case nodes.Lambda() if (
+                    current is parent.body
+                    and utils.is_call_of_name(parent.parent, "filter")
+                    and parent in parent.parent.args
+                ):
+                    return True
 
-            if (
-                isinstance(parent, nodes.Lambda)
-                and current is parent.body
-                and utils.is_call_of_name(parent.parent, "filter")
-                and parent in parent.parent.args
-            ):
-                return True
+                case _ if (
+                    utils.is_call_of_name(parent, "bool") and current in parent.args
+                ):
+                    return True
 
-            if utils.is_call_of_name(parent, "bool") and current in parent.args:
-                return True
+                case nodes.BoolOp() if current in parent.values:
+                    current = parent
+                    parent = current.parent
+                    continue
 
-            if isinstance(parent, nodes.BoolOp) and current in parent.values:
-                current = parent
-                parent = current.parent
-                continue
-
-            break
+                case _:
+                    break
 
         return False
 

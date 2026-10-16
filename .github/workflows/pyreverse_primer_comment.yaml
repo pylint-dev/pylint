@@ -1,0 +1,140 @@
+# This is the primer job that creates the comment on the PR
+# It needs to trigger on workflow_run instead of pull_request
+# as we need repository wide access to create a comment
+
+name: Pyreverse Primer / Comment
+
+on:
+  workflow_run:
+    workflows: [Pyreverse Primer / Run]
+    types:
+      - completed
+
+env:
+  CACHE_VERSION: 1
+  KEY_PREFIX: venv-pyreverse-primer
+  DEFAULT_PYTHON: "3.13"
+  COMMENT_MARKER: "<!-- pyreverse-primer-comment -->"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  primer-comment:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    name: Run
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+        id: python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: venv
+          key: >-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
+            'requirements_test.txt', 'requirements_test_min.txt',
+            'requirements_test_pre_commit.txt') }}
+      - name: Download outputs
+        id: download-outputs
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: ${{ github.event.workflow_run.id }},
+            });
+            const wantedNames = new Set([
+              'pyreverse_primer_output_main',
+              'pyreverse_primer_output_pr',
+              'pr_number',
+            ]);
+            const wanted = artifacts.data.artifacts.filter((artifact) => wantedNames.has(artifact.name));
+            core.setOutput('found', wanted.length === wantedNames.size ? 'true' : 'false');
+            for (const artifact of wanted) {
+              const downloaded = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id,
+                archive_format: 'zip',
+              });
+              fs.writeFileSync(`${artifact.name}.zip`, Buffer.from(downloaded.data));
+            }
+      - name: Unzip outputs
+        if: steps.download-outputs.outputs.found == 'true'
+        run: |
+          unzip pyreverse_primer_output_main.zip
+          unzip pyreverse_primer_output_pr.zip
+          unzip pr_number.zip
+      - name: Check label state
+        id: check-label
+        if: steps.download-outputs.outputs.found == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const prNumber = parseInt(fs.readFileSync('pr_number.txt', { encoding: 'utf8' }));
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+            const hasLabel = pr.data.labels.some((label) => label.name === 'pyreverse');
+            core.setOutput('has-label', hasLabel ? 'true' : 'false');
+            core.setOutput('pr-number', `${prNumber}`);
+      - name: Compare outputs
+        if: steps.check-label.outputs.has-label == 'true'
+        run: |
+          . venv/bin/activate
+          python tests/primer/pyreverse_primer.py compare \
+          --commit=${GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA} \
+          --base-file=pyreverse_output_${{ env.DEFAULT_PYTHON }}_main.txt \
+          --new-file=pyreverse_output_${{ env.DEFAULT_PYTHON }}_pr.txt
+        env:
+          GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+      - name: Create or update comment
+        if: steps.check-label.outputs.has-label == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const comment = fs.readFileSync('tests/.pyreverse_primer_tests/comment.txt', { encoding: 'utf8' });
+            const prNumber = parseInt(fs.readFileSync('pr_number.txt', { encoding: 'utf8' }));
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              per_page: 100,
+            });
+            const existing = comments.data.find((candidate) =>
+              candidate.body && candidate.body.includes(process.env.COMMENT_MARKER)
+            );
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: comment,
+              });
+              return existing.id;
+            }
+            const created = await github.rest.issues.createComment({
+              issue_number: prNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment,
+            });
+            return created.data.id;

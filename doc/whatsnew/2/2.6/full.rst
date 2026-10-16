@@ -38,7 +38,7 @@ Release date: 2020-08-20
 
 * Add an faq detailing which messages to disable to avoid duplicates w/ other popular linters
 
-* Fix superfluous-parens false-positive for the walrus operator
+* Fix :ref:`superfluous-parens` false-positive for the walrus operator
 
   Closes #3383
 

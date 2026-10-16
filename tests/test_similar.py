@@ -66,6 +66,22 @@ class TestSymilarCodeChecker:
         assert expected_output.strip() in actual_output_stripped
         assert "Fatal error" not in actual_output_stripped
 
+    def test_min_similarity_lines_zero_disables_checker(self) -> None:
+        """Setting min-similarity-lines to 0 disables the checker instead of crashing.
+
+        Regression test for https://github.com/pylint-dev/pylint/issues/11625.
+        """
+        path = join(DATA, "raw_strings_all")
+        self._runtest(
+            [
+                path,
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--min-similarity-lines=0",
+            ],
+            code=0,
+        )
+
     def test_duplicate_code_raw_strings_all(self) -> None:
         """Test similar lines in 3 similar files."""
         path = join(DATA, "raw_strings_all")

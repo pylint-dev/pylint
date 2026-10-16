@@ -117,3 +117,19 @@ class FooBar:
 class FooBarSubclass(FooBar):
     tearDown = FooBar.tearDown
     tearDownNotInAncestor = None  # [invalid-name]
+
+
+from enum import Enum
+Color = Enum('Color', [('RED', 1), ('GREEN', 2), ('BLUE', 3)])
+
+
+from typing import TypedDict
+MyExampleType = TypedDict("MyExampleType", {"some_field": str})
+
+
+class MyTypedDict(TypedDict):
+    some_field: str
+
+
+MY_TYPED_DICT = MyTypedDict(some_field="value")
+myTypedDict = MyTypedDict(some_field="value")  # [invalid-name]
