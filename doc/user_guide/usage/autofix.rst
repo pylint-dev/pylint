@@ -42,10 +42,13 @@ Every fix says how sure pylint is about it:
 
 * A **safe** fix keeps the meaning of the code. ``--fix`` applies only these.
 * An **unsafe** fix may change what the code does, or remove a comment. For
-  example, replacing ``len(basket) == 0`` with ``not basket`` is right for a
-  list, but not for every kind of object. Pylint also relies on inference to
-  guess the type of ``basket``, and inference can be wrong. Unsafe fixes are
-  applied only when you ask for them:
+  example, the fix of ``use-a-generator`` turns
+  ``any([apple > 2 for apple in basket])`` into
+  ``any(apple > 2 for apple in basket)``. ``any`` then stops at the first big
+  apple and never looks at the others, which is faster, but different if looking
+  at an apple does something. Fixes that rely on inference are unsafe too,
+  because inference can be wrong. Unsafe fixes are applied only when you ask for
+  them:
 
   .. code-block:: console
 
@@ -68,15 +71,16 @@ option, by symbol or id:
 .. code-block:: toml
 
    [tool.pylint.main]
-   unfixable = ["consider-using-in"]
+   unfixable = ["use-a-generator"]
 
 Only the enabled messages are fixed, so you can also fix a single kind of message:
 
 .. code-block:: console
 
-   pylint --disable=all --enable=consider-using-in --fix fruits.py
+   pylint --disable=all --enable=use-a-generator --fix --unsafe-fixes fruits.py
 
-``pylint --help-msg=<message>`` tells you whether a message can be fixed.
+``pylint --help-msg=<message>`` and the page of each message tell you whether
+it can be fixed, and why its fix is safe or unsafe.
 
 Fixes in the JSON output
 ------------------------
@@ -84,22 +88,31 @@ Fixes in the JSON output
 With ``--output-format=json2``, a message with a fix has a ``fix`` entry, for
 safe, unsafe and suggested fixes alike. Editors can use it to offer a quick fix.
 
+For example, for ``if any([apple > 2 for apple in basket]):`` on line 2:
+
 .. code-block:: json
 
    {
-       "symbol": "compare-length-to-zero",
-       "line": 3,
+       "symbol": "use-a-generator",
+       "line": 2,
        "column": 3,
        "fix": {
-           "description": "Use 'not' to check if the collection is empty",
+           "description": "Use a generator instead of a list comprehension",
            "applicability": "unsafe",
            "edits": [
                {
-                   "line": 3,
-                   "column": 3,
-                   "endLine": 3,
-                   "endColumn": 22,
-                   "newText": "not basket"
+                   "line": 2,
+                   "column": 7,
+                   "endLine": 2,
+                   "endColumn": 8,
+                   "newText": ""
+               },
+               {
+                   "line": 2,
+                   "column": 37,
+                   "endLine": 2,
+                   "endColumn": 38,
+                   "newText": ""
                }
            ]
        }

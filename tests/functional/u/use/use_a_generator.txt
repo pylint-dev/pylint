@@ -2,3 +2,8 @@ use-a-generator:9:0:9:33::Use a generator instead 'any(0 for x in list(range(10)
 use-a-generator:10:0:10:33::Use a generator instead 'all(0 for y in list(range(10)))':HIGH
 use-a-generator:50:4:50:57:main:Use a generator instead 'any(is_red(apple) for apple in await pick_apples())':HIGH
 use-a-generator:51:4:51:57:main:Use a generator instead 'all(is_red(apple) for apple in await pick_apples())':HIGH
+use-a-generator:55:0:55:34::Use a generator instead 'any(0 for x in list(range(10)))':HIGH
+use-a-generator:56:0:56:35::Use a generator instead 'any(0 for x in list(range(10)))':HIGH
+use-a-generator:57:0:60:2::Use a generator instead 'all('é' == x for x in 'épée')':HIGH
+use-a-generator:61:5:61:28::Use a generator instead 'all(y > 0 for y in x)':HIGH
+use-a-generator:61:0:61:45::Use a generator instead 'any(all([y > 0 for y in x]) for x in [[1]])':HIGH

@@ -258,11 +258,24 @@ Columns of an ``Edit`` count UTF-8 bytes, like the ``col_offset`` of astroid
 nodes. A token checker gets character columns from ``tokenize`` and should use
 ``Edit.from_character_columns``.
 
-To test the fix, add a ``.fixed`` file next to the functional test, with the
-code expected after applying the fixes once. Running
-``python tests/test_functional.py --update-functional-output -k <test>`` writes
-it for you. Unsafe fixes are applied in the test when its ``.rc`` file sets
-``unsafe-fixes=yes``.
+Testing a fix
+~~~~~~~~~~~~~
+A fix is tested in three places:
+
+* **Functional tests.** When a functional test emits messages with fixes, the
+  test runs ``pylint --fix`` on a copy of the file and compares the result with
+  the ``.fixed`` file next to it. Running
+  ``python tests/test_functional.py --update-functional-output -k <test>`` writes
+  it for you. The test also fails if the fixes produce invalid code or never stop
+  changing the file. An unsafe fix must be tested too: the ``.rc`` file of a test
+  emitting one needs ``unsafe-fixes=yes`` in its ``[MAIN]`` section.
+* **The documentation examples.** Running ``pylint --fix --unsafe-fixes`` on the
+  ``bad.py`` example of the message must make the message go away.
+* **The documentation.** A fixable message needs a ``fix.rst`` file next to its
+  ``bad.py`` and ``good.py`` examples, telling what the fix does and why it is
+  safe or unsafe. It is shown on the page of the message.
+
+See the ``use-a-generator`` message for an example of all three.
 
 Debugging a Checker
 -------------------
