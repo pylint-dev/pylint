@@ -34,6 +34,8 @@ from pylint.testutils.reporter_for_tests import FunctionalTestReporter
 
 if TYPE_CHECKING:
     import _csv
+
+    from pytest_remaster import GoldenMaster
 MessageCounter = Counter[tuple[int, str]]
 
 PYLINTRC = Path(__file__).parent / "testing_pylintrc"
@@ -141,8 +143,17 @@ class LintModuleTest:
         ):
             pytest.skip("Test excluded from --minimal-messages-config")
 
-    def runTest(self) -> None:
-        self._runTest()
+    def runTest(self, golden_master: GoldenMaster | None = None) -> None:
+        """Check the expected messages, then the output in the .txt file.
+
+        Pass the ``golden_master`` fixture of pytest-remaster (installed with
+        ``pylint[testutils]``) to check the output as a golden master:
+        ``pytest --remaster`` then rewrites the .txt files that are outdated.
+        """
+        if golden_master is None:
+            self._runTest()
+        else:
+            self._check_golden_master(self.check_messages(), golden_master)
 
     def _should_be_skipped_due_to_version(self) -> bool:
         return (  # type: ignore[no-any-return]
@@ -341,6 +352,52 @@ class LintModuleTest:
         for line in output:
             self.safe_write_output_line(writer, line)
         return buf.getvalue()
+
+    def _check_golden_master(
+        self, actual_output: list[OutputLine], golden_master: GoldenMaster
+    ) -> None:
+        __tracebackhide__ = True  # pylint: disable=unused-variable
+        output = self.serialize_output(actual_output)
+        hint = self._why_not_remastered(output)
+        if hint:
+            # pylint: disable-next=import-outside-toplevel
+            from pytest_remaster import GoldenMaster
+
+            golden_master = GoldenMaster(remaster=False)
+        try:
+            golden_master.check(
+                output,
+                self._test_file.expected_output,
+                # The version file (``<test>.312.txt``) is picked by
+                # FunctionalTestFile, since it applies to every later version
+                # too. An output that differs on one implementation goes in
+                # ``<test>.pypy.txt`` or ``<test>.312.pypy.txt``.
+                dimensions={"implementation": platform.python_implementation().lower()},
+            )
+        except pytest.fail.Exception as exc:
+            if not hint:
+                raise
+            pytest.fail(f"{exc}\n{hint}", pytrace=False)
+
+    def _why_not_remastered(self, output: str) -> str:
+        """Explain why the expected output must not be rewritten, if it must not."""
+        expected_output = Path(self._test_file.expected_output)
+        # Plugins may give an absolute filename, then ``base`` is a path too
+        base = Path(self._test_file.base).name
+        current = "".join(str(v) for v in sys.version_info[:2])
+        if self._test_file.expected_output_is_fallback:
+            return (
+                f"{expected_output.name} is the expected output of an older Python"
+                " version, so it is not remastered from this one. Record this"
+                f" version's output in {base}.{current}.txt, or remaster"
+                " with the Python version the file was written for."
+            )
+        if not output and expected_output.name != f"{base}.txt":
+            return (
+                f"The output is now empty, but deleting {expected_output.name} would"
+                " make this version read another file: empty it by hand instead."
+            )
+        return ""
 
     def _check_output_text(
         self,
