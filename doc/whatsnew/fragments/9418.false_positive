@@ -1,0 +1,4 @@
+Fix a false positive for :ref:`too-many-try-statements` when a nested code block
+contains only a ``pass`` statement required by Python's syntax.
+
+Closes #9418
