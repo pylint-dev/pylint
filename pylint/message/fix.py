@@ -148,6 +148,21 @@ class Edit:
 
 
 @dataclass(frozen=True)
+class NeverFixable:
+    """Tell that a message can never be fixed automatically, and why.
+
+    It is assigned to the ``fix_<symbol>`` attribute of a checker, in place of a
+    fixer method::
+
+        fix_too_many_branches = NeverFixable(
+            "Splitting a function into smaller ones needs a human decision."
+        )
+    """
+
+    reason: str
+
+
+@dataclass(frozen=True)
 class Fix:
     """A change that makes a message go away, applied as a whole or not at all."""
 

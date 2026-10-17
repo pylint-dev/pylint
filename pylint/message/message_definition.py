@@ -32,7 +32,9 @@ class MessageDefinition:  # pylint: disable=too-many-instance-attributes
         old_names: list[tuple[str, str]] | None = None,
         shared: bool = False,
         default_enabled: bool = True,
+        *,
         fixable: bool = False,
+        never_fixable_reason: str | None = None,
     ) -> None:
         self.checker_name = checker.name
         self.check_msgid(msgid)
@@ -46,6 +48,8 @@ class MessageDefinition:  # pylint: disable=too-many-instance-attributes
         self.shared = shared
         self.default_enabled = default_enabled
         self.fixable = fixable
+        self.never_fixable_reason = never_fixable_reason
+        """Why the message can never be fixed automatically, if it can't."""
         self.old_names: list[tuple[str, str]] = []
         if old_names:
             for old_msgid, old_symbol in old_names:
@@ -103,6 +107,11 @@ class MessageDefinition:  # pylint: disable=too-many-instance-attributes
                 )
         if self.fixable:
             desc += " This message can be fixed automatically, see --fix."
+        elif self.never_fixable_reason:
+            desc += (
+                " This message cannot be fixed automatically: "
+                f"{self.never_fixable_reason}"
+            )
         msg_help = normalize_text(" ".join(desc.split()), indent="  ")
         message_id = f"{self.symbol} ({self.msgid})"
         if title != "%s":

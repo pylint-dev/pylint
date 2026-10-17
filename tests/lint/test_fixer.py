@@ -18,7 +18,14 @@ from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import UNDEFINED
 from pylint.lint import PyLinter
 from pylint.lint.fixer import apply_fixes, read_source, write_source
-from pylint.message import Applicability, Edit, Fix, source_segment, source_tokens
+from pylint.message import (
+    Applicability,
+    Edit,
+    Fix,
+    NeverFixable,
+    source_segment,
+    source_tokens,
+)
 from pylint.reporters import CollectingReporter
 
 SAFE = {Applicability.SAFE}
@@ -295,8 +302,10 @@ class _FruitChecker(BaseChecker):
     name = "fruit"
     msgs = {
         "W9801": ("Rotten %s apple", "rotten-apple", "Used to test fixers."),
-        "W9802": ("Green banana", "green-banana", "Not fixable."),
+        "W9802": ("Green banana", "green-banana", "No fix yet."),
+        "W9803": ("Too many cherries", "too-many-cherries", "Never fixable."),
     }
+    fix_too_many_cherries = NeverFixable("Eating cherries needs a human decision.")
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
@@ -324,6 +333,18 @@ class TestFixerDiscovery:
         store = linter.msgs_store
         assert store.get_message_definitions("rotten-apple")[0].fixable
         assert not store.get_message_definitions("green-banana")[0].fixable
+        never_fixable = store.get_message_definitions("too-many-cherries")[0]
+        assert not never_fixable.fixable
+        assert never_fixable.never_fixable_reason == (
+            "Eating cherries needs a human decision."
+        )
+        assert "cannot be fixed automatically: Eating cherries" in (
+            never_fixable.format_help()
+        )
+        assert (
+            store.get_message_definitions("green-banana")[0].never_fixable_reason
+            is None
+        )
         assert (
             "can be fixed automatically"
             in store.get_message_definitions("W9801")[0].format_help()
@@ -335,9 +356,10 @@ class TestFixerDiscovery:
         checker.add_message("rotten-apple", node=node, args=("red",))
         checker.add_message("W9801", node=node, args=("green",))
         checker.add_message("green-banana", node=node)
+        checker.add_message("too-many-cherries", node=node)
         fixes = [message.fix for message in linter.reporter.messages]
         expected = Fix("Replace the apple", (Edit.replace(node, "fresh_apple"),))  # type: ignore[arg-type]
-        assert fixes == [expected, expected, None]
+        assert fixes == [expected, expected, None, None]
         assert checker.fixer_calls[0] == {
             "line": None,
             "args": ("red",),
@@ -362,3 +384,21 @@ class TestFixerDiscovery:
         linter = PyLinter()
         with pytest.raises(InvalidMessageError, match="'fix_roten_apple' of the"):
             linter.register_checker(TypoChecker(linter))
+
+
+def test_a_fix_attribute_must_be_a_fixer_or_never_fixable() -> None:
+    class WrongChecker(_FruitChecker):
+        fix_green_banana = "Wait a few days."
+
+    linter = PyLinter()
+    with pytest.raises(InvalidMessageError, match="must be a fixer method or a"):
+        linter.register_checker(WrongChecker(linter))
+
+
+def test_a_never_fixable_without_message_raises() -> None:
+    class TypoChecker(_FruitChecker):
+        fix_too_many_cheries = NeverFixable("Typo in the name.")
+
+    linter = PyLinter()
+    with pytest.raises(InvalidMessageError, match="'fix_too_many_cheries' of the"):
+        linter.register_checker(TypoChecker(linter))

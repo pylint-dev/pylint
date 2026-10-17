@@ -283,12 +283,19 @@ def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
 
 
 def _get_fix_rst(message: MessageDefinition, data_path: Path) -> str:
-    """Explain the automatic fix of a fixable message, from its 'fix.rst' file."""
+    """Explain the automatic fix of a fixable message, from its 'fix.rst' file,
+    or why a message can never be fixed.
+    """
     fix_path = data_path / "fix.rst"
     if not message.fixable:
         assert (
             not fix_path.exists()
         ), f"{fix_path} exists but '{message.symbol}' has no fixer."
+        if message.never_fixable_reason:
+            return f"""
+.. note::
+  This message cannot be fixed automatically: {message.never_fixable_reason}
+"""
         return ""
     assert fix_path.exists(), (
         f"'{message.symbol}' can be fixed automatically, please explain what the "

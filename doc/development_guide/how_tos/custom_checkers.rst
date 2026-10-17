@@ -227,6 +227,22 @@ shown as fixable in its documentation and in ``pylint --help-msg``. A ``fix_``
 method that does not match a message of the checker is an error, so a typo in
 its name does not go unnoticed.
 
+Some messages can never be fixed automatically, because fixing them needs a
+human decision. Say so with ``NeverFixable`` in place of the fixer, with the
+reason shown to the users on the page of the message and in
+``pylint --help-msg``:
+
+.. code-block:: python
+
+  from pylint.message import NeverFixable
+
+  class FruitBasketChecker(BaseChecker):
+      fix_too_many_fruits = NeverFixable(
+          "Choosing which fruits to take out of the basket needs a human decision."
+      )
+
+A message without a fixer and without ``NeverFixable`` has no fix yet.
+
 Some rules for writing a fix:
 
 * ``Edit.replace``, ``Edit.delete``, ``Edit.insert_before`` and

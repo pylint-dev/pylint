@@ -17,6 +17,7 @@ from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import UNDEFINED, Confidence, _confidence_or_undefined
+from pylint.message.fix import NeverFixable
 from pylint.message.message_definition import MessageDefinition
 from pylint.typing import (
     ExtraMessageOptions,
@@ -197,6 +198,12 @@ class BaseChecker(_ArgumentsProvider):
     def _has_fixer(self, symbol: str) -> bool:
         return callable(getattr(type(self), self._fixer_name(symbol), None))
 
+    def _never_fixable_reason(self, symbol: str) -> str | None:
+        never_fixable = getattr(type(self), self._fixer_name(symbol), None)
+        if isinstance(never_fixable, NeverFixable):
+            return never_fixable.reason
+        return None
+
     @functools.cached_property
     def _fixer_names(self) -> dict[str, str]:
         """The name of the fixer of each fixable message, by id and by symbol."""
@@ -234,22 +241,27 @@ class BaseChecker(_ArgumentsProvider):
         self._check_fixer_names()
 
     def _check_fixer_names(self) -> None:
-        """Check that each ``fix_*`` method fixes one of the messages of the checker.
+        """Check that each ``fix_*`` attribute is about one of the messages of the
+        checker, and is a fixer method or a ``NeverFixable``.
 
-        :raises InvalidMessageError: If a fixer does not match any message.
+        :raises InvalidMessageError: If a ``fix_*`` attribute is not valid.
         """
         fixer_names = {
             self._fixer_name(msg_tuple[1]) for msg_tuple in self.msgs.values()
         }
         for name in dir(type(self)):
-            if (
-                name.startswith("fix_")
-                and callable(getattr(type(self), name))
-                and name not in fixer_names
-            ):
+            if not name.startswith("fix_"):
+                continue
+            value = getattr(type(self), name)
+            if not callable(value) and not isinstance(value, NeverFixable):
                 raise InvalidMessageError(
-                    f"'{name}' of the '{self.name}' checker does not fix any of its "
-                    "messages, a fixer must be named 'fix_<message symbol>' with "
+                    f"'{name}' of the '{self.name}' checker must be a fixer method "
+                    f"or a 'NeverFixable', not {value!r}."
+                )
+            if name not in fixer_names:
+                raise InvalidMessageError(
+                    f"'{name}' of the '{self.name}' checker is not about any of its "
+                    "messages, it must be named 'fix_<message symbol>' with "
                     "underscores instead of dashes."
                 )
 
@@ -279,7 +291,14 @@ class BaseChecker(_ArgumentsProvider):
             raise InvalidMessageError(error_msg)
         options.setdefault("scope", default_scope)
         return MessageDefinition(
-            self, msgid, msg, descr, symbol, fixable=self._has_fixer(symbol), **options
+            self,
+            msgid,
+            msg,
+            descr,
+            symbol,
+            fixable=self._has_fixer(symbol),
+            never_fixable_reason=self._never_fixable_reason(symbol),
+            **options,
         )
 
     @property
