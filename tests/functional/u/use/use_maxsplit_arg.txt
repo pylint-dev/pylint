@@ -21,3 +21,5 @@ use-maxsplit-arg:85:4:85:26::Use '1,2,3'.rsplit('split', maxsplit=1)[-1] instead
 use-maxsplit-arg:86:4:86:28::Use '1,2,3'.split('rsplit', maxsplit=1)[0] instead:HIGH
 use-maxsplit-arg:99:11:99:30::Use SEQ.rsplit(None, maxsplit=1)[-1] instead:HIGH
 use-maxsplit-arg:100:11:100:31::Use SEQ.rsplit(None, maxsplit=1)[-1] instead:INFERENCE
+use-maxsplit-arg:122:16:122:31:crash_subscript_assign_target:Use text.split(',', maxsplit=1)[0] instead:HIGH
+use-maxsplit-arg:132:15:132:30:crash_attribute_assign_target:Use text.split(',', maxsplit=1)[0] instead:HIGH

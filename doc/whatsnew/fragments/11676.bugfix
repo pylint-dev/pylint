@@ -1,0 +1,5 @@
+Fixed a crash in ``use-maxsplit-arg`` (``C0207``) when a ``str.split()`` or
+``str.rsplit()`` call indexed by a variable is used inside a loop that assigns
+to a subscript or attribute target (for example ``obj[0] = 1`` or
+``obj.attr = 1``). Such targets have no ``name`` attribute and previously raised
+``AttributeError: 'Subscript' object has no attribute 'name'``.
