@@ -93,6 +93,11 @@ for j in range(5):
     print(source.split('.')[i])
     i = i + 1
 
+k = 0
+for j in range(5):
+    print(source.split('.')[k])
+    k += 1
+
 sepNone = {"sep": None}
 # Test for crash when sep is given by keyword
 # https://github.com/pylint-dev/pylint/issues/5737
