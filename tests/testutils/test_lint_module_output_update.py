@@ -9,6 +9,7 @@ from __future__ import annotations
 import shutil
 from collections.abc import Callable
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -69,6 +70,48 @@ def test_lint_module_output_update_remove_useless_txt(
     filename.write_text("", encoding="utf8")
     lmou.runTest()
     assert not expected_output_file.exists()
+
+
+def test_lint_module_output_update_does_not_remove_fallback_versioned_output(
+    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]],
+) -> None:
+    """Fallback versioned expected output should not be deleted on update."""
+    filename, expected_output_file, lmou = lint_module_fixture("fine_name")
+    expected_output_file.write_text("", encoding="utf8")
+    filename.write_text("", encoding="utf8")
+    fallback_output_file = filename.with_suffix(".313.txt")
+    fallback_output_file.write_text("old output\n", encoding="utf8")
+
+    with patch(
+        "pylint.testutils.functional.test_file._CURRENT_VERSION",
+        new=(3, 14),
+    ):
+        assert Path(lmou._test_file.expected_output) == fallback_output_file
+        lmou.runTest()
+    assert expected_output_file.exists()
+    assert fallback_output_file.exists()
+
+
+def test_lint_module_output_update_does_not_overwrite_fallback_versioned_output(
+    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]],
+) -> None:
+    """Fallback versioned expected output should not be overwritten on update."""
+    filename, expected_output_file, lmou = lint_module_fixture("foo")
+    expected_output_file.write_text("", encoding="utf8")
+    filename.write_text("# [disallowed-name]\n", encoding="utf8")
+    fallback_output_file = filename.with_suffix(".313.txt")
+    fallback_output_file.write_text("old output\n", encoding="utf8")
+
+    with patch(
+        "pylint.testutils.functional.test_file._CURRENT_VERSION",
+        new=(3, 14),
+    ):
+        assert Path(lmou._test_file.expected_output) == fallback_output_file
+        lmou.runTest()
+
+    assert expected_output_file.exists()
+    assert fallback_output_file.exists()
+    assert fallback_output_file.read_text(encoding="utf8") == "old output\n"
 
 
 @pytest.mark.parametrize(
