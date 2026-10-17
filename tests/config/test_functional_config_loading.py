@@ -7,9 +7,10 @@ files by providing a file with the appropriate extension in the ``tests/config/f
 directory.
 
 Let's say you have a regression_list_crash.toml file to test. Then, if there is an error in the
-conf, add ``regression_list_crash.out`` alongside your file with the expected output of pylint in
-it. Use ``{relpath}`` and ``{abspath}`` for the path of the file. The exit code will have to be 2
- (error) if this file exists.
+conf, add an empty ``regression_list_crash.2.out`` alongside your file, where ``2`` is the
+expected exit code. Its content is the expected output of pylint, a golden master handled by
+pytest-remaster: run the test and it writes the output there, with ``{abspath}`` and
+``{relpath}`` in place of the path of the configuration file.
 
 You must also define a ``regression_list_crash.result.json`` if you want to check the parsed
 configuration. This file will be loaded as a dict and will override the default value of the
@@ -24,6 +25,7 @@ from pathlib import Path
 
 import pytest
 from pytest import CaptureFixture, LogCaptureFixture
+from pytest_remaster import GoldenMaster
 
 from pylint.testutils.configuration_test import (
     PylintConfiguration,
@@ -51,6 +53,34 @@ CONFIGURATION_PATHS = [
 ]
 
 
+def _as_expected_output(output: str, configuration_path: str) -> str:
+    """Turn pylint's output into the content of an ``.out`` file.
+
+    The ``.out`` files are read with ``str.format``, so braces are doubled and
+    the paths of the configuration file become ``{abspath}`` and ``{relpath}``.
+    """
+    relpath = str(Path(configuration_path).relative_to(USER_SPECIFIC_PATH))
+    output = output.replace("{", "{{").replace("}", "}}")
+    output = output.replace(configuration_path, "{abspath}").replace(
+        relpath, "{relpath}"
+    )
+    return output.rstrip() + "\n"
+
+
+def _check_output(
+    golden_master: GoldenMaster,
+    configuration_path: str,
+    expected_code: int,
+    output: str,
+) -> None:
+    path = Path(configuration_path)
+    expected_path = path.parent / f"{path.stem}.{expected_code}.out"
+    if output or expected_path.exists():
+        golden_master.check(
+            _as_expected_output(output, configuration_path), expected_path
+        )
+
+
 @pytest.fixture()
 def default_configuration(
     tmp_path: Path, file_to_lint_path: str
@@ -69,6 +99,7 @@ def test_functional_config_loading(
     file_to_lint_path: str,
     capsys: CaptureFixture[str],
     caplog: LogCaptureFixture,
+    golden_master: GoldenMaster,
 ) -> None:
     """Functional tests for configurations."""
     # logging is helpful to see what's expected and why. The output of the
@@ -76,9 +107,7 @@ def test_functional_config_loading(
     caplog.set_level(logging.INFO)
     configuration_path = str(FUNCTIONAL_DIR / configuration_path)
     msg = f"Wrong result with configuration {configuration_path}"
-    expected_code, expected_output = get_expected_output(
-        configuration_path, USER_SPECIFIC_PATH
-    )
+    expected_code, _ = get_expected_output(configuration_path, USER_SPECIFIC_PATH)
     expected_loaded_configuration = get_expected_configuration(
         configuration_path, default_configuration
     )
@@ -97,12 +126,11 @@ def test_functional_config_loading(
             assert e.code == expected_code
             out, err = capsys.readouterr()
             assert out == ""
-            assert err.rstrip() == expected_output.rstrip()
+            _check_output(golden_master, configuration_path, expected_code, err)
             return
 
     out, err = capsys.readouterr()
-    # 'rstrip()' applied, so we can have a final newline in the expected test file
-    assert expected_output.rstrip() == out.rstrip(), msg
+    _check_output(golden_master, configuration_path, expected_code, out)
     assert sorted(expected_loaded_configuration.keys()) == sorted(
         runner.linter.config.__dict__.keys()
     ), msg

@@ -1,0 +1,11 @@
+``LintModuleTest.runTest`` takes the ``golden_master`` fixture of pytest-remaster, now
+installed with ``pylint[testutils]``. The expected ``.txt`` output then becomes a golden
+master: ``pytest --remaster`` rewrites the outdated files, except a file written for an
+older Python version, which also applies to later versions. Without the fixture,
+``runTest`` compares the output as before.
+
+``pylint.testutils.functional.LintModuleOutputUpdate`` and the ``UPDATE_OPTION`` and
+``UPDATE_FILE`` constants of ``pylint.testutils`` are removed: ``pytest --remaster``
+replaces ``--update-functional-output``.
+
+Refs #10953

@@ -5,8 +5,6 @@
 """Functional/non regression tests for pylint."""
 
 __all__ = [
-    "UPDATE_FILE",
-    "UPDATE_OPTION",
     "CheckerTestCase",
     "FunctionalTestFile",
     "GenericTestReporter",
@@ -22,7 +20,6 @@ __all__ = [
 ]
 
 from pylint.testutils.checker_test_case import CheckerTestCase
-from pylint.testutils.constants import UPDATE_FILE, UPDATE_OPTION
 from pylint.testutils.decorator import set_config
 from pylint.testutils.functional import FunctionalTestFile
 from pylint.testutils.get_test_info import _get_tests_info

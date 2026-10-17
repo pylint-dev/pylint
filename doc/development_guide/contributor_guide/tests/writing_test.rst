@@ -92,6 +92,12 @@ Second ``<test-file-name>.txt``, this will be the default for all other Python v
     This does only work if the code itself is parsable in all tested Python versions.
     For new syntax, use ``min_pyver`` / ``max_pyver`` instead.
 
+When the output only differs on PyPy, for example the column of a syntax error, add a
+``<test-file-name>.pypy.txt`` next to ``<test-file-name>.txt`` instead of excluding
+the test with ``except_implementations``. It combines with a version file:
+``<test-file-name>.314.pypy.txt`` is PyPy on ``>=3.14``. Running the test with
+``--remaster`` on PyPy rewrites the ``.pypy.txt`` file it compared against.
+
 **Functional test file locations**
 
 For existing checkers, new test cases should preferably be appended to the existing test file.
@@ -115,13 +121,15 @@ in a different sub-directory.
 During development, it's sometimes helpful to run all functional tests in your
 current environment in order to have faster feedback. Run from Pylint root directory with::
 
-    python tests/test_functional.py
+    pytest tests/test_functional.py
 
 You can use all the options you would use for pytest_, for example ``-k "test_functional[len_checks]"``.
-Furthermore, if required the .txt file with expected messages can be regenerated based
-on the current output by appending ``--update-functional-output`` to the command line::
+The .txt files with expected messages are golden masters handled by pytest-remaster_:
+when the output changes, the test rewrites the .txt file it compared against and fails,
+so you can review the change with ``git diff`` and run the test again. Pass ``--remaster``
+or ``--no-remaster`` to choose explicitly::
 
-    python tests/test_functional.py --update-functional-output -k "test_functional[len_checks]"
+    pytest tests/test_functional.py --remaster -k "test_functional[len_checks]"
 
 
 .. _writing_config_functional_tests:
@@ -156,11 +164,14 @@ If a configuration is incorrect and should lead to a crash or warning being emit
 specify this by adding a ``.out`` file. This file should have the following name
 ``name_of_configuration_testfile.error_code.out``. So, if your test is called ``bad_configuration.toml``
 and should exit with exit code 2 the ``.out`` file should be named ``bad_configuration.2.out``.
-The content of the ``.out`` file should have a similar pattern as a normal Pylint output. Note that the
-module name should be ``{abspath}`` and the file name ``{relpath}``.
+You don't need to write its content: create the file empty and run the test, pytest-remaster_
+writes Pylint's output in it, with ``{abspath}`` and ``{relpath}`` in place of the path of the
+configuration file. When the output changes later, the test rewrites the file and fails, so you
+can review the change with ``git diff``.
 
 
 .. _tox: https://tox.wiki/en/latest/
 .. _pytest: https://docs.pytest.org/en/latest/
+.. _pytest-remaster: https://github.com/Pierre-Sassoulas/pytest-remaster
 .. _pytest-cov: https://pypi.org/project/pytest-cov/
 .. _astroid: https://github.com/pylint-dev/astroid
