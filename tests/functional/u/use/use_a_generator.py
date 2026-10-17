@@ -59,3 +59,12 @@ all([  # [use-a-generator]
     for x in "épée"
 ])
 any([all([y > 0 for y in x]) for x in [[1]]])  # [use-a-generator, use-a-generator]
+
+# A generator must be the only argument, the trailing comma is removed.
+any(  # [use-a-generator]
+    [
+        0
+        for x in list(range(10))
+    ],  # comment
+)
+any(([0 for x in list(range(10))]),)  # [use-a-generator]

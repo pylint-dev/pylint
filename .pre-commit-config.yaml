@@ -6,7 +6,8 @@ repos:
     rev: v6.0.0
     hooks:
       - id: trailing-whitespace
-        exclude: tests(/\w*)*/functional/t/trailing_whitespaces.py|tests/pyreverse/data/.*.html|doc/data/messages/t/trailing-whitespace/bad.py
+        # A '.fixed' file is the exact output of the automatic fixes
+        exclude: tests(/\w*)*/functional/t/trailing_whitespaces.py|tests/pyreverse/data/.*.html|doc/data/messages/t/trailing-whitespace/bad.py|tests(/\w*)*/functional/.*\.fixed$
       #      - id: file-contents-sorter # commented out because it does not preserve comments order
       #        args: ["--ignore-case", "--unique"]
       #        files: "custom_dict.txt"
@@ -17,7 +18,8 @@ repos:
             tests/functional/t/trailing_newlines.py|
             doc/data/messages/t/trailing-newlines/bad.py|
             doc/data/messages/m/missing-final-newline/bad/lf.py|
-            doc/data/messages/m/missing-final-newline/bad/crlf.py
+            doc/data/messages/m/missing-final-newline/bad/crlf.py|
+            tests(/\w*)*/functional/.*\.fixed
           )$
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
     rev: v1.30.1

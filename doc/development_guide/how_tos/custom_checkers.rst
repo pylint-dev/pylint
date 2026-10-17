@@ -192,22 +192,10 @@ We are now ready to debug and test our checker!
 Providing an automatic fix
 --------------------------
 A message can come with a fix that ``pylint --fix`` applies (see :ref:`autofix`).
-First, declare that the message can be fixed with the ``fixable`` option:
-
-.. code-block:: python
-
-  msgs = {
-      "C9902": (
-          "Use 'not %s' to check if the collection is empty",
-          "compare-length-to-zero",
-          "Emitted when the length of a collection is compared to zero.",
-          {"fixable": True},
-      ),
-  }
-
-Then give a ``Fix`` to ``add_message``. A fix is a list of ``Edit``, each one
-replacing a part of the file with new text. The edits of a fix are applied
-together or not at all.
+To give a message a fix, add a *fixer* to its checker: a method named ``fix_``
+followed by the symbol of the message, with underscores instead of dashes. Like
+``visit_`` methods, pylint finds it by its name. The fixer of
+``compare-length-to-zero`` is ``fix_compare_length_to_zero``:
 
 .. code-block:: python
 
@@ -216,22 +204,31 @@ together or not at all.
   def visit_compare(self, node: nodes.Compare) -> None:
       # Looking for: len(basket) == 0
       ...
+      self.add_message("compare-length-to-zero", node=node)
+
+  def fix_compare_length_to_zero(self, node: nodes.Compare, **kwargs: Any) -> Fix | None:
       basket = source_segment(node.left.args[0])
-      self.add_message(
-          "compare-length-to-zero",
-          node=node,
-          args=(basket,),
-          fix=lambda: Fix.create(
-              "Use 'not' to check if the collection is empty",
-              Edit.replace(node, f"not ({basket})"),
-              applicability=Applicability.UNSAFE,
-          ),
+      return Fix.create(
+          "Use 'not' to check if the collection is empty",
+          Edit.replace(node, f"not ({basket})"),
+          applicability=Applicability.UNSAFE,
       )
+
+The fixer receives the node of the message, and the other arguments given to
+``add_message`` as keyword arguments: ``line``, ``args``, ``confidence``,
+``col_offset``, ``end_lineno`` and ``end_col_offset``. A token checker, whose
+messages have no node, can use ``line``. The fixer returns a ``Fix``, or
+``None`` when this message cannot be fixed. It is only called when the message
+is enabled, so a disabled message costs nothing.
+
+A fix is a list of ``Edit``, each one replacing a part of the file with new text.
+The edits of a fix are applied together or not at all. A message with a fixer is
+shown as fixable in its documentation and in ``pylint --help-msg``. A ``fix_``
+method that does not match a message of the checker is an error, so a typo in
+its name does not go unnoticed.
 
 Some rules for writing a fix:
 
-* Pass a function returning the fix, like the ``lambda`` above: it is only
-  called when the message is enabled, so a disabled message costs nothing.
 * ``Edit.replace``, ``Edit.delete``, ``Edit.insert_before`` and
   ``Edit.insert_after`` take a node and return ``None`` when the node has no
   position in the file, for example a node created by an astroid brain.
@@ -253,6 +250,11 @@ Some rules for writing a fix:
   ``UNSAFE``. The applicability can be different for each message: a fix can
   be safe for a list and unsafe for an unknown type.
 * Don't format the new code, the user runs a formatter afterwards.
+
+* To change a bracket, a comma or another token that is not a node, use
+  ``source_tokens(node)``: the tokens of the code of the node, comments included,
+  with positions ready for an ``Edit``. ``Edit(*token.start, *token.end, "")``
+  removes a token.
 
 Columns of an ``Edit`` count UTF-8 bytes, like the ``col_offset`` of astroid
 nodes. A token checker gets character columns from ``tokenize`` and should use

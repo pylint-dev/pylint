@@ -288,7 +288,7 @@ def _get_fix_rst(message: MessageDefinition, data_path: Path) -> str:
     if not message.fixable:
         assert (
             not fix_path.exists()
-        ), f"{fix_path} exists but '{message.symbol}' is not declared as 'fixable'."
+        ), f"{fix_path} exists but '{message.symbol}' has no fixer."
         return ""
     assert fix_path.exists(), (
         f"'{message.symbol}' can be fixed automatically, please explain what the "

@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
 
@@ -24,54 +24,53 @@ class FixTestChecker(BaseChecker):
             "Use 'new_name' instead of 'old_name'",
             "old-name-used",
             "Used to test safe fixes.",
-            {"fixable": True},
         ),
         "W9902": (
             "Useless pass statement",
             "useless-pass-statement",
             "Used to test unsafe fixes.",
-            {"fixable": True},
         ),
         "W9903": (
             "Double the number",
             "double-number",
             "Used to test fixes built from the original source code.",
-            {"fixable": True},
+        ),
+        "W9904": (
+            "Not fixable",
+            "not-fixable",
+            "Used to test messages without a fixer.",
         ),
     }
 
     def visit_name(self, node: nodes.Name) -> None:
         if node.name == "old_name":
-            self.add_message(
-                "old-name-used",
-                node=node,
-                fix=lambda: Fix.create(
-                    "Rename to 'new_name'",
-                    Edit.replace(node, "new_name"),
-                    applicability=Applicability.SAFE,
-                ),
-            )
+            self.add_message("old-name-used", node=node)
+
+    def fix_old_name_used(self, node: nodes.Name, **_: Any) -> Fix | None:
+        return Fix.create(
+            "Rename to 'new_name'",
+            Edit.replace(node, "new_name"),
+            applicability=Applicability.SAFE,
+        )
 
     def visit_pass(self, node: nodes.Pass) -> None:
         if len(node.parent.body) > 1:
-            self.add_message(
-                "useless-pass-statement",
-                node=node,
-                fix=Fix.create("Remove the pass statement", Edit.delete(node)),
-            )
+            self.add_message("useless-pass-statement", node=node)
+
+    def fix_useless_pass_statement(self, node: nodes.Pass, **_: Any) -> Fix | None:
+        return Fix.create("Remove the pass statement", Edit.delete(node))
 
     def visit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name) and node.func.name == "double":
-            argument = source_segment(node.args[0])
-            self.add_message(
-                "double-number",
-                node=node,
-                fix=Fix.create(
-                    "Multiply by two",
-                    Edit.replace(node, f"({argument}) * 2"),
-                    applicability=Applicability.SAFE,
-                ),
-            )
+            self.add_message("double-number", node=node)
+
+    def fix_double_number(self, node: nodes.Call, **_: Any) -> Fix | None:
+        argument = source_segment(node.args[0])
+        return Fix.create(
+            "Multiply by two",
+            Edit.replace(node, f"({argument}) * 2"),
+            applicability=Applicability.SAFE,
+        )
 
 
 def register(linter: PyLinter) -> None:

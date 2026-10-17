@@ -1431,7 +1431,7 @@ class PyLinter(
         if not message_definition.fixable:
             raise exceptions.InvalidMessageError(
                 f"Message {message_definition.symbol} ({message_definition.msgid}) "
-                "has a fix but is not declared as 'fixable'"
+                "has a fix but its checker has no fixer for it"
             )
         if callable(fix):
             fix = fix()

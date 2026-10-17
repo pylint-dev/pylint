@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import abc
 import functools
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Iterable, Sequence
 from inspect import cleandoc
 from tokenize import TokenInfo
 from typing import TYPE_CHECKING, Any
@@ -17,7 +17,6 @@ from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import UNDEFINED, Confidence, _confidence_or_undefined
-from pylint.message.fix import Fix
 from pylint.message.message_definition import MessageDefinition
 from pylint.typing import (
     ExtraMessageOptions,
@@ -157,20 +156,56 @@ class BaseChecker(_ArgumentsProvider):
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
-        fix: Fix | Callable[[], Fix | None] | None = None,
     ) -> None:
+        """Add a message, with its automatic fix if the checker has a fixer for it.
+
+        The fixer of a message is the ``fix_<symbol>`` method of the checker, with
+        the dashes of the symbol replaced by underscores, like
+        ``fix_use_a_generator``. It receives the node of the message and the other
+        arguments of ``add_message`` as keyword arguments, and returns a ``Fix``
+        or ``None``. It is only called when the message is enabled.
+        """
         confidence = _confidence_or_undefined(confidence, stacklevel=2)
+        fix = None
+        if fixer_name := self._fixer_names.get(msgid):
+            fix = functools.partial(
+                getattr(self, fixer_name),
+                node,
+                line=line,
+                args=args,
+                confidence=confidence,
+                col_offset=col_offset,
+                end_lineno=end_lineno,
+                end_col_offset=end_col_offset,
+            )
         self.linter.add_message(
             msgid,
-            line,
-            node,
-            args,
-            confidence,
-            col_offset,
-            end_lineno,
-            end_col_offset,
-            fix,
+            line=line,
+            node=node,
+            args=args,
+            confidence=confidence,
+            col_offset=col_offset,
+            end_lineno=end_lineno,
+            end_col_offset=end_col_offset,
+            fix=fix,
         )
+
+    @staticmethod
+    def _fixer_name(symbol: str) -> str:
+        return f"fix_{symbol.replace('-', '_')}"
+
+    def _has_fixer(self, symbol: str) -> bool:
+        return callable(getattr(type(self), self._fixer_name(symbol), None))
+
+    @functools.cached_property
+    def _fixer_names(self) -> dict[str, str]:
+        """The name of the fixer of each fixable message, by id and by symbol."""
+        fixer_names = {}
+        for msgid, msg_tuple in self.msgs.items():
+            symbol = msg_tuple[1]
+            if self._has_fixer(symbol):
+                fixer_names[msgid] = fixer_names[symbol] = self._fixer_name(symbol)
+        return fixer_names
 
     def check_consistency(self) -> None:
         """Check the consistency of msgid.
@@ -196,6 +231,27 @@ class BaseChecker(_ArgumentsProvider):
                 raise InvalidMessageError(error_msg)
             checker_id = message.msgid[1:3]
             existing_ids.append(message.msgid)
+        self._check_fixer_names()
+
+    def _check_fixer_names(self) -> None:
+        """Check that each ``fix_*`` method fixes one of the messages of the checker.
+
+        :raises InvalidMessageError: If a fixer does not match any message.
+        """
+        fixer_names = {
+            self._fixer_name(msg_tuple[1]) for msg_tuple in self.msgs.values()
+        }
+        for name in dir(type(self)):
+            if (
+                name.startswith("fix_")
+                and callable(getattr(type(self), name))
+                and name not in fixer_names
+            ):
+                raise InvalidMessageError(
+                    f"'{name}' of the '{self.name}' checker does not fix any of its "
+                    "messages, a fixer must be named 'fix_<message symbol>' with "
+                    "underscores instead of dashes."
+                )
 
     def create_message_definition_from_tuple(
         self, msgid: str, msg_tuple: MessageDefinitionTuple
@@ -222,7 +278,9 @@ class BaseChecker(_ArgumentsProvider):
 """
             raise InvalidMessageError(error_msg)
         options.setdefault("scope", default_scope)
-        return MessageDefinition(self, msgid, msg, descr, symbol, **options)
+        return MessageDefinition(
+            self, msgid, msg, descr, symbol, fixable=self._has_fixer(symbol), **options
+        )
 
     @property
     def messages(self) -> list[MessageDefinition]:

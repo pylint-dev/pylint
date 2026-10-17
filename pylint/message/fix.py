@@ -15,7 +15,9 @@ from __future__ import annotations
 
 import enum
 import functools
+import io
 import itertools
+import tokenize
 from dataclasses import dataclass
 
 from astroid import nodes
@@ -229,3 +231,42 @@ def source_segment(node: nodes.NodeNG) -> str | None:
     if first == last:
         return lines[first][start:end]
     return "".join([lines[first][start:], *lines[first + 1 : last], lines[last][:end]])
+
+
+def source_tokens(node: nodes.NodeNG) -> list[tokenize.TokenInfo] | None:
+    """Return the tokens of the original source code of ``node``.
+
+    The positions of the tokens use the same unit as an ``Edit``: lines of the
+    file and UTF-8 byte columns, so ``Edit(*token.start, *token.end, "")``
+    removes a token. Comments are included, the final ``NEWLINE`` and
+    ``ENDMARKER`` tokens are not.
+
+    Return ``None`` when the node has no position in a file.
+    """
+    segment = source_segment(node)
+    if segment is None:
+        return None
+    lines = _module_source_lines(node.root())
+    first_line = lines[node.lineno - 1]
+    first_column = _byte_to_character_column(first_line, node.col_offset)
+
+    def position(line: int, col: int) -> tuple[int, int]:
+        if line == 1:
+            col += first_column
+        line += node.lineno - 1
+        return line, _character_to_byte_column(lines, line, col)
+
+    tokens = []
+    try:
+        for token in tokenize.generate_tokens(io.StringIO(segment).readline):
+            if (
+                token.type in {tokenize.NEWLINE, tokenize.ENDMARKER}
+                and not token.string
+            ):
+                continue
+            tokens.append(
+                token._replace(start=position(*token.start), end=position(*token.end))
+            )
+    except (tokenize.TokenError, SyntaxError):
+        return None
+    return tokens

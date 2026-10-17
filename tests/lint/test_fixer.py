@@ -7,15 +7,18 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import astroid
 import pytest
 from astroid import nodes
 
+from pylint.checkers import BaseChecker
 from pylint.exceptions import InvalidMessageError
+from pylint.interfaces import UNDEFINED
 from pylint.lint import PyLinter
 from pylint.lint.fixer import apply_fixes, read_source, write_source
-from pylint.message import Applicability, Edit, Fix, source_segment
+from pylint.message import Applicability, Edit, Fix, source_segment, source_tokens
 from pylint.reporters import CollectingReporter
 
 SAFE = {Applicability.SAFE}
@@ -218,7 +221,7 @@ class TestAddMessageWithFix:
     def test_fix_of_a_non_fixable_message_raises(self) -> None:
         linter, module = self._linter_with_module("x = 1\n")
         node = module.body[0]
-        with pytest.raises(InvalidMessageError, match="not declared as 'fixable'"):
+        with pytest.raises(InvalidMessageError, match="has no fixer"):
             linter.add_message(
                 "pointless-statement",
                 node=node,
@@ -261,3 +264,101 @@ class TestAddMessageWithFix:
         fix = _fix(Edit.replace(other_module.body[0], "z = 2"))
         linter.add_message("pointless-statement", node=module.body[0], fix=fix)
         assert linter.reporter.messages[0].fix is None
+
+
+def test_source_tokens_use_edit_positions() -> None:
+    module = astroid.parse('x = "é"; y = any([1 for a in b],  # comment\n)\n')
+    tokens = source_tokens(module.body[1].value)
+    assert tokens is not None
+    strings = [token.string for token in tokens if token.string.strip()]
+    assert strings == [
+        "any",
+        "(",
+        "[",
+        "1",
+        "for",
+        "a",
+        "in",
+        "b",
+        "]",
+        ",",
+        "# comment",
+        ")",
+    ]
+    comma = next(token for token in tokens if token.string == ",")
+    # 'é' is two bytes long in UTF-8
+    assert (comma.start, comma.end) == ((1, 32), (1, 33))
+    assert source_tokens(nodes.Const(1)) is None
+
+
+class _FruitChecker(BaseChecker):
+    name = "fruit"
+    msgs = {
+        "W9801": ("Rotten %s apple", "rotten-apple", "Used to test fixers."),
+        "W9802": ("Green banana", "green-banana", "Not fixable."),
+    }
+
+    def __init__(self, linter: PyLinter) -> None:
+        super().__init__(linter)
+        self.fixer_calls: list[dict[str, Any]] = []
+
+    def fix_rotten_apple(self, node: nodes.NodeNG, **kwargs: Any) -> Fix | None:
+        self.fixer_calls.append(kwargs)
+        return Fix.create("Replace the apple", Edit.replace(node, "fresh_apple"))
+
+
+class TestFixerDiscovery:
+    @staticmethod
+    def _linter_and_checker() -> tuple[PyLinter, _FruitChecker, nodes.Module]:
+        linter = PyLinter()
+        linter.set_reporter(CollectingReporter())
+        checker = _FruitChecker(linter)
+        linter.register_checker(checker)
+        module = astroid.parse("apple\n", module_name="fruits", path="fruits.py")
+        linter.set_current_module("fruits", "fruits.py")
+        linter.file_state._module = module
+        return linter, checker, module
+
+    def test_a_message_with_a_fixer_is_fixable(self) -> None:
+        linter, _, _ = self._linter_and_checker()
+        store = linter.msgs_store
+        assert store.get_message_definitions("rotten-apple")[0].fixable
+        assert not store.get_message_definitions("green-banana")[0].fixable
+        assert (
+            "can be fixed automatically"
+            in store.get_message_definitions("W9801")[0].format_help()
+        )
+
+    def test_the_fixer_gets_the_node_and_the_arguments(self) -> None:
+        linter, checker, module = self._linter_and_checker()
+        node = module.body[0].value
+        checker.add_message("rotten-apple", node=node, args=("red",))
+        checker.add_message("W9801", node=node, args=("green",))
+        checker.add_message("green-banana", node=node)
+        fixes = [message.fix for message in linter.reporter.messages]
+        expected = Fix("Replace the apple", (Edit.replace(node, "fresh_apple"),))  # type: ignore[arg-type]
+        assert fixes == [expected, expected, None]
+        assert checker.fixer_calls[0] == {
+            "line": None,
+            "args": ("red",),
+            "confidence": UNDEFINED,
+            "col_offset": None,
+            "end_lineno": None,
+            "end_col_offset": None,
+        }
+
+    def test_the_fixer_is_not_called_for_a_disabled_message(self) -> None:
+        linter, checker, module = self._linter_and_checker()
+        linter.disable("rotten-apple")
+        checker.add_message("rotten-apple", node=module.body[0].value)
+        assert not linter.reporter.messages
+        assert not checker.fixer_calls
+
+    def test_a_fixer_without_message_raises(self) -> None:
+        class TypoChecker(_FruitChecker):
+            def fix_roten_apple(self, _node: nodes.NodeNG, **_: Any) -> Fix | None:
+                return None
+
+        linter = PyLinter()
+        with pytest.raises(InvalidMessageError, match="'fix_roten_apple' of the"):
+            linter.register_checker(TypoChecker(linter))
