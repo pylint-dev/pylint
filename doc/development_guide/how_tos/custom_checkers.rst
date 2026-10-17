@@ -189,6 +189,112 @@ Add the ``register`` function to the top level of the file.
 
 We are now ready to debug and test our checker!
 
+Providing an automatic fix
+--------------------------
+A message can come with a fix that ``pylint --fix`` applies (see :ref:`autofix`).
+To give a message a fix, add a *fixer* to its checker: a method named ``fix_``
+followed by the symbol of the message, with underscores instead of dashes. Like
+``visit_`` methods, pylint finds it by its name. The fixer of
+``compare-length-to-zero`` is ``fix_compare_length_to_zero``:
+
+.. code-block:: python
+
+  from pylint.message import Applicability, Edit, Fix, source_segment
+
+  def visit_compare(self, node: nodes.Compare) -> None:
+      # Looking for: len(basket) == 0
+      ...
+      self.add_message("compare-length-to-zero", node=node)
+
+  def fix_compare_length_to_zero(self, node: nodes.Compare, **kwargs: Any) -> Fix | None:
+      basket = source_segment(node.left.args[0])
+      return Fix.create(
+          "Use 'not' to check if the collection is empty",
+          Edit.replace(node, f"not ({basket})"),
+          applicability=Applicability.UNSAFE,
+      )
+
+The fixer receives the node of the message, and the other arguments given to
+``add_message`` as keyword arguments: ``line``, ``args``, ``confidence``,
+``col_offset``, ``end_lineno`` and ``end_col_offset``. A token checker, whose
+messages have no node, can use ``line``. The fixer returns a ``Fix``, or
+``None`` when this message cannot be fixed. It is only called when the message
+is enabled, so a disabled message costs nothing.
+
+A fix is a list of ``Edit``, each one replacing a part of the file with new text.
+The edits of a fix are applied together or not at all. A message with a fixer is
+shown as fixable in its documentation and in ``pylint --help-msg``. A ``fix_``
+method that does not match a message of the checker is an error, so a typo in
+its name does not go unnoticed.
+
+Some messages can never be fixed automatically, because fixing them needs a
+human decision. Say so with ``NeverFixable`` in place of the fixer, with the
+reason shown to the users on the page of the message and in
+``pylint --help-msg``:
+
+.. code-block:: python
+
+  from pylint.message import NeverFixable
+
+  class FruitBasketChecker(BaseChecker):
+      fix_too_many_fruits = NeverFixable(
+          "Choosing which fruits to take out of the basket needs a human decision."
+      )
+
+A message without a fixer and without ``NeverFixable`` has no fix yet.
+
+Some rules for writing a fix:
+
+* ``Edit.replace``, ``Edit.delete``, ``Edit.insert_before`` and
+  ``Edit.insert_after`` take a node and return ``None`` when the node has no
+  position in the file, for example a node created by an astroid brain.
+  ``Fix.create`` then returns ``None`` too, and the message has no fix. Only
+  edit the file of the message: a fix touching a node inferred from another file
+  is dropped.
+* Build the new text from ``source_segment(node)``, the code exactly as the
+  user wrote it, quotes and comments included. Don't use ``node.as_string()``
+  for code that already exists: it rewrites the quotes and spacing, and drops
+  comments.
+* The parentheses around an expression are not part of its node: in
+  ``len((apple + pear))``, the code of the argument is ``apple + pear``. Add
+  parentheses when the new code needs them, like ``not (basket)`` above.
+  Without them, ``apple + pear * 2`` would not mean ``(apple + pear) * 2``.
+* Choose the ``applicability`` carefully. ``SAFE`` is only for fixes that can
+  never change what the code does. A fix that relies on inference, or that may
+  remove a comment, is ``UNSAFE``, and its documentation should say why.
+  ``DISPLAY_ONLY`` is for suggestions that are never applied. The default is
+  ``UNSAFE``. The applicability can be different for each message: a fix can
+  be safe for a list and unsafe for an unknown type.
+* Don't format the new code, the user runs a formatter afterwards.
+
+* To change a bracket, a comma or another token that is not a node, use
+  ``source_tokens(node)``: the tokens of the code of the node, comments included,
+  with positions ready for an ``Edit``. ``Edit(*token.start, *token.end, "")``
+  removes a token.
+
+Columns of an ``Edit`` count UTF-8 bytes, like the ``col_offset`` of astroid
+nodes. A token checker gets character columns from ``tokenize`` and should use
+``Edit.from_character_columns``.
+
+Testing a fix
+~~~~~~~~~~~~~
+A fix is tested in three places:
+
+* **Functional tests.** When a functional test emits messages with fixes, the
+  test runs ``pylint --fix`` on a copy of the file and compares the result with
+  the ``.fixed`` file next to it. Running
+  ``python tests/test_functional.py --update-functional-output -k <test>`` writes
+  it for you. The test also fails if the fixes produce invalid code or never stop
+  changing the file. An unsafe fix must be tested too: the ``.rc`` file of a test
+  emitting one needs ``unsafe-fixes=yes`` in its ``[MAIN]`` section.
+* **The documentation examples.** Running ``pylint --fix --unsafe-fixes`` on the
+  ``bad.py`` example of the message must make the message go away.
+* **The documentation.** A fixable message needs a ``fix.rst`` file next to its
+  ``bad.py`` and ``good.py`` examples, telling what the fix does and why it is
+  safe or unsafe. It is shown on the page of the message.
+
+See the ``use-a-generator`` message for an example of all three.
+
 Debugging a Checker
 -------------------
 It is very simple to get to a point where we can use ``pdb``.

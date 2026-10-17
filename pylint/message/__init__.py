@@ -4,14 +4,28 @@
 
 """All the classes related to Message handling."""
 
+from pylint.message.fix import (
+    Applicability,
+    Edit,
+    Fix,
+    NeverFixable,
+    source_segment,
+    source_tokens,
+)
 from pylint.message.message import Message
 from pylint.message.message_definition import MessageDefinition
 from pylint.message.message_definition_store import MessageDefinitionStore
 from pylint.message.message_id_store import MessageIdStore
 
 __all__ = [
+    "Applicability",
+    "Edit",
+    "Fix",
     "Message",
     "MessageDefinition",
     "MessageDefinitionStore",
     "MessageIdStore",
+    "NeverFixable",
+    "source_segment",
+    "source_tokens",
 ]

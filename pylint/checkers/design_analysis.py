@@ -16,6 +16,7 @@ from astroid import nodes
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_enum, only_required_for_messages
 from pylint.interfaces import HIGH
+from pylint.message import NeverFixable
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
@@ -299,6 +300,10 @@ class MisdesignChecker(BaseChecker):
     name = "design"
     # messages
     msgs = MSGS
+    fix_too_many_public_methods = NeverFixable(
+        "Splitting a class into smaller ones means choosing which methods go "
+        "together, which needs a human decision."
+    )
     # configuration options
     options = (
         (

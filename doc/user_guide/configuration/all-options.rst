@@ -145,6 +145,24 @@ Standard Checkers
 **Default:**  ``[]``
 
 
+.. _fix-option:
+
+--fix
+"""""
+*Apply the safe automatic fixes of the messages to the files, then report the messages that are left. Commit your work first, and run your code formatter afterwards.*
+
+**Default:**  ``False``
+
+
+.. _fix-diff-option:
+
+--fix-diff
+""""""""""
+*Print the changes --fix would make as a unified diff, without modifying any file.*
+
+**Default:**  ``False``
+
+
 .. _from-stdin-option:
 
 --from-stdin
@@ -451,6 +469,24 @@ Standard Checkers
 **Default:**  ``()``
 
 
+.. _unfixable-option:
+
+--unfixable
+"""""""""""
+*Messages, given by symbol or id, whose fixes are never applied.*
+
+**Default:**  ``[]``
+
+
+.. _unsafe-fixes-option:
+
+--unsafe-fixes
+""""""""""""""
+*With --fix or --fix-diff, also apply the unsafe fixes, which may change the behavior of the code or remove comments.*
+
+**Default:**  ``False``
+
+
 .. _unsafe-load-any-extension-option:
 
 --unsafe-load-any-extension
@@ -507,6 +543,10 @@ Standard Checkers
 
    files = []
 
+   fix = false
+
+   fix-diff = false
+
    from-stdin = false
 
    ignore = ["CVS"]
@@ -542,6 +582,10 @@ Standard Checkers
    score = true
 
    source-roots = []
+
+   unfixable = []
+
+   unsafe-fixes = false
 
    unsafe-load-any-extension = false
 

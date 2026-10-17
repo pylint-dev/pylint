@@ -5,9 +5,11 @@
 from __future__ import annotations
 
 import csv
+import difflib
 import operator
 import platform
 import sys
+import tempfile
 from collections import Counter
 from io import StringIO
 from pathlib import Path
@@ -19,6 +21,8 @@ from _pytest.config import Config
 from pylint import checkers
 from pylint.config.config_initialization import _config_initialization
 from pylint.lint import PyLinter
+from pylint.lint.fixer import fix_files, read_source, write_source
+from pylint.message import Applicability
 from pylint.message.message import Message
 from pylint.reporters import BaseReporter
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
@@ -257,6 +261,63 @@ class LintModuleTest:
             actual_messages, expected_messages, actual_output
         )
         self._check_output_text(expected_messages, expected_output, actual_output)
+        self._check_fixed_source(self._get_fixed_source())
+
+    def _get_fixed_source(self) -> tuple[str, str]:
+        """Return the source code before and after ``pylint --fix``.
+
+        The fixes are applied to a copy of the test file, until nothing changes.
+        """
+        source, encoding = read_source(self._test_file.source)
+        fixes = [m.fix for m in self._linter.reporter.messages if m.fix is not None]
+        if not fixes:
+            return source, source
+        allowed = {Applicability.SAFE}
+        if self._linter.config.unsafe_fixes:
+            allowed.add(Applicability.UNSAFE)
+        else:
+            assert all(
+                fix.applicability is not Applicability.UNSAFE for fix in fixes
+            ), (
+                f'"{Path(self._test_file.source).name}" has unsafe fixes, add '
+                "'unsafe-fixes=yes' to the [MAIN] section of its .rc file so that "
+                "they are tested."
+            )
+        with tempfile.TemporaryDirectory() as directory:
+            copy = str(Path(directory) / Path(self._test_file.source).name)
+            write_source(copy, source, encoding)
+            summary = fix_files(self._linter, [copy], allowed)
+            fixed_source, _ = read_source(copy)
+        assert not summary.broken, f"The fixes produced invalid code: {summary.broken}"
+        assert not summary.not_converged, "The fixes did not converge"
+        return source, fixed_source
+
+    def _check_fixed_source(self, sources: tuple[str, str]) -> None:
+        """Compare the fixed source code with the '.fixed' file.
+
+        This is a function because we want to be able to update the file in
+        LintModuleOutputUpdate.
+        """
+        source, fixed_source = sources
+        try:
+            with open(self._test_file.fixed_source, encoding="utf-8", newline="") as f:
+                expected = f.read()
+        except FileNotFoundError:
+            expected = source
+        assert fixed_source == expected, (
+            f'Wrong fixed source for "{Path(self._test_file.source).name}":\n'
+            + "".join(
+                difflib.unified_diff(
+                    expected.splitlines(keepends=True),
+                    fixed_source.splitlines(keepends=True),
+                    fromfile="expected",
+                    tofile="actual",
+                )
+            )
+            + "\nYou can update the expected fixed source automatically with:\n'"
+            f"python tests/test_functional.py {UPDATE_OPTION} -k "
+            f'"test_functional[{self._test_file.base}]"\'\n'
+        )
 
     def error_msg_for_unequal_messages(
         self,
