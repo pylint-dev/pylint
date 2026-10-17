@@ -41,6 +41,16 @@ MessageCounter = Counter[tuple[int, str]]
 PYLINTRC = Path(__file__).parent / "testing_pylintrc"
 
 
+class _TestDialect(csv.excel):
+    """Dialect of the expected output files of the functional tests."""
+
+    delimiter = ":"
+    lineterminator = "\n"
+
+
+csv.register_dialect("test", _TestDialect)
+
+
 class LintModuleTest:
     maxDiff = None
 
@@ -405,9 +415,6 @@ class LintModuleTest:
         expected_output: list[OutputLine],
         actual_output: list[OutputLine],
     ) -> None:
-        """This is a function because we want to be able to update the text in
-        LintModuleOutputUpdate.
-        """
         assert expected_output == actual_output, self.error_msg_for_unequal_output(
             expected_output, actual_output
         )
