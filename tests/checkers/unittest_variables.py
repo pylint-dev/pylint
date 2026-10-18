@@ -371,6 +371,58 @@ class TestUsedBeforeAssignmentInLoops(CheckerTestCase):
                     val = 42
                 print(val)
             """,
+            # Uninferrable iterable in for loop
+            """
+            def f():
+                for i in uninferrable():
+                    val = 42
+                print(val)
+            """,
+            # For loop in if-branch with else defining the variable
+            """
+            def f(cond):
+                if cond:
+                    for i in []:
+                        pass
+                    else:
+                        val = 42
+                else:
+                    val = 10
+                print(val)
+            """,
+            # Non-empty for loop in if-branch defining the variable
+            """
+            def f(cond):
+                if cond:
+                    for i in [1, 2]:
+                        val = 42
+                else:
+                    val = 10
+                print(val)
+            """,
+            # While loop in if-branch with else defining the variable
+            """
+            def f(cond):
+                if cond:
+                    while False:
+                        pass
+                    else:
+                        val = 42
+                else:
+                    val = 10
+                print(val)
+            """,
+            # Non-false while loop in if-branch defining the variable
+            """
+            def f(cond):
+                if cond:
+                    while True:
+                        val = 42
+                        break
+                else:
+                    val = 10
+                print(val)
+            """,
         ],
     )
     def test_no_possibly_used_before_assignment(self, code: str) -> None:
