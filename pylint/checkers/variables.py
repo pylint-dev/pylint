@@ -2257,7 +2257,7 @@ class VariablesChecker(BaseChecker):
         "unbalanced-tuple-unpacking",
         "unpacking-non-sequence",
         "self-cls-assignment",
-        "unbalanced_dict_unpacking",
+        "unbalanced-dict-unpacking",
     )
     def visit_assign(self, node: nodes.Assign) -> None:
         """Check unbalanced tuple unpacking for assignments and unpacking
@@ -3219,6 +3219,12 @@ class VariablesChecker(BaseChecker):
             and node.value.name == inferred.parent.vararg
         ):
             # Variable-length argument, we can't determine the length.
+            return
+
+        if (
+            isinstance(inferred, DICT_TYPES)
+            and inferred.scope() != node.scope()
+        ):
             return
 
         # Attempt to check unpacking is properly balanced
