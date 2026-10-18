@@ -371,10 +371,10 @@ class TestUsedBeforeAssignmentInLoops(CheckerTestCase):
                     val = 42
                 print(val)
             """,
-            # Uninferrable iterable in for loop
+            # Unknown iterable in for loop
             """
             def f():
-                for i in uninferrable():
+                for i in unknown():
                     val = 42
                 print(val)
             """,
