@@ -206,14 +206,14 @@ jobs:
           pip install . --no-deps
           python tests/primer/pyreverse_primer.py run --type=pr
       - name: Upload output of PR
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: pyreverse_primer_output_pr
           path:
             tests/.pyreverse_primer_tests/pyreverse_output_${{ env.DEFAULT_PYTHON
             }}_pr.txt
       - name: Upload output of main
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: pyreverse_primer_output_main
           path: pyreverse_output_${{ env.DEFAULT_PYTHON }}_main.txt
@@ -234,7 +234,7 @@ jobs:
         run: |
           echo ${{ github.event.pull_request.number }} | tee pr_number.txt
       - name: Upload PR number
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: pr_number
           path: pr_number.txt
