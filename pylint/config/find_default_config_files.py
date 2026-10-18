@@ -150,15 +150,16 @@ def _find_config_in_home_or_environment() -> Iterator[Path]:
                 yield home_rc.resolve()
 
 
-def find_default_py_version() -> tuple[int, ...] | None:
+def find_default_py_version(pyproject: Path | None = None) -> tuple[int, ...] | None:
     """Return the oldest Python version the project being linted supports.
 
-    It comes from ``requires-python`` in the closest ``pyproject.toml``, which is
-    a better guess than the interpreter running pylint. ``None`` means there is
-    nothing to read it from, or that it is not a plain lower bound.
+    It comes from ``requires-python`` in the given ``pyproject.toml``, or in the
+    closest one, which is a better guess than the interpreter running pylint.
+    ``None`` means there is nothing to read it from, or that it is not a plain
+    lower bound.
     """
     try:
-        pyproject = _find_pyproject()
+        pyproject = pyproject or _find_pyproject()
         if not pyproject.is_file():
             return None
         with open(pyproject, mode="rb") as toml_handle:

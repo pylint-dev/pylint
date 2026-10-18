@@ -2,6 +2,7 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -9,6 +10,12 @@ from git import GitCommandError
 
 from pylint.testutils._primer import PRIMER_DIRECTORY_PATH, PackageToLint
 from pylint.testutils._primer.package_to_lint import DirtyPrimerDirectoryException
+
+
+@pytest.fixture(autouse=True)
+def _without_clones(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Make the relative primer directory empty, whatever is cloned locally."""
+    monkeypatch.chdir(tmp_path)
 
 
 def test_package_to_lint() -> None:
@@ -56,6 +63,56 @@ def test_package_to_lint_default_value() -> None:
         PRIMER_DIRECTORY_PATH / "pallets" / "flask" / "src" / "flask"
     )
     assert package_to_lint.pylint_args == [str(expected_path_to_lint), "--rcfile="]
+
+
+def _write(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+
+
+@pytest.mark.parametrize(
+    "pyproject_relpath,expected",
+    [
+        ("pyproject.toml", "3.9"),
+        # A repository of several packages has a pyproject.toml in each of them
+        ("src/pyproject.toml", "3.9"),
+        (None, None),
+    ],
+)
+def test_package_to_lint_py_version(
+    pyproject_relpath: str | None, expected: str | None
+) -> None:
+    """Test that a package is linted with the 'py-version' its pyproject.toml gives."""
+    package_to_lint = PackageToLint(
+        url="https://github.com/fruits/basket.git",
+        branch="main",
+        directories=["src/basket"],
+        commit="abc123",
+    )
+    if pyproject_relpath:
+        _write(
+            package_to_lint.clone_directory / pyproject_relpath,
+            '[project]\nrequires-python = ">=3.9"\n',
+        )
+    assert package_to_lint.py_version == expected
+    assert (f"--py-version={expected}" in package_to_lint.pylint_args) is bool(expected)
+
+
+def test_package_to_lint_py_version_from_its_configuration() -> None:
+    """Test that a 'py-version' the package sets itself is left alone."""
+    package_to_lint = PackageToLint(
+        url="https://github.com/fruits/basket.git",
+        branch="main",
+        directories=["basket"],
+        commit="abc123",
+        pylintrc_relpath="pylintrc",
+    )
+    _write(
+        package_to_lint.clone_directory / "pyproject.toml",
+        '[project]\nrequires-python = ">=3.9"\n',
+    )
+    _write(package_to_lint.clone_directory / "pylintrc", "[MAIN]\npy-version = 3.12\n")
+    assert package_to_lint.py_version is None
 
 
 FAKE_COMMIT = "abc123def456789"
