@@ -230,6 +230,11 @@ def hash_lineset(
     return LineSetHashResult(hash_to_index, index_to_lines)
 
 
+def _count_files(couples: set[LinesChunkLimits_T]) -> int:
+    """Count the files in a group, which can hold several chunks of one file."""
+    return len({lineset for lineset, _, _ in couples})
+
+
 def remove_successive(all_couples: CplIndexToCplLines_T) -> None:
     """Removes all successive entries in the dictionary in argument.
 
@@ -398,22 +403,20 @@ class Symilar:
             start_line_2 = commonality.snd_file_start
             end_line_2 = commonality.snd_file_end
 
-            duplicate = no_duplicates[num]
-            couples: set[LinesChunkLimits_T]
-            for couples in duplicate:
-                if (lineset1, start_line_1, end_line_1) in couples or (
-                    lineset2,
-                    start_line_2,
-                    end_line_2,
-                ) in couples:
-                    break
-            else:
-                duplicate.append(
-                    {
-                        (lineset1, start_line_1, end_line_1),
-                        (lineset2, start_line_2, end_line_2),
-                    }
-                )
+            chunk_1 = (lineset1, start_line_1, end_line_1)
+            chunk_2 = (lineset2, start_line_2, end_line_2)
+            # A pair that shares a chunk with existing groups joins them, so a
+            # block copied into three files is one group of three, not one pair.
+            joined = [
+                couples
+                for couples in no_duplicates[num]
+                if chunk_1 in couples or chunk_2 in couples
+            ]
+            merged = {chunk_1, chunk_2}.union(*joined)
+            no_duplicates[num] = [
+                couples for couples in no_duplicates[num] if couples not in joined
+            ]
+            no_duplicates[num].append(merged)
         sims: list[tuple[int, set[LinesChunkLimits_T]]] = []
         ensembles: list[set[LinesChunkLimits_T]]
         for num, ensembles in no_duplicates.items():
@@ -436,7 +439,7 @@ class Symilar:
         report: str = ""
         duplicated_line_number: int = 0
         for number, couples in similarities:
-            report += f"\n{number} similar lines in {len(couples)} files\n"
+            report += f"\n{number} similar lines in {_count_files(couples)} files\n"
             couples_l = sorted(couples)
             line_set = start_line = end_line = None
             for line_set, start_line, end_line in couples_l:
@@ -866,7 +869,7 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
                 for line in lineset.real_lines[start_line:end_line]:
                     msg.append(line.rstrip())
 
-            self.add_message("R0801", args=(len(couples), "\n".join(msg)))
+            self.add_message("R0801", args=(_count_files(couples), "\n".join(msg)))
             duplicated += num * (len(couples) - 1)
         stats.nb_duplicated_lines += int(duplicated)
         stats.percent_duplicated_lines += float(total and duplicated * 100.0 / total)

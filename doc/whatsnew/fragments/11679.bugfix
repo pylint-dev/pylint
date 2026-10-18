@@ -1,0 +1,5 @@
+``duplicate-code`` now reports every copy of a duplicated block instead of only the
+first two. The message counts distinct files, so a group can list several locations in
+one file.
+
+Closes #11679
