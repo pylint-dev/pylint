@@ -80,8 +80,8 @@ test = [
 ]
 docs = [
   "furo==2025.12.19",
-  "sphinx==8.2.3",
-  "sphinx-reredirects<1",
+  "sphinx==9.0.4",
+  "sphinx-reredirects<2",
   "towncrier>=24.8,<27",
 ]
 # Configuration for the build system
