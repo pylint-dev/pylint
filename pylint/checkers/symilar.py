@@ -362,6 +362,8 @@ class Symilar:
         except UnicodeDecodeError:
             lines = []
 
+        # Only set when Symilar is used through SimilaritiesChecker
+        linter: PyLinter | None = getattr(self, "linter", None)
         self.linesets.append(
             LineSet(
                 streamid,
@@ -371,9 +373,7 @@ class Symilar:
                 self.namespace.ignore_imports,
                 self.namespace.ignore_signatures,
                 line_enabled_callback=(
-                    self.linter._is_one_message_enabled
-                    if hasattr(self, "linter")
-                    else None
+                    linter._is_one_message_enabled if linter is not None else None
                 ),
                 tree=tree,
             )

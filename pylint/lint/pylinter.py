@@ -488,7 +488,9 @@ class PyLinter(
                 self.add_message(
                     "bad-plugin-value", args=(modname, module_or_error), line=0
                 )
-            elif hasattr(module_or_error, "load_configuration"):
+            elif isinstance(module_or_error, ModuleType) and hasattr(
+                module_or_error, "load_configuration"
+            ):
                 module_or_error.load_configuration(self)
 
         # We re-set all the dictionary values to True here to make sure the dict

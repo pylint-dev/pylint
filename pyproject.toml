@@ -263,15 +263,11 @@ include = [
   "pylint",
   # not checking the tests yet, but we could
 ]
-reportArgumentType = "none"  # 12 issues
-reportAttributeAccessIssue = "none"  # 11 issues
-reportCallIssue = "none"  # 1 issue
-reportGeneralTypeIssues = "none"  # 1 issue
-reportInvalidTypeForm = "none"  # 6 issues
-reportInvalidTypeVarUse = "none"  # 2 warnings
-reportMissingImports = "none"  # pytest / astroid are not detected
-reportOptionalCall = "none"  # 2 issues
-reportOptionalMemberAccess = "none"  # 150 issues
+# astroid is Any, like for mypy
+reportMissingImports = "none"
+# isinstance() against an Unknown astroid class does not narrow out None, so
+# this only reports false positives until astroid itself is typed
+reportOptionalMemberAccess = "none"
 
 [tool.pytest]
 ini_options.testpaths = [ "tests" ]

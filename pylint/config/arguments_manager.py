@@ -285,15 +285,15 @@ class _ArgumentsManager:
             if options:
                 sections.append(group_name)
                 options_by_section[group_name] = options
-        stream = stream or sys.stdout
+        output: TextIO = stream or sys.stdout
         printed = False
         for section in sections:
             if printed:
-                print("\n", file=stream)
+                print("\n", file=output)
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=DeprecationWarning)
                 utils.format_section(
-                    stream, section.upper(), sorted(options_by_section[section])
+                    output, section.upper(), sorted(options_by_section[section])
                 )
             printed = True
 
