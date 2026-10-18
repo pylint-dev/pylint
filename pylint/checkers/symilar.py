@@ -25,6 +25,11 @@ are common.
 
 Once post-processed the values of association table are the result looked for, i.e.
 start and end lines numbers of common lines in both files.
+
+With ``ignore-local-names``, function-local names (arguments and names assigned in a
+function, lambda or comprehension) are replaced by a placeholder in a per-line
+template. Each window is then hashed together with the order in which its local names
+first appear, so that two blocks match when one is a consistent renaming of the other.
 """
 
 from __future__ import annotations
@@ -57,6 +62,16 @@ DEFAULT_MIN_SIMILARITY_LINE = 4
 
 REGEX_FOR_LINES_WITH_CONTENT = re.compile(r".*\w+")
 
+# Stands in for a local name in LineSpecifs.template. Python source cannot contain
+# NUL, so it never collides with real text.
+LOCAL_NAME_PLACEHOLDER = "\0"
+
+# Once local names are replaced, a line made only of placeholders, brackets, commas
+# and colons (e.g. an argument list) says nothing about structure on its own.
+_REGEX_FOR_CONTENT_BEYOND_LOCAL_NAMES = re.compile(r"[^\s,:()\[\]{}\0]")
+
+_LOCAL_SCOPES = (nodes.FunctionDef, nodes.Lambda, nodes.ComprehensionScope)
+
 # When two files share a hash bucket whose Cartesian product exceeds this
 # limit, fall back to aligned (zip) pairing instead of the full product.
 # This prevents quadratic blow-up on files with many identical lines (e.g.
@@ -74,6 +89,10 @@ LineNumber = NewType("LineNumber", int)
 class LineSpecifs(NamedTuple):
     line_number: LineNumber
     text: str
+    # Only filled when ignore-local-names is on: ``text`` with each local name
+    # replaced by LOCAL_NAME_PLACEHOLDER, and the replaced names in order.
+    template: str = ""
+    local_names: tuple[str, ...] = ()
 
 
 # Maps the hash of successive stripped lines to the starting indices
@@ -200,14 +219,10 @@ def hash_lineset(
     if num_lines < min_common_lines:
         return LineSetHashResult(hash_to_index, index_to_lines)
 
-    # Pre-compute per-line hashes for the rolling window
-    line_hashes = [hash(spec.text) for spec in stripped]
-
-    # Seed the rolling hash with the first window
-    window_hash = sum(line_hashes[:min_common_lines])
-
     last_index = num_lines - 1
-    for i in range(num_lines - min_common_lines + 1):
+    for i, window_hash in enumerate(
+        _window_hashes(stripped, min_common_lines, lineset.ignore_local_names)
+    ):
         start_linenumber = LineNumber(stripped[i].line_number)
         window_end = i + min_common_lines
         end_linenumber = (
@@ -223,11 +238,48 @@ def hash_lineset(
 
         hash_to_index[window_hash].append(index)
 
-        # Slide the window: subtract the leaving line, add the entering line
-        if window_end <= last_index:
-            window_hash = window_hash - line_hashes[i] + line_hashes[window_end]
-
     return LineSetHashResult(hash_to_index, index_to_lines)
+
+
+def _window_hashes(
+    stripped: list[LineSpecifs], min_common_lines: int, ignore_local_names: bool
+) -> Iterable[int]:
+    """Yield the hash of each window of ``min_common_lines`` successive lines."""
+    if ignore_local_names:
+        # The renaming is only consistent within a window, so each window is
+        # canonicalised on its own instead of sliding a rolling sum.
+        for i in range(len(stripped) - min_common_lines + 1):
+            yield hash(tuple(_canonical_lines(stripped[i : i + min_common_lines])))
+        return
+
+    line_hashes = [hash(spec.text) for spec in stripped]
+    window_hash = sum(line_hashes[:min_common_lines])
+    yield window_hash
+    for leaving, entering in zip(line_hashes, line_hashes[min_common_lines:]):
+        window_hash = window_hash - leaving + entering
+        yield window_hash
+
+
+def _canonical_lines(
+    specs: Sequence[LineSpecifs],
+) -> list[tuple[str, tuple[int, ...]]]:
+    """Return each line's template with its local names numbered by first
+    appearance across ``specs``.
+
+    ``a = b + a`` becomes its template plus the ids ``(0, 1, 0)``, so two blocks get
+    the same canonical form exactly when one is a consistent renaming of the other.
+    """
+    first_seen: dict[str, int] = {}
+    return [
+        (
+            spec.template,
+            tuple(
+                first_seen.setdefault(name, len(first_seen))
+                for name in spec.local_names
+            ),
+        )
+        for spec in specs
+    ]
 
 
 def remove_successive(all_couples: CplIndexToCplLines_T) -> None:
@@ -294,6 +346,11 @@ def filter_noncode_lines(
     :param common_lines_nb: number of common successive stripped lines before being filtered from non code lines
     :return: the number of common successive stripped lines that contain code
     """
+    if ls_1.ignore_local_names:
+        return _count_common_lines_ignoring_local_names(
+            ls_1.stripped_lines[stindex_1 : stindex_1 + common_lines_nb],
+            ls_2.stripped_lines[stindex_2 : stindex_2 + common_lines_nb],
+        )
     stripped_l1 = [
         lspecif.text
         for lspecif in ls_1.stripped_lines[stindex_1 : stindex_1 + common_lines_nb]
@@ -305,6 +362,35 @@ def filter_noncode_lines(
         if REGEX_FOR_LINES_WITH_CONTENT.match(lspecif.text)
     ]
     return sum(sline_1 == sline_2 for sline_1, sline_2 in zip(stripped_l1, stripped_l2))
+
+
+def _count_common_lines_ignoring_local_names(
+    specs_1: Sequence[LineSpecifs], specs_2: Sequence[LineSpecifs]
+) -> int:
+    """Count the code lines that match up to a consistent renaming of local names.
+
+    Canonicalising over the whole merged block (not per window) means a renaming
+    has to be consistent across the block for its lines to count. A line made only of
+    local names counts only when it matches verbatim.
+    """
+    code_1 = [
+        (spec.text, canonical)
+        for spec, canonical in zip(specs_1, _canonical_lines(specs_1))
+        if REGEX_FOR_LINES_WITH_CONTENT.match(spec.text)
+    ]
+    code_2 = [
+        (spec.text, canonical)
+        for spec, canonical in zip(specs_2, _canonical_lines(specs_2))
+        if REGEX_FOR_LINES_WITH_CONTENT.match(spec.text)
+    ]
+    return sum(
+        canonical_1 == canonical_2
+        and (
+            text_1 == text_2
+            or bool(_REGEX_FOR_CONTENT_BEYOND_LOCAL_NAMES.search(canonical_1[0]))
+        )
+        for (text_1, canonical_1), (text_2, canonical_2) in zip(code_1, code_2)
+    )
 
 
 class Commonality(NamedTuple):
@@ -327,6 +413,7 @@ class Symilar:
         ignore_docstrings: bool = False,
         ignore_imports: bool = False,
         ignore_signatures: bool = False,
+        ignore_local_names: bool = False,
     ) -> None:
         # If we run in pylint mode we link the namespace objects
         if isinstance(self, BaseChecker):
@@ -339,6 +426,7 @@ class Symilar:
         self.namespace.ignore_docstrings = ignore_docstrings
         self.namespace.ignore_imports = ignore_imports
         self.namespace.ignore_signatures = ignore_signatures
+        self.namespace.ignore_local_names = ignore_local_names
         self.linesets: list[LineSet] = []
 
     def append_stream(
@@ -376,6 +464,7 @@ class Symilar:
                     else None
                 ),
                 tree=tree,
+                ignore_local_names=self.namespace.ignore_local_names,
             )
         )
 
@@ -571,6 +660,7 @@ def stripped_lines(
     ignore_signatures: bool,
     line_enabled_callback: Callable[[str, int], bool] | None = None,
     tree: nodes.Module | None = None,
+    ignore_local_names: bool = False,
 ) -> list[LineSpecifs]:
     """Return tuples of line/line number/line type with leading/trailing white-space and
     any ignored code features removed.
@@ -583,12 +673,18 @@ def stripped_lines(
     :param line_enabled_callback: If called with "R0801" and a line number, a return value of False will disregard
            the line
     :param tree: pre-parsed AST; when provided the redundant astroid.parse() call is skipped
+    :param ignore_local_names: if true, each line also gets a template in which
+           function-local names are replaced by a placeholder
     :return: the collection of line/line number/line type tuples
     """
+    lines = list(lines)
     ignore_lines: set[int] = set()
-    if ignore_imports or ignore_signatures:
+    local_name_spans: dict[int, list[tuple[int, int, str]]] = {}
+    if ignore_imports or ignore_signatures or ignore_local_names:
         if tree is None:
             tree = astroid.parse("".join(lines))
+        if ignore_local_names:
+            local_name_spans = _local_name_spans(tree, lines)
         if ignore_imports:
             ignore_lines.update(
                 chain.from_iterable(
@@ -636,28 +732,121 @@ def stripped_lines(
             "R0801", lineno
         ):
             continue
+        # The template goes through the same stripping as the line. Placeholders
+        # replace identifier characters only, never quotes, '#' or whitespace, so
+        # every step below cuts both at the same places.
+        template, names = (
+            _template(line, local_name_spans.get(lineno, []))
+            if ignore_local_names
+            else ("", ())
+        )
         line = line.strip()
         if ignore_docstrings:
             if not docstring:
                 if line.startswith(('"""', "'''")):
                     docstring = line[:3]
                     line = line[3:]
+                    template = template[3:]
                 elif line.startswith(('r"""', "r'''")):
                     docstring = line[1:4]
                     line = line[4:]
+                    template = template[4:]
             if docstring:
                 if line.endswith(docstring):
                     docstring = None
-                line = ""
+                line = template = ""
         if ignore_comments:
             line = line.split("#", 1)[0].strip()
+            template = template.split("#", 1)[0].strip()
         if lineno in ignore_lines:
-            line = ""
+            line = template = ""
         if line:
             strippedlines.append(
-                LineSpecifs(text=line, line_number=LineNumber(lineno - 1))
+                LineSpecifs(
+                    text=line,
+                    line_number=LineNumber(lineno - 1),
+                    template=template,
+                    # Stripping only ever cuts a suffix holding names.
+                    local_names=names[: template.count(LOCAL_NAME_PLACEHOLDER)],
+                )
             )
     return strippedlines
+
+
+def _template(
+    line: str, spans: list[tuple[int, int, str]]
+) -> tuple[str, tuple[str, ...]]:
+    """Replace each local-name span of ``line`` by the placeholder."""
+    for start, end, _ in reversed(spans):
+        line = line[:start] + LOCAL_NAME_PLACEHOLDER + line[end:]
+    return line.strip(), tuple(name for _, _, name in spans)
+
+
+def _local_name_spans(
+    tree: nodes.Module, lines: list[str]
+) -> dict[int, list[tuple[int, int, str]]]:
+    """Map line numbers to the sorted ``(start, end, name)`` character spans of
+    function-local names on that line.
+
+    A name is local when the innermost scope binding it is a function, lambda or
+    comprehension, and every binding there is an assignment or an argument. Names
+    bound by ``import``, ``def`` or ``class`` refer to code rather than data, so they
+    are kept, as are globals, builtins, attributes and keyword-argument names.
+    """
+    candidates: list[nodes.AssignName | nodes.Name | nodes.DelName] = list(
+        tree.nodes_of_class((nodes.Name, nodes.AssignName, nodes.DelName))
+    )
+    # ``*args`` and ``**kwargs`` are not reached by nodes_of_class.
+    for arguments in tree.nodes_of_class(nodes.Arguments):
+        candidates.extend(
+            node for node in (arguments.vararg_node, arguments.kwarg_node) if node
+        )
+
+    spans: dict[int, list[tuple[int, int, str]]] = defaultdict(list)
+    for node in candidates:
+        if node.lineno is None or node.col_offset is None:
+            continue
+        if not _is_local_name(node):
+            continue
+        line = lines[node.lineno - 1]
+        # astroid columns count UTF-8 bytes, not characters.
+        start = len(
+            line.encode("utf-8")[: node.col_offset].decode("utf-8", errors="ignore")
+        )
+        if isinstance(node.parent, nodes.ExceptHandler) and node is node.parent.name:
+            # astroid places ``except ... as name`` at the ``except`` keyword.
+            match = re.compile(rf"\bas\s+({re.escape(node.name)})\b").search(
+                line, start
+            )
+            if match is None:
+                continue
+            start = match.start(1)
+        end = start + len(node.name)
+        if line[start:end] == node.name:
+            spans[node.lineno].append((start, end, node.name))
+    return {lineno: sorted(set(found)) for lineno, found in spans.items()}
+
+
+def _is_local_name(node: nodes.AssignName | nodes.Name | nodes.DelName) -> bool:
+    """Whether ``node`` resolves to a data binding in a function-like scope.
+
+    This walks the scopes directly: ``node.lookup()`` only sees bindings made before
+    the node, so it resolves the first assignment of a local to the enclosing scope.
+    """
+    scope = node.scope()
+    while not isinstance(scope, nodes.Module):
+        bindings = scope.locals.get(node.name)
+        if bindings:
+            return isinstance(scope, _LOCAL_SCOPES) and all(
+                isinstance(binding, (nodes.AssignName, nodes.Arguments))
+                for binding in bindings
+            )
+        # Code in a function does not see the names of an enclosing class body.
+        parent = scope.parent.scope()
+        while isinstance(parent, nodes.ClassDef):
+            parent = parent.parent.scope()
+        scope = parent
+    return False
 
 
 @functools.total_ordering
@@ -678,9 +867,11 @@ class LineSet:
         ignore_signatures: bool = False,
         line_enabled_callback: Callable[[str, int], bool] | None = None,
         tree: nodes.Module | None = None,
+        ignore_local_names: bool = False,
     ) -> None:
         self.name = name
         self._real_lines = lines
+        self.ignore_local_names = ignore_local_names
         self._stripped_lines = stripped_lines(
             lines,
             ignore_comments,
@@ -689,6 +880,7 @@ class LineSet:
             ignore_signatures,
             line_enabled_callback=line_enabled_callback,
             tree=tree,
+            ignore_local_names=ignore_local_names,
         )
 
     def __str__(self) -> str:
@@ -760,6 +952,11 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
     IGNORE_DOCSTRINGS_HELP = "Docstrings are removed from the similarity computation"
     IGNORE_IMPORTS_HELP = "Imports are removed from the similarity computation"
     IGNORE_SIGNATURES_HELP = "Signatures are removed from the similarity computation"
+    IGNORE_LOCAL_NAMES_HELP = (
+        "Function-local names (arguments and assigned variables) are compared up to "
+        "a consistent renaming, so blocks that differ only in local variable names "
+        "are reported"
+    )
     # for available dict keys/values see the option parser 'add_option' method
     options: Options = (
         (
@@ -807,6 +1004,15 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
                 "help": IGNORE_SIGNATURES_HELP,
             },
         ),
+        (
+            "ignore-local-names",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": IGNORE_LOCAL_NAMES_HELP,
+            },
+        ),
     )
     reports = (("RP0801", "Duplication", report_similarities),)
 
@@ -819,6 +1025,7 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
             ignore_docstrings=self.linter.config.ignore_docstrings,
             ignore_imports=self.linter.config.ignore_imports,
             ignore_signatures=self.linter.config.ignore_signatures,
+            ignore_local_names=self.linter.config.ignore_local_names,
         )
 
     def open(self) -> None:
@@ -924,6 +1131,11 @@ def Run(argv: Sequence[str] | None = None) -> NoReturn:
         action="store_true",
         help=SimilaritiesChecker.IGNORE_SIGNATURES_HELP,
     )
+    parser.add_argument(
+        "--ignore-local-names",
+        action="store_true",
+        help=SimilaritiesChecker.IGNORE_LOCAL_NAMES_HELP,
+    )
     parsed_args = parser.parse_args(args=argv)
     similar_runner = Symilar(
         min_lines=parsed_args.duplicates,
@@ -931,6 +1143,7 @@ def Run(argv: Sequence[str] | None = None) -> NoReturn:
         ignore_docstrings=parsed_args.ignore_docstrings,
         ignore_imports=parsed_args.ignore_imports,
         ignore_signatures=parsed_args.ignore_signatures,
+        ignore_local_names=parsed_args.ignore_local_names,
     )
     for filename in parsed_args.files:
         with open(filename, encoding="utf-8") as stream:

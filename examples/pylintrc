@@ -543,6 +543,11 @@ ignore-docstrings=yes
 # Imports are removed from the similarity computation
 ignore-imports=yes
 
+# Function-local names (arguments and assigned variables) are compared up to a
+# consistent renaming, so blocks that differ only in local variable names are
+# reported
+ignore-local-names=no
+
 # Signatures are removed from the similarity computation
 ignore-signatures=yes
 
