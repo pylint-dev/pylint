@@ -35,6 +35,7 @@ import functools
 import itertools
 import re
 import sys
+import tokenize
 import warnings
 from collections import defaultdict
 from collections.abc import Callable, Generator, Iterable, Sequence
@@ -585,6 +586,7 @@ def stripped_lines(
     :param tree: pre-parsed AST; when provided the redundant astroid.parse() call is skipped
     :return: the collection of line/line number/line type tuples
     """
+    lines = list(lines)
     ignore_lines: set[int] = set()
     if ignore_imports or ignore_signatures:
         if tree is None:
@@ -629,6 +631,7 @@ def stripped_lines(
                 )
             )
 
+    comment_starts = _comment_starts(lines) if ignore_comments else None
     strippedlines = []
     docstring = None
     for lineno, line in enumerate(lines, start=1):
@@ -636,6 +639,8 @@ def stripped_lines(
             "R0801", lineno
         ):
             continue
+        if comment_starts is not None and lineno in comment_starts:
+            line = line[: comment_starts[lineno]]
         line = line.strip()
         if ignore_docstrings:
             if not docstring:
@@ -649,7 +654,7 @@ def stripped_lines(
                 if line.endswith(docstring):
                     docstring = None
                 line = ""
-        if ignore_comments:
+        if ignore_comments and comment_starts is None:
             line = line.split("#", 1)[0].strip()
         if lineno in ignore_lines:
             line = ""
@@ -658,6 +663,23 @@ def stripped_lines(
                 LineSpecifs(text=line, line_number=LineNumber(lineno - 1))
             )
     return strippedlines
+
+
+def _comment_starts(lines: list[str]) -> dict[int, int] | None:
+    """Map line numbers to the column where a comment starts.
+
+    Tokenizing keeps a ``#`` inside a string from being taken for a comment.
+    Returns None when the source cannot be tokenized.
+    """
+    readline = iter(lines).__next__
+    try:
+        return {
+            token.start[0]: token.start[1]
+            for token in tokenize.generate_tokens(readline)
+            if token.type == tokenize.COMMENT
+        }
+    except (tokenize.TokenError, SyntaxError):
+        return None
 
 
 @functools.total_ordering

@@ -574,3 +574,47 @@ def test_hash_bucket_product_limit_fallback(
     assert "15 similar lines in 2 files" in out
     assert f"=={file_a}:[0:15]" in out
     assert f"=={file_b}:[0:15]" in out
+
+
+@pytest.mark.parametrize(
+    "source, expected",
+    [
+        pytest.param(
+            'fill = "#ff0000"  # red\n', 'fill = "#ff0000"', id="string-then-comment"
+        ),
+        pytest.param(
+            "url = base + '#anchor'\n", "url = base + '#anchor'", id="single-quotes"
+        ),
+        pytest.param('label = f"#{index}"\n', 'label = f"#{index}"', id="f-string"),
+        pytest.param("total = 1  # one\n", "total = 1", id="plain-comment"),
+    ],
+)
+def test_ignore_comments_keeps_hash_inside_strings(source: str, expected: str) -> None:
+    lineset = LineSet("a.py", [source], ignore_comments=True)
+    assert [spec.text for spec in lineset.stripped_lines] == [expected]
+
+
+def test_ignore_comments_keeps_hash_in_multiline_string() -> None:
+    lines = ['QUERY = """\n', "SELECT 1 -- #not a comment\n", '"""\n']
+    lineset = LineSet("a.py", lines, ignore_comments=True)
+    assert lineset.stripped_lines[1].text == "SELECT 1 -- #not a comment"
+
+
+def test_ignore_comments_falls_back_on_untokenizable_source() -> None:
+    lineset = LineSet("a.py", ["x = (  # open\n"], ignore_comments=True)
+    assert [spec.text for spec in lineset.stripped_lines] == ["x = ("]
+
+
+def test_ignore_comments_strings_differing_after_hash_do_not_match(
+    tmp_path: Path,
+) -> None:
+    template = "".join(f'COLOR_{i} = "#{{}}{i}"\n' for i in range(6))
+    file_1 = tmp_path / "first.py"
+    file_2 = tmp_path / "second.py"
+    file_1.write_text(template.replace("{}", "ff000"), encoding="utf-8")
+    file_2.write_text(template.replace("{}", "00ff0"), encoding="utf-8")
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+        symilar.Run(["--ignore-comments", str(file_1), str(file_2)])
+    assert ex.value.code == 0
+    assert "similar lines" not in output.getvalue()
