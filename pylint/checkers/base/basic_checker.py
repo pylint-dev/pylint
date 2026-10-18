@@ -547,11 +547,13 @@ class BasicChecker(_BasicChecker):
             # The body of the lambda must be a function call expression
             # for the lambda to be unnecessary.
             return
-        match call.func:
-            case nodes.Attribute(expr=nodes.Call()):
-                # Chained call, the intermediate call might
-                # return something else (but we don't check that, yet).
-                return
+        if isinstance(call.func, nodes.Attribute) and any(
+            call.func.expr.nodes_of_class(nodes.Call)
+        ):
+            # The method's receiver contains a call (e.g. a chained call),
+            # which might return something else every time (but we don't
+            # check that, yet).
+            return
 
         ordinary_args = list(node.args.args)
         new_call_args = list(self._filter_vararg(node, call.args))

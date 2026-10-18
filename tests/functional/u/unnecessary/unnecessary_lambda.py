@@ -58,6 +58,8 @@ def f(d):
 
 # Don't warn about this.
 _ = lambda: code().analysis()
+_ = lambda: (code() + 1).analysis()
+_ = lambda: code()[0].analysis()
 
 _ = lambda **kwargs: dict(bar=42, **kwargs)
 
