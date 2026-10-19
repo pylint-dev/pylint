@@ -1953,6 +1953,16 @@ class VariablesChecker(BaseChecker):
                 VariableVisitConsumerAction.RETURN,
                 nodes_to_consume,
             )
+        if (
+            current_consumer.scope_type == "class"
+            and self._defined_in_function_definition(node, frame)
+            and all(
+                (getattr(n, "fromlineno", None) or n.lineno) > node.lineno
+                for n in found_nodes
+            )
+            and (node.name in node.root().locals or node.root().lookup(node.name)[1])
+        ):
+            return (VariableVisitConsumerAction.CONTINUE, None)
 
         self._check_late_binding_closure(node)
 

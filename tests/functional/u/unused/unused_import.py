@@ -115,3 +115,18 @@ from typing import List
 class Bee:
     def get_all_classes(self) -> "List[Bee]":
         pass
+
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/4993
+# `unused-import` should not be emitted when assigning to class attribute
+# with the same name as an imported module used in method annotations.
+import gettext
+
+
+class HomonymousClassAttribute:
+    def __init__(self, translation: gettext.NullTranslations):
+        self.translation = translation
+
+    @property
+    def gettext(self):
+        return None
