@@ -957,6 +957,24 @@ def test_is_terminating_func_overload_with_noreturn_implementation() -> None:
     assert result is True
 
 
+def test_is_terminating_func_inside_compound_lambda() -> None:
+    lambda_node = astroid.extract_node("""
+    import sys
+    lambda sig, frame: [print("Aborted"), sys.exit(1)]  #@
+    """)
+    call_node = lambda_node.body.elts[1]
+    assert utils.is_terminating_func(call_node) is False
+
+
+def test_is_terminating_func_inside_lambda_default_arg() -> None:
+    lambda_node = astroid.extract_node("""
+    import sys
+    lambda x=sys.exit(1): 1  #@
+    """)
+    call_node = lambda_node.args.defaults[0]
+    assert utils.is_terminating_func(call_node) is True
+
+
 def test_safe_mro_returns_the_ancestors_of_a_usable_class() -> None:
     """A class whose bases resolve gets its real MRO back."""
     node = astroid.extract_node("""

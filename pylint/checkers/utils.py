@@ -2354,12 +2354,23 @@ def is_singleton_const(node: nodes.NodeNG) -> bool:
     )
 
 
+def _is_in_lambda_body(node: nodes.NodeNG) -> bool:
+    child = node
+    parent = node.parent
+    while parent is not None and not parent.is_statement:
+        if isinstance(parent, nodes.Lambda):
+            return child is parent.body
+        child = parent
+        parent = parent.parent
+    return False
+
+
 def is_terminating_func(node: nodes.Call) -> bool:
     """Detect call to exit(), quit(), os._exit(), sys.exit(), or
     functions annotated with `typing.NoReturn` or `typing.Never`.
     """
-    if not isinstance(node.func, (nodes.Attribute, nodes.Name)) or isinstance(
-        node.parent, nodes.Lambda
+    if not isinstance(node.func, (nodes.Attribute, nodes.Name)) or _is_in_lambda_body(
+        node
     ):
         return False
     try:

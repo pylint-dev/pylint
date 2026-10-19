@@ -50,6 +50,16 @@ def func8():
     except KeyboardInterrupt:
         pass
 
+
+def func8_compound_lambda():
+    """Terminating call in compound lambda expr shouldn't mark next stmt unreachable (#8567)."""
+    signal.signal(
+        signal.SIGINT,
+        lambda sig, frame: [print("Aborted using CTRL+C"), sys.exit(1)],
+    )
+    print("Signal handler installed.")
+
+
 class FalseExit:
     def exit(self, number):
         print(f"False positive this is not sys.exit({number})")
