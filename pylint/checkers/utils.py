@@ -940,7 +940,8 @@ def decorated_with(
 
 @lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(
-    node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef | None = None
+    node: nodes.ClassDef,
+    is_abstract_cb: Callable[[nodes.FunctionDef], bool] | None = None,
 ) -> dict[str, nodes.FunctionDef]:
     """Get the unimplemented abstract methods for the given *node*.
 
