@@ -146,8 +146,12 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
     @utils.only_required_for_messages("non-ascii-name")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         self._check_name("class", node.name, node)
+        root = node.root()
         for attr, anodes in node.instance_attrs.items():
-            if not any(node.instance_attr_ancestors(attr)):
+            # Assignments in other modules are added to instance_attrs too,
+            # but the pragmas of the module being checked don't apply to them.
+            anodes = [anode for anode in anodes if anode.root() is root]
+            if anodes and not any(node.instance_attr_ancestors(attr)):
                 self._check_name("attr", attr, anodes[0])
 
     def _check_module_import(self, node: nodes.ImportFrom | nodes.Import) -> None:
