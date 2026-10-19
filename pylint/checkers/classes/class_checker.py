@@ -326,7 +326,9 @@ def _has_different_keyword_only_parameters(
 
 
 def _has_paramspec_variadics(function: nodes.FunctionDef) -> bool:
-    """Return True if the variadics of function are ``*args: P.args, **kwargs: P.kwargs``."""
+    """Return True if the variadics of function are ``*args: P.args, **kwargs:
+    P.kwargs``.
+    """
     vararg_annotation = function.args.varargannotation
     kwarg_annotation = function.args.kwargannotation
     return (
