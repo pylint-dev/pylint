@@ -2,13 +2,14 @@ Checkers registered for ``For`` and ``With`` now also run on ``async for`` and
 ``async with``. The AST walker dispatches on the node's exact class name, so
 ``visit_for`` never received an ``AsyncFor`` even though ``AsyncFor`` is a
 subclass of ``For``. This makes ``useless-else-on-loop``,
-``confusing-with-statement``, ``redeclared-assigned-name`` and
-``redefined-argument-from-local`` fire on the async forms.
+``confusing-with-statement``, ``redeclared-assigned-name``,
+``redefined-argument-from-local`` and ``too-many-nested-blocks`` fire on the
+async forms.
 
 ``unnecessary-dict-index-lookup``, ``unnecessary-list-index-lookup`` and
-``unbalanced-dict-unpacking`` also reach their ``async for`` handler now, but
-all three need to infer a dict, a list or ``enumerate()`` as the iterated
-object, which cannot be an async iterator in valid code, so in practice they
-only apply to code that is already broken.
+``unbalanced-dict-unpacking`` reach their ``async for`` handler now as well, but
+all three first have to infer a dict, a list or ``enumerate()`` as the iterated
+object, and none of those is an async iterator, so in practice they only apply
+to code that already raises ``TypeError`` at runtime.
 
 Closes #11417
