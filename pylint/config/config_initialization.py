@@ -73,6 +73,24 @@ def _config_initialization(  # pylint: disable=too-many-statements
     except _UnrecognizedOptionError as exc:
         unrecognized_options_message = ", ".join(exc.options)
 
+    # Plugins given on the command line (--load-plugins, --enable-all-extensions) are
+    # loaded before the configuration is read and are removed from the arguments, so
+    # the configuration does not know about them. Record them next to the ones from the
+    # configuration file, otherwise --generate-toml-config and --generate-rcfile write
+    # the options of these plugins but not the plugins themselves.
+    linter.config.load_plugins = tuple(
+        dict.fromkeys(
+            (
+                *linter.config.load_plugins,
+                *(
+                    modname
+                    for modname, module_or_error in linter._dynamic_plugins.items()
+                    if not isinstance(module_or_error, ModuleNotFoundError)
+                ),
+            )
+        )
+    )
+
     # Then, if a custom reporter is provided as argument, it may be overridden
     # by file parameters, so we re-set it here. We do this before command line
     # parsing, so it's still overridable by command line options

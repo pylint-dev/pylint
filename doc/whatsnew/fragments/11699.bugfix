@@ -1,0 +1,6 @@
+``--generate-toml-config`` and ``--generate-rcfile`` now include the plugins given with
+``--load-plugins`` or ``--enable-all-extensions``. They used to write the options of those
+plugins without ``load-plugins``, so pylint rejected the generated file as having
+unrecognized options.
+
+Closes #11699
