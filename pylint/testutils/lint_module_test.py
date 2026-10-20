@@ -21,7 +21,7 @@ from pylint.config.config_initialization import _config_initialization
 from pylint.lint import PyLinter
 from pylint.message.message import Message
 from pylint.reporters import BaseReporter
-from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
+from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS
 
 # need to import from functional.test_file to avoid cyclic import
 from pylint.testutils.functional.test_file import (
@@ -34,9 +34,21 @@ from pylint.testutils.reporter_for_tests import FunctionalTestReporter
 
 if TYPE_CHECKING:
     import _csv
+
+    from pytest_remaster import GoldenMaster
 MessageCounter = Counter[tuple[int, str]]
 
 PYLINTRC = Path(__file__).parent / "testing_pylintrc"
+
+
+class _TestDialect(csv.excel):
+    """Dialect of the expected output files of the functional tests."""
+
+    delimiter = ":"
+    lineterminator = "\n"
+
+
+csv.register_dialect("test", _TestDialect)
 
 
 class LintModuleTest:
@@ -141,8 +153,17 @@ class LintModuleTest:
         ):
             pytest.skip("Test excluded from --minimal-messages-config")
 
-    def runTest(self) -> None:
-        self._runTest()
+    def runTest(self, golden_master: GoldenMaster | None = None) -> None:
+        """Check the expected messages, then the output in the .txt file.
+
+        Pass the ``golden_master`` fixture of pytest-remaster (installed with
+        ``pylint[testutils]``) to check the output as a golden master:
+        ``pytest --remaster`` then rewrites the .txt files that are outdated.
+        """
+        if golden_master is None:
+            self._runTest()
+        else:
+            self._check_golden_master(self.check_messages(), golden_master)
 
     def _should_be_skipped_due_to_version(self) -> bool:
         return (  # type: ignore[no-any-return]
@@ -247,15 +268,8 @@ class LintModuleTest:
 
     def _runTest(self) -> None:
         __tracebackhide__ = True  # pylint: disable=unused-variable
-        modules_to_check = [self._test_file.source]
-        self._linter.check(modules_to_check)
+        actual_output = self.check_messages()
         expected_messages, expected_output = self._get_expected()
-        actual_messages, actual_output = self._get_actual()
-        assert (
-            expected_messages == actual_messages
-        ), self.error_msg_for_unequal_messages(
-            actual_messages, expected_messages, actual_output
-        )
         self._check_output_text(expected_messages, expected_output, actual_output)
 
     def error_msg_for_unequal_messages(
@@ -305,8 +319,7 @@ class LintModuleTest:
                 error_msg += f"{line}\n"
             error_msg += (
                 "\nYou can update the expected output automatically with:\n'"
-                f"python tests/test_functional.py {UPDATE_OPTION} -k "
-                f'"test_functional[{self._test_file.base}]"\'\n\n'
+                f'pytest --remaster -k "test_functional[{self._test_file.base}]"\'\n\n'
                 "Here's the update text in case you can't:\n"
             )
             expected_csv = StringIO()
@@ -328,15 +341,81 @@ class LintModuleTest:
                 ]
             )
 
+    def check_messages(self) -> list[OutputLine]:
+        """Run linter, verify message counts, return actual output lines."""
+        __tracebackhide__ = True  # pylint: disable=unused-variable
+        modules_to_check = [self._test_file.source]
+        self._linter.check(modules_to_check)
+        with self._open_source_file() as f:
+            expected_messages = self.get_expected_messages(f)
+        actual_messages, actual_output = self._get_actual()
+        assert (
+            expected_messages == actual_messages
+        ), self.error_msg_for_unequal_messages(
+            actual_messages, expected_messages, actual_output
+        )
+        return actual_output
+
+    def serialize_output(self, output: list[OutputLine]) -> str:
+        """Serialize OutputLine list to CSV string."""
+        buf = StringIO()
+        writer = csv.writer(buf, dialect="test")
+        for line in output:
+            self.safe_write_output_line(writer, line)
+        return buf.getvalue()
+
+    def _check_golden_master(
+        self, actual_output: list[OutputLine], golden_master: GoldenMaster
+    ) -> None:
+        __tracebackhide__ = True  # pylint: disable=unused-variable
+        output = self.serialize_output(actual_output)
+        hint = self._why_not_remastered(output)
+        if hint:
+            # pylint: disable-next=import-outside-toplevel
+            from pytest_remaster import GoldenMaster
+
+            golden_master = GoldenMaster(remaster=False)
+        try:
+            golden_master.check(
+                output,
+                self._test_file.expected_output,
+                # The version file (``<test>.312.txt``) is picked by
+                # FunctionalTestFile, since it applies to every later version
+                # too. An output that differs on one implementation goes in
+                # ``<test>.pypy.txt`` or ``<test>.312.pypy.txt``.
+                dimensions={"implementation": platform.python_implementation().lower()},
+            )
+        except pytest.fail.Exception as exc:
+            if not hint:
+                raise
+            pytest.fail(f"{exc}\n{hint}", pytrace=False)
+
+    def _why_not_remastered(self, output: str) -> str:
+        """Explain why the expected output must not be rewritten, if it must not."""
+        expected_output = Path(self._test_file.expected_output)
+        # Plugins may give an absolute filename, then ``base`` is a path too
+        base = Path(self._test_file.base).name
+        current = "".join(str(v) for v in sys.version_info[:2])
+        if self._test_file.expected_output_is_fallback:
+            return (
+                f"{expected_output.name} is the expected output of an older Python"
+                " version, so it is not remastered from this one. Record this"
+                f" version's output in {base}.{current}.txt, or remaster"
+                " with the Python version the file was written for."
+            )
+        if not output and expected_output.name != f"{base}.txt":
+            return (
+                f"The output is now empty, but deleting {expected_output.name} would"
+                " make this version read another file: empty it by hand instead."
+            )
+        return ""
+
     def _check_output_text(
         self,
         _: MessageCounter,
         expected_output: list[OutputLine],
         actual_output: list[OutputLine],
     ) -> None:
-        """This is a function because we want to be able to update the text in
-        LintModuleOutputUpdate.
-        """
         assert expected_output == actual_output, self.error_msg_for_unequal_output(
             expected_output, actual_output
         )

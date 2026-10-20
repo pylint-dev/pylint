@@ -2,11 +2,17 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
-import json
 from pathlib import Path
 from typing import cast
 
 import pytest
+from pytest_remaster import (
+    CaseData,
+    GoldenMaster,
+    discover_test_cases,
+    json_normalizer,
+    json_serializer,
+)
 
 from pylint.reporters.json_reporter import JSONMessage
 from pylint.testutils._primer.comparator import (
@@ -41,21 +47,28 @@ def _msg(**overrides: object) -> JSONMessage:
     return cast(JSONMessage, base)
 
 
-@pytest.mark.parametrize(
-    "directory",
-    [pytest.param(p, id=p.name) for p in CASES_PATH.iterdir() if p.is_dir()],
-)
-def test_comparator(directory: Path) -> None:
+def _summarize(comparator: Comparator) -> list[dict[str, str | int]]:
+    return [
+        {
+            "package": package,
+            "missing": len(missing["messages"]),
+            "new": len(new["messages"]),
+            "changed": len(changed),
+        }
+        for package, missing, new, changed in comparator
+    ]
+
+
+@pytest.mark.parametrize("case", discover_test_cases(CASES_PATH))
+def test_comparator(case: CaseData, golden_master: GoldenMaster) -> None:
     """Test Comparator with each fixture directory."""
-    comparator = Comparator.from_json(directory / "main.json", directory / "pr.json")
-    expected = json.loads((directory / "expected_comparator.json").read_text("utf-8"))
-    results = list(comparator)
-    assert len(results) == len(expected)
-    for (package, missing, new, changed), exp in zip(results, expected):
-        assert package == exp["package"]
-        assert len(missing["messages"]) == exp["missing"]
-        assert len(new["messages"]) == exp["new"]
-        assert len(changed) == exp["changed"]
+    comparator = Comparator.from_json(case.input / "main.json", case.input / "pr.json")
+    golden_master.check(
+        lambda: _summarize(comparator),
+        case.input / "expected_comparator.json",
+        serializer=json_serializer(),
+        normalizer=json_normalizer,
+    )
 
 
 def test_format_span_without_end_position() -> None:
@@ -126,18 +139,16 @@ def test_message_diff_multiline_value_diffs_line_by_line() -> None:
     )
 
 
-def test_comparator_batched() -> None:
+def test_comparator_batched(golden_master: GoldenMaster) -> None:
     fixture = Path(__file__).parent / "batched_cases"
     comparator = Comparator.from_json(
         fixture / "main_BATCHIDX.json",
         fixture / "pr_BATCHIDX.json",
         batches=2,
     )
-    expected = json.loads((fixture / "expected_comparator.json").read_text("utf-8"))
-    results = list(comparator)
-    assert len(results) == len(expected)
-    for (package, missing, new, changed), exp in zip(results, expected):
-        assert package == exp["package"]
-        assert len(missing["messages"]) == exp["missing"]
-        assert len(new["messages"]) == exp["new"]
-        assert len(changed) == exp["changed"]
+    golden_master.check(
+        lambda: _summarize(comparator),
+        fixture / "expected_comparator.json",
+        serializer=json_serializer(),
+        normalizer=json_normalizer,
+    )

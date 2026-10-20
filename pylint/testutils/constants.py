@@ -5,7 +5,6 @@
 import operator
 import re
 import sys
-from pathlib import Path
 
 # This is faster/terser without f-strings:
 # '"%d%d%d" % sys.version_info[:3]': (best of 5: 214 nanoseconds per loop)
@@ -13,8 +12,6 @@ from pathlib import Path
 # pylint: disable-next=consider-using-f-string
 SYS_VERS_STR = "%d%d%d" % sys.version_info[:3]  # noqa: UP031
 TITLE_UNDERLINES = ["", "=", "-", "."]
-UPDATE_OPTION = "--update-functional-output"
-UPDATE_FILE = Path("pylint-functional-test-update")
 # Common sub-expressions.
 _MESSAGE = {"msg": r"[a-z][a-z\-]+"}
 # Matches a #,

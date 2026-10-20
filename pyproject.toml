@@ -49,7 +49,7 @@ dependencies = [
   "tomlkit>=0.10.1",
 ]
 optional-dependencies.spelling = [ "pyenchant~=3.2" ]
-optional-dependencies.testutils = [ "gitpython>3" ]
+optional-dependencies.testutils = [ "gitpython>3", "pytest-remaster>=0.1,<1" ]
 urls."Bug Tracker" = "https://github.com/pylint-dev/pylint/issues"
 urls."Discord Server" = "https://discord.com/invite/Egy6P8AMB5"
 urls."Docs: Contributor Guide" = """\
@@ -95,6 +95,7 @@ test-min = [
   "py~=1.11.0",
   "pytest>=8.4,<10",
   "pytest-benchmark~=5.1",
+  "pytest-remaster~=0.1.0",
   "pytest-timeout~=2.4",
   "requests",
   "setuptools; python_version>='3.12'",

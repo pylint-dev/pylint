@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import sys
 from collections.abc import Iterator
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -17,14 +16,14 @@ from _pytest.config import Config
 from pylint import testutils
 from pylint.constants import PY312_PLUS
 from pylint.lint.pylinter import MANAGER
-from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
 from pylint.testutils.functional import (
     FunctionalTestFile,
-    LintModuleOutputUpdate,
     get_functional_test_files_from_directory,
 )
 
 if TYPE_CHECKING:
+    from pytest_remaster import GoldenMaster
+
     from pylint.lint import PyLinter
 
 FUNCTIONAL_DIR = Path(__file__).parent.resolve() / "functional"
@@ -52,29 +51,18 @@ def revert_stateful_config_changes(linter: PyLinter) -> Iterator[PyLinter]:
     get_functional_test_files_from_directory(FUNCTIONAL_DIR),
     ids=lambda x: x.base,
 )
-def test_functional(test_file: FunctionalTestFile, pytestconfig: Config) -> None:
+def test_functional(
+    test_file: FunctionalTestFile,
+    pytestconfig: Config,
+    golden_master: GoldenMaster,
+) -> None:
     __tracebackhide__ = True  # pylint: disable=unused-variable
-    lint_test: LintModuleOutputUpdate | testutils.LintModuleTest
-    if UPDATE_FILE.exists():
-        lint_test = LintModuleOutputUpdate(test_file, pytestconfig)
-    else:
-        lint_test = testutils.LintModuleTest(test_file, pytestconfig)
+    lint_test = testutils.LintModuleTest(test_file, pytestconfig)
     lint_test.setUp()
 
     if test_file.base in TEST_WITH_EXPECTED_DEPRECATION:
         exception_type = SyntaxWarning if PY312_PLUS else DeprecationWarning
         with pytest.warns(exception_type, match="invalid escape sequence"):
-            lint_test.runTest()
+            lint_test.runTest(golden_master)
     else:
-        lint_test.runTest()
-
-
-if __name__ == "__main__":
-    if UPDATE_OPTION in sys.argv:
-        UPDATE_FILE.touch()
-        sys.argv.remove(UPDATE_OPTION)
-    try:
-        pytest.main(sys.argv)
-    finally:
-        if UPDATE_FILE.exists():
-            UPDATE_FILE.unlink()
+        lint_test.runTest(golden_master)

@@ -27,7 +27,8 @@ src = "pylint/__pkginfo__.py"
 
 [[before_commit]]
 name = "Clean-up / normalize functional tests output"
-cmd = "python tests/test_functional.py --update-functional-output"
+# The first run rewrites outdated .txt outputs and fails, the second checks them
+cmd = "pytest tests/test_functional.py --remaster -q || pytest tests/test_functional.py -q"
 
 [[before_commit]]
 name = "Normalize file ending"
