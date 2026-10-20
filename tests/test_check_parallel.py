@@ -298,6 +298,7 @@ class TestCheckParallelFramework:
 
         worker_initialize(linter=dill.dumps(linter))
         worker_linter = pylint.lint.parallel._worker_linter
+        assert isinstance(worker_linter, PyLinter)
         assert len(worker_linter._registered_dynamic_plugin_checkers) == 3
         assert len(worker_linter._checkers["code_style"]) == 1
         assert len(worker_linter._checkers["typing"]) == 1
