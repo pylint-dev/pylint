@@ -1,5 +1,5 @@
 """Tests for used-before-assignment for typing related issues"""
-# pylint: disable=missing-function-docstring,ungrouped-imports,invalid-name
+# pylint: disable=missing-function-docstring,ungrouped-imports,invalid-name,dangerous-default-value
 # pylint: disable=line-too-long
 
 from typing import List, NamedTuple, Optional, TYPE_CHECKING
