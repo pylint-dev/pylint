@@ -1,0 +1,4 @@
+Checkers loaded with ``--load-plugins`` or ``init-hook`` are no longer registered twice in every
+worker process, which used to emit each of their messages twice when ``--jobs`` was greater than 1.
+
+Closes #11701

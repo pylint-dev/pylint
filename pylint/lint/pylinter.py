@@ -462,7 +462,11 @@ class PyLinter(
                 continue
             try:
                 module = astroid.modutils.load_module_from_name(modname)
+                already_registered = self._registered_checkers.copy()
                 module.register(self)
+                self._registered_dynamic_plugin_checkers |= (
+                    self._registered_checkers - already_registered
+                )
                 self._dynamic_plugins[modname] = module
             except ModuleNotFoundError as mnf_e:
                 self._dynamic_plugins[modname] = mnf_e
@@ -598,10 +602,12 @@ class PyLinter(
 
         Leave messages in place as re-registering them is a no-op.
         """
-        for checker_name, checker, _ in checker_collection:
+        for entry in list(checker_collection):
+            checker_name, checker, _ = entry
             self._checkers[checker_name].remove(checker)
             if checker.reports:
                 self.deregister_reports(checker)
+            self._registered_dynamic_plugin_checkers.discard(entry)
 
     def enable_fail_on_messages(self) -> None:
         """Enable 'fail on' msgs.

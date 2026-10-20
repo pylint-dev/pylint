@@ -270,6 +270,39 @@ class TestCheckParallelFramework:
         )
         assert linter.is_message_enabled("consider-alternative-union-syntax") is False
 
+    def test_worker_initialize_custom_plugins_from_command_line(self) -> None:
+        """Plugins loaded from the command line are not registered twice.
+
+        Same as `test_worker_initialize_custom_plugins`, but the plugins come from
+        `--load-plugins`. Those are loaded before the config file (and `init-hook`
+        plugins even earlier), so they used to be missing from
+        `_registered_dynamic_plugin_checkers`: the worker could not deregister them
+        and ended up running two instances of every checker.
+        """
+        linter = PyLinter(reporter=Reporter())
+        linter.load_default_plugins()
+        linter.load_plugin_modules(
+            [
+                "pylint.extensions.code_style",
+                "pylint.extensions.typing",
+                "pylint.checkers.raw_metrics",
+            ]
+        )
+        with patch(
+            "pylint.config.config_file_parser._ConfigurationFileParser.parse_config_file",
+            return_value=({}, []),
+        ):
+            _config_initialization(linter, [])
+        assert len(linter._registered_dynamic_plugin_checkers) == 3
+        assert len(linter._checkers["code_style"]) == 1
+
+        worker_initialize(linter=dill.dumps(linter))
+        worker_linter = pylint.lint.parallel._worker_linter
+        assert len(worker_linter._registered_dynamic_plugin_checkers) == 3
+        assert len(worker_linter._checkers["code_style"]) == 1
+        assert len(worker_linter._checkers["typing"]) == 1
+        assert len(worker_linter._checkers["metrics"]) == 2
+
     def test_worker_check_single_file_uninitialised(self) -> None:
         pylint.lint.parallel._worker_linter = None
         with pytest.raises(  # Objects that do not match the linter interface will fail
