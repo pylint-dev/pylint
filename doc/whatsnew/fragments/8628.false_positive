@@ -1,0 +1,5 @@
+Fix false positives for ``missing-param-doc`` and ``missing-any-param-doc`` when a
+Sphinx docstring gives a parameter a container type with a space after a comma,
+such as ``:param Union[str, int] name:`` or ``:param dict(str, str) name:``.
+
+Closes #8628
