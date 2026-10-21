@@ -3245,6 +3245,10 @@ class VariablesChecker(BaseChecker):
             case nodes.Attribute():
                 self._store_type_annotation_node(type_annotation.expr)
                 return
+            case nodes.BinOp():
+                self._store_type_annotation_node(type_annotation.left)
+                self._store_type_annotation_node(type_annotation.right)
+                return
             case nodes.Subscript():
                 pass
             case _:
