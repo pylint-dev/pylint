@@ -98,9 +98,17 @@ def _canonical_case_path(path: str) -> str:
     if head:
         head = _canonical_case_path(head)
     names = _list_directory(head)
+    if tail in names:
+        return os.path.join(head, tail)
     expected = tail.casefold()
-    spelled = next((name for name in names if name.casefold() == expected), tail)
-    return os.path.join(head, spelled)
+    for name in names:
+        if name.casefold() == expected:
+            try:
+                if Path(head, name).samefile(Path(head, tail)):
+                    return os.path.join(head, name)
+            except OSError:
+                pass
+    return os.path.join(head, tail)
 
 
 # pylint: disable = too-many-locals, too-many-statements

@@ -376,6 +376,12 @@ class TestExpandModules(CheckerTestCase):
 def _pretend_case_insensitive_host(monkeypatch: pytest.MonkeyPatch) -> None:
     """Use the case-insensitive code paths of expand_modules on any host."""
     monkeypatch.setattr(expand_modules_module, "_is_case_insensitive_fs", lambda: True)
+    if os.name != "nt":
+        monkeypatch.setattr(
+            Path,
+            "samefile",
+            lambda first, second: str(first).lower() == str(second).lower(),
+        )
 
 
 def test__is_case_insensitive_fs() -> None:
@@ -460,6 +466,41 @@ def test__canonical_case_path_uses_file_system_spelling(
         "package", "__init__.py"
     )
     assert Path(_canonical_case_path(f"{spelling}/")) == Path("package")
+
+
+@pytest.mark.parametrize("spelling", ["straße.py", "STRAßE.py"])
+def test_canonical_case_path_preserves_distinct_unicode_files(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, spelling: str
+) -> None:
+    _pretend_case_insensitive_host(monkeypatch)
+    first = tmp_path / "strasse.py"
+    second = tmp_path / "straße.py"
+    first.write_text("FIRST = 1\n", encoding="utf-8")
+    second.write_text("SECOND = 2\n", encoding="utf-8")
+    list_directory = expand_modules_module._list_directory
+
+    def ordered_names(directory: str) -> list[str]:
+        if Path(directory) == tmp_path:
+            return [first.name, second.name]
+        return list_directory(directory)
+
+    monkeypatch.setattr(expand_modules_module, "_list_directory", ordered_names)
+    assert _canonical_case_path(str(tmp_path / spelling)) == str(second)
+    assert _canonical_case_path(str(first)) == str(first)
+
+
+def test_canonical_case_path_does_not_select_a_different_missing_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _pretend_case_insensitive_host(monkeypatch)
+    (tmp_path / "strasse.py").write_text("", encoding="utf-8")
+    missing = str(tmp_path / "STRAßE.py")
+
+    def missing_file(first: Path, second: Path) -> bool:
+        raise FileNotFoundError(second)
+
+    monkeypatch.setattr(Path, "samefile", missing_file)
+    assert _canonical_case_path(missing) == missing
 
 
 def test__canonical_case_path_on_case_sensitive_host(
