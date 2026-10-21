@@ -163,3 +163,14 @@ def nonlocal_after_bad_usage_fail():
         num = num + 1  # [used-before-assignment]
         nonlocal num
     inner()
+
+
+def nonlocal_in_with_block():
+    """Nonlocal declared inside a with block of the function that uses it."""
+    num = 1
+    def inner(manager):
+        with manager:
+            nonlocal num
+            print(num)
+            num = 2
+    inner(None)
