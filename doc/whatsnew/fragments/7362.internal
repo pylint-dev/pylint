@@ -1,0 +1,5 @@
+Updating the functional tests output no longer removes an empty expected output
+specific to recent interpreters, like ``name.314.txt``, which made the tests of
+these interpreters use the expected output of older ones.
+
+Refs #7362

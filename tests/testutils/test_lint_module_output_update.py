@@ -71,6 +71,23 @@ def test_lint_module_output_update_remove_useless_txt(
     assert not expected_output_file.exists()
 
 
+def test_lint_module_output_update_keep_empty_version_specific_txt(
+    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]],
+) -> None:
+    """An empty output for recent interpreters overrides the output of older ones, so
+    removing it would make the tests of recent interpreters use the older output.
+    """
+    filename, expected_output_file, lmou = lint_module_fixture("fine_name")
+    older_output = "disallowed-name:1:0:None:None::Older interpreters only:HIGH\n"
+    expected_output_file.write_text(older_output, encoding="utf8")
+    recent_output_file = expected_output_file.with_suffix(".30.txt")
+    recent_output_file.write_text("", encoding="utf8")
+    filename.write_text("", encoding="utf8")
+    lmou.runTest()
+    assert recent_output_file.read_text(encoding="utf8") == ""
+    assert expected_output_file.read_text(encoding="utf8") == older_output
+
+
 @pytest.mark.parametrize(
     "directory_path", DIRECTORIES, ids=[str(p) for p in DIRECTORIES]
 )
