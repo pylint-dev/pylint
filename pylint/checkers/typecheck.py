@@ -1603,6 +1603,15 @@ accessed. Python regular expressions are accepted.",
             # those errors are handled by different warnings.
             return
 
+        # Build the set of keyword arguments, checking for duplicate keywords,
+        # and count the positional arguments.
+        call_site = arguments.CallSite.from_call(node)
+
+        # Warn about duplicated keyword arguments, such as `f=24, **{'f': 24}`.
+        # This does not depend on the signature, so built-ins are checked too.
+        for keyword in call_site.duplicated_keywords:
+            self.add_message("repeated-keyword", node=node, args=(keyword,))
+
         if called.args.args is None:
             if called.name == "isinstance":
                 # Verify whether second argument of isinstance is a valid type
@@ -1614,14 +1623,6 @@ accessed. Python regular expressions are accepted.",
             # Duplicate parameter name (see duplicate-argument).  We can't really
             # make sense of the function call in this case, so just return.
             return
-
-        # Build the set of keyword arguments, checking for duplicate keywords,
-        # and count the positional arguments.
-        call_site = arguments.CallSite.from_call(node)
-
-        # Warn about duplicated keyword arguments, such as `f=24, **{'f': 24}`
-        for keyword in call_site.duplicated_keywords:
-            self.add_message("repeated-keyword", node=node, args=(keyword,))
 
         if call_site.has_invalid_arguments() or call_site.has_invalid_keywords():
             # Can't make sense of this.
