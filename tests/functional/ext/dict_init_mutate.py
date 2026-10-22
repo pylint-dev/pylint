@@ -110,3 +110,8 @@ values["third"] = 3
 keys = {}  # [dict-init-mutate]
 keys["key"] = "second"
 keys[keys["key"]] = 2
+
+# Known false negative: the lambda reads the dictionary only when it is called,
+# so it could be moved into the literal.
+lazy = {}
+lazy["read"] = lambda: lazy["value"]
