@@ -73,11 +73,9 @@ def _config_initialization(  # pylint: disable=too-many-statements
     except _UnrecognizedOptionError as exc:
         unrecognized_options_message = ", ".join(exc.options)
 
-    # Plugins given on the command line (--load-plugins, --enable-all-extensions) are
-    # loaded before the configuration is read and are removed from the arguments, so
-    # the configuration does not know about them. Record them next to the ones from the
-    # configuration file, otherwise --generate-toml-config and --generate-rcfile write
-    # the options of these plugins but not the plugins themselves.
+      # Run removes --load-plugins / --enable-all-extensions from the arguments after
+      # loading them, so record them here or the generated config will leave them out.
+
     linter.config.load_plugins = tuple(
         dict.fromkeys(
             (
