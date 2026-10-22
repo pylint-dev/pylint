@@ -110,6 +110,15 @@ def get_rst_title(title: str, character: str) -> str:
     return f"{title}\n{character * len(title)}\n"
 
 
+def _escape_rst_backslashes(text: str) -> str:
+    r"""Double the backslashes in ``text`` so reStructuredText renders them.
+
+    A lone backslash is an escape character in reStructuredText, so a message
+    saying ``use "\b" instead`` would render as ``use "b" instead``.
+    """
+    return text.replace("\\", "\\\\")
+
+
 def get_rst_section(
     section: str | None,
     options: list[tuple[str, OptionDict, Any]],
@@ -120,14 +129,16 @@ def get_rst_section(
     if section:
         result += get_rst_title(section, "'")
     if doc:
-        formatted_doc = normalize_text(doc)
+        formatted_doc = normalize_text(_escape_rst_backslashes(doc))
         result += f"{formatted_doc}\n\n"
     for optname, optdict, value in options:
         help_opt = optdict.get("help")
         result += f":{optname}:\n"
         if help_opt:
             assert isinstance(help_opt, str)
-            formatted_help = normalize_text(help_opt, indent="  ")
+            formatted_help = normalize_text(
+                _escape_rst_backslashes(help_opt), indent="  "
+            )
             result += f"{formatted_help}\n"
         if value and optname != "py-version":
             value = str(_format_option_value(optdict, value))
