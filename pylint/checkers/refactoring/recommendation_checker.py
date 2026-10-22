@@ -153,24 +153,13 @@ class RecommendationChecker(checkers.BaseChecker):
                     if not loop_node.parent_of(node):
                         continue
 
-                    # Check if var is mutated within loop (Assign/AugAssign).
-                    # Only plain name targets can match the subscript variable;
-                    # targets such as subscripts or attributes (e.g. ``obj[0] = 1``
-                    # or ``obj.attr = 1``) have no ``name`` attribute and must be
-                    # skipped rather than crashing the checker.
-                    for assignment_node in loop_node.nodes_of_class(nodes.AugAssign):
-                        if (
-                            isinstance(assignment_node.target, nodes.AssignName)
-                            and node.parent.slice.name == assignment_node.target.name
-                        ):
-                            return
-                    for assignment_node in loop_node.nodes_of_class(nodes.Assign):
-                        if node.parent.slice.name in [
-                            n.name
-                            for n in assignment_node.targets
-                            if isinstance(n, nodes.AssignName)
-                        ]:
-                            return
+                    # Check if var is reassigned within loop (any binding:
+                    # assignment, augmented assignment, unpacking, walrus...)
+                    if any(
+                        assign_name.name == node.parent.slice.name
+                        for assign_name in loop_node.nodes_of_class(nodes.AssignName)
+                    ):
+                        return
 
             if subscript_value in (-1, 0):
                 fn_name = node.func.attrname

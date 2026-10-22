@@ -136,3 +136,19 @@ def crash_attribute_assign_target(holder):
         holder.attr += 1
         last = text.split(",")[index]  # [use-maxsplit-arg]
     return last
+
+
+def index_changed_by_tuple_unpacking():
+    index = 0
+    text = "a,b,c"
+    for _ in range(3):
+        print(text.split(",")[index])
+        index, _ = index + 1, None
+
+
+def index_changed_by_walrus():
+    index = 0
+    text = "a,b,c"
+    for _ in range(3):
+        print(text.split(",")[index])
+        print(index := index + 1)
