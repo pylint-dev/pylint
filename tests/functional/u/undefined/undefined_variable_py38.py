@@ -253,3 +253,66 @@ def typing_without_assignment_in_comprehension():
         var  # [undefined-variable]
         for i in range(2)
     ]
+
+
+# The assignment expression can be skipped by a short-circuit, see
+# https://github.com/pylint-dev/pylint/pull/11649#issuecomment-6137512443
+# and https://github.com/pylint-dev/pylint/issues/8658 for the general case
+def typing_and_assignment_expression_skipped_by_or(allow: bool):
+    """``or`` skips the assignment when ``allow`` is true"""
+    var: int
+    return [
+        var  # [undefined-variable]
+        for i in range(2)
+        if allow or (var := i)
+    ]
+
+
+def typing_and_assignment_expression_skipped_by_true_or():
+    """``True or`` always skips the assignment"""
+    var: int
+    return [
+        var  # [undefined-variable]
+        for i in range(2)
+        if True or (var := i)  # pylint: disable=condition-evals-to-constant
+    ]
+
+
+def typing_and_assignment_expression_skipped_by_conditional_expression(allow: bool):
+    """A branch of a conditional expression is not always evaluated"""
+    var: int
+    return [
+        var  # [undefined-variable]
+        for i in range(2)
+        if ((var := i) if allow else i)
+    ]
+
+
+def typing_and_assignment_expression_skipped_by_and_then_or(allow: bool):
+    """A false ``and`` does not make the whole condition false"""
+    var: int
+    return [
+        var  # [undefined-variable]
+        for i in range(2)
+        if (allow and (var := i)) or i
+    ]
+
+
+def typing_and_assignment_expression_after_and(allow: bool):
+    """When ``and`` skips the assignment, the condition is false"""
+    var: int
+    return [
+        var
+        for i in range(2)
+        if allow and (var := i)
+    ]
+
+
+def typing_and_assignment_expression_first_in_or():
+    """The first operand of ``or`` is always evaluated"""
+    var: int
+    return [
+        var
+        for i in range(2)
+        if (var := i) or i
+    ]

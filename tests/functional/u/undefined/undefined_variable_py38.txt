@@ -10,3 +10,7 @@ used-before-assignment:186:9:186:10::Using variable 'z' before assignment:HIGH
 used-before-assignment:193:6:193:19::Using variable 'NEVER_DEFINED' before assignment:INFERENCE
 undefined-variable:243:8:243:11:typing_and_self_referencing_assignment_expression_in_comprehension:Undefined variable 'var':HIGH
 undefined-variable:253:8:253:11:typing_without_assignment_in_comprehension:Undefined variable 'var':HIGH
+undefined-variable:265:8:265:11:typing_and_assignment_expression_skipped_by_or:Undefined variable 'var':HIGH
+undefined-variable:275:8:275:11:typing_and_assignment_expression_skipped_by_true_or:Undefined variable 'var':HIGH
+undefined-variable:285:8:285:11:typing_and_assignment_expression_skipped_by_conditional_expression:Undefined variable 'var':HIGH
+undefined-variable:295:8:295:11:typing_and_assignment_expression_skipped_by_and_then_or:Undefined variable 'var':HIGH
