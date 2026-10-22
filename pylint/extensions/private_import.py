@@ -9,7 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from astroid import nodes
+from astroid import modutils, nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.interfaces import HIGH
@@ -258,15 +258,28 @@ class PrivateImportChecker(BaseChecker):
     def same_root_dir(
         node: nodes.Import | nodes.ImportFrom, import_mod_name: str
     ) -> bool:
-        """Does the node's file's path contain the base name of `import_mod_name`?"""
+        """Check whether an import belongs to the source file's project."""
         if not import_mod_name:  # from . import ...
             return True
         if node.level:  # from .foo import ..., from ..bar import ...
             return True
 
         base_import_package = import_mod_name.split(".")[0]
+        module_dir = Path(node.root().file).parent
+        if base_import_package in module_dir.parts:
+            return True
 
-        return base_import_package in Path(node.root().file).parent.parts
+        # Locate siblings without importing them or executing package initializers.
+        try:
+            module_file = modutils.file_from_modpath(
+                [base_import_package], path=[str(module_dir)]
+            )
+        except ImportError:
+            return False
+        return module_file is not None and Path(module_file).parent in (
+            module_dir,
+            module_dir / base_import_package,
+        )
 
 
 def register(linter: PyLinter) -> None:
