@@ -10,7 +10,7 @@ import re
 from collections import defaultdict
 from inspect import getmodule
 from pathlib import Path
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 import tomlkit
 from sphinx.application import Sphinx
@@ -68,6 +68,22 @@ def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
     initialize_extensions(linter)
 
 
+def _get_default_disabled_message_symbols(linter: PyLinter) -> list[str]:
+    """Return built-in message symbols disabled by default."""
+    extension_message_ids = {
+        message.msgid
+        for checker in linter.get_checkers()
+        if getmodule(checker).__name__.startswith("pylint.extensions.")  # type: ignore[union-attr]
+        for message in checker.messages
+    }
+    return sorted(
+        message.symbol
+        for message in linter.msgs_store.messages
+        if message.msgid not in extension_message_ids
+        if not message.default_enabled
+    )
+
+
 def _get_all_options(linter: PyLinter) -> OptionsDataDict:
     """Get all options registered to a linter and return the data."""
     all_options: OptionsDataDict = defaultdict(list)
@@ -115,10 +131,19 @@ def _create_checker_section(
         checker_string += f".. _{option.name}-option:\n\n"
         checker_string += get_rst_title(f"--{option.name}", '"')
         checker_string += f"*{option.optdict.get('help')}*\n\n"
-        if option.optdict.get("default") == "":
+        default = option.optdict.get("default")
+        # Message-control parser definitions retain empty tuple placeholders.
+        # The disable default comes from built-in message metadata; extensions
+        # registered for documentation are not loaded by default. ``enable``
+        # remains empty because default-enabled messages are not user overrides.
+        if option.name == "disable":
+            default = _get_default_disabled_message_symbols(linter)
+        elif option.name == "enable":
+            default = []
+        if default == "":
             checker_string += '**Default:** ``""``\n\n\n'
         else:
-            checker_string += f"**Default:**  ``{option.optdict.get('default')}``\n\n\n"
+            checker_string += f"**Default:**  ``{default}``\n\n\n"
 
         # Start adding the option to the toml example
         if option.optdict.get("hide_from_config_file"):
@@ -128,6 +153,7 @@ def _create_checker_section(
             continue
 
         # Get current value of option
+        value: Any
         try:
             # The dynamic default is a display string for the rendered docs
             # (e.g. indent-string is quoted so spaces stay visible). Unquote it
@@ -135,6 +161,9 @@ def _create_checker_section(
             value = _unquote(DYNAMICALLY_DEFINED_OPTIONS[option.name]["default"])
         except KeyError:
             value = getattr(linter.config, option.name.replace("-", "_"))
+
+        if option.name == "disable":
+            value = _get_default_disabled_message_symbols(linter)
 
         # Create a comment if the option has no value
         if value is None:
