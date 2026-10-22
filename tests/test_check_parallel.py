@@ -14,6 +14,7 @@ import sys
 from concurrent.futures.process import BrokenProcessPool, ProcessPoolExecutor
 from pathlib import Path
 from pickle import PickleError
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
@@ -25,6 +26,7 @@ import pylint.lint.parallel
 from pylint.checkers import BaseRawFileChecker
 from pylint.checkers.imports import ImportsChecker
 from pylint.config.config_initialization import _config_initialization
+from pylint.extensions.while_used import WhileChecker
 from pylint.lint import PyLinter, augmented_sys_path
 from pylint.lint.parallel import _worker_check_single_file as worker_check_single_file
 from pylint.lint.parallel import _worker_initialize as worker_initialize
@@ -303,6 +305,32 @@ class TestCheckParallelFramework:
         assert len(worker_linter._checkers["code_style"]) == 1
         assert len(worker_linter._checkers["typing"]) == 1
         assert len(worker_linter._checkers["metrics"]) == 2
+
+    def test_worker_initialize_plugin_failing_after_registering(self) -> None:
+        """A checker registered before the plugin fails to import is not duplicated."""
+
+        def register(linter: PyLinter) -> None:
+            linter.register_checker(WhileChecker(linter))
+            raise ModuleNotFoundError("missing_dependency")
+
+        linter = PyLinter(reporter=Reporter())
+        linter.load_default_plugins()
+        with patch(
+            "astroid.modutils.load_module_from_name",
+            return_value=SimpleNamespace(register=register),
+        ):
+            linter.load_plugin_modules(["half_installed_plugin"])
+            with patch(
+                "pylint.config.config_file_parser._ConfigurationFileParser.parse_config_file",
+                return_value=({}, []),
+            ):
+                _config_initialization(linter, [])
+            assert len(linter._registered_dynamic_plugin_checkers) == 1
+
+            worker_initialize(linter=dill.dumps(linter))
+        worker_linter = pylint.lint.parallel._worker_linter
+        assert isinstance(worker_linter, PyLinter)
+        assert len(worker_linter._checkers["while_used"]) == 1
 
     def test_worker_check_single_file_uninitialised(self) -> None:
         pylint.lint.parallel._worker_linter = None

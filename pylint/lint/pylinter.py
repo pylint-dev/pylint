@@ -460,16 +460,18 @@ class PyLinter(
         for modname in modnames:
             if modname in self._dynamic_plugins and not force:
                 continue
+            already_registered = self._registered_checkers.copy()
             try:
                 module = astroid.modutils.load_module_from_name(modname)
-                already_registered = self._registered_checkers.copy()
                 module.register(self)
-                self._registered_dynamic_plugin_checkers |= (
-                    self._registered_checkers - already_registered
-                )
                 self._dynamic_plugins[modname] = module
             except ModuleNotFoundError as mnf_e:
                 self._dynamic_plugins[modname] = mnf_e
+            finally:
+                # Also track checkers registered before ``register`` failed
+                self._registered_dynamic_plugin_checkers |= (
+                    self._registered_checkers - already_registered
+                )
 
     def load_plugin_configuration(self) -> None:
         """Call the configuration hook for plugins.
