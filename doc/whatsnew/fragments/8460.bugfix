@@ -1,0 +1,3 @@
+Options that do not expect a value such as ``--exit-zero`` now accepts a ``false`` value in a configuration file instead of unexpectedly becoming true.
+
+Closes #8460
