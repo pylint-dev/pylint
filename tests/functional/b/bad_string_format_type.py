@@ -73,3 +73,11 @@ class MyFloat(float):
 "%d %x" % (Color.RED, Color.RED)
 "%f %d" % (MyFloat(1.5), MyFloat(1.5))
 "%x %s" % (MyFloat(1.5), "a")  # [bad-string-format-type]
+
+# A ``*`` width or precision takes its own argument from the tuple
+"%-*s %d" % (10, "apples", 3)
+"%*s: %5.1f" % (12, "ratio", 0.25)
+"%.*s %d" % (3, "abcdef", 7)
+"%-*s|%*d" % (8, "left", 6, 42)
+"%*d" % (5, "x")  # [bad-string-format-type]
+"%*d" % ("5", 1)  # [bad-string-format-type]
