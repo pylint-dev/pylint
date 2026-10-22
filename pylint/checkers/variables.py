@@ -154,7 +154,7 @@ def _is_bound_before_class(
 def _is_def_in_class_body(
     defstmt: _base_nodes.Statement, frame: nodes.LocalsDictNodeNG
 ) -> bool:
-    """Whether defstmt is a def or class statement directly in the class body frame.
+    """Whether ``defstmt`` is a def or class statement directly in the class body frame.
 
     Such a statement is its own frame, but it binds its name in the class body.
     """
