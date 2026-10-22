@@ -149,8 +149,9 @@ class LoggingChecker(checkers.BaseChecker):
                 "type": "choice",
                 "metavar": "<old (%) or new ({)>",
                 "choices": ["old", "new"],
-                "help": "The type of string formatting that logging methods do. "
-                "`old` means using % formatting, `new` is for `{}` formatting.",
+                "help": "The string formatting style Pylint expects in logging "
+                "calls. `old` means using % formatting, `new` is for `{}` "
+                "formatting.",
             },
         ),
     )

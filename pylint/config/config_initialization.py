@@ -73,9 +73,8 @@ def _config_initialization(  # pylint: disable=too-many-statements
     except _UnrecognizedOptionError as exc:
         unrecognized_options_message = ", ".join(exc.options)
 
-      # Run removes --load-plugins / --enable-all-extensions from the arguments after
-      # loading them, so record them here or the generated config will leave them out.
-
+    # Run removes --load-plugins / --enable-all-extensions from the arguments after
+    # loading them, so record them here or the generated config will leave them out.
     linter.config.load_plugins = tuple(
         dict.fromkeys(
             (

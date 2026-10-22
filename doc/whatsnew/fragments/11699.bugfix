@@ -1,4 +1,4 @@
 ``--generate-toml-config`` and ``--generate-rcfile`` now include the plugins given with
-``--load-plugins`` or ``--enable-all-extensions``. 
+``--load-plugins`` or ``--enable-all-extensions``.
 
 Closes #11699
