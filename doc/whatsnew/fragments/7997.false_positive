@@ -1,0 +1,4 @@
+Avoid ``dict-init-mutate`` when an assignment's key or value references the dictionary being initialized.
+Stop the suggested dictionary literal before later assignments that reference the dictionary.
+
+Closes #7997
