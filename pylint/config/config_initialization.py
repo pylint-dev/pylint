@@ -76,7 +76,8 @@ def _config_initialization(  # pylint: disable=too-many-statements
     # Run removes --load-plugins / --enable-all-extensions from the arguments after
     # loading them, so record them here or the generated config will leave them out.
 
-    linter.config.load_plugins = tuple(
+    # Run removes --load-plugins / --enable-all-extensions from the arguments after
+    # loading them, so record them here or the generated config will leave them out.
         dict.fromkeys(
             (
                 *linter.config.load_plugins,
