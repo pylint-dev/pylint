@@ -111,7 +111,11 @@ keys = {}  # [dict-init-mutate]
 keys["key"] = "second"
 keys[keys["key"]] = 2
 
-# Known false negative: the lambda reads the dictionary only when it is called,
-# so it could be moved into the literal.
-lazy = {}
+# The lambda reads the dictionary only when it is called,
+# so it can be moved into the literal.
+lazy = {}  # [dict-init-mutate]
 lazy["read"] = lambda: lazy["value"]
+
+# A lambda's default value is evaluated with the assignment.
+eager = {}
+eager["read"] = lambda value=eager["value"]: value

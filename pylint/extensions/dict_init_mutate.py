@@ -19,11 +19,28 @@ if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
 
-def _references_name(name: str, *exprs: nodes.NodeNG) -> bool:
-    """Return whether any of the expressions reads the given name."""
-    return any(
-        ref.name == name for expr in exprs for ref in expr.nodes_of_class(nodes.Name)
-    )
+def _references_name(name: str, *exprs: nodes.NodeNG | None) -> bool:
+    """Return whether evaluating any of the expressions reads the given name.
+
+    A lambda's body only runs when the lambda is called, so only its default
+    values count.
+    """
+    for expr in exprs:
+        match expr:
+            case None:
+                continue
+            case nodes.Name():
+                if expr.name == name:
+                    return True
+            case nodes.Lambda():
+                if _references_name(
+                    name, *(expr.args.defaults or []), *(expr.args.kw_defaults or [])
+                ):
+                    return True
+            case _:
+                if _references_name(name, *expr.get_children()):
+                    return True
+    return False
 
 
 class DictInitMutateChecker(BaseChecker):
@@ -57,11 +74,9 @@ class DictInitMutateChecker(BaseChecker):
             case nodes.Assign(
                 targets=[nodes.Subscript(value=nodes.Name(name=name), slice=key_node)],
                 value=val_node,
-            ) if (
-                name == dict_name
+            ) if name == dict_name and not _references_name(
+                dict_name, key_node, val_node
             ):
-                if _references_name(dict_name, key_node, val_node):
-                    return
                 suggestion = self._build_suggestion(
                     dict_name, dict_node, node.next_sibling()
                 )
@@ -97,11 +112,9 @@ class DictInitMutateChecker(BaseChecker):
                             nodes.Subscript(value=nodes.Name(name=name), slice=key_node)
                         ],
                         value=val_node,
-                    ) if (
-                        name == dict_name
+                    ) if name == dict_name and not _references_name(
+                        dict_name, key_node, val_node
                     ):
-                        if _references_name(dict_name, key_node, val_node):
-                            break
                         yield f"{key_node.as_string()}: {val_node.as_string()}"
                     case _:
                         break
