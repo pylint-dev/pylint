@@ -1529,7 +1529,7 @@ Standard Checkers
 
 --logging-format-style
 """"""""""""""""""""""
-*The type of string formatting that logging methods do. `old` means using % formatting, `new` is for `{}` formatting.*
+*The string formatting style Pylint expects in logging calls. `old` means using % formatting, `new` is for `{}` formatting. This does not change how the logging library formats messages.*
 
 **Default:**  ``old``
 
