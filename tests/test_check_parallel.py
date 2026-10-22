@@ -332,6 +332,25 @@ class TestCheckParallelFramework:
         assert isinstance(worker_linter, PyLinter)
         assert len(worker_linter._checkers["while_used"]) == 1
 
+    def test_worker_check_single_file_command_line_plugin_message_once(
+        self, tmp_path: Path
+    ) -> None:
+        """A message from a ``--load-plugins`` checker is emitted once by a worker."""
+        module = tmp_path / "loop.py"
+        module.write_text("while True:\n    pass\n", encoding="utf-8")
+        linter = PyLinter(reporter=Reporter())
+        linter.load_default_plugins()
+        linter.load_plugin_modules(["pylint.extensions.while_used"])
+        with patch(
+            "pylint.config.config_file_parser._ConfigurationFileParser.parse_config_file",
+            return_value=({}, []),
+        ):
+            _config_initialization(linter, ["--disable=all", "--enable=while-used"])
+
+        worker_initialize(linter=dill.dumps(linter))
+        msgs = worker_check_single_file(FileItem("loop", str(module), "loop"))[4]
+        assert [msg.symbol for msg in msgs] == ["while-used"]
+
     def test_worker_check_single_file_uninitialised(self) -> None:
         pylint.lint.parallel._worker_linter = None
         with pytest.raises(  # Objects that do not match the linter interface will fail
