@@ -1,0 +1,4 @@
+Pyreverse now reports a clear error instead of a traceback when ``--class`` names
+an unknown class or module, or omits the module name when analyzing multiple modules.
+
+Closes #22
