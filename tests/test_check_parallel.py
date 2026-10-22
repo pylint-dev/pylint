@@ -276,7 +276,7 @@ class TestCheckParallelFramework:
         Same as `test_worker_initialize_custom_plugins`, but the plugins come from
         `--load-plugins`. Those are loaded before the config file (and `init-hook`
         plugins even earlier), so they used to be missing from
-        `_registered_dynamic_plugin_checkers`: the worker could not deregister them
+        `_registered_dynamic_plugin_checkers`: the worker could not remove them
         and ended up running two instances of every checker.
         """
         linter = PyLinter(reporter=Reporter())
