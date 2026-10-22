@@ -31,14 +31,15 @@ bad-open-mode:161:0:161:25::"""None"" is not a valid mode for open.":HIGH
 unspecified-encoding:161:0:161:25::Using open without explicitly specifying an encoding:HIGH
 bad-open-mode:164:0:164:19::"""2"" is not a valid mode for open.":HIGH
 unspecified-encoding:164:0:164:19::Using open without explicitly specifying an encoding:HIGH
-bad-open-mode:176:0:176:24::"""5"" is not a valid mode for open.":INFERENCE
-unspecified-encoding:176:0:176:24::Using open without explicitly specifying an encoding:HIGH
-bad-open-mode:177:0:177:27::"""5"" is not a valid mode for open.":INFERENCE
-unspecified-encoding:177:0:177:27::Using open without explicitly specifying an encoding:HIGH
-unspecified-encoding:180:5:180:29::Using open without explicitly specifying an encoding:INFERENCE
-unspecified-encoding:183:0:183:29::Using open without explicitly specifying an encoding:INFERENCE
-unspecified-encoding:186:0:186:44::Using open without explicitly specifying an encoding:INFERENCE
-unspecified-encoding:193:0:193:34::Using open without explicitly specifying an encoding:INFERENCE
-unspecified-encoding:210:11:210:31:open_with_text_default:Using open without explicitly specifying an encoding:INFERENCE
-unspecified-encoding:220:11:220:36:open_with_keyword_only_default:Using open without explicitly specifying an encoding:INFERENCE
-unspecified-encoding:225:11:225:36:path_open_with_text_default:Using open without explicitly specifying an encoding:INFERENCE
+bad-open-mode:177:0:177:24::"""5"" is not a valid mode for open.":INFERENCE
+bad-open-mode:178:0:178:27::"""5"" is not a valid mode for open.":INFERENCE
+unspecified-encoding:181:5:181:29::Using open without explicitly specifying an encoding:INFERENCE
+unspecified-encoding:184:0:184:29::Using open without explicitly specifying an encoding:INFERENCE
+unspecified-encoding:187:0:187:44::Using open without explicitly specifying an encoding:INFERENCE
+unspecified-encoding:194:0:194:34::Using open without explicitly specifying an encoding:INFERENCE
+unspecified-encoding:211:11:211:31:open_with_text_default:Using open without explicitly specifying an encoding:INFERENCE
+unspecified-encoding:221:11:221:36:open_with_keyword_only_default:Using open without explicitly specifying an encoding:INFERENCE
+unspecified-encoding:226:11:226:36:path_open_with_text_default:Using open without explicitly specifying an encoding:INFERENCE
+unspecified-encoding:293:0:293:31::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:294:0:294:43::Using open without explicitly specifying an encoding:HIGH
+unspecified-encoding:296:0:296:48::Using open without explicitly specifying an encoding:HIGH

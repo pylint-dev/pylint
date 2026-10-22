@@ -173,8 +173,9 @@ io.open(FILENAME, **KWARGS)
 Path(FILENAME).open(**KWARGS)
 
 KWARGS = {"mode": 5}
-open(FILENAME, **KWARGS)  # [bad-open-mode, unspecified-encoding]
-io.open(FILENAME, **KWARGS)  # [bad-open-mode, unspecified-encoding]
+# KWARGS may have gained an encoding since its assignment
+open(FILENAME, **KWARGS)  # [bad-open-mode]
+io.open(FILENAME, **KWARGS)  # [bad-open-mode]
 
 KWARGS = {"mode": "wt", "encoding": None}
 with open(FILENAME, **KWARGS) as fd:  # [unspecified-encoding]
@@ -250,3 +251,47 @@ def make_opener(default_mode):
         return open(FILENAME, mode)
 
     return open_with_unknown_default
+
+
+def open_with_forwarded_kwargs(**kwargs):
+    """The caller may pass the encoding through ``**kwargs``."""
+    return open(FILENAME, **kwargs)
+
+
+def open_with_opaque_options(options):
+    """The options may hold the encoding."""
+    return open(FILENAME, **options)
+
+
+def open_with_opaque_options_and_mode(options):
+    """The options may hold the encoding even when the mode is known."""
+    return open(FILENAME, "w", **options)
+
+
+def path_open_with_opaque_options(options):
+    """The same applies to the pathlib variant."""
+    return Path(FILENAME).open("w", **options)
+
+
+def open_with_positional_arguments(args):
+    """``*args`` may reach the encoding."""
+    return open(FILENAME, "w", *args)
+
+
+def open_with_extra_options(options):
+    """A dict literal with a nested ``**`` may hold the encoding."""
+    return open(FILENAME, **{"mode": "w", **options})
+
+
+def open_with_variable_key(key):
+    """A dict literal with a variable key may hold the encoding."""
+    return open(FILENAME, **{"mode": "w", key: "utf-8"})
+
+
+open(FILENAME, **{"encoding": "utf-8"})
+open(FILENAME, **{"mode": "w", "encoding": "utf-8"})
+open(FILENAME, **{"mode": "r"})  # [unspecified-encoding]
+open(FILENAME, "w", **{"errors": "strict"})  # [unspecified-encoding]
+open(FILENAME, **{"mode": "rb"})
+Path(FILENAME).read_text(**{"errors": "strict"})  # [unspecified-encoding]
+Path(FILENAME).write_text("text", **{"encoding": "utf-8"})
