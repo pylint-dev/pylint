@@ -20,6 +20,7 @@ Pylint provides the following optional plugins:
 - :ref:`pylint.extensions.dunder`
 - :ref:`pylint.extensions.empty_comment`
 - :ref:`pylint.extensions.eq_without_hash`
+- :ref:`pylint.extensions.exit_argument_names`
 - :ref:`pylint.extensions.for_any_all`
 - :ref:`pylint.extensions.magic_value`
 - :ref:`pylint.extensions.mccabe`
@@ -363,6 +364,22 @@ Eq-Without-Hash checker Messages
 :eq-without-hash (W1641): *Implementing __eq__ without also implementing __hash__*
   Used when a class implements __eq__ but not __hash__. Objects get None as
   their default __hash__ implementation if they also implement __eq__.
+
+
+.. _pylint.extensions.exit_argument_names:
+
+Exit-Argument-Names checker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.exit_argument_names``.
+Verbatim name of the checker is ``exit-argument-names``.
+
+Exit-Argument-Names checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:non-standard-exit-argument-names (C3801): *Arguments of %s should be named '%s' instead of '%s'*
+  Used when the three arguments of a ``__exit__`` or ``__aexit__`` method are
+  not named ``exc_type, exc_value, traceback``, as in the Python data model
+  documentation. Arguments matching ``ignored-argument-names`` are not checked.
 
 
 .. _pylint.extensions.private_import:
