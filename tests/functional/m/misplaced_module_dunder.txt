@@ -1,0 +1,6 @@
+misplaced-module-dunder:13:0:13:21::Module level dunder '__version__' should be placed before the imports:HIGH
+misplaced-module-dunder:14:0:14:44::Module level dunder '__all__' should be placed before the imports:HIGH
+misplaced-module-dunder:15:0:15:36::Module level dunder '__license__' should be placed before the imports:HIGH
+misplaced-module-dunder:15:0:15:36::Module level dunder '__maintainer__' should be placed before the imports:HIGH
+misplaced-module-dunder:16:0:16:27::Module level dunder '__email__' should be placed before the imports:HIGH
+misplaced-module-dunder:43:0:43:23::Module level dunder '__date__' should be placed before the imports:HIGH

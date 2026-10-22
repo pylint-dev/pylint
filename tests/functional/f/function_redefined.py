@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring,using-constant-test
-# pylint: disable=unused-import,wrong-import-position,reimported, unnecessary-pass
+# pylint: disable=unused-import,wrong-import-position,reimported, unnecessary-pass,misplaced-module-dunder
 from __future__ import division
 
 from typing import Callable

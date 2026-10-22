@@ -326,6 +326,14 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "shadowed-import",
         "Used when a module is aliased with a name that shadows another import.",
     ),
+    "C0416": (
+        "Module level dunder %r should be placed before the imports",
+        "misplaced-module-dunder",
+        "Used when a module level dunder name such as ``__all__`` or "
+        "``__version__`` is assigned after an import. PEP 8 recommends "
+        "placing them after the module docstring and ``from __future__`` "
+        "imports, but before any other import.",
+    ),
 }
 
 
@@ -671,6 +679,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 for target in node.targets
             ]
             if all(valid_targets):
+                self._check_misplaced_module_dunder(node)
                 return
 
         self._non_import_nodes.append(node)
@@ -678,6 +687,46 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     visit_assignattr = visit_assign = visit_ifexp = visit_comprehension = visit_expr = (
         compute_first_non_import_node
     )
+
+    def visit_annassign(self, node: nodes.AnnAssign) -> None:
+        if not isinstance(node.parent, nodes.Module):
+            return
+        if (
+            isinstance(node.target, nodes.AssignName)
+            and node.target.name.startswith("__")
+            and node.target.name.endswith("__")
+        ):
+            self._check_misplaced_module_dunder(node)
+
+    def _check_misplaced_module_dunder(
+        self, node: nodes.Assign | nodes.AnnAssign
+    ) -> None:
+        """Check that a module level dunder is not assigned after an import.
+
+        PEP 8 places module level dunders after the docstring and ``__future__``
+        imports but before any other import. Only a literal value is reported:
+        a value that refers to a name may depend on an import and cannot be
+        moved above it.
+        """
+        if node.value is None or any(node.value.nodes_of_class(nodes.Name)):
+            return
+        body = node.parent.body
+        for sibling in body[: body.index(node)]:
+            if isinstance(sibling, nodes.Import) or (
+                isinstance(sibling, nodes.ImportFrom)
+                and sibling.modname != "__future__"
+            ):
+                targets = (
+                    node.targets if isinstance(node, nodes.Assign) else [node.target]
+                )
+                for target in targets:
+                    self.add_message(
+                        "misplaced-module-dunder",
+                        node=node,
+                        args=(target.name,),
+                        confidence=HIGH,
+                    )
+                return
 
     def visit_functiondef(
         self,

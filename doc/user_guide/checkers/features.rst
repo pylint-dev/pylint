@@ -635,6 +635,10 @@ Imports checker Messages
 :import-outside-toplevel (C0415): *Import outside toplevel (%s)*
   Used when an import statement is used anywhere other than the module
   toplevel. Move this import to the top of the file.
+:misplaced-module-dunder (C0416): *Module level dunder %r should be placed before the imports*
+  Used when a module level dunder name such as ``__all__`` or ``__version__``
+  is assigned after an import. PEP 8 recommends placing them after the module
+  docstring and ``from __future__`` imports, but before any other import.
 
 Imports checker Reports
 ^^^^^^^^^^^^^^^^^^^^^^^

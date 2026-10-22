@@ -1,0 +1,7 @@
+Add ``misplaced-module-dunder`` (C0416), emitted when a module level dunder
+such as ``__all__`` or ``__version__`` is assigned after an import. PEP 8
+places them after the module docstring and ``from __future__`` imports but
+before any other import. Only a dunder assigned a literal value is reported,
+since a value that refers to a name may depend on the imports above it.
+
+Closes #5471
