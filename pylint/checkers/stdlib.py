@@ -818,11 +818,18 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 if name == COPY_COPY:
                     self._check_shallow_copy_environ(node)
                 elif name in ENV_GETTERS:
-                    self._check_env_function(node, inferred)
+                    self._check_env_function(node, name)
                 elif name == SUBPROCESS_RUN:
                     self._check_for_check_kw_in_run(node)
                 elif name in DEBUG_BREAKPOINTS:
                     self.add_message("forgotten-debug-statement", node=node)
+            elif (
+                isinstance(inferred, astroid.BoundMethod)
+                and inferred.name == "get"
+                and isinstance(inferred.bound, astroid.Instance)
+                and inferred.bound.qname() == OS_ENVIRON
+            ):
+                self._check_env_function(node, "os.environ.get")
             self.check_deprecated_method(node, inferred)
 
     @utils.only_required_for_messages("boolean-datetime")
@@ -1039,7 +1046,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                         "unspecified-encoding", node=node, confidence=confidence
                     )
 
-    def _check_env_function(self, node: nodes.Call, infer: nodes.FunctionDef) -> None:
+    def _check_env_function(self, node: nodes.Call, name: str) -> None:
         env_name_kwarg = "key"
         env_value_kwarg = "default"
         if node.keywords:
@@ -1058,7 +1065,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 node=node,
                 message="invalid-envvar-value",
                 call_arg=utils.safe_infer(env_name_arg),
-                infer=infer,
+                name=name,
                 allow_none=False,
             )
 
@@ -1072,7 +1079,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if env_value_arg:
             self._check_invalid_envvar_value(
                 node=node,
-                infer=infer,
+                name=name,
                 message="invalid-envvar-default",
                 call_arg=utils.safe_infer(env_value_arg),
                 allow_none=True,
@@ -1081,7 +1088,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def _check_invalid_envvar_value(
         self,
         node: nodes.Call,
-        infer: nodes.FunctionDef,
+        name: str,
         message: str,
         call_arg: InferenceResult | None,
         allow_none: bool,
@@ -1089,7 +1096,14 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if call_arg is None or isinstance(call_arg, util.UninferableBase):
             return
 
-        name = infer.qname()
+        if (
+            message == "invalid-envvar-default"
+            and isinstance(node.parent, nodes.Call)
+            and isinstance(node.parent.func, nodes.Name)
+            and node.parent.func.name in {"bool", "float", "int"}
+        ):
+            return
+
         if isinstance(call_arg, nodes.Const):
             emit = False
             match call_arg.value:
