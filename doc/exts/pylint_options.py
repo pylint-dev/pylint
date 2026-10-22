@@ -111,7 +111,9 @@ def _create_checker_section(
         # clashing with the message labels, which are bare message symbols.
         checker_string += f".. _{option.name}-option:\n\n"
         checker_string += get_rst_title(f"--{option.name}", '"')
-        checker_string += f"*{_escape_rst_backslashes(option.optdict['help'])}*\n\n"
+        help_text = option.optdict["help"]
+        assert isinstance(help_text, str)
+        checker_string += f"*{_escape_rst_backslashes(help_text)}*\n\n"
         if option.optdict.get("default") == "":
             checker_string += '**Default:** ``""``\n\n\n'
         else:

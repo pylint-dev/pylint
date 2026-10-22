@@ -24,6 +24,17 @@ def test_decoding_stream_known_encoding() -> None:
     assert stream.read() == "€"
 
 
+def test_get_rst_section_escapes_backslashes() -> None:
+    """A lone backslash is an escape in reST, so the section doubles it."""
+    section = utils.get_rst_section(
+        "Section",
+        [("indent-string", {"help": r'Usually "\t" (1 tab).'}, None)],
+        doc=r"Matches \d+ digits.",
+    )
+    assert r"Matches \\d+ digits." in section
+    assert ':indent-string:\n  Usually "\\\\t" (1 tab).' in section
+
+
 def test_diff_string() -> None:
     assert utils.diff_string(1.0, 1.0) == "="
     assert utils.diff_string(1.0, 2.0) == "+1.00"
