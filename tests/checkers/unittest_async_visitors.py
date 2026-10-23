@@ -103,15 +103,6 @@ NOT_YET_ASYNC = {
             "useless-return",
         )
     },
-    ("StdlibChecker", "visit_functiondef", "method-cache-max-size-none"): (
-        "skips 'async def'"
-    ),
-    ("StdlibChecker", "visit_functiondef", "singledispatch-method"): (
-        "skips 'async def'"
-    ),
-    ("StdlibChecker", "visit_functiondef", "singledispatchmethod-function"): (
-        "skips 'async def'"
-    ),
     ("DunderChecker", "visit_functiondef", ALL_MESSAGES): (
         "bad-dunder-name skips 'async def'"
     ),
