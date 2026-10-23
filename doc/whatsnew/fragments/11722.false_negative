@@ -1,0 +1,3 @@
+``too-many-branches`` now counts ``async for`` loops.
+
+Refs #11722
