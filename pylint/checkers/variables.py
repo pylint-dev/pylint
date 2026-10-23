@@ -49,6 +49,11 @@ FUTURE = "__future__"
 # regexp for ignored argument name
 IGNORED_ARGUMENT_NAMES = re.compile("_.*|^ignored_|^unused_")
 BUILTIN_RANGE = "builtins.range"
+# Callables that only use a function passed to them before returning, so a
+# lambda passed directly to one of them cannot outlive the loop iteration.
+EAGER_CALLABLE_CONSUMERS = frozenset(
+    {"builtins.sorted", "builtins.min", "builtins.max", "builtins.list.sort"}
+)
 TYPING_MODULE = "typing"
 
 DICT_TYPES = (
@@ -3130,6 +3135,8 @@ class VariablesChecker(BaseChecker):
         Special cases where we don't care about the error:
         1. When the node's function is immediately called, e.g. (lambda: i)()
         2. When the node's function is returned from within the loop, e.g. return lambda: i
+        3. When the node's lambda is passed to a call that only uses it before
+           returning, e.g. sorted(items, key=lambda item: item[i])
         """
         if not self.linter.is_message_enabled("cell-var-from-loop"):
             return
@@ -3168,11 +3175,33 @@ class VariablesChecker(BaseChecker):
                 if (
                     maybe_for
                     and maybe_for.parent_of(node_scope)
-                    and not utils.is_being_called(node_scope)
+                    and not self._is_consumed_immediately(node_scope)
                     and node_scope.parent
                     and not isinstance(node_scope.statement(), nodes.Return)
                 ):
                     self.add_message("cell-var-from-loop", node=node, args=node.name)
+
+    @staticmethod
+    def _is_consumed_immediately(node: nodes.LocalsDictNodeNG) -> bool:
+        """Return True if node is a lambda that is used before the loop advances.
+
+        Either it is called right away, or it is passed directly to a call that
+        only uses it before returning, such as the ``key`` of ``sorted()``.
+        """
+        if utils.is_being_called(node):
+            return True
+        if not isinstance(node, nodes.Lambda):
+            return False
+        call = node.parent
+        if isinstance(call, nodes.Keyword):
+            call = call.parent
+        if not isinstance(call, nodes.Call):
+            return False
+        inferred = utils.safe_infer(call.func)
+        return (
+            isinstance(inferred, (nodes.FunctionDef, bases.UnboundMethod))
+            and inferred.qname() in EAGER_CALLABLE_CONSUMERS
+        )
 
     def _should_ignore_redefined_builtin(self, stmt: nodes.NodeNG) -> bool:
         if not isinstance(stmt, nodes.ImportFrom):
