@@ -12,5 +12,7 @@ More checks now also run on ``async for`` and ``async def``:
 - ``useless-return``, ``inconsistent-return-statements`` and
   ``consider-using-with`` check ``async def``, and ``too-many-nested-blocks`` is
   reported for an ``async def`` even when no other function follows it.
+- ``inconsistent-return-statements`` and ``useless-return`` are no longer
+  skipped for a function containing a nested function with the same name.
 
 Refs #11722
