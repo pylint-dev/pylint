@@ -1,5 +1,5 @@
 # pylint: disable=missing-module-docstring, missing-class-docstring,
-# pylint: disable=missing-function-docstring, unused-private-member
+# pylint: disable=missing-function-docstring, unused-private-member, too-few-public-methods
 
 
 class Apples:
@@ -52,11 +52,55 @@ class Apples:
     def __index__(self):
         return 1
 
+
+class AsyncApples:
     async def __aenter__(self):
         return self
 
+    async def __aexit__(self, *args):
+        pass
+
+    async def __anext__(self):
+        return 1
+
+    async def __call__(self):
+        return 1
+
+    async def __allowed__(self):
+        # user-configured allowed dunder name
+        pass
+
+    def __aiter__(self):
+        return self
+
+    def __await__(self):
+        yield
+
+
+class AsyncGeneratorApples:
+    async def __aiter__(self):
+        yield 1
+
+
+class AsyncMistakes:
     async def __aenterr__(self):  # [bad-dunder-name]
         return self
+
+    async def __enter__(self):  # [bad-dunder-name]
+        # only __aenter__ is awaited by 'async with'
+        return self
+
+    async def __aiter__(self):  # [bad-dunder-name]
+        # 'async for' needs the async iterator itself, not a coroutine
+        return self
+
+    async def __await__(self):  # [bad-dunder-name]
+        # must return an iterator, not a coroutine
+        return self
+
+    async def __init__(self):  # [bad-dunder-name]
+        # a coroutine instead of None: TypeError when instantiated
+        pass
 
 
 class MyError(Exception):

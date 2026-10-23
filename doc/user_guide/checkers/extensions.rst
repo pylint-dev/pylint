@@ -318,7 +318,8 @@ Dunder checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^
 :bad-dunder-name (W3201): *Bad or misspelled dunder method name %s.*
   Used when a dunder method is misspelled or defined with a name not within the
-  predefined list of dunder names.
+  predefined list of dunder names, or defined with ``async def`` when its
+  protocol requires a regular ``def``.
 
 
 .. _pylint.extensions.check_elif:

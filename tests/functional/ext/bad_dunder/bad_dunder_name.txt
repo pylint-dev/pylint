@@ -3,4 +3,8 @@ bad-dunder-name:22:4:22:15:Apples.__init_:Bad or misspelled dunder method name _
 bad-dunder-name:26:4:26:14:Apples._init_:Bad or misspelled dunder method name _init_.:HIGH
 bad-dunder-name:30:4:30:16:Apples.___neg__:Bad or misspelled dunder method name ___neg__.:HIGH
 bad-dunder-name:34:4:34:15:Apples.__inv__:Bad or misspelled dunder method name __inv__.:HIGH
-bad-dunder-name:58:4:58:25:Apples.__aenterr__:Bad or misspelled dunder method name __aenterr__.:HIGH
+bad-dunder-name:86:4:86:25:AsyncMistakes.__aenterr__:Bad or misspelled dunder method name __aenterr__.:HIGH
+bad-dunder-name:89:4:89:23:AsyncMistakes.__enter__:Bad or misspelled dunder method name __enter__.:HIGH
+bad-dunder-name:93:4:93:23:AsyncMistakes.__aiter__:Bad or misspelled dunder method name __aiter__.:HIGH
+bad-dunder-name:97:4:97:23:AsyncMistakes.__await__:Bad or misspelled dunder method name __await__.:HIGH
+bad-dunder-name:101:4:101:22:AsyncMistakes.__init__:Bad or misspelled dunder method name __init__.:HIGH

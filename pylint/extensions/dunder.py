@@ -15,6 +15,10 @@ from pylint.interfaces import HIGH
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
+# The only dunder methods whose protocol allows ``async def``. Every other one,
+# ``__aiter__`` and ``__await__`` included, must return its result directly.
+ASYNC_DUNDER_METHODS = ["__aenter__", "__aexit__", "__anext__", "__call__"]
+
 
 class DunderChecker(BaseChecker):
     """Checks related to dunder methods."""
@@ -25,7 +29,8 @@ class DunderChecker(BaseChecker):
             "Bad or misspelled dunder method name %s.",
             "bad-dunder-name",
             "Used when a dunder method is misspelled or defined with a name "
-            "not within the predefined list of dunder names.",
+            "not within the predefined list of dunder names, or defined with "
+            "``async def`` when its protocol requires a regular ``def``.",
         ),
     }
     options = (
@@ -48,11 +53,27 @@ class DunderChecker(BaseChecker):
         for since_vers, dunder_methods in DUNDER_METHODS.items():
             if since_vers <= self.linter.config.py_version:
                 self._dunder_methods.extend(list(dunder_methods.keys()))
+        self._async_dunder_methods = (
+            ASYNC_DUNDER_METHODS + self.linter.config.good_dunder_names
+        )
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Check if known dunder method is misspelled or dunder name is not one
         of the pre-defined names.
         """
+        self._check_dunder_name(node, self._dunder_methods)
+
+    def visit_asyncfunctiondef(self, node: nodes.AsyncFunctionDef) -> None:
+        """Check that an async dunder method is one whose protocol allows it."""
+        valid_names = self._async_dunder_methods
+        if node.is_generator():
+            # An async generator is the async iterator ``__aiter__`` returns.
+            valid_names = [*valid_names, "__aiter__"]
+        self._check_dunder_name(node, valid_names)
+
+    def _check_dunder_name(
+        self, node: nodes.FunctionDef, valid_names: list[str]
+    ) -> None:
         # ignore module-level functions
         if not node.is_method():
             return
@@ -61,7 +82,7 @@ class DunderChecker(BaseChecker):
         if (
             node.name.startswith("_")
             and node.name.endswith("_")
-            and node.name not in self._dunder_methods
+            and node.name not in valid_names
         ):
             self.add_message(
                 "bad-dunder-name",
@@ -69,8 +90,6 @@ class DunderChecker(BaseChecker):
                 args=(node.name),
                 confidence=HIGH,
             )
-
-    visit_asyncfunctiondef = visit_functiondef
 
 
 def register(linter: PyLinter) -> None:
