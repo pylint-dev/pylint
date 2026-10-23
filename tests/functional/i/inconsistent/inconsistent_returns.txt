@@ -17,3 +17,4 @@ inconsistent-return-statements:322:0:322:21:bug_pylint_3873_1:Either all return 
 inconsistent-return-statements:349:0:349:25:bug_pylint_4019_wrong:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
 inconsistent-return-statements:360:4:360:22:A.get_the_answer:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
 inconsistent-return-statements:367:0:367:18:bug_1772_break:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
+inconsistent-return-statements:407:0:407:36:async_inconsistent_returns:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED

@@ -3,6 +3,8 @@
 ``singledispatchmethod-function`` now check ``async def``. ``bad-dunder-name``
 now checks ``async def`` methods. ``looping-through-iterator`` now checks
 ``async for``, so an async generator consumed again in a nested loop is
-reported.
+reported. ``useless-return``, ``inconsistent-return-statements`` and
+``consider-using-with`` now check ``async def``, and ``too-many-nested-blocks``
+is now reported for an ``async def`` even when no other function follows it.
 
 Refs #11722

@@ -1156,6 +1156,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
         self._consider_using_with_stack.function_scope.clear()
 
+    leave_asyncfunctiondef = leave_functiondef
+
     @utils.only_required_for_messages("consider-using-with")
     def leave_classdef(self, _: nodes.ClassDef) -> None:
         # check for context managers that have been created but not used
@@ -2417,6 +2419,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._return_nodes[node.name] = list(
             node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
         )
+
+    visit_asyncfunctiondef = visit_functiondef
 
     def _check_consistent_returns(self, node: nodes.FunctionDef) -> None:
         """Check that all return statements inside a function are consistent.

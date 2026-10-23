@@ -70,3 +70,8 @@ def return_in_loop(obj):
             return
 
     return
+
+
+async def async_function():  # [useless-return]
+    print("---- testing ---")
+    return None
