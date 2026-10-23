@@ -12,9 +12,14 @@ from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
 from astroid import nodes
+from astroid.brain.brain_attrs import ATTRS_NAMES
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import is_enum, only_required_for_messages
+from pylint.checkers.utils import (
+    is_enum,
+    is_module_member,
+    only_required_for_messages,
+)
 from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
 
@@ -92,6 +97,16 @@ DATACLASSES_DECORATORS = frozenset({"dataclass", "attrs"})
 DATACLASS_IMPORT = "dataclasses"
 ATTRS_DECORATORS = frozenset({"define", "frozen"})
 ATTRS_IMPORT = "attrs"
+# Qualified names of the class decorators that generate the methods of the class.
+# ATTRS_NAMES also holds the bare name "attrs", which is not a qualified name
+# and would make is_module_member raise.
+GENERATED_METHODS_DECORATORS = frozenset(
+    {
+        "dataclasses.dataclass",
+        "attr.dataclass",
+        *(name for name in ATTRS_NAMES if "." in name),
+    }
+)
 TYPING_NAMEDTUPLE = "typing.NamedTuple"
 TYPING_TYPEDDICT = "typing.TypedDict"
 TYPING_EXTENSIONS_TYPEDDICT = "typing_extensions.TypedDict"
@@ -217,6 +232,8 @@ def _is_exempt_from_public_methods(node: nodes.ClassDef) -> bool:
         if name in ATTRS_DECORATORS and (
             root_locals.intersection(ATTRS_DECORATORS) or ATTRS_IMPORT in root_locals
         ):
+            return True
+        if is_module_member(decorator, *GENERATED_METHODS_DECORATORS):
             return True
     return False
 
