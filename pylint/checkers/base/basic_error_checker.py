@@ -452,6 +452,8 @@ class BasicErrorChecker(_BasicChecker):
     def visit_for(self, node: nodes.For) -> None:
         self._check_else_on_loop(node)
 
+    visit_asyncfor = visit_for
+
     @utils.only_required_for_messages("useless-else-on-loop")
     def visit_while(self, node: nodes.While) -> None:
         self._check_else_on_loop(node)

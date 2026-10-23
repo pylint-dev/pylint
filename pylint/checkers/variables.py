@@ -1544,8 +1544,12 @@ class VariablesChecker(BaseChecker):
                     )
                     break
 
+    visit_asyncfor = visit_for
+
     def leave_for(self, node: nodes.For) -> None:
         self._store_type_annotation_names(node)
+
+    leave_asyncfor = leave_for
 
     def visit_module(self, node: nodes.Module) -> None:
         """Visit module : update consumption analysis variable
@@ -2344,6 +2348,8 @@ class VariablesChecker(BaseChecker):
 
     def leave_with(self, node: nodes.With) -> None:
         self._store_type_annotation_names(node)
+
+    leave_asyncwith = leave_with
 
     def visit_arguments(self, node: nodes.Arguments) -> None:
         for annotation in node.type_comment_args:

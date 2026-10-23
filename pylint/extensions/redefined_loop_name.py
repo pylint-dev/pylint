@@ -79,9 +79,13 @@ class RedefinedLoopNameChecker(checkers.BaseChecker):
 
         self._loop_variables.append((node, assigned_to, node.scope()))
 
+    visit_asyncfor = visit_for
+
     @utils.only_required_for_messages("redefined-loop-name")
     def leave_for(self, node: nodes.For) -> None:  # pylint: disable=unused-argument
         self._loop_variables.pop()
+
+    leave_asyncfor = leave_for
 
 
 def register(linter: PyLinter) -> None:
