@@ -30,6 +30,7 @@ start and end lines numbers of common lines in both files.
 from __future__ import annotations
 
 import argparse
+import ast
 import copy
 import functools
 import itertools
@@ -49,9 +50,6 @@ from pylint.checkers import BaseChecker, BaseRawFileChecker, table_lines_from_st
 from pylint.reporters.ureports.nodes import Section, Table
 from pylint.typing import MessageDefinitionTuple, Options
 from pylint.utils import LinterStats, decoding_stream
-
-import ast
-from typing import Set, Tuple, Iterable, Callable
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -574,7 +572,10 @@ def _get_string_ranges_std(source: str) -> Set[Tuple[int, int, int, int]]:
         return ranges
     for node in ast.walk(tree_std):
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
-            if all(hasattr(node, attr) for attr in ("lineno", "col_offset", "end_lineno", "end_col_offset")):
+            if all(
+                hasattr(node, attr)
+                for attr in ("lineno", "col_offset", "end_lineno", "end_col_offset")
+            ):
                 r = (node.lineno, node.col_offset, node.end_lineno, node.end_col_offset)
                 ranges.add(r)
     return ranges
@@ -687,7 +688,7 @@ def stripped_lines(
                 )
             )
 
-    str_ranges: Set[Tuple[int, int, int, int]] = set()
+    str_ranges: set[tuple[int, int, int, int]] = set()
     if ignore_comments:
         # Collect string position ranges to distinguish '#' inside strings from real comments
         if tree is not None:
@@ -695,7 +696,7 @@ def stripped_lines(
         else:
             source = "".join(lines)
             str_ranges = _get_string_ranges_std(source)
-        
+
     strippedlines = []
     docstring = None
     for lineno, line in enumerate(lines, start=1):
