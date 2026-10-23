@@ -861,6 +861,8 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 self._check_lru_cache_decorators(node)
             self._check_dispatch_decorators(node)
 
+    visit_asyncfunctiondef = visit_functiondef
+
     def _check_lru_cache_decorators(self, node: nodes.FunctionDef) -> None:
         """Check if instance methods are decorated with functools.lru_cache."""
         if any(utils.is_enum(ancestor) for ancestor in node.parent.ancestors()):
