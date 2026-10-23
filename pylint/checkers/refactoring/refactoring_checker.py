@@ -317,10 +317,16 @@ class ConsiderUsingWithStack:
 
     module_scope: dict[str, nodes.NodeNG] = field(default_factory=dict)
     class_scope: dict[str, nodes.NodeNG] = field(default_factory=dict)
-    function_scope: dict[str, nodes.NodeNG] = field(default_factory=dict)
+    # One stack per function, so that leaving a nested function does not
+    # flush the stack of the function around it.
+    function_scopes: dict[nodes.FunctionDef, dict[str, nodes.NodeNG]] = field(
+        default_factory=dict
+    )
 
     def __iter__(self) -> Iterator[dict[str, nodes.NodeNG]]:
-        yield from (self.function_scope, self.class_scope, self.module_scope)
+        # Innermost function first, where a shadowing name is defined.
+        yield from reversed(self.function_scopes.values())
+        yield from (self.class_scope, self.module_scope)
 
     def get_stack_for_frame(
         self, frame: nodes.FunctionDef | nodes.ClassDef | nodes.Module
@@ -328,15 +334,16 @@ class ConsiderUsingWithStack:
         """Get the stack corresponding to the scope of the given frame."""
         match frame:
             case nodes.FunctionDef():
-                return self.function_scope
+                return self.function_scopes.setdefault(frame, {})
             case nodes.ClassDef():
                 return self.class_scope
         return self.module_scope
 
     def clear_all(self) -> None:
         """Convenience method to clear all stacks."""
-        for stack in self:
-            stack.clear()
+        self.function_scopes.clear()
+        self.class_scope.clear()
+        self.module_scope.clear()
 
 
 class RefactoringChecker(checkers.BaseTokenChecker):
@@ -1153,9 +1160,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         del self._return_nodes[node]
         # check for context managers that have been created but not used
         self._emit_consider_using_with_if_needed(
-            self._consider_using_with_stack.function_scope
+            self._consider_using_with_stack.function_scopes.pop(node, {})
         )
-        self._consider_using_with_stack.function_scope.clear()
 
     leave_asyncfunctiondef = leave_functiondef
 

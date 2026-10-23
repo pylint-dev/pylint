@@ -27,3 +27,5 @@ consider-using-with:228:4:228:26::Consider using 'with' for resource-allocating 
 consider-using-with:244:18:244:40:test_subscript_assignment:Consider using 'with' for resource-allocating operations:UNDEFINED
 consider-using-with:246:24:246:46:test_subscript_assignment:Consider using 'with' for resource-allocating operations:UNDEFINED
 consider-using-with:250:11:250:33:test_async_function_scope:Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:271:15:271:37:test_unused_in_nested_function.helper:Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:275:15:275:37:test_unused_in_nested_function.async_helper:Consider using 'with' for resource-allocating operations:UNDEFINED
