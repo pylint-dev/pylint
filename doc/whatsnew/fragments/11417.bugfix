@@ -3,8 +3,10 @@ Checkers registered for ``For`` and ``With`` now also run on ``async for`` and
 ``visit_for`` never received an ``AsyncFor`` even though ``AsyncFor`` is a
 subclass of ``For``. This makes ``useless-else-on-loop``,
 ``confusing-with-statement``, ``redeclared-assigned-name``,
-``redefined-argument-from-local`` and ``too-many-nested-blocks`` fire on the
-async forms.
+``redefined-argument-from-local``, ``too-many-nested-blocks`` and the
+``redefined-loop-name`` extension fire on the async forms. Imports used only in
+a type comment on ``async for`` or ``async with`` are no longer reported as
+``unused-import``.
 
 ``unnecessary-dict-index-lookup``, ``unnecessary-list-index-lookup`` and
 ``unbalanced-dict-unpacking`` reach their ``async for`` handler now as well, but
