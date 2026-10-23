@@ -3,3 +3,4 @@ bad-dunder-name:22:4:22:15:Apples.__init_:Bad or misspelled dunder method name _
 bad-dunder-name:26:4:26:14:Apples._init_:Bad or misspelled dunder method name _init_.:HIGH
 bad-dunder-name:30:4:30:16:Apples.___neg__:Bad or misspelled dunder method name ___neg__.:HIGH
 bad-dunder-name:34:4:34:15:Apples.__inv__:Bad or misspelled dunder method name __inv__.:HIGH
+bad-dunder-name:58:4:58:25:Apples.__aenterr__:Bad or misspelled dunder method name __aenterr__.:HIGH

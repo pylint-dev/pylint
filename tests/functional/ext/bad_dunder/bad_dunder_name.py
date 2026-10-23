@@ -52,6 +52,12 @@ class Apples:
     def __index__(self):
         return 1
 
+    async def __aenter__(self):
+        return self
+
+    async def __aenterr__(self):  # [bad-dunder-name]
+        return self
+
 
 class MyError(Exception):
     @property

@@ -70,6 +70,8 @@ class DunderChecker(BaseChecker):
                 confidence=HIGH,
             )
 
+    visit_asyncfunctiondef = visit_functiondef
+
 
 def register(linter: PyLinter) -> None:
     linter.register_checker(DunderChecker(linter))
