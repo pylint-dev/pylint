@@ -1,5 +1,6 @@
 # pylint: disable=missing-module-docstring, missing-class-docstring,
 # pylint: disable=missing-function-docstring, unused-private-member, too-few-public-methods
+# pylint: disable=invalid-overridden-method
 
 
 class Apples:
@@ -77,6 +78,18 @@ class AsyncApples:
         yield
 
 
+class AwaitedResults:
+    # Python returns the coroutine unchanged: 'await basket[key]' works.
+    async def __getitem__(self, key):
+        return key
+
+    async def __getattr__(self, name):
+        return name
+
+    async def __add__(self, other):
+        return other
+
+
 class AsyncGeneratorApples:
     async def __aiter__(self):
         yield 1
@@ -90,6 +103,16 @@ class AsyncMistakes:
         # only __aenter__ is awaited by 'async with'
         return self
 
+    async def __exit__(self, *args):  # [bad-dunder-name]
+        # the coroutine is truthy: every exception would be swallowed
+        return False
+
+    async def __iter__(self):  # [bad-dunder-name]
+        return self
+
+    async def __next__(self):  # [bad-dunder-name]
+        return 1
+
     async def __aiter__(self):  # [bad-dunder-name]
         # 'async for' needs the async iterator itself, not a coroutine
         return self
@@ -102,6 +125,14 @@ class AsyncMistakes:
         # a coroutine instead of None: TypeError when instantiated
         pass
 
+    async def __eq__(self, other):  # [bad-dunder-name]
+        # the coroutine is truthy: 'in' and dict lookups always match
+        return False
+
+    async def __setitem__(self, key, value):  # [bad-dunder-name]
+        # the coroutine is discarded and never awaited
+        pass
+
 
 class MyError(Exception):
     @property
@@ -111,3 +142,7 @@ class MyError(Exception):
 
 def __increase_me__(val):
     return val + 1
+
+
+async def __enter__(val):
+    return val
