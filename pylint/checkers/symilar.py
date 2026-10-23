@@ -563,8 +563,11 @@ class Symilar:
         """
         self.linesets = [line for lineset in linesets_collection for line in lineset]
 
+
 def _get_string_ranges_std(source: str) -> Set[Tuple[int, int, int, int]]:
-    """Collect start and end (line, column) ranges of all string constants using standard ast."""
+    """Collect start and end (line, column) ranges of all string constants using
+    standard ast.
+    """
     ranges = set()
     try:
         tree_std = ast.parse(source)
@@ -582,25 +585,35 @@ def _get_string_ranges_std(source: str) -> Set[Tuple[int, int, int, int]]:
 
 
 def _get_string_ranges_astroid(tree: nodes.Module) -> Set[Tuple[int, int, int, int]]:
-    """Collect start and end (line, column) ranges of all string constants from astroid AST."""
+    """Collect start and end (line, column) ranges of all string constants from astroid
+    AST.
+    """
     ranges = set()
     for node in tree.get_children_recursively():
         if isinstance(node, nodes.Const) and isinstance(node.value, str):
-            if hasattr(node, "lineno") and hasattr(node, "col_offset") and hasattr(node, "end_lineno") and hasattr(node, "end_col_offset"):
+            if (
+                hasattr(node, "lineno")
+                and hasattr(node, "col_offset")
+                and hasattr(node, "end_lineno")
+                and hasattr(node, "end_col_offset")
+            ):
                 r = (node.lineno, node.col_offset, node.end_lineno, node.end_col_offset)
                 ranges.add(r)
     return ranges
 
 
-def _strip_comment_ast(line: str, lineno: int, str_ranges: Set[Tuple[int, int, int, int]]) -> str:
+def _strip_comment_ast(
+    line: str, lineno: int, str_ranges: Set[Tuple[int, int, int, int]]
+) -> str:
     """
     Strip comments only if '#' is outside string literals.
+
     Fallback splitting is handled by caller when str_ranges is empty.
     """
     hash_positions = [idx for idx, ch in enumerate(line) if ch == "#"]
     for pos in hash_positions:
         in_string = False
-        for (s_lno, s_col, e_lno, e_col) in str_ranges:
+        for s_lno, s_col, e_lno, e_col in str_ranges:
             if s_lno <= lineno <= e_lno:
                 if s_lno == e_lno == lineno:
                     if s_col <= pos < e_col:
@@ -621,6 +634,7 @@ def _strip_comment_ast(line: str, lineno: int, str_ranges: Set[Tuple[int, int, i
             line = line[:pos]
             break
     return line.strip()
+
 
 def stripped_lines(
     lines: Iterable[str],
@@ -704,7 +718,7 @@ def stripped_lines(
             "R0801", lineno
         ):
             continue
-        
+
         # Process comment stripping BEFORE stripping whitespace,
         # otherwise column offsets for '#' will be incorrect
         if ignore_comments:
