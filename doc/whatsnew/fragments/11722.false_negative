@@ -1,5 +1,6 @@
 ``too-many-branches`` now counts ``async for`` loops.
 ``method-cache-max-size-none``, ``singledispatch-method`` and
-``singledispatchmethod-function`` now check ``async def``.
+``singledispatchmethod-function`` now check ``async def``. ``bad-dunder-name``
+now checks ``async def`` methods.
 
 Refs #11722

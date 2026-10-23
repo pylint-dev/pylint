@@ -103,9 +103,6 @@ NOT_YET_ASYNC = {
             "useless-return",
         )
     },
-    ("DunderChecker", "visit_functiondef", ALL_MESSAGES): (
-        "bad-dunder-name skips 'async def'"
-    ),
     ("RepeatedIteratorLoopChecker", "visit_for", "looping-through-iterator"): (
         "an async generator is also exhausted after one loop"
     ),
