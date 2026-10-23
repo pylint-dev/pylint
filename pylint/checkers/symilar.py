@@ -668,8 +668,8 @@ def stripped_lines(
 def _comment_starts(lines: list[str]) -> dict[int, int] | None:
     """Map line numbers to the column where a comment starts.
 
-    Tokenizing keeps a ``#`` inside a string from being taken for a comment.
-    Returns None when the source cannot be tokenized.
+    Use tokens to distinguish a ``#`` inside a string from a comment.
+    Returns None if reading the tokens fails.
     """
     readline = iter(lines).__next__
     try:
