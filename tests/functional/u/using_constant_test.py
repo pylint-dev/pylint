@@ -176,3 +176,60 @@ if z:
 gen = get_generator()
 if gen:  # [using-constant-test]
     pass
+
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/3484
+# astroid infers a decorated method as a plain method, whatever the decorator
+# does. If the decorator is unknown or a class (such as a third-party
+# ``cached_property`` or any other descriptor), the attribute may not be a
+# method at all, so the test is not known to be constant.
+import uninferable_decorators  # pylint: disable=import-error,wrong-import-position
+
+
+def plain_decorator(func):
+    return func
+
+
+class Descriptor:
+    def __init__(self, func):
+        self.func = func
+
+    def __get__(self, obj, owner):
+        return self.func(obj)
+
+
+class DecoratedMethods:
+    @uninferable_decorators.cached_property
+    def unknown(self):
+        return True
+
+    @Descriptor
+    def descriptor(self):
+        return True
+
+    @plain_decorator
+    def decorated(self):
+        return True
+
+    @staticmethod
+    def static():
+        return True
+
+    def check(self):
+        if self.unknown:
+            pass
+        if self.descriptor:
+            pass
+        if self.decorated:  # [using-constant-test]
+            pass
+        if self.static:  # [using-constant-test]
+            pass
+
+
+@uninferable_decorators.command
+def unknown_decorated_function():
+    pass
+
+
+if unknown_decorated_function:
+    pass
