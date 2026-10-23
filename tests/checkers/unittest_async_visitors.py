@@ -88,9 +88,6 @@ SYNC_ONLY = {
 # The message should also be emitted on the async form, but is not yet. Remove
 # the entry when adding the async visitor.
 NOT_YET_ASYNC = {
-    ("MisdesignChecker", "visit_for", ALL_MESSAGES): (
-        "too-many-branches does not count 'async for'"
-    ),
     ("RefactoringChecker", "visit_functiondef", ALL_MESSAGES): (
         "collects the return statements for inconsistent-return-statements"
     ),

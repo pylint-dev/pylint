@@ -711,6 +711,7 @@ class MisdesignChecker(BaseChecker):
         self._inc_branch(node, branches)
 
     visit_for = visit_while
+    visit_asyncfor = visit_while
 
     def visit_match(self, node: nodes.Match) -> None:
         """Increments the branches counter."""
