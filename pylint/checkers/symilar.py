@@ -407,16 +407,15 @@ class Symilar:
             chunk_2 = (lineset2, start_line_2, end_line_2)
             # A pair that shares a chunk with existing groups joins them, so a
             # block copied into three files is one group of three, not one pair.
-            joined = [
-                couples
-                for couples in no_duplicates[num]
-                if chunk_1 in couples or chunk_2 in couples
-            ]
-            merged = {chunk_1, chunk_2}.union(*joined)
-            no_duplicates[num] = [
-                couples for couples in no_duplicates[num] if couples not in joined
-            ]
-            no_duplicates[num].append(merged)
+            merged = {chunk_1, chunk_2}
+            kept: list[set[LinesChunkLimits_T]] = []
+            for couples in no_duplicates[num]:
+                if chunk_1 in couples or chunk_2 in couples:
+                    merged |= couples
+                else:
+                    kept.append(couples)
+            kept.append(merged)
+            no_duplicates[num] = kept
         sims: list[tuple[int, set[LinesChunkLimits_T]]] = []
         ensembles: list[set[LinesChunkLimits_T]]
         for num, ensembles in no_duplicates.items():

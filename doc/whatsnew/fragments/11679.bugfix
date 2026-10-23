@@ -1,5 +1,6 @@
 ``duplicate-code`` now reports every copy of a duplicated block instead of only the
-first two. The message counts distinct files, so a group can list several locations in
-one file.
+first two. Each message lists all the copies, so there are fewer messages and the
+number of duplicated lines in the statistics goes up. The message counts distinct
+files, so a group can list several locations in one file.
 
 Closes #11679
