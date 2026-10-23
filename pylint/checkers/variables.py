@@ -3134,16 +3134,31 @@ class VariablesChecker(BaseChecker):
         if not self.linter.is_message_enabled("cell-var-from-loop"):
             return
 
-        node_scope = node.frame()
-
-        # If node appears in a default argument expression,
-        # look at the next enclosing frame instead
-        if utils.is_default_argument(node, node_scope):
-            node_scope = node_scope.parent.frame()
+        node_scope = node.scope()
+        while True:
+            if isinstance(node_scope, (nodes.ListComp, nodes.SetComp, nodes.DictComp)):
+                # These comprehensions execute immediately in the enclosing scope.
+                node_scope = node_scope.parent.scope()
+            elif isinstance(node_scope, nodes.GeneratorExp):
+                # Only the outermost iterable is evaluated when creating a generator.
+                iterable = node_scope.generators[0].iter
+                if (
+                    iterable is not node
+                    and not iterable.parent_of(node)
+                    and not self._is_generator_consumed(node_scope)
+                ):
+                    break
+                node_scope = node_scope.parent.scope()
+            elif utils.is_default_argument(node, node_scope):
+                node_scope = node_scope.parent.scope()
+            else:
+                break
 
         # Check if node is a cell var
         if (
-            not isinstance(node_scope, (nodes.Lambda, nodes.FunctionDef))
+            not isinstance(
+                node_scope, (nodes.Lambda, nodes.FunctionDef, nodes.GeneratorExp)
+            )
             or node.name in node_scope.locals
         ):
             return
@@ -3173,6 +3188,39 @@ class VariablesChecker(BaseChecker):
                     and not isinstance(node_scope.statement(), nodes.Return)
                 ):
                     self.add_message("cell-var-from-loop", node=node, args=node.name)
+
+    @staticmethod
+    def _is_generator_consumed(node: nodes.GeneratorExp) -> bool:
+        """Recognize immediate iteration without following a generator's lifetime."""
+        parent = node.parent
+        if isinstance(parent, nodes.YieldFrom):
+            return True
+        if isinstance(parent, (nodes.For, nodes.Comprehension)):
+            return parent.iter is node and not isinstance(
+                parent.parent, nodes.GeneratorExp
+            )
+        if not isinstance(parent, nodes.Call) or parent.args[:1] != [node]:
+            return False
+        inferred = utils.safe_infer(parent.func)
+        if inferred is None:
+            return False
+        if inferred.qname() in {"builtins.min", "builtins.max"}:
+            # With multiple arguments these select an object instead of iterating it.
+            return len(parent.args) == 1
+        return inferred.qname() in {
+            "builtins.all",
+            "builtins.any",
+            "builtins.dict",
+            "builtins.frozenset",
+            "builtins.list",
+            "builtins.list.extend",
+            "builtins.next",
+            "builtins.set",
+            "builtins.sorted",
+            "builtins.str.join",
+            "builtins.sum",
+            "builtins.tuple",
+        }
 
     def _should_ignore_redefined_builtin(self, stmt: nodes.NodeNG) -> bool:
         if not isinstance(stmt, nodes.ImportFrom):
