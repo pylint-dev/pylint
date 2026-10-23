@@ -75,3 +75,11 @@ def return_in_loop(obj):
 async def async_function():  # [useless-return]
     print("---- testing ---")
     return None
+
+
+def nested_function_with_the_same_name():  # [useless-return]
+    def nested_function_with_the_same_name():  # pylint: disable=redefined-outer-name
+        return 1
+
+    print(nested_function_with_the_same_name)
+    return

@@ -660,7 +660,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self._return_nodes: dict[str, list[nodes.Return]] = {}
+        self._return_nodes: dict[nodes.FunctionDef, list[nodes.Return]] = {}
         self._consider_using_with_stack = ConsiderUsingWithStack()
         self._init()
         self._never_returning_functions: set[str] = set()
@@ -672,6 +672,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._reported_swap_nodes: set[nodes.NodeNG] = set()
         self._can_simplify_bool_op: bool = False
         self._consider_using_with_stack.clear_all()
+        self._return_nodes.clear()
 
     def open(self) -> None:
         # do this in open since config not fully initialized in __init__
@@ -1149,7 +1150,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consistent_returns(node)
         # check for single return or return None at the end
         self._check_return_at_the_end(node)
-        self._return_nodes[node.name] = []
+        del self._return_nodes[node]
         # check for context managers that have been created but not used
         self._emit_consider_using_with_if_needed(
             self._consider_using_with_stack.function_scope
@@ -2416,7 +2417,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return condition, true_value, false_value
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        self._return_nodes[node.name] = list(
+        self._return_nodes[node] = list(
             node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
         )
 
@@ -2434,12 +2435,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         """
         # explicit return statements are those with a not None value
         explicit_returns = [
-            _node for _node in self._return_nodes[node.name] if _node.value is not None
+            _node for _node in self._return_nodes[node] if _node.value is not None
         ]
         if not explicit_returns:
             return
         if len(explicit_returns) == len(
-            self._return_nodes[node.name]
+            self._return_nodes[node]
         ) and self._is_node_return_ended(node):
             return
         self.add_message("inconsistent-return-statements", node=node)
@@ -2612,7 +2613,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Per its implementation and PEP8 we can have a "return None" at the end
         of the function body if there are other return statements before that!
         """
-        if len(self._return_nodes[node.name]) != 1:
+        if len(self._return_nodes[node]) != 1:
             return
         if not node.body:
             return
