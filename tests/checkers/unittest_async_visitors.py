@@ -87,23 +87,7 @@ SYNC_ONLY = {
 
 # The message should also be emitted on the async form, but is not yet. Remove
 # the entry when adding the async visitor.
-NOT_YET_ASYNC = {
-    ("RefactoringChecker", "visit_functiondef", ALL_MESSAGES): (
-        "collects the return statements for inconsistent-return-statements"
-    ),
-    **{
-        ("RefactoringChecker", "leave_functiondef", message): (
-            "skips 'async def', and too-many-nested-blocks in an 'async def' is "
-            "only reported when a later function flushes it"
-        )
-        for message in (
-            "consider-using-with",
-            "inconsistent-return-statements",
-            "too-many-nested-blocks",
-            "useless-return",
-        )
-    },
-}
+NOT_YET_ASYNC: dict[tuple[str, str, str], str] = {}
 
 
 def _messages(visitor: Callable[..., None] | None) -> set[str]:

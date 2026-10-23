@@ -402,3 +402,8 @@ def wait_for_apps_ready(event, main_thread):
             return True
     else:
         return False
+
+
+async def async_inconsistent_returns(var):  # [inconsistent-return-statements]
+    if var > 0:
+        return var

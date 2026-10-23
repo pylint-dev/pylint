@@ -1,3 +1,4 @@
 too-many-nested-blocks:6:4:14:28:my_function:Too many nested blocks (6/5):UNDEFINED
 too-many-nested-blocks:77:4:97:19:else_if_function:Too many nested blocks (7/5):UNDEFINED
 too-many-nested-blocks:100:4:108:28:async_function:Too many nested blocks (6/5):UNDEFINED
+too-many-nested-blocks:121:4:129:24:async_function_single_block:Too many nested blocks (6/5):UNDEFINED
