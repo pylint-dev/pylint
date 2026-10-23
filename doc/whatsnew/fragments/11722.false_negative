@@ -1,6 +1,8 @@
 ``too-many-branches`` now counts ``async for`` loops.
 ``method-cache-max-size-none``, ``singledispatch-method`` and
 ``singledispatchmethod-function`` now check ``async def``. ``bad-dunder-name``
-now checks ``async def`` methods.
+now checks ``async def`` methods. ``looping-through-iterator`` now checks
+``async for``, so an async generator consumed again in a nested loop is
+reported.
 
 Refs #11722

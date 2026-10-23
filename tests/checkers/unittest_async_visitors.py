@@ -103,12 +103,6 @@ NOT_YET_ASYNC = {
             "useless-return",
         )
     },
-    ("RepeatedIteratorLoopChecker", "visit_for", "looping-through-iterator"): (
-        "an async generator is also exhausted after one loop"
-    ),
-    ("RepeatedIteratorLoopChecker", "leave_for", "looping-through-iterator"): (
-        "pairs with visit_for"
-    ),
 }
 
 
