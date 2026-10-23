@@ -72,6 +72,7 @@ contextmanager
 contravariance
 contravariant
 cgroup
+coroutine
 CPython
 cpython
 csv
