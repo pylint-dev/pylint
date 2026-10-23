@@ -1,10 +1,16 @@
-``too-many-branches`` now counts ``async for`` loops.
-``method-cache-max-size-none``, ``singledispatch-method`` and
-``singledispatchmethod-function`` now check ``async def``. ``bad-dunder-name``
-now checks ``async def`` methods. ``looping-through-iterator`` now checks
-``async for``, so an async generator consumed again in a nested loop is
-reported. ``useless-return``, ``inconsistent-return-statements`` and
-``consider-using-with`` now check ``async def``, and ``too-many-nested-blocks``
-is now reported for an ``async def`` even when no other function follows it.
+More checks now also run on ``async for`` and ``async def``:
+
+- ``too-many-branches`` counts ``async for`` loops.
+- ``method-cache-max-size-none``, ``singledispatch-method`` and
+  ``singledispatchmethod-function`` check ``async def``.
+- ``bad-dunder-name`` checks ``async def`` methods. Only ``__aenter__``,
+  ``__aexit__``, ``__anext__``, ``__call__`` and an async generator
+  ``__aiter__`` can be ``async def``, so ``async def __enter__`` or
+  ``async def __init__`` is reported.
+- ``looping-through-iterator`` checks ``async for``, so an async generator
+  consumed again in a nested loop is reported.
+- ``useless-return``, ``inconsistent-return-statements`` and
+  ``consider-using-with`` check ``async def``, and ``too-many-nested-blocks`` is
+  reported for an ``async def`` even when no other function follows it.
 
 Refs #11722
