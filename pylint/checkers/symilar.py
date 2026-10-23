@@ -30,6 +30,7 @@ start and end lines numbers of common lines in both files.
 from __future__ import annotations
 
 import argparse
+import ast
 import copy
 import functools
 import itertools
@@ -49,9 +50,6 @@ from pylint.checkers import BaseChecker, BaseRawFileChecker, table_lines_from_st
 from pylint.reporters.ureports.nodes import Section, Table
 from pylint.typing import MessageDefinitionTuple, Options
 from pylint.utils import LinterStats, decoding_stream
-
-import ast
-from typing import Set, Tuple, Iterable, Callable
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -565,26 +563,34 @@ class Symilar:
         """
         self.linesets = [line for lineset in linesets_collection for line in lineset]
 
-def _get_string_ranges_astroid(tree: nodes.Module) -> Set[Tuple[int, int, int, int]]:
+
+def _get_string_ranges_astroid(tree: nodes.Module) -> set[tuple[int, int, int, int]]:
     """
     遍历 astroid 语法树，收集字符串常量的起止行列
-    返回集合：(start_lineno, start_col, end_lineno, end_col)
+    返回集合：(start_lineno, start_col, end_lineno, end_col).
     """
     ranges = set()
     for node in tree.get_children_recursively():
         # astroid 字符串节点是 Const
         if isinstance(node, nodes.Const) and isinstance(node.value, str):
-            if hasattr(node, "lineno") and hasattr(node, "col_offset") and hasattr(node, "end_lineno") and hasattr(node, "end_col_offset"):
+            if (
+                hasattr(node, "lineno")
+                and hasattr(node, "col_offset")
+                and hasattr(node, "end_lineno")
+                and hasattr(node, "end_col_offset")
+            ):
                 r = (node.lineno, node.col_offset, node.end_lineno, node.end_col_offset)
                 ranges.add(r)
     return ranges
 
 
-def _strip_comment_ast(line: str, lineno: int, str_ranges: Set[Tuple[int, int, int, int]]) -> str:
+def _strip_comment_ast(
+    line: str, lineno: int, str_ranges: set[tuple[int, int, int, int]]
+) -> str:
     hash_positions = [idx for idx, ch in enumerate(line) if ch == "#"]
     for pos in hash_positions:
         in_string = False
-        for (s_lno, s_col, e_lno, e_col) in str_ranges:
+        for s_lno, s_col, e_lno, e_col in str_ranges:
             if s_lno <= lineno <= e_lno:
                 if s_lno == e_lno == lineno:
                     # 单行字符串
@@ -611,7 +617,8 @@ def _strip_comment_ast(line: str, lineno: int, str_ranges: Set[Tuple[int, int, i
             break
     return line.strip()
 
-def _get_string_ranges_std(source: str) -> Set[Tuple[int, int, int, int]]:
+
+def _get_string_ranges_std(source: str) -> set[tuple[int, int, int, int]]:
     ranges = set()
     try:
         tree_std = ast.parse(source)
@@ -619,10 +626,14 @@ def _get_string_ranges_std(source: str) -> Set[Tuple[int, int, int, int]]:
         return ranges
     for node in ast.walk(tree_std):
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
-            if all(hasattr(node, attr) for attr in ("lineno", "col_offset", "end_lineno", "end_col_offset")):
+            if all(
+                hasattr(node, attr)
+                for attr in ("lineno", "col_offset", "end_lineno", "end_col_offset")
+            ):
                 r = (node.lineno, node.col_offset, node.end_lineno, node.end_col_offset)
                 ranges.add(r)
     return ranges
+
 
 def stripped_lines(
     lines: Iterable[str],
@@ -690,16 +701,16 @@ def stripped_lines(
                 )
             )
 
-    str_ranges: Set[Tuple[int, int, int, int]] = set()
+    str_ranges: set[tuple[int, int, int, int]] = set()
     if ignore_comments:
         if tree is not None:
             # 优先复用传入的 astroid 树，避免重复解析
             str_ranges = _get_string_ranges_astroid(tree)
         else:
-             # tree为空时，自己用标准ast解析源码
+            # tree为空时，自己用标准ast解析源码
             source = "".join(lines)
             str_ranges = _get_string_ranges_std(source)
-        
+
     strippedlines = []
     docstring = None
     for lineno, line in enumerate(lines, start=1):
@@ -707,7 +718,7 @@ def stripped_lines(
             "R0801", lineno
         ):
             continue
-        
+
         if ignore_comments:
             # 如果str_ranges为空（没有语法树），退化成原来的逻辑
             if str_ranges:
