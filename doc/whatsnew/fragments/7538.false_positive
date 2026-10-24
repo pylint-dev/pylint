@@ -1,0 +1,6 @@
+Fix a false positive for ``used-before-assignment`` when a name assigned by a walrus
+in the test of a conditional expression is used in one of its branches, and the
+conditional expression is nested in a larger expression, as in
+``"d" + (s if (s := f()) else "")``.
+
+Closes #7538
