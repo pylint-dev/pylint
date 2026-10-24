@@ -1,0 +1,5 @@
+Fix a false positive for ``cell-var-from-loop`` when a generator of lambdas
+is used only by a single ``for`` loop that calls the lambdas directly.
+Lambdas retained for later calls and lambdas containing ``yield`` still warn.
+
+Closes #10055
