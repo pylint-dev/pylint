@@ -1,0 +1,3 @@
+Pyreverse no longer writes class diagram files when the diagram contains no classes.
+
+Closes #9237

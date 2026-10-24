@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 import sys
 from collections.abc import Iterator
+from pathlib import Path
 from typing import Any
 from unittest import mock
 
@@ -141,7 +142,9 @@ def test_graphviz_supported_image_format(
 @mock.patch("pylint.pyreverse.main.writer")
 @pytest.mark.usefixtures("mock_graphviz")
 def test_graphviz_cant_determine_supported_formats(
-    mock_writer: mock.MagicMock, mock_subprocess: mock.MagicMock, capsys: CaptureFixture
+    mock_writer: mock.MagicMock,
+    mock_subprocess: mock.MagicMock,
+    capsys: CaptureFixture[str],
 ) -> None:
     """Test that Graphviz is used if the image format is supported."""
     mock_subprocess.run.return_value.stderr = "..."
@@ -160,7 +163,7 @@ def test_graphviz_cant_determine_supported_formats(
 @mock.patch("pylint.pyreverse.main.DiadefsHandler", new=mock.MagicMock())
 @mock.patch("pylint.pyreverse.main.writer", new=mock.MagicMock())
 @pytest.mark.usefixtures("mock_graphviz")
-def test_graphviz_unsupported_image_format(capsys: CaptureFixture) -> None:
+def test_graphviz_unsupported_image_format(capsys: CaptureFixture[str]) -> None:
     """Test that Graphviz is used if the image format is supported."""
     with pytest.raises(SystemExit) as wrapped_sysexit:
         # we have to catch the SystemExit so the test execution does not stop
@@ -251,7 +254,7 @@ def test_class_command(
 
 
 def test_version_info(
-    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     """Test that it is possible to display the version information."""
     test_full_version = "1.2.3.4"
@@ -261,3 +264,31 @@ def test_version_info(
     out, _ = capsys.readouterr()
     assert "pyreverse is included in pylint" in out
     assert test_full_version in out
+
+
+@pytest.mark.parametrize("output_format", ["dot", "puml", "mmd", "html"])
+@pytest.mark.parametrize(
+    "source,has_classes",
+    [
+        ("", False),
+        ("def helper():\n    return 1\n", False),
+        ("class Example:\n    pass\n", True),
+    ],
+)
+def test_classless_source_does_not_write_class_diagram(
+    tmp_path: Path, output_format: str, source: str, has_classes: bool
+) -> None:
+    """Only source containing classes produces a class diagram."""
+    module = tmp_path / "classless.py"
+    module.write_text(source, encoding="utf-8")
+
+    assert (
+        main.Run(
+            ["-o", output_format, "--output-directory", str(tmp_path), str(module)]
+        ).run()
+        == 0
+    )
+    output = tmp_path / f"classes.{output_format}"
+    assert output.exists() is has_classes
+    if has_classes:
+        assert "Example" in output.read_text(encoding="utf-8")
