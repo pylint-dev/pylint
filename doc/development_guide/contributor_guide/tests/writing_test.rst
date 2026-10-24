@@ -124,6 +124,62 @@ on the current output by appending ``--update-functional-output`` to the command
     python tests/test_functional.py --update-functional-output -k "test_functional[len_checks]"
 
 
+Pyreverse functional tests
+--------------------------
+
+Tests under ``tests/pyreverse/functional`` use two input layouts:
+
+- ``class_diagrams``: each Python file is one test.
+- ``packages``: each direct subdirectory is one multi-file test.
+- ``package_diagrams``: the same multi-file layout, for package dependency tests.
+
+Nested directories belong to their parent test; ``__init__.py`` is optional.
+Test case names starting with ``_`` are ignored, excluding ``__pycache__``.
+
+Put expected output and optional ``.rc`` configuration beside the input file or
+inside the input directory, using the input's name: ``example.mmd`` or
+``example/example.mmd``, and ``example.rc`` or ``example/example.rc``.
+
+All layouts use the same options in the ``.rc`` file's ``[testoptions]`` section:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Option
+     - Description
+     - Default
+   * - ``diagram_type``
+     - Compare ``classes`` or ``packages`` (package dependencies).
+     - ``classes``
+   * - ``output_formats``
+     - Comma-separated formats, such as ``mmd,dot,puml``.
+     - ``mmd``
+   * - ``source_roots``
+     - Comma-separated source-root paths.
+     - None
+   * - ``command_line_args``
+     - Additional Pyreverse arguments; quoted values are supported.
+     - None
+   * - ``marker``
+     - ``xfail`` for an expected assertion failure, or ``skip`` to omit the test.
+     - None (must pass)
+   * - ``reason``
+     - Explanation required when ``marker`` is set.
+     - None
+
+Relative source roots start from the input file's parent or the input directory.
+Only the selected diagram type's text is compared with expected output.
+Directory names do not select it: ``package_diagrams`` tests must set
+``diagram_type=packages``.
+
+For a known bug, use ``marker=xfail`` and a short ``reason``, ideally with an issue
+number. An unexpected pass fails the suite, so remove the marker when fixed.
+
+Run with::
+
+    python -m pytest tests/pyreverse/test_pyreverse_functional.py
+
+
 .. _writing_config_functional_tests:
 
 Functional tests for configurations

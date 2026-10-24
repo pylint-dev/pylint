@@ -1,0 +1,4 @@
+[testoptions]
+source_roots=..
+output_formats=mmd,dot,puml
+command_line_args=-mn

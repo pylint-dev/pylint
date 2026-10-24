@@ -80,10 +80,13 @@ class TestFileOptions(TypedDict):
     source_roots: list[str]
     output_formats: list[str]
     command_line_args: list[str]
+    diagram_type: str
+    marker: str
+    reason: str
 
 
 class FunctionalPyreverseTestfile(NamedTuple):
-    """Named tuple containing the test file and the expected output."""
+    """Named tuple containing the source file or directory and test options."""
 
     source: Path
     options: TestFileOptions
@@ -93,35 +96,46 @@ def get_functional_test_files(
     root_directory: Path,
 ) -> list[FunctionalPyreverseTestfile]:
     """Get all functional test files from the given directory."""
-    test_files = []
-    for path in root_directory.rglob("*.py"):
-        if path.stem.startswith("_"):
-            continue
-        config_file = path.with_suffix(".rc")
-        if config_file.exists():
-            test_files.append(
-                FunctionalPyreverseTestfile(
-                    source=path, options=_read_config(config_file)
-                )
-            )
-        else:
-            test_files.append(
-                FunctionalPyreverseTestfile(
-                    source=path,
-                    options={
-                        "source_roots": [],
-                        "output_formats": ["mmd"],
-                        "command_line_args": [],
-                    },
-                )
-            )
-    return test_files
+    return [
+        FunctionalPyreverseTestfile(
+            source=path, options=_read_config(path.with_suffix(".rc"))
+        )
+        for path in sorted(root_directory.rglob("*.py"))
+        if path.is_file() and not path.stem.startswith("_")
+    ]
+
+
+def get_functional_test_packages(
+    root_directory: Path,
+) -> list[FunctionalPyreverseTestfile]:
+    """Treat each direct subdirectory not starting with an underscore as one test.
+
+    An __init__.py file is not required, and nested packages belong to the same test.
+    """
+    return [
+        FunctionalPyreverseTestfile(
+            source=path, options=_read_config(path / f"{path.name}.rc")
+        )
+        for path in sorted(root_directory.iterdir())
+        if path.is_dir() and not path.name.startswith("_")
+    ]
 
 
 def _read_config(config_file: Path) -> TestFileOptions:
     config = configparser.ConfigParser()
     config.read(str(config_file))
     source_roots = config.get("testoptions", "source_roots", fallback=None)
+    marker = config.get("testoptions", "marker", fallback="").strip()
+    reason = config.get("testoptions", "reason", fallback="").strip()
+    if marker not in ("", "xfail", "skip"):
+        raise ValueError(
+            f"Unsupported test marker {marker!r} in {config_file}: "
+            "expected 'xfail', 'skip', or an empty value."
+        )
+    if marker and not reason:
+        raise ValueError(
+            f"Test marker {marker!r} in {config_file} requires a non-empty reason."
+        )
     return {
         "source_roots": source_roots.split(",") if source_roots else [],
         "output_formats": config.get(
@@ -130,4 +144,7 @@ def _read_config(config_file: Path) -> TestFileOptions:
         "command_line_args": shlex.split(
             config.get("testoptions", "command_line_args", fallback="")
         ),
+        "diagram_type": config.get("testoptions", "diagram_type", fallback="classes"),
+        "marker": marker,
+        "reason": reason,
     }
