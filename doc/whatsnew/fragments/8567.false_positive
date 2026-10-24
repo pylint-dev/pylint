@@ -1,0 +1,4 @@
+Fixed a false positive for ``unreachable`` when a terminating function call
+(such as ``sys.exit()``) is inside a compound expression within a lambda body.
+
+Closes #8567
