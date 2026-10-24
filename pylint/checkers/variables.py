@@ -1649,6 +1649,18 @@ class VariablesChecker(BaseChecker):
         # do not check for not used locals here
         self._to_consume.pop()
 
+    @staticmethod
+    def _is_same_module_import(name: str, definitions: Iterable[nodes.NodeNG]) -> bool:
+        imported_modules: set[str] = set()
+        for definition in definitions:
+            if not isinstance(definition, nodes.Import):
+                return False
+            for module, alias in definition.names:
+                root = module.split(".", 1)[0]
+                if (alias or root) == name:
+                    imported_modules.add(module if alias else root)
+        return len(imported_modules) == 1
+
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Visit function: update consumption analysis variable and check locals."""
         self._to_consume.append(NamesConsumer(node, "function"))
@@ -1666,6 +1678,11 @@ class VariablesChecker(BaseChecker):
                     and definition.modname == FUTURE
                 ):
                     # It is a __future__ directive, not a symbol.
+                    continue
+
+                if self._is_same_module_import(
+                    name, itertools.chain(globs[name], node.locals[name])
+                ):
                     continue
 
                 # Do not take in account redefined names for the purpose
