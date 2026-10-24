@@ -6,3 +6,4 @@ not-in-loop:25:4:25:12::'continue' not properly in loop:UNDEFINED
 not-in-loop:30:4:30:9::'break' not properly in loop:UNDEFINED
 not-in-loop:33:4:33:12::'continue' not properly in loop:UNDEFINED
 not-in-loop:35:4:35:9::'break' not properly in loop:UNDEFINED
+not-in-loop:61:8:61:13::'break' not properly in loop:UNDEFINED
