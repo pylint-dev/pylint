@@ -1,0 +1,5 @@
+Fix a false positive for ``undefined-variable`` and ``used-before-assignment`` when a
+name with a type annotation but no value is assigned with an assignment expression in
+the condition of a comprehension spanning several lines, and used in its element.
+
+Closes #11647
