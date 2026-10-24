@@ -102,8 +102,15 @@ class LintModuleTest:
             "--exclude_from_minimal_messages_config", default=False
         )
 
+        # A functional test is about the interpreter running it, as its version
+        # specific expected outputs show, not about the 'requires-python' of
+        # whichever pyproject.toml is closest to the working directory.
         _config_initialization(
-            self._linter, args_list=args, config_file=rc_file, reporter=_test_reporter
+            self._linter,
+            args_list=args,
+            config_file=rc_file,
+            reporter=_test_reporter,
+            py_version_from_requires_python=False,
         )
 
         self._check_end_position = (

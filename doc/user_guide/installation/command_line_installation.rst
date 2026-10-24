@@ -24,8 +24,9 @@ it, so that interpreter must be able to parse the syntax used by the code. Newer
 interpreters generally provide a more capable parser. However, for projects that
 support multiple Python versions, running Pylint on the oldest supported interpreter
 is usually the most reliable way to match the compatibility floor. If the lint
-environment uses a newer interpreter, set ``py-version`` to the oldest supported
-version for version-aware checks; it does not emulate the older interpreter. See
+environment uses a newer interpreter, ``py-version`` gives the oldest supported
+version to version-aware checks, read from ``requires-python`` in ``pyproject.toml``
+unless you set it; it does not emulate the older interpreter. See
 :ref:`using pylint with multiple interpreters <continuous-integration>` for more details.
 
 .. note::
