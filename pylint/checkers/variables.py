@@ -1657,10 +1657,18 @@ class VariablesChecker(BaseChecker):
             or self.linter.is_message_enabled("redefined-builtin")
         ):
             return
-        globs = node.root().globals
+        module = node.root()
         for name, stmt in node.items():
-            if name in globs and not isinstance(stmt, nodes.Global):
-                definition = globs[name][0]
+            # A module's globals can hold nodes from other modules, e.g. the
+            # AssignAttr of `other.attribute = value` (astroid's delayed_assattr).
+            # Those do not define the name in this module's scope.
+            outer_definitions = [
+                definition
+                for definition in module.globals.get(name, ())
+                if definition.root() is module
+            ]
+            if outer_definitions and not isinstance(stmt, nodes.Global):
+                definition = outer_definitions[0]
                 if (
                     isinstance(definition, nodes.ImportFrom)
                     and definition.modname == FUTURE
@@ -1671,14 +1679,15 @@ class VariablesChecker(BaseChecker):
                 # Do not take in account redefined names for the purpose
                 # of type checking.:
                 if any(
-                    in_type_checking_block(definition) for definition in globs[name]
+                    in_type_checking_block(definition)
+                    for definition in outer_definitions
                 ):
                     continue
 
                 # Suppress emitting the message if the outer name is in the
                 # scope of an exception assignment.
                 # For example: the `e` in `except ValueError as e`
-                match globs[name][0]:
+                match outer_definitions[0]:
                     case nodes.AssignName(parent=nodes.ExceptHandler()):
                         continue
 
