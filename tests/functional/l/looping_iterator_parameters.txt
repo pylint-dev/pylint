@@ -1,0 +1,1 @@
+looping-through-iterator:36:19:36:23:parameter_rebound_to_iterator_warns:Iterator 'rows' from an outer scope is reused or consumed in a nested loop.:HIGH
