@@ -18,9 +18,9 @@ from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
 from pylint import checkers
 from pylint.checkers import utils
+from pylint.checkers.utils import safe_infer
 from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
-from pylint.checkers.utils import safe_infer
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -684,10 +684,9 @@ class ExceptionsChecker(checkers.BaseChecker):
                     ) and utils.inherit_from_std_ex(exception):
                         exception = exception._proxied
 
-                    if (
-                        isinstance(exception, nodes.ClassDef)
-                        and self._is_overgeneral_exception(exception)
-                    ):
+                    if isinstance(
+                        exception, nodes.ClassDef
+                    ) and self._is_overgeneral_exception(exception):
                         self.add_message(
                             "broad-exception-caught",
                             args=exception.name,
