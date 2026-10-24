@@ -2094,7 +2094,16 @@ class VariablesChecker(BaseChecker):
                                 nodes.Arguments,
                             ),
                         )
-                        and node.name in node.root().locals
+                        and (
+                            node.name in node.root().locals
+                            or (
+                                defstmt.parent is not None
+                                and node.name in defstmt.parent.frame().locals
+                                and not isinstance(
+                                    defstmt.parent.frame(), nodes.ClassDef
+                                )
+                            )
+                        )
                     ):
                         if defined_by_stmt:
                             return (VariableVisitConsumerAction.CONTINUE, [node])
