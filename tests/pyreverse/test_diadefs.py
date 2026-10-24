@@ -20,6 +20,7 @@ from astroid.context import InferenceContext
 from astroid.inference_tip import inference_tip
 from astroid.manager import AstroidManager
 
+from pylint.exceptions import InvalidArgsError
 from pylint.pyreverse.diadefslib import (
     ClassDiadefGenerator,
     DefaultDiadefGenerator,
@@ -304,6 +305,65 @@ def test_class_diagram_warns_for_uninferable_target(HANDLER: DiadefsHandler) -> 
         )
 
     assert diagram.objects == []
+
+
+@pytest.mark.parametrize(
+    ("target", "module_names", "message"),
+    [
+        (
+            "Target",
+            ["first", "second"],
+            "Class name 'Target' must be fully qualified when multiple modules are analyzed.",
+        ),
+        (
+            "missing.Target",
+            ["first", "second"],
+            "Module 'missing' is not part of the project.",
+        ),
+        (
+            "first.Missing",
+            ["first", "second"],
+            "Unable to resolve class 'first.Missing' in module 'first'.",
+        ),
+        (
+            "Missing",
+            ["first"],
+            "Unable to resolve class 'Missing' in module 'first'.",
+        ),
+    ],
+)
+def test_class_diagram_rejects_invalid_target(
+    HANDLER: DiadefsHandler, target: str, module_names: list[str], message: str
+) -> None:
+    project = Project("sample")
+    for module_name in module_names:
+        project.add_module(parse("class Target: pass", module_name=module_name))
+
+    with pytest.raises(InvalidArgsError, match=re.escape(message)):
+        ClassDiadefGenerator(Linker(project), HANDLER).class_diagram(project, target)
+
+
+@pytest.mark.parametrize(
+    ("target", "module_names"),
+    [
+        ("Target", ["first"]),
+        ("first.Target", ["first"]),
+        ("first.Target", ["first", "second"]),
+    ],
+)
+def test_class_diagram_resolves_valid_target(
+    HANDLER: DiadefsHandler, target: str, module_names: list[str]
+) -> None:
+    project = Project("sample")
+    for module_name in module_names:
+        project.add_module(parse("class Target: pass", module_name=module_name))
+
+    diagram = ClassDiadefGenerator(Linker(project), HANDLER).class_diagram(
+        project, target
+    )
+
+    assert len(diagram.objects) == 1
+    assert diagram.objects[0].node is project.get_module("first")["Target"]
 
 
 def _infer_fresh_class_instance(
