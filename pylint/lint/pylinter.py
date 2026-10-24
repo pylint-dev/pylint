@@ -741,16 +741,22 @@ class PyLinter(
             if not msg.may_be_emitted(self.config.py_version):
                 self._msgs_state[msg.msgid] = False
 
+    @property
+    def _ignore_list(self) -> list[str]:
+        """Base names to skip: ``ignore`` extended by ``extend-ignore``."""
+        return [*self.config.ignore, *self.config.extend_ignore]
+
     def _discover_files(self, files_or_modules: Sequence[str]) -> Iterator[str]:
         """Discover python modules and packages in sub-directory.
 
         Returns iterator of paths to discovered modules and packages.
         """
+        ignore_list = self._ignore_list
 
         def is_ignored_name(name: str) -> bool:
             # os.walk already gives base names, unlike _is_ignored_file we do
             # not need to resolve the absolute path to get one.
-            return name in self.config.ignore or _is_in_ignore_list_re(
+            return name in ignore_list or _is_in_ignore_list_re(
                 name, self.config.ignore_patterns
             )
 
@@ -760,7 +766,7 @@ class PyLinter(
             ):
                 if _is_ignored_file(
                     something,
-                    self.config.ignore,
+                    ignore_list,
                     self.config.ignore_patterns,
                     self.config.ignore_paths,
                 ):
@@ -1006,7 +1012,7 @@ class PyLinter(
         """
         if _is_ignored_file(
             filepath,
-            self.config.ignore,
+            self._ignore_list,
             self.config.ignore_patterns,
             self.config.ignore_paths,
         ):
@@ -1048,7 +1054,7 @@ class PyLinter(
         result, errors = expand_modules(
             files_or_modules,
             self.config.source_roots,
-            self.config.ignore,
+            self._ignore_list,
             self.config.ignore_patterns,
             self._ignore_paths,
         )
