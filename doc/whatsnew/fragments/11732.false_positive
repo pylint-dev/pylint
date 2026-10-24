@@ -1,0 +1,4 @@
+Fix a false positive for ``method-hidden`` when a decorated method is inferred
+as a property.
+
+Refs #11732
