@@ -149,8 +149,10 @@ def expand_modules(
             modparts[-1] != "__init__" and os.path.basename(filepath) == "__init__.py"
         )
         if has_init or is_namespace or is_directory:
-            for subfilepath in modutils.get_module_files(
-                os.path.dirname(filepath) or ".", ignore_list, list_all=is_namespace
+            for subfilepath in sorted(
+                modutils.get_module_files(
+                    os.path.dirname(filepath) or ".", ignore_list, list_all=is_namespace
+                )
             ):
                 subfilepath = os.path.normpath(subfilepath)
                 if filepath == subfilepath:
