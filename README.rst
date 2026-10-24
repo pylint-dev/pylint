@@ -111,6 +111,11 @@ Pylint is highly configurable and permits to write plugins in order to add your
 own checks (for example, for internal libraries or an internal rule). Pylint also has an
 ecosystem of existing plugins for popular frameworks and third-party libraries.
 
+The `cell-var-from-loop examples`_ show how to call generated lambdas during
+iteration without retaining them for later calls.
+
+.. _`cell-var-from-loop examples`: https://pylint.readthedocs.io/en/latest/user_guide/messages/warning/cell-var-from-loop.html
+
 .. note::
 
     Pylint supports the Python standard library out of the box. Third-party

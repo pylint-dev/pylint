@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 import astroid
+import pytest
 from astroid import nodes
 
 from pylint.checkers import variables
@@ -20,6 +21,139 @@ REGR_DATA_DIR = str(Path(__file__).parent / ".." / "regrtest_data")
 
 class TestVariablesChecker(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker
+
+    @pytest.mark.parametrize(
+        "code",
+        [
+            (
+                "callbacks = (lambda: index for index in range(3))\n"
+                "for callback in callbacks:\n    callback()"
+            ),
+            "for callback in (lambda: index for index in range(3)):\n    callback()",
+            (
+                "callbacks = (lambda: index for index in range(3))\n"
+                "for callback in callbacks:\n    print(callback(), callback())"
+            ),
+            (
+                "callbacks = (lambda: index for index in range(3))\n"
+                "for callback in callbacks:\n    pass"
+            ),
+        ],
+        ids=["named-generator", "inline-generator", "repeated-call", "discarded"],
+    )
+    def test_generator_callbacks_consumed_immediately(self, code: str) -> None:
+        module = astroid.parse(code)
+        node = next(n for n in module.nodes_of_class(nodes.Name) if n.name == "index")
+        with self.assertNoMessages():
+            self.checker._check_late_binding_closure(node)
+
+    @pytest.mark.parametrize(
+        "code",
+        [
+            (
+                "callbacks = [lambda: index for index in range(3)]\n"
+                "for callback in callbacks:\n    callback()"
+            ),
+            (
+                "callbacks = (lambda: index for index in range(3))\n"
+                "saved = list(callbacks)"
+            ),
+            (
+                "callbacks = (lambda: index for index in range(3))\n"
+                "for callback in callbacks:\n    saved.append(callback)"
+            ),
+            (
+                "callbacks = (lambda: index for index in range(3))\n"
+                "for callback in callbacks:\n    saved.append(lambda: callback())"
+            ),
+            (
+                "callbacks = (lambda: index for index in range(3))\n"
+                "for callback in callbacks:\n    saved.append(callback() for _ in range(3))"
+            ),
+            (
+                "callbacks = (lambda: (yield index) for index in range(3))\n"
+                "for callback in callbacks:\n    saved.append(callback())"
+            ),
+            (
+                "callbacks = (lambda: (yield from [index]) for index in range(3))\n"
+                "for callback in callbacks:\n    saved.append(callback())"
+            ),
+            (
+                "callbacks = (lambda: lambda: index for index in range(3))\n"
+                "for callback in callbacks:\n    saved.append(callback())"
+            ),
+            (
+                "callbacks = (lambda: (index for _ in range(1)) for index in range(3))\n"
+                "for callback in callbacks:\n    saved.append(callback())"
+            ),
+            (
+                "callbacks = (lambda: index for index in range(3))\n"
+                "alias = callbacks\nfor callback in callbacks:\n    callback()"
+            ),
+            (
+                "callbacks = (lambda: index for index in range(3))\n"
+                "callbacks = []\nfor callback in callbacks:\n    callback()"
+            ),
+            (
+                "callbacks = alias = (lambda: index for index in range(3))\n"
+                "for callback in callbacks:\n    callback()"
+            ),
+            (
+                "callbacks, = (lambda: index for index in range(3))\n"
+                "for callback in callbacks:\n    callback()"
+            ),
+            (
+                "callbacks: object = (lambda: index for index in range(3))\n"
+                "for callback in callbacks:\n    callback()"
+            ),
+            "for callback, other in (lambda: index for index in range(3)):\n    callback()",
+            (
+                "callbacks = (lambda: index for index in range(3))\n"
+                "for callback in callbacks:\n    callback = other\n    callback()"
+            ),
+            (
+                "callbacks = (lambda: index for index in range(3))\n"
+                "for callback in callbacks:\n    callback()\nelse:\n    callback()"
+            ),
+            (
+                "callbacks = (lambda: index for index in range(3))\n"
+                "for callback in callbacks:\n    callback()\ncallback()"
+            ),
+            (
+                "for callback in range(3):\n"
+                "    callbacks = (lambda: index for index in range(3))\n    callback()"
+            ),
+        ],
+        ids=[
+            "eager-list",
+            "stored-generator",
+            "stored-callback",
+            "nested-lambda",
+            "lazy-comprehension",
+            "generator-lambda",
+            "yield-from-lambda",
+            "returned-closure",
+            "returned-generator",
+            "aliased-generator",
+            "reassigned-generator",
+            "multiple-targets",
+            "unpacked-assignment",
+            "annotated-assignment",
+            "unpacked-loop-target",
+            "reassigned-callback",
+            "loop-else",
+            "after-loop",
+            "generator-in-loop-body",
+        ],
+    )
+    def test_generator_callbacks_may_escape(self, code: str) -> None:
+        module = astroid.parse(code)
+        node = next(n for n in module.nodes_of_class(nodes.Name) if n.name == "index")
+        with self.assertAddsMessages(
+            MessageTest("cell-var-from-loop", node=node, args="index"),
+            ignore_position=True,
+        ):
+            self.checker._check_late_binding_closure(node)
 
     def test_all_elements_without_parent(self) -> None:
         node = astroid.extract_node("__all__ = []")
