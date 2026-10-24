@@ -353,6 +353,30 @@ def _is_shadowed_in_nested_scope(name: nodes.Name, defnode: nodes.NamedExpr) -> 
     return False
 
 
+def _is_evaluated_when_true(node: nodes.NodeNG, condition: nodes.NodeNG) -> bool:
+    """Checks that ``node`` is always evaluated when ``condition`` is true.
+
+    ``a or (y := b)`` skips the assignment expression when ``a`` is true, while
+    ``a and (y := b)`` only skips it when the whole condition is false.
+    """
+    may_be_skipped = False
+    while node is not condition:
+        parent = node.parent
+        if isinstance(parent, nodes.BoolOp) and node is not parent.values[0]:
+            if parent.op == "or":
+                return False
+            may_be_skipped = True
+        elif isinstance(parent, nodes.IfExp) and node is not parent.test:
+            return False
+        elif may_be_skipped and not (
+            isinstance(parent, nodes.BoolOp) and parent.op == "and"
+        ):
+            # A skipped operand makes the ``and`` false, which must stay false
+            return False
+        node = parent
+    return True
+
+
 def _is_assigned_in_comprehension_condition(
     node: nodes.Name, defnode: nodes.NamedExpr
 ) -> bool:
@@ -363,10 +387,17 @@ def _is_assigned_in_comprehension_condition(
     Self-referencing assignments like ``(y := y)`` are excluded.
     """
     comprehension = utils.get_node_first_ancestor_of_type(defnode, nodes.Comprehension)
-    if comprehension is None or not any(
-        condition is defnode or condition.parent_of(defnode)
-        for condition in comprehension.ifs
-    ):
+    if comprehension is None:
+        return False
+    condition = next(
+        (
+            condition
+            for condition in comprehension.ifs
+            if condition is defnode or condition.parent_of(defnode)
+        ),
+        None,
+    )
+    if condition is None or not _is_evaluated_when_true(defnode, condition):
         return False
     if any(
         name.name == node.name and not _is_shadowed_in_nested_scope(name, defnode)
@@ -2640,10 +2671,33 @@ class VariablesChecker(BaseChecker):
                     ref_in_gen = any(gen.parent_of(ref_node) for gen in comp.generators)
                     if node_in_gen and not ref_in_gen:
                         continue
-                    is_later = (
-                        not (not node_in_gen and ref_in_gen)
-                        and ref_node.lineno > node.lineno
+                    named_expr = (
+                        ref_node.parent
+                        if isinstance(ref_node.parent, nodes.NamedExpr)
+                        else None
                     )
+                    condition = next(
+                        (
+                            condition
+                            for generator in comp.generators
+                            for condition in generator.ifs
+                            if named_expr is not None
+                            and (
+                                condition is named_expr
+                                or condition.parent_of(named_expr)
+                            )
+                        ),
+                        None,
+                    )
+                    if condition is not None:
+                        # The walrus is only guaranteed to run when the
+                        # condition is true and no short-circuit skips it.
+                        is_later = not _is_evaluated_when_true(named_expr, condition)
+                    else:
+                        is_later = (
+                            not (not node_in_gen and ref_in_gen)
+                            and ref_node.lineno > node.lineno
+                        )
                 else:
                     is_later = ref_node.lineno > node.lineno
 
