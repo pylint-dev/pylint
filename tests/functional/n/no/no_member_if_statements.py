@@ -92,3 +92,44 @@ if sys.platform == "not-a-platform":
     print(sum(group for group in os.not_a_function()))
 
 print([str(group) for group in os.not_a_function()])  # [no-member]
+
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/10784
+# An unrelated function assigning a ConditionalJump to Block.statements must not
+# leak into the narrowing of ``stmt`` on the right of the ``and``.
+# pylint: disable=too-few-public-methods
+class Statement:
+    pass
+
+
+class Expression:
+    pass
+
+
+class Assignment(Statement):
+    src: Expression
+
+
+class ConditionalJump(Statement):
+    pass
+
+
+class BinaryOp(Expression):
+    op: str
+
+
+class Block:
+    statements: list[Statement]
+
+
+def make_block_with_conditional_jump() -> Block:
+    cond_block = Block()
+    cond_block.statements = [ConditionalJump()]
+    return cond_block
+
+
+def check_block_local():
+    block = Block()
+    for stmt in block.statements:
+        if isinstance(stmt, Assignment) and isinstance(stmt.src, BinaryOp):
+            print("Assignment")
