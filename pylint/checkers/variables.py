@@ -1660,8 +1660,8 @@ class VariablesChecker(BaseChecker):
         module = node.root()
         for name, stmt in node.items():
             # A module's globals can hold nodes from other modules, e.g. the
-            # AssignAttr of `other.attribute = value` (astroid's delayed_assattr).
-            # Those do not define the name in this module's scope.
+            # AssignAttr of `other.attribute = value` registered by
+            # delayed_assattr in astroid. Those do not define the name here.
             outer_definitions = [
                 definition
                 for definition in module.globals.get(name, ())
