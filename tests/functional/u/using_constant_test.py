@@ -233,3 +233,16 @@ def unknown_decorated_function():
 
 if unknown_decorated_function:
     pass
+
+
+def exit_code_is_not_constant(value):
+    """Regression test for https://github.com/pylint-dev/pylint/issues/9556
+
+    ``SystemExit.code`` is whatever ``SystemExit`` was given, not a constant.
+    """
+    try:
+        raise SystemExit(value)
+    except SystemExit as exc:
+        if exc.code:
+            return exc.code
+    return None
