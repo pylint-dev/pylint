@@ -83,3 +83,28 @@ request("call", "http://localhost", timeout=10)
 
 KWARGS_TIMEOUT = {'timeout': 10}
 post("http://localhost", **KWARGS_TIMEOUT)
+
+# requests.Session methods, through a name, a with block or directly
+session = requests.Session()
+session.delete("http://localhost")  # [missing-timeout]
+session.get("http://localhost")  # [missing-timeout]
+session.head("http://localhost")  # [missing-timeout]
+session.options("http://localhost")  # [missing-timeout]
+session.patch("http://localhost")  # [missing-timeout]
+session.post("http://localhost")  # [missing-timeout]
+session.put("http://localhost")  # [missing-timeout]
+session.request("call", "http://localhost")  # [missing-timeout]
+session.post("http://localhost", **KWARGS_WO_TIMEOUT)  # [missing-timeout]
+
+with requests.Session() as with_session:
+    with_session.get("http://localhost")  # [missing-timeout]
+
+requests.Session().get("http://localhost")  # [missing-timeout]
+
+# requests.Session valid cases
+session.get("http://localhost", timeout=10)
+session.request("call", "http://localhost", timeout=10)
+session.post("http://localhost", **KWARGS_TIMEOUT)
+with requests.Session() as with_session:
+    with_session.get("http://localhost", timeout=10)
+requests.Session().get("http://localhost", timeout=10)
