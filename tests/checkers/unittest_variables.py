@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 import astroid
+import pytest
 from astroid import nodes
 
 from pylint.checkers import variables
@@ -20,6 +21,81 @@ REGR_DATA_DIR = str(Path(__file__).parent / ".." / "regrtest_data")
 
 class TestVariablesChecker(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker
+
+    @pytest.mark.parametrize(
+        "expression, expected",
+        [
+            ("(i for _ in [1, 2])", ["i"]),
+            ("(value for value in [1, 2] if value == i)", ["i"]),
+            ("(value for value in range(i))", []),
+            ("(i for i in range(i))", []),
+            ("list(i for _ in [1, 2])", []),
+            ("collect(i for _ in [1, 2])", []),
+            ("tuple(i for _ in [1, 2])", []),
+            ("set(i for _ in [1, 2])", []),
+            ("frozenset(i for _ in [1, 2])", []),
+            ("dict((i, i) for _ in [1, 2])", []),
+            ("sum(i for _ in [1, 2])", []),
+            ("sum((i for _ in [1, 2]), 0)", []),
+            ("sum([], (i for _ in [1, 2]))", ["i"]),
+            ("min(i for _ in [1, 2])", []),
+            ("max(i for _ in [1, 2])", []),
+            ("min((i for _ in [1]), (i for _ in [1]), key=id)", ["i", "i"]),
+            ("max((i for _ in [1]), (i for _ in [1]), key=id)", ["i", "i"]),
+            ("any(i for _ in [1, 2])", []),
+            ("all(i for _ in [1, 2])", []),
+            ("sorted(i for _ in [1, 2])", []),
+            ("next(i for _ in [1])", []),
+            ("next((i for _ in []), None)", []),
+            ("next(iter([]), (i for _ in [1]))", ["i"]),
+            ("','.join(str(i) for _ in [1])", []),
+            ("[].extend(i for _ in [1])", []),
+            ("(yield from (i for _ in [1]))", []),
+            ("enumerate(i for _ in [1, 2])", ["i"]),
+            ("iter(i for _ in [1, 2])", ["i"]),
+            ("consume(i for _ in [1, 2])", ["i"]),
+            ("unknown(i for _ in [1, 2])", ["i"]),
+            ("(value for value in (i for _ in [1, 2]))", ["i"]),
+        ],
+    )
+    def test_generator_loop_captures(
+        self, expression: str, expected: list[str]
+    ) -> None:
+        node = astroid.parse(
+            "from builtins import list as collect\n"
+            f"def func(consume):\n    for i in [1, 2]:\n        result = {expression}"
+        )
+        self.walk(node)
+        assert [
+            message.args
+            for message in self.linter.release_messages()
+            if message.msg_id == "cell-var-from-loop"
+        ] == expected
+
+    def test_generator_passed_to_shadowed_consumer(self) -> None:
+        node = astroid.parse("""
+        def list(values):
+            return values
+        class Collector:
+            def extend(self, values):
+                return values
+            join = extend
+        for i in [1, 2]:
+            result = list(i for _ in [1, 2])
+            result = Collector().extend(i for _ in [1, 2])
+            result = Collector().join(i for _ in [1, 2])
+        """)
+        self.walk(node)
+        assert [
+            message.args
+            for message in self.linter.release_messages()
+            if message.msg_id == "cell-var-from-loop"
+        ] == ["i", "i", "i"]
+
+    def test_generator_in_comprehension_filter_is_not_iterated(self) -> None:
+        node = astroid.extract_node("[1 for _ in [1] if (i for _ in [1])]")
+        generator = next(node.nodes_of_class(nodes.GeneratorExp))
+        assert not self.checker._is_generator_consumed(generator)
 
     def test_all_elements_without_parent(self) -> None:
         node = astroid.extract_node("__all__ = []")
