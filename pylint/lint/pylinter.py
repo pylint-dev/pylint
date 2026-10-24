@@ -57,7 +57,13 @@ from pylint.lint.utils import (
     get_fatal_error_message,
     prepare_crash_report,
 )
-from pylint.message import Message, MessageDefinition, MessageDefinitionStore
+from pylint.message import (
+    Applicability,
+    Fix,
+    Message,
+    MessageDefinition,
+    MessageDefinitionStore,
+)
 from pylint.reporters import ReporterWarning
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.progress_reporters import ProgressReporter
@@ -430,6 +436,9 @@ class PyLinter(
         # Attributes related to registering messages and their handling
         self.msgs_store = MessageDefinitionStore(self.config.py_version)
         self.msg_status = 0
+        self._available_fixes: collections.Counter[Applicability] = (
+            collections.Counter()
+        )
         self._by_id_managed_msgs: list[ManagedMessage] = []
         self._freeze_register_msgs = False
 
@@ -735,6 +744,7 @@ class PyLinter(
         This method is called before any linting is done.
         """
         self._ignore_paths = self.config.ignore_paths
+        self._available_fixes = collections.Counter()
         # initialize msgs_state now that all messages have been registered into
         # the store
         for msg in self.msgs_store.messages:
@@ -1330,6 +1340,7 @@ class PyLinter(
         col_offset: int | None,
         end_lineno: int | None,
         end_col_offset: int | None,
+        fix: Fix | Callable[[], Fix | None] | None = None,
     ) -> None:
         """After various checks have passed a single Message is
         passed to the reporter and added to stats.
@@ -1398,24 +1409,52 @@ class PyLinter(
         else:
             path = "configuration"
         # add the message
-        self.reporter.handle_message(
-            Message(
-                message_definition.msgid,
-                message_definition.symbol,
-                MessageLocationTuple(
-                    abspath or "",
-                    path,
-                    module or "",
-                    obj,
-                    line or 1,
-                    col_offset or 0,
-                    end_lineno,
-                    end_col_offset,
-                ),
-                msg,
-                confidence,
-            )
+        message = Message(
+            message_definition.msgid,
+            message_definition.symbol,
+            MessageLocationTuple(
+                abspath or "",
+                path,
+                module or "",
+                obj,
+                line or 1,
+                col_offset or 0,
+                end_lineno,
+                end_col_offset,
+            ),
+            msg,
+            confidence,
+            self._resolve_fix(message_definition, fix, abspath),
         )
+        self._count_available_fix(message)
+        self.reporter.handle_message(message)
+
+    @staticmethod
+    def _resolve_fix(
+        message_definition: MessageDefinition,
+        fix: Fix | Callable[[], Fix | None] | None,
+        abspath: str | None,
+    ) -> Fix | None:
+        """Build the fix of an enabled message, only keeping edits of its own file."""
+        if fix is None:
+            return None
+        if not message_definition.fixable:
+            raise exceptions.InvalidMessageError(
+                f"Message {message_definition.symbol} ({message_definition.msgid}) "
+                "has a fix but its checker has no fixer for it"
+            )
+        if callable(fix):
+            fix = fix()
+        if fix is None or any(
+            edit.filepath not in {None, abspath} for edit in fix.edits
+        ):
+            # An inferred node can come from another file than the message
+            return None
+        return fix
+
+    def _count_available_fix(self, message: Message) -> None:
+        if message.fix is not None:
+            self._available_fixes[message.fix.applicability] += 1
 
     def add_message(
         self,
@@ -1427,6 +1466,7 @@ class PyLinter(
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
+        fix: Fix | Callable[[], Fix | None] | None = None,
     ) -> None:
         """Adds a message given by ID or name.
 
@@ -1435,6 +1475,9 @@ class PyLinter(
         AST checkers must provide the node argument (but may optionally
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
+
+        ``fix`` is the automatic fix of the message, or a function building it.
+        The function is only called when the message is enabled.
         """
         confidence = _confidence_or_undefined(confidence, stacklevel=2)
         message_definitions = self.msgs_store.get_message_definitions(msgid)
@@ -1448,6 +1491,7 @@ class PyLinter(
                 col_offset,
                 end_lineno,
                 end_col_offset,
+                fix,
             )
 
     def add_ignored_message(

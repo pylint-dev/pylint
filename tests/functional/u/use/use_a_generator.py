@@ -49,3 +49,22 @@ async def main():
     # there is fine.
     any([is_red(apple) for apple in await pick_apples()]) # [use-a-generator]
     all([is_red(apple) for apple in await pick_apples()]) # [use-a-generator]
+
+
+# The fix keeps the code of the comprehension as it is written.
+any([0 for x in list(range(10))],)  # [use-a-generator]
+any(([0 for x in list(range(10))]))  # [use-a-generator]
+all([  # [use-a-generator]
+    "é" == x  # comment
+    for x in "épée"
+])
+any([all([y > 0 for y in x]) for x in [[1]]])  # [use-a-generator, use-a-generator]
+
+# A generator must be the only argument, the trailing comma is removed.
+any(  # [use-a-generator]
+    [
+        0
+        for x in list(range(10))
+    ],  # comment
+)
+any(([0 for x in list(range(10))]),)  # [use-a-generator]

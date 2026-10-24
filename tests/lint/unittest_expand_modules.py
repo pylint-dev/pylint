@@ -115,6 +115,24 @@ test_pylinter = {
     "isignored": False,
 }
 
+test_fix_option = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": False,
+    "name": "lint.test_fix_option",
+    "path": str(TEST_DIRECTORY / "lint/test_fix_option.py"),
+    "isignored": False,
+}
+
+test_fixer = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": False,
+    "name": "lint.test_fixer",
+    "path": str(TEST_DIRECTORY / "lint/test_fixer.py"),
+    "isignored": False,
+}
+
 test_caching = {
     "basename": "lint",
     "basepath": INIT_PATH,
@@ -178,6 +196,8 @@ def _list_expected_package_modules(
     return (
         init_of_package,
         test_caching,
+        test_fix_option,
+        test_fixer,
         test_pylinter,
         test_run_pylint,
         test_utils,

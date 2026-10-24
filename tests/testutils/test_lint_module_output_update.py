@@ -156,3 +156,50 @@ def test_update_of_functional_output(directory_path: Path, tmp_path: Path) -> No
         _assert_behavior_is_correct(
             ftf, lint_module, lint_module_output_update, new_path
         )
+
+
+FIX_PLUGIN_DIRECTORY = Path(__file__).parent.parent / "regrtest_data" / "fix"
+
+
+@pytest.fixture()
+def fixable_functional_test(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> tuple[Path, Path]:
+    monkeypatch.syspath_prepend(str(FIX_PLUGIN_DIRECTORY))
+    (tmp_path / "fixable.rc").write_text(
+        "[MAIN]\nload-plugins=fix_plugin\ndisable=all\nenable=old-name-used\n",
+        encoding="utf8",
+    )
+    filename = tmp_path / "fixable.py"
+    filename.write_text("print(old_name)  # [old-name-used]\n", encoding="utf8")
+    (tmp_path / "fixable.txt").write_text(
+        "old-name-used:1:6:1:14::Use 'new_name' instead of 'old_name':UNDEFINED\n",
+        encoding="utf8",
+    )
+    return filename, tmp_path / "fixable.fixed"
+
+
+def test_lint_module_output_update_writes_fixed_source(
+    fixable_functional_test: tuple[Path, Path],
+) -> None:
+    filename, fixed_file = fixable_functional_test
+    test_file = FunctionalTestFile(str(filename.parent), str(filename))
+    with pytest.raises(AssertionError, match="Wrong fixed source"):
+        LintModuleTest(test_file).runTest()
+    LintModuleOutputUpdate(test_file).runTest()
+    assert fixed_file.read_text(encoding="utf8") == (
+        "print(new_name)  # [old-name-used]\n"
+    )
+    LintModuleTest(test_file).runTest()
+
+
+def test_lint_module_output_update_removes_useless_fixed_source(
+    fixable_functional_test: tuple[Path, Path],
+) -> None:
+    filename, fixed_file = fixable_functional_test
+    filename.write_text("print(new_name)\n", encoding="utf8")
+    filename.with_suffix(".txt").unlink()
+    fixed_file.write_text("print(new_name)\n", encoding="utf8")
+    test_file = FunctionalTestFile(str(filename.parent), str(filename))
+    LintModuleOutputUpdate(test_file).runTest()
+    assert not fixed_file.exists()

@@ -25,6 +25,7 @@ from pylint.checkers.utils import node_frame_class, truncated_dict_suggestion
 from pylint.constants import WarningScope
 from pylint.graph import get_cycles, get_paths
 from pylint.interfaces import HIGH, INFERENCE, Confidence
+from pylint.message import Applicability, Edit, Fix, source_tokens
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -339,7 +340,10 @@ class ConsiderUsingWithStack:
             stack.clear()
 
 
-class RefactoringChecker(checkers.BaseTokenChecker):
+# Fixers are public methods, like the visit methods
+class RefactoringChecker(  # pylint: disable=too-many-public-methods
+    checkers.BaseTokenChecker
+):
     """Looks for code which can be refactored.
 
     This checker also mixes the astroid and the token approaches
@@ -1257,16 +1261,63 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             inside_comp = f"({inside_comp})"
             inside_comp += ", "
             inside_comp += ", ".join(kw.as_string() for kw in node.keywords)
-        message_name = (
-            "use-a-generator"
-            if call_name in {"any", "all"}
-            else "consider-using-generator"
+        if call_name in {"any", "all"}:
+            self.add_message(
+                "use-a-generator",
+                node=node,
+                args=(call_name, inside_comp),
+                confidence=HIGH,
+            )
+        else:
+            self.add_message(
+                "consider-using-generator",
+                node=node,
+                args=(call_name, inside_comp),
+                confidence=HIGH,
+            )
+
+    def fix_use_a_generator(self, node: nodes.Call, **_: Any) -> Fix | None:
+        """Turn the list comprehension argument of ``node`` into a generator.
+
+        ``any([x for x in y])`` becomes ``any(x for x in y)``. A generator must be
+        parenthesized when it is not the only argument, so a trailing comma after
+        the comprehension is removed, and the brackets become parentheses when a
+        keyword argument follows.
+
+        The fix is unsafe: the generator stops at the first value deciding the
+        result, so the rest of the comprehension is never computed, and an
+        iterator used in it is no longer exhausted.
+        """
+        comp = node.args[0]
+        tokens = source_tokens(node)
+        if tokens is None:
+            return None
+        comp_start = (comp.lineno, comp.col_offset)
+        comp_end = (comp.end_lineno, comp.end_col_offset)
+        opening = next(token for token in tokens if token.start == comp_start)
+        closing = next(token for token in tokens if token.end == comp_end)
+        after_comp = next(
+            token
+            for token in tokens
+            if token.start >= comp_end
+            and token.type not in {tokenize.COMMENT, tokenize.NL}
         )
-        self.add_message(
-            message_name,
-            node=node,
-            args=(call_name, inside_comp),
-            confidence=HIGH,
+        if node.keywords:
+            edits = [
+                Edit(*opening.start, *opening.end, "("),
+                Edit(*closing.start, *closing.end, ")"),
+            ]
+        else:
+            edits = [
+                Edit(*opening.start, *opening.end, ""),
+                Edit(*closing.start, *closing.end, ""),
+            ]
+            if after_comp.string == ",":
+                edits.append(Edit(*after_comp.start, *after_comp.end, ""))
+        return Fix(
+            "Use a generator instead of a list comprehension",
+            tuple(edits),
+            Applicability.UNSAFE,
         )
 
     @utils.only_required_for_messages(
