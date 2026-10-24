@@ -1,0 +1,3 @@
+Clarify that ``--logging-format-style=new`` only applies to logging modules that format ``{}`` themselves, because the standard library only formats with ``%``.
+
+Closes #11702
