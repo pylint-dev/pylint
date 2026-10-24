@@ -582,3 +582,22 @@ def loop_between_outer_and_inner_over_same_iterator_warns(iterable):
         for _i in range(2):
             for item in it:  # [looping-through-iterator]
                 print(first, item)
+
+
+async def async_generator():
+    yield 1
+    yield 2
+
+
+async def async_iterator_in_nested_async_for():
+    numbers = async_generator()
+    for _i in range(2):
+        async for number in numbers:  # [looping-through-iterator]
+            print(number)
+
+
+async def async_iterator_refreshed_in_outer_async_for(items):
+    async for _item in items:
+        numbers = async_generator()
+        async for number in numbers:
+            print(number)

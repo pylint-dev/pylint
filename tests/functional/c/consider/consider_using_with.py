@@ -244,3 +244,35 @@ def test_subscript_assignment():
     job_list[0] = subprocess.Popen("ls")  # [consider-using-with]
     job_dict = {}
     job_dict["myjob"] = subprocess.Popen("ls")  # [consider-using-with]
+
+
+async def test_async_function_scope():
+    proc = subprocess.Popen("ls")  # [consider-using-with]
+    print(proc)
+
+
+def test_used_after_nested_function():
+    # Leaving the nested functions must not flush the candidates of this one.
+    proc = subprocess.Popen("ls")
+
+    def helper():
+        pass
+
+    async def async_helper():
+        pass
+
+    with proc:
+        helper()
+        print(async_helper)
+
+
+def test_unused_in_nested_function():
+    def helper():
+        proc = subprocess.Popen("ls")  # [consider-using-with]
+        print(proc)
+
+    async def async_helper():
+        proc = subprocess.Popen("ls")  # [consider-using-with]
+        print(proc)
+
+    print(helper, async_helper)

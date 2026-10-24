@@ -1,0 +1,19 @@
+More checks now also run on ``async for`` and ``async def``:
+
+- ``too-many-branches`` counts ``async for`` loops.
+- ``method-cache-max-size-none``, ``singledispatch-method`` and
+  ``singledispatchmethod-function`` check ``async def``.
+- ``bad-dunder-name`` checks ``async def`` methods, and reports a dunder method
+  that cannot be ``async def`` because Python checks the type of its return
+  value, uses it as a bool, or ignores it: ``async def __init__``,
+  ``async def __exit__`` (which would swallow every exception) or
+  ``async def __enter__`` instead of ``__aenter__``.
+- ``looping-through-iterator`` checks ``async for``, so an async generator
+  consumed again in a nested loop is reported.
+- ``useless-return``, ``inconsistent-return-statements`` and
+  ``consider-using-with`` check ``async def``, and ``too-many-nested-blocks`` is
+  reported for an ``async def`` even when no other function follows it.
+- ``inconsistent-return-statements`` and ``useless-return`` are no longer
+  skipped for a function containing a nested function with the same name.
+
+Refs #11722

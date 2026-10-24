@@ -115,3 +115,15 @@ async def async_function(ait):
                         print(i)
                     except IOError:
                         pass
+
+
+async def async_function_single_block(ait):
+    async for i in ait:  # [too-many-nested-blocks]
+        if i == 2:
+            while True:
+                try:
+                    if i:
+                        if i > 1:
+                            print(i)
+                except IOError:
+                    pass

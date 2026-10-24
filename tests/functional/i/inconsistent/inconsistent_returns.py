@@ -402,3 +402,26 @@ def wait_for_apps_ready(event, main_thread):
             return True
     else:
         return False
+
+
+async def async_inconsistent_returns(var):  # [inconsistent-return-statements]
+    if var > 0:
+        return var
+
+
+def nested_function_with_the_same_name(var):  # [inconsistent-return-statements]
+    def nested_function_with_the_same_name():  # pylint: disable=redefined-outer-name
+        pass
+
+    if var > 0:
+        return var
+    print(nested_function_with_the_same_name)
+
+
+def nested_async_function_with_the_same_name(var):  # [inconsistent-return-statements]
+    async def nested_async_function_with_the_same_name():  # pylint: disable=redefined-outer-name
+        pass
+
+    if var > 0:
+        return var
+    print(nested_async_function_with_the_same_name)

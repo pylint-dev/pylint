@@ -28,6 +28,7 @@ classDiagram
   class StdlibChecker {
     msgs : dict[str, MessageDefinitionTuple]
     name : str
+    visit_asyncfunctiondef
     deprecated_arguments(method: str) tuple[tuple[int | None, str], ...]
     deprecated_attributes() Iterable[str]
     deprecated_classes(module: str) Iterable[str]
