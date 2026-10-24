@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 
 import attr
 import attrs
+import attrs as a
 
 
 class Abstract(ABC):
@@ -25,6 +26,11 @@ class ConcreteField(Abstract):
     my_prop: int = attrs.field()
 
 
+@a.define
+class ConcreteAliased(Abstract):
+    my_prop: int = a.field()
+
+
 @attr.s
 class ConcreteClassic(Abstract):
     my_prop: int = attr.ib()
@@ -33,3 +39,4 @@ class ConcreteClassic(Abstract):
 Concrete(35)
 ConcreteField(99)
 ConcreteClassic(42)
+ConcreteAliased(77)
