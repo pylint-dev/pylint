@@ -858,7 +858,9 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
         for num, couples in self._compute_sims():
             msg = []
             lineset = start_line = end_line = None
-            for lineset, start_line, end_line in couples:
+            # LineSet hashes by id, so set order varies between runs; sorting
+            # picks the same copy for the snippet as the symilar command does.
+            for lineset, start_line, end_line in sorted(couples):
                 msg.append(f"=={lineset.name}:[{start_line}:{end_line}]")
             msg.sort()
 

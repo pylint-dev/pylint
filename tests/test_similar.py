@@ -6,6 +6,8 @@ from __future__ import annotations
 
 import os
 import re
+import subprocess
+import sys
 import warnings
 from io import StringIO
 from os.path import abspath, dirname, join
@@ -296,3 +298,32 @@ class TestSymilarCodeChecker:
             ],
             expected_output=expected_output,
         )
+
+    @staticmethod
+    def test_snippet_is_deterministic() -> None:
+        """The reported snippet comes from the same copy whatever the hash seed.
+
+        Regression test for https://github.com/pylint-dev/pylint/issues/9937.
+        """
+        path = join(DATA, "nondeterministic_snippet")
+        outputs = set()
+        for seed in range(6):
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "pylint",
+                    path,
+                    "--disable=all",
+                    "--enable=duplicate-code",
+                    "--min-similarity-lines=4",
+                    "--persistent=no",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                env={**os.environ, "PYTHONHASHSEED": str(seed)},
+            )
+            outputs.add(result.stdout)
+        assert len(outputs) == 1
+        assert "# note c" in outputs.pop()
