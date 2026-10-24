@@ -130,6 +130,7 @@ fmt
 formatter
 formfeed
 fromlineno
+frontmatter
 fullname
 func
 functiondef
@@ -214,6 +215,7 @@ metaclasses
 misdesign
 misdesigns
 mixin
+mmd
 modname
 monkeypatch
 mro
@@ -387,6 +389,7 @@ unboundmethod
 unflattens
 unhandled
 unicode
+unindented
 uninferable
 Uninferable
 unittest
