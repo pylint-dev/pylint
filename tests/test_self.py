@@ -1086,6 +1086,23 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         self._test_output([path, "-j2"], expected_output="")
 
     @pytest.mark.parametrize(
+        "modules",
+        [["structure.py", "user.py"], ["user.py", "structure.py"]],
+        ids=["class-module-first", "user-module-first"],
+    )
+    def test_attribute_names_assigned_in_other_module(self, modules: list[str]) -> None:
+        path = join(HERE, "regrtest_data", "attribute_names_other_module")
+        with _test_cwd(path):
+            self._runtest(
+                [
+                    "--disable=all",
+                    "--enable=invalid-name,non-ascii-name",
+                    *modules,
+                ],
+                code=0,
+            )
+
+    @pytest.mark.parametrize(
         "jobs,modules",
         [
             ("1", ["child.py", "parent.py"]),
