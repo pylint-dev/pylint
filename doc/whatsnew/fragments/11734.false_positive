@@ -1,0 +1,5 @@
+Fixed a false positive for ``undefined-variable`` when a deferred annotation
+refers to a class that is local to a function, as in a method annotated with the
+class it belongs to: the name is bound by the time the annotation is evaluated.
+
+Closes #11734
