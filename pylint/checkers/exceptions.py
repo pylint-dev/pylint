@@ -20,6 +20,7 @@ from pylint import checkers
 from pylint.checkers import utils
 from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
+from pylint.checkers.utils import safe_infer
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -656,6 +657,43 @@ class ExceptionsChecker(checkers.BaseChecker):
                         )
 
                 exceptions_classes += [exc for _, exc in exceptions]
+
+    def visit_with(self, node: nodes.With) -> None:
+        """Check for broad exceptions suppressed by contextlib.suppress."""
+        for item in node.items:
+            context_expr = item[0]
+            if not isinstance(context_expr, nodes.Call):
+                continue
+
+            inferred = safe_infer(context_expr.func)
+            if not isinstance(inferred, nodes.ClassDef):
+                continue
+
+            if inferred.qname() != "contextlib.suppress":
+                continue
+
+            for exception_node in context_expr.args:
+                try:
+                    exceptions = _annotated_unpack_infer(exception_node)
+                except astroid.InferenceError:
+                    continue
+
+                for part, exception in exceptions:
+                    if isinstance(
+                        exception, astroid.Instance
+                    ) and utils.inherit_from_std_ex(exception):
+                        exception = exception._proxied
+
+                    if (
+                        isinstance(exception, nodes.ClassDef)
+                        and self._is_overgeneral_exception(exception)
+                    ):
+                        self.add_message(
+                            "broad-exception-caught",
+                            args=exception.name,
+                            node=part,
+                            confidence=INFERENCE,
+                        )
 
     def _is_overgeneral_exception(self, exception: nodes.ClassDef) -> bool:
         return exception.qname() in self.linter.config.overgeneral_exceptions
