@@ -4,3 +4,6 @@ undefined-variable:84:8:84:9:test_skipped_by_or:Undefined variable 'x':HIGH
 undefined-variable:93:8:93:9:test_skipped_by_true_or:Undefined variable 'x':HIGH
 undefined-variable:102:8:102:9:test_skipped_by_conditional_expression:Undefined variable 'x':HIGH
 undefined-variable:111:8:111:9:test_skipped_by_and_then_or:Undefined variable 'x':HIGH
+undefined-variable:142:11:142:12:test_read_in_earlier_filter:Undefined variable 'x':HIGH
+undefined-variable:152:11:152:12:test_read_earlier_in_same_filter:Undefined variable 'x':HIGH
+undefined-variable:162:11:162:12:test_read_in_filter_of_earlier_generator:Undefined variable 'x':HIGH

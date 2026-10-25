@@ -130,3 +130,36 @@ def test_first_in_or():
         for i in range(2)
         if (x := i) or i
     ]
+
+
+# The assignment expression only runs before the element, not before
+# the other conditions that come earlier in the comprehension
+def test_read_in_earlier_filter():
+    x: int
+    return [
+        i
+        for i in range(2)
+        if x  # [undefined-variable]
+        if (x := i)
+    ]
+
+
+def test_read_earlier_in_same_filter():
+    x: int
+    return [
+        i
+        for i in range(2)
+        if x  # [undefined-variable]
+        and (x := i)
+    ]
+
+
+def test_read_in_filter_of_earlier_generator():
+    x: int
+    return [
+        i
+        for i in range(2)
+        if x  # [undefined-variable]
+        for j in range(2)
+        if (x := j)
+    ]
