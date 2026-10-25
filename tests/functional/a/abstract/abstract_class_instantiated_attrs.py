@@ -1,6 +1,6 @@
 """Regression tests for attrs fields implementing abstract properties."""
 
-# pylint: disable=import-error,missing-docstring,too-few-public-methods
+# pylint: disable=import-error,missing-docstring,too-few-public-methods,reimported
 
 from abc import ABC, abstractmethod
 
