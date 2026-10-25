@@ -79,5 +79,6 @@ class MyFloat(float):
 "%*s: %5.1f" % (12, "ratio", 0.25)
 "%.*s %d" % (3, "abcdef", 7)
 "%-*s|%*d" % (8, "left", 6, 42)
+"%*.*f" % (8, 2, 3.14159)
 "%*d" % (5, "x")  # [bad-string-format-type]
 "%*d" % ("5", 1)  # [bad-string-format-type]
