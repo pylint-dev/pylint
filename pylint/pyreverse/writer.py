@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import itertools
 import os
+import sys
 from collections import defaultdict
 from collections.abc import Iterable
 
@@ -21,6 +22,7 @@ from pylint.pyreverse.diagrams import (
     PackageDiagram,
     PackageEntity,
 )
+from pylint.pyreverse.mermaidjs_printer import MermaidJSPrinter
 from pylint.pyreverse.printer import EdgeType, NodeProperties, NodeType, Printer
 from pylint.pyreverse.printer_factory import get_printer_for_filetype
 from pylint.pyreverse.utils import is_exception
@@ -172,15 +174,25 @@ class DiagramWriter:
 
     def set_printer(self, file_name: str, basename: str) -> None:
         """Set printer."""
+        if self.config.theme != "light" and self.printer_class is MermaidJSPrinter:
+            print(
+                f"Theme '{self.config.theme}' is not supported for the plain "
+                "'.mmd' Mermaid output, as it may be embedded in a page with "
+                "its own theme configuration. Use the '.html' output format "
+                "for a themed, standalone Mermaid diagram."
+            )
+            sys.exit(32)
         show_signatures = not self.config.no_signatures
-        self.printer = self.printer_class(basename, show_signatures=show_signatures)
+        self.printer = self.printer_class(
+            basename, show_signatures=show_signatures, theme=self.config.theme
+        )
         self.file_name = file_name
 
     def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
         """Get label and shape for packages."""
         return NodeProperties(
             label=obj.title,
-            color=self.get_shape_color(obj) if self.config.colorized else "black",
+            color=self.get_shape_color(obj) if self.config.colorized else None,
         )
 
     def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
@@ -189,8 +201,8 @@ class DiagramWriter:
             label=obj.title,
             attrs=obj.attrs if not self.config.only_classnames else None,
             methods=obj.methods if not self.config.only_classnames else None,
-            fontcolor="red" if is_exception(obj.node) else "black",
-            color=self.get_shape_color(obj) if self.config.colorized else "black",
+            fontcolor="red" if is_exception(obj.node) else None,
+            color=self.get_shape_color(obj) if self.config.colorized else None,
         )
 
     def get_shape_color(self, obj: DiagramEntity) -> str:
