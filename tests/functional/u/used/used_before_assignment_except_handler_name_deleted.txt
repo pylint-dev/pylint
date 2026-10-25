@@ -1,0 +1,4 @@
+possibly-used-before-assignment:15:7:15:10:shadowed_by_handler_name:Possibly using variable 'exc' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:16:14:16:17:shadowed_by_handler_name:Possibly using variable 'exc' before assignment:CONTROL_FLOW
+used-before-assignment:24:10:24:13:used_in_and_after_handler:Using variable 'err' before assignment:HIGH
+used-before-assignment:92:10:92:13:two_handlers_then_use:Using variable 'err' before assignment:HIGH
