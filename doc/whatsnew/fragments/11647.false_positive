@@ -1,0 +1,5 @@
+Fixed a false positive ``undefined-variable`` (E0602) when a name annotated
+without a value (``x: int``) is assigned with the walrus operator (``:=``) in
+the condition of a comprehension spanning several lines, and used in its element.
+
+Closes #11647
