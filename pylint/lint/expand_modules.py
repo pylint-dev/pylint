@@ -34,6 +34,9 @@ def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> li
         # site-packages or in the standard library. Retry without requiring
         # __init__.py files to still resolve such packages.
         # See https://github.com/pylint-dev/pylint/issues/10278
+        # TODO: Remove this retry once the minimum astroid version has the
+        # path-aware is_namespace() from
+        # https://github.com/pylint-dev/astroid/pull/3445
         return modutils.modpath_from_file_with_callback(  # type: ignore[no-any-return]
             filename, path=path, is_package_cb=_is_namespace_package_path
         )
