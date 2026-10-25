@@ -12,11 +12,47 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
+from astroid import modutils
 
 from pylint.checkers import BaseChecker
 from pylint.lint.expand_modules import _is_in_ignore_list_re, expand_modules
 from pylint.testutils import CheckerTestCase, set_config
 from pylint.typing import MessageDefinitionTuple, ModuleDescriptionDict
+
+
+def test_expand_modules_with_shadowed_namespace_package(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Expand a namespace package that also exists in site-packages.
+
+    Regression test for https://github.com/pylint-dev/pylint/issues/10278
+    """
+    # The name is not used by any other test, since astroid caches the result of
+    # is_namespace() per module name and this one is resolved differently here.
+    namespace = "pylint_shadowed_namespace_10278"
+    project = tmp_path / "project"
+    subpackage = project / namespace / "subpackage"
+    subpackage.mkdir(parents=True)
+    (subpackage / "__init__.py").touch()
+    (subpackage / "module.py").touch()
+    # is_namespace() from astroid reports "not a namespace package" as soon as one
+    # portion of the package is in site-packages or in the standard library. Fake it
+    # instead of writing into the site-packages of the test environment.
+    shadowing_site_packages = tmp_path / "site-packages"
+    (shadowing_site_packages / namespace).mkdir(parents=True)
+    monkeypatch.syspath_prepend(str(project))
+    monkeypatch.syspath_prepend(str(shadowing_site_packages))
+    monkeypatch.setattr(
+        modutils, "EXT_LIB_DIRS", modutils.EXT_LIB_DIRS | {str(shadowing_site_packages)}
+    )
+
+    modules, errors = expand_modules([str(subpackage)], [str(project)], [], [], [])
+
+    assert not errors
+    assert {Path(path).name: module["name"] for path, module in modules.items()} == {
+        "__init__.py": f"{namespace}.subpackage",
+        "module.py": f"{namespace}.subpackage.module",
+    }
 
 
 def test__is_in_ignore_list_re_match() -> None:
