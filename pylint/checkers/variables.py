@@ -2657,51 +2657,18 @@ class VariablesChecker(BaseChecker):
                 # Local refs are ordered, so we break.
                 #     print(var)
                 #     var = 1  # <- irrelevant
-                comp = next(
-                    (
-                        ancestor
-                        for ancestor in node.node_ancestors()
-                        if isinstance(ancestor, utils.COMP_NODE_TYPES)
-                        and ancestor.parent_of(ref_node)
-                    ),
-                    None,
-                )
-                if comp:
-                    node_in_gen = any(gen.parent_of(node) for gen in comp.generators)
-                    ref_in_gen = any(gen.parent_of(ref_node) for gen in comp.generators)
-                    if node_in_gen and not ref_in_gen:
-                        continue
-                    named_expr = (
-                        ref_node.parent
-                        if isinstance(ref_node.parent, nodes.NamedExpr)
-                        else None
-                    )
-                    condition = next(
-                        (
-                            condition
-                            for generator in comp.generators
-                            for condition in generator.ifs
-                            if named_expr is not None
-                            and (
-                                condition is named_expr
-                                or condition.parent_of(named_expr)
-                            )
-                        ),
-                        None,
-                    )
-                    if condition is not None:
-                        # The walrus is only guaranteed to run when the
-                        # condition is true and no short-circuit skips it.
-                        is_later = not _is_evaluated_when_true(named_expr, condition)
-                    else:
-                        is_later = (
-                            not (not node_in_gen and ref_in_gen)
-                            and ref_node.lineno > node.lineno
+                # EXCEPTION: a comprehension condition runs before its element
+                #     [var for x in data if (var := x)]
+                if (
+                    defstmt_frame == node_frame
+                    and ref_node.lineno > node.lineno
+                    and not (
+                        isinstance(ref_node.parent, nodes.NamedExpr)
+                        and _is_assigned_in_comprehension_condition(
+                            node, ref_node.parent
                         )
-                else:
-                    is_later = ref_node.lineno > node.lineno
-
-                if defstmt_frame == node_frame and is_later:
+                    )
+                ):
                     break
 
                 # If the parent of the local reference is anything but an AnnAssign

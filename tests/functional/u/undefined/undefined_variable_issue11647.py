@@ -55,13 +55,12 @@ def test_undefined_after():
     x = 1
 
 
-def test_reversed_filter():
+def test_self_referencing():
     x: int
     return [
-        (x := i)
-        # filter runs before element walrus
+        x  # [undefined-variable]
         for i in range(2)
-        if x  # [undefined-variable]
+        if (x := x + i)
     ]
 
 
