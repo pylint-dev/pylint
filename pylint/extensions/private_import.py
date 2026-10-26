@@ -269,7 +269,7 @@ class PrivateImportChecker(BaseChecker):
         if base_import_package in module_dir.parts:
             return True
 
-        # Locate siblings without importing them or executing package initializers.
+        # Locate siblings without importing them or executing package code.
         try:
             module_file = modutils.file_from_modpath(
                 [base_import_package], path=[str(module_dir)]
