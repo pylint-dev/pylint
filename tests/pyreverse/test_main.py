@@ -302,6 +302,60 @@ def test_invalid_class_target(
     assert not list(tmp_path.glob("*.dot"))
 
 
+@pytest.mark.parametrize("target", ["func", "some_var", "module_value", "instance"])
+def test_nonclass_target(
+    tmp_path: Path, capsys: CaptureFixture[str], target: str
+) -> None:
+    first = tmp_path / "first.py"
+    first.write_text(
+        "import sys\nclass Target: pass\ndef func(): pass\n"
+        "some_var = 1\nmodule_value = sys\ninstance = Target()\n",
+        encoding="utf-8",
+    )
+    second = tmp_path / "second.py"
+    second.write_text("class Other: pass\n", encoding="utf-8")
+
+    exit_code = main.Run(
+        [
+            "--class",
+            f"first.{target}",
+            "--output-directory",
+            str(tmp_path),
+            str(first),
+            str(second),
+        ]
+    ).run()
+
+    assert exit_code == 1
+    captured = capsys.readouterr()
+    assert captured.err == (
+        f"pyreverse: error: Requested target 'first.{target}' in module 'first' is not a class.\n"
+    )
+    assert not captured.out
+    assert not list(tmp_path.glob("*.dot"))
+
+
+def test_uninferable_class_target_warns(
+    tmp_path: Path, capsys: CaptureFixture[str]
+) -> None:
+    first = tmp_path / "first.py"
+    first.write_text("from unresolved import Target\n", encoding="utf-8")
+
+    with pytest.warns(
+        UserWarning,
+        match="Unable to infer requested class 'Target'; generated diagram will be empty.",
+    ):
+        exit_code = main.Run(
+            ["--class", "Target", "--output-directory", str(tmp_path), str(first)]
+        ).run()
+
+    assert exit_code == 0
+    captured = capsys.readouterr()
+    assert not captured.err
+    assert not captured.out
+    assert (tmp_path / "Target.dot").exists()
+
+
 def test_version_info(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
 ) -> None:

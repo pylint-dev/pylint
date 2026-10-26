@@ -273,12 +273,16 @@ class ClassDiadefGenerator(DiaDefGenerator):
                 f"Unable to resolve class {klass_name!r} in module {module.name!r}."
             ) from exc
 
-        if not isinstance(klass, nodes.ClassDef):
+        if klass is astroid.Uninferable:
             warnings.warn(
                 f"Unable to infer requested class {klass_name!r}; generated diagram will be empty.",
                 stacklevel=2,
             )
             return self.classdiagram
+        if not isinstance(klass, nodes.ClassDef):
+            raise InvalidArgsError(
+                f"Requested target {klass_name!r} in module {module.name!r} is not a class."
+            )
 
         anc_level, association_level = self._get_levels()
         self.extract_classes(klass, anc_level, association_level)

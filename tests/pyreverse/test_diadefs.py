@@ -307,6 +307,32 @@ def test_class_diagram_warns_for_uninferable_target(HANDLER: DiadefsHandler) -> 
     assert diagram.objects == []
 
 
+@pytest.mark.parametrize("target", ["func", "some_var", "module_value", "instance"])
+@pytest.mark.parametrize("multiple_modules", [False, True])
+def test_class_diagram_rejects_nonclass_target(
+    HANDLER: DiadefsHandler, target: str, multiple_modules: bool
+) -> None:
+    project = Project("sample")
+    project.add_module(
+        parse(
+            "import sys\nclass Target: pass\ndef func(): pass\n"
+            "some_var = 1\nmodule_value = sys\ninstance = Target()\n",
+            module_name="first",
+        )
+    )
+    if multiple_modules:
+        project.add_module(parse("class Other: pass", module_name="second"))
+        target = f"first.{target}"
+
+    with pytest.raises(
+        InvalidArgsError,
+        match=re.escape(
+            f"Requested target {target!r} in module 'first' is not a class."
+        ),
+    ):
+        ClassDiadefGenerator(Linker(project), HANDLER).class_diagram(project, target)
+
+
 @pytest.mark.parametrize(
     ("target", "module_names", "message"),
     [
@@ -349,6 +375,9 @@ def test_class_diagram_rejects_invalid_target(
         ("Target", ["first"]),
         ("first.Target", ["first"]),
         ("first.Target", ["first", "second"]),
+        ("Alias", ["first"]),
+        ("first.Alias", ["first"]),
+        ("first.Alias", ["first", "second"]),
     ],
 )
 def test_class_diagram_resolves_valid_target(
@@ -356,7 +385,9 @@ def test_class_diagram_resolves_valid_target(
 ) -> None:
     project = Project("sample")
     for module_name in module_names:
-        project.add_module(parse("class Target: pass", module_name=module_name))
+        project.add_module(
+            parse("class Target: pass\nAlias = Target", module_name=module_name)
+        )
 
     diagram = ClassDiadefGenerator(Linker(project), HANDLER).class_diagram(
         project, target
