@@ -1,0 +1,2 @@
+function-redefined:65:12:65:17:twice_in_the_same_case.f:function already defined line 62:UNDEFINED
+function-redefined:92:12:92:20:assignment_outside_a_case.name:function already defined line 88:UNDEFINED
