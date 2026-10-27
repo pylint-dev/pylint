@@ -144,6 +144,12 @@ group are mutually exclusive.",
         reporter: BaseReporter | None = None,
         exit: bool = True,  # pylint: disable=redefined-builtin
     ) -> None:
+        positional_args: Sequence[str] = ()
+        if "--" in args:
+            separator_index = args.index("--")
+            positional_args = args[separator_index + 1 :]
+            args = args[:separator_index]
+
         # Immediately exit if user asks for version
         if "--version" in args:
             print(full_version)
@@ -184,7 +190,12 @@ group are mutually exclusive.",
             _register_generate_config_options(linter._arg_parser)
 
         _config_initialization(
-            linter, args, reporter, config_file=self._rcfile, verbose_mode=self.verbose
+            linter,
+            args,
+            reporter,
+            config_file=self._rcfile,
+            verbose_mode=self.verbose,
+            positional_args=positional_args,
         )
         # Without --output-format the default reporter never went through
         # _load_reporters, which handles NO_COLOR / FORCE_COLOR otherwise
