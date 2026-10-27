@@ -1539,6 +1539,9 @@ a metaclass class method.",
                 except astroid.AttributeInferenceError:
                     pass
 
+            if isinstance(safe_infer(node), objects.Property):
+                return
+
         # check if the method is hidden by an attribute
         # pylint: disable = too-many-try-statements
         try:

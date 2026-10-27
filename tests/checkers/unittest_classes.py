@@ -2,11 +2,13 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
+from collections.abc import Iterator
 from pathlib import Path
 
 import astroid
 import pytest
-from astroid import nodes
+from astroid import nodes, objects
+from astroid.context import InferenceContext
 
 from pylint.checkers.classes.class_checker import (
     ClassChecker,
@@ -81,3 +83,64 @@ def test_super_init_not_called_is_not_raised_in_a_stub(
         exit=False,
     )
     assert [message.symbol for message in run.linter.reporter.messages] == expected
+
+
+def test_method_hidden_ignores_only_inferred_property(linter: PyLinter) -> None:
+    code = """
+        def descriptor(function):
+            return function
+
+        def decorator(function):
+            return function
+
+        class Example:
+            def __init__(self):
+                self.inferred = 1
+                self.ordinary = 1
+
+            @descriptor
+            def inferred(self):
+                return 1
+
+            @decorator
+            def ordinary(self):
+                return 1
+        """
+
+    def is_inferred_property(node: nodes.FunctionDef) -> bool:
+        if not node.decorators:
+            return False
+        decorator = node.decorators.nodes[0]
+        return isinstance(decorator, nodes.Name) and decorator.name == "descriptor"
+
+    def infer_property(
+        node: nodes.FunctionDef,
+        _context: InferenceContext | None = None,
+    ) -> Iterator[objects.Property]:
+        prop_func = objects.Property(
+            function=node,
+            name=node.name,
+            lineno=node.lineno,
+            parent=node.parent,
+            col_offset=node.col_offset,
+        )
+        prop_func.postinit(body=[], args=node.args, doc_node=node.doc_node)
+        yield prop_func
+
+    manager = astroid.MANAGER
+    transform = astroid.inference_tip(infer_property)
+    manager.register_transform(nodes.FunctionDef, transform, is_inferred_property)
+    try:
+        checker = ClassChecker(linter)
+        checker.open()
+        linter.set_current_module("test")
+        module = astroid.parse(code, module_name="test")
+        example = module["Example"]
+        checker.visit_functiondef(example["inferred"])
+        checker.visit_functiondef(example["ordinary"])
+    finally:
+        manager.unregister_transform(nodes.FunctionDef, transform, is_inferred_property)
+
+    assert [(message.symbol, message.obj) for message in linter.reporter.messages] == [
+        ("method-hidden", "Example.ordinary")
+    ]
