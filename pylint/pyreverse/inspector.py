@@ -459,7 +459,7 @@ class AssociationsHandler(AbstractRelationshipHandler):
         info.associations_type[name] = list(current | resolved_types)
 
 
-def resolve_to_class_def(types: set[nodes.NodeNG]) -> set[nodes.ClassDef]:
+def resolve_to_class_def(types: set[InferenceResult]) -> set[nodes.ClassDef]:
     """Resolve a set of nodes to ClassDef nodes."""
     class_defs = set()
     for node in types:
@@ -475,14 +475,16 @@ def resolve_to_class_def(types: set[nodes.NodeNG]) -> set[nodes.ClassDef]:
     return class_defs
 
 
-def extract_element_types(inferred_types: set[InferenceResult]) -> set[nodes.NodeNG]:
+def extract_element_types(
+    inferred_types: set[InferenceResult],
+) -> set[InferenceResult]:
     """Extract element types in case the inferred type is a container.
 
     This function checks if the inferred type is a container type (like list, dict, etc.)
     and extracts the element type(s) from it. If the inferred type is a direct type (like a class),
     it adds that type directly to the set of element types it returns.
     """
-    element_types = set()
+    element_types: set[InferenceResult] = set()
 
     for inferred_type in inferred_types:
         if isinstance(inferred_type, nodes.Subscript):
