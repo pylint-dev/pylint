@@ -2,10 +2,12 @@
 # pylint: disable=too-few-public-methods
 
 from argparse import ArgumentParser, Namespace
+from decimal import Decimal
+from fractions import Fraction
 import os
 from os import PathLike
 from pathlib import Path
-from typing import NoReturn, Set
+from typing import Literal, NoReturn, Set
 
 # unused-import shouldn't be emitted for Path
 example1: Set["Path"] = set()
@@ -25,6 +27,9 @@ def example4(_: "PathLike[str]") -> None:
 example5: Set[""]
 example6: Set[" "]
 example7: Set["?"]
+
+def example8(_: "Decimal | Literal[True]") -> "Fraction | None":
+    """unused-import shouldn't be emitted for Decimal, Literal or Fraction."""
 
 class Class:
     """unused-import shouldn't be emitted for Namespace"""
