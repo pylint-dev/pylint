@@ -1,0 +1,1 @@
+unnecessary-dunder-call:10:0:10:16::Unnecessarily calls dunder method __enter__. Invoke context manager directly.:HIGH
