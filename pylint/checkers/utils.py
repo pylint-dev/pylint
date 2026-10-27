@@ -335,7 +335,7 @@ def _defnode_in_targets(
     return None
 
 
-# pylint: disable = too-many-branches
+# pylint: disable = too-many-branches, too-many-return-statements
 def defnode_in_scope(
     var_node: nodes.NodeNG,
     varname: str,
@@ -365,6 +365,14 @@ def defnode_in_scope(
         # The targets are bound after the value is evaluated
         if any(target.parent_of(var_node) for target in scope.targets):
             return _defnode_in_targets(var_node, varname, scope.targets, scope.scope())
+    elif isinstance(scope, nodes.Decorators):
+        for ass_node in scope.nodes_of_class(nodes.AssignName):
+            if ass_node.name == varname:
+                return ass_node
+    elif isinstance(scope, (nodes.FunctionDef, nodes.ClassDef)) and scope.decorators:
+        for ass_node in scope.decorators.nodes_of_class(nodes.AssignName):
+            if ass_node.name == varname:
+                return ass_node
     elif isinstance(scope, (nodes.Lambda, nodes.FunctionDef)):
         if scope.args.is_argument(varname):
             # If the name is found inside a default value
@@ -390,6 +398,20 @@ def defnode_in_scope(
     return None
 
 
+def _is_defined_in_decorator(var_node: nodes.Name, defnode: nodes.NodeNG) -> bool:
+    """Check if variable defined in decorator is evaluated before var_node."""
+    named_expr = defnode.parent
+    if isinstance(named_expr, nodes.NamedExpr) and named_expr.value.parent_of(var_node):
+        return False
+    def_lineno = defnode.lineno or 0
+    var_lineno = var_node.lineno or 0
+    if def_lineno < var_lineno:
+        return True
+    if def_lineno == var_lineno:
+        return bool((defnode.col_offset or 0) < (var_node.col_offset or 0))
+    return False
+
+
 def is_defined_before(var_node: nodes.Name) -> bool:
     """Check if the given variable node is defined before.
 
@@ -407,6 +429,8 @@ def is_defined_before(var_node: nodes.Name) -> bool:
         if isinstance(parent, nodes.Assign):
             # Bound by an earlier target of the same assignment
             return True
+        if isinstance(parent, nodes.Decorators):
+            return _is_defined_in_decorator(var_node, defnode)
         defnode_scope = defnode.scope()
         if isinstance(
             defnode_scope, (*COMP_NODE_TYPES, nodes.Lambda, nodes.FunctionDef)
