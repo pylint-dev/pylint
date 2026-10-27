@@ -19,3 +19,4 @@ print("Hello", **{"sep": " ", "end": "!"}, **{"end": "?"})  # [repeated-keyword]
 with open("file", "r", encoding="utf8", **{"encoding": "ascii"}) as f:  # [repeated-keyword]
     f.read()
 print("Hello", sep=" ", **{"end": "!"})
+print(**{"end": "!", "end": "?"})  # [duplicate-key]

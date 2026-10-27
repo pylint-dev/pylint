@@ -2,3 +2,4 @@ repeated-keyword:13:0:13:26::Got multiple values for keyword argument 'b' in fun
 repeated-keyword:17:0:17:48::Got multiple values for keyword argument 'end' in function call:UNDEFINED
 repeated-keyword:18:0:18:58::Got multiple values for keyword argument 'end' in function call:UNDEFINED
 repeated-keyword:19:5:19:64::Got multiple values for keyword argument 'encoding' in function call:UNDEFINED
+duplicate-key:22:8:22:32::Duplicate key 'end' in dictionary:UNDEFINED
