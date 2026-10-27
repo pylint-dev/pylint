@@ -233,3 +233,98 @@ class Test(Enum):
     @staticmethod
     def new_test(minimum=TEST[0], maximum=TEST[1]):
         return minimum, maximum
+
+
+def bad_generator_expressions():
+    """Generator bodies and filters use the loop variable when consumed later."""
+    generators = []
+    for loop_var in [1, 2]:
+        generators.append(value for value in [1, 2] if value == loop_var)  # [cell-var-from-loop]
+        generators.append(loop_var for value in [1, 2])  # [cell-var-from-loop]
+        generators.append(
+            value for _ in [1, 2] for value in range(loop_var)  # [cell-var-from-loop]
+        )
+    return generators
+
+
+def good_generator_expressions():
+    """The first iterable is eager, and generator targets shadow outer names."""
+    generators = []
+    for loop_var in [1, 2]:
+        generators.append(value for value in range(loop_var))
+        generators.append(value for value in [loop_var])
+        generators.append(loop_var for loop_var in range(loop_var))
+        generators.append([loop_var for _ in [1, 2]])
+        generators.append({loop_var for _ in [1, 2]})
+        generators.append({value: loop_var for value in [1, 2]})
+    return generators
+
+
+def bad_generator_in_comprehension():
+    """The enclosing comprehension finishes before the generators are consumed."""
+    return [(i for _ in [1, 2]) for i in [1, 2]]  # [cell-var-from-loop]
+
+
+def bad_nested_generator_expressions():
+    """Eager expressions inside a generator body still execute lazily."""
+    generators = []
+    for i in [1, 2]:
+        generators.append([i for _ in [1, 2]] for _ in [1, 2])  # [cell-var-from-loop]
+        generators.append({i for _ in [1, 2]} for _ in [1, 2])  # [cell-var-from-loop]
+        generators.append({0: i for _ in [1, 2]} for _ in [1, 2])  # [cell-var-from-loop]
+        generators.append((lambda value=i: value) for _ in [1, 2])  # [cell-var-from-loop]
+        generators.append((value for value in [i]) for _ in [1, 2])  # [cell-var-from-loop]
+    return generators
+
+
+def good_nested_generator_expressions():
+    """Names bound by inner comprehensions do not capture the outer loop target."""
+    generators = []
+    for i in [1, 2]:
+        generators.append([i for i in [1, 2]] for _ in [1, 2])
+        generators.append(value for value in [i for _ in [1, 2]])
+        generators.append((lambda value=i: value)())
+    return generators
+
+
+def good_returned_generator():
+    """Returning stops the enclosing loop, as it does for a returned lambda."""
+    for i in [1, 2]:
+        if i == 1:
+            return (i for _ in [1, 2])
+    return None
+
+
+def good_consumed_generator_expressions():
+    """Immediately consumed generators cannot outlive the current iteration."""
+    results = []
+    for i in [1, 2]:
+        results.append(list(i for _ in [1, 2]))
+        results.append(sum(i for _ in [1, 2]))
+        results.append([value for value in (i for _ in [1, 2])])
+        for value in (i for _ in [1, 2]):
+            results.append(value)
+    return results
+
+
+def good_generator_iterable():
+    """A name used as the first iterable is looked up immediately."""
+    generators = []
+    for values in [[1], [2]]:
+        generators.append(value for value in values)
+    return generators
+
+
+def bad_consumed_generator_in_closure():
+    """Immediate consumption still happens late when it is inside a closure."""
+    return [lambda: list(i for _ in [1, 2]) for i in [1, 2]]  # [cell-var-from-loop]
+
+
+def bad_generator_default():
+    """A generator default is created immediately, but its body is lazy."""
+    functions = []
+    for i in [1, 2]:
+        def func(values=(i for _ in [1, 2])):  # [cell-var-from-loop]
+            return values
+        functions.append(func)
+    return functions
