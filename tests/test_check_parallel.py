@@ -21,7 +21,6 @@ from unittest.mock import patch
 import dill
 import pytest
 
-import pylint.interfaces
 import pylint.lint.parallel
 from pylint.checkers import BaseRawFileChecker
 from pylint.checkers.imports import ImportsChecker
