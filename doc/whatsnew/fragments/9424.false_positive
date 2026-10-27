@@ -1,0 +1,5 @@
+Fixed a false positive for ``arguments-differ`` when a method takes
+``*args: P.args, **kwargs: P.kwargs`` of a ``ParamSpec`` and the overriding method
+replaces them with its own parameters.
+
+Closes #9424

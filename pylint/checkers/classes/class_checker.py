@@ -325,6 +325,21 @@ def _has_different_keyword_only_parameters(
     return []
 
 
+def _has_paramspec_variadics(function: nodes.FunctionDef) -> bool:
+    """Return True if the variadics of function are ``*args: P.args, **kwargs:
+    P.kwargs``.
+    """
+    vararg_annotation = function.args.varargannotation
+    kwarg_annotation = function.args.kwargannotation
+    return (
+        isinstance(vararg_annotation, nodes.Attribute)
+        and vararg_annotation.attrname == "args"
+        and isinstance(kwarg_annotation, nodes.Attribute)
+        and kwarg_annotation.attrname == "kwargs"
+        and vararg_annotation.expr.as_string() == kwarg_annotation.expr.as_string()
+    )
+
+
 def _different_parameters(
     original: nodes.FunctionDef,
     overridden: nodes.FunctionDef,
@@ -346,6 +361,17 @@ def _different_parameters(
 
     # Copy kwonlyargs list so that we don't affect later function linting
     original_kwonlyargs = original.args.kwonlyargs
+    overridden_kwonlyargs = overridden.args.kwonlyargs
+
+    # The parameters of a ParamSpec are given by the subclass, so the overriding
+    # method can replace the variadics with any parameters.
+    paramspec_variadics = _has_paramspec_variadics(original)
+    if paramspec_variadics:
+        original_kwonly_names = {v.name for v in original_kwonlyargs}
+        overridden_parameters = overridden_parameters[: len(original_parameters)]
+        overridden_kwonlyargs = [
+            v for v in overridden_kwonlyargs if v.name in original_kwonly_names
+        ]
 
     # Allow positional/keyword variadic in overridden to match against any
     # positional/keyword argument in original.
@@ -367,7 +393,7 @@ def _different_parameters(
         original_parameters, overridden_parameters, dummy_parameter_regex
     )
     different_kwonly = _has_different_keyword_only_parameters(
-        original_kwonlyargs, overridden.args.kwonlyargs
+        original_kwonlyargs, overridden_kwonlyargs
     )
     if different_kwonly and different_positional:
         if "Number " in different_positional[0] and "Number " in different_kwonly[0]:
@@ -388,7 +414,7 @@ def _different_parameters(
     kwarg_lost = original.args.kwarg and not overridden.args.kwarg
     vararg_lost = original.args.vararg and not overridden.args.vararg
 
-    if kwarg_lost or vararg_lost:
+    if (kwarg_lost or vararg_lost) and not paramspec_variadics:
         output_messages += ["Variadics removed in"]
 
     if original.name in CONSTRUCTOR_METHODS:
