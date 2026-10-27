@@ -85,6 +85,50 @@ def _is_ignored_file(
     )
 
 
+def _is_case_insensitive_fs() -> bool:
+    """Determine if paths are expected to be case-insensitive on this system."""
+    return os.path.normcase("A") == "a"
+
+
+def _list_directory(directory: str) -> list[str]:
+    """Return the names in ``directory``, or nothing if it cannot be read."""
+    try:
+        return os.listdir(directory or os.curdir)
+    except OSError:
+        return []
+
+
+def _canonical_case_path(path: str) -> str:
+    """Return ``path`` spelled with the capitalization the file system uses.
+
+    Case-insensitive file systems accept ``tests/Sandpit/mod.py`` for
+    ``tests/sandpit/mod.py``. The module name derived from such a path keeps the
+    capitalization of the input, so a single file is seen as two modules: it can
+    trigger messages such as ``invalid-name`` and be linted twice when both
+    spellings are given. Only the capitalization is replaced, so symlinks are
+    left untouched and paths that do not exist are returned unchanged.
+    """
+    if not _is_case_insensitive_fs():
+        return path
+    head, tail = os.path.split(path)
+    if head == path:
+        return path
+    if head:
+        head = _canonical_case_path(head)
+    names = _list_directory(head)
+    if tail in names:
+        return os.path.join(head, tail)
+    expected = tail.casefold()
+    for name in names:
+        if name.casefold() == expected:
+            try:
+                if Path(head, name).samefile(Path(head, tail)):
+                    return os.path.join(head, name)
+            except OSError:
+                pass
+    return os.path.join(head, tail)
+
+
 # pylint: disable = too-many-locals, too-many-statements
 def expand_modules(
     files_or_modules: Sequence[str],
@@ -101,7 +145,6 @@ def expand_modules(
     path = sys.path.copy()
 
     for something in files_or_modules:
-        basename = os.path.basename(something)
         if _is_ignored_file(
             something, ignore_list, ignore_list_re, ignore_list_paths_re
         ):
@@ -114,6 +157,12 @@ def expand_modules(
                 "isignored": True,
             }
             continue
+        # Case-insensitive file systems accept a path spelled differently from the
+        # file system's own capitalization: use the latter so that the derived
+        # module name and path stay the same for differently cased inputs. Ignore
+        # lists above keep matching the path as it was given.
+        something = _canonical_case_path(something)
+        basename = os.path.basename(something)
         module_package_path = discover_package_path(something, source_roots)
         additional_search_path = [".", module_package_path, *path]
         if os.path.exists(something):
