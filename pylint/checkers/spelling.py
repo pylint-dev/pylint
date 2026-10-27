@@ -6,8 +6,10 @@
 
 from __future__ import annotations
 
+import argparse
 import re
 import tokenize
+from collections.abc import Sequence
 from re import Pattern
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -77,6 +79,30 @@ def _get_enchant_dict_choices(
     inner_enchant_dicts: list[tuple[Any, enchant.ProviderDesc]],
 ) -> list[str]:
     return [""] + [d[0] for d in inner_enchant_dicts]
+
+
+class _SpellingDictionaryAction(argparse.Action):
+    """Explain missing dictionaries before validating a dictionary name."""
+
+    def __init__(self, option_strings: Sequence[str], dest: str, **kwargs: Any) -> None:
+        super().__init__(option_strings, dest, **kwargs)
+        if self.choices == [""]:
+            self.choices = None
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
+    ) -> None:
+        if values and self.choices is None:
+            raise argparse.ArgumentError(
+                self,
+                "No spelling dictionaries available. Check your pyenchant "
+                "installation, including its system dependencies.",
+            )
+        setattr(namespace, self.dest, values)
 
 
 def _get_enchant_dict_help(
@@ -244,6 +270,7 @@ class SpellingChecker(BaseTokenChecker):
                 "type": "choice",
                 "metavar": "<dict name>",
                 "choices": _get_enchant_dict_choices(enchant_dicts),
+                "action": _SpellingDictionaryAction,
                 "help": _get_enchant_dict_help(enchant_dicts, PYENCHANT_AVAILABLE),
             },
         ),
