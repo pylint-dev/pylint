@@ -1,0 +1,3 @@
+Fix a crash in the logging checker when a logging call uses a ``bytes`` format string that is not valid UTF-8.
+
+Closes #10813
