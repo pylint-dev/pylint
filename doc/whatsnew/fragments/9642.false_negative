@@ -1,0 +1,4 @@
+Fix false-negative ``possibly-used-before-assignment`` for variables defined
+only inside loops that never run (e.g. empty collections or while False).
+
+Closes #9642
