@@ -5,9 +5,11 @@
 """Unit tests for the imports checker."""
 
 import os
+from pathlib import Path
 
 import astroid
-from pytest import CaptureFixture
+import pytest
+from pytest import CaptureFixture, MonkeyPatch
 
 from pylint.checkers import imports
 from pylint.interfaces import UNDEFINED
@@ -20,6 +22,35 @@ REGR_DATA = os.path.join(os.path.dirname(__file__), "..", "regrtest_data", "")
 
 class TestImportsChecker(CheckerTestCase):
     CHECKER_CLASS = imports.ImportsChecker
+
+    @pytest.mark.parametrize("resolution", ["same", "different", "builtin", "missing"])
+    def test_import_self_file_resolution(
+        self, tmp_path: Path, monkeypatch: MonkeyPatch, resolution: str
+    ) -> None:
+        module = astroid.parse("import pack", module_name="pack")
+        module.file = str(tmp_path / "pack.py")
+        node = module.body[0]
+        monkeypatch.setattr(astroid.modutils, "get_module_part", lambda name: name)
+
+        def resolve(modpath: list[str]) -> str | None:
+            assert modpath == ["pack"]
+            if resolution == "missing":
+                raise ImportError("No importable module")
+            if resolution == "builtin":
+                return None
+            if resolution == "same":
+                return str(tmp_path / "directory" / ".." / "pack.py")
+            return str(tmp_path / "other" / "pack.py")
+
+        monkeypatch.setattr(astroid.modutils, "file_from_modpath", resolve)
+        if resolution in {"same", "missing"}:
+            with self.assertAddsMessages(
+                MessageTest(msg_id="import-self", node=node), ignore_position=True
+            ):
+                self.checker._add_imported_module(node, "pack")
+        else:
+            with self.assertNoMessages():
+                self.checker._add_imported_module(node, "pack")
 
     def test_relative_beyond_top_level(self) -> None:
         module = astroid.MANAGER.ast_from_module_name("beyond_top", REGR_DATA)
