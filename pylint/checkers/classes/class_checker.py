@@ -1676,6 +1676,27 @@ a metaclass class method.",
         ):
             self.add_message("property-with-parameters", node=node, confidence=HIGH)
 
+    @staticmethod
+    def _returns_coroutine(function_node: nodes.FunctionDef) -> bool:
+        """Recognize synchronous methods that directly return coroutine calls."""
+        if (
+            not function_node.body
+            or function_node.is_generator()
+            or not isinstance(function_node.body[-1], nodes.Return)
+        ):
+            return False
+        for return_node in function_node.nodes_of_class(
+            nodes.Return, skip_klass=(nodes.FunctionDef, nodes.ClassDef)
+        ):
+            if not isinstance(return_node.value, nodes.Call):
+                return False
+            callee = safe_infer(return_node.value.func)
+            while isinstance(callee, (bases.BoundMethod, bases.UnboundMethod)):
+                callee = callee._proxied
+            if not isinstance(callee, nodes.AsyncFunctionDef) or callee.is_generator():
+                return False
+        return True
+
     def _check_invalid_overridden_method(
         self,
         function_node: nodes.FunctionDef,
@@ -1703,14 +1724,22 @@ a metaclass class method.",
         parent_is_async = isinstance(parent_function_node, nodes.AsyncFunctionDef)
         current_is_async = isinstance(function_node, nodes.AsyncFunctionDef)
 
-        if parent_is_async and not current_is_async:
+        if (
+            parent_is_async
+            and not current_is_async
+            and not self._returns_coroutine(function_node)
+        ):
             self.add_message(
                 "invalid-overridden-method",
                 args=(function_node.name, "async", "non-async"),
                 node=function_node,
             )
 
-        elif not parent_is_async and current_is_async:
+        elif (
+            not parent_is_async
+            and current_is_async
+            and not self._returns_coroutine(parent_function_node)
+        ):
             self.add_message(
                 "invalid-overridden-method",
                 args=(function_node.name, "non-async", "async"),

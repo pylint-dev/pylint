@@ -1,0 +1,8 @@
+invalid-overridden-method:45:4:45:11:MixedReturns.run:Method 'run' was expected to be 'async', found it instead as 'non-async':UNDEFINED
+invalid-overridden-method:52:4:52:11:BareReturn.run:Method 'run' was expected to be 'async', found it instead as 'non-async':UNDEFINED
+invalid-overridden-method:59:4:59:11:FallsThrough.run:Method 'run' was expected to be 'async', found it instead as 'non-async':UNDEFINED
+invalid-overridden-method:65:4:65:11:NestedReturn.run:Method 'run' was expected to be 'async', found it instead as 'non-async':UNDEFINED
+invalid-overridden-method:76:4:76:11:ReturnsAsyncGenerator.run:Method 'run' was expected to be 'async', found it instead as 'non-async':UNDEFINED
+invalid-overridden-method:81:4:81:11:IsGenerator.run:Method 'run' was expected to be 'async', found it instead as 'non-async':UNDEFINED
+invalid-overridden-method:91:4:91:11:ReturnsSynchronousCall.run:Method 'run' was expected to be 'async', found it instead as 'non-async':UNDEFINED
+invalid-overridden-method:96:4:96:11:UnknownCall.run:Method 'run' was expected to be 'async', found it instead as 'non-async':UNDEFINED
