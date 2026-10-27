@@ -1603,6 +1603,34 @@ accessed. Python regular expressions are accepted.",
             # those errors are handled by different warnings.
             return
 
+        # Build the set of keyword arguments, checking for duplicate keywords,
+        # and count the positional arguments.
+        call_site = arguments.CallSite.from_call(node)
+
+        # Warn about duplicated keyword arguments, such as `f=24, **{'f': 24}`.
+        # This does not depend on the signature, so built-ins are checked too.
+        # Ignore duplicate keys within one mapping: the mapping itself resolves
+        # those before it is expanded into the call.
+        seen_keywords: set[str] = set()
+        duplicated_keywords: set[str] = set()
+        for keyword in node.keywords:
+            if keyword.arg is not None:
+                keyword_names = {keyword.arg}
+            else:
+                inferred_keyword_value = utils.safe_infer(keyword.value)
+                if not isinstance(inferred_keyword_value, nodes.Dict):
+                    continue
+                keyword_names = {
+                    inferred_key.value
+                    for key, _ in inferred_keyword_value.items
+                    if isinstance((inferred_key := utils.safe_infer(key)), nodes.Const)
+                    and isinstance(inferred_key.value, str)
+                }
+            duplicated_keywords.update(seen_keywords & keyword_names)
+            seen_keywords.update(keyword_names)
+        for keyword in duplicated_keywords:
+            self.add_message("repeated-keyword", node=node, args=(keyword,))
+
         if called.args.args is None:
             if called.name == "isinstance":
                 # Verify whether second argument of isinstance is a valid type
@@ -1614,14 +1642,6 @@ accessed. Python regular expressions are accepted.",
             # Duplicate parameter name (see duplicate-argument).  We can't really
             # make sense of the function call in this case, so just return.
             return
-
-        # Build the set of keyword arguments, checking for duplicate keywords,
-        # and count the positional arguments.
-        call_site = arguments.CallSite.from_call(node)
-
-        # Warn about duplicated keyword arguments, such as `f=24, **{'f': 24}`
-        for keyword in call_site.duplicated_keywords:
-            self.add_message("repeated-keyword", node=node, args=(keyword,))
 
         if call_site.has_invalid_arguments() or call_site.has_invalid_keywords():
             # Can't make sense of this.
