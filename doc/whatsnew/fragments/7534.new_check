@@ -1,0 +1,6 @@
+Add the optional ``pylint.extensions.exit_argument_names`` extension with the
+``non-standard-exit-argument-names`` message. It is emitted when the arguments of
+``__exit__`` or ``__aexit__`` are not named ``exc_type``, ``exc_value`` and
+``traceback``, as in the Python data model documentation.
+
+Closes #7534
