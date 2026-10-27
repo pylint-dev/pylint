@@ -25,7 +25,7 @@ EMPTY_MODULE = Path(__file__).parents[1] / "regrtest_data" / "empty.py"
 def fixture_dictionaries(
     request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
 ) -> list[str]:
-    """Control available dictionaries independently of the installed Enchant backend."""
+    """Control available dictionaries independently of the Enchant installation."""
     available: list[str] = request.param
     monkeypatch.setattr(
         SpellingChecker,
