@@ -635,6 +635,10 @@ Imports checker Messages
 :import-outside-toplevel (C0415): *Import outside toplevel (%s)*
   Used when an import statement is used anywhere other than the module
   toplevel. Move this import to the top of the file.
+:misplaced-module-dunder (C0416): *Module-level dunder name %s should be placed before imports*
+  Used when a module-level dunder is defined after a regular import. Module-
+  level dunders should be placed after the module docstring and future imports
+  but before any other imports, unless they depend on an imported name.
 
 Imports checker Reports
 ^^^^^^^^^^^^^^^^^^^^^^^

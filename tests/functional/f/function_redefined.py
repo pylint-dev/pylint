@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,using-constant-test
+# pylint: disable=missing-docstring,using-constant-test,misplaced-module-dunder
 # pylint: disable=unused-import,wrong-import-position,reimported, unnecessary-pass
 from __future__ import division
 
