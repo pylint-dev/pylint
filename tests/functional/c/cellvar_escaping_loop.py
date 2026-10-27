@@ -109,6 +109,21 @@ def good_case_issue_5012():
 
     return funs
 
+
+def good_case_issue_5508():
+    """Lambda passed to a call that only uses it before returning.
+    https://github.com/pylint-dev/pylint/issues/5508
+    """
+    sorting_keys = {"category_a": "key_a", "category_b": "key_b"}
+    results = {}
+    for category, messages in {"category_a": [{"key_a": 1}], "category_b": []}.items():
+        results[category] = sorted(messages, key=lambda msg: msg[sorting_keys[category]])
+        results[category] = min(messages, key=lambda msg: msg[sorting_keys[category]])
+        results[category] = max(messages, key=lambda msg: msg[sorting_keys[category]])
+        messages.sort(key=lambda msg: msg[sorting_keys[category]])
+    return results
+
+
 def bad_case():
     """Closing over a loop variable."""
     lst = []
@@ -225,6 +240,28 @@ def bad_case_issue2846():
     ]
 
     return lst_a, lst_b
+
+
+def bad_case_issue_5508(register):
+    """Only known eager consumers are exempt: anything else may keep the lambda."""
+    funs = []
+    for i in range(10):
+        funs.append((lambda: i, i))  # [cell-var-from-loop]
+        register(callback=lambda: i)  # [cell-var-from-loop]
+        funs.append(map(lambda x: x + i, range(3)))  # [cell-var-from-loop]
+        funs.append(sorted(range(3), key=lambda x: x + i))
+    return funs
+
+
+def bad_case_shadowed_consumer():
+    """A shadowed consumer is not the builtin and may keep the lambda."""
+    def sorted(iterable, key):  # pylint: disable=redefined-builtin
+        return key, iterable
+
+    funs = []
+    for i in range(10):
+        funs.append(sorted(range(3), key=lambda x: x + i))  # [cell-var-from-loop]
+    return funs
 
 
 class Test(Enum):
