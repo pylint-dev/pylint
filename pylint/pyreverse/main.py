@@ -12,6 +12,7 @@ from collections.abc import Sequence
 from pylint import constants
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.config.arguments_provider import _ArgumentsProvider
+from pylint.exceptions import InvalidArgsError
 from pylint.lint import discover_package_path
 from pylint.lint.utils import augmented_sys_path
 from pylint.pyreverse import writer
@@ -368,7 +369,11 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
             )
             linker = Linker(project, tag=True)
             handler = DiadefsHandler(self.config, self.args)
-            diadefs = handler.get_diadefs(project, linker)
+            try:
+                diadefs = handler.get_diadefs(project, linker)
+            except InvalidArgsError as exc:
+                print(f"pyreverse: error: {exc}", file=sys.stderr)
+                return 1
         writer.DiagramWriter(self.config).write(diadefs)
         return 0
 
