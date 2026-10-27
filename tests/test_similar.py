@@ -6,14 +6,18 @@ from __future__ import annotations
 
 import os
 import re
+import subprocess
+import sys
 import warnings
 from io import StringIO
 from os.path import abspath, dirname, join
+from pathlib import Path
 from typing import TextIO
 
 import pytest
 
 from pylint.reporters.text import TextReporter
+from pylint.testutils._run import _add_rcfile_default_pylintrc
 from pylint.testutils._run import _Run as Run
 from pylint.testutils.utils import _patch_streams
 
@@ -296,3 +300,34 @@ class TestSymilarCodeChecker:
             ],
             expected_output=expected_output,
         )
+
+    @staticmethod
+    def test_snippet_is_deterministic(tmp_path: Path) -> None:
+        """The reported snippet comes from the same copy whatever the hash seed.
+
+        Regression test for https://github.com/pylint-dev/pylint/issues/9937.
+        """
+        path = join(DATA, "nondeterministic_snippet")
+        args = _add_rcfile_default_pylintrc(
+            [
+                path,
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--min-similarity-lines=4",
+                "--persistent=no",
+            ]
+        )
+        outputs = set()
+        for seed in range(6):
+            result = subprocess.run(
+                [sys.executable, "-m", "pylint", *args],
+                capture_output=True,
+                text=True,
+                check=False,
+                cwd=tmp_path,
+                env={**os.environ, "PYTHONHASHSEED": str(seed)},
+            )
+            assert result.returncode == 8, f"{result.stdout}\n{result.stderr}"
+            outputs.add(result.stdout)
+        assert len(outputs) == 1
+        assert "# note c" in outputs.pop()
