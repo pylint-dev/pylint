@@ -75,8 +75,10 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
         self._scope_stack = [{}]
 
     @utils.only_required_for_messages("looping-through-iterator")
-    def visit_functiondef(self, _node: nodes.FunctionDef) -> None:
-        self._scope_stack.append({})
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
+        # The parameters shadow any iterator of the same name in the enclosing
+        # scopes, so they are not iterators we need to track.
+        self._scope_stack.append({name: "SAFE" for name in node.argnames()})
 
     visit_asyncfunctiondef = visit_functiondef
 
