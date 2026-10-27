@@ -11,10 +11,11 @@ from __future__ import annotations
 import re
 from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
+from textwrap import indent
 from unittest.mock import Mock
 
 import pytest
-from astroid import extract_node, nodes, parse
+from astroid import InferenceError, extract_node, nodes, parse
 from astroid.bases import Instance
 from astroid.context import InferenceContext
 from astroid.inference_tip import inference_tip
@@ -305,6 +306,96 @@ def test_class_diagram_warns_for_uninferable_target(HANDLER: DiadefsHandler) -> 
         )
 
     assert diagram.objects == []
+
+
+@pytest.mark.parametrize(
+    ("first", "second", "result"),
+    [
+        ("class", "const", "class"),
+        ("const", "class", "class"),
+        ("class", "unknown", "class"),
+        ("unknown", "class", "class"),
+        ("unknown", "const", "warning"),
+        ("const", "unknown", "warning"),
+        ("const", "function", "error"),
+        ("class", "class", "class"),
+    ],
+)
+def test_class_diagram_handles_multiple_inferred_types(
+    HANDLER: DiadefsHandler, first: str, second: str, result: str
+) -> None:
+    statements = {
+        "class": "class Maybe: pass",
+        "const": "Maybe = 1",
+        "unknown": "Maybe = unresolved()",
+        "function": "def Maybe(): pass",
+    }
+    module = parse(
+        f"if condition:\n{indent(statements[first], '    ')}\n"
+        f"else:\n{indent(statements[second], '    ')}\n",
+        module_name="sample",
+    )
+    project = Project("sample")
+    project.add_module(module)
+    generator = ClassDiadefGenerator(Linker(project), HANDLER)
+
+    if result == "error":
+        with pytest.raises(InvalidArgsError, match="is not a class"):
+            generator.class_diagram(project, "Maybe")
+        return
+    if result == "warning":
+        with pytest.warns(UserWarning, match="Unable to infer requested class 'Maybe'"):
+            diagram = generator.class_diagram(project, "Maybe")
+        assert diagram.objects == []
+        return
+
+    diagram = generator.class_diagram(project, "Maybe")
+    assert len(diagram.objects) == 1
+    assert diagram.objects[0].node is next(module.nodes_of_class(nodes.ClassDef))
+
+
+def test_class_diagram_stops_inferring_after_class(
+    HANDLER: DiadefsHandler, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    module = parse("class Target: pass", module_name="sample")
+    project = Project("sample")
+    project.add_module(module)
+
+    def infer_class_then_fail(_name: str) -> Iterator[nodes.ClassDef]:
+        yield module["Target"]
+        raise InferenceError("Later inference should not be evaluated")
+
+    monkeypatch.setattr(module, "ilookup", infer_class_then_fail)
+
+    diagram = ClassDiadefGenerator(Linker(project), HANDLER).class_diagram(
+        project, "Target"
+    )
+
+    assert len(diagram.objects) == 1
+    assert diagram.objects[0].node is module["Target"]
+
+
+def test_class_diagram_wraps_later_inference_error(
+    HANDLER: DiadefsHandler, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    module = parse("Target = 1", module_name="sample")
+    project = Project("sample")
+    project.add_module(module)
+    error = InferenceError("Failed to infer another possible value")
+
+    def infer_value_then_fail(_name: str) -> Iterator[nodes.Const]:
+        yield nodes.Const(1)
+        raise error
+
+    monkeypatch.setattr(module, "ilookup", infer_value_then_fail)
+
+    with pytest.raises(
+        InvalidArgsError,
+        match=re.escape("Unable to resolve class 'Target' in module 'sample'."),
+    ) as exc:
+        ClassDiadefGenerator(Linker(project), HANDLER).class_diagram(project, "Target")
+
+    assert exc.value.__cause__ is error
 
 
 @pytest.mark.parametrize("target", ["func", "some_var", "module_value", "instance"])

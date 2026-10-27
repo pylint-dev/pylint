@@ -266,26 +266,33 @@ class ClassDiadefGenerator(DiaDefGenerator):
         else:
             module = project.modules[0]
             klass = klass.split(".")[-1]
+        class_node: nodes.ClassDef | None = None
+        uninferable = False
         try:
-            klass = next(module.ilookup(klass))
+            for inferred in module.ilookup(klass):
+                if isinstance(inferred, nodes.ClassDef):
+                    class_node = inferred
+                    break
+                if inferred is astroid.Uninferable:
+                    uninferable = True
         except astroid.InferenceError as exc:
             raise InvalidArgsError(
                 f"Unable to resolve class {klass_name!r} in module {module.name!r}."
             ) from exc
 
-        if klass is astroid.Uninferable:
-            warnings.warn(
-                f"Unable to infer requested class {klass_name!r}; generated diagram will be empty.",
-                stacklevel=2,
-            )
-            return self.classdiagram
-        if not isinstance(klass, nodes.ClassDef):
+        if class_node is None:
+            if uninferable:
+                warnings.warn(
+                    f"Unable to infer requested class {klass_name!r}; generated diagram will be empty.",
+                    stacklevel=2,
+                )
+                return self.classdiagram
             raise InvalidArgsError(
                 f"Requested target {klass_name!r} in module {module.name!r} is not a class."
             )
 
         anc_level, association_level = self._get_levels()
-        self.extract_classes(klass, anc_level, association_level)
+        self.extract_classes(class_node, anc_level, association_level)
         return self.classdiagram
 
 

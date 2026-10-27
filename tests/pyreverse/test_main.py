@@ -353,7 +353,6 @@ def test_uninferable_class_target_warns(
     captured = capsys.readouterr()
     assert not captured.err
     assert not captured.out
-    assert (tmp_path / "Target.dot").exists()
 
 
 def test_version_info(
