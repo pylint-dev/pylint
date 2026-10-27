@@ -463,6 +463,20 @@ def _is_assigned_in_comprehension_condition(
     return any(element is node or element.parent_of(node) for element in elements)
 
 
+def _is_assigned_in_if_exp_test(node: nodes.Name, defnode: nodes.NamedExpr) -> bool:
+    """Checks if node is used in a branch of a conditional expression whose test
+    assigns it, e.g. ``"d" + (s if (s := f()) else "")``.
+
+    The test of a conditional expression is evaluated before either branch.
+    """
+    for ancestor in node.node_ancestors():
+        if isinstance(ancestor, nodes.IfExp) and (
+            ancestor.test is defnode or ancestor.test.parent_of(defnode)
+        ):
+            return not ancestor.test.parent_of(node)
+    return False
+
+
 def _is_nonlocal_name(node: nodes.Name, frame: nodes.LocalsDictNodeNG) -> bool:
     """Checks if name node has a nonlocal declaration in the given frame."""
     if not isinstance(frame, nodes.FunctionDef):
@@ -2608,6 +2622,17 @@ class VariablesChecker(BaseChecker):
                     # Assigned in the condition of a comprehension and used in
                     # its element, which is evaluated afterwards:
                     # [y for x in data if (y := f(x))]
+                    maybe_before_assign = False
+                elif (
+                    isinstance(defnode, nodes.NamedExpr)
+                    and frame is defframe
+                    and defframe.parent_of(stmt)
+                    and stmt is defstmt
+                    and _is_assigned_in_if_exp_test(node, defnode)
+                ):
+                    # Assigned in the test of a conditional expression and used
+                    # in one of its branches, which are evaluated afterwards:
+                    # "d" + (s if (s := f()) else "")
                     maybe_before_assign = False
                 elif (
                     isinstance(defframe, nodes.ClassDef)
