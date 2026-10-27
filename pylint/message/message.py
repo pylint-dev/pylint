@@ -8,6 +8,7 @@ from dataclasses import asdict, dataclass
 
 from pylint.constants import MSG_TYPES
 from pylint.interfaces import Confidence, _confidence_or_undefined
+from pylint.message.fix import Fix
 from pylint.typing import MessageLocationTuple
 
 
@@ -29,6 +30,7 @@ class Message:  # pylint: disable=too-many-instance-attributes
     column: int
     end_line: int | None
     end_column: int | None
+    fix: Fix | None
 
     def __init__(
         self,
@@ -37,6 +39,7 @@ class Message:  # pylint: disable=too-many-instance-attributes
         location: MessageLocationTuple,
         msg: str,
         confidence: Confidence | None,
+        fix: Fix | None = None,
     ) -> None:
         self.msg_id = msg_id
         self.symbol = symbol
@@ -52,6 +55,7 @@ class Message:  # pylint: disable=too-many-instance-attributes
         self.column = location.column
         self.end_line = location.end_line
         self.end_column = location.end_column
+        self.fix = fix
 
     def format(self, template: str) -> str:
         """Format the message according to the given template.

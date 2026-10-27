@@ -1,2 +1,5 @@
 [testoptions]
 min_pyver=3.15
+
+[MAIN]
+unsafe-fixes=yes
