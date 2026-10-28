@@ -524,7 +524,7 @@ DEPRECATED_ATTRIBUTES: DeprecationDict = {
 }
 
 
-def _check_mode_str(mode: Any) -> bool:
+def _check_mode_str(mode: Any, *, allow_universal_newlines: bool = True) -> bool:
     # check type
     if not isinstance(mode, str):
         return False
@@ -541,7 +541,8 @@ def _check_mode_str(mode: Any) -> bool:
     text = "t" in modes
     binary = "b" in modes
     if "U" in modes:
-        if writing or appending or creating:
+        # Python 3.11 removed the "U" mode: open() raises ValueError for it
+        if not allow_universal_newlines or writing or appending or creating:
             return False
         reading = True
     if text and binary:
@@ -598,8 +599,8 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         "W1501": (
             '"%s" is not a valid mode for open.',
             "bad-open-mode",
-            "Python supports: r, w, a[, x] modes with b, +, "
-            "and U (only with r) options. "
+            "Python supports: r, w, a[, x] modes with b, + "
+            "and, before Python 3.11, U (only with r) options. "
             "See https://docs.python.org/3/library/functions.html#open",
         ),
         "W1502": (
@@ -998,7 +999,10 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             if func_name in OPEN_FILES_MODE:
                 if not isinstance(mode_arg, nodes.Const):
                     return  # mode may be binary - don't guess
-                if not _check_mode_str(mode_arg.value):
+                if not _check_mode_str(
+                    mode_arg.value,
+                    allow_universal_newlines=self.linter.config.py_version < (3, 11),
+                ):
                     self.add_message(
                         "bad-open-mode",
                         node=node,
