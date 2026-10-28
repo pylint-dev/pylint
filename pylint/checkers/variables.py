@@ -1963,6 +1963,11 @@ class VariablesChecker(BaseChecker):
         be checked for the undefined-variable and used-before-assignment checks.
         """
         if consumer.scope_type == "class":
+            # The decorators of a class are evaluated in the enclosing scope,
+            # so the names that the class body defines are not visible to them.
+            if utils.is_class_decorator_name(consumer.node, node):
+                return True
+
             # The list of base classes in the class definition is not part
             # of the class body.
             # If the current scope is a class scope but it's not the inner
@@ -2829,7 +2834,12 @@ class VariablesChecker(BaseChecker):
             node, frame
         )
         in_ancestor_list = utils.is_ancestor_name(frame, node)
-        if in_annotation_or_default_or_decorator or in_ancestor_list:
+        in_class_decorator = utils.is_class_decorator_name(frame, node)
+        if (
+            in_annotation_or_default_or_decorator
+            or in_ancestor_list
+            or in_class_decorator
+        ):
             frame_locals = frame.parent.scope().locals
         else:
             frame_locals = frame.locals
