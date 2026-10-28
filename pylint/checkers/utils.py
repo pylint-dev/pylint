@@ -604,6 +604,7 @@ def parse_format_string(
             # Parse the minimum field width (optional).
             if char == "*":
                 num_args += 1
+                pos_types.append("*")
                 i, char = next_char(i)
             else:
                 while char in string.digits:
@@ -613,6 +614,7 @@ def parse_format_string(
                 i, char = next_char(i)
                 if char == "*":
                     num_args += 1
+                    pos_types.append("*")
                     i, char = next_char(i)
                 else:
                     while char in string.digits:

@@ -73,3 +73,8 @@ class MyFloat(float):
 "%d %x" % (Color.RED, Color.RED)
 "%f %d" % (MyFloat(1.5), MyFloat(1.5))
 "%x %s" % (MyFloat(1.5), "a")  # [bad-string-format-type]
+
+# ``*`` width and precision arguments are consumed before the value itself
+"%*s" % (10, "apples")
+"%*.*f" % (10, 2, 3.14159)
+"%*d" % (5, "x")  # [bad-string-format-type]

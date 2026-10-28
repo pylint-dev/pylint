@@ -1,0 +1,4 @@
+Fix a false positive for ``bad-string-format-type`` when a ``*`` width or precision
+consumes an argument before the formatted value.
+
+Closes #11713
