@@ -1,0 +1,2 @@
+consider-using-sys-exit:38:8:38:15:builtin_from_nested_function.inner:Consider using 'sys.exit' instead:HIGH
+consider-using-sys-exit:48:4:48:10:exit_imported_but_quit_called:Consider using 'sys.exit' instead:HIGH
