@@ -1,0 +1,6 @@
+Fixed a false positive ``undefined-variable`` (E0602) for self-referential
+type annotations in nested classes when postponed evaluation of annotations
+is enabled.
+
+Closes #11734
+Closes #8145
