@@ -3,3 +3,6 @@
 from .unused_argument_py3 import *  # [unused-wildcard-import, wildcard-import]
 from .unused_global_variable1 import * # [unused-wildcard-import, wildcard-import]
 from .unused_import_py30 import * # [unused-wildcard-import, wildcard-import]
+from .unused_name_from_wildcard_import_all import *  # [wildcard-import]
+
+print(SEPARATOR)

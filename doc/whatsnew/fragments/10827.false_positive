@@ -1,0 +1,5 @@
+``unused-import`` and ``unused-wildcard-import`` no longer report names that a
+``from module import *`` does not import because they are not listed in the
+module's ``__all__``.
+
+Closes #10827

@@ -3539,6 +3539,11 @@ class VariablesChecker(BaseChecker):
                     continue
                 checked.add(real_name)
 
+                if imported_name == "*" and not _wildcard_import_binds(stmt, name):
+                    # The locals of a wildcard import hold every public name of
+                    # the module, but only the names in its ``__all__`` are imported.
+                    continue
+
                 is_type_annotation_import = (
                     imported_name in self._type_annotation_names
                     or as_name in self._type_annotation_names
