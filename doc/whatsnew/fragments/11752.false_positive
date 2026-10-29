@@ -1,0 +1,4 @@
+Fix a false positive for ``consider-using-sys-exit`` when ``exit`` or ``quit``
+is bound in an enclosing scope, e.g. ``from sys import exit`` in an outer
+function and called from a nested function. Importing ``exit`` also no longer
+hides calls to the builtin ``quit``.
