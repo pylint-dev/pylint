@@ -4,7 +4,6 @@ from types import NoneType
 from typing import TYPE_CHECKING
 
 from astroid import nodes
-
 from astroid.bases import BoundMethod
 from astroid.nodes import (
     Assign,
@@ -14,6 +13,7 @@ from astroid.nodes import (
     ListComp,
     NodeNG,
 )
+
 from pylint.checkers import BaseChecker, utils
 from pylint.interfaces import CONTROL_FLOW, INFERENCE
 
@@ -70,7 +70,7 @@ class DecompressionBombChecker(BaseChecker):
             if isinstance(inferred, nodes.FunctionDef):
                 if inferred.qname() == "builtins.sum":
                     return "FULL"
-                elif inferred.qname() == "builtins.max":
+                if inferred.qname() == "builtins.max":
                     is_max = True
                 elif inferred.qname() == "builtins.len":
                     is_len = True
@@ -105,7 +105,9 @@ class DecompressionBombChecker(BaseChecker):
             ]
         if "tar" in kind:
             tarAttrs = [x.parent for x in uses if isinstance(x.parent, Attribute)]
-            tarLists = [x.parent for x in tarAttrs if x.attrname == "getmembers" and x.parent]
+            tarLists = [
+                x.parent for x in tarAttrs if x.attrname == "getmembers" and x.parent
+            ]
             res += uses + tarLists
         return res
 
@@ -116,7 +118,7 @@ class DecompressionBombChecker(BaseChecker):
         for inferred in infers:
             if not isinstance(inferred, BoundMethod):
                 return
-        if any((inferred.qname() in self.KNOWN_EXTRACT_ALLS for inferred in infers)):
+        if any(inferred.qname() in self.KNOWN_EXTRACT_ALLS for inferred in infers):
             self.add_message(
                 "decompression-bomb",
                 node=node,
@@ -124,11 +126,11 @@ class DecompressionBombChecker(BaseChecker):
                 args=("don't use extractall",),
             )
             return
-        if any((inferred.qname() in self.KNOWN_EXTRACTS for inferred in infers)):
+        if any(inferred.qname() in self.KNOWN_EXTRACTS for inferred in infers):
             kind = ""
-            if any((inferred.qname().startswith("zip") for inferred in infers)):
+            if any(inferred.qname().startswith("zip") for inferred in infers):
                 kind += "zip "
-            if any((inferred.qname().startswith("tar") for inferred in infers)):
+            if any(inferred.qname().startswith("tar") for inferred in infers):
                 kind += "tar "
 
             ancestors: list[nodes.NodeNG] = list(node.node_ancestors())
@@ -156,15 +158,9 @@ class DecompressionBombChecker(BaseChecker):
                     # if any((not isinstance(inferred, (nodes.ClassDef, nodes.FunctionDef)) for inferred in infers)):
                     #    continue
                     if all(
-                        (
-                            (
-                                not isinstance(
-                                    inferred, (nodes.ClassDef, nodes.FunctionDef)
-                                )
-                            )
-                            or (inferred.qname() not in self.KNOWN_ZIP_OPENS)
-                            for inferred in infers
-                        )
+                        (not isinstance(inferred, (nodes.ClassDef, nodes.FunctionDef)))
+                        or (inferred.qname() not in self.KNOWN_ZIP_OPENS)
+                        for inferred in infers
                     ):
                         continue
                     if var.as_string() == zipName and likelyIdx == -1:
@@ -250,5 +246,5 @@ class DecompressionBombChecker(BaseChecker):
         # print(node)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(DecompressionBombChecker(linter))
