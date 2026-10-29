@@ -1,0 +1,4 @@
+Flag ``pathlib.PurePath.as_uri`` with ``deprecated-method`` when ``py-version`` is 3.14
+or later. Python 3.14 deprecated it in favour of ``pathlib.Path.as_uri``.
+
+Refs #11761
