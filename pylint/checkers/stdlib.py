@@ -726,7 +726,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 self._deprecated_arguments.update(args_list)
         for since_vers, class_list in DEPRECATED_CLASSES.items():
             if since_vers <= sys.version_info:
-                self._deprecated_classes.update(class_list)
+                # A module can be listed for several versions: merge, don't replace
+                for module, classes in class_list.items():
+                    self._deprecated_classes.setdefault(module, set()).update(classes)
         for since_vers, decorator_list in DEPRECATED_DECORATORS.items():
             if since_vers <= sys.version_info:
                 self._deprecated_decorators.update(decorator_list)
