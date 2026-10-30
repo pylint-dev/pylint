@@ -1,0 +1,6 @@
+Fix spurious ``invalid-name`` and ``disallowed-name`` messages for
+instance attributes assigned from another module when linting multiple
+files. These messages could ignore inline suppressions in the module
+containing the assignment.
+
+Closes #11767
