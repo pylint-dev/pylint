@@ -35,8 +35,7 @@ def test_instance_attribute_names_across_modules(
 ) -> None:
     definitions = tmp_path / "attribute_definitions.py"
     definitions.write_text(
-        dedent(
-            """\
+        dedent("""\
         from typing import Final
 
         class Record:
@@ -51,13 +50,11 @@ def test_instance_attribute_names_across_modules(
         class Derived(Record):
             def __init__(self):
                 self.LocalName = ""
-        """
-        ),
+        """),
         encoding="utf-8",
     )
     (tmp_path / "attribute_consumer.py").write_text(
-        dedent(
-            """\
+        dedent("""\
         from attribute_definitions import Record
 
         record = Record()
@@ -66,8 +63,7 @@ def test_instance_attribute_names_across_modules(
         record.LocalName = "value"
         record.SuppressedName = "value"
         record.bar = "value"
-        """
-        ),
+        """),
         encoding="utf-8",
     )
     monkeypatch.syspath_prepend(tmp_path)
@@ -98,13 +94,11 @@ class TestInstanceAttributeNames(CheckerTestCase):
     CHECKER_CLASS = base.NameChecker
 
     def test_local_assignment_after_foreign_assignment(self) -> None:
-        module = astroid.parse(
-            """\
+        module = astroid.parse("""\
 class Record:
     def __init__(self):
         self.BadName = ""
-"""
-        )
+""")
         record = module["Record"]
         assignment = record.instance_attrs["BadName"][0]
         foreign_assignment = astroid.extract_node('record.BadName = "value"').targets[0]
