@@ -2622,7 +2622,8 @@ class VariablesChecker(BaseChecker):
     @staticmethod
     def _value_may_use_and_assign(value: nodes.NodeNG) -> bool:
         """Check whether a value node may use and assign a name in one
-        evaluation, recursing into nested containers: a walrus in an IfExp
+        evaluation, recursing into nested containers: a walrus in an IfExp.
+
         condition is evaluated before that IfExp's branches, however deeply
         the expression is nested (#11769).
         """
@@ -2642,7 +2643,9 @@ class VariablesChecker(BaseChecker):
                 return any(
                     VariablesChecker._value_may_use_and_assign(elt)
                     for elt in value.elts
-                    if isinstance(elt, (*NODES_WITH_VALUE_ATTR, nodes.IfExp, nodes.Match))
+                    if isinstance(
+                        elt, (*NODES_WITH_VALUE_ATTR, nodes.IfExp, nodes.Match)
+                    )
                 )
             case nodes.Call():
                 return any(
