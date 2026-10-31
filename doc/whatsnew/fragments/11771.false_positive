@@ -1,0 +1,6 @@
+Fix a false positive for ``nested-min-max`` when the outer call has a keyword
+argument such as ``key=``: the suggested flattened call would apply the key to
+the inner call's arguments too and change the result, e.g.
+``max(0, max(-5, 1), key=abs)`` is ``1`` but ``max(0, -5, 1, key=abs)`` is ``-5``.
+
+Refs #11771
