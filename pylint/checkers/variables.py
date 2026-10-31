@@ -2620,6 +2620,44 @@ class VariablesChecker(BaseChecker):
         return maybe_before_assign, annotation_return, use_outer_definition
 
     @staticmethod
+    def _value_may_use_and_assign(value: nodes.NodeNG) -> bool:
+        """Check whether a value node may use and assign a name in one
+        evaluation, recursing into nested containers: a walrus in an IfExp
+        condition is evaluated before that IfExp's branches, however deeply
+        the expression is nested (#11769).
+        """
+        match value:
+            case nodes.IfExp():
+                return True
+            case nodes.Lambda(body=nodes.IfExp()):
+                return True
+            case nodes.Dict() if any(
+                isinstance(item[0], nodes.IfExp)
+                or isinstance(item[1], nodes.IfExp)
+                or VariablesChecker._value_may_use_and_assign(item[1])
+                for item in value.items
+            ):
+                return True
+            case nodes.BaseContainer():
+                return any(
+                    VariablesChecker._value_may_use_and_assign(elt)
+                    for elt in value.elts
+                    if isinstance(elt, (*NODES_WITH_VALUE_ATTR, nodes.IfExp, nodes.Match))
+                )
+            case nodes.Call():
+                return any(
+                    any(isinstance(kwarg.value, nodes.IfExp) for kwarg in call.keywords)
+                    or any(isinstance(arg, nodes.IfExp) for arg in call.args)
+                    or (
+                        isinstance(call.func, nodes.Attribute)
+                        and isinstance(call.func.expr, nodes.IfExp)
+                    )
+                    for call in value.nodes_of_class(klass=nodes.Call)
+                )
+            case _:
+                return False
+
+    @staticmethod
     def _maybe_used_and_assigned_at_once(defstmt: _base_nodes.Statement) -> bool:
         """Check if `defstmt` has the potential to use and assign a name in the
         same statement.
@@ -2642,7 +2680,9 @@ class VariablesChecker(BaseChecker):
             case nodes.Lambda(body=nodes.IfExp()):
                 return True
             case nodes.Dict() if any(
-                isinstance(item[0], nodes.IfExp) or isinstance(item[1], nodes.IfExp)
+                isinstance(item[0], nodes.IfExp)
+                or isinstance(item[1], nodes.IfExp)
+                or VariablesChecker._value_may_use_and_assign(item[1])
                 for item in value.items
             ):
                 return True

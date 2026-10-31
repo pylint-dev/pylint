@@ -42,6 +42,16 @@ def dictionary_items_valid():
         z if (z:=input()) else "": 0,
     }
 
+def nested_dict_value_valid():
+    """assignment in an IfExp condition nested in dict values"""
+    var = {
+        "status": {
+            "a": (
+                str(var) if (var := 2) else None
+            ),
+        }
+    }
+
 def complex_valid():
     """assignment within complex call expression"""
     var = str(bar(bar(a if (a:=1) else 0))).lower().upper()
