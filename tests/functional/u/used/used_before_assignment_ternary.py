@@ -52,6 +52,15 @@ def nested_dict_value_valid():
         }
     }
 
+def nested_container_value_valid():
+    """recursion into nested containers: IfExp behind dict/list/call layers"""
+    var = {
+        "k": [x if (x := 1) else 2],
+    }
+    var = {
+        "k": str(x if (x := 1) else 2),
+    }
+
 def complex_valid():
     """assignment within complex call expression"""
     var = str(bar(bar(a if (a:=1) else 0))).lower().upper()

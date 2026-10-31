@@ -1,0 +1,6 @@
+A walrus assignment inside a conditional expression nested in dict values is no
+longer reported as ``used-before-assignment``; the IfExp condition (including the
+walrus) is evaluated before the branches, however deeply the expression is
+nested.
+
+Refs #11769
