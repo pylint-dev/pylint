@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from types import NoneType
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, type_check_only
+import zipfile
 
 from astroid import nodes
 
@@ -22,7 +23,6 @@ if TYPE_CHECKING:
 
 
 class DecompressionBombChecker(BaseChecker):
-
     name = "decompression-bomb"
     msgs = {
         "W5001": (
@@ -105,7 +105,9 @@ class DecompressionBombChecker(BaseChecker):
             ]
         if "tar" in kind:
             tarAttrs = [x.parent for x in uses if isinstance(x.parent, Attribute)]
-            tarLists = [x.parent for x in tarAttrs if x.attrname == "getmembers" and x.parent]
+            tarLists = [
+                x.parent for x in tarAttrs if x.attrname == "getmembers" and x.parent
+            ]
             res += uses + tarLists
         return res
 
@@ -116,7 +118,8 @@ class DecompressionBombChecker(BaseChecker):
         for inferred in infers:
             if not isinstance(inferred, BoundMethod):
                 return
-        if any((inferred.qname() in self.KNOWN_EXTRACT_ALLS for inferred in infers)):
+        infers = [x for x in infers if isinstance(x, BoundMethod)]
+        if any(inferred.qname() in self.KNOWN_EXTRACT_ALLS for inferred in infers):
             self.add_message(
                 "decompression-bomb",
                 node=node,
@@ -124,11 +127,11 @@ class DecompressionBombChecker(BaseChecker):
                 args=("don't use extractall",),
             )
             return
-        if any((inferred.qname() in self.KNOWN_EXTRACTS for inferred in infers)):
+        if any(inferred.qname() in self.KNOWN_EXTRACTS for inferred in infers):
             kind = ""
-            if any((inferred.qname().startswith("zip") for inferred in infers)):
+            if any(inferred.qname().startswith("zip") for inferred in infers):
                 kind += "zip "
-            if any((inferred.qname().startswith("tar") for inferred in infers)):
+            if any(inferred.qname().startswith("tar") for inferred in infers):
                 kind += "tar "
 
             ancestors: list[nodes.NodeNG] = list(node.node_ancestors())
@@ -149,22 +152,15 @@ class DecompressionBombChecker(BaseChecker):
             likelyIdx = -1
             for n in withNodes:
                 for gen, var in n.items:
-                    if (not isinstance(gen, nodes.Call)) or isinstance(var, NoneType):
+                    if (not isinstance(gen, nodes.Call)) or isinstance(
+                        var, NoneType
+                    ):
                         continue
                     infers = utils.infer_all(gen.func)
-                    # inferred = utils.safe_infer(gen.func)
-                    # if any((not isinstance(inferred, (nodes.ClassDef, nodes.FunctionDef)) for inferred in infers)):
-                    #    continue
                     if all(
-                        (
-                            (
-                                not isinstance(
-                                    inferred, (nodes.ClassDef, nodes.FunctionDef)
-                                )
-                            )
-                            or (inferred.qname() not in self.KNOWN_ZIP_OPENS)
-                            for inferred in infers
-                        )
+                        (not isinstance(inferred, (nodes.ClassDef, nodes.FunctionDef)))
+                        or (inferred.qname() not in self.KNOWN_ZIP_OPENS)
+                        for inferred in infers
                     ):
                         continue
                     if var.as_string() == zipName and likelyIdx == -1:
@@ -195,10 +191,14 @@ class DecompressionBombChecker(BaseChecker):
             coms = [
                 x.parent
                 for x in comps
-                if isinstance(x.parent, (ListComp, nodes.GeneratorExp, nodes.SetComp))
+                if isinstance(
+                    x.parent, (ListComp, nodes.GeneratorExp, nodes.SetComp)
+                )
             ]
             c = [self.eval_comp(x) for x in coms]
-            uses_l = [self.findVarUseList(x.target.as_string(), x.body) for x in loops]
+            uses_l = [
+                self.findVarUseList(x.target.as_string(), x.body) for x in loops
+            ]
             fss_l = [
                 [
                     y.parent
@@ -245,10 +245,6 @@ class DecompressionBombChecker(BaseChecker):
                     args=(msg,),
                 )
 
-    def leave_call(self, node: nodes.Call) -> None:
-        pass
-        # print(node)
 
-
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     linter.register_checker(DecompressionBombChecker(linter))
