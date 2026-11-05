@@ -1,0 +1,6 @@
+[main]
+py-version=3.14
+
+[Messages Control]
+disable=all
+enable=super-with-arguments
