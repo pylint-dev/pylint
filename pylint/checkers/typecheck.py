@@ -1419,6 +1419,8 @@ accessed. Python regular expressions are accepted.",
             )
             or function_node.is_generator()
             or function_node.is_abstract(pass_is_abstract=False)
+            # a method of a Protocol only declares what implementations return
+            or utils.is_protocol_class(function_node.parent)
         )
 
     @staticmethod
