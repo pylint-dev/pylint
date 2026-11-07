@@ -15,3 +15,5 @@ pointless-exception-statement:95:4:95:23:unraised_exception:Exception statement 
 pointless-exception-statement:96:4:96:56:unraised_exception:Exception statement has no effect:INFERENCE
 pointless-exception-statement:97:4:97:45:unraised_exception:Exception statement has no effect:INFERENCE
 pointless-exception-statement:99:4:99:41:unraised_exception:Exception statement has no effect:INFERENCE
+expression-not-assigned:107:4:107:29:conditional_calls:"Expression ""to_be() if test else None"" is assigned to nothing":UNDEFINED
+expression-not-assigned:108:4:108:31:conditional_calls:"Expression ""ANSWER if test else to_be()"" is assigned to nothing":UNDEFINED
