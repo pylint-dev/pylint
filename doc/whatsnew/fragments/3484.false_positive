@@ -1,0 +1,6 @@
+Fix a false positive for ``using-constant-test`` when testing a method or function
+whose decorator is unknown or is a class, such as a third-party ``cached_property``.
+astroid still infers such a method as a method, but the decorator may have turned
+it into any other value.
+
+Closes #3484

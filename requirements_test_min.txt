@@ -1,4 +1,4 @@
-.[testutils,spelling]
+-e .[testutils,spelling]
 # astroid dependency is also defined in pyproject.toml
 astroid==4.3.4   # Pinned to a specific version for tests
 # dill has no release supporting Python 3.15 yet, PyPI rejects this in pyproject's dependencies

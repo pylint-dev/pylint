@@ -10,6 +10,7 @@ import argparse
 import re
 import sys
 import textwrap
+import tomllib
 import warnings
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, TextIO
@@ -33,12 +34,6 @@ from pylint.config.help_formatter import _HelpFormatter
 from pylint.config.utils import _convert_option_to_argument, _parse_rich_type_value
 from pylint.constants import MAIN_CHECKER_NAME
 from pylint.typing import DirectoryNamespaceDict, OptionDict
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
-
 
 if TYPE_CHECKING:
     from pylint.config.arguments_provider import _ArgumentsProvider
@@ -290,15 +285,15 @@ class _ArgumentsManager:
             if options:
                 sections.append(group_name)
                 options_by_section[group_name] = options
-        stream = stream or sys.stdout
+        output: TextIO = stream or sys.stdout
         printed = False
         for section in sections:
             if printed:
-                print("\n", file=stream)
+                print("\n", file=output)
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=DeprecationWarning)
                 utils.format_section(
-                    stream, section.upper(), sorted(options_by_section[section])
+                    output, section.upper(), sorted(options_by_section[section])
                 )
             printed = True
 

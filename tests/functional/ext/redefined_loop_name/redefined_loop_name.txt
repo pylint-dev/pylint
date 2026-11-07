@@ -4,3 +4,6 @@ redefined-loop-name:14:12:14:13::Redefining 'j' from loop (line 12):HIGH
 redefined-loop-name:20:12:20:13::Redefining 'k' from loop (line 19):HIGH
 redefined-loop-name:25:4:25:8::Redefining 'line' from loop (line 24):HIGH
 redefined-loop-name:30:4:30:5::Redefining 'i' from loop (line 29):HIGH
+redefined-loop-name:59:8:59:12:async_loops:Redefining 'item' from loop (line 58):HIGH
+redefined-loop-name:61:8:62:23:async_loops:Redefining 'item' from loop (line 60):HIGH
+redefined-loop-name:64:8:65:23:async_loops:Redefining 'item' from loop (line 63):HIGH

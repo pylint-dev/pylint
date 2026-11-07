@@ -1,0 +1,11 @@
+Fixed a crash in ``use-maxsplit-arg`` (``C0207``) when a ``str.split()`` or
+``str.rsplit()`` call indexed by a variable is used inside a loop that assigns
+to a subscript, an attribute or an unpacked tuple (for example ``obj[0] = 1``,
+``obj.attr = 1`` or ``a, b = 1, 2``). Such targets have no ``name`` attribute
+and previously raised ``AttributeError``.
+
+The index variable is now also recognized as changed in the loop when it is
+reassigned through tuple unpacking or an assignment expression (``:=``), which
+removes a false positive.
+
+Refs #11676

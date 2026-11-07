@@ -85,7 +85,7 @@ class TestSymilarCodeChecker:
     def test_duplicate_code_raw_strings_all(self) -> None:
         """Test similar lines in 3 similar files."""
         path = join(DATA, "raw_strings_all")
-        expected_output = "Similar lines in 2 files"
+        expected_output = "Similar lines in 3 files"
         self._test_output(
             [
                 path,
@@ -101,7 +101,7 @@ class TestSymilarCodeChecker:
     @pytest.mark.needs_two_cores
     def test_duplicate_code_parallel(self) -> None:
         path = join(DATA, "raw_strings_all")
-        expected_output = "Similar lines in 2 files"
+        expected_output = "Similar lines in 3 files"
         self._test_output(
             [
                 path,

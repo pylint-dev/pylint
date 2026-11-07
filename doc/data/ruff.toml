@@ -12,11 +12,15 @@ extend-exclude = [
     "messages/i/invalid-star-assignment-target/bad.py",
     "messages/u/using-exception-groups-in-unsupported-version/bad.py",
     "messages/u/using-generic-type-syntax-in-unsupported-version/bad.py",
+    # deliberately shows the position where Python forbids a lazy import
+    "messages/i/invalid-lazy-import/bad.py",
 ]
 
 # The examples showing off the newest syntax need the most recent grammar
 [per-file-target-version]
 "messages/u/using-comprehension-unpacking-in-unsupported-version/bad.py" = "py315"
+"messages/i/invalid-lazy-import/good.py" = "py315"
+"messages/u/using-lazy-import-in-unsupported-version/bad.py" = "py315"
 
 [lint]
 ignore = []

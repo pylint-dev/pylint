@@ -1,0 +1,6 @@
+Pyreverse now reports a clear error instead of a traceback when ``--class`` names
+an unknown class or module, or omits the module name when analyzing multiple modules.
+Targets whose inferred values are all known not to be classes are also rejected.
+If a target has several inferred values, Pyreverse uses the first class among them.
+
+Closes #22

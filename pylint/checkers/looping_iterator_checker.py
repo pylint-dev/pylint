@@ -100,9 +100,13 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
         if isinstance(node.iter, nodes.Name):
             self._check_variable_usage(node.iter)
 
+    visit_asyncfor = visit_for
+
     @utils.only_required_for_messages("looping-through-iterator")
     def leave_for(self, _node: nodes.For) -> None:
         self._scope_stack.pop()
+
+    leave_asyncfor = leave_for
 
     # --- State Building & Reactive Checks ---
 

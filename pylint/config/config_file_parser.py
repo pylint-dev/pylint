@@ -9,15 +9,11 @@ from __future__ import annotations
 import configparser
 import os
 import sys
+import tomllib
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pylint.config.utils import _parse_rich_type_value
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter

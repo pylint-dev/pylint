@@ -13,6 +13,7 @@ import itertools
 import numbers
 import re
 import string
+import warnings
 from collections.abc import Callable, Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
@@ -55,6 +56,13 @@ TYPING_PROTOCOLS = frozenset(
     {"typing.Protocol", "typing_extensions.Protocol", ".Protocol"}
 )
 COMMUTATIVE_OPERATORS = frozenset({"*", "+", "^", "&", "|"})
+REVERSED_COMPS = {"<": ">", "<=": ">=", ">": "<", ">=": "<=", "==": "==", "!=": "!="}
+"""Comparators mapped to the comparator to use once the operands are swapped.
+
+Membership and identity operators are left out on purpose: unlike for
+:func:`get_inverse_comparator`, swapping the operands of ``in`` or ``is``
+changes the meaning of the comparison.
+"""
 ITER_METHOD = "__iter__"
 AITER_METHOD = "__aiter__"
 NEXT_METHOD = "__next__"
@@ -960,7 +968,8 @@ def decorated_with(
 
 @lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(
-    node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef | None = None
+    node: nodes.ClassDef,
+    is_abstract_cb: Callable[[nodes.FunctionDef], bool] | None = None,
 ) -> dict[str, nodes.FunctionDef]:
     """Get the unimplemented abstract methods for the given *node*.
 
@@ -1902,26 +1911,126 @@ def get_import_name(importnode: ImportNode, modname: str | None) -> str | None:
     return modname
 
 
+@lru_cache(maxsize=512)
+def _split_qnames(qnames: tuple[str, ...]) -> tuple[tuple[str, tuple[str, ...]], ...]:
+    """Group qualified names by the module that owns them.
+
+    Grouping is not an optimization: resolving a module is a scope lookup, so
+    members sharing a module have to be asked for together to pay for it once.
+    Cached because a call site passes the same literal names every time.
+    """
+    grouped: dict[str, tuple[str, ...]] = {}
+    for qname in qnames:
+        modname, _, member = qname.rpartition(".")
+        if not modname:
+            raise ValueError(
+                f"{qname!r} is not a qualified name, expected 'module.member'"
+            )
+        grouped[modname] = (*grouped.get(modname, ()), member)
+    return tuple(grouped.items())
+
+
+def is_module_member(node: nodes.NodeNG, *qnames: str) -> bool:
+    """Return True if the node refers to one of the given qualified names.
+
+    However it is spelled: ``module.member`` and the name bound by
+    ``from module import member`` both count, each of them possibly aliased. The
+    module is identified by the import that binds it rather than by the name it
+    is spelled with, so a class or a variable named after it does not pass for
+    it.
+    """
+    if isinstance(node, nodes.Attribute):
+        return any(
+            node.attrname in members and _resolves_to_module(node.expr, modname)
+            for modname, members in _split_qnames(qnames)
+        )
+    if isinstance(node, nodes.Name):
+        return any(
+            _binds_module_member(node, modname, members)
+            for modname, members in _split_qnames(qnames)
+        )
+    return False
+
+
+def _resolves_to_module(expr: nodes.NodeNG, modname: str) -> bool:
+    if isinstance(expr, nodes.Name):
+        # Answer from the binding rather than from inference, which comes up
+        # empty when the ``import`` itself sits inside a guarded block. It also
+        # rejects a class or a variable named after the module, which the
+        # spelling alone cannot tell the module apart from.
+        _, assignments = expr.lookup(expr.name)
+        return any(
+            isinstance(assignment, nodes.Import)
+            and any(
+                # ``import os.path`` binds ``os``, ``import os.path as p`` binds
+                # ``os.path``.
+                (
+                    (real == modname and alias == expr.name)
+                    if alias
+                    else real.partition(".")[0] == modname == expr.name
+                )
+                for real, alias in assignment.names
+            )
+            for assignment in assignments
+        )
+    match safe_infer(expr):
+        case nodes.Module(name=name) if name == modname:
+            return True
+    return False
+
+
+def _binds_module_member(
+    name: nodes.Name, modname: str, members: tuple[str, ...]
+) -> bool:
+    """Whether the name is bound by a ``from modname import <member>``."""
+    _, assignments = name.lookup(name.name)
+    return any(
+        isinstance(assignment, nodes.ImportFrom)
+        # ``from .attr import s`` has the same ``modname`` as ``from attr import s``
+        # but imports a local module. ``level`` is None for an absolute import.
+        and not assignment.level
+        and assignment.modname == modname
+        and any(
+            real in members and (alias or real) == name.name
+            for real, alias in assignment.names
+        )
+        for assignment in assignments
+    )
+
+
 def is_sys_guard(node: nodes.If) -> bool:
     """Return True if IF stmt is a sys.version_info guard.
 
     >>> import sys
     >>> from typing import Literal
     """
-    if isinstance(node.test, nodes.Compare):
-        value = node.test.left
-        if isinstance(value, nodes.Subscript):
-            value = value.value
-        if (
-            isinstance(value, nodes.Attribute)
-            and value.as_string() == "sys.version_info"
-        ):
-            return True
-    elif isinstance(node.test, nodes.Attribute) and node.test.as_string() in {
-        "six.PY2",
-        "six.PY3",
-    }:
-        return True
+    tests = [node.test]
+    while tests:
+        test = tests.pop()
+        match test:
+            case nodes.BoolOp():
+                tests.extend(test.values)
+            case nodes.UnaryOp(op="not"):
+                tests.append(test.operand)
+            case nodes.Compare():
+                values = []
+                for operand in [test.left] + [operand for _, operand in test.ops]:
+                    values.append(operand)
+                    match operand:
+                        # Detects ``version_info[:2]`` and ``version_info.major`` but
+                        # not ``version_info[:2][0]``: a compromise between performance
+                        # and what people actually write.
+                        case nodes.Subscript(value=inner) | nodes.Attribute(expr=inner):
+                            values.append(inner)
+                if any(
+                    is_module_member(value, "sys.version_info", "sys.hexversion")
+                    for value in values
+                ):
+                    return True
+            case _:
+                # A bare truthiness guard: only six's version flags qualify.
+                if is_module_member(test, "six.PY2", "six.PY3"):
+                    return True
     return False
 
 
@@ -2076,52 +2185,36 @@ def in_type_checking_block(node: nodes.NodeNG) -> bool:
     for ancestor in node.node_ancestors():
         if not isinstance(ancestor, nodes.If):
             continue
-        if isinstance(ancestor.test, nodes.Name):
-            if ancestor.test.name != "TYPE_CHECKING":
-                continue
-            lookup_result = ancestor.test.lookup(ancestor.test.name)[1]
-            if not lookup_result:
-                return False
-            maybe_import_from = lookup_result[0]
-            if (
-                isinstance(maybe_import_from, nodes.ImportFrom)
-                and maybe_import_from.modname == "typing"
-            ):
-                return True
+        if is_module_member(ancestor.test, "typing.TYPE_CHECKING"):
+            return True
+        # A flag standing in for typing's, e.g. `TYPE_CHECKING = False` in the
+        # module itself, which is only ever true for a type checker.
+        if (
+            isinstance(ancestor.test, nodes.Name)
+            and ancestor.test.name == "TYPE_CHECKING"
+        ):
             match safe_infer(ancestor.test):
                 case nodes.Const(value=False):
                     return True
-        elif isinstance(ancestor.test, nodes.Attribute):
-            if ancestor.test.attrname != "TYPE_CHECKING":
-                continue
-            match safe_infer(ancestor.test.expr):
-                case nodes.Module(name="typing"):
-                    return True
 
     return False
 
 
+# TODO: 5.0: Remove is_typing_member, deprecated in favor of is_module_member.
 def is_typing_member(node: nodes.NodeNG, names_to_check: tuple[str, ...]) -> bool:
     """Check if `node` is a member of the `typing` module and has one of the names from
     `names_to_check`.
-    """
-    match node:
-        case nodes.Name():
-            try:
-                import_from = node.lookup(node.name)[1][0]
-            except IndexError:
-                return False
 
-            match import_from:
-                case nodes.ImportFrom(modname="typing"):
-                    return import_from.real_name(node.name) in names_to_check
-            return False
-        case nodes.Attribute():
-            match safe_infer(node.expr):
-                case nodes.Module(name="typing"):
-                    return node.attrname in names_to_check
-            return False
-    return False
+    Deprecated: call ``is_module_member(node, "typing.<name>")`` instead.
+    """
+    warnings.warn(
+        "is_typing_member has been deprecated. Use "
+        "is_module_member(node, 'typing.<name>') instead. "
+        "It will be removed in pylint 5.0.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return is_module_member(node, *(f"typing.{name}" for name in names_to_check))
 
 
 @lru_cache

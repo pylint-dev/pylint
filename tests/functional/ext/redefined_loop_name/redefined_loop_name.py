@@ -51,3 +51,15 @@ def outer2():
                 print(i1)
         print(i1)
         inner()
+
+
+async def async_loops(items, other_items):
+    """async for loop variables are checked like for loop variables"""
+    async for item in items:
+        item = item.strip()  # [redefined-loop-name]
+    async for item in items:
+        async for item in other_items:  # [redefined-loop-name]
+            print(item)
+    async for item in items:
+        for item in other_items:  # [redefined-loop-name]
+            print(item)

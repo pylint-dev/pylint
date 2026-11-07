@@ -5,3 +5,5 @@ redefined-argument-from-local:26:8:26:12:test_redefined_in_for:Redefining argume
 redefined-argument-from-local:28:9:28:13:test_redefined_in_for:Redefining argument with the local name 'name':UNDEFINED
 redefined-argument-from-local:30:15:30:19:test_redefined_in_for:Redefining argument with the local name 'name':UNDEFINED
 redefined-argument-from-local:50:4:51:12:test_redefined_in_except_handler:Redefining argument with the local name 'name':UNDEFINED
+redefined-argument-from-local:73:14:73:18:test_redefined_in_async_for:Redefining argument with the local name 'name':UNDEFINED
+redefined-argument-from-local:78:22:78:26:test_redefined_in_async_with:Redefining argument with the local name 'name':UNDEFINED

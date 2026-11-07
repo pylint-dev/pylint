@@ -1,0 +1,5 @@
+``consider-using-with`` is no longer reported for a resource used in a ``with``
+after a nested function definition: leaving the nested function was reporting
+the resources of the function around it.
+
+Refs #11722

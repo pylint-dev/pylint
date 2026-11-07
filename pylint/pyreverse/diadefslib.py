@@ -15,6 +15,7 @@ import astroid
 from astroid import nodes
 from astroid.modutils import is_stdlib_module
 
+from pylint.exceptions import InvalidArgsError
 from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
 from pylint.pyreverse.inspector import Linker, Project
 from pylint.pyreverse.utils import LocalsVisitor
@@ -251,22 +252,47 @@ class ClassDiadefGenerator(DiaDefGenerator):
         klass_name = klass
         self.classdiagram = ClassDiagram(klass, self.config.mode, self.linker)
         if len(project.modules) > 1:
-            module, klass = klass.rsplit(".", 1)
-            module = project.get_module(module)
+            if "." not in klass:
+                raise InvalidArgsError(
+                    f"Class name {klass!r} must be fully qualified when multiple modules are analyzed."
+                )
+            module_name, klass = klass.rsplit(".", 1)
+            try:
+                module = project.get_module(module_name)
+            except KeyError as exc:
+                raise InvalidArgsError(
+                    f"Module {module_name!r} is not part of the project."
+                ) from exc
         else:
             module = project.modules[0]
             klass = klass.split(".")[-1]
-        klass = next(module.ilookup(klass))
+        class_node: nodes.ClassDef | None = None
+        uninferable = False
+        try:
+            for inferred in module.ilookup(klass):
+                if isinstance(inferred, nodes.ClassDef):
+                    class_node = inferred
+                    break
+                if inferred is astroid.Uninferable:
+                    uninferable = True
+        except astroid.InferenceError as exc:
+            raise InvalidArgsError(
+                f"Unable to resolve class {klass_name!r} in module {module.name!r}."
+            ) from exc
 
-        if not isinstance(klass, nodes.ClassDef):
-            warnings.warn(
-                f"Unable to infer requested class {klass_name!r}; generated diagram will be empty.",
-                stacklevel=2,
+        if class_node is None:
+            if uninferable:
+                warnings.warn(
+                    f"Unable to infer requested class {klass_name!r}; generated diagram will be empty.",
+                    stacklevel=2,
+                )
+                return self.classdiagram
+            raise InvalidArgsError(
+                f"Requested target {klass_name!r} in module {module.name!r} is not a class."
             )
-            return self.classdiagram
 
         anc_level, association_level = self._get_levels()
-        self.extract_classes(klass, anc_level, association_level)
+        self.extract_classes(class_node, anc_level, association_level)
         return self.classdiagram
 
 

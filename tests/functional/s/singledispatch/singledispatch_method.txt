@@ -7,3 +7,4 @@ singledispatch-method:35:5:35:30:Board2:singledispatch decorator should not be u
 singledispatch-method:43:5:43:19:Board3:singledispatch decorator should not be used with methods, use singledispatchmethod instead.:HIGH
 singledispatch-method:48:5:48:30:Board3:singledispatch decorator should not be used with methods, use singledispatchmethod instead.:INFERENCE
 singledispatch-method:54:5:54:30:Board3:singledispatch decorator should not be used with methods, use singledispatchmethod instead.:INFERENCE
+singledispatch-method:61:5:61:19:Board4:singledispatch decorator should not be used with methods, use singledispatchmethod instead.:HIGH

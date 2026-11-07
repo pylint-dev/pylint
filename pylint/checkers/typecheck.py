@@ -595,8 +595,8 @@ def _enum_has_attribute(
             while enum_def is not None and not isinstance(enum_def, nodes.ClassDef):
                 enum_def = enum_def.parent
 
-        # If this blows, something is clearly wrong
-        assert enum_def is not None, "enum_def unexpectedly None"
+        if enum_def is None:
+            return False
     else:
         enum_def = owner
 

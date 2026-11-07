@@ -1,0 +1,3 @@
+Fix a false positive for ``used-before-assignment`` when a class body uses a module-level or builtin name that a method or nested class defined later in the same class body shadows.
+
+Closes #9134

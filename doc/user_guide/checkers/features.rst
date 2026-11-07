@@ -594,6 +594,11 @@ Imports checker Messages
 :relative-beyond-top-level (E0402): *Attempted relative import beyond top-level package*
   Used when a relative import tries to access too many levels in the current
   package.
+:invalid-lazy-import (E0403): *Lazy import is not allowed %s*
+  Emitted when a PEP 810 ``lazy`` import is used where Python forbids it:
+  inside a function, a class body or a ``try`` statement, or as a wildcard
+  import. This is a SyntaxError. This message can't be emitted when using
+  Python < 3.15.
 :wildcard-import (W0401): *Wildcard import %s*
   Used when `from module import *` is detected.
 :reimported (W0404): *Reimport %r (imported line %s)*
@@ -1253,7 +1258,7 @@ String checker Messages
 :anomalous-backslash-in-string (W1401): *Anomalous backslash in string: '%s'. String constant might be missing an r prefix.*
   Used when a backslash is in a literal string but not as an escape.
 :anomalous-unicode-escape-in-string (W1402): *Anomalous Unicode escape in byte string: '%s'. String constant might be missing an r or u prefix.*
-  Used when an escape like \u is encountered in a byte string where it has no
+  Used when an escape like \\u is encountered in a byte string where it has no
   effect.
 :implicit-str-concat (W1404): *Implicit string concatenation found in %s*
   String literals are implicitly concatenated in a literal iterable definition
@@ -1408,21 +1413,21 @@ Unicode Checker checker Messages
   executing code, that does something else than what it looks like. More
   Information: https://en.wikipedia.org/wiki/Bidirectional_text
   https://trojansource.codes/
-:invalid-character-backspace (E2510): *Invalid unescaped character backspace, use "\b" instead.*
+:invalid-character-backspace (E2510): *Invalid unescaped character backspace, use "\\b" instead.*
   Moves the cursor back, so the character after it will overwrite the character
   before.
-:invalid-character-carriage-return (E2511): *Invalid unescaped character carriage-return, use "\r" instead.*
+:invalid-character-carriage-return (E2511): *Invalid unescaped character carriage-return, use "\\r" instead.*
   Moves the cursor to the start of line, subsequent characters overwrite the
   start of the line.
-:invalid-character-sub (E2512): *Invalid unescaped character sub, use "\x1A" instead.*
+:invalid-character-sub (E2512): *Invalid unescaped character sub, use "\\x1A" instead.*
   Ctrl+Z "End of text" on Windows. Some programs (such as type) ignore the rest
   of the file after it.
-:invalid-character-esc (E2513): *Invalid unescaped character esc, use "\x1B" instead.*
+:invalid-character-esc (E2513): *Invalid unescaped character esc, use "\\x1B" instead.*
   Commonly initiates escape codes which allow arbitrary control of the
   terminal.
-:invalid-character-nul (E2514): *Invalid unescaped character nul, use "\0" instead.*
+:invalid-character-nul (E2514): *Invalid unescaped character nul, use "\\0" instead.*
   Mostly end of input for python.
-:invalid-character-zero-width-space (E2515): *Invalid unescaped character zero-width-space, use "\u200B" instead.*
+:invalid-character-zero-width-space (E2515): *Invalid unescaped character zero-width-space, use "\\u200B" instead.*
   Invisible space character could hide real code execution.
 :bad-file-encoding (C2503): *PEP8 recommends UTF-8 as encoding for Python files*
   PEP8 recommends UTF-8 default encoding for Python files. See
@@ -1488,6 +1493,9 @@ Unsupported Version checker Messages
 :using-comprehension-unpacking-in-unsupported-version (W2607): *Unpacking in comprehensions is not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.15 and pylint
   encounters the ``*`` or ``**`` unpacking added by PEP 798 in a comprehension.
+:using-lazy-import-in-unsupported-version (W2608): *Lazy imports are not supported by all versions included in the py-version setting*
+  Used when the py-version set by the user is lower than 3.15 and pylint
+  encounters the ``lazy`` import added by PEP 810.
 
 
 .. _variables-checker:

@@ -39,7 +39,7 @@ all dependencies before running the tests. This can be important when a new vers
 astroid_ or any of the other dependencies has been published::
 
     python -m tox --recreate # The entire tox environment will be recreated
-    python -m tox --recreate -e py310 # The python 3.10 tox environment will be recreated
+    python -m tox --recreate -e py311 # The python 3.11 tox environment will be recreated
 
 
 To run only a specific test suite, use a pattern for the test filename

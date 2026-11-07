@@ -359,7 +359,9 @@ class BasicChecker(_BasicChecker):
 
         if emit:
             self.add_message("using-constant-test", node=test, confidence=INFERENCE)
-        elif isinstance(inferred, const_nodes):
+        elif isinstance(
+            inferred, const_nodes
+        ) and not BasicChecker._decorators_may_change_type(inferred):
             # If the constant node is a FunctionDef or Lambda then
             # it may be an illicit function call due to missing parentheses
             call_inferred = None
@@ -378,6 +380,33 @@ class BasicChecker(_BasicChecker):
                     confidence=INFERENCE,
                 )
             self.add_message("using-constant-test", node=test, confidence=INFERENCE)
+
+    @staticmethod
+    def _decorators_may_change_type(inferred: nodes.NodeNG) -> bool:
+        """Return whether `inferred` is a function or method whose decorators
+        may have turned it into something other than a function.
+
+        astroid ignores decorators when inferring a function or a method, so a
+        method decorated with an unknown decorator or with a class (a
+        descriptor such as a third-party ``cached_property``) is still
+        inferred as a method, although accessing it may give any value.
+        """
+        # A BoundMethod proxies an UnboundMethod, which proxies the function.
+        while isinstance(inferred, astroid.UnboundMethod):
+            inferred = inferred._proxied
+        if not (isinstance(inferred, nodes.FunctionDef) and inferred.decorators):
+            return False
+        for decorator in inferred.decorators.nodes:
+            inferred_decorator = utils.safe_infer(decorator)
+            if isinstance(inferred_decorator, nodes.FunctionDef):
+                continue
+            if isinstance(inferred_decorator, nodes.ClassDef) and (
+                inferred_decorator.qname()
+                in {"builtins.staticmethod", "builtins.classmethod"}
+            ):
+                continue
+            return True
+        return False
 
     @staticmethod
     def _name_holds_generator(test: nodes.Name) -> tuple[bool, nodes.Call | None]:
@@ -900,6 +929,8 @@ class BasicChecker(_BasicChecker):
                     # we assume it's a nested "with".
                     self.add_message("confusing-with-statement", node=node)
 
+    visit_asyncwith = visit_with
+
     def _check_self_assigning_variable(self, node: nodes.Assign) -> None:
         # Detect assigning to the same variable.
 
@@ -975,3 +1006,5 @@ class BasicChecker(_BasicChecker):
     @utils.only_required_for_messages("redeclared-assigned-name")
     def visit_for(self, node: nodes.For) -> None:
         self._check_redeclared_assign_name([node.target])
+
+    visit_asyncfor = visit_for

@@ -10,19 +10,19 @@ standard library, and import environment match the project's compatibility floor
 
 Sometimes the lint environment intentionally uses a newer interpreter. For example,
 a pre-commit configuration might standardize all development tools on Python 3.13
-while the project still supports Python 3.10. In that case, set ``py-version`` to
+while the project still supports Python 3.11. In that case, set ``py-version`` to
 the oldest supported version::
 
     [tool.pylint.main]
-    py-version = "3.10"
+    py-version = "3.11"
 
-The equivalent command-line option is ``--py-version=3.10``. Without an explicit
+The equivalent command-line option is ``--py-version=3.11``. Without an explicit
 value, ``py-version`` defaults to the version of Python that runs Pylint.
 
 ``py-version`` tells version-aware checks which Python features are available to
 every supported interpreter. For example, it prevents Pylint from suggesting a
-refactoring that requires a version newer than Python 3.10 and allows the
-unsupported-version checker to report syntax that Python 3.10 cannot use. It does
+refactoring that requires a version newer than Python 3.11 and allows the
+unsupported-version checker to report syntax that Python 3.11 cannot use. It does
 not switch the interpreter that runs Pylint or emulate that interpreter's complete
 standard library and runtime behavior, so running Pylint on the oldest supported
 version remains preferable when practical.

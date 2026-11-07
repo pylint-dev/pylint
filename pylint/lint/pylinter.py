@@ -460,12 +460,18 @@ class PyLinter(
         for modname in modnames:
             if modname in self._dynamic_plugins and not force:
                 continue
+            already_registered = self._registered_checkers.copy()
             try:
                 module = astroid.modutils.load_module_from_name(modname)
                 module.register(self)
                 self._dynamic_plugins[modname] = module
             except ModuleNotFoundError as mnf_e:
                 self._dynamic_plugins[modname] = mnf_e
+            finally:
+                # Also track checkers registered before ``register`` failed
+                self._registered_dynamic_plugin_checkers |= (
+                    self._registered_checkers - already_registered
+                )
 
     def load_plugin_configuration(self) -> None:
         """Call the configuration hook for plugins.
@@ -488,7 +494,9 @@ class PyLinter(
                 self.add_message(
                     "bad-plugin-value", args=(modname, module_or_error), line=0
                 )
-            elif hasattr(module_or_error, "load_configuration"):
+            elif isinstance(module_or_error, ModuleType) and hasattr(
+                module_or_error, "load_configuration"
+            ):
                 module_or_error.load_configuration(self)
 
         # We re-set all the dictionary values to True here to make sure the dict
@@ -596,10 +604,12 @@ class PyLinter(
 
         Leave messages in place as re-registering them is a no-op.
         """
-        for checker_name, checker, _ in checker_collection:
+        for entry in list(checker_collection):
+            checker_name, checker, _ = entry
             self._checkers[checker_name].remove(checker)
             if checker.reports:
                 self.deregister_reports(checker)
+            self._registered_dynamic_plugin_checkers.discard(entry)
 
     def enable_fail_on_messages(self) -> None:
         """Enable 'fail on' msgs.
@@ -1316,7 +1326,7 @@ class PyLinter(
         line: int | None,
         node: nodes.NodeNG | None,
         args: Any | None,
-        confidence: interfaces.Confidence | None,
+        confidence: interfaces.Confidence,
         col_offset: int | None,
         end_lineno: int | None,
         end_col_offset: int | None,
@@ -1348,7 +1358,12 @@ class PyLinter(
                     end_col_offset = node.end_col_offset
 
         # should this message be displayed
-        if not self.is_message_enabled(message_definition.msgid, line, confidence):
+        # This is ``is_message_enabled`` without resolving the msgid again: the
+        # msgid of a message definition is always its only active msgid.
+        if (
+            confidence.name not in self.config.confidence
+            or not self._is_one_message_enabled(message_definition.msgid, line)
+        ):
             self.file_state.handle_ignored_message(
                 self._get_message_state_scope(
                     message_definition.msgid, line, confidence

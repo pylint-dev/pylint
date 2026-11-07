@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import sys
 import warnings
-from copy import copy
 from glob import glob
 from itertools import chain
 from pathlib import Path
@@ -59,12 +58,8 @@ def _config_initialization(  # pylint: disable=too-many-statements
         exec(utils._unquote(config_data["init-hook"]))  # pylint: disable=exec-used
 
     # Load plugins if specified in the config file
-    default_checkers = copy(linter._registered_checkers)
     if "load-plugins" in config_data:
         linter.load_plugin_modules(utils._splitstrip(config_data["load-plugins"]))
-    linter._registered_dynamic_plugin_checkers = linter._registered_checkers.difference(
-        default_checkers
-    )
 
     unrecognized_options_message = None
     # First we parse any options from a configuration file
@@ -72,6 +67,21 @@ def _config_initialization(  # pylint: disable=too-many-statements
         linter._parse_configuration_file(config_args)
     except _UnrecognizedOptionError as exc:
         unrecognized_options_message = ", ".join(exc.options)
+
+    # Run removes --load-plugins / --enable-all-extensions from the arguments after
+    # loading them, so record them here or the generated config will leave them out.
+    linter.config.load_plugins = tuple(
+        dict.fromkeys(
+            (
+                *linter.config.load_plugins,
+                *(
+                    modname
+                    for modname, module_or_error in linter._dynamic_plugins.items()
+                    if not isinstance(module_or_error, ModuleNotFoundError)
+                ),
+            )
+        )
+    )
 
     # Then, if a custom reporter is provided as argument, it may be overridden
     # by file parameters, so we re-set it here. We do this before command line

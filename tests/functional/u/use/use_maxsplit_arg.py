@@ -93,6 +93,11 @@ for j in range(5):
     print(source.split('.')[i])
     i = i + 1
 
+k = 0
+for j in range(5):
+    print(source.split('.')[k])
+    k += 1
+
 sepNone = {"sep": None}
 # Test for crash when sep is given by keyword
 # https://github.com/pylint-dev/pylint/issues/5737
@@ -106,3 +111,44 @@ class FalsePositive4857:
 
 obj = FalsePositive4857()
 obj = obj.split((0, 0))[0]
+
+
+# Crash regression: a split subscript indexed by a variable, inside a loop that
+# assigns to a non-name target (a subscript or an attribute) must not crash the
+# checker. Accessing ``assignment_node.target.name`` on such targets used to
+# raise ``AttributeError: 'Subscript' object has no attribute 'name'``.
+# https://github.com/pylint-dev/pylint/issues/11286
+def crash_subscript_assign_target(seq):
+    index = 0
+    text = "a,b,c"
+    for _ in range(3):
+        seq[index] = 1
+        seq[index] += 1
+        first = text.split(",")[index]  # [use-maxsplit-arg]
+    return first
+
+
+def crash_attribute_assign_target(holder):
+    index = 0
+    text = "a,b,c"
+    for _ in range(3):
+        holder.attr = 1
+        holder.attr += 1
+        last = text.split(",")[index]  # [use-maxsplit-arg]
+    return last
+
+
+def index_changed_by_tuple_unpacking():
+    index = 0
+    text = "a,b,c"
+    for _ in range(3):
+        print(text.split(",")[index])
+        index, _ = index + 1, None
+
+
+def index_changed_by_walrus():
+    index = 0
+    text = "a,b,c"
+    for _ in range(3):
+        print(text.split(",")[index])
+        print(index := index + 1)

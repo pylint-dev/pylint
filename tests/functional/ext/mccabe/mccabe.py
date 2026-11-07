@@ -436,3 +436,17 @@ class PropertyAccessors:  # pylint: disable=too-few-public-methods
     def attribute(self):  # [too-complex]
         """McCabe rating: 1"""
         self._attribute = None
+
+
+def exception_groups(shielded):  # [too-complex]
+    """McCabe rating: 1
+
+    The mccabe library predates ``except*`` and does not count it."""
+    result = "none"
+    try:
+        shielded()
+    except* TypeError:
+        result = "type"
+    except* ValueError:
+        result = "value"
+    return result

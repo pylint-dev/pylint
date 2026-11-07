@@ -128,6 +128,56 @@ def _get_unpacking_extra_info(node: nodes.Assign, inferred: InferenceResult) -> 
     return more
 
 
+def _is_bound_before_class(
+    class_node: nodes.ClassDef,
+    lookup_scope: nodes.LocalsDictNodeNG,
+    bindings: list[nodes.NodeNG],
+) -> bool:
+    """Whether a module-level or builtin binding exists when the class body runs."""
+    if not bindings:
+        return False
+    if lookup_scope is not class_node.root():
+        return True
+    if any(
+        isinstance(ancestor, (nodes.FunctionDef, nodes.Lambda))
+        for ancestor in class_node.node_ancestors()
+    ):
+        # The class body runs when the function is called, which can be after
+        # the module-level binding.
+        return True
+    return any(
+        binding.lineno is not None and binding.lineno < class_node.lineno
+        for binding in bindings
+    )
+
+
+def _is_def_in_class_body(
+    defstmt: _base_nodes.Statement, frame: nodes.LocalsDictNodeNG
+) -> bool:
+    """Whether ``defstmt`` is a def or class statement directly in the class body frame.
+
+    Such a statement is its own frame, but it binds its name in the class body.
+    """
+    return (
+        isinstance(defstmt, (nodes.FunctionDef, nodes.ClassDef))
+        and isinstance(frame, nodes.ClassDef)
+        and defstmt.parent.frame() is frame
+    )
+
+
+def _has_outer_binding(
+    name: str, defframe: nodes.LocalsDictNodeNG, class_node: nodes.ClassDef | None
+) -> bool:
+    """Whether name has a module-level or builtin binding.
+
+    When class_node is given, the binding must also exist when its body runs.
+    """
+    lookup_scope, bindings = defframe.root().lookup(name)
+    if class_node is None:
+        return bool(bindings)
+    return _is_bound_before_class(class_node, lookup_scope, bindings)
+
+
 def _detect_global_scope(
     node: nodes.Name,
     frame: nodes.LocalsDictNodeNG,
@@ -353,6 +403,30 @@ def _is_shadowed_in_nested_scope(name: nodes.Name, defnode: nodes.NamedExpr) -> 
     return False
 
 
+def _is_evaluated_when_true(node: nodes.NodeNG, condition: nodes.NodeNG) -> bool:
+    """Checks that ``node`` is always evaluated when ``condition`` is true.
+
+    ``a or (y := b)`` skips the assignment expression when ``a`` is true, while
+    ``a and (y := b)`` only skips it when the whole condition is false.
+    """
+    may_be_skipped = False
+    while node is not condition:
+        parent = node.parent
+        if isinstance(parent, nodes.BoolOp) and node is not parent.values[0]:
+            if parent.op == "or":
+                return False
+            may_be_skipped = True
+        elif isinstance(parent, nodes.IfExp) and node is not parent.test:
+            return False
+        elif may_be_skipped and not (
+            isinstance(parent, nodes.BoolOp) and parent.op == "and"
+        ):
+            # A skipped operand makes the ``and`` false, which must stay false
+            return False
+        node = parent
+    return True
+
+
 def _is_assigned_in_comprehension_condition(
     node: nodes.Name, defnode: nodes.NamedExpr
 ) -> bool:
@@ -363,10 +437,17 @@ def _is_assigned_in_comprehension_condition(
     Self-referencing assignments like ``(y := y)`` are excluded.
     """
     comprehension = utils.get_node_first_ancestor_of_type(defnode, nodes.Comprehension)
-    if comprehension is None or not any(
-        condition is defnode or condition.parent_of(defnode)
-        for condition in comprehension.ifs
-    ):
+    if comprehension is None:
+        return False
+    condition = next(
+        (
+            condition
+            for condition in comprehension.ifs
+            if condition is defnode or condition.parent_of(defnode)
+        ),
+        None,
+    )
+    if condition is None or not _is_evaluated_when_true(defnode, condition):
         return False
     if any(
         name.name == node.name and not _is_shadowed_in_nested_scope(name, defnode)
@@ -1494,8 +1575,12 @@ class VariablesChecker(BaseChecker):
                     )
                     break
 
+    visit_asyncfor = visit_for
+
     def leave_for(self, node: nodes.For) -> None:
         self._store_type_annotation_names(node)
+
+    leave_asyncfor = leave_for
 
     def visit_module(self, node: nodes.Module) -> None:
         """Visit module : update consumption analysis variable
@@ -2300,6 +2385,8 @@ class VariablesChecker(BaseChecker):
     def leave_with(self, node: nodes.With) -> None:
         self._store_type_annotation_names(node)
 
+    leave_asyncwith = leave_with
+
     def visit_arguments(self, node: nodes.Arguments) -> None:
         for annotation in node.type_comment_args:
             self._store_type_annotation_node(annotation)
@@ -2379,6 +2466,9 @@ class VariablesChecker(BaseChecker):
         maybe_before_assign = True
         annotation_return = False
         use_outer_definition = False
+        def_in_class_body = _is_def_in_class_body(defstmt, frame)
+        if def_in_class_body:
+            defframe = frame
         if frame is not defframe:
             maybe_before_assign = _detect_global_scope(node, frame, defframe)
         elif defframe.parent is None:
@@ -2399,7 +2489,9 @@ class VariablesChecker(BaseChecker):
                 isinstance(frame, nodes.FunctionDef)
                 or isinstance(node.frame(), nodes.Lambda)
             ) and _assigned_locally(node)
-            if not forbid_lookup and defframe.root().lookup(node.name)[1]:
+            if not forbid_lookup and _has_outer_binding(
+                node.name, defframe, frame if def_in_class_body else None
+            ):
                 maybe_before_assign = False
                 use_outer_definition = stmt == defstmt and not isinstance(
                     defnode, nodes.Comprehension
@@ -2631,7 +2723,18 @@ class VariablesChecker(BaseChecker):
                 # Local refs are ordered, so we break.
                 #     print(var)
                 #     var = 1  # <- irrelevant
-                if defstmt_frame == node_frame and ref_node.lineno > node.lineno:
+                # EXCEPTION: a comprehension condition runs before its element
+                #     [var for x in data if (var := x)]
+                if (
+                    defstmt_frame == node_frame
+                    and ref_node.lineno > node.lineno
+                    and not (
+                        isinstance(ref_node.parent, nodes.NamedExpr)
+                        and _is_assigned_in_comprehension_condition(
+                            node, ref_node.parent
+                        )
+                    )
+                ):
                     break
 
                 # If the parent of the local reference is anything but an AnnAssign
@@ -3649,8 +3752,8 @@ class VariablesChecker(BaseChecker):
             parent = parent.parent
         if isinstance(parent, nodes.Subscript):
             origin = next(parent.get_children(), None)
-            if origin is not None and utils.is_typing_member(
-                origin, ("Annotated", "Literal")
+            if origin is not None and utils.is_module_member(
+                origin, "typing.Annotated", "typing.Literal"
             ):
                 return
 
