@@ -756,3 +756,51 @@ def test_is_defined_in_decorator_handles_non_walrus_defnode() -> None:
         )
         is True
     )
+
+
+def test_is_defined_in_decorator_returns_false_for_self_reference() -> None:
+    """A walrus value that is the variable itself is not defined before use."""
+    module = astroid.parse("(value := value)")
+    named_expr = module.body[0].value
+    assert utils._is_defined_in_decorator(named_expr.value, named_expr.target) is False
+
+
+def test_is_defined_in_decorator_returns_false_when_value_contains_var() -> None:
+    """A walrus value that contains the variable is not defined before use."""
+    module = astroid.parse("(value := (value + 1))")
+    named_expr = module.body[0].value
+    assert (
+        utils._is_defined_in_decorator(named_expr.value.left, named_expr.target)
+        is False
+    )
+
+
+def test_is_defined_in_decorator_returns_false_when_definition_follows_use() -> None:
+    """A definition on a later line is not defined before the use."""
+    module = astroid.parse("value\nvalue = 1")
+    assert (
+        utils._is_defined_in_decorator(
+            module.body[0].value,
+            module.body[1].targets[0],
+        )
+        is False
+    )
+
+
+def test_is_defined_in_decorator_continues_for_unrelated_walrus_value() -> None:
+    """A walrus value unrelated to the variable still uses source order."""
+    module = astroid.parse("(value := other)\nvalue")
+    named_expr = module.body[0].value
+    assert utils._is_defined_in_decorator(module.body[1].value, named_expr.target) is True
+
+
+def test_is_defined_in_decorator_uses_column_order_on_same_line() -> None:
+    """On the same line, a definition to the left is before a use to the right."""
+    module = astroid.parse("value = 1; value")
+    assert (
+        utils._is_defined_in_decorator(
+            module.body[1].value,
+            module.body[0].targets[0],
+        )
+        is True
+    )
