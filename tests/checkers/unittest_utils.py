@@ -791,7 +791,9 @@ def test_is_defined_in_decorator_continues_for_unrelated_walrus_value() -> None:
     """A walrus value unrelated to the variable still uses source order."""
     module = astroid.parse("(value := other)\nvalue")
     named_expr = module.body[0].value
-    assert utils._is_defined_in_decorator(module.body[1].value, named_expr.target) is True
+    assert (
+        utils._is_defined_in_decorator(module.body[1].value, named_expr.target) is True
+    )
 
 
 def test_is_defined_in_decorator_uses_column_order_on_same_line() -> None:
