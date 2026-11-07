@@ -3,3 +3,4 @@ possibly-used-before-assignment:19:10:19:11:assigned_again_after_use:Possibly us
 possibly-used-before-assignment:27:10:27:11:assigned_again_by_walrus:Possibly using variable 'v' before assignment:CONTROL_FLOW
 used-before-assignment:33:10:33:11:conditional_assignment_comes_after_use:Using variable 'v' before assignment:HIGH
 used-before-assignment:44:14:44:15:assigned_in_same_handler:Using variable 'v' before assignment:CONTROL_FLOW
+used-before-assignment:52:10:52:13:shadowed_builtin_assigned_again:Using variable 'len' before assignment:HIGH

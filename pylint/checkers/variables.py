@@ -2155,14 +2155,17 @@ class VariablesChecker(BaseChecker):
                 ):
                     # The definition found comes after the use, but an earlier
                     # one that may not have executed could still bind the name.
-                    if any(
-                        (n.lineno, n.col_offset) < (node.lineno, node.col_offset)
-                        for n in current_consumer.consumed_uncertain.get(node.name, [])[
-                            uncertain_count:
-                        ]
+                    # If that path reports nothing (e.g. for a shadowed builtin,
+                    # which a later assignment makes local), keep the error.
+                    if not (
+                        any(
+                            (n.lineno, n.col_offset) < (node.lineno, node.col_offset)
+                            for n in current_consumer.consumed_uncertain.get(
+                                node.name, []
+                            )[uncertain_count:]
+                        )
+                        and self._report_unfound_name_definition(node, current_consumer)
                     ):
-                        self._report_unfound_name_definition(node, current_consumer)
-                    else:
                         self.add_message(
                             "used-before-assignment",
                             args=node.name,

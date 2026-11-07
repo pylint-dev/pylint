@@ -44,3 +44,11 @@ def assigned_in_same_handler(text):
         print(v)  # [used-before-assignment]
         v = 0
     return v
+
+
+def shadowed_builtin_assigned_again(cond):
+    if cond:
+        len = print  # pylint: disable=redefined-builtin
+    print(len)  # [used-before-assignment]
+    len = 3  # pylint: disable=redefined-builtin
+    return len
