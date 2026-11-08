@@ -9,6 +9,8 @@ possibly-used-before-assignment:105:8:105:16:deleted_after_guard:Possibly using 
 possibly-used-before-assignment:112:4:112:9:augmented_assignment:Possibly using variable 'value' before assignment:CONTROL_FLOW
 possibly-used-before-assignment:119:4:119:12:augmented_assignment_shadowing_a_global:Possibly using variable 'j_object' before assignment:CONTROL_FLOW
 possibly-used-before-assignment:125:10:125:15:read_then_reassigned:Possibly using variable 'value' before assignment:CONTROL_FLOW
-undefined-variable:150:4:150:9:augmented_assignment_never_defined:Undefined variable 'value':UNDEFINED
-undefined-variable:159:8:159:13:augmented_assignment_in_except_handler:Undefined variable 'value':UNDEFINED
-used-before-assignment:173:10:173:14:builtin_read_then_reassigned:Using variable 'list' before assignment:HIGH
+used-before-assignment:131:10:131:15:read_before_conditional_assignment:Using variable 'value' before assignment:HIGH
+undefined-variable:139:4:139:9:augmented_assignment_before_conditional_assignment:Undefined variable 'value':UNDEFINED
+undefined-variable:165:4:165:9:augmented_assignment_never_defined:Undefined variable 'value':UNDEFINED
+undefined-variable:174:8:174:13:augmented_assignment_in_except_handler:Undefined variable 'value':UNDEFINED
+used-before-assignment:188:10:188:14:builtin_read_then_reassigned:Using variable 'list' before assignment:HIGH

@@ -2083,12 +2083,17 @@ class VariablesChecker(BaseChecker):
         found_nodes = current_consumer.get_next_to_consume(node)
         if found_nodes is None:
             return (VariableVisitConsumerAction.CONTINUE, None)
-        # True if this lookup filtered out definitions made in only one branch
-        # of an ``if``, e.g. ``if test: x = 1``.
+        # True if this lookup filtered out a definition made before the use in
+        # only one branch of an ``if``, e.g. ``if test: x = 1``. A definition
+        # after the use cannot have bound the name yet.
         defined_under_one_branch_only = (
-            len(current_consumer.consumed_uncertain.get(node.name, ()))
-            > uncertain_count
-            and node.name in current_consumer.names_defined_under_one_branch_only
+            node.name in current_consumer.names_defined_under_one_branch_only
+            and any(
+                (n.lineno, n.col_offset) < (node.lineno, node.col_offset)
+                for n in current_consumer.consumed_uncertain.get(node.name, [])[
+                    uncertain_count:
+                ]
+            )
         )
         if not found_nodes:
             is_reported = self._report_unfound_name_definition(node, current_consumer)

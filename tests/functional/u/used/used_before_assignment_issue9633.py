@@ -127,6 +127,21 @@ def read_then_reassigned():
     return value
 
 
+def read_before_conditional_assignment():
+    print(value)  # [used-before-assignment]
+    if random.random():
+        value = 1
+    value = 2
+    return value
+
+
+def augmented_assignment_before_conditional_assignment():
+    value += 1  # [undefined-variable]
+    if random.random():
+        value = 1
+    return value
+
+
 def defined_in_all_branches():
     if random.random():
         value = 1
