@@ -146,5 +146,51 @@ def regression_6211(number: int = 0) -> None:
     print(number)
 
 
+def regression_8250_multiple_returns(  # [missing-return-doc, missing-return-type-doc]
+    year: int,
+):
+    """Regression test for issue `#8250`_.
+
+    When a function has multiple returns, missing-return-doc and
+    missing-return-type-doc should be emitted at most once.
+
+    Parameters
+    ----------
+    year : int
+        The year to check.
+
+    .. _`#8250`:
+        https://github.com/pylint-dev/pylint/issues/8250
+    """
+    if year % 400 == 0:
+        return True
+    if year % 100 == 0:
+        return False
+    if year % 4 == 0:
+        return True
+    return False
+
+
+def regression_8250_multiple_yields(  # [missing-yield-doc, missing-yield-type-doc]
+    items: list[int],
+):
+    """Regression test for issue `#8250`_ with generator yields.
+
+    When a generator has multiple yields, missing-yield-doc and
+    missing-yield-type-doc should be emitted at most once.
+
+    Parameters
+    ----------
+    items : list of int
+        The items to yield.
+
+    .. _`#8250`:
+        https://github.com/pylint-dev/pylint/issues/8250
+    """
+    yield items[0]
+    yield items[1]
+    yield items[2]
+
+
 # Only check raise nodes within FunctionDefs
 raise Exception()

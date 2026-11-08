@@ -189,6 +189,23 @@ class DocstringParameterChecker(BaseChecker):
     constructor_names = {"__init__", "__new__"}
     not_needed_param_in_docstring = {"self", "cls"}
 
+    def __init__(self, linter: PyLinter) -> None:
+        super().__init__(linter)
+        self._checked_return_functions: set[
+            nodes.FunctionDef | nodes.AsyncFunctionDef
+        ] = set()
+        self._checked_yield_functions: set[
+            nodes.FunctionDef | nodes.AsyncFunctionDef
+        ] = set()
+
+    def open(self) -> None:
+        self._checked_return_functions.clear()
+        self._checked_yield_functions.clear()
+
+    def leave_module(self, node: nodes.Module) -> None:
+        self._checked_return_functions.clear()
+        self._checked_yield_functions.clear()
+
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Called for function and method definitions (def).
 
@@ -354,7 +371,13 @@ class DocstringParameterChecker(BaseChecker):
         if self.linter.config.accept_no_return_doc:
             return
 
-        func_node: nodes.FunctionDef = node.frame()
+        func_node = node.frame()
+        if not isinstance(func_node, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
+            return
+
+        if func_node in self._checked_return_functions:
+            return
+        self._checked_return_functions.add(func_node)
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
@@ -384,7 +407,13 @@ class DocstringParameterChecker(BaseChecker):
         if self._is_shorter_than_min_length(node):
             return
 
-        func_node: nodes.FunctionDef = node.frame()
+        func_node = node.frame()
+        if not isinstance(func_node, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
+            return
+
+        if func_node in self._checked_yield_functions:
+            return
+        self._checked_yield_functions.add(func_node)
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx

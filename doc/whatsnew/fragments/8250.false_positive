@@ -1,0 +1,6 @@
+Fixed a false positive in the ``docparams`` extension where ``missing-return-doc`` (W9011),
+``missing-return-type-doc`` (W9012), ``missing-yield-doc`` (W9013), and
+``missing-yield-type-doc`` (W9014) were repeatedly emitted for every ``return`` or
+``yield`` statement in a function instead of at most once per function definition.
+
+Closes #8250

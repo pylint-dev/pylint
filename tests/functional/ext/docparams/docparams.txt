@@ -20,3 +20,7 @@ differing-param-doc:58:0:58:23:differing_param_doc:"""param"" differing in param
 differing-param-doc:69:0:69:35:differing_param_doc_kwords_only:"""param"" differing in parameter documentation":HIGH
 missing-type-doc:80:0:80:20:missing_type_doc:"""par1"" missing in parameter type documentation":HIGH
 missing-type-doc:90:0:90:32:missing_type_doc_kwords_only:"""par1"" missing in parameter type documentation":HIGH
+missing-return-doc:149:0:149:36:regression_8250_multiple_returns:Missing return documentation:HIGH
+missing-return-type-doc:149:0:149:36:regression_8250_multiple_returns:Missing return type documentation:HIGH
+missing-yield-doc:174:0:174:35:regression_8250_multiple_yields:Missing yield documentation:HIGH
+missing-yield-type-doc:174:0:174:35:regression_8250_multiple_yields:Missing yield type documentation:HIGH
