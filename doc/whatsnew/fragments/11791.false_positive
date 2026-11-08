@@ -1,0 +1,4 @@
+Fix false positives for ``bad-dunder-name`` on ``__prepare__``, ``__mro_entries__``,
+``__buffer__``, ``__release_buffer__`` (Python 3.12+) and ``__replace__`` (Python 3.13+).
+
+Closes #11791
