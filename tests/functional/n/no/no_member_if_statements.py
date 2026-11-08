@@ -103,3 +103,12 @@ def maybe_enabled(flag):
     if enabled:
         print(os.not_a_function())  # [no-member]
     print(os.not_a_function() if enabled else None)  # [no-member]
+
+
+# A test that is false on every path still guards the branch
+def both_false(flag):
+    enabled = False
+    if flag:
+        enabled = False
+    if enabled:
+        print(os.not_a_function())
