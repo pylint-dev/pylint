@@ -50,3 +50,29 @@ def read_in_test_before_walrus(value):
 
 def walrus_in_other_if_exp(value, flag):
     return "d" + (first if flag else ("x" if (first := value) else ""))  # [used-before-assignment]
+
+
+def walrus_in_first_comparison(value, low):
+    return "d" + (first if (low < (first := value)) else "")
+
+
+def later_use_in_same_statement(value):
+    return {"a": (first if (first := value) else ""), "b": first}
+
+
+def walrus_after_short_circuit(value, flag):
+    return "d" + (first if (flag or (first := value)) else "")  # [used-before-assignment]
+
+
+def if_exp_in_later_comparison(value, low, high):
+    result = {"a": low < high < (first if (first := value) else 0)}  # [used-before-assignment]
+    return result, first
+
+
+def walrus_in_conditional_test(value, flag):
+    return "d" + (first if ((first := value) if flag else "x") else "")  # [used-before-assignment]
+
+
+def if_exp_after_short_circuit(value, flag):
+    result = {"a": flag and (first if (first := value) else "")}  # [used-before-assignment]
+    return result, first

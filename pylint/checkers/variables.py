@@ -382,17 +382,46 @@ def _is_assigned_in_comprehension_condition(
     return any(element is node or element.parent_of(node) for element in elements)
 
 
+def _is_always_evaluated(node: nodes.NodeNG, outer: nodes.NodeNG) -> bool:
+    """Checks that evaluating ``outer`` always evaluates ``node``.
+
+    ``node`` can be skipped when it is after the first operand of ``and`` / ``or``,
+    in a branch of a conditional expression, or after the first comparison of a
+    chained comparison.
+    """
+    current = node
+    while current is not outer:
+        parent = current.parent
+        if isinstance(parent, nodes.BoolOp) and current is not parent.values[0]:
+            return False
+        if isinstance(parent, nodes.IfExp) and current is not parent.test:
+            return False
+        if isinstance(parent, nodes.Compare) and current not in {
+            parent.left,
+            parent.ops[0][1],
+        }:
+            return False
+        current = parent
+    return True
+
+
 def _is_assigned_in_if_exp_test(node: nodes.Name, defnode: nodes.NamedExpr) -> bool:
     """Checks if node is used in a branch of a conditional expression whose test
-    assigns it, e.g. ``"d" + (s if (s := f()) else "")``.
+    always assigns it, e.g. ``"d" + (s if (s := f()) else "")``.
 
-    The test of a conditional expression is evaluated before either branch.
+    The test of a conditional expression is evaluated before either branch. The
+    conditional expression must also always be evaluated by its statement, so that
+    a later use in the same statement cannot run without the assignment.
     """
     for ancestor in node.node_ancestors():
         if isinstance(ancestor, nodes.IfExp) and (
             ancestor.test is defnode or ancestor.test.parent_of(defnode)
         ):
-            return not ancestor.test.parent_of(node)
+            return (
+                not ancestor.test.parent_of(node)
+                and _is_always_evaluated(defnode, ancestor.test)
+                and _is_always_evaluated(ancestor, ancestor.statement())
+            )
     return False
 
 
