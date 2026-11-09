@@ -219,14 +219,12 @@ class SpellingChecker(BaseTokenChecker):
     name = "spelling"
     msgs = {
         "C0401": (
-            "Wrong spelling of a word '%s' in a comment:\n%s\n"
-            "%s\nDid you mean: '%s'?",
+            "Wrong spelling of a word '%s' in a comment:\n%s\n%s%s",
             "wrong-spelling-in-comment",
             "Used when a word in comment is not spelled correctly.",
         ),
         "C0402": (
-            "Wrong spelling of a word '%s' in a docstring:\n%s\n"
-            "%s\nDid you mean: '%s'?",
+            "Wrong spelling of a word '%s' in a docstring:\n%s\n%s%s",
             "wrong-spelling-in-docstring",
             "Used when a word in docstring is not spelled correctly.",
         ),
@@ -424,7 +422,9 @@ class SpellingChecker(BaseTokenChecker):
                     col += 1
                 indicator = (" " * col) + ("^" * len(word))
                 all_suggestion = "' or '".join(suggestions)
-                args = (word, original_line, indicator, f"'{all_suggestion}'")
+                if suggestions:
+                    all_suggestion = f"\nDid you mean: ''{all_suggestion}''?"
+                args = (word, original_line, indicator, all_suggestion)
                 self.add_message(msgid, line=line_num, args=args)
 
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:

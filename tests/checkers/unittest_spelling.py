@@ -38,7 +38,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
 
     def _get_msg_suggestions(self, word: str, count: int = 4) -> str:
         suggestions = "' or '".join(self.checker.spelling_dict.suggest(word)[:count])
-        return f"'{suggestions}'"
+        return f"\nDid you mean: ''{suggestions}''?"
 
     def test_spelling_dict_help_no_enchant(self) -> None:
         assert "both the python package and the system dep" in _get_enchant_dict_help(
@@ -85,6 +85,19 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
                     "      ^^^^^^",
                     self._get_msg_suggestions("coment", count=2),
                 ),
+            )
+        ):
+            self.checker.process_tokens(_tokenize_str("# bad coment"))
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    @set_config(max_spelling_suggestions=0)
+    def test_check_bad_comment_no_suggestion(self) -> None:
+        with self.assertAddsMessages(
+            MessageTest(
+                "wrong-spelling-in-comment",
+                line=1,
+                args=("coment", "# bad coment", "      ^^^^^^", ""),
             )
         ):
             self.checker.process_tokens(_tokenize_str("# bad coment"))
