@@ -95,27 +95,28 @@ configuration file in the following order and uses the first one it finds:
 
 #. ``pylintrc`` in the current working directory
 #. ``pylintrc.toml`` in the current working directory,
-   providing it has at least one ``tool.pylint.`` section.
+   providing it has a ``tool.pylint`` table.
 #. ``.pylintrc`` in the current working directory
 #. ``.pylintrc.toml`` in the current working directory,
-   providing it has at least one ``tool.pylint.`` section.
+   providing it has a ``tool.pylint`` table.
 #. ``pyproject.toml`` in the current working directory,
-   providing it has at least one ``tool.pylint.`` section.
-   The ``pyproject.toml`` must prepend section names with ``tool.pylint.``,
-   for example ``[tool.pylint.'MESSAGES CONTROL']``. They can also be passed
+   providing it has a ``tool.pylint`` table.
+   Options can be placed directly in ``[tool.pylint]`` or in sub-tables,
+   for example ``[tool.pylint.'MESSAGES CONTROL']``. Options can also be passed
    in on the command line.
 #. ``setup.cfg`` in the current working directory,
-   providing it has at least one ``pylint.`` section
+   providing it has a ``pylint`` section or a section beginning with ``pylint.``.
 #. ``tox.ini`` in the current working directory,
-   providing it has at least one ``pylint.`` section
-#. Pylint will search for the ``pyproject.toml`` file up the directories hierarchy
-   unless it's found, or a ``.git``/``.hg`` directory is found, or the file system root
-   is approached.
+   providing it has a ``pylint`` section or a section beginning with ``pylint.``.
 #. If the current working directory is in a Python package, Pylint searches \
-   up the hierarchy of Python packages until it finds a ``pylintrc`` file. \
+   up the hierarchy of Python packages until it finds a ``pylintrc``,
+   ``pylintrc.toml``, ``.pylintrc`` or ``.pylintrc.toml`` file. \
    This allows you to specify coding standards on a module-by-module \
    basis.  Of course, a directory is judged to be a Python package if it \
    contains an ``__init__.py`` file.
+#. Pylint will search for the ``pyproject.toml`` file up the directories hierarchy
+   unless it's found, or a ``.git``/``.hg`` directory is found, or the file system root
+   is approached, providing it has a ``tool.pylint`` table.
 #. The file named by environment variable ``PYLINTRC``
 #. if you have a home directory which isn't ``/root``:
 
