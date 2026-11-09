@@ -1,0 +1,5 @@
+Report ``superfluous-parens`` for nested parentheses after a keyword, such as
+``for ((x)) in items:``, unless the inner pair is needed for operator
+precedence or wraps a tuple.
+
+Closes #5361
