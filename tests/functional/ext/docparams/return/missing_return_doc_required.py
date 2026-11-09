@@ -12,3 +12,15 @@ def warns_no_docstring(self):  # [missing-return-doc, missing-return-type-doc]
 def _function(some_arg: int) -> int:
     _ = some_arg
     return 0
+
+
+def warns_once_with_several_returns(value):  # [missing-return-doc, missing-return-type-doc]
+    if value is None:
+        return None
+    if value:
+        return True
+
+    def inner():  # [missing-return-doc, missing-return-type-doc]
+        return False
+
+    return inner()

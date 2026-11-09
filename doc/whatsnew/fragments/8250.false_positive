@@ -1,0 +1,5 @@
+Fix ``missing-return-doc``, ``missing-return-type-doc``, ``missing-yield-doc`` and
+``missing-yield-type-doc`` being emitted once per ``return`` or ``yield`` statement
+instead of once per function.
+
+Closes #8250
