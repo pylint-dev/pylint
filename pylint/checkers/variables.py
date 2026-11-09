@@ -2549,26 +2549,20 @@ class VariablesChecker(BaseChecker):
                     maybe_before_assign = defnode.value is node or any(
                         a is defnode.value for a in node.node_ancestors()
                     )
-                elif (
+                elif (  # pylint: disable=too-many-boolean-expressions
                     isinstance(defnode, nodes.NamedExpr)
                     and frame is defframe
                     and defframe.parent_of(stmt)
                     and stmt is defstmt
-                    and _is_assigned_in_comprehension_condition(node, defnode)
+                    and (
+                        _is_assigned_in_comprehension_condition(node, defnode)
+                        or _is_assigned_in_if_exp_test(node, defnode)
+                    )
                 ):
-                    # Assigned in the condition of a comprehension and used in
-                    # its element, which is evaluated afterwards:
+                    # Assigned in a condition that is evaluated before the use:
+                    # the condition of a comprehension, used in its element:
                     # [y for x in data if (y := f(x))]
-                    maybe_before_assign = False
-                elif (
-                    isinstance(defnode, nodes.NamedExpr)
-                    and frame is defframe
-                    and defframe.parent_of(stmt)
-                    and stmt is defstmt
-                    and _is_assigned_in_if_exp_test(node, defnode)
-                ):
-                    # Assigned in the test of a conditional expression and used
-                    # in one of its branches, which are evaluated afterwards:
+                    # or the test of a conditional expression, used in a branch:
                     # "d" + (s if (s := f()) else "")
                     maybe_before_assign = False
                 elif (
