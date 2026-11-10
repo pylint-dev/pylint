@@ -341,6 +341,7 @@ ISORT_MESSAGES = frozenset(
 )
 
 
+# pylint: disable-next=too-many-instance-attributes
 class ImportsChecker(DeprecatedMixin, BaseChecker):
     """BaseChecker for import statements.
 
@@ -481,6 +482,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             {}
         )  # mapping of modules to the pkg they belong in
         self._allow_any_import_level: set[Any] = set()
+        # get_module_part results (None if it raised ImportError), keyed by
+        # (imported name, context file or None)
+        self._module_part_cache: dict[tuple[str, str | None], str | None] = {}
         self.reports = (
             ("RP0401", "External dependencies", self._report_external_dependencies),
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
@@ -493,6 +497,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self.linter.stats = self.linter.stats
         self.import_graph = defaultdict(set)
         self._module_pkg = {}  # mapping of modules to the pkg they belong in
+        self._module_part_cache = {}
         self._current_module_package = False
         self._ignored_modules: Sequence[str] = self.linter.config.ignored_modules
         # Build a mapping {'module': 'preferred-module'}
@@ -1137,6 +1142,30 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             raise astroid.AstroidError from e
         return None
 
+    def _get_module_part(
+        self, dotted_name: str, context_file: str | None = None
+    ) -> str:
+        """Return ``astroid.modutils.get_module_part(dotted_name, context_file)``.
+
+        The lookup searches the file system, and the same imports repeat across
+        modules, so results are remembered until the next ``open()``. Raises
+        ImportError, like ``get_module_part``, when the module can't be found.
+        """
+        key = (dotted_name, context_file)
+        try:
+            module_part = self._module_part_cache[key]
+        except KeyError:
+            try:
+                module_part = astroid.modutils.get_module_part(
+                    dotted_name, context_file
+                )
+            except ImportError:
+                module_part = None
+            self._module_part_cache[key] = module_part
+        if module_part is None:
+            raise ImportError(dotted_name)
+        return module_part
+
     def _add_imported_module(self, node: ImportNode, importedmodname: str) -> None:
         """Notify an imported module, used to analyze dependencies."""
         module_file = node.root().file
@@ -1145,11 +1174,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
         try:
             if isinstance(node, nodes.ImportFrom) and node.level:
-                importedmodname = astroid.modutils.get_module_part(
-                    importedmodname, module_file
-                )
+                importedmodname = self._get_module_part(importedmodname, module_file)
             else:
-                importedmodname = astroid.modutils.get_module_part(importedmodname)
+                importedmodname = self._get_module_part(importedmodname)
         except ImportError:
             pass
 
