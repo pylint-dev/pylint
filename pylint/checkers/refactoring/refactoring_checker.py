@@ -824,9 +824,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # reported by IronPython.
                 self._elifs.extend([token[2], tokens[index + 1][2]])
             elif (
-                trailing_comma_tuple_enabled_for_file
-                or trailing_comma_tuple_enabled_once
-            ) and _is_trailing_comma(tokens, index):
+                (
+                    trailing_comma_tuple_enabled_for_file
+                    or trailing_comma_tuple_enabled_once
+                )
+                # Cheap pre-filter so _is_trailing_comma isn't called for every token
+                and token_string == ","
+                and _is_trailing_comma(tokens, index)
+            ):
                 # If "trailing-comma-tuple" is enabled globally we always check _is_trailing_comma
                 # it might be for nothing if there's a local disable, or if the message control is
                 # not enabling 'trailing-comma-tuple', but the alternative is having to check if

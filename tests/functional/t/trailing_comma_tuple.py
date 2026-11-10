@@ -58,3 +58,5 @@ iii = some_func(0,
     0),
 # pylint: enable=trailing-comma-tuple
 fff=['f'], # [trailing-comma-tuple]
+# A comma inside an f-string is not a trailing comma, even on its own
+print(f"{aaa},")
