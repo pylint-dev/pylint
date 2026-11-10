@@ -34,7 +34,7 @@ class ASTWalker:
         self.linter = linter
         self.exception_msg = False
         # (visit callbacks, leave callbacks) per node class, so that walk() doesn't
-        # rebuild the lowercased class name for every node. The lists are the same
+        # call .lower() on the class name for every node. The lists are the same
         # objects as in visit_events/leave_events, so later additions still apply.
         self._events_by_class: dict[
             type[nodes.NodeNG], tuple[list[AstCallback], list[AstCallback]]
