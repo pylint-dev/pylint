@@ -13,7 +13,7 @@ import os
 import re
 from collections import defaultdict
 from enum import Enum
-from functools import cached_property
+from functools import cached_property, lru_cache
 from typing import TYPE_CHECKING
 
 import astroid
@@ -356,11 +356,20 @@ def _flattened_scope_names(
     return set(itertools.chain.from_iterable(values))
 
 
+@lru_cache(maxsize=1024)
+def _assigned_names(scope: nodes.LocalsDictNodeNG) -> frozenset[str]:
+    """Return the names of all ``AssignName`` nodes anywhere under ``scope``.
+
+    Cached because ``_assigned_locally`` needs this for every name looked up in
+    a scope, and collecting it walks the whole scope.
+    """
+    return frozenset(a.name for a in scope.nodes_of_class(nodes.AssignName))
+
+
 def _assigned_locally(name_node: nodes.Name) -> bool:
     """Checks if name_node has corresponding assign statement in same scope."""
     name_node_scope = name_node.scope()
-    assign_stmts = name_node_scope.nodes_of_class(nodes.AssignName)
-    if any(a.name == name_node.name for a in assign_stmts) or _find_frame_imports(
+    if name_node.name in _assigned_names(name_node_scope) or _find_frame_imports(
         name_node.name, name_node_scope
     ):
         return True
