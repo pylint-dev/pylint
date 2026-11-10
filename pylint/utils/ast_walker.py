@@ -33,6 +33,12 @@ class ASTWalker:
         self.leave_events: defaultdict[str, list[AstCallback]] = defaultdict(list)
         self.linter = linter
         self.exception_msg = False
+        # (visit callbacks, leave callbacks) per node class, so that walk() doesn't
+        # rebuild the lowercased class name for every node. The lists are the same
+        # objects as in visit_events/leave_events, so later additions still apply.
+        self._events_by_class: dict[
+            type[nodes.NodeNG], tuple[list[AstCallback], list[AstCallback]]
+        ] = {}
 
     def _is_method_enabled(self, method: AstCallback) -> bool:
         if not hasattr(method, "checks_msgs"):
@@ -73,10 +79,15 @@ class ASTWalker:
         """Call visit events of astroid checkers for the given node, recurse on
         its children, then leave events.
         """
-        cid = astroid.__class__.__name__.lower()
-
-        visit_events = self.visit_events[cid]
-        leave_events = self.leave_events[cid]
+        klass = astroid.__class__
+        try:
+            visit_events, leave_events = self._events_by_class[klass]
+        except KeyError:
+            cid = klass.__name__.lower()
+            visit_events, leave_events = self._events_by_class[klass] = (
+                self.visit_events[cid],
+                self.leave_events[cid],
+            )
 
         # pylint: disable = too-many-try-statements
         try:
