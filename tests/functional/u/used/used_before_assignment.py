@@ -332,3 +332,33 @@ NESTED_SELF_REF = [
 ]
 # A walrus outside a comprehension condition is still checked
 OUTSIDE_COMP = (outside, (outside := 1))  # [used-before-assignment]
+
+
+# A continue nested in an ``if`` doesn't make the names after it safe to use,
+# unlike a break, which pylint is permissive about.
+def name_assigned_after_inner_if_continue(items):
+    for item in items:
+        if item > 0:
+            if item > 10:
+                continue
+            value = item
+        print(value)  # [possibly-used-before-assignment]
+
+
+def name_assigned_in_try_with_except_continue(items):
+    for item in items:
+        if item:
+            try:
+                value = int(item)
+            except ValueError:
+                continue
+        print(value)  # [possibly-used-before-assignment]
+
+
+def name_assigned_after_inner_if_break(items):
+    for item in items:
+        if item > 0:
+            if item > 10:
+                break
+            value = item
+        print(value)
