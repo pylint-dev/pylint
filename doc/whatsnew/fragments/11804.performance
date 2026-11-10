@@ -1,0 +1,3 @@
+``use-list-literal`` no longer renders every call as source text.
+
+Refs #11804
