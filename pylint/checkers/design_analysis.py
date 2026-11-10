@@ -611,12 +611,21 @@ class MisdesignChecker(BaseChecker):
                 node=node,
                 args=(locnum, self.linter.config.max_locals),
             )
-        # A sole ``pass`` is a grammar placeholder for an empty body, not
-        # a statement the author wrote. Let it be the single counted
-        # statement by not adding the usual count for the function
-        # definition itself. Every other body shape keeps the historical
-        # count unchanged.
-        if len(node.body) == 1 and isinstance(node.body[0], nodes.Pass):
+        # A sole ``pass`` (or the stub-style sole ``...``) is a grammar
+        # placeholder for an empty body, not a statement the author wrote.
+        # Let it be the single counted statement by not adding the usual
+        # count for the function definition itself. Every other body shape,
+        # including a lone call or a docstring, keeps the historical count
+        # unchanged.
+        body = node.body
+        if len(body) == 1 and (
+            isinstance(body[0], nodes.Pass)
+            or (
+                isinstance(body[0], nodes.Expr)
+                and isinstance(body[0].value, nodes.Const)
+                and body[0].value.value is Ellipsis
+            )
+        ):
             self._stmts.append(0)
         else:
             self._stmts.append(1)
