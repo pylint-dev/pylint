@@ -1,1 +1,1 @@
-df.apply(str)
+df["a"].apply(str)

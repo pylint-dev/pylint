@@ -1,1 +1,1 @@
-df.apply(lambda x: str(x))  # [unnecessary-lambda]
+df["a"].apply(lambda x: str(x))  # [unnecessary-lambda]

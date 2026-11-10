@@ -1,0 +1,9 @@
+Fixed the ``unnecessary-lambda`` documentation example.  The previous example
+used ``df.apply(str)`` as the replacement for ``df.apply(lambda x: str(x))``,
+but those two are not equivalent for a pandas ``DataFrame``: ``DataFrame.apply``
+passes each *column* to the function, so ``str`` is applied to a whole
+``Series`` instead of to each element.  The example now uses a ``Series``
+(``df["a"]``), for which ``df["a"].apply(str)`` and
+``df["a"].apply(lambda x: str(x))`` really are equivalent.
+
+Closes #9317
