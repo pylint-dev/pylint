@@ -1765,14 +1765,21 @@ class VariablesChecker(BaseChecker):
         if is_method and node.is_abstract():
             return
 
-        global_names = _flattened_scope_names(node.nodes_of_class(nodes.Global))
-        nonlocal_names = _flattened_scope_names(node.nodes_of_class(nodes.Nonlocal))
+        # Collect everything in one walk of the function instead of three.
+        global_names: set[str] = set()
+        nonlocal_names: set[str] = set()
         comprehension_target_names: set[str] = set()
-
-        for comprehension_scope in node.nodes_of_class(nodes.ComprehensionScope):
-            for generator in comprehension_scope.generators:
-                for name in utils.find_assigned_names_recursive(generator.target):
-                    comprehension_target_names.add(name)
+        for child in node.nodes_of_class(
+            (nodes.Global, nodes.Nonlocal, nodes.ComprehensionScope)
+        ):
+            if isinstance(child, nodes.Global):
+                global_names.update(child.names)
+            elif isinstance(child, nodes.Nonlocal):
+                nonlocal_names.update(child.names)
+            else:
+                for generator in child.generators:
+                    for name in utils.find_assigned_names_recursive(generator.target):
+                        comprehension_target_names.add(name)
 
         for name, stmts in not_consumed.items():
             self._check_is_unused(
