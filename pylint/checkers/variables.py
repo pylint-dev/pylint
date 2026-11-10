@@ -869,8 +869,12 @@ scope_type : {self.scope_type}
     def _inferred_to_define_name_raise_or_return_for_if_node(
         self, name: str, node: nodes.If
     ) -> bool:
-        # Be permissive if there is a break or a continue
-        if any(node.nodes_of_class(nodes.Break, nodes.Continue)):
+        # Be permissive if there is a break.
+        # Not for a continue: a branch that ends with ``continue`` is already handled
+        # by ``_defines_name_raises_or_returns``, and treating any nested continue as
+        # permissive would hide real bugs, such as a name only assigned after an
+        # inner ``if ...: continue``.
+        if any(node.nodes_of_class(nodes.Break)):
             return True
 
         # Is there an assignment in this node itself, e.g. in named expression?
