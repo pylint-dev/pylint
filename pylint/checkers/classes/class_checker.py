@@ -1199,9 +1199,16 @@ a metaclass class method.",
         self._check_attribute_defined_outside_init(node)
 
     def _check_unused_private_functions(self, node: nodes.ClassDef) -> None:
+        # Collected on first use and shared by every private function of the
+        # class, instead of walking the class again for each one.
+        names_and_attributes: list[nodes.Name | nodes.Attribute] | None = None
         for function_def in node.nodes_of_class(nodes.FunctionDef):
             if not is_attr_private(function_def.name):
                 continue
+            if names_and_attributes is None:
+                names_and_attributes = list(
+                    node.nodes_of_class((nodes.Name, nodes.Attribute))
+                )
             parent_scope = function_def.parent.scope()
             if isinstance(parent_scope, nodes.FunctionDef):
                 # Handle nested functions
@@ -1209,7 +1216,7 @@ a metaclass class method.",
                     n.name for n in parent_scope.nodes_of_class(nodes.Name)
                 ):
                     continue
-            for child in node.nodes_of_class((nodes.Name, nodes.Attribute)):
+            for child in names_and_attributes:
                 # Check for cases where the functions are used as a variable instead of as a
                 # method call
                 if isinstance(child, nodes.Name) and child.name == function_def.name:
@@ -1256,12 +1263,19 @@ a metaclass class method.",
 
     def _check_unused_private_variables(self, node: nodes.ClassDef) -> None:
         """Check if private variables are never used within a class."""
+        # Collected on first use and shared by every private variable of the
+        # class, instead of walking the class again for each one.
+        names_and_attributes: list[nodes.Name | nodes.Attribute] | None = None
         for assign_name in node.nodes_of_class(nodes.AssignName):
             if isinstance(assign_name.parent, nodes.Arguments):
                 continue  # Ignore function arguments
             if not is_attr_private(assign_name.name):
                 continue
-            for child in node.nodes_of_class((nodes.Name, nodes.Attribute)):
+            if names_and_attributes is None:
+                names_and_attributes = list(
+                    node.nodes_of_class((nodes.Name, nodes.Attribute))
+                )
+            for child in names_and_attributes:
                 if isinstance(child, nodes.Name) and child.name == assign_name.name:
                     break
                 if isinstance(child, nodes.Attribute):
