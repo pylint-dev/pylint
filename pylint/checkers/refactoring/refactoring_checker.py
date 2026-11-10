@@ -2218,11 +2218,19 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_use_list_literal(self, node: nodes.Call) -> None:
         """Check if empty list is created by using the literal []."""
-        if node.as_string() == "list()":
+        # Same as ``node.as_string() == "list()"``, without rendering every call.
+        if (
+            isinstance(node.func, nodes.Name)
+            and node.func.name == "list"
+            and not node.args
+            and not node.keywords
+        ):
             inferred = utils.safe_infer(node.func)
-            if isinstance(inferred, nodes.ClassDef) and not node.args:
-                if inferred.qname() == "builtins.list":
-                    self.add_message("use-list-literal", node=node)
+            if (
+                isinstance(inferred, nodes.ClassDef)
+                and inferred.qname() == "builtins.list"
+            ):
+                self.add_message("use-list-literal", node=node)
 
     def _check_use_dict_literal(self, node: nodes.Call) -> None:
         """Check if dict is created by using the literal {}."""
