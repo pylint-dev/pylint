@@ -1,3 +1,4 @@
-``use-list-literal`` no longer renders every call as source text.
+``use-list-literal`` and ``no-member`` no longer render every call or attribute as source text
+(``no-member`` still does when ``generated-members`` is set).
 
 Refs #11804

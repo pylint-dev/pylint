@@ -1160,10 +1160,13 @@ accessed. Python regular expressions are accepted.",
 
         function/method, super call and metaclasses are ignored
         """
-        if any(
-            pattern.match(name)
-            for name in (node.attrname, node.as_string())
-            for pattern in self._compiled_generated_members
+        # Rendering the node with as_string() is costly, so skip it when no
+        # generated-members are configured (the default), and only do it when
+        # the attribute name alone matched nothing.
+        generated_members = self._compiled_generated_members
+        if generated_members and (
+            any(pattern.match(node.attrname) for pattern in generated_members)
+            or any(pattern.match(node.as_string()) for pattern in generated_members)
         ):
             return
 
