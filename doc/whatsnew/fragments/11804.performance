@@ -1,4 +1,5 @@
 ``use-list-literal`` and ``no-member`` no longer render every call or attribute as source text
-(``no-member`` still does when ``generated-members`` is set).
+(``no-member`` still does when ``generated-members`` is set), and ``bidirectional-unicode`` skips
+ASCII lines in UTF-8 files.
 
 Refs #11804
