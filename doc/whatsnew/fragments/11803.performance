@@ -1,0 +1,6 @@
+Linting is about 4% faster. Several checks no longer walk the same function, class or
+module more than once: the checks for unused variables, ``unused-private-member``,
+``used-prior-global-declaration``, ``nonlocal-and-global`` and the naming of
+module-level constants.
+
+Refs #11803
