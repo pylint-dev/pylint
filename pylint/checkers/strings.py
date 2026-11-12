@@ -714,16 +714,16 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self.string_tokens: dict[
-            tuple[int, int], tuple[str, str, tokenize.TokenInfo | None]
-        ] = {}
-        """Token position -> (token value, raw token text, next token)."""
+        self.string_tokens: dict[tuple[int, int], tuple[str, tokenize.TokenInfo]] = {}
+        """Token position -> (token value, token)."""
+        self._next_string_tokens: dict[tokenize.TokenInfo, tokenize.TokenInfo] = {}
         self._parenthesized_string_tokens: dict[tuple[int, int], bool] = {}
 
     def process_module(self, node: nodes.Module) -> None:
         self._unicode_literals = "unicode_literals" in node.future_imports
 
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
+        self._next_string_tokens.clear()
         encoding = "ascii"
         for i, (token_type, token, start, _, line) in enumerate(tokens):
             match token_type:
@@ -747,7 +747,9 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                         # We convert `tokenize` character count into a byte count,
                         # to match with astroid `.col_offset`
                         start = (start[0], len(line[: start[1]].encode(encoding)))
-                    self.string_tokens[start] = (str_eval(token), token, next_token)
+                    self.string_tokens[start] = (str_eval(token), tokens[i])
+                    if next_token is not None and next_token.type == tokenize.STRING:
+                        self._next_string_tokens[tokens[i]] = next_token
                     is_parenthesized = self._is_initial_string_token(
                         i, tokens
                     ) and self._is_parenthesized(i, tokens)
@@ -889,35 +891,35 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                 # This may happen with Latin1 encoding
                 # cf. https://github.com/pylint-dev/pylint/issues/2610
                 continue
-            matching_token, token_string, next_token = self.string_tokens[token_index]
-            # We detect string concatenation: the AST Const is the
-            # combination of 2 string tokens
-            if (
-                matching_token != elt.value
-                and next_token is not None
-                and next_token.type == tokenize.STRING
-            ):
+            matching_token, token = self.string_tokens[token_index]
+            # The AST Const combines the values of all concatenated literals.
+            if matching_token == elt.value:
+                continue
+            while (
+                next_token := self._next_string_tokens.get(token)
+            ) is not None and next_token.start[0] <= elt.tolineno:
                 # A raw string concatenated with a non-raw one (or vice versa)
                 # cannot be merged into a single literal, so the concatenation
                 # is deliberate rather than a forgotten comma.
-                if _is_raw_string_token(token_string) != _is_raw_string_token(
+                if _is_raw_string_token(token.string) == _is_raw_string_token(
                     next_token.string
-                ):
-                    continue
-                if next_token.start[0] == elt.lineno or (
-                    self.linter.config.check_str_concat_over_line_jumps
-                    # Allow implicitly concatenated strings in parens.
-                    # See https://github.com/pylint-dev/pylint/issues/8552.
-                    and not self._parenthesized_string_tokens.get(
-                        (elt.lineno, elt.col_offset)
+                ) and (
+                    next_token.start[0] == token.start[0]
+                    or (
+                        self.linter.config.check_str_concat_over_line_jumps
+                        # Allow implicitly concatenated strings in parens.
+                        # See https://github.com/pylint-dev/pylint/issues/8552.
+                        and not self._parenthesized_string_tokens.get(token_index)
                     )
                 ):
                     self.add_message(
                         "implicit-str-concat",
-                        line=elt.lineno,
+                        line=token.start[0],
                         args=(iterable_type,),
                         confidence=HIGH,
                     )
+                    break
+                token = next_token
 
     def process_string_token(self, token: str, start_row: int, start_col: int) -> None:
         quote_char = None
