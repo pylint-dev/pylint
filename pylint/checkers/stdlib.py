@@ -328,6 +328,9 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "symtable.Class.get_methods",
             "sys._clear_type_cache",
             "sysconfig.expand_makefile_vars",
+            "tkinter.Variable.trace_variable",
+            "tkinter.Variable.trace_vdelete",
+            "tkinter.Variable.trace_vinfo",
         },
         (3, 15, 0): {
             "http.cookies.BaseCookie.js_output",
@@ -492,6 +495,9 @@ DEPRECATED_ATTRIBUTES: DeprecationDict = {
         "tarfile.TarFile.tarfile",
         "traceback.TracebackException.exc_type",
         "typing.AnyStr",
+    },
+    (3, 14, 0): {
+        "pdb.Pdb.curframe_locals",
     },
     (3, 15, 0): {
         "imaplib.IMAP4.file",

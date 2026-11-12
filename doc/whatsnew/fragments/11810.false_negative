@@ -1,0 +1,6 @@
+Report the Python 3.14 deprecations of the ``nturl2path`` module, the
+``tkinter.Variable`` methods ``trace_variable()`` (and its ``trace()`` alias),
+``trace_vdelete()`` and ``trace_vinfo()``, and the ``pdb.Pdb.curframe_locals``
+attribute.
+
+Closes #11810
