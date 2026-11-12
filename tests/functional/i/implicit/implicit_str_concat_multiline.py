@@ -46,3 +46,9 @@ print(
     "magna aliqua. Ut enim ad minim veniam, quis nostrud "
     "exercitation ullamco laboris nisi ut aliquip ex ea ",
 )
+
+# Parentheses allow line jumps, but do not hide adjacent literals on a later line.
+print(
+    "first"
+    "second" "third"  # [implicit-str-concat]
+)
