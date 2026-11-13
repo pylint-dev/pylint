@@ -1,3 +1,7 @@
 await-outside-async:12:10:12:24:not_async:'await' should be used within an async function:UNDEFINED
 await-outside-async:25:8:25:30:func2.inner_func:'await' should be used within an async function:UNDEFINED
 await-outside-async:34:16:34:30:func3.<lambda>:'await' should be used within an async function:UNDEFINED
+await-outside-async:43:27:43:41:sync_with_async_genexp:'await' should be used within an async function:UNDEFINED
+await-outside-async:48:29:48:43:sync_with_async_genexp:'await' should be used within an async function:UNDEFINED
+await-outside-async:49:19:49:33:sync_with_async_genexp.<lambda>:'await' should be used within an async function:UNDEFINED
+await-outside-async:53:37:53:51::'await' should be used within an async function:UNDEFINED
