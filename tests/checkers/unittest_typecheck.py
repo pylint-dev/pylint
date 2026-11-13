@@ -27,6 +27,38 @@ class TestTypeChecker(CheckerTestCase):
 
     CHECKER_CLASS = typecheck.TypeChecker
 
+    @pytest.mark.parametrize(
+        "statement", ["selected[0]", "selected[0] = 1", "del selected[0]"]
+    )
+    def test_subscript_considers_alternative_inferred_classes(
+        self, statement: str
+    ) -> None:
+        module = astroid.parse(f"""
+            class Plain:
+                pass
+
+            class SubscriptableMeta(type):
+                def __getitem__(cls, key):
+                    return key
+
+                def __setitem__(cls, key, value):
+                    pass
+
+                def __delitem__(cls, key):
+                    pass
+
+            class Subscriptable(metaclass=SubscriptableMeta):
+                pass
+
+            def example(condition):
+                selected = Plain if condition else Subscriptable
+                {statement}
+            """)
+        subscript = next(module.nodes_of_class(astroid.nodes.Subscript))
+
+        with self.assertNoMessages():
+            self.checker.visit_subscript(subscript)
+
     def test_assignment_from_no_return_hint_args(self) -> None:
         """The no-return message can name attributes, names, and complex calls."""
         self.linter.config.known_side_effects_only_functions = (
