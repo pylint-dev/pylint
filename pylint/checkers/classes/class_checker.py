@@ -118,11 +118,7 @@ def _signature_from_call(call: nodes.Call) -> _CallSignature:
 def _signature_from_arguments(arguments: nodes.Arguments) -> _ParameterSignature:
     kwarg = arguments.kwarg
     vararg = arguments.vararg
-    args = [
-        arg.name
-        for arg in chain(arguments.posonlyargs, arguments.args)
-        if arg.name != "self"
-    ]
+    args = [arg.name for arg in chain(arguments.posonlyargs, arguments.args)][1:]
     kwonlyargs = [arg.name for arg in arguments.kwonlyargs]
     return _ParameterSignature(args, kwonlyargs, vararg, kwarg)
 
@@ -150,7 +146,7 @@ def _definition_equivalent_to_call(
     return all(kw in call.args or kw in definition.kwonlyargs for kw in call.kws)
 
 
-def _is_trivial_super_delegation(function: nodes.FunctionDef) -> bool:
+def _is_trivial_parent_delegation(function: nodes.FunctionDef) -> bool:
     """Check whether a function definition is a method consisting only of a
     call to the same function on the superclass.
     """
@@ -178,29 +174,55 @@ def _is_trivial_super_delegation(function: nodes.FunctionDef) -> bool:
         case nodes.Call(func=nodes.Attribute(expr=expr)):
             pass
         case _:
-            # Not a super() attribute access.
+            # Not a parent attribute access.
             return False
-
-    # Anything other than a super call is non-trivial.
-    super_call = safe_infer(expr)
-    if not isinstance(super_call, objects.Super):
-        return False
 
     # The name should be the same.
     if call.func.attrname != function.name:
         return False
 
+    current_scope = function.parent.scope()
+    super_call = safe_infer(expr)
+    if isinstance(super_call, nodes.ClassDef):
+        # An explicit parent call must forward the current instance unchanged.
+        if not function.args.arguments or not call.args:
+            return False
+        receiver = call.args[0]
+        if (
+            not isinstance(receiver, nodes.Name)
+            or receiver.name != function.args.arguments[0].name
+        ):
+            return False
+        method = safe_infer(call.func)
+        if (
+            not isinstance(method, bases.UnboundMethod)
+            or method.type != "method"
+            or method.args.args is None
+            or not has_known_bases(current_scope)
+        ):
+            return False
+        # Removing an override must not select a different implementation in
+        # the MRO, such as one that the explicit parent call deliberately skips.
+        inherited_from = next(
+            (
+                ancestor
+                for ancestor in safe_mro(current_scope)[1:]
+                if function.name in ancestor.locals
+            ),
+            None,
+        )
+        return inherited_from is super_call
+
+    if not isinstance(super_call, objects.Super):
+        return False
+
     # Should be a super call with the MRO pointer being the
     # current class and the type being the current instance.
-    current_scope = function.parent.scope()
-    if not (
+    return (
         super_call.mro_pointer == current_scope
         and isinstance(super_call.type, astroid.Instance)
         and super_call.type.name == current_scope.name
-    ):
-        return False
-
-    return True
+    )
 
 
 # Deal with parameters overriding in two methods.
@@ -1570,7 +1592,7 @@ a metaclass class method.",
     def _check_useless_super_delegation(self, function: nodes.FunctionDef) -> None:
         """Check if the given function node is an useless method override.
 
-        We consider it *useless* if it uses the super() builtin, but having
+        We consider it *useless* if it delegates to a parent method, but has
         nothing additional whatsoever than not implementing the method at all.
         If the method uses super() to delegate an operation to the rest of the MRO,
         and if the method called is the same as the current one, the arguments
@@ -1578,7 +1600,7 @@ a metaclass class method.",
         this method, then the method could be removed altogether, by letting
         other implementation to take precedence.
         """
-        if not _is_trivial_super_delegation(function):
+        if not _is_trivial_parent_delegation(function):
             return
 
         call: nodes.Call = function.body[0].value
@@ -1627,6 +1649,9 @@ a metaclass class method.",
         # Detect if the parameters are the same as the call's arguments.
         params = _signature_from_arguments(function.args)
         args = _signature_from_call(call)
+        if isinstance(safe_infer(call.func.expr), nodes.ClassDef):
+            # Unlike a bound super() call, a named parent receives self explicitly.
+            del args.args[0]
 
         if meth_node is not None:
             # Detect if the super method uses varargs and the function doesn't or makes some of those explicit

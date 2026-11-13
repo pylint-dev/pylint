@@ -37,7 +37,7 @@ class ParentWithoutInit(GrandParentWithInit):
 class ChildOne(ParentWithoutInit, GrandParentWithInit):
     """Since ParentWithoutInit calls GrandParentWithInit it doesn't need to be called."""
 
-    def __init__(self):
+    def __init__(self):  # [useless-parent-delegation]
         GrandParentWithInit.__init__(self)
 
 

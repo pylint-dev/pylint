@@ -1,0 +1,8 @@
+useless-parent-delegation:16:4:16:16:Redundant.__init__:Useless parent or super() delegation in method '__init__':INFERENCE
+useless-parent-delegation:19:4:19:14:Redundant.method:Useless parent or super() delegation in method 'method':INFERENCE
+useless-parent-delegation:22:4:22:16:Redundant.variadic:Useless parent or super() delegation in method 'variadic':INFERENCE
+useless-parent-delegation:30:4:30:14:Aliased.method:Useless parent or super() delegation in method 'method':INFERENCE
+useless-parent-delegation:35:4:35:14:PositionalOnly.method:Useless parent or super() delegation in method 'method':INFERENCE
+useless-parent-delegation:40:4:40:14:NamedReceiver.method:Useless parent or super() delegation in method 'method':INFERENCE
+useless-parent-delegation:105:4:105:14:MatchingMro.method:Useless parent or super() delegation in method 'method':INFERENCE
+useless-parent-delegation:156:4:156:14:ThroughEmptyParent.method:Useless parent or super() delegation in method 'method':INFERENCE
