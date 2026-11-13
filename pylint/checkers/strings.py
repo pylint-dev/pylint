@@ -12,7 +12,7 @@ import sys
 import tokenize
 from collections import Counter
 from collections.abc import Iterable, Sequence
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import arguments, bases, nodes, util
@@ -207,7 +207,7 @@ OTHER_NODES = (
 )
 
 
-def get_access_path(key: str | Literal[0], parts: list[tuple[bool, str]]) -> str:
+def get_access_path(key: str | int, parts: list[tuple[bool, str | int]]) -> str:
     """Given a list of format specifiers, returns
     the final access path (e.g. a.b.c[0][1]).
     """
@@ -539,13 +539,13 @@ class StringFormatChecker(BaseChecker):
     def _check_new_format_specifiers(
         self,
         node: nodes.Call,
-        fields: list[tuple[str, list[tuple[bool, str]]]],
+        fields: list[tuple[str | int, list[tuple[bool, str | int]]]],
         named: dict[str, SuccessfulInferenceResult],
     ) -> None:
         """Check attribute and index access in the format
         string ("{0.a}" and "{0[a]}").
         """
-        key: Literal[0] | str
+        key: str | int
         for key, specifiers in fields:
             # Obtain the argument. If it can't be obtained
             # or inferred, skip this check.
@@ -578,7 +578,7 @@ class StringFormatChecker(BaseChecker):
                 # because we can't infer its value properly.
                 continue
             previous = argument
-            parsed: list[tuple[bool, str]] = []
+            parsed: list[tuple[bool, str | int]] = []
             for is_attribute, specifier in specifiers:
                 if isinstance(previous, util.UninferableBase):
                     break

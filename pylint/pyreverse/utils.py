@@ -110,7 +110,10 @@ class FilterMixIn:
 
     def show_attr(self, node: nodes.NodeNG | str) -> bool:
         """Return true if the node should be treated."""
-        visibility = get_visibility(getattr(node, "name", node))
+        name = node if isinstance(node, str) else getattr(node, "name", None)
+        if not isinstance(name, str):
+            return False
+        visibility = get_visibility(name)
         return not self.__mode & VIS_MOD[visibility]
 
 
@@ -162,7 +165,7 @@ class LocalsVisitor:
         return None
 
 
-def get_annotation_label(ann: nodes.Name | nodes.NodeNG) -> str:
+def get_annotation_label(ann: nodes.NodeNG | None) -> str:
     if isinstance(ann, nodes.Name) and ann.name is not None:
         return ann.name  # type: ignore[no-any-return]
     if isinstance(ann, nodes.NodeNG):
@@ -172,7 +175,7 @@ def get_annotation_label(ann: nodes.Name | nodes.NodeNG) -> str:
 
 def get_annotation(
     node: nodes.AssignAttr | nodes.AssignName,
-) -> nodes.Name | nodes.Subscript | None:
+) -> nodes.NodeNG | None:
     """Return the annotation for `node`."""
     ann = None
     if isinstance(node.parent, nodes.AnnAssign):
