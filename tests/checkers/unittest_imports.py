@@ -214,6 +214,63 @@ class TestImportsChecker(CheckerTestCase):
         assert len(errors) == 0
 
     @staticmethod
+    def test_import_self_missing_name(capsys: CaptureFixture[str]) -> None:
+        """Regression test for #3748.
+
+        ``from <this package> import <name>`` was reported as import-self
+        even when ``<name>`` does not exist anywhere in the package, because
+        the module-part resolution falls back to the enclosing package for
+        any name that isn't itself an importable submodule.
+        """
+        Run(
+            [
+                f"{os.path.join(REGR_DATA, 'import_self_missing_name')}",
+                "-d all",
+                "-e import-self",
+            ],
+            exit=False,
+        )
+        output, errors = capsys.readouterr()
+        assert "import-self" not in output
+        assert len(errors) == 0
+
+    @staticmethod
+    def test_import_self_genuine(capsys: CaptureFixture[str]) -> None:
+        """A plain ``import <this package>`` inside its own ``__init__.py`` is
+        a genuine self-import and must still be reported after the #3748 fix
+        for the missing-name false positive.
+        """
+        Run(
+            [
+                f"{os.path.join(REGR_DATA, 'import_self_genuine')}",
+                "-d all",
+                "-e import-self",
+            ],
+            exit=False,
+        )
+        output, errors = capsys.readouterr()
+        assert "import-self" in output
+        assert len(errors) == 0
+
+    @staticmethod
+    def test_import_self_wildcard(capsys: CaptureFixture[str]) -> None:
+        """A self-referential ``from <this package> import *`` is a genuine
+        self-import and must still be reported after the #3748 fix for the
+        missing-name false positive.
+        """
+        Run(
+            [
+                f"{os.path.join(REGR_DATA, 'import_self_wildcard')}",
+                "-d all",
+                "-e import-self",
+            ],
+            exit=False,
+        )
+        output, errors = capsys.readouterr()
+        assert "import-self" in output
+        assert len(errors) == 0
+
+    @staticmethod
     def test_allow_reexport_package(capsys: CaptureFixture[str]) -> None:
         """Test --allow-reexport-from-package option."""
         # Option disabled - useless-import-alias should always be emitted

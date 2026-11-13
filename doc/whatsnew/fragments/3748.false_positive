@@ -1,0 +1,5 @@
+Fix a false positive for ``import-self`` when a package's ``__init__.py``
+imports a name from the current package that does not actually exist
+anywhere in the package (for example a typo'd or never-created submodule).
+
+Closes #3748
