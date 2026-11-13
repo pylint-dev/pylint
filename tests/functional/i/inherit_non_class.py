@@ -4,7 +4,8 @@ a class emits a warning. """
 # pylint: disable=import-error, invalid-name, using-constant-test
 # pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance
 
-from typing import Protocol, TypeVar
+from collections.abc import Sized
+from typing import Protocol, TypeAlias, TypeVar
 from missing import Missing
 
 if 1:
@@ -117,3 +118,28 @@ class Channel(Protocol[T]):
 class DirectChannel(Channel[T]):
     async def get(self) -> T:
         """An implementation of the generic."""
+
+
+V = TypeVar("V")
+
+
+class GenericProtocol(Sized, Protocol[T, V]):
+    """A generic protocol with multiple bases."""
+
+    def get(self) -> T:
+        """Return a value."""
+        ...
+
+
+class GenericProtocolUser(GenericProtocol[int, str]):
+    """A subclass of a generic Protocol."""
+
+
+class AnotherProtocol(Protocol[T, V]):
+    """Another generic protocol."""
+
+
+ProtocolAlias: TypeAlias = AnotherProtocol[T, V]
+
+
+foobar = ProtocolAlias[bool]
