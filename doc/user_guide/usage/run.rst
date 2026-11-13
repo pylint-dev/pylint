@@ -108,15 +108,17 @@ configuration file in the following order and uses the first one it finds:
    providing it has a ``pylint`` section or a section beginning with ``pylint.``.
 #. ``tox.ini`` in the current working directory,
    providing it has a ``pylint`` section or a section beginning with ``pylint.``.
-#. If the current working directory is in a Python package, Pylint searches \
+#. If the current working directory is in a Python package, Pylint searches
    up the hierarchy of Python packages until it finds a ``pylintrc``,
-   ``pylintrc.toml``, ``.pylintrc`` or ``.pylintrc.toml`` file. \
-   This allows you to specify coding standards on a module-by-module \
-   basis.  Of course, a directory is judged to be a Python package if it \
+   ``pylintrc.toml``, ``.pylintrc`` or ``.pylintrc.toml`` file. Here, a
+   ``.toml`` file is used even if it has no ``tool.pylint`` table.
+   This allows you to specify coding standards on a module-by-module
+   basis.  Of course, a directory is judged to be a Python package if it
    contains an ``__init__.py`` file.
-#. Pylint will search for the ``pyproject.toml`` file up the directories hierarchy
-   unless it's found, or a ``.git``/``.hg`` directory is found, or the file system root
-   is approached, providing it has a ``tool.pylint`` table.
+#. The nearest ``pyproject.toml`` up the directory hierarchy, providing it has a
+   ``tool.pylint`` table. The search stops at the first ``pyproject.toml`` found,
+   even if it has no ``tool.pylint`` table, at a directory containing a
+   ``.git``/``.hg`` directory, or at the file system root.
 #. The file named by environment variable ``PYLINTRC``
 #. if you have a home directory which isn't ``/root``:
 
