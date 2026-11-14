@@ -1,0 +1,7 @@
+Fixed a false positive for ``too-many-statements`` when a function body is a
+single ``pass`` (or the stub-style single ``...``). The placeholder required
+to make an empty body syntactically valid was counted as a second statement on
+top of the function definition itself. An empty function now counts as one
+statement; every other body shape keeps its previous count.
+
+Closes #11783
