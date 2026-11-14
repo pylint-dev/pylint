@@ -1,0 +1,5 @@
+Fix false positive ``invalid-name`` for ``TypeAlias``, ``TypeVar``, ``ParamSpec`` and
+``TypeVarTuple`` defined in a class body: they are now checked against their own
+naming style instead of ``class-attribute-naming-style``.
+
+Closes #11809

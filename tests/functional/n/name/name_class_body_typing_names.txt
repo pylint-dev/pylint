@@ -1,0 +1,5 @@
+invalid-name:20:4:20:13:Invalid:"Type alias name ""bad_alias"" doesn't conform to predefined naming style":HIGH
+invalid-name:21:4:21:15:Invalid:"Type variable name ""bad_typevar"" doesn't conform to predefined naming style":HIGH
+invalid-name:22:4:22:21:Invalid:"Class attribute name ""BadClassAttribute"" doesn't conform to snake_case naming style":HIGH
+invalid-name:23:4:23:14:Invalid:"Parameter specification variable name ""bad_params"" doesn't conform to predefined naming style":HIGH
+invalid-name:24:4:24:13:Invalid:"Type variable tuple name ""bad_shape"" doesn't conform to predefined naming style":HIGH
