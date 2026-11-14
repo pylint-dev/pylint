@@ -2357,12 +2357,29 @@ def is_singleton_const(node: nodes.NodeNG) -> bool:
     )
 
 
+def _is_in_lambda_body(node: nodes.NodeNG) -> bool:
+    """Return whether ``node`` only runs when an enclosing lambda is called.
+
+    Default values run when the lambda is created, so a node in the defaults
+    of a lambda only counts if that lambda is itself inside a lambda body.
+    """
+    expression_ancestors = itertools.takewhile(
+        lambda ancestor: not ancestor.is_statement, node.node_ancestors()
+    )
+    return any(
+        isinstance(parent, nodes.Lambda) and child is parent.body
+        for child, parent in itertools.pairwise(
+            itertools.chain((node,), expression_ancestors)
+        )
+    )
+
+
 def is_terminating_func(node: nodes.Call) -> bool:
     """Detect call to exit(), quit(), os._exit(), sys.exit(), or
     functions annotated with `typing.NoReturn` or `typing.Never`.
     """
-    if not isinstance(node.func, (nodes.Attribute, nodes.Name)) or isinstance(
-        node.parent, nodes.Lambda
+    if not isinstance(node.func, (nodes.Attribute, nodes.Name)) or _is_in_lambda_body(
+        node
     ):
         return False
     try:
