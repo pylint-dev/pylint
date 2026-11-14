@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 import astroid
+import pytest
 from astroid import nodes
 
 from pylint.checkers import variables
@@ -20,6 +21,62 @@ REGR_DATA_DIR = str(Path(__file__).parent / ".." / "regrtest_data")
 
 class TestVariablesChecker(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker
+
+    @pytest.mark.parametrize(
+        ("outer_import", "inner_import"),
+        [
+            ("import xml", "import xml.etree"),
+            ("import xml.etree", "import xml.dom"),
+            ("import xml as package", "import xml as package"),
+            ("import xml.etree as tree", "import xml.etree as tree"),
+            ("import os, xml", "import sys, xml.etree"),
+            ("import xml, xml.etree", "import xml.dom, xml"),
+        ],
+    )
+    def test_import_same_module_does_not_redefine_outer_name(
+        self, outer_import: str, inner_import: str
+    ) -> None:
+        node = astroid.extract_node(f"""
+            {outer_import}
+            def func():  #@
+                {inner_import}
+            """)
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @pytest.mark.parametrize(
+        ("outer_definition", "local_definition"),
+        [
+            ("value = 1", "value = 2"),
+            ("import xml", "xml = 2"),
+            ("import xml as package", "import xml.etree as package"),
+            ("from xml import etree", "from xml import dom as etree"),
+            ("xml = 2", "import xml"),
+            ("import xml; xml = 2", "import xml"),
+            ("import xml", "import xml; xml = 2"),
+            ("import xml as package; import os as package", "import xml as package"),
+            ("import xml", "import xml, os as xml"),
+            ("import xml, os as xml", "import xml"),
+        ],
+    )
+    def test_actual_local_shadowing_redefines_outer_name(
+        self, outer_definition: str, local_definition: str
+    ) -> None:
+        node = astroid.extract_node(f"""
+            {outer_definition}
+            def func():  #@
+                {local_definition}
+            """)
+        name, statement = next(iter(node.items()))
+        with self.assertAddsMessages(
+            MessageTest(
+                "redefined-outer-name",
+                node=statement,
+                args=(name, node.root().globals[name][0].fromlineno),
+            ),
+            ignore_position=True,
+        ):
+            self.checker.visit_functiondef(node)
 
     def test_all_elements_without_parent(self) -> None:
         node = astroid.extract_node("__all__ = []")
