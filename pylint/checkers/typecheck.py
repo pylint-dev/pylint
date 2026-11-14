@@ -36,6 +36,7 @@ from pylint.checkers.utils import (
     is_builtin_object,
     is_comprehension,
     is_hashable,
+    is_in_stub_file,
     is_inside_abstract_class,
     is_iterable,
     is_mapping,
@@ -2161,6 +2162,10 @@ accessed. Python regular expressions are accepted.",
 
     @only_required_for_messages("unsupported-binary-operation")
     def visit_binop(self, node: nodes.BinOp) -> None:
+        # Stubs are not executed. ``X | Y`` is PEP 604 syntax and is valid in a
+        # ``.pyi`` even when ``py-version`` is older than 3.10.
+        if is_in_stub_file(node):
+            return
         if node.op == "|":
             self._detect_unsupported_alternative_union_syntax(node)
 
