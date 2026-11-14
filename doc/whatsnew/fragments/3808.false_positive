@@ -1,0 +1,4 @@
+Fix a false positive for ``unnecessary-lambda`` when the receiver of the called method
+contains a call, as in ``lambda: (datetime.now() + delta).isoformat()``.
+
+Closes #3808
