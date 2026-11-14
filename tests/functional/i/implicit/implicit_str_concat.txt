@@ -5,4 +5,10 @@ implicit-str-concat:11:0:None:None::Implicit string concatenation found in list:
 implicit-str-concat:13:0:None:None::Implicit string concatenation found in call:HIGH
 implicit-str-concat:14:0:None:None::Implicit string concatenation found in call:HIGH
 implicit-str-concat:27:0:None:None::Implicit string concatenation found in assignment:HIGH
+implicit-str-concat:37:0:None:None::Implicit string concatenation found in call:HIGH
 implicit-str-concat:42:0:None:None::Implicit string concatenation found in call:HIGH
+implicit-str-concat:56:0:None:None::Implicit string concatenation found in list:HIGH
+implicit-str-concat:60:0:None:None::Implicit string concatenation found in tuple:HIGH
+implicit-str-concat:64:0:None:None::Implicit string concatenation found in set:HIGH
+implicit-str-concat:68:0:None:None::Implicit string concatenation found in assignment:HIGH
+implicit-str-concat:73:0:None:None::Implicit string concatenation found in list:HIGH

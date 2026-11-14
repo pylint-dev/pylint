@@ -31,10 +31,10 @@ TEST_LIST7 = ('a' 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb \
 TEST_LIST8 = [b'A' b'B']
 
 # There's an internal juxtaposition on the second line in a valid multiline
-# TODO #6444: raise implicit-str-concat on the second line pylint: disable=fixme
+# The warning should point to the internal juxtaposition (#6444).
 print(
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
-    " sed do eiusmod tempor " "incididunt ut labore et dolore "
+    " sed do eiusmod tempor " "incididunt ut labore et dolore "  # [implicit-str-concat]
     "magna aliqua. Ut enim ad minim veniam, quis nostrud "
     "exercitation ullamco laboris nisi ut aliquip ex ea "
 )
@@ -48,3 +48,36 @@ with open("myfile.txt" "a+b", encoding="utf8") as f:  # [implicit-str-concat]
 MIXED_RAW1 = [r"\d" "\n"]
 MIXED_RAW2 = "\n" r"\d"
 MIXED_RAW3 = (r"\override Stem" "\n", "other")
+
+# Check the later pairs in each concatenation, including comments between lines.
+INTERNAL_LIST = [
+    "first"
+    # The newline is intentional; the adjacent literals below are not.
+    "second" "third"  # [implicit-str-concat]
+]
+INTERNAL_TUPLE = (
+    "first"
+    "second" "third",  # [implicit-str-concat]
+)
+INTERNAL_SET = {
+    "first"
+    "second" "third"  # [implicit-str-concat]
+}
+INTERNAL_ASSIGNMENT = (
+    "first"
+    "second" "third" "fourth"  # [implicit-str-concat]
+)
+
+# Unicode before the first string must not affect later token lookups.
+UNICODE_LIST = ["é", "first"
+               "second" "third"]  # [implicit-str-concat]
+
+# Do not treat separate string statements as a concatenation.
+SEPARATE_STATEMENT = r"first" "second"
+"second"
+
+# Preserve the raw/non-raw exemption for an internal pair.
+INTERNAL_MIXED_RAW = (
+    "first"
+    "second" r"\d"
+)
