@@ -1,2 +1,3 @@
-logging-too-few-args:12:0:12:20::Not enough arguments for logging format string:UNDEFINED
-logging-too-many-args:13:0:13:26::Too many arguments for logging format string:HIGH
+logging-too-few-args:11:0:11:20::Not enough arguments for logging format string:UNDEFINED
+logging-too-many-args:12:0:12:26::Too many arguments for logging format string:HIGH
+logging-format-truncated:13:0:13:32::Logging format string ends in middle of conversion specifier:UNDEFINED
