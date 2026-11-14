@@ -1,0 +1,5 @@
+``modified-iterating-list`` is now emitted when items are added to or removed
+from an iterated list that cannot be inferred, such as a function parameter or
+a name unpacked from ``os.walk()``.
+
+Closes #9192
