@@ -1,0 +1,3 @@
+Fix ``invalid-overridden-method`` for synchronous methods that directly return coroutine calls.
+
+Closes #9745
