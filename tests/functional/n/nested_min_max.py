@@ -68,8 +68,12 @@ max(max(3, max(MATRIX)))  # [nested-min-max]
 # would change the result, e.g. ``max(1, max(5, 3, key=abs))`` != ``max(1, 5, 3)``.
 max(1, max(5, 3, key=abs))
 max(1, max([5, 3], key=len))
-# Regression guard: a keyword on the *outer* call (inner has none) is still flagged.
-max(1, max(5, 3), key=abs)  # [nested-min-max]
+# Likewise for a keyword on the *outer* call: it would also apply to the lifted
+# arguments, which the inner call compared without it, e.g.
+# ``max(0, max(-5, 1), key=abs)`` (``1``) != ``max(0, -5, 1, key=abs)`` (``-5``).
+max(1, max(5, 3), key=abs)
+max(0, max(-5, 1), key=abs)
+max(0, max([-5, 1]), key=abs)
 
 # Regression guard: arguments after the splatted inner call must be preserved.
 LIST3 = [1, 2, 3]
