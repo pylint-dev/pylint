@@ -121,3 +121,39 @@ class EmptyClass:
 42 in EmptyClass  # [unsupported-membership-test]
 42 not in count  # [unsupported-membership-test]
 42 in range  # [unsupported-membership-test]
+
+
+# https://github.com/pylint-dev/pylint/issues/3045
+class LazyAll:
+    """A class attribute that is assigned in a class method."""
+
+    _all = None
+
+    @classmethod
+    def all(cls):
+        if not cls._all:
+            cls._all = [1, 2, 3]
+        return cls._all
+
+    @classmethod
+    def exist(cls, number):
+        return number in cls.all()
+
+
+# https://github.com/pylint-dev/pylint/issues/9809
+class OptionalDict:
+    """An optional class attribute that is initialized in a class method."""
+
+    entries: "dict | None" = None
+
+    @classmethod
+    def init(cls):
+        if cls.entries is None:
+            cls.entries = {}
+        assert cls.entries is not None
+        assert isinstance(cls.entries, dict)
+        if cls.entries is None:
+            return
+        cls.entries[1] = 2
+        _ = cls.entries[1]
+        _ = 1 in cls.entries

@@ -1,0 +1,3 @@
+``unsubscriptable-object`` and ``unsupported-assignment-operation`` are no longer emitted for a class attribute that is assigned a subscriptable value through `cls = self.__class__`. This needs the astroid fix that infers the values assigned through the class.
+
+Closes #10082

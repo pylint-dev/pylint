@@ -91,3 +91,15 @@ deq[0] = 42
 values = [1, 2, 3, 4]
 (values[0], values[1]) = 3, 4
 (values[0], SubscriptableClass()[0]) = 42, 42 # [unsupported-assignment-operation]
+
+
+# https://github.com/pylint-dev/pylint/issues/10082
+class TraceLoad:
+    """A class attribute that is assigned through ``cls = self.__class__``."""
+
+    csvdata = None
+
+    def __init__(self, filename):
+        cls = self.__class__
+        cls.csvdata = {"Date": filename, "Time": filename}
+        cls.csvdata["Date_Time"] = cls.csvdata["Date"] + " " + cls.csvdata["Time"]

@@ -1,0 +1,3 @@
+``unsubscriptable-object``, ``unsupported-assignment-operation`` and ``unsupported-membership-test`` are no longer emitted for an optional class attribute that a class method initializes after an `is None` check. This needs the astroid fix that infers the values assigned through the class.
+
+Closes #9809

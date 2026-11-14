@@ -1,0 +1,3 @@
+``unsubscriptable-object`` is no longer emitted for a class attribute that is assigned a subscriptable value through the class, such as `cls.attr = value` after `cls = self.__class__`. This needs the astroid fix that infers the values assigned through the class.
+
+Closes #9250

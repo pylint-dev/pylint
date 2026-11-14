@@ -125,3 +125,19 @@ def test_one(param):
     """Should complain about var_one[0], but doesn't"""
     var_one = return_an_int(param)
     return var_one[0]  # [unsubscriptable-object]
+
+
+# https://github.com/pylint-dev/pylint/issues/9250
+class CachedRows:
+    """A class attribute that is assigned through ``cls = self.__class__``."""
+
+    cached_name = None
+    cached_rows = None
+
+    def __init__(self, name):
+        cls = self.__class__
+        assert name is not None
+        if cls.cached_name != name:
+            cls.cached_rows = [0.0] * 10
+            cls.cached_name = name
+        self.first = cls.cached_rows[0]
