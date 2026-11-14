@@ -1,0 +1,6 @@
+Fix a false positive for ``function-redefined`` when a function or class is
+defined in more than one ``case`` branch of the same ``match`` statement. The
+branches of a ``match`` statement are mutually exclusive, like the branches of
+an ``if`` statement.
+
+Closes #7470
