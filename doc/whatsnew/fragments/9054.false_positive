@@ -1,0 +1,6 @@
+Fix a false ``unexpected-line-ending-format`` when linting from stdin. Source
+piped with ``--from-stdin`` was read with universal newlines enabled, so every
+``CRLF`` and ``CR`` became ``LF`` before any checker saw it, and the check
+compared against text pylint had itself rewritten.
+
+Closes #9054
