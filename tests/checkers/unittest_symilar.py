@@ -2,6 +2,7 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
+import textwrap
 from collections.abc import Generator
 from contextlib import redirect_stdout
 from io import BytesIO, StringIO
@@ -575,6 +576,362 @@ def test_hash_bucket_product_limit_fallback(
     assert "15 similar lines in 2 files" in out
     assert f"=={file_a}:[0:15]" in out
     assert f"=={file_b}:[0:15]" in out
+
+
+def _common_chunks(
+    source_1: str, source_2: str, ignore_local_names: bool, min_lines: int = 4
+) -> list[tuple[int, list[tuple[str, int, int]]]]:
+    runner = Symilar(
+        min_lines=min_lines,
+        ignore_comments=True,
+        ignore_docstrings=True,
+        ignore_imports=True,
+        ignore_signatures=True,
+        ignore_local_names=ignore_local_names,
+    )
+    for name, source in (("first.py", source_1), ("second.py", source_2)):
+        runner.append_stream(name, StringIO(textwrap.dedent(source)))
+    return [
+        (num, sorted((lineset.name, start, end) for lineset, start, end in couples))
+        for num, couples in runner._compute_sims()
+    ]
+
+
+RENAMED_LOCALS_1 = """
+    def total(items, rate, *extras):
+        subtotal = sum(extras)
+        for item in items:
+            subtotal += item.price * item.quantity
+        taxed = subtotal * (1 + rate)
+        names = [entry.name for entry in items if entry.price > taxed]
+        return round(taxed, 2), names
+"""
+RENAMED_LOCALS_2 = """
+    def compute(rows, tax, *more):
+        acc = sum(more)
+        for row in rows:
+            acc += row.price * row.quantity
+        gross = acc * (1 + tax)
+        found = [x.name for x in rows if x.price > gross]
+        return round(gross, 2), found
+"""
+
+
+def test_ignore_local_names_finds_renamed_clone() -> None:
+    assert not _common_chunks(RENAMED_LOCALS_1, RENAMED_LOCALS_2, False)
+    assert _common_chunks(RENAMED_LOCALS_1, RENAMED_LOCALS_2, True) == [
+        (6, [("first.py", 2, 8), ("second.py", 2, 8)])
+    ]
+
+
+def test_ignore_local_names_keeps_raw_text() -> None:
+    lineset = LineSet("a.py", ["def f(a):\n", "    b = a\n"], ignore_local_names=True)
+    assert [spec.text for spec in lineset.stripped_lines] == ["def f(a):", "b = a"]
+    assert lineset.stripped_lines[1].template == "\0 = \0"
+    assert lineset.stripped_lines[1].local_names == ("b", "a")
+
+
+def test_ignore_local_names_rejects_inconsistent_renaming() -> None:
+    """Two distinct names in one copy map to a single name in the other."""
+    source_1 = """
+        def f(x, y):
+            a = x + y
+            b = a * x - y
+            c = b + x * y
+            d = c - y / x
+            e = d * x + y
+            return e, x, y
+    """
+    source_2 = source_1.replace("y", "x").replace("f(x, x)", "f(x, y)")
+    assert not _common_chunks(source_1, source_2, True)
+
+
+@pytest.mark.parametrize(
+    "original, renamed",
+    [
+        pytest.param("LIMIT", "CEILING", id="module-global"),
+        pytest.param("self.limit", "self.ceiling", id="attribute"),
+        pytest.param("clamp(value, limit=3)", "clamp(value, ceiling=3)", id="kwarg"),
+        pytest.param("clamp(value)", "bound(value)", id="called-function"),
+        pytest.param("json.dumps(value)", "yaml.dumps(value)", id="local-import"),
+        pytest.param("helper(value)", "assist(value)", id="nested-def"),
+    ],
+)
+def test_ignore_local_names_keeps_non_local_names(original: str, renamed: str) -> None:
+    template = """
+        LIMIT = CEILING = 3
+        def method(self, value):
+            import json, yaml
+            def helper(arg):
+                return arg
+            def assist(arg):
+                return arg
+            first = {expr} + 1
+            second = {expr} * 2
+            third = {expr} - 3
+            fourth = {expr} / 4
+            fifth = {expr} % 5
+            return first, second, third, fourth, fifth
+    """
+    source_1 = template.format(expr=original)
+    source_2 = template.format(expr=renamed)
+    assert not _common_chunks(source_1, source_2, True, min_lines=5)
+
+
+def test_ignore_local_names_global_statement_keeps_name() -> None:
+    template = """
+        def bump(step):
+            global {name}
+            {name} += step
+            {name} *= step
+            {name} -= step
+            {name} //= step
+            {name} **= step
+            return {name}
+    """
+    found = _common_chunks(
+        template.format(name="hits"), template.format(name="misses"), True
+    )
+    assert not found
+
+
+def test_ignore_local_names_placeholder_only_lines() -> None:
+    """Lines holding nothing but local names count only when verbatim."""
+    template = """
+        def pack({a}, {b}, {c}, {d}, {e}):
+            return build(
+                {a},
+                {b},
+                {c},
+                {d},
+                {e},
+            )
+    """
+    renamed = template.format(a="v", b="w", c="x", d="y", e="z")
+    original = template.format(a="a", b="b", c="c", d="d", e="e")
+    assert not _common_chunks(original, renamed, True)
+    assert _common_chunks(original, original, True) == _common_chunks(
+        original, original, False
+    )
+
+
+def test_ignore_local_names_non_ascii_columns() -> None:
+    """Astroid reports columns in UTF-8 bytes, not characters."""
+    template = """
+        def describe({name}, {other}):
+            label = "é" + {name}
+            label += "ü" + {other}
+            label += "ö" + {name} + {other}
+            label += "ß" + {other} + {name}
+            label += "ñ" + {name} * 2
+            return label
+    """
+    found = _common_chunks(
+        template.format(name="first", other="second"),
+        template.format(name="alpha", other="beta"),
+        True,
+    )
+    assert found == [(6, [("first.py", 2, 8), ("second.py", 2, 8)])]
+
+
+def test_ignore_local_names_except_handler_name() -> None:
+    """Astroid places the handler name at the ``except`` keyword."""
+    template = """
+        def guard(action, {kind}):
+            try:
+                action()
+            except {kind} as {name}:
+                log({name})
+                raise RuntimeError({name}) from {name}
+            finally:
+                action.close()
+    """
+    found = _common_chunks(
+        template.format(name="err", kind="error_type"),
+        template.format(name="exc", kind="failure"),
+        True,
+    )
+    assert found == [(7, [("first.py", 2, 9), ("second.py", 2, 9)])]
+
+
+def test_ignore_local_names_cli(tmp_path: Path) -> None:
+    file_1 = tmp_path / "first.py"
+    file_2 = tmp_path / "second.py"
+    file_1.write_text(textwrap.dedent(RENAMED_LOCALS_1), encoding="utf-8")
+    file_2.write_text(textwrap.dedent(RENAMED_LOCALS_2), encoding="utf-8")
+    for flags, expected in (([], False), (["--ignore-local-names"], True)):
+        output = StringIO()
+        with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+            symilar.Run(["--ignore-signatures", *flags, str(file_1), str(file_2)])
+        assert ex.value.code == 0
+        assert ("6 similar lines in 2 files" in output.getvalue()) is expected
+
+
+def test_ignore_local_names_checker_option() -> None:
+    linter = PyLinter(reporter=Reporter())
+    checker = symilar.SimilaritiesChecker(linter)
+    linter.register_checker(checker)
+    linter.set_option("ignore-local-names", True)
+    for name, source in (("a", RENAMED_LOCALS_1), ("b", RENAMED_LOCALS_2)):
+        module = astroid.parse(textwrap.dedent(source), module_name=name)
+        checker.append_stream(name, StringIO(textwrap.dedent(source)), tree=module)
+    assert checker._compute_sims()
+
+
+@pytest.mark.parametrize(
+    "source, expected",
+    [
+        pytest.param(
+            "def f(a, *args, **kwargs): pass\n",
+            "def f(\0, *\0, **\0): pass",
+            id="arguments",
+        ),
+        pytest.param(
+            "def f(rows):\n    return [row.x for row in rows]\n",
+            "return [\0.x for \0 in \0]",
+            id="comprehension-and-attribute",
+        ),
+        pytest.param(
+            "def f(a):\n    return g(a, key=lambda item: item + a)\n",
+            "return g(\0, key=lambda \0: \0 + \0)",
+            id="lambda-and-kwarg",
+        ),
+        pytest.param(
+            "def f(size):\n    class Box:\n        size = 3\n"
+            "        def area(self):\n            return size * size\n",
+            "return \0 * \0",
+            id="method-skips-class-scope",
+        ),
+        pytest.param(
+            "def f(size):\n    class Box:\n        size = 3\n",
+            "size = 3",
+            id="class-attribute",
+        ),
+        pytest.param(
+            "TOTAL = 0\ndef f(step):\n    global TOTAL\n    TOTAL += step\n",
+            "TOTAL += \0",
+            id="global",
+        ),
+    ],
+)
+def test_ignore_local_names_template(source: str, expected: str) -> None:
+    lineset = LineSet("a.py", source.splitlines(keepends=True), ignore_local_names=True)
+    assert lineset.stripped_lines[-1].template == expected
+
+
+@pytest.mark.parametrize(
+    "expression, expected",
+    [
+        ("[x for x in x]", "[\0 for \0 in x]"),
+        ("{x for x in x}", "{\0 for \0 in x}"),
+        ("{x: x for x in x}", "{\0: \0 for \0 in x}"),
+        ("(x for x in x)", "(\0 for \0 in x)"),
+        ("[x for x in list(x)]", "[\0 for \0 in list(x)]"),
+        ("[[y for y in x] for x in x]", "[[\0 for \0 in \0] for \0 in x]"),
+        ("[x for x in [x for x in x]]", "[\0 for \0 in [\0 for \0 in x]]"),
+        ("[y for x in x for y in x if y]", "[\0 for \0 in x for \0 in \0 if \0]"),
+        ("[lambda: x for x in x]", "[lambda: \0 for \0 in x]"),
+        ("[x for x in (lambda: x)()]", "[\0 for \0 in (lambda: x)()]"),
+        ("lambda x=x: x", "lambda \0=x: \0"),
+        ("lambda x=(x + 1): x", "lambda \0=(x + 1): \0"),
+        ("lambda x=(lambda: x): x", "lambda \0=(lambda: x): \0"),
+    ],
+)
+def test_ignore_local_names_expression_scope(expression: str, expected: str) -> None:
+    source = f"def f():\n    return {expression}\n"
+    lineset = LineSet("a.py", source.splitlines(keepends=True), ignore_local_names=True)
+    assert lineset.stripped_lines[-1].template == f"return {expected}"
+
+
+@pytest.mark.parametrize(
+    "source, expected",
+    [
+        ("def f(x=x): pass", "def f(\0=x): pass"),
+        ("def f(x=(x + 1)): pass", "def f(\0=(x + 1)): pass"),
+        ("def f(*, x=x, y): pass", "def f(*, \0=x, \0): pass"),
+        ("def f(x=lambda: x): pass", "def f(\0=lambda: x): pass"),
+        ("def f(x: x): pass", "def f(\0: x): pass"),
+        ("def f(x: list[x]): pass", "def f(\0: list[x]): pass"),
+        ("def f(x) -> x: pass", "def f(\0) -> x: pass"),
+        ("def f(x) -> list[x]: pass", "def f(\0) -> list[x]: pass"),
+        ("def f(*x: x, **y: y): pass", "def f(*\0: x, **\0: y): pass"),
+        ("def outer(x):\n    def f(x=x): pass", "def f(\0=\0): pass"),
+        (
+            "def outer(x):\n    def f(x: x=x) -> x: pass",
+            "def f(\0: x=\0) -> x: pass",
+        ),
+        (
+            "def outer(x):\n    return [[x for x in x] for x in x]",
+            "return [[\0 for \0 in \0] for \0 in \0]",
+        ),
+        (
+            "class C:\n    x = 1\n    def f(x=x): pass",
+            "def f(\0=x): pass",
+        ),
+        (
+            "def outer(x):\n    class C:\n        x = 1\n"
+            "        def f(y=x): return x",
+            "def f(\0=x): return \0",
+        ),
+        (
+            "def outer(x):\n    class C:\n        x = [x for x in x]",
+            "x = [\0 for \0 in x]",
+        ),
+        ("x = 1\ndef f():\n    x = x + 1", "\0 = \0 + 1"),
+        (
+            "x = 1\ndef outer(x):\n    def inner():\n        global x\n        return x",
+            "return x",
+        ),
+        (
+            "x = 1\ndef outer(x):\n    def inner():\n        global x\n"
+            "        return lambda: x",
+            "return lambda: x",
+        ),
+        (
+            "def outer():\n    from os import path\n    def inner():\n"
+            "        nonlocal path\n        path = 3\n        return path",
+            "return path",
+        ),
+        (
+            "def outer(x):\n    def inner():\n        nonlocal x\n        x += 1",
+            "x += 1",
+        ),
+        (
+            "def outer(x):\n    def inner():\n        nonlocal x\n    return x",
+            "return \0",
+        ),
+        ("def outer(x):\n    return lambda x=x: x", "return lambda \0=\0: \0"),
+        (
+            "def outer(x):\n    def f(y=lambda: x): pass",
+            "def f(\0=lambda: \0): pass",
+        ),
+    ],
+)
+def test_ignore_local_names_definition_scope(source: str, expected: str) -> None:
+    lineset = LineSet("a.py", source.splitlines(keepends=True), ignore_local_names=True)
+    assert lineset.stripped_lines[-1].template == expected
+
+
+@pytest.mark.parametrize("expression", ["[x for x in x]", "(lambda x=x: x)()"])
+def test_ignore_local_names_keeps_enclosing_globals(expression: str) -> None:
+    source = f"""
+        def f():
+            result = {expression}
+            result = sorted(result)
+            result = tuple(result)
+            result = list(result)
+            return result
+    """
+    renamed = (
+        source.replace("def f", "def g").replace("result", "output").replace("x", "y")
+    )
+    assert not _common_chunks(source, renamed, True)
+
+
+def test_ignore_local_names_decorator_scope() -> None:
+    source = "def outer(x):\n    @decorate(x)\n    def f(x): pass\n"
+    lineset = LineSet("a.py", source.splitlines(keepends=True), ignore_local_names=True)
+    assert lineset.stripped_lines[-2].template == "@decorate(\0)"
 
 
 def test_three_identical_files_are_reported_together(tmp_path: Path) -> None:

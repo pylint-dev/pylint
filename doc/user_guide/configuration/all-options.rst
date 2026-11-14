@@ -1741,6 +1741,15 @@ Standard Checkers
 **Default:**  ``True``
 
 
+.. _ignore-local-names-option:
+
+--ignore-local-names
+""""""""""""""""""""
+*Function-local names (arguments and assigned variables) are compared up to a consistent renaming, so blocks that differ only in local variable names are reported*
+
+**Default:**  ``False``
+
+
 .. _ignore-signatures-option:
 
 --ignore-signatures
@@ -1775,6 +1784,8 @@ Standard Checkers
    ignore-docstrings = true
 
    ignore-imports = true
+
+   ignore-local-names = false
 
    ignore-signatures = true
 
