@@ -83,6 +83,7 @@ If you want to make pylint faster for this type of use case, you can use the ``-
 option, which will remove all the refactor, convention, and warning checks. You can also disable
 checks with inherently high complexity that need to analyse the full code base like
 ``duplicate-code`` or ``cyclic-import`` (this list is not exhaustive).
+See :ref:`checks-across-modules` for how to run these checks together.
 
 .. _`Microsoft plugin for VS Code`: https://github.com/microsoft/vscode-pylint#readme
 

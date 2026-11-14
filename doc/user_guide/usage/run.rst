@@ -176,6 +176,39 @@ It can also be unexpectedly different when the file set changes because the new
 slicing can change the inference. So, don't do this if correctness and determinism
 are important to you.
 
+.. _checks-across-modules:
+
+Checks across multiple files
+----------------------------
+
+Some checks combine information from the modules passed to a single Pylint run:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Message
+     - Information combined across checked modules
+   * - :ref:`cyclic-import`
+     - Import relationships, to find cycles between modules.
+   * - :ref:`duplicate-code`
+     - Source lines, to find similar code in different files.
+
+For example, a cycle between two modules or duplicated code in two files can be
+missed if the files are checked in separate Pylint invocations. Run these checks
+on the whole package together::
+
+   pylint --disable=all --enable=cyclic-import,duplicate-code mypackage
+
+For quicker feedback on changed files, you can disable these checks in that run::
+
+   pylint --disable=cyclic-import,duplicate-code changed.py
+
+Keep a normal whole-project run as well, for example in continuous integration.
+The two messages above are not an exhaustive list of checks affected by other
+files: other checks use inference to inspect imported modules, and a change in
+one module can affect diagnostics in an unchanged module. Running only the two
+messages on the whole project does not replace running all enabled checks on it.
+
 Exit codes
 ----------
 
