@@ -1,0 +1,6 @@
+Linting is about 2% faster. The imports checker remembers where imported modules are
+found for the rest of the run, the ``used-before-assignment`` checks no longer walk a
+scope again for every name they look up in it, and the AST walker finds the checks to
+run on each node faster.
+
+Refs #11806
