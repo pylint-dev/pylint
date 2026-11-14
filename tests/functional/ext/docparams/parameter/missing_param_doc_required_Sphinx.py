@@ -514,3 +514,37 @@ def test_finds_compact_container_types_sphinx_four(named_arg):
     :rtype: list[tokenize.TokenInfo]
     """
     return named_arg
+
+
+def test_finds_container_types_with_spaces_sphinx_one(named_arg):
+    """The Sphinx docstring
+
+    :param dict(str, str) named_arg: Returned
+
+    :returns: named_arg
+    :rtype: dict(str, str)
+    """
+    return named_arg
+
+
+def test_finds_container_types_with_spaces_sphinx_two(named_arg, other_arg):
+    """The Sphinx docstring
+
+    :param Union[str, SomeEnum] named_arg: Returned
+    :param Optional[dict[str,  list[int]]] other_arg: Returned
+
+    :returns: named_arg
+    :rtype: Union[str, SomeEnum]
+    """
+    return named_arg or other_arg
+
+
+def test_finds_container_types_with_trailing_comma_sphinx(named_arg):
+    """The Sphinx docstring
+
+    :param tuple[int,] named_arg: Returned
+
+    :returns: named_arg
+    :rtype: tuple[int,]
+    """
+    return named_arg
