@@ -23,3 +23,17 @@ missing-timeout:49:0:49:24::Missing timeout argument for method 'post' can cause
 missing-timeout:50:0:50:23::Missing timeout argument for method 'put' can cause your program to hang indefinitely:INFERENCE
 missing-timeout:51:0:51:35::Missing timeout argument for method 'request' can cause your program to hang indefinitely:INFERENCE
 missing-timeout:54:0:54:45::Missing timeout argument for method 'post' can cause your program to hang indefinitely:INFERENCE
+missing-timeout:88:0:88:42::Missing timeout argument for method 'requests.Session().get' can cause your program to hang indefinitely:INFERENCE
+missing-timeout:91:0:91:34::Missing timeout argument for method 'session.delete' can cause your program to hang indefinitely:INFERENCE
+missing-timeout:92:0:92:31::Missing timeout argument for method 'session.get' can cause your program to hang indefinitely:INFERENCE
+missing-timeout:93:0:93:32::Missing timeout argument for method 'session.head' can cause your program to hang indefinitely:INFERENCE
+missing-timeout:94:0:94:35::Missing timeout argument for method 'session.options' can cause your program to hang indefinitely:INFERENCE
+missing-timeout:95:0:95:33::Missing timeout argument for method 'session.patch' can cause your program to hang indefinitely:INFERENCE
+missing-timeout:96:0:96:32::Missing timeout argument for method 'session.post' can cause your program to hang indefinitely:INFERENCE
+missing-timeout:97:0:97:31::Missing timeout argument for method 'session.put' can cause your program to hang indefinitely:INFERENCE
+missing-timeout:98:0:98:43::Missing timeout argument for method 'session.request' can cause your program to hang indefinitely:INFERENCE
+missing-timeout:99:0:99:53::Missing timeout argument for method 'session.post' can cause your program to hang indefinitely:INFERENCE
+missing-timeout:101:0:101:49::Missing timeout argument for method 'requests.Session.get' can cause your program to hang indefinitely:INFERENCE
+missing-timeout:104:4:104:43::Missing timeout argument for method 'managed_session.get' can cause your program to hang indefinitely:INFERENCE
+missing-timeout:115:15:115:51:Client.fetch:Missing timeout argument for method 'self.session.get' can cause your program to hang indefinitely:INFERENCE
+missing-timeout:122:0:122:39::Missing timeout argument for method 'CustomSession().get' can cause your program to hang indefinitely:INFERENCE
