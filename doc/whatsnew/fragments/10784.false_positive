@@ -1,0 +1,6 @@
+Fixed a false positive ``no-member`` on the right of ``isinstance(x, A) and``,
+when an unrelated assignment gave ``x`` another type.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #10784
