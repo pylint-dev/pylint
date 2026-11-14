@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Container, Iterable
+from collections.abc import Container, Iterable, Iterator
 from itertools import chain
 
 import astroid
@@ -18,6 +18,21 @@ from pylint.checkers.base_checker import BaseChecker
 from pylint.checkers.utils import get_import_name, infer_all, safe_infer
 from pylint.interfaces import INFERENCE
 from pylint.typing import MessageDefinitionTuple
+
+
+def _classes_up_to_definition(
+    klass: nodes.ClassDef, attrname: str
+) -> Iterator[nodes.ClassDef]:
+    """Yield ``klass`` and its ancestors, up to the first one defining ``attrname``.
+
+    A class defining the name in its body overrides the definitions of the
+    ancestors after it, so they are not yielded.
+    """
+    for candidate in chain((klass,), klass.ancestors()):
+        yield candidate
+        if attrname in candidate.locals:
+            return
+
 
 ACCEPTABLE_NODES = (
     astroid.BoundMethod,
@@ -91,6 +106,16 @@ class DeprecatedMixin(BaseChecker):
     @utils.only_required_for_messages("deprecated-attribute")
     def visit_attribute(self, node: nodes.Attribute) -> None:
         """Called when an `Attribute` node is visited."""
+        self.check_deprecated_attribute(node)
+
+    @utils.only_required_for_messages("deprecated-attribute")
+    def visit_assignattr(self, node: nodes.AssignAttr) -> None:
+        """Called when an `AssignAttr` node is visited."""
+        self.check_deprecated_attribute(node)
+
+    @utils.only_required_for_messages("deprecated-attribute")
+    def visit_delattr(self, node: nodes.DelAttr) -> None:
+        """Called when a `DelAttr` node is visited."""
         self.check_deprecated_attribute(node)
 
     @utils.only_required_for_messages(
@@ -222,20 +247,37 @@ class DeprecatedMixin(BaseChecker):
         """Callback returning the deprecated attributes."""
         return ()
 
-    def check_deprecated_attribute(self, node: nodes.Attribute) -> None:
-        """Checks if the attribute is deprecated."""
+    def check_deprecated_attribute(
+        self, node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr
+    ) -> None:
+        """Checks if the attribute is deprecated.
+
+        On a class or an instance, the attribute is also looked up in the
+        ancestors, so that a subclass using an inherited deprecated attribute
+        is reported, unless the subclass or an ancestor before the deprecated
+        one overrides it.
+        """
         inferred_expr = safe_infer(node.expr)
-        if not isinstance(inferred_expr, (nodes.ClassDef, Instance, nodes.Module)):
+        owners: Iterable[nodes.LocalsDictNodeNG]
+        if isinstance(inferred_expr, nodes.Module):
+            owners = (inferred_expr,)
+        elif isinstance(inferred_expr, nodes.ClassDef):
+            owners = _classes_up_to_definition(inferred_expr, node.attrname)
+        elif isinstance(inferred_expr, Instance):
+            owners = _classes_up_to_definition(inferred_expr._proxied, node.attrname)
+        else:
             return
-        attribute_qname = ".".join((inferred_expr.qname(), node.attrname))
-        for deprecated_name in self.deprecated_attributes():
-            if attribute_qname == deprecated_name:
+        deprecated_attributes = set(self.deprecated_attributes())
+        for owner in owners:
+            attribute_qname = f"{owner.qname()}.{node.attrname}"
+            if attribute_qname in deprecated_attributes:
                 self.add_message(
                     "deprecated-attribute",
                     node=node,
                     args=(attribute_qname,),
                     confidence=INFERENCE,
                 )
+                return
 
     def check_deprecated_module(self, node: nodes.Import, mod_path: str | None) -> None:
         """Checks if the module is deprecated."""

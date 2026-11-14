@@ -1,0 +1,5 @@
+``deprecated-attribute`` is now reported when a subclass reads, sets or deletes
+an attribute deprecated in one of its ancestors, such as ``self.curframe_locals``
+in a subclass of ``pdb.Pdb``, unless the subclass overrides it.
+
+Closes #99999
