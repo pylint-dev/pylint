@@ -1,0 +1,7 @@
+Fix a crash with ``UnicodeEncodeError`` when the output contains characters
+that cannot be encoded with the encoding of the output stream. This happened
+on Windows when stdout was redirected to a file and a message (e.g. a comment
+containing non-Latin characters) could not be expressed in the locale code
+page, such as cp1252. Such characters are now replaced with ``?`` instead.
+
+Closes #9277

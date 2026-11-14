@@ -45,11 +45,25 @@ class BaseReporter:
         try:
             print(string, file=self.out)
         except UnicodeEncodeError:
-            print(self.reencode_output_after_unicode_error(string), file=self.out)
+            # The output stream's encoding may not be able to represent some
+            # characters (e.g. non-Latin characters when stdout is redirected
+            # to a file with a Windows code page such as cp1252). Replace them
+            # instead of crashing, falling back to ASCII when the encoding of
+            # the stream is unknown.
+            encoding = getattr(self.out, "encoding", None) or "ascii"
+            print(
+                self.reencode_output_after_unicode_error(string, encoding),
+                file=self.out,
+            )
 
     @staticmethod
-    def reencode_output_after_unicode_error(string: str) -> str:
-        return string.encode(encoding="utf-8", errors="replace").decode("utf8")
+    def reencode_output_after_unicode_error(
+        string: str, encoding: str = "utf-8"
+    ) -> str:
+        """Replace the characters that cannot be encoded with ``encoding``."""
+        return string.encode(encoding, errors="replace").decode(
+            encoding, errors="replace"
+        )
 
     def display_reports(self, layout: Section) -> None:
         """Display results encapsulated in the layout tree."""
