@@ -12,7 +12,8 @@ var.trace_vinfo()  # [deprecated-method]
 var.trace_vdelete("w", callback_name)  # [deprecated-method]
 var.trace_add("write", print)
 var.trace_info()
+var.trace_remove("write", callback_name)
 
 debugger = pdb.Pdb()
 print(debugger.curframe_locals)  # [deprecated-attribute]
-print(debugger.curframe)
+print(debugger.curframe.f_locals)
