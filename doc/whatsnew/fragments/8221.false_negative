@@ -1,0 +1,4 @@
+Detect ``cell-var-from-loop`` for loop variables captured by the lazy parts of
+generator expressions, while ignoring their eagerly evaluated outermost iterable.
+
+Closes #8221

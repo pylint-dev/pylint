@@ -161,7 +161,7 @@ def no_warning_if_iterator_shadowed_in_outer_loop_list():
 def no_warning_if_iterator_shadowed_in_outer_loop_generator():
     it = (x for x in range(3))
     for i in range(2):
-        it = (i + y for y in range(1))
+        it = (i + y for y in range(1))  # pylint: disable=cell-var-from-loop  # Consumed below.
         for item in it:
             print(i, item)
 
