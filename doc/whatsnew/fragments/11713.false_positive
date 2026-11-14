@@ -1,0 +1,5 @@
+Fix a false positive for ``bad-string-format-type`` with a ``*`` width or
+precision, as in ``"%-*s %d" % (width, name, count)``. The arguments after
+the ``*`` were checked against the wrong format type.
+
+Closes #11713

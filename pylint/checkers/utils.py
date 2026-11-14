@@ -570,7 +570,6 @@ def parse_format_string(
     keys = set()
     key_types = {}
     pos_types = []
-    num_args = 0
 
     def next_char(i: int) -> tuple[int, str]:
         i += 1
@@ -603,7 +602,7 @@ def parse_format_string(
                 i, char = next_char(i)
             # Parse the minimum field width (optional).
             if char == "*":
-                num_args += 1
+                pos_types.append("*")
                 i, char = next_char(i)
             else:
                 while char in string.digits:
@@ -612,7 +611,7 @@ def parse_format_string(
             if char == ".":
                 i, char = next_char(i)
                 if char == "*":
-                    num_args += 1
+                    pos_types.append("*")
                     i, char = next_char(i)
                 else:
                     while char in string.digits:
@@ -628,10 +627,9 @@ def parse_format_string(
                 keys.add(key)
                 key_types[key] = char
             elif char != "%":
-                num_args += 1
                 pos_types.append(char)
         i += 1
-    return keys, num_args, key_types, pos_types
+    return keys, len(pos_types), key_types, pos_types
 
 
 def split_format_field_names(
