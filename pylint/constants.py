@@ -253,6 +253,8 @@ EXTRA_DUNDER_METHODS: dict[tuple[int, int], list[str]] = {
         "__init_subclass__",
         "__set_name__",
         "__class_getitem__",
+        "__prepare__",
+        "__mro_entries__",
         "__missing__",
         "__exit__",
         "__await__",
@@ -269,7 +271,8 @@ EXTRA_DUNDER_METHODS: dict[tuple[int, int], list[str]] = {
         "_missing_",
         "_numeric_repr_",
     ],
-    (3, 13): ["_add_alias_", "_add_value_alias_"],
+    (3, 12): ["__buffer__", "__release_buffer__"],
+    (3, 13): ["__replace__", "_add_alias_", "_add_value_alias_"],
 }
 
 DUNDER_PROPERTIES = [
