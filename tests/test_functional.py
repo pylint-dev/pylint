@@ -16,6 +16,7 @@ from _pytest.config import Config
 
 from pylint import testutils
 from pylint.constants import PY312_PLUS
+from pylint.lint import augmented_sys_path
 from pylint.lint.pylinter import MANAGER
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
 from pylint.testutils.functional import (
@@ -67,6 +68,31 @@ def test_functional(test_file: FunctionalTestFile, pytestconfig: Config) -> None
             lint_test.runTest()
     else:
         lint_test.runTest()
+
+
+class ScriptFunctionalTestFile(FunctionalTestFile):
+    """Run an extensionless script through the standard functional harness."""
+
+    @property
+    def source(self) -> str:
+        return str(Path(self._directory) / self.base)
+
+
+@pytest.mark.parametrize("case", ["package", "module", "builtin"])
+def test_import_self_same_name(case: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    fixture = Path(__file__).parent / "regrtest_data" / "import_self_same_name" / case
+    name = "sys" if case == "builtin" else "pack"
+    monkeypatch.chdir(fixture)
+    # The package and module fixtures use the same import name but different files.
+    MANAGER.clear_cache()
+    try:
+        with augmented_sys_path([str(fixture)]):
+            test_file = ScriptFunctionalTestFile(str(fixture / "scripts"), name)
+            lint_test = testutils.LintModuleTest(test_file)
+            lint_test.setUp()
+            lint_test.runTest()
+    finally:
+        MANAGER.clear_cache()
 
 
 if __name__ == "__main__":

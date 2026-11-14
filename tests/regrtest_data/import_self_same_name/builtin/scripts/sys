@@ -1,0 +1,2 @@
+import sys
+from sys import version
