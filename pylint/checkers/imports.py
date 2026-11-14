@@ -82,6 +82,7 @@ DEPRECATED_MODULES = {
         "uu",
         "xdrlib",
     },
+    (3, 14, 0): {"nturl2path"},
     (3, 15, 0): {"profile"},
 }
 

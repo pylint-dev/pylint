@@ -1,0 +1,6 @@
+deprecated-module:4:0:4:17::Deprecated module 'nturl2path':UNDEFINED
+deprecated-method:9:16:9:46::Using deprecated method trace_variable():UNDEFINED
+deprecated-method:10:0:10:21::Using deprecated method trace():UNDEFINED
+deprecated-method:11:0:11:17::Using deprecated method trace_vinfo():UNDEFINED
+deprecated-method:12:0:12:37::Using deprecated method trace_vdelete():UNDEFINED
+deprecated-attribute:18:6:18:30::Using deprecated attribute 'pdb.Pdb.curframe_locals':INFERENCE
