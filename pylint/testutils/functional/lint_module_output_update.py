@@ -50,3 +50,13 @@ class LintModuleOutputUpdate(LintModuleTest):
             writer = csv.writer(f, dialect="test")
             for line in actual_output:
                 self.safe_write_output_line(writer, line)
+
+    def _check_fixed_source(self, sources: tuple[str, str]) -> None:
+        """Overwrite or remove the '.fixed' file based on the fixed source."""
+        source, fixed_source = sources
+        if fixed_source == source:
+            if os.path.exists(self._test_file.fixed_source):
+                os.remove(self._test_file.fixed_source)
+            return
+        with open(self._test_file.fixed_source, "w", encoding="utf-8", newline="") as f:
+            f.write(fixed_source)

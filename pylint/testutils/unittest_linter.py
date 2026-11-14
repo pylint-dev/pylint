@@ -6,12 +6,14 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any, Literal
 
 from astroid import nodes
 
 from pylint.interfaces import UNDEFINED, Confidence, _confidence_or_undefined
 from pylint.lint import PyLinter
+from pylint.message import Fix
 from pylint.testutils.output_line import MessageTest
 
 
@@ -39,8 +41,13 @@ class UnittestLinter(PyLinter):
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
+        fix: Fix | Callable[[], Fix | None] | None = None,
     ) -> None:
-        """Add a MessageTest to the _messages attribute of the linter class."""
+        """Add a MessageTest to the _messages attribute of the linter class.
+
+        The fix is not part of a MessageTest, fixes are tested by the
+        ``.fixed.py`` file of functional tests.
+        """
         confidence = _confidence_or_undefined(confidence, stacklevel=2)
         # Look up "location" data of node if not yet supplied
         if node:

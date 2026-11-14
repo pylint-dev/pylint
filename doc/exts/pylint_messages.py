@@ -283,7 +283,34 @@ def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
     initialize_extensions(linter)
 
 
-def _get_example_code(data_path: Path) -> str:
+def _get_fix_rst(message: MessageDefinition, data_path: Path) -> str:
+    """Explain the automatic fix of a fixable message, from its 'fix.rst' file,
+    or why a message can never be fixed.
+    """
+    fix_path = data_path / "fix.rst"
+    if not message.fixable:
+        assert (
+            not fix_path.exists()
+        ), f"{fix_path} exists but '{message.symbol}' has no fixer."
+        if message.never_fixable_reason:
+            return f"""
+.. note::
+  This message cannot be fixed automatically: {message.never_fixable_reason}
+"""
+        return ""
+    assert fix_path.exists(), (
+        f"'{message.symbol}' can be fixed automatically, please explain what the "
+        f"fix does and why it is safe or unsafe in {fix_path}."
+    )
+    return f"""
+.. tip::
+  This message can be fixed automatically with ``pylint --fix``, see :ref:`autofix`.
+
+{_get_titled_rst(title="Automatic fix", text=_get_rst_as_str(fix_path))}
+"""
+
+
+def _get_example_code(message: MessageDefinition, data_path: Path) -> str:
     """Get the example code from the specified path."""
     if not data_path.exists():
         raise AssertionError(
@@ -302,7 +329,8 @@ def _get_example_code(data_path: Path) -> str:
     )
 
     _check_placeholders(data_path, bad_code, details, related)
-    return "\n".join((bad_code, good_code, pylintrc, details, related)) + "\n"
+    fix = _get_fix_rst(message, data_path)
+    return "\n".join((bad_code, good_code, pylintrc, details, fix, related)) + "\n"
 
 
 def _get_pylintrc_code(data_path: Path) -> str:
@@ -437,7 +465,7 @@ def _get_all_messages(linter: PyLinter) -> tuple[MessagesDict, OldMessagesDict]:
     )
 
     for checker, message in checker_message_mapping:
-        example_code = _get_example_code(_get_message_data_path(message))
+        example_code = _get_example_code(message, _get_message_data_path(message))
 
         checker_module = getmodule(checker)
 

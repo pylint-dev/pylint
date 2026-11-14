@@ -6,7 +6,9 @@
 
 from __future__ import annotations
 
+import shutil
 import sys
+import tempfile
 from collections import Counter
 from pathlib import Path
 from typing import TextIO
@@ -16,6 +18,8 @@ import pytest
 from pylint import checkers
 from pylint.config.config_initialization import _config_initialization
 from pylint.lint import PyLinter
+from pylint.lint.fixer import fix_files
+from pylint.message import Applicability
 from pylint.message.message import Message
 from pylint.testutils.constants import _EXPECTED_RE
 from pylint.testutils.reporter_for_tests import FunctionalTestReporter
@@ -191,6 +195,35 @@ class LintModuleTest:
                 bad_files, actual_messages_raw
             )
         assert expected_messages == self._get_actual(actual_messages_raw)
+        if self.is_bad_test() and not self._test_file[1].is_dir():
+            self._check_fix_removes_the_message()
+
+    def _check_fix_removes_the_message(self) -> None:
+        """Applying the fixes of a fixable message to 'bad.py' makes it go away."""
+        symbol, bad_file = self._test_file
+        definition = self._linter.msgs_store.get_message_definitions(symbol)[0]
+        if not definition.fixable:
+            return
+        with tempfile.TemporaryDirectory() as directory:
+            copy = Path(directory) / bad_file.name
+            shutil.copyfile(bad_file, copy)
+            summary = fix_files(
+                self._linter,
+                [str(copy)],
+                {Applicability.SAFE, Applicability.UNSAFE},
+            )
+            assert summary.applied, f"No fix was applied to '{bad_file}'"
+            self._linter.set_reporter(FunctionalTestReporter())
+            self._linter.check([str(copy)])
+            remaining = [
+                message
+                for message in self._linter.reporter.messages
+                if message.symbol == symbol
+            ]
+        assert not remaining, (
+            f"'{symbol}' is still raised after applying its fixes to '{bad_file}':\n"
+            + "\n".join(f"line {m.line}: {m.msg}" for m in remaining)
+        )
 
     def assert_message_good(self, messages: list[Message]) -> str:
         good = self._test_file[1]

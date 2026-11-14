@@ -10,7 +10,7 @@ import json
 from typing import TYPE_CHECKING, TypedDict
 
 from pylint.interfaces import CONFIDENCE_MAP, UNDEFINED
-from pylint.message import Message
+from pylint.message import Applicability, Edit, Fix, Message
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.typing import MessageLocationTuple
 
@@ -94,7 +94,21 @@ class JSONReporter(BaseReporter):
         )
 
 
-class JSONMessage(TypedDict):
+class JSONEdit(TypedDict):
+    line: int
+    column: int
+    endLine: int
+    endColumn: int
+    newText: str
+
+
+class JSONFix(TypedDict):
+    description: str
+    applicability: str
+    edits: list[JSONEdit]
+
+
+class _JSONMessageFields(TypedDict):
     type: str
     message: str
     messageId: str
@@ -108,6 +122,48 @@ class JSONMessage(TypedDict):
     column: int
     endColumn: int | None
     obj: str
+
+
+class JSONMessage(_JSONMessageFields, total=False):
+    fix: JSONFix
+    """Only present when the message can be fixed automatically.
+
+    Columns use the same unit as the column of the message.
+    """
+
+
+def _serialize_fix(fix: Fix) -> JSONFix:
+    return JSONFix(
+        description=fix.description,
+        applicability=fix.applicability.value,
+        edits=[
+            JSONEdit(
+                line=edit.line,
+                column=edit.col,
+                endLine=edit.end_line,
+                endColumn=edit.end_col,
+                newText=edit.new_text,
+            )
+            for edit in fix.edits
+        ],
+    )
+
+
+def _deserialize_fix(fix_as_json: JSONFix) -> Fix:
+    return Fix(
+        fix_as_json["description"],
+        tuple(
+            Edit(
+                edit["line"],
+                edit["column"],
+                edit["endLine"],
+                edit["endColumn"],
+                edit["newText"],
+            )
+            for edit in fix_as_json["edits"]
+        ),
+        Applicability(fix_as_json["applicability"]),
+    )
 
 
 class JSON2Reporter(BaseReporter):
@@ -130,7 +186,7 @@ class JSON2Reporter(BaseReporter):
 
     @staticmethod
     def serialize(message: Message) -> JSONMessage:
-        return JSONMessage(
+        serialized = JSONMessage(
             type=message.category,
             symbol=message.symbol,
             message=message.msg or "",
@@ -145,6 +201,9 @@ class JSON2Reporter(BaseReporter):
             path=message.path,
             absolutePath=message.abspath,
         )
+        if message.fix is not None:
+            serialized["fix"] = _serialize_fix(message.fix)
+        return serialized
 
     @staticmethod
     def deserialize(message_as_json: JSONMessage) -> Message:
@@ -163,6 +222,11 @@ class JSON2Reporter(BaseReporter):
                 end_column=message_as_json["endColumn"],
             ),
             confidence=CONFIDENCE_MAP[message_as_json["confidence"]],
+            fix=(
+                _deserialize_fix(message_as_json["fix"])
+                if "fix" in message_as_json
+                else None
+            ),
         )
 
     def serialize_stats(self) -> dict[str, str | int | dict[str, int]]:

@@ -22,12 +22,14 @@ from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.config.utils import _preprocess_options
 from pylint.constants import full_version
 from pylint.lint.base_options import _make_run_options
+from pylint.lint.fixer import MAX_FIX_PASSES, FixSummary, fix_files, unified_diff
 from pylint.lint.pylinter import (
     MANAGER,
     PyLinter,
     _handle_force_color_no_color,
     _read_color_env,
 )
+from pylint.message import Applicability
 from pylint.reporters import MultiReporter
 from pylint.reporters.base_reporter import BaseReporter
 
@@ -118,6 +120,53 @@ def _cpu_count() -> int:
     if cpu_share is not None:
         return min(cpu_share, cpu_count)
     return cpu_count
+
+
+def _allowed_applicabilities(unsafe_fixes: bool) -> set[Applicability]:
+    if unsafe_fixes:
+        return {Applicability.SAFE, Applicability.UNSAFE}
+    return {Applicability.SAFE}
+
+
+def _report_fix_summary(summary: FixSummary, *, written: bool) -> None:
+    if summary.applied:
+        print(
+            f"{'Fixed' if written else 'Would fix'} {summary.applied} message(s) "
+            f"in {len(summary.fixed_sources)} file(s).",
+            file=sys.stderr,
+        )
+    for path, error in summary.broken.items():
+        print(
+            f"The fixes of {path} produced invalid code ({error.msg}, line "
+            f"{error.lineno}), the file was left unchanged. Please report this "
+            "bug to https://github.com/pylint-dev/pylint/issues.",
+            file=sys.stderr,
+        )
+    if summary.not_converged:
+        print(
+            f"The fixes did not converge after {MAX_FIX_PASSES} passes for: "
+            f"{', '.join(summary.not_converged)}. Please report this bug to "
+            "https://github.com/pylint-dev/pylint/issues.",
+            file=sys.stderr,
+        )
+
+
+def _print_available_fixes_hint(linter: PyLinter) -> None:
+    """Tell the user how to apply the fixes that were not applied."""
+    safe = linter._available_fixes[Applicability.SAFE]
+    unsafe = linter._available_fixes[Applicability.UNSAFE]
+    if linter.config.fix:
+        safe = 0
+        if linter.config.unsafe_fixes:
+            unsafe = 0
+    hints = []
+    if safe:
+        hints.append(f"{safe} fixable with the --fix option")
+    if unsafe:
+        hints.append(f"{unsafe} more with --fix --unsafe-fixes")
+    if hints:
+        sys.stdout.flush()
+        print(f"Fixes available: {', '.join(hints)}.", file=sys.stderr)
 
 
 class Run:
@@ -240,6 +289,32 @@ group are mutually exclusive.",
             if linter.config.jobs == 0:
                 linter.config.jobs = _cpu_count()
 
+        if linter.config.fix or linter.config.fix_diff:
+            if linter.config.from_stdin:
+                print(
+                    "--fix and --fix-diff cannot be used with --from-stdin",
+                    file=sys.stderr,
+                )
+                sys.exit(32)
+            summary = fix_files(
+                linter,
+                linter.config.files,
+                _allowed_applicabilities(linter.config.unsafe_fixes),
+                write=not linter.config.fix_diff,
+            )
+            _report_fix_summary(summary, written=not linter.config.fix_diff)
+            if linter.config.fix_diff:
+                for path, fixed_source in summary.fixed_sources.items():
+                    print(
+                        unified_diff(
+                            path, summary.original_sources[path], fixed_source
+                        ),
+                        end="",
+                    )
+                if exit:
+                    sys.exit(1 if summary.fixed_sources else 0)
+                return
+
         if self._output:
             try:
                 with open(self._output, "w", encoding="utf-8") as output:
@@ -252,6 +327,7 @@ group are mutually exclusive.",
         else:
             linter.check(linter.config.files)
             score_value = linter.generate_reports(verbose=self.verbose)
+        _print_available_fixes_hint(linter)
         if linter.config.clear_cache_post_run:
             clear_lru_caches()
             MANAGER.clear_cache()

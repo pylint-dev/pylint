@@ -177,6 +177,7 @@ def check_parallel(
             linter.file_state._is_base_filestate = False
             linter.set_current_module(module, file_path)
             for msg in messages:
+                linter._count_available_fix(msg)
                 linter.reporter.handle_message(msg)
             all_stats.append(stats)
             all_mapreduce_data[worker_idx].append(mapreduce_data)

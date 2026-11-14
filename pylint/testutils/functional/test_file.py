@@ -97,6 +97,11 @@ class FunctionalTestFile:
         return self._file_type(".rc")
 
     @property
+    def fixed_source(self) -> str:
+        """The expected source code after applying the fixes of the messages once."""
+        return join(self._directory, self.base + ".fixed")
+
+    @property
     def module(self) -> str:
         package = basename(self._directory)
         return ".".join([package, self.base])

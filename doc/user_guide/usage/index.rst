@@ -8,3 +8,4 @@ Usage
 
    run
    output
+   autofix
