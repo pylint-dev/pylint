@@ -254,7 +254,7 @@ def __():
 
     for i in []:
         fail2 = 42
-    print(fail2)  # FALSE NEGATIVE
+    print(fail2)  # [possibly-used-before-assignment]
 
 
 # https://github.com/pylint-dev/pylint/issues/9689

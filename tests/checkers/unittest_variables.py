@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 import astroid
+import pytest
 from astroid import nodes
 
 from pylint.checkers import variables
@@ -239,3 +240,194 @@ class TestUnusedArgumentInStubFile(CheckerTestCase):
         assert {
             (message.msg_id, message.args) for message in self.linter.release_messages()
         } == {("unused-argument", "path"), ("unused-argument", "value")}
+
+
+class TestUsedBeforeAssignmentInLoops(CheckerTestCase):
+    """Regression tests for used-before-assignment / possibly-used-before-assignment
+    in loops (e.g. empty collections or loops that never run).
+
+    https://github.com/pylint-dev/pylint/issues/9642
+    """
+
+    CHECKER_CLASS = variables.VariablesChecker
+
+    @pytest.mark.parametrize(
+        "loop_stmt",
+        [
+            "for i in []:",
+            "for i in ():",
+            "for i in '':",
+            "for i in set():",
+            "for i in {}:",
+            "while False:",
+            "while 0:",
+            "while '':",
+            "while None:",
+            "while (cond := False):",
+        ],
+    )
+    def test_possibly_used_before_assignment_in_empty_loop(
+        self, loop_stmt: str
+    ) -> None:
+        code = f"""
+        def f():
+            {loop_stmt}
+                val = 42
+            print(val)
+        """
+        node = astroid.parse(code)
+        self.walk(node)
+        emitted_msg_ids = {m.msg_id for m in self.linter.release_messages()}
+        assert "possibly-used-before-assignment" in emitted_msg_ids
+
+    @pytest.mark.parametrize(
+        "definition, usage",
+        [
+            ("def helper(): pass", "helper()"),
+            ("class Helper: pass", "Helper()"),
+            ("import math", "math.sin(1)"),
+            ("from math import sin", "sin(1)"),
+        ],
+    )
+    def test_possibly_used_before_assignment_definitions_in_empty_loop(
+        self, definition: str, usage: str
+    ) -> None:
+        code = f"""
+        def f():
+            for i in []:
+                {definition}
+            {usage}
+        """
+        node = astroid.parse(code)
+        self.walk(node)
+        emitted_msg_ids = {m.msg_id for m in self.linter.release_messages()}
+        assert "possibly-used-before-assignment" in emitted_msg_ids
+
+    @pytest.mark.parametrize(
+        "code",
+        [
+            # Loop with else branch defining the variable
+            """
+            def f():
+                for i in []:
+                    val = 42
+                else:
+                    val = 10
+                print(val)
+            """,
+            # Loop with assignment in else branch only
+            """
+            def f():
+                for i in []:
+                    pass
+                else:
+                    val = 10
+                print(val)
+            """,
+            # Variable defined before the empty loop
+            """
+            def f():
+                val = 0
+                for i in []:
+                    val = 42
+                print(val)
+            """,
+            # Non-empty loops (list, dict, bytes)
+            """
+            def f():
+                for i in [1, 2]:
+                    val = 42
+                print(val)
+            """,
+            """
+            def f():
+                for i in {'k': 1}:
+                    val = 42
+                print(val)
+            """,
+            """
+            def f():
+                for i in b'abc':
+                    val = 42
+                print(val)
+            """,
+            # Usage inside the loop body itself
+            """
+            def f():
+                for i in []:
+                    val = 42
+                    print(val)
+            """,
+            # Unknown or non-constant condition in while
+            """
+            def f(x):
+                while x:
+                    val = 42
+                print(val)
+            """,
+            """
+            def f():
+                while NotImplemented:
+                    val = 42
+                print(val)
+            """,
+            # Unknown iterable in for loop
+            """
+            def f():
+                for i in unknown():
+                    val = 42
+                print(val)
+            """,
+            # For loop in if-branch with else defining the variable
+            """
+            def f(cond):
+                if cond:
+                    for i in []:
+                        pass
+                    else:
+                        val = 42
+                else:
+                    val = 10
+                print(val)
+            """,
+            # Non-empty for loop in if-branch defining the variable
+            """
+            def f(cond):
+                if cond:
+                    for i in [1, 2]:
+                        val = 42
+                else:
+                    val = 10
+                print(val)
+            """,
+            # While loop in if-branch with else defining the variable
+            """
+            def f(cond):
+                if cond:
+                    while False:
+                        pass
+                    else:
+                        val = 42
+                else:
+                    val = 10
+                print(val)
+            """,
+            # Non-false while loop in if-branch defining the variable
+            """
+            def f(cond):
+                if cond:
+                    while True:
+                        val = 42
+                        break
+                else:
+                    val = 10
+                print(val)
+            """,
+        ],
+    )
+    def test_no_possibly_used_before_assignment(self, code: str) -> None:
+        node = astroid.parse(code)
+        self.walk(node)
+        emitted_msg_ids = {m.msg_id for m in self.linter.release_messages()}
+        assert "possibly-used-before-assignment" not in emitted_msg_ids
+        assert "used-before-assignment" not in emitted_msg_ids
