@@ -1,0 +1,3 @@
+Fix a false negative for ``signature-differs`` when an overriding method drops default values for keyword-only parameters.
+
+Closes #5270
