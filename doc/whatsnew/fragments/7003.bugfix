@@ -1,0 +1,4 @@
+Treat every argument after ``--`` as an input to lint, including file names
+beginning with ``-`` or matching options such as ``--version`` and ``--rcfile``.
+
+Closes #7003

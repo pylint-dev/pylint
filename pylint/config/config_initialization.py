@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import sys
 import warnings
+from collections.abc import Sequence
 from glob import glob
 from itertools import chain
 from pathlib import Path
@@ -29,6 +30,8 @@ def _config_initialization(  # pylint: disable=too-many-statements
     reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,
     config_file: str | Path | None = None,
     verbose_mode: bool = False,
+    *,
+    positional_args: Sequence[str] = (),
 ) -> None:
     """Parse all available options, read config files and command line arguments and
     set options accordingly.
@@ -161,6 +164,8 @@ def _config_initialization(  # pylint: disable=too-many-statements
 
     # Link the base Namespace object on the current directory
     linter._directory_namespaces[Path.cwd()] = (linter.config, {})
+
+    parsed_args_list.extend(positional_args)
 
     # parsed_args_list should now only be a list of inputs to lint.
     # All other options have been removed from the list. If there are any
