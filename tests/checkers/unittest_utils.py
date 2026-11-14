@@ -946,6 +946,31 @@ def test_is_terminating_func_unittest_fail() -> None:
     assert result is True
 
 
+def test_is_terminating_func_inside_generator_expression() -> None:
+    node = astroid.extract_node("""
+    import sys
+    (sys.exit(item) for item in [1, 2])  #@
+    """)
+    assert utils.is_terminating_func(node.elt) is False
+
+
+def test_is_terminating_func_in_first_iterable_of_generator_expression() -> None:
+    node = astroid.extract_node("""
+    import sys
+    (item for item in sys.exit(1))  #@
+    """)
+    assert utils.is_terminating_func(node.generators[0].iter) is True
+
+
+def test_is_terminating_func_in_first_iterable_of_nested_generator_expression() -> None:
+    node = astroid.extract_node("""
+    import sys
+    (item for item in (other for other in sys.exit(1)))  #@
+    """)
+    inner_call = node.generators[0].iter.generators[0].iter
+    assert utils.is_terminating_func(inner_call) is True
+
+
 def test_is_terminating_func_ignored_overload_noreturn() -> None:
     node = astroid.extract_node("""
     from typing import Literal, NoReturn, overload

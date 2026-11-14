@@ -2365,6 +2365,8 @@ def is_terminating_func(node: nodes.Call) -> bool:
         node.parent, nodes.Lambda
     ):
         return False
+    if _is_deferred_in_generator_expression(node):
+        return False
     try:
         inferred_funcs = list(node.func.infer())
     except (StopIteration, astroid.InferenceError):
@@ -2403,6 +2405,23 @@ def is_terminating_func(node: nodes.Call) -> bool:
             )
         ):
             return True
+    return False
+
+
+def _is_deferred_in_generator_expression(node: nodes.NodeNG) -> bool:
+    """Return whether ``node`` only runs when a generator expression is iterated.
+
+    The iterable of the first ``for`` runs when the generator expression is
+    created, everything else runs later, one item at a time.
+    """
+    expression_ancestors = itertools.takewhile(
+        lambda ancestor: not ancestor.is_statement, node.node_ancestors()
+    )
+    for ancestor in expression_ancestors:
+        if isinstance(ancestor, nodes.GeneratorExp):
+            first_iterable = ancestor.generators[0].iter
+            if node is not first_iterable and not first_iterable.parent_of(node):
+                return True
     return False
 
 
