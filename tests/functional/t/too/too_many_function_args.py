@@ -41,3 +41,18 @@ class MyClass(metaclass=Meta): # pylint: disable=too-few-public-methods
 
 MyClass(1, 2, 3, 4) # [too-many-function-args]
 MyClass(1, 2, 3)
+
+
+class Dispatcher:  # pylint: disable=too-few-public-methods
+    """Functions taken from the class body are not bound to the instance."""
+
+    def handle(self, value):
+        """Return the value."""
+        return value
+
+    handlers = {"handle": handle}
+
+    def dispatch(self):
+        """https://github.com/pylint-dev/pylint/issues/9239"""
+        self.handlers["handle"](self, 1)
+        return self.handlers["handle"](self, 1, 2)  # [too-many-function-args]
