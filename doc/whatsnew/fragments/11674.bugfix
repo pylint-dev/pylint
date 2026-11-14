@@ -1,0 +1,5 @@
+Fall back to a single process instead of crashing when ``--jobs`` is greater than one
+but a ``ProcessPoolExecutor`` cannot be created, for example in a sandbox that denies
+reading the semaphore limit.
+
+Closes #11674

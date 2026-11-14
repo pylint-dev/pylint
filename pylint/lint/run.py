@@ -229,11 +229,17 @@ group are mutually exclusive.",
             sys.exit(32)
         if linter.config.jobs > 1 or linter.config.jobs == 0:
             try:
-                # pylint: disable-next=import-outside-toplevel,unused-import
-                from concurrent.futures import ProcessPoolExecutor  # noqa: F401
-            except ImportError:
+                # pylint: disable-next=import-outside-toplevel
+                from concurrent.futures import ProcessPoolExecutor
+
+                # Raises if the platform lacks working semaphores, or if a
+                # sandbox denies reading the semaphore limit (PermissionError).
+                with ProcessPoolExecutor(max_workers=1):
+                    pass
+            except (ImportError, NotImplementedError, OSError) as exc:
                 print(
-                    "concurrent.futures module is missing, fallback to single process",
+                    f"Multiprocessing is not available ({exc}), "
+                    "fallback to single process",
                     file=sys.stderr,
                 )
                 linter.set_option("jobs", 1)
