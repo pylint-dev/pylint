@@ -1,0 +1,4 @@
+``duplicate-code`` now always shows the code of the same copy, so its output no longer
+changes between runs when the copies differ in comments or other ignored lines.
+
+Closes #9937
