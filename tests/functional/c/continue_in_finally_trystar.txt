@@ -1,0 +1,2 @@
+continue-in-finally:14:16:14:24:nested_in_finally:'continue' discouraged inside 'finally' clause:UNDEFINED
+break-in-finally:15:12:15:17:nested_in_finally:'break' discouraged inside 'finally' clause:UNDEFINED
