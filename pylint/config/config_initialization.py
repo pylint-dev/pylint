@@ -17,6 +17,7 @@ from pylint.config.exceptions import (
     ArgumentPreprocessingError,
     _UnrecognizedOptionError,
 )
+from pylint.config.find_default_config_files import find_default_py_version
 from pylint.utils import utils
 
 if TYPE_CHECKING:
@@ -29,9 +30,13 @@ def _config_initialization(  # pylint: disable=too-many-statements
     reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,
     config_file: str | Path | None = None,
     verbose_mode: bool = False,
+    py_version_from_requires_python: bool = True,
 ) -> None:
     """Parse all available options, read config files and command line arguments and
     set options accordingly.
+
+    Unless ``py_version_from_requires_python`` is False, a 'py-version' the user did
+    not set comes from the 'requires-python' of the closest pyproject.toml.
     """
     linter.verbose = verbose_mode
     config_file = Path(config_file) if config_file else None
@@ -60,6 +65,16 @@ def _config_initialization(  # pylint: disable=too-many-statements
     # Load plugins if specified in the config file
     if "load-plugins" in config_data:
         linter.load_plugin_modules(utils._splitstrip(config_data["load-plugins"]))
+
+    # 'py-version' falls back to the interpreter running pylint, but the project
+    # being linted usually supports an older one and says so in its metadata.
+    # Set it before parsing, so that the configuration file and the command line
+    # still override it, and so that a generated configuration already has it.
+    requires_python = (
+        find_default_py_version() if py_version_from_requires_python else None
+    )
+    if requires_python is not None:
+        linter.config.py_version = requires_python
 
     unrecognized_options_message = None
     # First we parse any options from a configuration file
@@ -124,6 +139,18 @@ def _config_initialization(  # pylint: disable=too-many-statements
         linter.set_current_module(str(config_file) if config_file else "")
         linter.add_message(
             "unrecognized-option", args=unrecognized_options_message, line=0
+        )
+
+    # Parsing an explicit 'py-version' creates a new tuple, even an equal one
+    if (
+        verbose_mode
+        and requires_python is not None
+        and linter.config.py_version is requires_python
+    ):
+        print(
+            f"Using py-version {'.'.join(str(part) for part in requires_python)} "
+            "from 'requires-python'",
+            file=sys.stderr,
         )
 
     # TODO: Change this to be checked only when upgrading the configuration

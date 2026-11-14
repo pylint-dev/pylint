@@ -362,7 +362,9 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "metavar": "<py_version>",
                 "help": (
                     "Minimum Python version to use for version dependent checks. "
-                    "Will default to the version used to run pylint."
+                    "Will default to the lower bound of 'requires-python' in the "
+                    "closest pyproject.toml, or to the version used to run pylint "
+                    "when there is no such lower bound to read."
                 ),
             },
         ),

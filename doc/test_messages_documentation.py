@@ -122,6 +122,9 @@ class LintModuleTest:
             args_list=args,
             reporter=_test_reporter,
             config_file=config_file,
+            # Like a functional test, an example pins its own 'py-version' when it
+            # needs one instead of following pylint's own 'requires-python'.
+            py_version_from_requires_python=False,
         )
 
     def runTest(self) -> None:
