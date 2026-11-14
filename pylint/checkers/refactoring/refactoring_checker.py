@@ -1325,24 +1325,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         self.add_message("use-yield-from", node=loop_node, confidence=HIGH)
 
-    @staticmethod
-    def _has_exit_in_scope(scope: nodes.LocalsDictNodeNG) -> bool:
-        exit_func = scope.locals.get("exit")
-        return bool(
-            exit_func and isinstance(exit_func[0], (nodes.ImportFrom, nodes.Import))
-        )
-
     def _check_quit_exit_call(self, node: nodes.Call) -> None:
         match node.func:
-            case nodes.Name(name=name) if name in BUILTIN_EXIT_FUNCS:
-                # If we have `exit` imported from `sys` in the current or global scope,
-                # exempt this instance.
-                local_scope = node.scope()
-                if self._has_exit_in_scope(local_scope) or self._has_exit_in_scope(
-                    node.root()
-                ):
-                    return
-                self.add_message("consider-using-sys-exit", node=node, confidence=HIGH)
+            case nodes.Name(name=name) as func if name in BUILTIN_EXIT_FUNCS:
+                # Only the site builtins are discouraged. A name bound in any
+                # enclosing scope (e.g. ``from sys import exit``) is exempt.
+                scope, _ = func.lookup(name)
+                if utils.is_builtin_object(scope):
+                    self.add_message(
+                        "consider-using-sys-exit", node=node, confidence=HIGH
+                    )
 
     def _check_super_with_arguments(self, node: nodes.Call) -> None:
         match node:
