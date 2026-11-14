@@ -541,7 +541,7 @@ def _emit_no_member(
     parent: nodes.NodeNG = node.parent
     while parent != frame:
         if isinstance(parent, (nodes.If, nodes.IfExp)):
-            inferred = safe_infer(parent.test)
+            inferred = safe_infer(parent.test, compare_constants=True)
             if (  # pylint: disable=too-many-boolean-expressions
                 isinstance(inferred, nodes.Const)
                 and inferred.bool_value() is False

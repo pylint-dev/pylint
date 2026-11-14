@@ -92,3 +92,23 @@ if sys.platform == "not-a-platform":
     print(sum(group for group in os.not_a_function()))
 
 print([str(group) for group in os.not_a_function()])  # [no-member]
+
+
+# https://github.com/pylint-dev/pylint/issues/9405
+# A test that can be either false or true does not guard the branch
+def maybe_enabled(flag):
+    enabled = False
+    if flag:
+        enabled = True
+    if enabled:
+        print(os.not_a_function())  # [no-member]
+    print(os.not_a_function() if enabled else None)  # [no-member]
+
+
+# A test that is false on every path still guards the branch
+def both_false(flag):
+    enabled = False
+    if flag:
+        enabled = False
+    if enabled:
+        print(os.not_a_function())

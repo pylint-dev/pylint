@@ -2,3 +2,5 @@ no-member:6:0:6:15::Instance of 'str' has no 'isoformat' member:INFERENCE
 no-member:12:4:12:19::Instance of 'str' has no 'isoformat' member:INFERENCE
 no-member:23:3:23:22::Instance of 'str' has no 'none_existent' member:INFERENCE
 no-member:94:31:94:48::Module 'os' has no 'not_a_function' member:INFERENCE
+no-member:104:14:104:31:maybe_enabled:Module 'os' has no 'not_a_function' member:INFERENCE
+no-member:105:10:105:27:maybe_enabled:Module 'os' has no 'not_a_function' member:INFERENCE
