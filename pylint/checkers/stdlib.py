@@ -325,6 +325,7 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "asyncio.get_event_loop_policy",
             "asyncio.set_event_loop_policy",
             "codecs.open",
+            "pathlib.PurePath.as_uri",
             "symtable.Class.get_methods",
             "sys._clear_type_cache",
             "sysconfig.expand_makefile_vars",
