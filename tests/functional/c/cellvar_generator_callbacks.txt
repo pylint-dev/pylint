@@ -1,0 +1,5 @@
+cell-var-from-loop:22:25:22:30:store_callbacks.<lambda>:Cell variable index defined in loop:UNDEFINED
+cell-var-from-loop:30:25:30:30:defer_calls.<lambda>:Cell variable index defined in loop:UNDEFINED
+cell-var-from-loop:33:29:33:37:defer_calls.<lambda>:Cell variable callback defined in loop:UNDEFINED
+cell-var-from-loop:38:32:38:37:store_generator_results.<lambda>:Cell variable index defined in loop:UNDEFINED
+cell-var-from-loop:46:26:46:31:store_returned_generators.<lambda>:Cell variable index defined in loop:UNDEFINED
