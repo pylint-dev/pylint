@@ -1,5 +1,5 @@
 """Check possible unbalanced dict unpacking """
-# pylint: disable=missing-function-docstring, invalid-name
+# pylint: disable=missing-function-docstring, invalid-name, missing-class-docstring
 # pylint: disable=unused-variable, redefined-outer-name, line-too-long
 
 def dict_vals():
@@ -122,3 +122,16 @@ for value1, value2 in {1: {2: 3, 4: 5}, 6: {7: 8, 9: 10}}.values():
 
 for value1, value2 in {1: [1, 2, 3][0:2]}.values():
     pass
+
+
+class DictAttrHolder:
+    def __init__(self):
+        self.data = {}
+
+    def add(self, name, value):
+        self.data[name] = value
+
+    def dump(self):
+        if len(self.data) == 1:
+            (name, value), = self.data.items()
+            print(name, value)

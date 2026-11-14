@@ -1,0 +1,4 @@
+Fixed a false positive for ``unbalanced-dict-unpacking`` when unpacking dictionary
+items or views from an attribute or variable defined in a different scope.
+
+Closes #9986
