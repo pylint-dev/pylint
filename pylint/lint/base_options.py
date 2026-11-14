@@ -46,7 +46,20 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "kwargs": {"old_names": ["black_list"]},
                 "default": constants.DEFAULT_IGNORE_LIST,
                 "help": "Files or directories to be skipped. "
-                "They should be base names, not paths.",
+                "They should be base names, not paths. The default skips version "
+                "control, virtual environment, build and cache directories; setting "
+                "this option replaces that list, use 'extend-ignore' to add to it.",
+            },
+        ),
+        (
+            "extend-ignore",
+            {
+                "type": "csv",
+                "metavar": "<file>[,<file>...]",
+                "default": (),
+                "help": "Files or directories to be skipped in addition to the ones "
+                "in 'ignore'. They should be base names, not paths. This keeps the "
+                "default of 'ignore' while adding your own entries.",
             },
         ),
         (
@@ -419,12 +432,14 @@ def _make_linter_options(linter: PyLinter) -> Options:
             "files",
             {
                 "type": "csv",
-                "default": [],
+                "default": ["."],
                 "help": "The files to lint. The flag can also be omitted as pylint will "
                 "try to lint any file passed as argument. This can be used to set files "
                 "to a directory in a configuration file and invoke pylint by only typing "
                 "pylint on the command line. Any file passed as argument will overwrite any "
-                "file set in the configuration file.",
+                "file set in the configuration file. Defaults to the current working "
+                "directory, so running pylint without any argument is the same as "
+                "running 'pylint .'.",
             },
         ),
     )
