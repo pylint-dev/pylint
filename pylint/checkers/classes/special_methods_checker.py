@@ -179,10 +179,13 @@ class SpecialMethodsChecker(BaseChecker):
         if not node.is_method():
             return
 
-        inferred = _safe_infer_call_result(node, node)
-        # Only want to check types that we are able to infer
-        if inferred and node.name in self._protocol_map:
-            self._protocol_map[node.name](node, inferred)
+        # Inferring the return value is expensive, so only do it for the special
+        # methods whose return type is checked.
+        if node.name in self._protocol_map:
+            inferred = _safe_infer_call_result(node, node)
+            # Only want to check types that we are able to infer
+            if inferred:
+                self._protocol_map[node.name](node, inferred)
 
         if node.name in PYMETHODS:
             self._check_unexpected_method_signature(node)
