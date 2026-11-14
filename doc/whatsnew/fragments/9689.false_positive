@@ -1,0 +1,4 @@
+Fixed a false positive for ``used-before-assignment`` when a ``nonlocal`` declaration is
+nested in a ``try``, ``while`` or ``with`` block of the function that uses the variable.
+
+Closes #9689
