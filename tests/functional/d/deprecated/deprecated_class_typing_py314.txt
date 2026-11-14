@@ -1,0 +1,2 @@
+deprecated-class:5:0:5:37::Using deprecated class _UnionGenericAlias of module typing:UNDEFINED
+deprecated-class:7:0:7:51::Using deprecated class _UnionGenericAlias of module typing:UNDEFINED

@@ -309,6 +309,8 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
         },
         (3, 13, 0): {
             "ctypes.SetPointerType",
+            "glob.glob0",
+            "glob.glob1",
             "pathlib.PurePath.is_reserved",
             "platform.java_ver",
             "pydoc.is_package",
@@ -428,10 +430,6 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
         },
     },
     (3, 13, 0): {
-        "glob": {
-            "glob.glob0",
-            "glob.glob1",
-        },
         "http.server": {
             "CGIHTTPRequestHandler",
         },
@@ -450,7 +448,7 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
             "ExecError",
         },
         "typing": {
-            "._UnionGenericAlias",
+            "_UnionGenericAlias",
         },
     },
     (3, 15, 0): {

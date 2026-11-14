@@ -1,0 +1,2 @@
+deprecated-method:5:0:5:20::Using deprecated method glob0():UNDEFINED
+deprecated-method:6:0:6:15::Using deprecated method glob1():UNDEFINED

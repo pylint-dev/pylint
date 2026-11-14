@@ -1,0 +1,5 @@
+Fix a false negative for ``deprecated-method`` with ``glob.glob0()`` and ``glob.glob1()``
+(deprecated in Python 3.13), and for ``deprecated-class`` with ``typing._UnionGenericAlias``
+(deprecated in Python 3.14). Their entries in the deprecation tables could never match.
+
+Closes #11765
