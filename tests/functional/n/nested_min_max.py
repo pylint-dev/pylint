@@ -60,7 +60,7 @@ max(3, *list(range(4)))
 MATRIX = [[1, 2, 3], [4, 5, 6]]
 max(max(MATRIX))
 max(max(max(MATRIX)))
-max(3, max(max(MATRIX)))  # [nested-min-max]
+max(3, max(max(MATRIX)))
 max(max(3, max(MATRIX)))  # [nested-min-max]
 
 # An inner call carrying a keyword argument (e.g. ``key=``) must not be
@@ -82,3 +82,27 @@ max(4, max(LIST3), 7)  # [nested-min-max]
 # (which yields ``[5, 6]``), not the non-equivalent ``max(*[1, 2], *[3, 4],
 # *[5, 6])`` (which yields ``6``).
 max([1, 2], max([3, 4], [5, 6]))  # [nested-min-max]
+
+
+# An unknown iterable cannot be flattened into a comparable argument. It might
+# also be a large generator, for which materializing a splat is undesirable.
+def bounds(lo, hi, elements):
+    """An iterable and scalar bounds need nested min/max calls."""
+    return (
+        orig_min(lo, hi, orig_min(elements)),
+        max(lo, hi, max(elements)),
+    )
+
+
+def mixed_iterables(elements):
+    """Do not suggest a partial flattening that changes an unknown iterable."""
+    return (
+        max(0, max([1, 2]), max(elements)),
+        max(0, max(elements), max([1, 2])),
+    )
+
+
+def generator_variable():
+    """A named generator requires the same nesting as a generator expression."""
+    values = (value for value in range(10))
+    return max(0, max(values))
