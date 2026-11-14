@@ -158,3 +158,35 @@ def exiting_generator():
     """sys.exit() raises SystemExit, so it only exits on iteration too."""
     sys.exit(1)
     yield
+
+
+def terminating_call_in_generator_expression_element(items):
+    """The element of a generator expression only runs on iteration."""
+    _ = (sys.exit(item) for item in items)
+    print("Still reachable.")
+
+
+def terminating_call_in_generator_expression_condition(items):
+    """The conditions of a generator expression only run on iteration."""
+    _ = (item for item in items if sys.exit(item))
+    print("Still reachable.")
+
+
+def terminating_call_in_generator_expression_second_iterable(items):
+    """Only the first iterable of a generator expression runs on creation."""
+    _ = (other for item in items for other in sys.exit(item))
+    print("Still reachable.")
+
+
+def terminating_call_in_generator_expression_consumed_by_next(items):
+    """Known false negative, on purpose.
+
+    ``next(checks)`` either exits or raises ``StopIteration``, so the last
+    ``print`` never runs. Seeing it would mean inferring what every
+    ``next()``, ``list()`` or ``for`` loop consumes, on every call, for a
+    generator expression that only exists to stop the program: a pattern
+    that hardly ever happens in real code. Not worth the cost.
+    """
+    checks = (sys.exit(item) for item in items)
+    next(checks)
+    print("Never runs, but not reported.")
