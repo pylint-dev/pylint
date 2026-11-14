@@ -1,0 +1,6 @@
+Fix a false positive for ``redefined-outer-name`` (W0621) when a PEP 695
+type parameter (e.g. ``def f[T]``) reuses the name of a type parameter from
+an outer scope, such as a ``type`` alias. Type parameters are scoped to
+their declaration, so this common idiom is no longer flagged.
+
+Closes #11169
