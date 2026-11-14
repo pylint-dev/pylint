@@ -1,0 +1,5 @@
+Fixed a false positive ``used-before-assignment`` (E0601) when a variable assigned
+with the walrus operator (``:=``) inside an earlier decorator is referenced in
+subsequent stacked decorators or function default argument values.
+
+Closes #9641
