@@ -1,0 +1,6 @@
+Fixed a false positive for ``reimported`` (W0404) when a relative import brings in
+a submodule whose name clashes with an already imported top-level module, for
+example ``from . import json as my_json`` next to ``import json``. The relative
+import is now resolved to its absolute module name before being compared.
+
+Closes #11353
