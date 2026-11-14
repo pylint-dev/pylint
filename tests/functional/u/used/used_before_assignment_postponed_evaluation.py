@@ -37,3 +37,12 @@ if TYPE_CHECKING:
 
 def j():
     return {Y() for _ in range(1)}  # FALSE NEGATIVE
+
+
+def test_nested_class_annotation():
+    """Method returning instance type of nested class with postponed evaluation (#8145)."""
+    class Foo:
+        def meth(self) -> Foo:
+            pass
+
+    return Foo
