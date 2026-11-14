@@ -30,6 +30,109 @@ to locate them and as such is subject to the same rules and configuration.
 You should pay attention to your ``PYTHONPATH``, since it is a common error
 to analyze an installed version of a module instead of the development version.
 
+.. _python-path:
+
+Setting the Python path (``sys.path`` / ``PYTHONPATH``)
+--------------------------------------------------------
+
+Pylint imports the code it analyses in order to resolve imports and infer
+types, so it has to see the same code you are developing -- not an installed
+copy of it. If pylint reports ``import-error`` (``E0401``) for your own
+modules, or analyses the installed version instead of the development
+version, the Python path is almost always the cause. The approaches below
+are listed in order of preference.
+
+1. Install the project, or run pylint from the project root
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The most robust setup is to make the code importable in the environment
+where pylint runs, for example with an editable install::
+
+   pip install -e .
+
+or by running pylint from the project root, since the current working
+directory is automatically added on top of the Python path. This works the
+same way no matter how pylint is invoked -- from the command line, from an
+editor, or from continuous integration.
+
+2. Set ``PYTHONPATH`` before invoking pylint
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If the sources live in a directory that is not importable by default, for
+example a ``src`` layout, set ``PYTHONPATH`` for the pylint invocation::
+
+   PYTHONPATH=src pylint mypackage
+
+This is simple and explicit, but the variable has to be set everywhere
+pylint runs, including in your editor and in CI, or the results will differ
+between environments.
+
+3. Set the path with ``init-hook``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To make the setup independent of how pylint is invoked, use the
+:ref:`init-hook-option` option in the configuration file. It executes Python
+code before the analysis starts, usually to manipulate ``sys.path``. The
+simplest form adds a directory relative to the current working directory::
+
+   [MAIN]
+   init-hook="import sys; sys.path.append('src')"
+
+To anchor the path at the configuration file itself instead of the current
+working directory, derive the directory from the configuration file that
+pylint found::
+
+   [MAIN]
+   init-hook="from pylint.config import find_default_config_files; import sys; sys.path.insert(0, next(find_default_config_files()).parent.as_posix())"
+
+This adds the directory containing the configuration file -- the project
+root in the usual case -- to ``sys.path``, which is what a flat layout
+needs. For a ``src`` layout, append the source directory instead, for
+example ``(next(find_default_config_files()).parent / 'src').as_posix()``.
+
+The same option can be set in ``pyproject.toml``::
+
+   [tool.pylint.main]
+   init-hook = "import sys; sys.path.insert(0, 'src')"
+
+.. note::
+
+   Older advice on the internet uses ``find_pylintrc`` and a ``[MASTER]``
+   section. Both are outdated: ``find_pylintrc`` has been removed -- use
+   ``find_default_config_files`` instead -- and the configuration section is
+   now called ``MAIN``. The snippet above also assumes that a configuration
+   file was found, which holds when the ``init-hook`` itself comes from that
+   file. With ``--init-hook`` on the command line, prefer an explicit path
+   as in the first example.
+
+.. note::
+
+   ``init-hook`` runs in the interpreter that runs pylint. If pylint is
+   installed in an isolated environment -- for example with ``pipx`` or in
+   pre-commit's isolated environment -- it cannot see the packages of your
+   project's virtual environment on its own. In that case, add the project
+   environment's ``site-packages`` explicitly, for example for an activated
+   virtual environment on Unix::
+
+      [MAIN]
+      init-hook="import glob, os, sys; venv = os.getenv('VIRTUAL_ENV'); [sys.path.insert(0, p) for p in glob.glob(f'{venv}/lib/python*/site-packages') if venv]"
+
+   Alternatively, install pylint into the project's environment, or use the
+   ``system`` pre-commit hook setup described in
+   :ref:`pre-commit-integration`, so that pylint and the analysed code share
+   one environment.
+
+For implicit namespace packages (PEP 420) use the
+:ref:`source-roots-option` option instead, which tells pylint where the
+source roots of the packages are.
+
+.. note::
+
+   A dedicated option for declaring source directories is being discussed
+   (see `PR #9721 <https://github.com/pylint-dev/pylint/pull/9721>`_).
+   Until such an option exists, ``init-hook`` as described above is the
+   supported way to adjust ``sys.path`` from the configuration file.
+
 On files
 --------
 
