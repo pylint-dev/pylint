@@ -1,0 +1,4 @@
+Fix a false positive for ``unsupported-assignment-operation`` when a nested
+literal-key subscript was assigned a subscriptable value immediately before use.
+
+Closes #10050
