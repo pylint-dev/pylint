@@ -410,10 +410,16 @@ class NameChecker(_BasicChecker):
     @utils.only_required_for_messages("disallowed-name", "invalid-name")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         self._check_name("class", node.name, node)
+        root = node.root()
         for attr, anodes in node.instance_attrs.items():
-            if not any(
-                node.instance_attr_ancestors(attr)
-            ) and not utils.is_assign_name_annotated_with(anodes[0], "Final"):
+            # Assignments in other modules are added to instance_attrs too,
+            # but the pragmas of the module being checked don't apply to them.
+            anodes = [anode for anode in anodes if anode.root() is root]
+            if (
+                anodes
+                and not any(node.instance_attr_ancestors(attr))
+                and not utils.is_assign_name_annotated_with(anodes[0], "Final")
+            ):
                 self._check_name("attr", attr, anodes[0])
 
     @utils.only_required_for_messages("disallowed-name", "invalid-name")

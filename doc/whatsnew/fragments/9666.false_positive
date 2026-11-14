@@ -1,0 +1,6 @@
+Fixed ``invalid-name`` and ``non-ascii-name`` being emitted for instance attributes
+assigned in another module when that module and the module of the class are
+linted together. The messages ignored the pragmas of the module with the
+assignment, and linting that module on its own gave none.
+
+Closes #9666
