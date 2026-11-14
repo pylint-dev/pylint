@@ -4,9 +4,6 @@
 
 from __future__ import annotations
 
-import warnings
-from typing import NamedTuple
-
 __all__ = (
     "CONFIDENCE_LEVELS",
     "CONFIDENCE_LEVEL_NAMES",
@@ -16,6 +13,9 @@ __all__ = (
     "INFERENCE_FAILURE",
     "UNDEFINED",
 )
+
+import warnings
+from typing import NamedTuple
 
 
 class Confidence(NamedTuple):

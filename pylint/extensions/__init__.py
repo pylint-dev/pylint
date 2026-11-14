@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+__all__ = ["initialize"]
+
 from typing import TYPE_CHECKING
 
 from pylint.utils import register_plugins
@@ -15,6 +17,3 @@ if TYPE_CHECKING:
 def initialize(linter: PyLinter) -> None:
     """Initialize linter with checkers in the extensions' directory."""
     register_plugins(linter, __path__[0])
-
-
-__all__ = ["initialize"]

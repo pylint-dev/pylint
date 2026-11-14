@@ -6,6 +6,16 @@
 
 from __future__ import annotations
 
+__all__ = [
+    "BaseReporter",
+    "CollectingReporter",
+    "JSON2Reporter",
+    "JSONReporter",
+    "JUnitReporter",
+    "MultiReporter",
+    "ReportsHandlerMixIn",
+]
+
 from typing import TYPE_CHECKING
 
 from pylint import utils
@@ -27,14 +37,3 @@ class ReporterWarning(Warning):
 def initialize(linter: PyLinter) -> None:
     """Initialize linter with reporters in this package."""
     utils.register_plugins(linter, __path__[0])
-
-
-__all__ = [
-    "BaseReporter",
-    "CollectingReporter",
-    "JSON2Reporter",
-    "JSONReporter",
-    "JUnitReporter",
-    "MultiReporter",
-    "ReportsHandlerMixIn",
-]

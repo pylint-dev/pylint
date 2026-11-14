@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,redefined-builtin, consider-using-f-string, unnecessary-direct-lambda-call, broad-exception-raised
+# pylint: disable=missing-docstring,redefined-builtin, consider-using-f-string, unnecessary-direct-lambda-call, broad-exception-raised, misplaced-module-dunder
 
 from typing import Never, NoReturn
 
