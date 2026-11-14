@@ -2,4 +2,4 @@
 an attribute deprecated in one of its ancestors, such as ``self.curframe_locals``
 in a subclass of ``pdb.Pdb``, unless the subclass overrides it.
 
-Closes #99999
+Refs #11823
