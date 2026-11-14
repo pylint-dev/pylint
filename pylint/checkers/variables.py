@@ -877,6 +877,9 @@ scope_type : {self.scope_type}
         if NamesConsumer._defines_name_raises_or_returns(name, node):
             return True
 
+        if NamesConsumer._defines_missing_global(name, node):
+            return True
+
         test = node.test.value if isinstance(node.test, nodes.NamedExpr) else node.test
         all_inferred = utils.infer_all(test)
         only_search_if = False
@@ -909,6 +912,59 @@ scope_type : {self.scope_type}
         elif if_branch_handles ^ else_branch_handles:
             self.names_defined_under_one_branch_only.add(name)
         return if_branch_handles and else_branch_handles
+
+    @staticmethod
+    def _defines_missing_global(name: str, node: nodes.If) -> bool:
+        """Return True for ``if "name" not in globals():`` whose body always
+        binds ``name``.
+
+        The body is only skipped when the global ``name`` already exists, so
+        ``name`` is defined after the ``if`` either way.
+        """
+        match node.test:
+            case nodes.Compare(
+                left=nodes.Const(value=str() as value),
+                ops=[("not in", nodes.Call(func=func, args=[], keywords=[]))],
+            ) if (
+                value == name
+                and isinstance(inferred := utils.safe_infer(func), nodes.FunctionDef)
+                and inferred.qname() == "builtins.globals"
+            ):
+                scope = node.scope()
+                scope_nodes = list(
+                    scope.nodes_of_class(
+                        (nodes.Global, nodes.DelName),
+                        skip_klass=(nodes.FunctionDef, nodes.ClassDef),
+                    )
+                )
+                # Inside a function, ``globals()`` only tells about ``name``
+                # if it is declared ``global`` there.
+                is_global = isinstance(scope, nodes.Module) or any(
+                    isinstance(n, nodes.Global) and name in n.names for n in scope_nodes
+                )
+                # ``del name`` could unbind it again.
+                is_deleted = any(
+                    isinstance(n, nodes.DelName) and n.name == name for n in scope_nodes
+                )
+                # Only a statement directly in the body is sure to run: a binding
+                # inside a loop, ``try``, ``with`` or ``if`` might not happen.
+                binds_name = any(
+                    isinstance(
+                        stmt,
+                        (
+                            nodes.Assign,
+                            nodes.AnnAssign,
+                            nodes.Import,
+                            nodes.ImportFrom,
+                            nodes.FunctionDef,
+                            nodes.ClassDef,
+                        ),
+                    )
+                    and NamesConsumer._defines_name_raises_or_returns(name, stmt)
+                    for stmt in node.body
+                )
+                return is_global and not is_deleted and binds_name
+        return False
 
     def _branch_handles_name(self, name: str, body: Iterable[nodes.NodeNG]) -> bool:
         return any(
@@ -2023,9 +2079,22 @@ class VariablesChecker(BaseChecker):
                 self._check_late_binding_closure(node)
                 return (VariableVisitConsumerAction.RETURN, None)
 
+        uncertain_count = len(current_consumer.consumed_uncertain.get(node.name, ()))
         found_nodes = current_consumer.get_next_to_consume(node)
         if found_nodes is None:
             return (VariableVisitConsumerAction.CONTINUE, None)
+        # True if this lookup filtered out a definition made before the use in
+        # only one branch of an ``if``, e.g. ``if test: x = 1``. A definition
+        # after the use cannot have bound the name yet.
+        defined_under_one_branch_only = (
+            node.name in current_consumer.names_defined_under_one_branch_only
+            and any(
+                (n.lineno, n.col_offset) < (node.lineno, node.col_offset)
+                for n in current_consumer.consumed_uncertain.get(node.name, [])[
+                    uncertain_count:
+                ]
+            )
+        )
         if not found_nodes:
             is_reported = self._report_unfound_name_definition(node, current_consumer)
             # Mark for consumption any nodes added to consumed_uncertain by
@@ -2107,6 +2176,15 @@ class VariablesChecker(BaseChecker):
             defined_by_stmt = defstmt is stmt and isinstance(
                 node, (nodes.DelName, nodes.AssignName)
             )
+            # e.g. ``x += 1`` when ``x`` is only assigned in one ``if`` branch:
+            # report it like a plain read of ``x``.
+            if (
+                defined_by_stmt
+                and defined_under_one_branch_only
+                and not utils.node_ignores_exception(node, NameError)
+                and self._report_unfound_name_definition(node, current_consumer)
+            ):
+                return (VariableVisitConsumerAction.RETURN, [node])
             if (
                 is_recursive_klass
                 or defined_by_stmt
@@ -2152,12 +2230,18 @@ class VariablesChecker(BaseChecker):
                     and utils.get_node_first_ancestor_of_type(stmt, nodes.FunctionDef)
                     or isinstance(stmt, nodes.TypeAlias)
                 ):
-                    self.add_message(
-                        "used-before-assignment",
-                        args=node.name,
-                        node=node,
-                        confidence=HIGH,
-                    )
+                    # A later definition must not turn a name assigned under
+                    # only one ``if`` branch into a certain error.
+                    if not (
+                        defined_under_one_branch_only
+                        and self._report_unfound_name_definition(node, current_consumer)
+                    ):
+                        self.add_message(
+                            "used-before-assignment",
+                            args=node.name,
+                            node=node,
+                            confidence=HIGH,
+                        )
                     return (VariableVisitConsumerAction.RETURN, found_nodes)
 
             elif base_scope_type == "lambda":

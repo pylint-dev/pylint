@@ -1,0 +1,16 @@
+possibly-used-before-assignment:50:4:50:9:local_in_function:Possibly using variable 'value' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:57:4:57:12:globals_shadowed:Possibly using variable 'l_object' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:64:4:64:12:other_name_in_test:Possibly using variable 'm_object' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:72:4:72:12:nested_condition:Possibly using variable 'n_object' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:80:4:80:12:bound_in_loop:Possibly using variable 'o_object' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:90:4:90:12:bound_in_try:Possibly using variable 'p_object' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:98:4:98:12:bound_in_with:Possibly using variable 'q_object' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:105:8:105:16:deleted_after_guard:Possibly using variable 'r_object' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:112:4:112:9:augmented_assignment:Possibly using variable 'value' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:119:4:119:12:augmented_assignment_shadowing_a_global:Possibly using variable 'j_object' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:125:10:125:15:read_then_reassigned:Possibly using variable 'value' before assignment:CONTROL_FLOW
+used-before-assignment:131:10:131:15:read_before_conditional_assignment:Using variable 'value' before assignment:HIGH
+undefined-variable:139:4:139:9:augmented_assignment_before_conditional_assignment:Undefined variable 'value':UNDEFINED
+undefined-variable:165:4:165:9:augmented_assignment_never_defined:Undefined variable 'value':UNDEFINED
+undefined-variable:174:8:174:13:augmented_assignment_in_except_handler:Undefined variable 'value':UNDEFINED
+used-before-assignment:188:10:188:14:builtin_read_then_reassigned:Using variable 'list' before assignment:HIGH
