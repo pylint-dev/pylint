@@ -19,23 +19,23 @@ class AAAA:
 class BBBB(AAAA):
     ''' class BBBB '''
 
-    def __init__(self):
+    def __init__(self):  # [useless-parent-delegation]
         AAAA.__init__(self)
 
     # should ignore docstring calling from class AAAA
-    def method1(self):
+    def method1(self):  # [useless-parent-delegation]
         AAAA.method1(self)
 
 class CCCC(BBBB):
     ''' class CCCC '''
 
-    def __init__(self):
+    def __init__(self):  # [useless-parent-delegation]
         BBBB.__init__(self)
 
     # should ignore docstring since CCCC is inherited from BBBB which is
     # inherited from AAAA containing method2
     if __revision__:
-        def method2(self):
+        def method2(self):  # [useless-parent-delegation]
             AAAA.method2(self)
     else:
         def method2(self):

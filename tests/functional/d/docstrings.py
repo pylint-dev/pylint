@@ -54,7 +54,7 @@ class AAAA:
 class DDDD(AAAA):
     """yeah !"""
 
-    def __init__(self):
+    def __init__(self):  # [useless-parent-delegation]
         AAAA.__init__(self)
 
     # +1: [empty-docstring]
