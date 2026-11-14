@@ -17,10 +17,8 @@ from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import only_required_for_messages
 
 if TYPE_CHECKING:
-    from pylint.lint import PyLinter
-
-try:
     import enchant
+    import enchant.errors
     from enchant.tokenize import (
         Chunker,
         EmailFilter,
@@ -30,33 +28,45 @@ try:
         get_tokenizer,
     )
 
+    from pylint.lint import PyLinter
+
     PYENCHANT_AVAILABLE = True
-except ImportError:  # pragma: no cover
-    enchant = None
-    PYENCHANT_AVAILABLE = False
+else:
+    try:
+        import enchant
+        from enchant.tokenize import (
+            Chunker,
+            EmailFilter,
+            Filter,
+            URLFilter,
+            WikiWordFilter,
+            get_tokenizer,
+        )
 
-    class EmailFilter:  # type: ignore[no-redef]
-        ...
+        PYENCHANT_AVAILABLE = True
+    except ImportError:  # pragma: no cover
+        enchant = None
+        PYENCHANT_AVAILABLE = False
 
-    class URLFilter:  # type: ignore[no-redef]
-        ...
+        class EmailFilter: ...
 
-    class WikiWordFilter:  # type: ignore[no-redef]
-        ...
+        class URLFilter: ...
 
-    class Filter:  # type: ignore[no-redef]
-        def _skip(self, word: str) -> bool:
-            raise NotImplementedError
+        class WikiWordFilter: ...
 
-    class Chunker:  # type: ignore[no-redef]
-        pass
+        class Filter:
+            def _skip(self, word: str) -> bool:
+                raise NotImplementedError
 
-    def get_tokenizer(
-        tag: str | None = None,  # pylint: disable=unused-argument
-        chunkers: list[Chunker] | None = None,  # pylint: disable=unused-argument
-        filters: list[Filter] | None = None,  # pylint: disable=unused-argument
-    ) -> Filter:
-        return Filter()
+        class Chunker:
+            pass
+
+        def get_tokenizer(  # pylint: disable=unused-argument
+            tag: str | None = None,
+            chunkers: list[type[Chunker]] | None = None,
+            filters: list[type[Filter]] | None = None,
+        ) -> Filter:
+            return Filter()
 
 
 def _get_enchant_dicts() -> list[tuple[Any, enchant.ProviderDesc]]:
@@ -209,14 +219,12 @@ class SpellingChecker(BaseTokenChecker):
     name = "spelling"
     msgs = {
         "C0401": (
-            "Wrong spelling of a word '%s' in a comment:\n%s\n"
-            "%s\nDid you mean: '%s'?",
+            "Wrong spelling of a word '%s' in a comment:\n%s\n%s%s",
             "wrong-spelling-in-comment",
             "Used when a word in comment is not spelled correctly.",
         ),
         "C0402": (
-            "Wrong spelling of a word '%s' in a docstring:\n%s\n"
-            "%s\nDid you mean: '%s'?",
+            "Wrong spelling of a word '%s' in a docstring:\n%s\n%s%s",
             "wrong-spelling-in-docstring",
             "Used when a word in docstring is not spelled correctly.",
         ),
@@ -414,7 +422,9 @@ class SpellingChecker(BaseTokenChecker):
                     col += 1
                 indicator = (" " * col) + ("^" * len(word))
                 all_suggestion = "' or '".join(suggestions)
-                args = (word, original_line, indicator, f"'{all_suggestion}'")
+                if suggestions:
+                    all_suggestion = f"\nDid you mean: ''{all_suggestion}''?"
+                args = (word, original_line, indicator, all_suggestion)
                 self.add_message(msgid, line=line_num, args=args)
 
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:

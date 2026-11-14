@@ -153,15 +153,13 @@ class RecommendationChecker(checkers.BaseChecker):
                     if not loop_node.parent_of(node):
                         continue
 
-                    # Check if var is mutated within loop (Assign/AugAssign)
-                    for assignment_node in loop_node.nodes_of_class(nodes.AugAssign):
-                        if node.parent.slice.name == assignment_node.target.name:
-                            return
-                    for assignment_node in loop_node.nodes_of_class(nodes.Assign):
-                        if node.parent.slice.name in [
-                            n.name for n in assignment_node.targets
-                        ]:
-                            return
+                    # Check if var is reassigned within loop (any binding:
+                    # assignment, augmented assignment, unpacking, walrus...)
+                    if any(
+                        assign_name.name == node.parent.slice.name
+                        for assign_name in loop_node.nodes_of_class(nodes.AssignName)
+                    ):
+                        return
 
             if subscript_value in (-1, 0):
                 fn_name = node.func.attrname
@@ -278,6 +276,13 @@ class RecommendationChecker(checkers.BaseChecker):
         if iterating_object_name is None:
             return
 
+        # ``consider-using-dict-items`` only applies to a simple loop variable.
+        # An attribute or subscript target (e.g. ``for self.key in d``) cannot be
+        # rewritten with ``.items()``, and accessing ``node.target.name`` on such
+        # a target raises AttributeError (#10099).
+        if not isinstance(node.target, nodes.AssignName):
+            return
+
         # Verify that the body of the for loop uses a subscript
         # with the object that was iterated. This uses some heuristics
         # in order to make sure that the same object is used in the
@@ -333,6 +338,11 @@ class RecommendationChecker(checkers.BaseChecker):
         """Add message when accessing dict values by index lookup."""
         iterating_object_name = utils.get_iterating_dictionary_name(node)
         if iterating_object_name is None:
+            return
+
+        # See ``_check_consider_using_dict_items``: a non-name target has no
+        # ``.name`` and cannot be rewritten with ``.items()`` (#10099).
+        if not isinstance(node.target, nodes.AssignName):
             return
 
         for child in node.parent.get_children():

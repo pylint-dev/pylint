@@ -1,0 +1,5 @@
+``wrong-spelling-in-comment`` and ``wrong-spelling-in-docstring`` no longer end with
+an empty ``Did you mean: ''''?`` when there is no suggestion to show, for example with
+``max-spelling-suggestions=0``.
+
+Closes #6420

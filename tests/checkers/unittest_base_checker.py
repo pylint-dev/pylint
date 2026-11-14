@@ -77,6 +77,8 @@ class MessageWithOptionsChecker(BaseChecker):
 def test_base_checker_doc() -> None:
     basic = OtherBasicChecker()
     expected_beginning = """\
+.. _basic-checker:
+
 Basic checker
 ~~~~~~~~~~~~~
 
@@ -106,6 +108,38 @@ Basic checker Messages
 
     assert str(less_basic) == expected_beginning + expected_middle + expected_end
     assert repr(less_basic) == repr(basic)
+
+
+class BackslashChecker(OtherBasicChecker):
+    msgs = {
+        "W0001": (
+            r'Use "\b" instead.',
+            "basic-checker-example",
+            r"Used when an escape like \u has no effect.",
+        )
+    }
+    options = (
+        (
+            "example-args",
+            {
+                "default": 42,
+                "type": "int",
+                "metavar": "<int>",
+                "help": r'Usually "\t" (1 tab).',
+            },
+        ),
+    )
+
+
+def test_base_checker_doc_escapes_backslashes() -> None:
+    """A lone backslash is an escape in reST, so the documentation doubles it."""
+    checker = BackslashChecker()
+    doc = str(checker)
+    assert r':basic-checker-example (W0001): *Use "\\b" instead.*' in doc
+    assert r"Used when an escape like \\u has no effect." in doc
+    assert r'Usually "\\t" (1 tab).' in doc
+    # The message help printed on the command line is unchanged.
+    assert r'*Use "\b" instead.*' in checker.messages[0].format_help()
 
 
 def test_base_checker_ordering() -> None:

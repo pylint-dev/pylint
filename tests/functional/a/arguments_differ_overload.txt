@@ -1,0 +1,4 @@
+arguments-differ:68:4:68:17:ChildWithWrongImplementation.statement:Number of parameters was 2 in 'Parent.statement' and is now 3 in overriding 'ChildWithWrongImplementation.statement' method:UNDEFINED
+arguments-differ:73:4:73:17:ChildWithoutOverload.statement:Number of parameters was 2 in 'Parent.statement' and is now 3 in overriding 'ChildWithoutOverload.statement' method:UNDEFINED
+arguments-differ:87:4:87:12:WrongChildOfOverloaded.func:Number of parameters was 4 in 'OverloadedParent.func' and is now 5 in overriding 'WrongChildOfOverloaded.func' method:UNDEFINED
+arguments-differ:151:4:151:12:WrongChildOfStubOnly.func:Number of parameters was 2 in 'StubOnlyParent.func' and is now 3 in overriding 'WrongChildOfStubOnly.func' method:UNDEFINED

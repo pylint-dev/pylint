@@ -1,3 +1,0 @@
-Fix ``add_message`` silently overwriting an explicit ``col_offset=0`` (or any other zero-valued ``line``/``end_lineno``/``end_col_offset``) with the AST node's value. The internal ``_add_one_message`` helper used a falsey check (``if not col_offset:``) to detect an omitted argument, which incorrectly treated a legitimate ``0`` the same as ``None``. It now uses an identity check against ``None``.
-
-Refs #11020

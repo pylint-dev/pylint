@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-import itertools
-
 import astroid
 from astroid import bases, nodes, util
 
@@ -14,7 +12,7 @@ from pylint.checkers import utils
 from pylint.interfaces import HIGH, INFERENCE
 
 
-def _is_constant_zero(node: str | nodes.NodeNG) -> bool:
+def _is_constant_zero(node: nodes.NodeNG) -> bool:
     # We have to check that node.value is not False because node.value == 0 is True
     # when node.value is False
     return isinstance(node, nodes.Const) and node.value == 0 and node.value is not False
@@ -198,11 +196,8 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         # note: nodes.Compare has the left most operand in node.left
         # while the rest are a list of tuples in node.ops
         # the format of the tuple is ('compare operator sign', node)
-        # here we squash everything into `ops` to make it easier for processing later
-        ops: list[tuple[str, nodes.NodeNG]] = [("", node.left), *node.ops]
-        iter_ops = iter(ops)
-        all_ops = list(itertools.chain(*iter_ops))
-        _, left_operand, operator, right_operand = all_ops
+        left_operand: nodes.NodeNG = node.left
+        operator, right_operand = node.ops[0]
 
         if operator not in self._operators:
             return

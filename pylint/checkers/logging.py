@@ -149,8 +149,9 @@ class LoggingChecker(checkers.BaseChecker):
                 "type": "choice",
                 "metavar": "<old (%) or new ({)>",
                 "choices": ["old", "new"],
-                "help": "The type of string formatting that logging methods do. "
-                "`old` means using % formatting, `new` is for `{}` formatting.",
+                "help": "The string formatting style Pylint expects in logging "
+                "calls. `old` means using % formatting, `new` is for `{}` "
+                "formatting.",
             },
         ),
     )
@@ -197,7 +198,7 @@ class LoggingChecker(checkers.BaseChecker):
                     return name in self._logging_names
             return False
 
-        def is_logger_class() -> tuple[bool, str | None]:
+        def logger_method_name() -> str | None:
             for inferred in infer_all(node.func):
                 if isinstance(inferred, astroid.BoundMethod):
                     parent = inferred._proxied.parent
@@ -208,14 +209,14 @@ class LoggingChecker(checkers.BaseChecker):
                             for ancestor in parent.ancestors()
                         )
                     ):
-                        return True, inferred._proxied.name
-            return False, None
+                        return inferred._proxied.name  # type: ignore[no-any-return]
+            return None
 
         if is_logging_name():
             name = node.func.attrname
         else:
-            result, name = is_logger_class()
-            if not result:
+            name = logger_method_name()
+            if name is None:
                 return
         self._check_log_method(node, name)
 

@@ -12,3 +12,5 @@ unnecessary-negation:30:7:30:27:unnecessary_negation:"Consider changing ""not bo
 unnecessary-negation:32:7:32:23:unnecessary_negation:"Consider changing ""not True == True"" to ""True != True""":UNDEFINED
 unnecessary-negation:34:7:34:22:unnecessary_negation:"Consider changing ""not 2 in [3, 4]"" to ""2 not in [3, 4]""":UNDEFINED
 unnecessary-negation:36:7:36:28:unnecessary_negation:"Consider changing ""not someint == 'test'"" to ""someint != 'test'""":UNDEFINED
+unnecessary-negation:38:7:38:27:unnecessary_negation:"Consider changing ""not someint is not 1"" to ""someint is 1""":UNDEFINED
+unnecessary-negation:40:7:40:32:unnecessary_negation:"Consider changing ""not someint not in [3, 4]"" to ""someint in [3, 4]""":UNDEFINED

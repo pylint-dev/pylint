@@ -10,6 +10,7 @@ import argparse
 import re
 import sys
 import textwrap
+import tomllib
 import warnings
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, TextIO
@@ -24,6 +25,7 @@ from pylint.config.argument import (
     _StoreOldNamesArgument,
     _StoreTrueArgument,
 )
+from pylint.config.callback_actions import _CallbackAction
 from pylint.config.exceptions import (
     UnrecognizedArgumentAction,
     _UnrecognizedOptionError,
@@ -32,12 +34,6 @@ from pylint.config.help_formatter import _HelpFormatter
 from pylint.config.utils import _convert_option_to_argument, _parse_rich_type_value
 from pylint.constants import MAIN_CHECKER_NAME
 from pylint.typing import DirectoryNamespaceDict, OptionDict
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
-
 
 if TYPE_CHECKING:
     from pylint.config.arguments_provider import _ArgumentsProvider
@@ -206,6 +202,7 @@ class _ArgumentsManager:
 
     def _parse_configuration_file(self, arguments: list[str]) -> None:
         """Parse the arguments found in a configuration file into the namespace."""
+        self._reset_callback_actions()
         try:
             self.config, parsed_args = self._arg_parser.parse_known_args(
                 arguments, self.config
@@ -225,11 +222,19 @@ class _ArgumentsManager:
         """Parse the arguments found on the command line into the namespace."""
         arguments = sys.argv[1:] if arguments is None else arguments
 
+        self._reset_callback_actions()
+
         self.config, parsed_args = self._arg_parser.parse_known_args(
             arguments, self.config
         )
 
         return parsed_args
+
+    def _reset_callback_actions(self) -> None:
+        """Start a fresh accumulation scope for callback actions."""
+        for action in self._arg_parser._actions:
+            if isinstance(action, _CallbackAction):
+                action.reset()
 
     def _generate_config(
         self, stream: TextIO | None = None, skipsections: tuple[str, ...] = ()
@@ -280,15 +285,15 @@ class _ArgumentsManager:
             if options:
                 sections.append(group_name)
                 options_by_section[group_name] = options
-        stream = stream or sys.stdout
+        output: TextIO = stream or sys.stdout
         printed = False
         for section in sections:
             if printed:
-                print("\n", file=stream)
+                print("\n", file=output)
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=DeprecationWarning)
                 utils.format_section(
-                    stream, section.upper(), sorted(options_by_section[section])
+                    output, section.upper(), sorted(options_by_section[section])
                 )
             printed = True
 
@@ -396,6 +401,7 @@ class _ArgumentsManager:
 
     def set_option(self, optname: str, value: Any) -> None:
         """Set an option on the namespace object."""
+        self._reset_callback_actions()
         self.config = self._arg_parser.parse_known_args(
             [f"--{optname.replace('_', '-')}", _parse_rich_type_value(value)],
             self.config,

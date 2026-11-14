@@ -15,6 +15,7 @@ import subprocess
 import sys
 import tempfile
 import textwrap
+import tomllib
 import warnings
 from collections.abc import Iterator
 from copy import copy
@@ -43,12 +44,6 @@ from pylint.testutils.utils import (
     _test_sys_path,
 )
 from pylint.utils import utils
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
-
 
 if TYPE_CHECKING:
     from pylint.reporters.ureports.nodes import Section
@@ -788,6 +783,17 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             code=22,
         )
 
+    def test_fail_under_score_visual_indicator(self) -> None:
+        expected_output = "-- below fail-under threshold (8.0)"
+        self._test_output(
+            [
+                "--fail-under",
+                "8.0",
+                join(HERE, "regrtest_data", "fail_under_plus7_5.py"),
+            ],
+            expected_output=expected_output,
+        )
+
     @pytest.mark.parametrize(
         "fu_score,fo_msgs,fname,out",
         [
@@ -1079,6 +1085,33 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         )
         self._test_output([path, "-j2"], expected_output="")
 
+    @pytest.mark.parametrize(
+        "jobs,modules",
+        [
+            ("1", ["child.py", "parent.py"]),
+            pytest.param(
+                "2",
+                ["parent.py", "child.py"],
+                marks=pytest.mark.needs_two_cores,
+            ),
+        ],
+        ids=["child-first", "parallel"],
+    )
+    def test_setattr_defined_in_parent_is_order_independent(
+        self, jobs: str, modules: list[str]
+    ) -> None:
+        path = join(HERE, "regrtest_data", "attribute_defined_setattr_parent")
+        with _test_cwd(path):
+            self._runtest(
+                [
+                    f"--jobs={jobs}",
+                    "--disable=all",
+                    "--enable=attribute-defined-outside-init",
+                    *modules,
+                ],
+                code=0,
+            )
+
     @pytest.mark.needs_two_cores
     @pytest.mark.parametrize(
         "args",
@@ -1263,6 +1296,42 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             expected_output.format(path="tests/regrtest_data/unused_variable.py"),
         )
 
+    def test_repeated_output_format_options_write_to_all_files(
+        self, tmp_path: Path
+    ) -> None:
+        path = join(HERE, "regrtest_data", "unused_variable.py")
+        output_files = [tmp_path / "first.txt", tmp_path / "second.txt"]
+        arguments = _add_rcfile_default_pylintrc(
+            [
+                path,
+                *(
+                    f"--output-format=text:{output_file}"
+                    for output_file in output_files
+                ),
+            ]
+        )
+
+        process = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pylint",
+                *arguments,
+                "--persistent=no",
+            ],
+            capture_output=True,
+            check=False,
+            cwd=str(tmp_path),
+        )
+
+        assert (
+            process.returncode == MSG_TYPES_STATUS["W"]
+        ), f"{process.stdout!r}\n{process.stderr!r}"
+        for output_file in output_files:
+            assert "Unused variable 'variable'" in output_file.read_text(
+                encoding="utf-8"
+            )
+
     def test_output_file_can_be_combined_with_custom_reporter(
         self, tmp_path: Path
     ) -> None:
@@ -1421,9 +1490,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             # pytest is including directory HERE/regrtest_data to sys.path which causes
             # astroid to believe that directory is a package.
             sys.path = [
-                path
-                for path in sys.path
-                if not os.path.basename(path) == "regrtest_data"
+                path for path in sys.path if os.path.basename(path) != "regrtest_data"
             ]
             with _test_cwd():
                 os.chdir(join(HERE, "regrtest_data", "directory", "subdirectory"))
@@ -1438,9 +1505,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             # pytest is including directory HERE/regrtest_data to sys.path which causes
             # astroid to believe that directory is a package.
             sys.path = [
-                path
-                for path in sys.path
-                if not os.path.basename(path) == "regrtest_data"
+                path for path in sys.path if os.path.basename(path) != "regrtest_data"
             ]
             with _test_cwd():
                 os.chdir(join(HERE, "regrtest_data", "directory"))
@@ -1686,6 +1751,90 @@ class TestCallbackOptions:
         content = tomllib.load(bytes_out)
         messages = content["tool"]["pylint"]["messages control"]["disable"]
         assert "useless-suppression" in messages, out
+
+    @staticmethod
+    def _generate_config(flag: str, *args: str) -> str:
+        output_stream = StringIO()
+        with _patch_streams(output_stream):
+            with pytest.raises(SystemExit):
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    Run(["--rcfile=", *args, flag])
+        return output_stream.getvalue()
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        ("flag", "suffix"),
+        [("--generate-toml-config", ".toml"), ("--generate-rcfile", ".rc")],
+    )
+    def test_generated_config_includes_plugins_from_command_line(
+        flag: str, suffix: str, tmp_path: Path
+    ) -> None:
+        """The plugins given with --load-plugins are written to the generated config.
+
+        Otherwise the options of these plugins are written without the plugins that
+        define them, and pylint rejects its own output.
+        """
+        generated = TestCallbackOptions._generate_config(
+            flag, "--load-plugins=pylint.extensions.mccabe"
+        )
+        assert "max-complexity" in generated
+
+        config_file = tmp_path / f"generated{suffix}"
+        config_file.write_text(generated, encoding="utf-8")
+        # No --load-plugins this time: the generated file has to be enough
+        runner = Run(
+            [join(HERE, "regrtest_data", "empty.py"), f"--rcfile={config_file}"],
+            exit=False,
+        )
+        assert not runner.linter.msg_status, generated
+        assert "pylint.extensions.mccabe" in runner.linter._dynamic_plugins
+
+    @staticmethod
+    def test_generated_toml_config_includes_all_extensions() -> None:
+        """--enable-all-extensions loads the extensions, so the config lists them."""
+        generated = TestCallbackOptions._generate_config(
+            "--generate-toml-config", "--enable-all-extensions"
+        )
+        plugins = tomllib.loads(generated)["tool"]["pylint"]["main"]["load-plugins"]
+        assert "pylint.extensions.mccabe" in plugins
+        assert "pylint.extensions.docparams" in plugins
+
+    @staticmethod
+    def test_generated_toml_config_lists_a_plugin_once(tmp_path: Path) -> None:
+        """A plugin from the config file and the command line is written only once."""
+        rcfile = tmp_path / "pylintrc"
+        rcfile.write_text(
+            "[MAIN]\nload-plugins=pylint.extensions.mccabe\n", encoding="utf-8"
+        )
+        output_stream = StringIO()
+        with _patch_streams(output_stream):
+            with pytest.raises(SystemExit):
+                Run(
+                    [
+                        f"--rcfile={rcfile}",
+                        "--load-plugins=pylint.extensions.mccabe,pylint.extensions.docparams",
+                        "--generate-toml-config",
+                    ]
+                )
+        plugins = tomllib.loads(output_stream.getvalue())["tool"]["pylint"]["main"][
+            "load-plugins"
+        ]
+        assert plugins == ["pylint.extensions.mccabe", "pylint.extensions.docparams"]
+
+    @staticmethod
+    def test_generated_toml_config_without_plugins_has_no_load_plugins() -> None:
+        generated = TestCallbackOptions._generate_config("--generate-toml-config")
+        assert "load-plugins" not in tomllib.loads(generated)["tool"]["pylint"]["main"]
+
+    @staticmethod
+    def test_generated_toml_config_skips_plugins_that_cannot_be_loaded() -> None:
+        generated = TestCallbackOptions._generate_config(
+            "--generate-toml-config",
+            "--load-plugins=pylint.extensions.mccabe,not_a_pylint_plugin",
+        )
+        plugins = tomllib.loads(generated)["tool"]["pylint"]["main"]["load-plugins"]
+        assert plugins == ["pylint.extensions.mccabe"]
 
     @staticmethod
     def test_errors_only() -> None:

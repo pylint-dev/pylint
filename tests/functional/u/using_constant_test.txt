@@ -28,3 +28,5 @@ comparison-of-constants:117:3:117:8::"Comparison between constants: ""2 < 3"" ha
 using-constant-test:156:0:157:8::Using a conditional statement with a constant value:INFERENCE
 using-constant-test:168:3:168:4::Using a conditional statement with a constant value:INFERENCE
 using-constant-test:177:0:178:8::Using a conditional statement with a constant value:INFERENCE
+using-constant-test:223:11:223:25:DecoratedMethods.check:Using a conditional statement with a constant value:INFERENCE
+using-constant-test:225:11:225:22:DecoratedMethods.check:Using a conditional statement with a constant value:INFERENCE

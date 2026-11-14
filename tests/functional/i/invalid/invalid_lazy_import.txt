@@ -1,0 +1,7 @@
+invalid-lazy-import:10:4:10:20:in_function:Lazy import is not allowed inside a function:HIGH
+invalid-lazy-import:15:4:15:19:InClass:Lazy import is not allowed inside a class body:HIGH
+invalid-lazy-import:19:4:19:20::Lazy import is not allowed inside a try statement:HIGH
+invalid-lazy-import:26:4:26:20::Lazy import is not allowed inside a try statement:HIGH
+invalid-lazy-import:28:4:28:19::Lazy import is not allowed inside a try statement:HIGH
+invalid-lazy-import:30:4:30:20::Lazy import is not allowed inside a try statement:HIGH
+invalid-lazy-import:32:0:32:23::Lazy import is not allowed as a wildcard import:HIGH

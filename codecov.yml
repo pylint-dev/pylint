@@ -5,6 +5,8 @@ coverage:
         target: 100%
     project:
       default:
-        target: 95%
+        # Reported but never blocking: new code is held to 100% by the patch
+        # status, and the total moves when the way it is measured changes.
+        informational: true
 comment:
   layout: "reach, diff, flags, files"

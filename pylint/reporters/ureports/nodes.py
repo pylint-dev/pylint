@@ -10,12 +10,11 @@ A micro report is a tree of layout and content objects.
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Iterator
-from typing import Any, TypeVar
+from typing import Any, Self, TypeVar
 
 from pylint.reporters.ureports.base_writer import BaseWriter
 
 _T = TypeVar("_T")
-_VNodeT = TypeVar("_VNodeT", bound="VNode")
 VisitLeaveFunction = Callable[[_T, Any, Any], None]
 
 
@@ -28,20 +27,12 @@ class VNode:
     def __iter__(self) -> Iterator[VNode]:
         return iter(self.children)
 
-    def accept(  # noqa: PYI019
-        self: _VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any
-    ) -> None:
-        func: VisitLeaveFunction[_VNodeT] = getattr(
-            visitor, f"visit_{self.visitor_name}"
-        )
+    def accept(self: Self, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
+        func: VisitLeaveFunction[Self] = getattr(visitor, f"visit_{self.visitor_name}")
         return func(self, *args, **kwargs)
 
-    def leave(  # noqa: PYI019
-        self: _VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any
-    ) -> None:
-        func: VisitLeaveFunction[_VNodeT] = getattr(
-            visitor, f"leave_{self.visitor_name}"
-        )
+    def leave(self: Self, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
+        func: VisitLeaveFunction[Self] = getattr(visitor, f"leave_{self.visitor_name}")
         return func(self, *args, **kwargs)
 
 

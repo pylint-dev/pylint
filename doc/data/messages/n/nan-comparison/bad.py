@@ -1,5 +1,8 @@
+import math
+
 import numpy as np
 
 
-def both_nan(x, y) -> bool:
-    return x == np.NaN and y == float("nan")  # [nan-comparison, nan-comparison]
+def both_unknown(apple, banana) -> bool:
+    # Nothing equals NaN, not even NaN itself, so this is always False
+    return apple == math.nan and banana == np.nan  # [nan-comparison, nan-comparison]

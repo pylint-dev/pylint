@@ -1,0 +1,4 @@
+Document the ``no-header`` output format and the use of a custom reporter class
+with ``--output-format``.
+
+Closes #11595

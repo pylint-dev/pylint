@@ -134,3 +134,65 @@ def test_possible_exc_types_raising_potential_none() -> None:
     raise a()  #@
     """)
     assert utils.possible_exc_types(raise_node) == set()
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        """
+    def my_func():
+        raise sum  #@
+    """,
+        """
+    import os
+    def my_func():
+        raise os  #@
+    """,
+        """
+    def my_func():
+        try:
+            fake_func()
+        except sum:
+            raise  #@
+    """,
+    ],
+)
+def test_possible_exc_types_non_exception(code: str) -> None:
+    """Inference is not restricted to exception classes.
+
+    A name can resolve to a function or a module, neither of which implements
+    ``ancestors()``; such objects must not be reported as raised exceptions.
+    """
+    raise_node = astroid.extract_node(code)
+    assert utils.possible_exc_types(raise_node) == set()
+
+
+def test_possible_exc_types_instance() -> None:
+    """An exception *instance* is kept.
+
+    It is not a ``ClassDef``, but it proxies ``name`` and ``ancestors`` to the
+    class it wraps, so it is still usable by the callers.
+    """
+    raise_node = astroid.extract_node("""
+    def my_func():
+        err = ValueError("hi")
+        raise err  #@
+    """)
+    found_nodes = utils.possible_exc_types(raise_node)
+    assert {node.name for node in found_nodes} == {"ValueError"}
+    assert {ancestor.name for node in found_nodes for ancestor in node.ancestors()} >= {
+        "Exception"
+    }
+
+
+def test_get_setters_property_with_non_function_attr() -> None:
+    """Test get_setters_property when a class attribute sharing property name is not a function (#11287)."""
+    node = astroid.extract_node("""
+    class C:
+        prop = None
+
+        @prop.setter
+        def prop(self, value): #@
+            raise Exception
+    """)
+    assert utils.get_setters_property(node) is None

@@ -1,3 +1,0 @@
-Fix `--known_third_party` config being ignored.
-
-Closes #10801

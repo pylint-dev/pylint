@@ -4,10 +4,11 @@
 
 from __future__ import annotations
 
-import pickle
+import json
 import sys
 import warnings
 from pathlib import Path
+from typing import Any
 
 from pylint.constants import PYLINT_HOME
 from pylint.utils import LinterStats
@@ -27,6 +28,31 @@ def _get_pdata_path(
     return pylint_home / f"{underscored_name}_{recurs}.stats"
 
 
+def _stats_to_dict(stats: LinterStats) -> dict[str, Any]:
+    """Turn ``stats`` into a JSON-serializable dict.
+
+    Every field is JSON-native except the two ``set`` fields, which are stored as
+    lists and rebuilt in :func:`_stats_from_dict`.
+    """
+    data = dict(stats.__dict__)
+    data["modules_names"] = sorted(stats.modules_names)
+    data["dependencies"] = {
+        module: sorted(deps) for module, deps in stats.dependencies.items()
+    }
+    return data
+
+
+def _stats_from_dict(data: dict[str, Any]) -> LinterStats:
+    """Inverse of :func:`_stats_to_dict`."""
+    stats = LinterStats()
+    stats.__dict__.update(data)
+    stats.modules_names = set(data.get("modules_names", []))
+    stats.dependencies = {
+        module: set(deps) for module, deps in data.get("dependencies", {}).items()
+    }
+    return stats
+
+
 def load_results(
     base: str | Path, pylint_home: str | Path = PYLINT_HOME
 ) -> LinterStats | None:
@@ -38,19 +64,21 @@ def load_results(
         return None
 
     try:
-        with open(data_file, "rb") as stream:
-            data = pickle.load(stream)
-            if not isinstance(data, LinterStats):
-                warnings.warn(
-                    "You're using an old pylint cache with invalid data following "
-                    f"an upgrade, please delete '{data_file}'.",
-                    UserWarning,
-                    stacklevel=2,
-                )
-                raise TypeError
-            return data
+        with open(data_file, encoding="utf-8") as stream:
+            data = json.load(stream)
+        stats = _stats_from_dict(data) if isinstance(data, dict) else data
+        if not isinstance(stats, LinterStats):
+            warnings.warn(
+                "You're using an old pylint cache with invalid data following "
+                f"an upgrade, please delete '{data_file}'.",
+                UserWarning,
+                stacklevel=2,
+            )
+            raise TypeError
+        return stats
     except Exception:  # pylint: disable=broad-except
-        # There's an issue with the cache but we just continue as if it isn't there
+        # There's an issue with the cache but we just continue as if it isn't
+        # there. pylint never loads a cache file with pickle.
         return None
 
 
@@ -63,9 +91,9 @@ def save_results(
         pylint_home.mkdir(parents=True, exist_ok=True)
     except OSError:  # pragma: no cover
         print(f"Unable to create directory {pylint_home}", file=sys.stderr)
-    data_file = _get_pdata_path(base, 1)
+    data_file = _get_pdata_path(base, 1, pylint_home)
     try:
-        with open(data_file, "wb") as stream:
-            pickle.dump(results, stream)
+        with open(data_file, "w", encoding="utf-8") as stream:
+            json.dump(_stats_to_dict(results), stream)
     except OSError as ex:  # pragma: no cover
         print(f"Unable to create file {data_file}: {ex}", file=sys.stderr)

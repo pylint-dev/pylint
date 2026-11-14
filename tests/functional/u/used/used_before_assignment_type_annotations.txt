@@ -3,3 +3,7 @@ used-before-assignment:28:10:28:18:value_assignment_after_access:Using variable 
 undefined-variable:62:14:62:17:decorator_returning_incorrect_function.wrapper_with_type_and_no_value:Undefined variable 'var':HIGH
 possibly-used-before-assignment:97:17:97:21:conditional_annotated_assignment:Possibly using variable 'data' before assignment:CONTROL_FLOW
 possibly-used-before-assignment:108:17:108:21:loop_conditional_annotated_assignment:Possibly using variable 'data' before assignment:CONTROL_FLOW
+used-before-assignment:121:14:121:24:bare_annotation_except_assignment:Using variable 'error_code' before assignment:CONTROL_FLOW
+used-before-assignment:142:14:142:19:bare_annotation_try_finally:Using variable 'value' before assignment:CONTROL_FLOW
+used-before-assignment:151:14:151:19:bare_annotation_try_except:Using variable 'value' before assignment:CONTROL_FLOW
+used-before-assignment:213:14:213:24:bare_annotation_except_with_if_elif:Using variable 'error_code' before assignment:CONTROL_FLOW

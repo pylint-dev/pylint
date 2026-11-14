@@ -1,4 +1,0 @@
-Fixed inflated message occurrence counts in the final ``Messages`` report when
-running pylint in parallel mode with ``--jobs`` greater than 1.
-
-Closes #10996

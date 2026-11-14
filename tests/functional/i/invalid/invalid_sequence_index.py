@@ -244,3 +244,11 @@ def function28():
         pass
 
     return Works['hello'] + Error['hello']
+
+
+# https://github.com/pylint-dev/pylint/issues/9683
+def range_attributes_as_index():
+    """``range.start``, ``stop`` and ``step`` are ints."""
+    letters = ["A", "B", "C"]
+    indexes = range(3)
+    return letters[indexes.start] + letters[indexes.stop] + letters[indexes.step]

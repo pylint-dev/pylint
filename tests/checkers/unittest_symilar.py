@@ -2,6 +2,7 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
+from collections.abc import Generator
 from contextlib import redirect_stdout
 from io import BytesIO, StringIO
 from pathlib import Path
@@ -574,3 +575,47 @@ def test_hash_bucket_product_limit_fallback(
     assert "15 similar lines in 2 files" in out
     assert f"=={file_a}:[0:15]" in out
     assert f"=={file_b}:[0:15]" in out
+
+
+def test_three_identical_files_are_reported_together(tmp_path: Path) -> None:
+    block = "def f(a):\n    x = a + 1\n    y = x * 2\n    z = y - 3\n    w = z / 4\n    return w\n"
+    paths = []
+    for name in ("a.py", "b.py", "c.py"):
+        path = tmp_path / name
+        path.write_text(block, encoding="utf-8")
+        paths.append(str(path))
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+        symilar.Run(paths)
+    assert ex.value.code == 0
+    out = output.getvalue()
+    assert "6 similar lines in 3 files" in out
+    for path in paths:
+        assert f"=={path}:[0:6]" in out
+    assert "duplicates=12" in out
+
+
+def test_compute_sims_merges_groups_joined_by_a_later_pair(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Pairs (a, b), (c, d) then (b, c) end up as one group of four chunks."""
+    linesets = [LineSet(name, ["x = 1\n"]) for name in "abcd"]
+    a, b, c, d = linesets
+
+    def fake_iter_sims(_: Symilar) -> Generator[symilar.Commonality]:
+        for first, second in ((a, b), (c, d), (b, c)):
+            yield symilar.Commonality(
+                cmn_lines_nb=5,
+                fst_lset=first,
+                fst_file_start=symilar.LineNumber(0),
+                fst_file_end=symilar.LineNumber(5),
+                snd_lset=second,
+                snd_file_start=symilar.LineNumber(0),
+                snd_file_end=symilar.LineNumber(5),
+            )
+
+    monkeypatch.setattr(Symilar, "_iter_sims", fake_iter_sims)
+    sims = Symilar()._compute_sims()
+    assert len(sims) == 1
+    assert sims[0][0] == 5
+    assert {lineset for lineset, _, _ in sims[0][1]} == set(linesets)

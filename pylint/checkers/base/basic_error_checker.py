@@ -313,6 +313,13 @@ class BasicErrorChecker(_BasicChecker):
         if isinstance(node.parent, (nodes.List, nodes.Tuple, nodes.Set, nodes.Dict)):
             # PEP 448 unpacking.
             return
+        if (
+            isinstance(node.parent, (nodes.ListComp, nodes.SetComp, nodes.GeneratorExp))
+            and node.parent.elt is node
+        ):
+            # PEP 798 unpacking in comprehensions (Python 3.15+), e.g.
+            # ``[*L for L in lists]``.
+            return
 
         stmt = node.statement()
         if not isinstance(stmt, nodes.Assign):
@@ -444,6 +451,8 @@ class BasicErrorChecker(_BasicChecker):
     @utils.only_required_for_messages("useless-else-on-loop")
     def visit_for(self, node: nodes.For) -> None:
         self._check_else_on_loop(node)
+
+    visit_asyncfor = visit_for
 
     @utils.only_required_for_messages("useless-else-on-loop")
     def visit_while(self, node: nodes.While) -> None:

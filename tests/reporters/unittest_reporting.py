@@ -173,13 +173,16 @@ class NopReporter(BaseReporter):
 def test_multi_format_output(tmp_path: Path) -> None:
     text = StringIO(newline=None)
     json = tmp_path / "somefile.json"
+    nop_output = tmp_path / "nop.txt"
 
     source_file = tmp_path / "somemodule.py"
     source_file.write_text('NOT_EMPTY = "This module is not empty"\n')
     dumps(str(source_file))
 
     nop_format = NopReporter.__module__ + "." + NopReporter.__name__
-    formats = ",".join(["json2:" + str(json), "text", nop_format])
+    formats = ",".join(
+        ["json2:" + str(json), "text", nop_format + ":" + str(nop_output)]
+    )
 
     with redirect_stdout(text):
         linter = PyLinter()
@@ -301,8 +304,8 @@ def test_multi_format_output(tmp_path: Path) -> None:
         "\n"
         "\n"
         "\n"
-        "-----------------------------------\n"
-        "Your code has been rated at 0.00/10\n"
+        "----------------------------------------------------------------------\n"
+        "Your code has been rated at 0.00/10 -- below fail-under threshold (10)\n"
         "\n"
         "direct output\n"
     )

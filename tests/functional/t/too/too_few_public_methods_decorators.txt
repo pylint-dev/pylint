@@ -1,0 +1,4 @@
+too-few-public-methods:79:0:79:25:UserDecoratorNamedS:Too few public methods (0/2):UNDEFINED
+too-few-public-methods:84:0:84:31:UserDecoratorNamedMutable:Too few public methods (0/2):UNDEFINED
+too-few-public-methods:90:0:90:30:DecoratorFromLocalObject:Too few public methods (0/2):UNDEFINED
+too-few-public-methods:96:0:96:33:DecoratorFromRelativeImport:Too few public methods (0/2):UNDEFINED

@@ -1,3 +1,0 @@
-Fix false positive ``method-hidden`` when ``cached_property`` is imported directly with ``from functools import cached_property``.
-
-Refs #11037

@@ -1,0 +1,3 @@
+Document TOML escaping and the reserved backslashes in the ignore-paths option.
+
+Closes #6963

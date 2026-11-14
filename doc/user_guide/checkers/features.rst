@@ -15,6 +15,8 @@ Pylint checkers can provide three set of features:
 
 Below is a list of all checkers and their features.
 
+.. _async-checker:
+
 Async checker
 ~~~~~~~~~~~~~
 
@@ -31,6 +33,8 @@ Async checker Messages
   emitted when using Python < 3.5.
 
 
+.. _bad-chained-comparison-checker:
+
 Bad-Chained-Comparison checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -43,6 +47,8 @@ Bad-Chained-Comparison checker Messages
   comparisons that belong to different semantic groups ("<" does not mean the
   same thing as "is", chaining them in "0 < x is None" is probably a mistake).
 
+
+.. _basic-checker:
 
 Basic checker
 ~~~~~~~~~~~~~
@@ -188,7 +194,7 @@ Basic checker Messages
   a try...finally block: the exceptions raised in the try clause will be
   silently swallowed instead of being re-raised.
 :nan-comparison (W0177): *Comparison %s should be %s*
-  Used when an expression is compared to NaN values like numpy.NaN and
+  Used when an expression is compared to NaN values like math.nan, numpy.nan or
   float('nan').
 :assert-on-tuple (W0199): *Assert called on a populated tuple. Did you mean 'assert x,y'?*
   A call of assert on a tuple will always evaluate to true if the tuple is not
@@ -244,6 +250,8 @@ Basic checker Reports
 ^^^^^^^^^^^^^^^^^^^^^
 :RP0101: Statistics by type
 
+
+.. _classes-checker:
 
 Classes checker
 ~~~~~~~~~~~~~~~
@@ -402,6 +410,8 @@ Classes checker Messages
   an unexpected reason. Please report this kind if you don't make sense of it.
 
 
+.. _dataclass-checker:
+
 Dataclass checker
 ~~~~~~~~~~~~~~~~~
 
@@ -413,6 +423,8 @@ Dataclass checker Messages
   The dataclasses.field() specifier should only be used as the value of an
   assignment within a dataclass, or within the make_dataclass() function.
 
+
+.. _design-checker:
 
 Design checker
 ~~~~~~~~~~~~~~
@@ -452,6 +464,8 @@ Design checker Messages
 :too-many-positional-arguments (R0917): *Too many positional arguments (%s/%s)*
   Used when a function has too many positional arguments.
 
+
+.. _exceptions-checker:
 
 Exceptions checker
 ~~~~~~~~~~~~~~~~~~
@@ -527,6 +541,8 @@ Exceptions checker Messages
   unrelated errors are hidden.
 
 
+.. _format-checker:
+
 Format checker
 ~~~~~~~~~~~~~~
 
@@ -562,6 +578,8 @@ Format checker Messages
   Used when there is different newline than expected.
 
 
+.. _imports-checker:
+
 Imports checker
 ~~~~~~~~~~~~~~~
 
@@ -576,6 +594,11 @@ Imports checker Messages
 :relative-beyond-top-level (E0402): *Attempted relative import beyond top-level package*
   Used when a relative import tries to access too many levels in the current
   package.
+:invalid-lazy-import (E0403): *Lazy import is not allowed %s*
+  Emitted when a PEP 810 ``lazy`` import is used where Python forbids it:
+  inside a function, a class body or a ``try`` statement, or as a wildcard
+  import. This is a SyntaxError. This message can't be emitted when using
+  Python < 3.15.
 :wildcard-import (W0401): *Wildcard import %s*
   Used when `from module import *` is detected.
 :reimported (W0404): *Reimport %r (imported line %s)*
@@ -619,6 +642,8 @@ Imports checker Reports
 :RP0402: Modules dependencies graph
 
 
+.. _lambda-expressions-checker:
+
 Lambda-Expressions checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -633,6 +658,8 @@ Lambda-Expressions checker Messages
   Used when a lambda expression is directly called rather than executing its
   contents inline.
 
+
+.. _logging-checker:
 
 Logging checker
 ~~~~~~~~~~~~~~~
@@ -676,6 +703,24 @@ Logging checker Messages
   formatting as normal.
 
 
+.. _looping-through-iterator-checker:
+
+Looping-Through-Iterator checker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Verbatim name of the checker is ``looping-through-iterator``.
+
+Looping-Through-Iterator checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:looping-through-iterator (W4801): *Iterator '%s' from an outer scope is reused or consumed in a nested loop.*
+  Used when an iterator defined in an outer loop scope is consumed in a nested
+  loop. Because iterators are stateful and exhausted upon consumption, the
+  inner loop will fully consume the iterator during the first iteration of the
+  outer loop, leaving it empty for all subsequent iterations.
+
+
+.. _match_statements-checker:
+
 Match Statements checker
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -702,6 +747,8 @@ Match Statements checker Messages
   skip the `__match_args__` lookup.
 
 
+.. _method_args-checker:
+
 Method Args checker
 ~~~~~~~~~~~~~~~~~~~
 
@@ -721,6 +768,8 @@ Method Args checker Messages
   indefinitely).
 
 
+.. _metrics-checker:
+
 Metrics checker
 ~~~~~~~~~~~~~~~
 
@@ -730,6 +779,8 @@ Metrics checker Reports
 ^^^^^^^^^^^^^^^^^^^^^^^
 :RP0701: Raw metrics
 
+
+.. _miscellaneous-checker:
 
 Miscellaneous checker
 ~~~~~~~~~~~~~~~~~~~~~
@@ -745,6 +796,8 @@ Miscellaneous checker Messages
 :use-symbolic-message-instead (I0023):
   Used when a message is enabled or disabled by id.
 
+
+.. _modified_iteration-checker:
 
 Modified Iteration checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -765,6 +818,8 @@ Modified Iteration checker Messages
   use a copy of the list.
 
 
+.. _nested_min_max-checker:
+
 Nested Min Max checker
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -775,6 +830,8 @@ Nested Min Max checker Messages
 :nested-min-max (W3301): *Do not use nested call of '%s'; it's possible to do '%s' instead*
   Nested calls ``min(1, min(2, 3))`` can be rewritten as ``min(1, 2, 3)``.
 
+
+.. _newstyle-checker:
 
 Newstyle checker
 ~~~~~~~~~~~~~~~~
@@ -787,6 +844,8 @@ Newstyle checker Messages
   Used when another argument than the current class is given as first argument
   of the super builtin.
 
+
+.. _nonascii-checker-checker:
 
 Nonascii-Checker checker
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -812,6 +871,8 @@ Nonascii-Checker checker Messages
   programming in English, then there should be no need for non ASCII characters
   in Python Names. If not you can simply disable this check.
 
+
+.. _refactoring-checker:
 
 Refactoring checker
 ~~~~~~~~~~~~~~~~~~~
@@ -876,7 +937,7 @@ Refactoring checker Messages
   Using the builtin dict.get for getting a value from a dictionary if a key is
   present or a default if not, is simpler and considered more idiomatic,
   although sometimes a bit slower
-:chained-comparison (R1716): *Simplify chained comparison between the operands*
+:chained-comparison (R1716): *Simplify chained comparison between the operands: %s*
   This message is emitted when pylint encounters boolean operation like "a < b
   and b < c", suggesting instead to refactor it to "a < b < c"
 :consider-using-dict-comprehension (R1717): *Consider using a dictionary comprehension*
@@ -949,6 +1010,13 @@ Refactoring checker Messages
 :use-yield-from (R1737): *Use 'yield from' directly instead of yielding each element one by one*
   Yielding directly from the iterator is faster and arguably cleaner code than
   yielding each element one by one in the loop.
+:chained-comparison-all-equal (R1738): *Simplify chained comparison cycle to equality between the operands: %s*
+  Emitted when the operands of a boolean condition form a cycle of weak
+  inequalities (``<=`` or ``>=``). The condition is equivalent to checking that
+  all the operands are equal.
+:impossible-comparison (R1739): *This comparison always evaluates to False*
+  Emitted when a boolean condition contains a chain of comparisons that is
+  logically contradictory and can never be true (e.g. ``a > b and b > a``).
 :unnecessary-negation (C0117): *Consider changing "%s" to "%s"*
   Used when a boolean expression contains an unneeded negation, e.g. when two
   negation operators cancel each other out.
@@ -996,6 +1064,8 @@ Refactoring checker Messages
   string, or an empty sequence) the code will not be equivalent.
 
 
+.. _similarities-checker:
+
 Similarities checker
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -1015,6 +1085,8 @@ Similarities checker Reports
 :RP0801: Duplication
 
 
+.. _spelling-checker:
+
 Spelling checker
 ~~~~~~~~~~~~~~~~
 
@@ -1031,6 +1103,8 @@ Spelling checker Messages
 :invalid-characters-in-docstring (C0403): *Invalid characters %r in a docstring*
   Used when a word in docstring cannot be checked by enchant.
 
+
+.. _stdlib-checker:
 
 Stdlib checker
 ~~~~~~~~~~~~~~
@@ -1059,7 +1133,8 @@ Stdlib checker Messages
 :redundant-unittest-assert (W1503): *Redundant use of %s with constant value %r*
   The first argument of assertTrue and assertFalse is a condition. If a
   constant is passed as parameter, that condition will be always true. In this
-  case a warning should be emitted.
+  case a warning should be emitted. The same applies to assertEqual and
+  assertNotEqual when both compared values are constants.
 :bad-thread-instantiation (W1506): *threading.Thread needs the target function*
   The warning is emitted when a threading.Thread class is instantiated without
   the target function being passed as a kwarg or as a second argument. By
@@ -1107,6 +1182,8 @@ Stdlib checker Messages
 :deprecated-attribute (W4906): *Using deprecated attribute %r*
   The attribute is marked as deprecated and will be removed in the future.
 
+
+.. _string-checker:
 
 String checker
 ~~~~~~~~~~~~~~
@@ -1181,7 +1258,7 @@ String checker Messages
 :anomalous-backslash-in-string (W1401): *Anomalous backslash in string: '%s'. String constant might be missing an r prefix.*
   Used when a backslash is in a literal string but not as an escape.
 :anomalous-unicode-escape-in-string (W1402): *Anomalous Unicode escape in byte string: '%s'. String constant might be missing an r or u prefix.*
-  Used when an escape like \u is encountered in a byte string where it has no
+  Used when an escape like \\u is encountered in a byte string where it has no
   effect.
 :implicit-str-concat (W1404): *Implicit string concatenation found in %s*
   String literals are implicitly concatenated in a literal iterable definition
@@ -1195,6 +1272,8 @@ String checker Messages
   are Unicode by default.
 
 
+.. _threading-checker:
+
 Threading checker
 ~~~~~~~~~~~~~~~~~
 
@@ -1206,6 +1285,8 @@ Threading checker Messages
   Used when a new lock instance is created by using with statement which has no
   effect. Instead, an existing instance should be used to acquire lock.
 
+
+.. _typecheck-checker:
 
 Typecheck checker
 ~~~~~~~~~~~~~~~~~
@@ -1220,7 +1301,7 @@ Typecheck checker Messages
   Used when a variable is accessed for a nonexistent member.
 :not-callable (E1102): *%s is not callable*
   Used when an object being called has been inferred to a non callable object.
-:assignment-from-no-return (E1111): *Assigning result of a function call, where the function has no return*
+:assignment-from-no-return (E1111): *Assigning result of a function call, but %r returns None%s*
   Used when an assignment is done on a function call but the inferred function
   doesn't return anything.
 :no-value-for-parameter (E1120): *No value for argument %s in %s call*
@@ -1309,6 +1390,8 @@ Typecheck checker Messages
   performed by introspecting living objects in run-time.
 
 
+.. _unicode_checker-checker:
+
 Unicode Checker checker
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1330,26 +1413,28 @@ Unicode Checker checker Messages
   executing code, that does something else than what it looks like. More
   Information: https://en.wikipedia.org/wiki/Bidirectional_text
   https://trojansource.codes/
-:invalid-character-backspace (E2510): *Invalid unescaped character backspace, use "\b" instead.*
+:invalid-character-backspace (E2510): *Invalid unescaped character backspace, use "\\b" instead.*
   Moves the cursor back, so the character after it will overwrite the character
   before.
-:invalid-character-carriage-return (E2511): *Invalid unescaped character carriage-return, use "\r" instead.*
+:invalid-character-carriage-return (E2511): *Invalid unescaped character carriage-return, use "\\r" instead.*
   Moves the cursor to the start of line, subsequent characters overwrite the
   start of the line.
-:invalid-character-sub (E2512): *Invalid unescaped character sub, use "\x1A" instead.*
+:invalid-character-sub (E2512): *Invalid unescaped character sub, use "\\x1A" instead.*
   Ctrl+Z "End of text" on Windows. Some programs (such as type) ignore the rest
   of the file after it.
-:invalid-character-esc (E2513): *Invalid unescaped character esc, use "\x1B" instead.*
+:invalid-character-esc (E2513): *Invalid unescaped character esc, use "\\x1B" instead.*
   Commonly initiates escape codes which allow arbitrary control of the
   terminal.
-:invalid-character-nul (E2514): *Invalid unescaped character nul, use "\0" instead.*
+:invalid-character-nul (E2514): *Invalid unescaped character nul, use "\\0" instead.*
   Mostly end of input for python.
-:invalid-character-zero-width-space (E2515): *Invalid unescaped character zero-width-space, use "\u200B" instead.*
+:invalid-character-zero-width-space (E2515): *Invalid unescaped character zero-width-space, use "\\u200B" instead.*
   Invisible space character could hide real code execution.
 :bad-file-encoding (C2503): *PEP8 recommends UTF-8 as encoding for Python files*
   PEP8 recommends UTF-8 default encoding for Python files. See
   https://peps.python.org/pep-0008/#source-file-encoding
 
+
+.. _unnecessary-dunder-call-checker:
 
 Unnecessary-Dunder-Call checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1363,6 +1448,8 @@ Unnecessary-Dunder-Call checker Messages
   corresponding function/method/operator.
 
 
+.. _unnecessary_ellipsis-checker:
+
 Unnecessary Ellipsis checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1375,6 +1462,8 @@ Unnecessary Ellipsis checker Messages
   code consisting of an ellipsis is unnecessary if there is a docstring on the
   preceding line or if there is a statement in the same scope.
 
+
+.. _unsupported_version-checker:
 
 Unsupported Version checker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1401,7 +1490,15 @@ Unsupported Version checker Messages
 :using-positional-only-args-in-unsupported-version (W2606): *Positional-only arguments are not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.8 and pylint
   encounters positional-only arguments.
+:using-comprehension-unpacking-in-unsupported-version (W2607): *Unpacking in comprehensions is not supported by all versions included in the py-version setting*
+  Used when the py-version set by the user is lower than 3.15 and pylint
+  encounters the ``*`` or ``**`` unpacking added by PEP 798 in a comprehension.
+:using-lazy-import-in-unsupported-version (W2608): *Lazy imports are not supported by all versions included in the py-version setting*
+  Used when the py-version set by the user is lower than 3.15 and pylint
+  encounters the ``lazy`` import added by PEP 810.
 
+
+.. _variables-checker:
 
 Variables checker
 ~~~~~~~~~~~~~~~~~

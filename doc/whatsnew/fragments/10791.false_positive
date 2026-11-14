@@ -1,3 +1,0 @@
-Avoid emitting `unspecified-encoding` (W1514) when `py-version` is 3.15+.
-
-Refs #10791

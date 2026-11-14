@@ -1,0 +1,5 @@
+``invalid-envvar-default`` no longer flags a non-string default when the result
+is passed straight to ``int()``, ``float()`` or ``bool()``, as in
+``int(os.getenv("PORT", 8000))``.
+
+Refs #10092

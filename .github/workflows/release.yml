@@ -18,10 +18,12 @@ jobs:
     if: github.event_name == 'release'
     steps:
       - name: Check out code from Github
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v6.2.0
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
@@ -34,7 +36,7 @@ jobs:
         run: |
           python -m build
       - name: Upload release assets
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-assets
           path: dist/
@@ -50,13 +52,13 @@ jobs:
       id-token: write
     steps:
       - name: Download release assets
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release-assets
           path: dist/
       - name: Upload to PyPI
         if: github.event_name == 'release'
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # release/v1
 
   release-github:
     name: Upload assets to Github release
@@ -67,13 +69,13 @@ jobs:
       id-token: write
     steps:
       - name: Download release assets
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release-assets
           path: dist/
       - name: Sign the dists with Sigstore and upload assets to Github release
         if: github.event_name == 'release'
-        uses: sigstore/gh-action-sigstore-python@v3.4.0
+        uses: sigstore/gh-action-sigstore-python@790bc6befb9d733738f18d8f895854b453640ec9 # v3.5.0
         with:
           inputs: |
             ./dist/*.tar.gz

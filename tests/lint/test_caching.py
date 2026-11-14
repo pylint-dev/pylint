@@ -5,6 +5,7 @@
 # Pytest fixtures work like this by design
 # pylint: disable=redefined-outer-name
 
+import json
 import sys
 from pathlib import Path
 
@@ -115,10 +116,17 @@ def test_save_and_load_result(path: str, linter_stats: LinterStats) -> None:
 
 @pytest.mark.parametrize("path", [".tests", ".tests/a/path/"])
 def test_save_and_load_not_a_linter_stats(path: str) -> None:
-    # type ignore because this is what we're testing
-    save_results(1, path)  # type: ignore[arg-type]
+    # Write a cache that loads but is not a LinterStats (as the old test did with
+    # the int 1, now stored as JSON): it must be rejected with a warning.
+    data_file = _get_pdata_path(Path(path), 1)
+    data_file.parent.mkdir(parents=True, exist_ok=True)
+    data_file.write_text(json.dumps(1), encoding="utf-8")
     with pytest.warns(UserWarning) as warn:
         loaded = load_results(path)
         assert loaded is None
     warn_str = str(warn.pop().message)
     assert "old pylint cache with invalid data" in warn_str
+
+
+def test_load_results_is_none_when_there_is_no_cache(tmp_path: Path) -> None:
+    assert load_results("no-such-module", tmp_path) is None

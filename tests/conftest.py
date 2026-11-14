@@ -52,6 +52,13 @@ def linter(
     return _linter
 
 
+@pytest.fixture(autouse=True)
+def _no_color_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep the caller's NO_COLOR / FORCE_COLOR from changing the reporters."""
+    monkeypatch.delenv("NO_COLOR", raising=False)
+    monkeypatch.delenv("FORCE_COLOR", raising=False)
+
+
 @pytest.fixture(scope="module")
 def checker() -> None:
     return None

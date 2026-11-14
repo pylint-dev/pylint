@@ -1,6 +1,0 @@
-``implicit-str-concat`` is no longer emitted for an implicit concatenation of
-a raw string with a non-raw one (e.g. ``r"\d" "\n"``). Such literals cannot be
-merged into a single string, so the concatenation is intentional rather than a
-forgotten comma.
-
-Closes #6663

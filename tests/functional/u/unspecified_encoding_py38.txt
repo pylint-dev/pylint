@@ -39,3 +39,6 @@ unspecified-encoding:180:5:180:29::Using open without explicitly specifying an e
 unspecified-encoding:183:0:183:29::Using open without explicitly specifying an encoding:INFERENCE
 unspecified-encoding:186:0:186:44::Using open without explicitly specifying an encoding:INFERENCE
 unspecified-encoding:193:0:193:34::Using open without explicitly specifying an encoding:INFERENCE
+unspecified-encoding:210:11:210:31:open_with_text_default:Using open without explicitly specifying an encoding:INFERENCE
+unspecified-encoding:220:11:220:36:open_with_keyword_only_default:Using open without explicitly specifying an encoding:INFERENCE
+unspecified-encoding:225:11:225:36:path_open_with_text_default:Using open without explicitly specifying an encoding:INFERENCE

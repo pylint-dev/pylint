@@ -18,7 +18,7 @@
         "absolutePath": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py"
       },
       {
-        "type": "warning",
+        "type": "info",
         "module": "astropy.coordinates.angles.angle_parsetab",
         "obj": "",
         "line": 14,

@@ -26,7 +26,10 @@ the inference. Thus the ``require_serial`` option should be set to ``true`` if c
 are more important than parallelization to you.
 
 If you installed ``pylint`` locally it can be added to ``.pre-commit-config.yaml``
-as follows:
+as follows. As pylint is slow, a popular option is to run it only before pushing with a
+git ``pre-push`` hook instead of on every commit: you can do that with the ``stages``
+option, as documented in `pre-commit's guide on confining hooks to run at certain
+stages <https://pre-commit.com/#confining-hooks-to-run-at-certain-stages>`_:
 
 .. sourcecode:: yaml
 
@@ -37,6 +40,7 @@ as follows:
         entry: pylint
         language: system
         types: [python]
+        stages: [push]
         require_serial: true
         args:
           [
@@ -44,8 +48,9 @@ as follows:
             "-sn", # Don't display the score
           ]
 
-You can use ``args`` to pass command line arguments as described in the :ref:`tutorial`.
-A hook with more arguments could look something like this:
+If you want to keep running pylint on every commit, simply omit the ``stages``
+option. You can use ``args`` to pass command line arguments as described in the
+:ref:`tutorial`. A hook with more arguments could look something like this:
 
 .. sourcecode:: yaml
 

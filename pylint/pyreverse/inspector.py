@@ -150,9 +150,13 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         # resolve instance attributes
         for assignattrs in tuple(node.instance_attrs.values()):
             for assignattr in assignattrs:
-                if not isinstance(assignattr, nodes.Unknown):
+                if isinstance(assignattr, nodes.Unknown):
+                    continue
+                # Brains (namedtuple, argparse) add ``EmptyNode`` placeholders
+                # with an ``attrname`` but no value: no relationship to draw.
+                if not isinstance(assignattr, nodes.EmptyNode):
                     self.compositions_handler.handle(assignattr, node, info)
-                    self.handle_assignattr_type(assignattr, info)
+                self.handle_assignattr_type(assignattr, info)
 
         # Process class attributes
         for local_nodes in node.locals.values():

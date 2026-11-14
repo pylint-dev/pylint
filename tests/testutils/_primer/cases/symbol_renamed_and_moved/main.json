@@ -1,0 +1,22 @@
+{
+  "astroid": {
+    "commit": "1234567890abcdef",
+    "messages": [
+      {
+        "type": "error",
+        "module": "astroid.wcs",
+        "obj": "WCS.fix",
+        "line": 3072,
+        "column": 12,
+        "endLine": 3072,
+        "endColumn": 20,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/wcs.py",
+        "symbol": "used-before-assignment",
+        "message": "Using variable 'orig_key' before assignment",
+        "messageId": "E0601",
+        "confidence": "HIGH",
+        "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/wcs.py"
+      }
+    ]
+  }
+}

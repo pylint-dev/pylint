@@ -76,7 +76,7 @@ If working on astroid changes:
 - `python -m tox -epylint` -- run pylint on pylint's codebase
 - `python -m tox -eformatting` -- run formatting checks
 - `python -m tox --recreate` -- recreate environments (recommended)
-- `python -m tox -e py310 -- -k test_functional` -- run specific tests in tox
+- `python -m tox -e py311 -- -k test_functional` -- run specific tests in tox
 
 ## Documentation
 

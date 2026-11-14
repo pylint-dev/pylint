@@ -92,15 +92,15 @@ MessageTypesFullName = Literal[
 
 OptionDict = dict[
     str,
-    None
-    | str
+    str
     | bool
     | int
     | Pattern[str]
     | Iterable[str | int | Pattern[str]]
     | type["_CallbackAction"]
     | Callable[[Any], Any]
-    | Callable[[Any, Any, Any, Any], Any],
+    | Callable[[Any, Any, Any, Any], Any]
+    | None,
 ]
 Options = tuple[tuple[str, OptionDict], ...]
 

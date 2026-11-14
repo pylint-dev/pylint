@@ -1,0 +1,10 @@
+Fix ``unused-import`` false positives for names used only in the ``metaclass=``
+argument of a class defined inside another class or inside a block such as an
+``if``, or within a more complex expression like a conditional expression, a
+call argument, a lambda or a comprehension. A name already used before such a
+class is also no longer reported as ``undefined-variable`` when the metaclass
+cannot be inferred. The names of a class body are no longer resolved from the
+metaclass of a class defined in one of its methods, where they are not visible:
+``undefined-variable`` is now reported for them, as for the bases.
+
+Closes #1630

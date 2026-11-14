@@ -4,3 +4,7 @@ redundant-unittest-assert:26:8:26:39:Tests.test_something:Redundant use of asser
 redundant-unittest-assert:28:8:28:41:Tests.test_something:Redundant use of assertFalse with constant value False:UNDEFINED
 redundant-unittest-assert:30:8:30:40:Tests.test_something:Redundant use of assertFalse with constant value None:UNDEFINED
 redundant-unittest-assert:32:8:32:36:Tests.test_something:Redundant use of assertTrue with constant value 0:UNDEFINED
+redundant-unittest-assert:52:8:52:30:ConstantComparisons.test_constants:Redundant use of assertEqual with constant value (5, 5):UNDEFINED
+redundant-unittest-assert:54:8:54:30:ConstantComparisons.test_constants:Redundant use of assertEqual with constant value (5, 6):UNDEFINED
+redundant-unittest-assert:56:8:56:55:ConstantComparisons.test_constants:Redundant use of assertNotEqual with constant value ('a', 'a'):UNDEFINED
+redundant-unittest-assert:58:8:58:36:ConstantComparisons.test_constants:Redundant use of assertEqual with constant value (None, None):UNDEFINED

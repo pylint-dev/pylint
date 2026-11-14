@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites tests="1" errors="0" failures="1" disabled="0" time="0">
+  <testsuite name="junit_syntax_error" tests="1" errors="0" failures="1" skipped="0" disabled="0" time="0">
+    <testcase name="junit_syntax_error:3:13" classname="pylint" file="junit_syntax_error.py" line="3" class="error">
+      <failure type="error" message="syntax-error">E0001:Parsing failed: ''(' was never closed (junit_syntax_error, lines 3-5)'
+junit_syntax_error.py:3:13:def function(</failure>
+      <system-out>junit_syntax_error.py:3:13:def function(</system-out>
+      <system-err>E0001:Parsing failed: ''(' was never closed (junit_syntax_error, lines 3-5)'
+junit_syntax_error.py:3:13:def function(</system-err>
+    </testcase>
+  </testsuite>
+</testsuites>

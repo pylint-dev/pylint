@@ -15,7 +15,6 @@ from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
     from pylint.checkers import BaseChecker
-    from pylint.lint.pylinter import PyLinter
 
 ReportsDict = collections.defaultdict[
     "BaseChecker", list[tuple[str, str, ReportsCallable]]
@@ -26,6 +25,9 @@ class ReportsHandlerMixIn:
     """A mix-in class containing all the reports and stats manipulation
     related methods for the main lint class.
     """
+
+    # Set by the class this is mixed into (PyLinter)
+    stats: LinterStats
 
     def __init__(self) -> None:
         self._reports: ReportsDict = collections.defaultdict(list)
@@ -67,8 +69,8 @@ class ReportsHandlerMixIn:
         """Is the report associated to the given identifier enabled ?"""
         return self._reports_state.get(reportid, True)
 
-    def make_reports(  # type: ignore[misc] # ReportsHandlerMixIn is always mixed with PyLinter
-        self: PyLinter,
+    def make_reports(
+        self,
         stats: LinterStats,
         old_stats: LinterStats | None,
     ) -> Section:

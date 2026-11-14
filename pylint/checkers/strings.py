@@ -223,18 +223,20 @@ def get_access_path(key: str | Literal[0], parts: list[tuple[bool, str]]) -> str
 def arg_matches_format_type(
     arg_type: SuccessfulInferenceResult, format_type: str
 ) -> bool:
-    if format_type in "sr":
-        # All types can be printed with %s and %r
+    if format_type in "sra":
+        # All types can be printed with %s, %r and %a
         return True
     if isinstance(arg_type, astroid.Instance):
-        match arg_type.pytype():
-            case "builtins.str":
-                return format_type == "c"
-            case "builtins.float":
-                return format_type in "deEfFgGn%"
-            case "builtins.int":
-                # Integers allow all types
-                return True
+        # Subclasses behave like their builtin base: ``bool`` and ``IntEnum``
+        # members format like ``int``, a ``float`` subclass like ``float``.
+        if arg_type.is_subtype_of("builtins.str"):
+            return format_type == "c"
+        if arg_type.is_subtype_of("builtins.int"):
+            # Integers allow all types
+            return True
+        if arg_type.is_subtype_of("builtins.float"):
+            # ``i`` and ``u`` accept a float at runtime (truncated like ``d``)
+            return format_type in "diueEfFgGn%"
         return False
     return True
 
@@ -841,7 +843,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
 
         # First, figure out which quote character predominates in the module
         for tok_type, token, _, _, _ in tokens:
-            if sys.version_info[:2] >= (3, 12):
+            if sys.version_info >= (3, 12):
                 # pylint: disable=no-member,useless-suppression
                 match tok_type:
                     case tokenize.FSTRING_START:

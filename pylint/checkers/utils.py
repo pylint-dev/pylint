@@ -13,6 +13,7 @@ import itertools
 import numbers
 import re
 import string
+import warnings
 from collections.abc import Callable, Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
@@ -55,6 +56,13 @@ TYPING_PROTOCOLS = frozenset(
     {"typing.Protocol", "typing_extensions.Protocol", ".Protocol"}
 )
 COMMUTATIVE_OPERATORS = frozenset({"*", "+", "^", "&", "|"})
+REVERSED_COMPS = {"<": ">", "<=": ">=", ">": "<", ">=": "<=", "==": "==", "!=": "!="}
+"""Comparators mapped to the comparator to use once the operands are swapped.
+
+Membership and identity operators are left out on purpose: unlike for
+:func:`get_inverse_comparator`, swapping the operands of ``in`` or ``is``
+changes the meaning of the comparison.
+"""
 ITER_METHOD = "__iter__"
 AITER_METHOD = "__aiter__"
 NEXT_METHOD = "__next__"
@@ -301,6 +309,32 @@ def is_defined_in_scope(
     return defnode_in_scope(var_node, varname, scope) is not None
 
 
+def _defnode_in_targets(
+    var_node: nodes.NodeNG,
+    varname: str,
+    targets: Iterable[nodes.NodeNG],
+    scope: nodes.LocalsDictNodeNG,
+) -> nodes.AssignName | None:
+    """Return the node binding ``varname`` in ``targets`` before ``var_node``.
+
+    Targets are bound left to right, so a name read inside a target, as in
+    ``a = b[a] = 0`` or ``with f() as (a, b[a]):``, can only use a name bound
+    before it.
+    """
+    for target in targets:
+        for ass_node in target.nodes_of_class(nodes.AssignName):
+            if (ass_node.lineno, ass_node.col_offset) > (
+                var_node.lineno,
+                var_node.col_offset,
+            ):
+                return None
+            # Skip names bound in a nested scope, such as a lambda or
+            # comprehension inside a subscript
+            if ass_node.name == varname and ass_node.scope() is scope:
+                return ass_node
+    return None
+
+
 # pylint: disable = too-many-branches
 def defnode_in_scope(
     var_node: nodes.NodeNG,
@@ -320,11 +354,17 @@ def defnode_in_scope(
             if ass_node.name == varname:
                 return ass_node
     elif isinstance(scope, nodes.With):
-        for expr, ids in scope.items:
-            if expr.parent_of(var_node):
-                break
-            if ids and isinstance(ids, nodes.AssignName) and ids.name == varname:
-                return ids
+        # Each item's target is bound after its context manager is evaluated
+        return _defnode_in_targets(
+            var_node,
+            varname,
+            (ids for _, ids in scope.items if ids is not None),
+            scope.scope(),
+        )
+    elif isinstance(scope, nodes.Assign):
+        # The targets are bound after the value is evaluated
+        if any(target.parent_of(var_node) for target in scope.targets):
+            return _defnode_in_targets(var_node, varname, scope.targets, scope.scope())
     elif isinstance(scope, (nodes.Lambda, nodes.FunctionDef)):
         if scope.args.is_argument(varname):
             # If the name is found inside a default value
@@ -364,6 +404,9 @@ def is_defined_before(var_node: nodes.Name) -> bool:
         defnode = defnode_in_scope(var_node, varname, parent)
         if defnode is None:
             continue
+        if isinstance(parent, nodes.Assign):
+            # Bound by an earlier target of the same assignment
+            return True
         defnode_scope = defnode.scope()
         if isinstance(
             defnode_scope, (*COMP_NODE_TYPES, nodes.Lambda, nodes.FunctionDef)
@@ -756,9 +799,11 @@ def infer_kwarg_from_call(call_node: nodes.Call, keyword: str) -> nodes.Name | N
     for arg in call_node.kwargs:
         inferred = safe_infer(arg.value)
         if isinstance(inferred, nodes.Dict):
-            for item in inferred.items:
-                if item[0].value == keyword:
-                    return item[1]
+            for key, value in inferred.items:
+                # Keys can be any expression (or None for '**' unpacking),
+                # only string constants can name a keyword argument.
+                if isinstance(key, nodes.Const) and key.value == keyword:
+                    return value
 
     return None
 
@@ -802,8 +847,10 @@ def error_of_type(
     return handler.catch(expected_errors)  # type: ignore[no-any-return]
 
 
-def decorated_with_property(node: nodes.FunctionDef) -> bool:
+def decorated_with_property(node: nodes.NodeNG) -> bool:
     """Detect if the given function node is decorated with a property."""
+    if not isinstance(node, nodes.FunctionDef):
+        return False
     if not node.decorators:
         return False
     for decorator in node.decorators.nodes:
@@ -891,59 +938,10 @@ def decorated_with(
     return False
 
 
-def uninferable_final_decorators(
-    node: nodes.Decorators,
-) -> list[nodes.Attribute | nodes.Name | None]:
-    """Return a list of uninferable `typing.final` decorators in `node`.
-
-    This function is used to determine if the `typing.final` decorator is used
-    with an unsupported Python version; the decorator cannot be inferred when
-    using a Python version lower than 3.8.
-    """
-    decorators = []
-    for decorator in getattr(node, "nodes", []):
-        import_nodes: tuple[nodes.Import | nodes.ImportFrom] | None = None
-
-        # Get the `Import` node. The decorator is of the form: @module.name
-        if isinstance(decorator, nodes.Attribute):
-            inferred = safe_infer(decorator.expr)
-            if isinstance(inferred, nodes.Module) and inferred.qname() == "typing":
-                _, import_nodes = decorator.expr.lookup(decorator.expr.name)
-
-        # Get the `ImportFrom` node. The decorator is of the form: @name
-        elif isinstance(decorator, nodes.Name):
-            _, import_nodes = decorator.lookup(decorator.name)
-
-        # The `final` decorator is expected to be found in the
-        # import_nodes. Continue if we don't find any `Import` or `ImportFrom`
-        # nodes for this decorator.
-        if not import_nodes:
-            continue
-        import_node = import_nodes[0]
-
-        if not isinstance(import_node, (nodes.Import, nodes.ImportFrom)):
-            continue
-
-        import_names = dict(import_node.names)
-
-        # Check if the import is of the form: `from typing import final`
-        is_from_import = ("final" in import_names) and import_node.modname == "typing"
-
-        # Check if the import is of the form: `import typing`
-        is_import = ("typing" in import_names) and getattr(
-            decorator, "attrname", None
-        ) == "final"
-
-        if is_from_import or is_import:
-            inferred = safe_infer(decorator)
-            if inferred is None or isinstance(inferred, util.UninferableBase):
-                decorators.append(decorator)
-    return decorators
-
-
 @lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(
-    node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef | None = None
+    node: nodes.ClassDef,
+    is_abstract_cb: Callable[[nodes.FunctionDef], bool] | None = None,
 ) -> dict[str, nodes.FunctionDef]:
     """Get the unimplemented abstract methods for the given *node*.
 
@@ -1489,6 +1487,36 @@ def has_known_bases(
     return True
 
 
+def safe_mro(node: nodes.ClassDef | bases.Instance) -> list[nodes.ClassDef]:
+    """Return the MRO of ``node``, or an empty list if it does not have one.
+
+    Duplicate or inconsistent bases leave a class without a usable MRO, and
+    ``mro()`` raises instead of returning one. A caller that only walks the MRO
+    to look something up can treat that as "no ancestors" rather than let the
+    error abort the whole file.
+    """
+    try:
+        # ``Instance`` proxies the call, so it is only typed through ``__getattr__``
+        mro: list[nodes.ClassDef] = node.mro()
+    except astroid.MroError:
+        return []
+    return mro
+
+
+def safe_slots(node: nodes.ClassDef) -> list[nodes.Const] | None:
+    """Return the slots of ``node``, or None if it does not have a usable MRO.
+
+    ``slots()`` walks the MRO internally, so it gives up on exactly the classes
+    ``safe_mro`` has nothing to return for. It raises ``NotImplementedError``
+    rather than the ``MroError`` underneath. A class without a usable MRO gets
+    the same answer as a class that defines no slot at all.
+    """
+    try:
+        return node.slots()  # type: ignore[no-any-return]
+    except NotImplementedError:
+        return None
+
+
 def is_none(node: nodes.NodeNG) -> bool:
     match node:
         case None | nodes.Const(value=None) | nodes.Name(value="None"):
@@ -1673,6 +1701,20 @@ def is_overload_stub(node: nodes.NodeNG) -> bool:
     return bool(decorators and decorated_with(node, ["typing.overload", "overload"]))
 
 
+def is_in_stub_file(node: nodes.NodeNG) -> bool:
+    """Check if a node comes from a ``.pyi`` stub file.
+
+    A stub declares signatures and leaves every body as ``...``, so checks about
+    what a body does (whether it uses an argument, whether it calls the parent
+    ``__init__``) say nothing about the code the stub describes.
+
+    :param node: Node to check.
+    :returns: True if the node's module was parsed from a ``.pyi`` file.
+    """
+    file = node.root().file
+    return bool(file) and file.endswith(".pyi")
+
+
 def is_protocol_class(cls: nodes.NodeNG) -> bool:
     """Check if the given node represents a protocol class.
 
@@ -1841,26 +1883,141 @@ def get_import_name(importnode: ImportNode, modname: str | None) -> str | None:
     return modname
 
 
+@lru_cache(maxsize=512)
+def _split_qnames(qnames: tuple[str, ...]) -> tuple[tuple[str, tuple[str, ...]], ...]:
+    """Group qualified names by the module that owns them.
+
+    Grouping is not an optimization: resolving a module is a scope lookup, so
+    members sharing a module have to be asked for together to pay for it once.
+    Cached because a call site passes the same literal names every time.
+    """
+    grouped: dict[str, tuple[str, ...]] = {}
+    for qname in qnames:
+        modname, _, member = qname.rpartition(".")
+        if not modname:
+            raise ValueError(
+                f"{qname!r} is not a qualified name, expected 'module.member'"
+            )
+        grouped[modname] = (*grouped.get(modname, ()), member)
+    return tuple(grouped.items())
+
+
+def is_module_member(node: nodes.NodeNG, *qnames: str) -> bool:
+    """Return True if the node refers to one of the given qualified names.
+
+    However it is spelled: ``module.member`` and the name bound by
+    ``from module import member`` both count, each of them possibly aliased. The
+    module is identified by the import that binds it rather than by the name it
+    is spelled with, so a class or a variable named after it does not pass for
+    it.
+    """
+    if isinstance(node, nodes.Attribute):
+        return any(
+            node.attrname in members and _resolves_to_module(node.expr, modname)
+            for modname, members in _split_qnames(qnames)
+        )
+    if isinstance(node, nodes.Name):
+        return any(
+            _binds_module_member(node, modname, members)
+            for modname, members in _split_qnames(qnames)
+        )
+    return False
+
+
+def _resolves_to_module(expr: nodes.NodeNG, modname: str) -> bool:
+    if isinstance(expr, nodes.Name):
+        # Answer from the binding rather than from inference, which comes up
+        # empty when the ``import`` itself sits inside a guarded block. It also
+        # rejects a class or a variable named after the module, which the
+        # spelling alone cannot tell the module apart from.
+        _, assignments = expr.lookup(expr.name)
+        return any(
+            isinstance(assignment, nodes.Import)
+            and any(
+                # ``import os.path`` binds ``os``, ``import os.path as p`` binds
+                # ``os.path``.
+                (
+                    (real == modname and alias == expr.name)
+                    if alias
+                    else real.partition(".")[0] == modname == expr.name
+                )
+                for real, alias in assignment.names
+            )
+            for assignment in assignments
+        )
+    match safe_infer(expr):
+        case nodes.Module(name=name) if name == modname:
+            return True
+    return False
+
+
+def _binds_module_member(
+    name: nodes.Name, modname: str, members: tuple[str, ...]
+) -> bool:
+    """Whether the name is bound by a ``from modname import <member>``."""
+    _, assignments = name.lookup(name.name)
+    return any(
+        isinstance(assignment, nodes.ImportFrom)
+        # ``from .attr import s`` has the same ``modname`` as ``from attr import s``
+        # but imports a local module. ``level`` is None for an absolute import.
+        and not assignment.level
+        and assignment.modname == modname
+        and any(
+            real in members and (alias or real) == name.name
+            for real, alias in assignment.names
+        )
+        for assignment in assignments
+    )
+
+
 def is_sys_guard(node: nodes.If) -> bool:
     """Return True if IF stmt is a sys.version_info guard.
 
     >>> import sys
     >>> from typing import Literal
     """
-    if isinstance(node.test, nodes.Compare):
-        value = node.test.left
-        if isinstance(value, nodes.Subscript):
-            value = value.value
-        if (
-            isinstance(value, nodes.Attribute)
-            and value.as_string() == "sys.version_info"
+    tests = [node.test]
+    while tests:
+        test = tests.pop()
+        match test:
+            case nodes.BoolOp():
+                tests.extend(test.values)
+            case nodes.UnaryOp(op="not"):
+                tests.append(test.operand)
+            case nodes.Compare():
+                values = []
+                for operand in [test.left] + [operand for _, operand in test.ops]:
+                    values.append(operand)
+                    match operand:
+                        # Detects ``version_info[:2]`` and ``version_info.major`` but
+                        # not ``version_info[:2][0]``: a compromise between performance
+                        # and what people actually write.
+                        case nodes.Subscript(value=inner) | nodes.Attribute(expr=inner):
+                            values.append(inner)
+                if any(
+                    is_module_member(value, "sys.version_info", "sys.hexversion")
+                    for value in values
+                ):
+                    return True
+            case _:
+                # A bare truthiness guard: only six's version flags qualify.
+                if is_module_member(test, "six.PY2", "six.PY3"):
+                    return True
+    return False
+
+
+def is_platform_guard(node: nodes.If) -> bool:
+    """Return True if IF stmt is a os.name or sys.platform guard.
+
+    These guards split imports by OS/environment; the branches are
+    mutually exclusive so imports inside them cannot be grouped.
+    """
+    match node.test:
+        case nodes.Compare(
+            left=(nodes.Attribute() as attr)
+            | nodes.Subscript(value=nodes.Attribute() as attr)
         ):
-            return True
-    elif isinstance(node.test, nodes.Attribute) and node.test.as_string() in {
-        "six.PY2",
-        "six.PY3",
-    }:
-        return True
+            return attr.as_string() in {"os.name", "sys.platform"}
     return False
 
 
@@ -1878,7 +2035,11 @@ def _is_reassigned_relative_to_current(
     """Check if the given variable name is reassigned in the same scope relative to
     the current node.
     """
-    node_scope = node.scope()
+    node_scope = (
+        node.parent.scope()
+        if isinstance(node, nodes.Lambda) and node.parent is not None
+        else node.scope()
+    )
     node_lineno = node.lineno
     if node_lineno is None:
         return False
@@ -1914,9 +2075,14 @@ def is_deleted_after_current(node: nodes.NodeNG, varname: str) -> bool:
     """Check if the given variable name is deleted in the same scope after the current
     node.
     """
+    node_scope = (
+        node.parent.scope()
+        if isinstance(node, nodes.Lambda) and node.parent is not None
+        else node.scope()
+    )
     return any(
         getattr(target, "name", None) == varname and target.lineno > node.lineno
-        for del_node in node.scope().nodes_of_class(nodes.Delete)
+        for del_node in node_scope.nodes_of_class(nodes.Delete)
         for target in del_node.targets
     )
 
@@ -1991,52 +2157,36 @@ def in_type_checking_block(node: nodes.NodeNG) -> bool:
     for ancestor in node.node_ancestors():
         if not isinstance(ancestor, nodes.If):
             continue
-        if isinstance(ancestor.test, nodes.Name):
-            if ancestor.test.name != "TYPE_CHECKING":
-                continue
-            lookup_result = ancestor.test.lookup(ancestor.test.name)[1]
-            if not lookup_result:
-                return False
-            maybe_import_from = lookup_result[0]
-            if (
-                isinstance(maybe_import_from, nodes.ImportFrom)
-                and maybe_import_from.modname == "typing"
-            ):
-                return True
+        if is_module_member(ancestor.test, "typing.TYPE_CHECKING"):
+            return True
+        # A flag standing in for typing's, e.g. `TYPE_CHECKING = False` in the
+        # module itself, which is only ever true for a type checker.
+        if (
+            isinstance(ancestor.test, nodes.Name)
+            and ancestor.test.name == "TYPE_CHECKING"
+        ):
             match safe_infer(ancestor.test):
                 case nodes.Const(value=False):
                     return True
-        elif isinstance(ancestor.test, nodes.Attribute):
-            if ancestor.test.attrname != "TYPE_CHECKING":
-                continue
-            match safe_infer(ancestor.test.expr):
-                case nodes.Module(name="typing"):
-                    return True
 
     return False
 
 
+# TODO: 5.0: Remove is_typing_member, deprecated in favor of is_module_member.
 def is_typing_member(node: nodes.NodeNG, names_to_check: tuple[str, ...]) -> bool:
     """Check if `node` is a member of the `typing` module and has one of the names from
     `names_to_check`.
-    """
-    match node:
-        case nodes.Name():
-            try:
-                import_from = node.lookup(node.name)[1][0]
-            except IndexError:
-                return False
 
-            match import_from:
-                case nodes.ImportFrom(modname="typing"):
-                    return import_from.real_name(node.name) in names_to_check
-            return False
-        case nodes.Attribute():
-            match safe_infer(node.expr):
-                case nodes.Module(name="typing"):
-                    return node.attrname in names_to_check
-            return False
-    return False
+    Deprecated: call ``is_module_member(node, "typing.<name>")`` instead.
+    """
+    warnings.warn(
+        "is_typing_member has been deprecated. Use "
+        "is_module_member(node, 'typing.<name>') instead. "
+        "It will be removed in pylint 5.0.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return is_module_member(node, *(f"typing.{name}" for name in names_to_check))
 
 
 @lru_cache
@@ -2221,6 +2371,10 @@ def is_terminating_func(node: nodes.Call) -> bool:
         return False
 
     for inferred in inferred_funcs:
+        if isinstance(inferred, nodes.ClassDef):
+            # Instantiating a class never terminates, even if the class is
+            # ``_sitebuiltins.Quitter`` (``exit``/``quit`` are instances of it).
+            continue
         if hasattr(inferred, "qname") and inferred.qname() in TERMINATING_FUNCS_QNAMES:
             return True
         match inferred:
@@ -2235,7 +2389,7 @@ def is_terminating_func(node: nodes.Call) -> bool:
                 not isinstance(inferred, nodes.AsyncFunctionDef)
                 or isinstance(node.parent, nodes.Await)
             )
-            and isinstance(inferred.returns, nodes.Name)
+            and isinstance(inferred.returns, (nodes.Name, nodes.Attribute))
             and (inferred_func := safe_infer(inferred.returns))
             and hasattr(inferred_func, "qname")
             and inferred_func.qname()

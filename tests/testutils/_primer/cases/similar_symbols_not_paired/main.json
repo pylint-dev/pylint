@@ -1,0 +1,22 @@
+{
+  "astroid": {
+    "commit": "1234567890abcdef",
+    "messages": [
+      {
+        "type": "warning",
+        "module": "astroid.helpers",
+        "obj": "",
+        "line": 12,
+        "column": 0,
+        "endLine": 12,
+        "endColumn": 18,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/helpers.py",
+        "symbol": "unused-variable",
+        "message": "Unused variable 'result'",
+        "messageId": "W0612",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/helpers.py"
+      }
+    ]
+  }
+}

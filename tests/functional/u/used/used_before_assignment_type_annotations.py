@@ -107,3 +107,122 @@ def loop_conditional_annotated_assignment():
             data={"cat": "harf"}
     token: str = data.get("cat")  # [possibly-used-before-assignment]
     print(token)
+
+
+def bare_annotation_except_assignment(text):
+    """An except-only assignment need not execute before the later use."""
+    error_code: int
+    try:
+        result = int(text)
+    except ValueError:
+        error_code = 1
+        result = -1
+    if result < 0:
+        print(error_code)  # [used-before-assignment]
+
+
+def initialized_annotation_except_assignment(text):
+    """An annotated initial value remains available when no exception is raised."""
+    error_code: int = 0
+    try:
+        result = int(text)
+    except ValueError:
+        error_code = 1
+        result = -1
+    if result < 0:
+        print(error_code)
+
+
+def bare_annotation_try_finally(text):
+    """The assignment may fail before the finally block reads the name."""
+    value: int
+    try:
+        value = int(text)
+    finally:
+        print(value)  # [used-before-assignment]
+
+
+def bare_annotation_try_except(text):
+    """The assignment may fail before the exception handler reads the name."""
+    value: int
+    try:
+        value = int(text)
+    except ValueError:
+        print(value)  # [used-before-assignment]
+
+
+def bare_annotation_try_returns(text):
+    """The except assignment executes on every path reaching the later use."""
+    value: int
+    try:
+        return int(text)
+    except ValueError:
+        value = 0
+    return value
+
+
+def bare_annotation_complete_try_except(text):
+    """Both successful conversion and its handler assign a value."""
+    value: int
+    try:
+        value = int(text)
+    except ValueError:
+        value = 0
+    return value
+
+
+def bare_annotation_if_elif(axis):
+    """Preserve existing handling of annotated if/elif assignments."""
+    value: int
+    if axis == 0:
+        value = 0
+    elif axis == 1:
+        value = 1
+    return value
+
+
+def bare_annotation_if_elif_with_try(text, axis):
+    """All branches assign or raise, including a nested exception handler."""
+    value: int
+    if axis == 0:
+        try:
+            value = int(text)
+        except ValueError:
+            value = 0
+    elif axis == 1:
+        value = 1
+    else:
+        raise ValueError(axis)
+    return value
+
+
+def bare_annotation_except_with_if_elif(text, axis):
+    """An exhaustive conditional inside a handler still need not execute."""
+    error_code: int
+    try:
+        result = int(text)
+    except ValueError:
+        if axis == 0:
+            error_code = 1
+        elif axis == 1:
+            error_code = 2
+        else:
+            raise ValueError(axis) from None
+        result = -1
+    if result < 0:
+        print(error_code)  # [used-before-assignment]
+
+
+def bare_annotation_if_elif_then_except(text, axis):
+    """An additional except assignment must not invalidate a prior binding."""
+    axis %= 2
+    value: int
+    if axis == 0:
+        value = 0
+    elif axis == 1:
+        value = 1
+    try:
+        int(text)
+    except ValueError:
+        value = 2
+    return value

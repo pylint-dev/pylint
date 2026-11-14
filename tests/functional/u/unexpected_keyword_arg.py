@@ -202,3 +202,117 @@ NotAmbiguousClass(feeling="so-so")
 NotAmbiguousClass(worrying="little")  # [unexpected-keyword-arg]
 
 # pylint: enable=unused-argument
+
+
+# Pass-through decorators above a decorator taking **kwargs must not hide it
+# https://github.com/pylint-dev/pylint/issues/10831
+def pass_through_decorator():
+    def decorator(func):
+        return func
+    return decorator
+
+
+@pass_through_decorator()
+@kwargs_decorator
+def pass_through_above_kwargs(junk=None):
+    print(junk)
+
+
+pass_through_above_kwargs(internal_arg=2)
+
+
+@pass_through_decorator()
+def only_pass_through(junk=None):
+    print(junk)
+
+
+only_pass_through(internal_arg=2)  # [unexpected-keyword-arg]
+
+
+def positional_only_pass_through(func, /):
+    return func
+
+
+@positional_only_pass_through
+@kwargs_decorator
+def positional_only_pass_through_above_kwargs(junk=None):
+    print(junk)
+
+
+positional_only_pass_through_above_kwargs(internal_arg=2)
+
+
+@kwargs_decorator
+@positional_only_pass_through
+def pass_through_below_kwargs(junk=None):
+    print(junk)
+
+
+pass_through_below_kwargs(internal_arg=2)
+
+
+def rebinding_decorator(func):
+    func = non_param_decorator(func)
+    return func
+
+
+@rebinding_decorator
+@kwargs_decorator
+def rebinding_above_kwargs(junk=None):
+    print(junk)
+
+
+rebinding_above_kwargs(internal_arg=2)  # [unexpected-keyword-arg]
+
+
+def no_param_decorator():
+    return None
+
+
+@no_param_decorator
+def decorated_by_no_param_decorator(junk=None):
+    print(junk)
+
+
+decorated_by_no_param_decorator(internal_arg=2)  # [unexpected-keyword-arg]
+
+
+# pylint: disable-next=undefined-variable
+def uninferable_return_decorator(func):
+    return unknown_decorator(func)
+
+
+@uninferable_return_decorator
+def decorated_by_uninferable_return(junk=None):
+    print(junk)
+
+
+decorated_by_uninferable_return(internal_arg=2)
+
+
+def pass_through_or_none(func):
+    if func.__doc__:
+        return func
+    return None
+
+
+@pass_through_or_none
+def decorated_by_pass_through_or_none(junk=None):
+    print(junk)
+
+
+decorated_by_pass_through_or_none(internal_arg=2)  # [unexpected-keyword-arg]
+
+
+def uninferable_or_non_param_decorator(func):
+    if func.__doc__:
+        return unknown_decorator(func)
+    return non_param_decorator(func)
+
+
+@uninferable_or_non_param_decorator
+def decorated_by_uninferable_or_non_param(junk=None):
+    print(junk)
+
+
+decorated_by_uninferable_or_non_param(internal_arg=2)  # [unexpected-keyword-arg]

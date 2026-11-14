@@ -16,7 +16,20 @@ from subprocess import check_call
 NEWSFILE_PATTERN = re.compile(r"doc/whatsnew/\d/\d.\d+/index\.rst")
 NEWSFILE_PATH = "doc/whatsnew/{major}/{major}.{minor}/index.rst"
 TOWNCRIER_CONFIG_FILE = Path("towncrier.toml")
-TOWNCRIER_VERSION_PATTERN = re.compile(r"version = \"(\d+\.\d+\.\d+)\"")
+# 'major.minor.patch' followed by an optional pre-release suffix, written either the
+# semantic versioning way ('4.1.0-dev0') or the PEP 440 one ('3.3.5a0'). Pylint has
+# used both.
+VERSION_PATTERN = (
+    r"(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)"
+    r"(?P<suffix>-?[a-zA-Z][0-9a-zA-Z.-]*)?"
+)
+NEW_VERSION_PATTERN = re.compile(rf"^{VERSION_PATTERN}$")
+# Between releases towncrier.toml holds a pre-release version, so the suffix has to
+# be part of the pattern. Matching only 'major.minor.patch' left the version
+# untouched, and towncrier then titled the new section with the stale version.
+TOWNCRIER_VERSION_PATTERN = re.compile(rf"version = \"{VERSION_PATTERN}\"")
+# The issues a fragment refers to, like 'Closes #123', possibly in the astroid repository
+ISSUE_PATTERN = re.compile(r"(?<![\w`/#<])(pylint-dev/astroid)?#(\d+)\b")
 
 NEWSFILE_CONTENT_TEMPLATE = """
 ***************************
@@ -36,6 +49,18 @@ Summary -- Release highlights
 .. towncrier release notes start
 """
 
+WHATSNEW_INDEX = Path("doc/whatsnew/index.rst")
+MAJOR_INDEX_CONTENT_TEMPLATE = """{major}.x
+{underline}
+
+This is the full list of change in pylint {major}.x minors, by categories.
+
+.. toctree::
+   :maxdepth: 2
+
+   {major}.{minor}/index
+"""
+
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -49,22 +74,23 @@ def main() -> None:
 
     if "dev" in args.version:
         print("'-devXY' will be cut from version in towncrier.toml")
-    match = re.match(
-        r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-?\w+\d*)*", args.version
-    )
+    match = NEW_VERSION_PATTERN.match(args.version)
     if not match:
         print(
             "Fatal error - new version did not match the "
-            "expected format (major.minor.patch[.*]). Abort!"
+            "expected format (major.minor.patch[suffix]). Abort!"
         )
         return
-    major, minor, patch, suffix = match.groups()
+    major, minor, patch = match["major"], match["minor"], match["patch"]
+    suffix = match["suffix"]
     new_version = f"{major}.{minor}.{patch}"
 
     new_newsfile = NEWSFILE_PATH.format(major=major, minor=minor)
     create_new_newsfile_if_necessary(new_newsfile, major, minor, args.dry_run)
     patch_towncrier_toml(new_newsfile, new_version, args.dry_run)
     build_changelog(suffix, args.dry_run)
+    if not suffix and not args.dry_run:
+        link_issues(Path(new_newsfile), new_version)
 
 
 def create_new_newsfile_if_necessary(
@@ -94,9 +120,42 @@ def create_new_newsfile_if_necessary(
     print("Adding new newsfile to git")
     check_call(["git", "add", new_newsfile])
 
+    # List it first in the table of contents of the major version
+    major_index = Path(f"doc/whatsnew/{major}/index.rst")
+    if major_index.exists():
+        list_first_in_toctree(major_index, f"{major}.{minor}/index", rf"{major}\.\d+")
+        return
+
+    # The first release of a major version also needs the page of that major
+    print("Creating new major index:", major_index)
+    major_index.write_text(
+        MAJOR_INDEX_CONTENT_TEMPLATE.format(
+            major=major, minor=minor, underline="=" * len(f"{major}.x")
+        ),
+        encoding="utf8",
+    )
+    check_call(["git", "add", str(major_index)])
+    list_first_in_toctree(WHATSNEW_INDEX, f"{major}/index", r"\d+")
+
+
+def list_first_in_toctree(index: Path, new_entry: str, entry_pattern: str) -> None:
+    """Insert 'new_entry' before the first '<entry_pattern>/index' entry of 'index'."""
+    content = index.read_text(encoding="utf8")
+    first_entry = re.search(rf"^   {entry_pattern}/index$", content, flags=re.MULTILINE)
+    assert first_entry, f"No '{entry_pattern}/index' entry in the toctree of {index}"
+    position = first_entry.start()
+    index.write_text(
+        f"{content[:position]}   {new_entry}\n{content[position:]}", encoding="utf8"
+    )
+
 
 def patch_towncrier_toml(new_newsfile: str, version: str, dry_run: bool) -> None:
     file_content = TOWNCRIER_CONFIG_FILE.read_text(encoding="utf-8")
+    if not TOWNCRIER_VERSION_PATTERN.search(file_content):
+        raise ValueError(
+            f"Could not find the version to replace in {TOWNCRIER_CONFIG_FILE}. "
+            "Without it towncrier would use a stale version in the changelog title."
+        )
     patched_newsfile_path = NEWSFILE_PATTERN.sub(new_newsfile, file_content)
     new_file_content = TOWNCRIER_VERSION_PATTERN.sub(
         f'version = "{version}"', patched_newsfile_path
@@ -119,6 +178,22 @@ def build_changelog(suffix: str | None, dry_run: bool) -> None:
 
     print("Building changelog")
     check_call(["towncrier", "build", "--yes"])
+
+
+def link_issues(newsfile: Path, version: str) -> None:
+    """Link every issue of the new changelog section, towncrier only links the one
+    in the name of the fragment.
+    """
+    content = newsfile.read_text(encoding="utf8")
+    start = content.index(f"What's new in Pylint {version}?")
+    end = content.find("What's new in Pylint ", start + 1)
+    end = len(content) if end == -1 else end
+    section = ISSUE_PATTERN.sub(
+        lambda m: f"`{m[0]} <https://github.com/"
+        f"{m[1] or 'pylint-dev/pylint'}/issues/{m[2]}>`__",
+        content[start:end],
+    )
+    newsfile.write_text(content[:start] + section + content[end:], encoding="utf8")
 
 
 if __name__ == "__main__":

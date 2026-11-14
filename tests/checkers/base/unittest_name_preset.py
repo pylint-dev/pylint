@@ -34,6 +34,7 @@ class TestNamePresets(unittest.TestCase):
 
     def _test_should_always_pass(self, naming_style: type[base.NamingStyle]) -> None:
         always_pass_data = [
+            ("__main__", "module"),
             ("__add__", "method"),
             ("__set_name__", "method"),
             ("__version__", "const"),
@@ -98,3 +99,15 @@ class TestNamePresets(unittest.TestCase):
             self._test_name_is_incorrect_for_all_name_types(naming_style, name)
 
         self._test_should_always_pass(naming_style)
+
+    def test_main_module_exception_is_narrow(self) -> None:
+        for naming_style in (
+            base.CamelCaseStyle,
+            base.PascalCaseStyle,
+            base.UpperCaseStyle,
+        ):
+            with self.subTest(naming_style=naming_style):
+                self._test_is_incorrect(naming_style, "__main__", "inlinevar")
+                self._test_is_incorrect(naming_style, "__main__", "class")
+                self._test_is_incorrect(naming_style, "__other__", "module")
+                self._test_is_incorrect(naming_style, "__main__extra", "module")

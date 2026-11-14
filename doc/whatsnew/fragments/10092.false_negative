@@ -1,0 +1,4 @@
+``invalid-envvar-value`` and ``invalid-envvar-default`` now also check
+``os.environ.get``, however ``os`` or ``environ`` is imported.
+
+Closes #10092

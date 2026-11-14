@@ -1,0 +1,4 @@
+The MermaidJS output of ``pyreverse`` now honours ``--module-names=y``: each class is
+labelled with its module-qualified name, as the dot and PlantUML outputs already were.
+
+Closes #10164
