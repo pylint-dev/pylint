@@ -118,6 +118,34 @@ def get_functional_test_files(
     return test_files
 
 
+def get_functional_test_packages(
+    root_directory: Path,
+) -> list[FunctionalPyreverseTestfile]:
+    """Treat every subdirectory as a package and get all functional test files."""
+    test_files = []
+    for package_directory in root_directory.iterdir():
+        package_name = package_directory.name
+        config_file = package_directory / f"{package_name}.rc"
+        if config_file.exists():
+            test_files.append(
+                FunctionalPyreverseTestfile(
+                    source=package_directory, options=_read_config(config_file)
+                )
+            )
+        else:
+            test_files.append(
+                FunctionalPyreverseTestfile(
+                    source=package_directory,
+                    options={
+                        "source_roots": [],
+                        "output_formats": ["mmd"],
+                        "command_line_args": [],
+                    },
+                )
+            )
+    return test_files
+
+
 def _read_config(config_file: Path) -> TestFileOptions:
     config = configparser.ConfigParser()
     config.read(str(config_file))
