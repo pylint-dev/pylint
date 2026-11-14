@@ -60,6 +60,12 @@ def func8_compound_lambda():
     print("Signal handler installed.")
 
 
+def func8_default_of_lambda_in_lambda_body():
+    """The inner lambda's default only runs when the outer lambda is called."""
+    signal.signal(signal.SIGINT, lambda sig, frame: (lambda x=sys.exit(1): x))
+    print("Signal handler installed.")
+
+
 class FalseExit:
     def exit(self, number):
         print(f"False positive this is not sys.exit({number})")
