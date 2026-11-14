@@ -2,7 +2,10 @@ bad-open-mode:12:0:12:35::"""rwx"" is not a valid mode for open.":HIGH
 bad-open-mode:13:0:13:34::"""rr"" is not a valid mode for open.":HIGH
 bad-open-mode:14:0:14:33::"""+"" is not a valid mode for open.":HIGH
 bad-open-mode:15:0:15:34::"""xw"" is not a valid mode for open.":HIGH
-bad-open-mode:21:0:21:34::"""Ua"" is not a valid mode for open.":HIGH
-bad-open-mode:22:0:22:36::"""Ur++"" is not a valid mode for open.":HIGH
-bad-open-mode:26:0:26:44::"""NotImplemented"" is not a valid mode for open.":HIGH
-bad-open-mode:31:11:31:45:open_with_bad_default_mode:"""rwx"" is not a valid mode for open.":INFERENCE
+bad-open-mode:21:0:21:18::"""+rUb"" is not a valid mode for open.":HIGH
+bad-open-mode:22:0:22:34::"""Ua"" is not a valid mode for open.":HIGH
+bad-open-mode:23:0:23:36::"""Ur++"" is not a valid mode for open.":HIGH
+bad-open-mode:24:0:24:34::"""Ut"" is not a valid mode for open.":HIGH
+bad-open-mode:25:0:25:17::"""Ubr"" is not a valid mode for open.":HIGH
+bad-open-mode:27:0:27:44::"""NotImplemented"" is not a valid mode for open.":HIGH
+bad-open-mode:32:11:32:45:open_with_bad_default_mode:"""rwx"" is not a valid mode for open.":INFERENCE

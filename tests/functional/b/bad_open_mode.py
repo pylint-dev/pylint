@@ -16,12 +16,13 @@ open(NAME, "xw", encoding="utf-8")  # [bad-open-mode]
 open(NAME, "ab+")
 open(NAME, "a+b")
 open(NAME, "+ab")
-open(NAME, "+rUb")
 open(NAME, "x+b")
+# Python 3.11 removed "U": open() raises ValueError, see bad_open_mode_py310.py
+open(NAME, "+rUb")  # [bad-open-mode]
 open(NAME, "Ua", encoding="utf-8")  # [bad-open-mode]
 open(NAME, "Ur++", encoding="utf-8")  # [bad-open-mode]
-open(NAME, "Ut", encoding="utf-8")
-open(NAME, "Ubr")
+open(NAME, "Ut", encoding="utf-8")  # [bad-open-mode]
+open(NAME, "Ubr")  # [bad-open-mode]
 # Crashed with a TypeError on Python >= 3.14 (issue #11099)
 open(NAME, NotImplemented, encoding="utf-8")  # [bad-open-mode]
 
