@@ -1,2 +1,6 @@
 missing-yield-doc:8:0:8:11:my_func:Missing yield documentation:HIGH
 missing-yield-type-doc:8:0:8:11:my_func:Missing yield type documentation:HIGH
+missing-yield-doc:18:0:18:34:warns_once_with_several_yields:Missing yield documentation:HIGH
+missing-yield-type-doc:18:0:18:34:warns_once_with_several_yields:Missing yield type documentation:HIGH
+missing-yield-doc:23:4:23:13:warns_once_with_several_yields.inner:Missing yield documentation:HIGH
+missing-yield-type-doc:23:4:23:13:warns_once_with_several_yields.inner:Missing yield type documentation:HIGH
