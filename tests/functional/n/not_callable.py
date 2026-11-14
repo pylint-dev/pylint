@@ -266,3 +266,16 @@ class MethodByName:
         method()
         method = getattr(self, "_call_%s" % self.meth_name, None)  # pylint: disable=consider-using-f-string
         method()
+
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/10042.
+# Subscripting a class yields the class itself (or a generic alias
+# instantiating it), which is callable, so do not emit `not-callable`.
+class SubscriptedGeneric(typing.IO[str]):
+    """Subclass of a subscripted generic class."""
+
+
+SubscriptedGeneric[str]()
+# Ordinary subscription results are still checked for callability.
+NON_CALLABLE_ITEMS = {"key": 1}
+NON_CALLABLE_ITEMS["key"]()  # [not-callable]
