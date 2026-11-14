@@ -5,8 +5,8 @@ charset="utf-8"
 "data.suppliermodule_test.DoNothing" [color="black", fontcolor="black", label=<{DoNothing|<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
 "data.suppliermodule_test.DoNothing2" [color="black", fontcolor="black", label=<{DoNothing2|<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
 "data.clientmodule_test.Specialization" [color="black", fontcolor="black", label=<{Specialization|TYPE : str<br ALIGN="LEFT"/>relation<br ALIGN="LEFT"/>relation2<br ALIGN="LEFT"/>top : str<br ALIGN="LEFT"/>|from_value(value: int)<br ALIGN="LEFT"/>increment_value(): None<br ALIGN="LEFT"/>transform_value(value: int): int<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
-"data.clientmodule_test.Specialization" -> "data.clientmodule_test.Ancestor" [arrowhead="empty", arrowtail="none"];
-"data.suppliermodule_test.DoNothing" -> "data.clientmodule_test.Ancestor" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="cls_member", style="solid"];
-"data.suppliermodule_test.DoNothing" -> "data.clientmodule_test.Specialization" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="relation", style="solid"];
-"data.suppliermodule_test.DoNothing2" -> "data.clientmodule_test.Specialization" [arrowhead="odiamond", arrowtail="none", fontcolor="green", label="relation2", style="solid"];
+"data.clientmodule_test.Specialization" -> "data.clientmodule_test.Ancestor" [arrowhead="empty", arrowtail="none", color="black"];
+"data.suppliermodule_test.DoNothing" -> "data.clientmodule_test.Ancestor" [arrowhead="diamond", arrowtail="none", color="black", fontcolor="green", label="cls_member", style="solid"];
+"data.suppliermodule_test.DoNothing" -> "data.clientmodule_test.Specialization" [arrowhead="diamond", arrowtail="none", color="black", fontcolor="green", label="relation", style="solid"];
+"data.suppliermodule_test.DoNothing2" -> "data.clientmodule_test.Specialization" [arrowhead="odiamond", arrowtail="none", color="black", fontcolor="green", label="relation2", style="solid"];
 }

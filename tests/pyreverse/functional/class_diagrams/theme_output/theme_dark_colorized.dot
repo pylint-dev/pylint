@@ -1,0 +1,9 @@
+digraph "classes" {
+rankdir=BT
+charset="utf-8"
+bgcolor="#1e1e1e"
+"theme_dark_colorized.BreakdownError" [color="#77AADD", fontcolor="red", label=<{BreakdownError|<br ALIGN="LEFT"/>|}>, shape="record", style="filled"];
+"theme_dark_colorized.Car" [color="#77AADD", fontcolor="black", label=<{Car|engine<br ALIGN="LEFT"/>wheels : int<br ALIGN="LEFT"/>|<I>drive</I>()<br ALIGN="LEFT"/>}>, shape="record", style="filled"];
+"theme_dark_colorized.Engine" [color="#77AADD", fontcolor="black", label=<{Engine|power : int<br ALIGN="LEFT"/>|<I>start</I>()<br ALIGN="LEFT"/>}>, shape="record", style="filled"];
+"theme_dark_colorized.Engine" -> "theme_dark_colorized.Car" [arrowhead="diamond", arrowtail="none", color="#e0e0e0", fontcolor="green", label="engine", style="solid"];
+}
