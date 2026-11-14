@@ -1,0 +1,4 @@
+Fixed a false positive for ``unused-import`` when the only use of an imported name is
+inside a string annotation that is a union, such as ``"int | Literal[True]"``.
+
+Closes #8831
