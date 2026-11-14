@@ -1,0 +1,5 @@
+``missing-timeout`` now also checks the methods of a ``requests.Session``
+(``session.get(url)`` and the like), which ``timeout-methods`` now lists
+by default.
+
+Closes #9517
