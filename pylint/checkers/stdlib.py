@@ -477,6 +477,14 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
 }
 
 
+# Replacements of deprecated attributes, used to recognise code that keeps a
+# deprecated attribute in sync with its replacement for compatibility
+DEPRECATED_ATTRIBUTE_REPLACEMENTS: dict[str, str] = {
+    "sys.last_traceback": "sys.last_exc",
+    "sys.last_type": "sys.last_exc",
+    "sys.last_value": "sys.last_exc",
+}
+
 DEPRECATED_ATTRIBUTES: DeprecationDict = {
     (3, 2, 0): {
         "configparser.ParsingError.filename",
@@ -1140,6 +1148,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
     def deprecated_attributes(self) -> Iterable[str]:
         return self._deprecated_attributes
+
+    def deprecated_attribute_replacements(self) -> dict[str, str]:
+        return DEPRECATED_ATTRIBUTE_REPLACEMENTS
 
 
 def register(linter: PyLinter) -> None:
