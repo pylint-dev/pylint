@@ -92,3 +92,14 @@ if Z in ("a", "b"):
     pass
 if Z in ("Version " + "String"):
     pass
+
+# Nested parentheses are reported as well, unless the inner pair is needed
+# to override operator precedence or wraps a tuple (#5361).
+for ((x)) in (1, 2, 3):  # [superfluous-parens]
+    print(x)
+for ((a, b)) in ((1, 2), (3, 4)):
+    print(a, b)
+for (((y))) in (1, 2, 3):  # [superfluous-parens]
+    print(y)
+z = (((3 & 4)) > 0)
+assert (((3 & 4)) > 0) == z

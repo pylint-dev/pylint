@@ -63,6 +63,22 @@ _KEYWORD_TOKENS = {
 _JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
 
 
+def _is_sole_nested_parens(tokens: list[tokenize.TokenInfo], close_index: int) -> bool:
+    """Check whether nested parens closing at ``close_index`` wrap the argument.
+
+    The tokens following the closing inner paren must be only closing parens and
+    then the end of the argument, so that no operator can follow the inner parens.
+    """
+    index = close_index + 1
+    while tokens[index].string == ")":
+        index += 1
+    return tokens[index].string in {":", "]", "}", "in"} or tokens[index].type in {
+        tokenize.NEWLINE,
+        tokenize.ENDMARKER,
+        tokenize.COMMENT,
+    }
+
+
 MSGS: dict[str, MessageDefinitionTuple] = {
     "C0301": (
         "Line too long (%s/%s)",
@@ -363,7 +379,18 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                         # For walrus operators in `if (not)` conditions and comprehensions
                         if keyword_token in {"in", "if", "not"}:
                             continue
-                        return
+                        # Only the inner pair closes here. Let the outer pair be
+                        # checked when it closes, so that nested redundant parens
+                        # are reported as well, unless the nesting is part of a
+                        # larger expression that may need the inner pair. A
+                        # negative counter comes from parentheses of call
+                        # expressions, so it does not indicate nesting.
+                        if contains_double_parens < 0 or not _is_sole_nested_parens(
+                            tokens, i
+                        ):
+                            return
+                        contains_double_parens -= 1
+                        continue
                     contains_double_parens -= 1
                     continue
                 # ')' can't happen after if (foo), since it would be a syntax error.
@@ -394,6 +421,11 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                         "superfluous-parens", line=line_num, args=keyword_token
                     )
                 return
+            elif depth > 1 and contains_double_parens > 0 and token.string == ",":
+                # The nested parens contain a tuple, which is always acceptable.
+                # The keywords below keep reporting nested parens as before.
+                if keyword_token not in {"in", "if", "not"}:
+                    return
             elif depth == 1:
                 match token[1]:
                     case ",":
