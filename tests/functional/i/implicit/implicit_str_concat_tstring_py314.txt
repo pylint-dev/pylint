@@ -1,0 +1,3 @@
+implicit-str-concat:7:0:None:None::Implicit string concatenation found in list:HIGH
+implicit-str-concat:8:0:None:None::Implicit string concatenation found in call:HIGH
+implicit-str-concat:9:0:None:None::Implicit string concatenation found in assignment:HIGH

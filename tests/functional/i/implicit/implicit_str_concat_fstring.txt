@@ -1,0 +1,8 @@
+implicit-str-concat:7:0:None:None::Implicit string concatenation found in list:HIGH
+implicit-str-concat:8:0:None:None::Implicit string concatenation found in tuple:HIGH
+implicit-str-concat:9:0:None:None::Implicit string concatenation found in set:HIGH
+implicit-str-concat:10:0:None:None::Implicit string concatenation found in call:HIGH
+implicit-str-concat:11:0:None:None::Implicit string concatenation found in call:HIGH
+implicit-str-concat:12:0:None:None::Implicit string concatenation found in assignment:HIGH
+implicit-str-concat:13:0:None:None::Implicit string concatenation found in list:HIGH
+implicit-str-concat:14:0:None:None::Implicit string concatenation found in tuple:HIGH

@@ -61,6 +61,19 @@ _PAREN_IGNORE_TOKEN_TYPES = (
     tokenize.NL,
     tokenize.COMMENT,
 )
+# Since Python 3.12 an f-string is no longer a single STRING token but an
+# FSTRING_START token, its content and an FSTRING_END token (likewise for the
+# TSTRING_* tokens of t-strings since Python 3.14).
+_FSTRING_START_TOKEN_TYPES = frozenset(
+    getattr(tokenize, name)
+    for name in ("FSTRING_START", "TSTRING_START")
+    if hasattr(tokenize, name)
+)
+_FSTRING_END_TOKEN_TYPES = frozenset(
+    getattr(tokenize, name)
+    for name in ("FSTRING_END", "TSTRING_END")
+    if hasattr(tokenize, name)
+)
 SINGLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?'''")
 DOUBLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?\"\"\"")
 QUOTE_DELIMITER_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?(\"|')", re.DOTALL)
@@ -725,7 +738,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
 
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         encoding = "ascii"
-        for i, (token_type, token, start, _, line) in enumerate(tokens):
+        for token_type, token, start, _, _ in tokens:
             match token_type:
                 case tokenize.ENCODING:
                     # this is always the first token processed
@@ -734,24 +747,29 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                     # 'token' is the whole un-parsed token; we can look at the start
                     # of it to see whether it's a raw or unicode string etc.
                     self.process_string_token(token, start[0], start[1])
-                    # We figure the next token, ignoring comments & newlines:
-                    j = i + 1
-                    while j < len(tokens) and tokens[j].type in (
-                        tokenize.NEWLINE,
-                        tokenize.NL,
-                        tokenize.COMMENT,
-                    ):
-                        j += 1
-                    next_token = tokens[j] if j < len(tokens) else None
-                    if encoding != "ascii":
-                        # We convert `tokenize` character count into a byte count,
-                        # to match with astroid `.col_offset`
-                        start = (start[0], len(line[: start[1]].encode(encoding)))
-                    self.string_tokens[start] = (str_eval(token), token, next_token)
-                    is_parenthesized = self._is_initial_string_token(
-                        i, tokens
-                    ) and self._is_parenthesized(i, tokens)
-                    self._parenthesized_string_tokens[start] = is_parenthesized
+
+        string_tokens = _merge_fstring_tokens(tokens)
+        for i, (token_type, token, start, _, line) in enumerate(string_tokens):
+            if token_type != tokenize.STRING:
+                continue
+            # We figure the next token, ignoring comments & newlines:
+            j = i + 1
+            while j < len(string_tokens) and string_tokens[j].type in (
+                tokenize.NEWLINE,
+                tokenize.NL,
+                tokenize.COMMENT,
+            ):
+                j += 1
+            next_token = string_tokens[j] if j < len(string_tokens) else None
+            if encoding != "ascii":
+                # We convert `tokenize` character count into a byte count,
+                # to match with astroid `.col_offset`
+                start = (start[0], len(line[: start[1]].encode(encoding)))
+            self.string_tokens[start] = (str_eval(token), token, next_token)
+            is_parenthesized = self._is_initial_string_token(
+                i, string_tokens
+            ) and self._is_parenthesized(i, string_tokens)
+            self._parenthesized_string_tokens[start] = is_parenthesized
 
         if self.linter.config.check_quote_consistency:
             self.check_for_consistent_string_delimiters(tokens)
@@ -821,7 +839,9 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
         self.check_for_concatenated_strings(node.elts, "tuple")
 
     def visit_assign(self, node: nodes.Assign) -> None:
-        if isinstance(node.value, nodes.Const) and isinstance(node.value.value, str):
+        if (
+            isinstance(node.value, nodes.Const) and isinstance(node.value.value, str)
+        ) or isinstance(node.value, (nodes.JoinedStr, nodes.TemplateStr)):
             self.check_for_concatenated_strings([node.value], "assignment")
 
     def check_for_consistent_string_delimiters(
@@ -877,8 +897,11 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
         self, elements: Sequence[nodes.NodeNG], iterable_type: str
     ) -> None:
         for elt in elements:
-            if not (
+            is_str_constant = (
                 isinstance(elt, nodes.Const) and elt.pytype() in _AST_NODE_STR_TYPES
+            )
+            if not (
+                is_str_constant or isinstance(elt, (nodes.JoinedStr, nodes.TemplateStr))
             ):
                 continue
             if elt.col_offset < 0:
@@ -890,13 +913,17 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                 # cf. https://github.com/pylint-dev/pylint/issues/2610
                 continue
             matching_token, token_string, next_token = self.string_tokens[token_index]
-            # We detect string concatenation: the AST Const is the
+            if next_token is None or next_token.type != tokenize.STRING:
+                continue
+            # We detect string concatenation: the AST node is the
             # combination of 2 string tokens
-            if (
-                matching_token != elt.value
-                and next_token is not None
-                and next_token.type == tokenize.STRING
-            ):
+            if isinstance(elt, nodes.Const):
+                is_concatenation = matching_token != elt.value
+            else:
+                # The next string token belongs to the f-string or t-string
+                # unless it starts a later statement.
+                is_concatenation = next_token.start[0] <= elt.tolineno
+            if is_concatenation:
                 # A raw string concatenated with a non-raw one (or vice versa)
                 # cannot be merged into a single literal, so the concatenation
                 # is deliberate rather than a forgotten comma.
@@ -1057,6 +1084,39 @@ def _is_raw_string_token(token: str) -> bool:
         if char in "rR":
             return True
     return False
+
+
+def _merge_fstring_tokens(
+    tokens: Iterable[tokenize.TokenInfo],
+) -> list[tokenize.TokenInfo]:
+    """Replace the tokens of each f-string or t-string by a single STRING token.
+
+    The STRING token spans the whole f-string or t-string, but its string is only
+    the prefix and the opening quote (e.g. ``rf"``), as the content is not needed
+    to detect an implicit concatenation.
+    """
+    merged: list[tokenize.TokenInfo] = []
+    # The start tokens of the f-strings and t-strings, nested in one another,
+    # that are not closed yet.
+    open_starts: list[tokenize.TokenInfo] = []
+    for token in tokens:
+        if token.type in _FSTRING_START_TOKEN_TYPES:
+            open_starts.append(token)
+        elif token.type in _FSTRING_END_TOKEN_TYPES:
+            start_token = open_starts.pop()
+            if not open_starts:
+                merged.append(
+                    tokenize.TokenInfo(
+                        tokenize.STRING,
+                        start_token.string,
+                        start_token.start,
+                        token.end,
+                        start_token.line,
+                    )
+                )
+        elif not open_starts:
+            merged.append(token)
+    return merged
 
 
 def _is_long_string(string_token: str) -> bool:

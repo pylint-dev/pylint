@@ -1,0 +1,4 @@
+``implicit-str-concat`` is now also emitted when an f-string or a t-string is
+implicitly concatenated, e.g. ``f"{a} = " f"{b}"``.
+
+Closes #8968
