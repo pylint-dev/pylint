@@ -1,0 +1,1 @@
+bad-integer-notation:8:13:8:23::'2147483646' is at least 1.0e6, and it should be written as '2_147_483_646' instead:HIGH
