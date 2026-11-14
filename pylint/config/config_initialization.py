@@ -68,6 +68,15 @@ def _config_initialization(  # pylint: disable=too-many-statements
     except _UnrecognizedOptionError as exc:
         unrecognized_options_message = ", ".join(exc.options)
 
+    # Resolve configuration paths before CLI options override them. A path on
+    # the command line is still relative to the working directory.
+    if config_file and linter.config.spelling_private_dict_file:
+        dictionary = Path(linter.config.spelling_private_dict_file)
+        if not dictionary.is_absolute():
+            linter.config.spelling_private_dict_file = str(
+                config_file.resolve().parent / dictionary
+            )
+
     # Run removes --load-plugins / --enable-all-extensions from the arguments after
     # loading them, so record them here or the generated config will leave them out.
     linter.config.load_plugins = tuple(

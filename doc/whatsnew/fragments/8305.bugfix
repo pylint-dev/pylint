@@ -1,0 +1,6 @@
+Resolve a relative ``spelling-private-dict-file`` path in a configuration file
+relative to that file, so the same dictionary is used when running Pylint from
+a project subdirectory. Command-line paths remain relative to the working
+directory and still override the configuration file.
+
+Closes #8305
