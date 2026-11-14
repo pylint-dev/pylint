@@ -1,0 +1,7 @@
+Fix ``unused-wildcard-import`` false positives: names that the imported module
+does not export through ``__all__`` are no longer reported. A relative wildcard
+import (``from . import *``) no longer reports ``unused-import`` for the name
+``*`` either; the names that it does import are reported as
+``unused-wildcard-import``.
+
+Closes #10827

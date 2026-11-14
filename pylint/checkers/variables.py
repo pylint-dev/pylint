@@ -291,9 +291,14 @@ def _fix_dot_imports(
                 second_name = None
                 import_module_name = imports[0]
                 if import_module_name == "*":
-                    # In case of wildcard imports,
-                    # pick the name from inside the imported module.
-                    second_name = name
+                    # In case of wildcard imports, pick the name from inside the
+                    # imported module, but only if the wildcard really imports it:
+                    # astroid adds every public name of the module to the scope,
+                    # even those excluded by its ``__all__``.
+                    if isinstance(stmt, nodes.ImportFrom) and _wildcard_import_binds(
+                        stmt, name
+                    ):
+                        second_name = name
                 else:
                     name_matches_dotted_import = False
                     if (
@@ -3550,8 +3555,12 @@ class VariablesChecker(BaseChecker):
                     and self.linter.config.dummy_variables_rgx.match(as_name)
                 )
 
+                # A star import is not a binding of its own: the names it actually
+                # imports are reported by 'unused-wildcard-import' below.
                 if isinstance(stmt, nodes.Import) or (
-                    isinstance(stmt, nodes.ImportFrom) and not stmt.modname
+                    isinstance(stmt, nodes.ImportFrom)
+                    and not stmt.modname
+                    and imported_name != "*"
                 ):
                     if isinstance(stmt, nodes.ImportFrom) and SPECIAL_OBJ.search(
                         imported_name
