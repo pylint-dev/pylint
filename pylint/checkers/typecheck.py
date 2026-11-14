@@ -892,6 +892,72 @@ def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
     return True
 
 
+def _extract_choice_aliases(val_node: nodes.Call) -> list[str]:
+    """Extract string alias names from an AliasChoices call node."""
+    func_name = getattr(val_node.func, "name", "") or getattr(
+        val_node.func, "attrname", ""
+    )
+    if func_name != "AliasChoices":
+        return []
+    aliases: list[str] = []
+    for arg in val_node.args:
+        inferred_arg = safe_infer(arg) or arg
+        if isinstance(inferred_arg, nodes.Const) and isinstance(
+            inferred_arg.value, str
+        ):
+            aliases.append(inferred_arg.value)
+        elif isinstance(inferred_arg, (nodes.List, nodes.Tuple)):
+            for elt in inferred_arg.elts:
+                inferred_elt = safe_infer(elt) or elt
+                if isinstance(inferred_elt, nodes.Const) and isinstance(
+                    inferred_elt.value, str
+                ):
+                    aliases.append(inferred_elt.value)
+    return aliases
+
+
+def _extract_alias_names(val_node: nodes.NodeNG) -> list[str]:
+    """Extract string alias names from an AST node (Const, safe_infer, or AliasChoices
+    call).
+    """
+    if isinstance(val_node, nodes.Const) and isinstance(val_node.value, str):
+        return [val_node.value]
+    inferred = safe_infer(val_node)
+    if isinstance(inferred, nodes.Const) and isinstance(inferred.value, str):
+        return [inferred.value]
+    if isinstance(val_node, nodes.Call):
+        return _extract_choice_aliases(val_node)
+    return []
+
+
+def _get_dataclass_field_aliases(class_node: nodes.ClassDef) -> dict[str, str]:
+    """Retrieve mapping of alias name -> actual field name for all dataclass fields."""
+    aliases: dict[str, str] = {}
+    try:
+        mro = class_node.mro()
+    except (InferenceError, astroid.exceptions.MroError):
+        mro = [class_node]
+    for base in reversed(mro):
+        if not isinstance(base, nodes.ClassDef):
+            continue
+        if not getattr(base, "is_dataclass", False):
+            continue
+        for assign in base.body:
+            if not isinstance(assign, nodes.AnnAssign) or not isinstance(
+                assign.target, nodes.AssignName
+            ):
+                continue
+            field_name = assign.target.name
+            val = assign.value
+            if not isinstance(val, nodes.Call):
+                continue
+            for kw in val.keywords:
+                if kw.arg in {"alias", "validation_alias"}:
+                    for alias_name in _extract_alias_names(kw.value):
+                        aliases[alias_name] = field_name
+    return aliases
+
+
 class TypeChecker(BaseChecker):
     """Try to find bugs in the code using type inference."""
 
@@ -1698,6 +1764,27 @@ accessed. Python regular expressions are accepted.",
             node, call_site, called, [p[0][0] for p in parameters]
         )
 
+        # Collect aliases for dataclass fields (e.g. Pydantic Field(alias=...))
+        alias_to_kwparam: dict[str, str] = {}
+        if (
+            callable_name == "constructor"
+            and isinstance(called.parent, nodes.ClassDef)
+            and getattr(called.parent, "is_dataclass", False)
+        ):
+            field_aliases = _get_dataclass_field_aliases(called.parent)
+            for alias, field_name in field_aliases.items():
+                if (
+                    field_name in parameter_name_to_index
+                    and alias not in parameter_name_to_index
+                ):
+                    parameter_name_to_index[alias] = parameter_name_to_index[field_name]
+                elif (
+                    field_name in kwparams
+                    and alias not in alias_to_kwparam
+                    and alias not in kwparams
+                ):
+                    alias_to_kwparam[alias] = field_name
+
         # 1. Match the positional arguments.
         for i in range(num_positional_args):
             if i < len(parameters):
@@ -1747,8 +1834,9 @@ accessed. Python regular expressions are accepted.",
                         )
                 else:
                     parameters[i] = (parameters[i][0], True)
-            elif keyword in kwparams:
-                if kwparams[keyword][1]:
+            elif keyword in kwparams or keyword in alias_to_kwparam:
+                kw_target = alias_to_kwparam.get(keyword, keyword)
+                if kwparams[kw_target][1]:
                     # Duplicate definition of function parameter.
                     self.add_message(
                         "redundant-keyword-arg",
@@ -1756,7 +1844,7 @@ accessed. Python regular expressions are accepted.",
                         args=(keyword, callable_name),
                     )
                 else:
-                    kwparams[keyword][1] = True
+                    kwparams[kw_target][1] = True
             elif called.args.kwarg is not None:
                 # The keyword argument gets assigned to the **kwargs parameter.
                 pass
