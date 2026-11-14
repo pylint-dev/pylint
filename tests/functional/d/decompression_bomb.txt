@@ -1,0 +1,9 @@
+decompression-bomb:7:8:7:28:Unsafe decompression from the archive, don't use extractall:INFERENCE
+decompression-bomb:12:8:12:28:Unsafe decompression from the archive, don't use extractall:INFERENCE
+decompression-bomb:18:12:18:33:Unsafe decompression from the archive, filesize is not checked files are not counted:CONTROL_FLOW
+decompression-bomb:24:12:24:33:Unsafe decompression from the archive, filesize is not checked files are not counted:CONTROL_FLOW
+decompression-bomb:31:16:31:37:Unsafe decompression from the archive, files are not counted:CONTROL_FLOW
+decompression-bomb:38:16:38:37:Unsafe decompression from the archive, files are not counted:CONTROL_FLOW
+decompression-bomb:45:16:45:37:Unsafe decompression from the archive, filesize is not checked:CONTROL_FLOW
+decompression-bomb:52:16:52:37:Unsafe decompression from the archive, filesize is not checked:CONTROL_FLOW
+decompression-bomb:86:16:86:37:Unsafe decompression from the archive, filesize is not checked files are not counted:CONTROL_FLOW

@@ -264,6 +264,7 @@ All messages in the warning category:
    warning/contextmanager-generator-missing-cleanup
    warning/continue-in-finally
    warning/dangerous-default-value
+   warning/deprecompression-bomb
    warning/deprecated-argument
    warning/deprecated-attribute
    warning/deprecated-class
