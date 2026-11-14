@@ -349,6 +349,55 @@ def _import_name_is_global(
     return False
 
 
+def _module_bound_by_import(binding: nodes.NodeNG, name: str) -> str | None:
+    """Return the module that ``binding`` binds to ``name`` under another name.
+
+    For instance ``xml`` for ``import xml as _x`` and ``xml.dom`` for
+    ``from xml import dom``.
+    """
+    match binding:
+        case nodes.Import():
+            return next((mod for mod, alias in binding.names if alias == name), None)
+        case nodes.ImportFrom(level=None):
+            return next(
+                (
+                    f"{binding.modname}.{imported}"
+                    for imported, alias in binding.names
+                    if (alias or imported) == name
+                ),
+                None,
+            )
+    return None
+
+
+def _is_reached_through_other_name(
+    dotted_name: str, scope: nodes.LocalsDictNodeNG
+) -> bool:
+    """Return True if ``import a.b`` is used through another name bound to ``a``.
+
+    ``import xml as _x`` then ``_x.dom.Node`` needs ``import xml.dom``, although
+    the name ``xml`` it binds is never read (#8501).
+    """
+    if "." not in dotted_name:
+        return False
+    last_part = dotted_name.rpartition(".")[2]
+    for name_node in scope.nodes_of_class(nodes.Name):
+        attributes: list[str] = []
+        access: nodes.NodeNG = name_node
+        while isinstance(access.parent, nodes.Attribute):
+            access = access.parent
+            attributes.append(access.attrname)
+        if last_part not in attributes:
+            continue
+        for binding in name_node.lookup(name_node.name)[1]:
+            module = _module_bound_by_import(binding, name_node.name)
+            if module is None or not dotted_name.startswith(f"{module}."):
+                continue
+            if f"{'.'.join([module, *attributes])}.".startswith(f"{dotted_name}."):
+                return True
+    return False
+
+
 def _flattened_scope_names(
     iterator: Iterator[nodes.Global | nodes.Nonlocal],
 ) -> set[str]:
@@ -3062,6 +3111,10 @@ class VariablesChecker(BaseChecker):
                     case nodes.Import():
                         if asname is not None:
                             msg = f"{qname} imported as {asname}"
+                        elif qname is not None and _is_reached_through_other_name(
+                            qname, node
+                        ):
+                            return
                         else:
                             msg = f"import {name}"
                         self.add_message("unused-import", args=msg, node=stmt)
@@ -3566,6 +3619,8 @@ class VariablesChecker(BaseChecker):
                         continue
 
                     if as_name is None:
+                        if _is_reached_through_other_name(imported_name, stmt.root()):
+                            continue
                         msg = f"import {imported_name}"
                     else:
                         msg = f"{imported_name} imported as {as_name}"
