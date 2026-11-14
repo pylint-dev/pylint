@@ -1,0 +1,5 @@
+Fix a false positive for ``cell-var-from-loop`` when a lambda using the loop
+variable is passed directly to ``sorted()``, ``min()``, ``max()`` or ``list.sort()``,
+which only use it before they return, e.g. ``sorted(items, key=lambda item: item[i])``.
+
+Closes #5508
