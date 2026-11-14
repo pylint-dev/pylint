@@ -1,0 +1,6 @@
+non-standard-exit-argument-names:25:4:25:16:ShortNames.__exit__:Arguments of __exit__ should be named 'exc_type, exc_value, traceback' instead of 't, v, tb':HIGH
+non-standard-exit-argument-names:30:4:30:16:AbbreviatedNames.__exit__:Arguments of __exit__ should be named 'exc_type, exc_value, traceback' instead of 'exc_type, exc_val, exc_tb':HIGH
+non-standard-exit-argument-names:35:4:35:23:AsyncBadNames.__aexit__:Arguments of __aexit__ should be named 'exc_type, exc_value, traceback' instead of 'typ, value, tb':HIGH
+non-standard-exit-argument-names:40:4:40:16:PositionalOnly.__exit__:Arguments of __exit__ should be named 'exc_type, exc_value, traceback' instead of 't, v, tb':HIGH
+non-standard-exit-argument-names:50:4:50:16:PartlyIgnored.__exit__:Arguments of __exit__ should be named 'exc_type, exc_value, traceback' instead of 'exc_type, _exc_value, tb':HIGH
+non-standard-exit-argument-names:65:4:65:16:DefaultValues.__exit__:Arguments of __exit__ should be named 'exc_type, exc_value, traceback' instead of 't, v, tb':HIGH
