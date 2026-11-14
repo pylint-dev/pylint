@@ -21,3 +21,5 @@ possibly-used-before-assignment:315:10:315:11:conditional_wildcard_import_unreso
 used-before-assignment:326:20:326:23::Using variable 'ref' before assignment:HIGH
 used-before-assignment:331:4:331:6::Using variable 'nr' before assignment:HIGH
 used-before-assignment:334:16:334:23::Using variable 'outside' before assignment:HIGH
+possibly-used-before-assignment:345:14:345:19:name_assigned_after_inner_if_continue:Possibly using variable 'value' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:355:14:355:19:name_assigned_in_try_with_except_continue:Possibly using variable 'value' before assignment:CONTROL_FLOW
