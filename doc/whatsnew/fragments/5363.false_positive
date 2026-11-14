@@ -1,0 +1,5 @@
+Fixed a false positive for ``subprocess-run-check`` when ``check`` is passed by
+unpacking a dict that always defines it, such as
+``subprocess.run(command, **{"check": True})``.
+
+Closes #5363
