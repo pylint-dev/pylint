@@ -6,7 +6,7 @@ dill @ git+https://github.com/uqfoundation/dill@2308ffb0d0c605b9c050fa4c9fd5793d
 typing-extensions~=4.15
 py~=1.11.0
 pytest>=8.4,<10.0
-pytest-benchmark~=5.1
+pytest-benchmark>=5.3.1,<6  # 5.3.1 is the first release supporting pytest 9.2
 pytest-timeout~=2.4
 pytest-remaster~=0.1.0
 towncrier>=24.8,<27.0

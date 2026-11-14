@@ -47,6 +47,112 @@ for additional fixes, features, and performance improvements applicable to pylin
 
 .. towncrier release notes start
 
+What's new in Pylint 4.1.4?
+---------------------------
+Release date: 2026-11-14
+
+
+False Positives Fixed
+---------------------
+
+- Fix a false positive for ``using-constant-test`` when testing a method or function
+  whose decorator is unknown or is a class, such as a third-party ``cached_property``.
+  astroid still infers such a method as a method, but the decorator may have turned
+  it into any other value.
+
+  Closes #3484 (`#3484 <https://github.com/pylint-dev/pylint/issues/3484>`_)
+
+- Avoid ``dict-init-mutate`` when an assignment's key or value references the dictionary being initialized.
+  Stop the suggested dictionary literal before later assignments that reference the dictionary.
+
+  Closes #7997 (`#7997 <https://github.com/pylint-dev/pylint/issues/7997>`_)
+
+- Fixed a false positive for ``unreachable`` when a terminating function call
+  (such as ``sys.exit()``) is inside a compound expression within a lambda body.
+
+  Closes #8567 (`#8567 <https://github.com/pylint-dev/pylint/issues/8567>`_)
+
+- Fix a false positive for ``used-before-assignment`` when a class body uses a module-level or builtin name that a method or nested class defined later in the same class body shadows.
+
+  Closes #9134 (`#9134 <https://github.com/pylint-dev/pylint/issues/9134>`_)
+
+- Fixed a false positive ``undefined-variable`` (E0602) when a name annotated
+  without a value (``x: int``) is assigned with the walrus operator (``:=``) in
+  the condition of a comprehension spanning several lines, and used in its element.
+
+  Closes #11647 (`#11647 <https://github.com/pylint-dev/pylint/issues/11647>`_)
+
+- Fix a false positive for ``method-hidden`` when a decorated method is inferred
+  as a property.
+
+  Refs #11732 (`#11732 <https://github.com/pylint-dev/pylint/issues/11732>`_)
+
+- Fix false positives for ``bad-dunder-name`` on ``__prepare__``, ``__mro_entries__``,
+  ``__buffer__``, ``__release_buffer__`` (Python 3.12+) and ``__replace__`` (Python 3.13+).
+
+  Closes #11791 (`#11791 <https://github.com/pylint-dev/pylint/issues/11791>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Pyreverse now reports a clear error instead of a traceback when ``--class`` names
+  an unknown class or module, or omits the module name when analyzing multiple modules.
+  Targets whose inferred values are all known not to be classes are also rejected.
+  If a target has several inferred values, Pyreverse uses the first class among them.
+
+  Closes #22 (`#22 <https://github.com/pylint-dev/pylint/issues/22>`_)
+
+- Fix a crash when linting a package whose parent directory is an implicit namespace package
+  that also exists in ``site-packages`` or the standard library: the module paths of the files inside it could not be
+  resolved, and the given package was reported without its package prefix.
+
+  Closes #10278 (`#10278 <https://github.com/pylint-dev/pylint/issues/10278>`_)
+
+- Fix a crash in the logging checker when a logging call uses a ``bytes`` format string that is not valid UTF-8.
+
+  Closes #10813 (`#10813 <https://github.com/pylint-dev/pylint/issues/10813>`_)
+
+- Fixed an ``AssertionError`` crash in the typecheck checker when accessing an attribute on an ``Enum`` exception instance.
+
+  Closes #11638 (`#11638 <https://github.com/pylint-dev/pylint/issues/11638>`_)
+
+- Fixed a crash in ``use-maxsplit-arg`` (``C0207``) when a ``str.split()`` or
+  ``str.rsplit()`` call indexed by a variable is used inside a loop that assigns
+  to a subscript, an attribute or an unpacked tuple (for example ``obj[0] = 1``,
+  ``obj.attr = 1`` or ``a, b = 1, 2``). Such targets have no ``name`` attribute
+  and previously raised ``AttributeError``.
+
+  The index variable is now also recognized as changed in the loop when it is
+  reassigned through tuple unpacking or an assignment expression (``:=``), which
+  removes a false positive.
+
+  Refs #11676 (`#11676 <https://github.com/pylint-dev/pylint/issues/11676>`_)
+
+- ``--generate-toml-config`` and ``--generate-rcfile`` now include the plugins given with
+  ``--load-plugins`` or ``--enable-all-extensions``.
+
+  Closes #11699 (`#11699 <https://github.com/pylint-dev/pylint/issues/11699>`_)
+
+- Checkers loaded with ``--load-plugins`` or ``init-hook`` are no longer registered twice in every
+  worker process, which used to emit each of their messages twice when ``--jobs`` was greater than 1.
+
+  Closes #11701 (`#11701 <https://github.com/pylint-dev/pylint/issues/11701>`_)
+
+
+
+Other Changes
+-------------
+
+- Backslashes in message and option descriptions are now escaped in the generated
+  documentation and in ``--full-documentation``, so ``use "\b" instead`` no longer
+  renders as ``use "b" instead``.
+
+  Closes #10737 (`#10737 <https://github.com/pylint-dev/pylint/issues/10737>`_)
+
+
+
 What's new in Pylint 4.1.3?
 ---------------------------
 Release date: 2026-10-11
