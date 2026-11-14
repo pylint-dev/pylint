@@ -1,0 +1,3 @@
+Fix a false positive for ``undefined-all-variable`` when the module defines a module level ``__getattr__`` (PEP 562), which can serve the names listed in ``__all__``.
+
+Refs #4300

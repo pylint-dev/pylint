@@ -3477,7 +3477,9 @@ class VariablesChecker(BaseChecker):
                 del not_consumed[elt_name]
                 continue
 
-            if elt_name not in node.locals:
+            # A module level ``__getattr__`` (PEP 562) can serve names that are not
+            # defined statically, so a name missing from the locals may still exist.
+            if elt_name not in node.locals and "__getattr__" not in node.locals:
                 if not node.package:
                     self.add_message(
                         "undefined-all-variable", args=(elt_name,), node=elt
