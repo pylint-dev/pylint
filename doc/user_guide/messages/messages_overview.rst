@@ -381,6 +381,7 @@ All messages in the warning category:
    warning/useless-param-doc
    warning/useless-parent-delegation
    warning/useless-type-doc
+   warning/useless-version-check
    warning/useless-with-lock
    warning/using-assignment-expression-in-unsupported-version
    warning/using-comprehension-unpacking-in-unsupported-version
