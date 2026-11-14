@@ -3738,7 +3738,10 @@ class VariablesChecker(BaseChecker):
         """
         if node.pytype() != "builtins.str":
             return
-        if not utils.is_node_in_type_annotation_context(node):
+        if not (
+            utils.is_node_in_type_annotation_context(node)
+            or utils.is_node_in_explicit_type_alias_value(node)
+        ):
             return
 
         # Check if parent's or grandparent's first child is typing.Literal

@@ -1,0 +1,4 @@
+Fixed a false positive for ``unused-import`` when the only use of an imported name is in a
+string in the value of an explicit ``TypeAlias``, such as ``Alias: TypeAlias = "Callable[[int], int]"``.
+
+Closes #9223
