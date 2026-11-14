@@ -1,0 +1,4 @@
+``ignore-comments`` in the similarities checker no longer truncates strings that contain
+``#``; comments are now found by tokenizing the source.
+
+Closes #11681
