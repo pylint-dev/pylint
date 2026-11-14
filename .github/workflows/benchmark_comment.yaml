@@ -1,0 +1,70 @@
+name: Benchmark / Comment
+
+on:
+  workflow_run:
+    workflows: [Benchmark]
+    types:
+      - completed
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  comment:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    name: Post results
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download benchmark result
+        uses: actions/github-script@v8.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: ${{ github.event.workflow_run.id }},
+            });
+            const [result] = artifacts.data.artifacts.filter(
+              a => a.name === 'benchmark_result'
+            );
+            if (!result) {
+              console.log('No benchmark artifact found');
+              return;
+            }
+            const download = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: result.id,
+              archive_format: 'zip',
+            });
+            fs.writeFileSync('benchmark_result.zip', Buffer.from(download.data));
+
+      - name: Unzip result
+        run: unzip benchmark_result.zip
+
+      - name: Post comment
+        id: post-comment
+        uses: actions/github-script@v8.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const comment = fs.readFileSync('benchmark_comment.md', { encoding: 'utf8' });
+            console.log("Comment to post:");
+            console.log(comment);
+            const prNumber = parseInt(fs.readFileSync('pr_number.txt', { encoding: 'utf8' }));
+            await github.rest.issues.createComment({
+              issue_number: prNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment,
+            });
+            return prNumber;
+
+      - name: Hide old benchmark comments
+        uses: kanga333/comment-hider@c12bb20b48aeb8fc098e35967de8d4f8018fffdf # v0.4.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          leave_visible: 1
+          issue_number: ${{ steps.post-comment.outputs.result }}
