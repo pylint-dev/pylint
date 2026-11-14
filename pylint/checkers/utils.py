@@ -2030,10 +2030,13 @@ def _is_node_in_same_scope(
 
 
 def _is_reassigned_relative_to_current(
-    node: nodes.NodeNG, varname: str, before: bool
+    node: nodes.NodeNG, varname: str, before: bool | None
 ) -> bool:
     """Check if the given variable name is reassigned in the same scope relative to
     the current node.
+
+    ``before=True`` only considers assignments on earlier lines, ``before=False``
+    only later lines, and ``before=None`` either, in a single walk of the scope.
     """
     node_scope = (
         node.parent.scope()
@@ -2047,7 +2050,11 @@ def _is_reassigned_relative_to_current(
         (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
     ):
         if a.name == varname and a.lineno is not None:
-            if before:
+            if before is None:
+                if a.lineno != node_lineno:
+                    if _is_node_in_same_scope(a, node_scope):
+                        return True
+            elif before:
                 if a.lineno < node_lineno:
                     if _is_node_in_same_scope(a, node_scope):
                         return True
@@ -2069,6 +2076,16 @@ def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
     current node.
     """
     return _is_reassigned_relative_to_current(node, varname, before=False)
+
+
+def is_reassigned_before_or_after_current(node: nodes.NodeNG, varname: str) -> bool:
+    """Check if the given variable name is reassigned in the same scope before or
+    after the current node.
+
+    Equivalent to ``is_reassigned_before_current(...) or
+    is_reassigned_after_current(...)``, but walks the scope only once.
+    """
+    return _is_reassigned_relative_to_current(node, varname, before=None)
 
 
 def is_deleted_after_current(node: nodes.NodeNG, varname: str) -> bool:
