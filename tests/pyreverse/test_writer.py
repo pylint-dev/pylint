@@ -16,6 +16,7 @@ import pytest
 from pytest import MonkeyPatch
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
+from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
 from pylint.pyreverse.inspector import Linker, Project
 from pylint.pyreverse.writer import DiagramWriter
 from pylint.testutils.pyreverse import PyreverseConfig
@@ -225,7 +226,10 @@ def test_no_standalone_dot_files(generated_file: str) -> None:
 @pytest.mark.usefixtures("setup_type_check_imports_dot")
 @pytest.mark.parametrize("generated_file", TYPE_CHECK_IMPORTS_FILES)
 def test_type_check_imports_dot_files(generated_file: str) -> None:
-    _assert_files_are_equal(generated_file)
+    if generated_file == "classes_type_check_imports.dot":
+        assert not Path(generated_file).exists()
+    else:
+        _assert_files_are_equal(generated_file)
 
 
 @pytest.mark.usefixtures("setup_puml")
@@ -257,7 +261,11 @@ def test_colorized_puml_files(generated_file: str) -> None:
 def test_depth_limited_write(default_max_depth: int) -> None:
     """Test package diagram generation with a depth limit of 1."""
     _assert_files_are_equal(f"packages_depth_limited_{default_max_depth}.dot")
-    _assert_files_are_equal(f"classes_depth_limited_{default_max_depth}.dot")
+    class_file = f"classes_depth_limited_{default_max_depth}.dot"
+    if default_max_depth == 0:
+        assert not Path(class_file).exists()
+    else:
+        _assert_files_are_equal(class_file)
 
 
 def _assert_files_are_equal(generated_file: str) -> None:
@@ -297,3 +305,21 @@ def test_package_name_with_slash(default_config: PyreverseConfig) -> None:
     writer.write([obj])
 
     assert os.path.exists("test_package_name_with_slash_.dot")
+
+
+@pytest.mark.parametrize("output_format", ["dot", "puml", "mmd", "html"])
+def test_empty_class_diagram_does_not_skip_package_diagram(
+    tmp_path: Path, output_format: str
+) -> None:
+    """Skipping an empty class diagram preserves subsequent package output."""
+    linker = Linker(Project())
+    classes = ClassDiagram("classes", "PUB_ONLY", linker)
+    packages = PackageDiagram("packages", "PUB_ONLY", linker)
+    writer = DiagramWriter(
+        PyreverseConfig(output_format=output_format, output_directory=str(tmp_path))
+    )
+
+    writer.write([classes, packages])
+
+    assert not (tmp_path / f"classes.{output_format}").exists()
+    assert (tmp_path / f"packages.{output_format}").is_file()

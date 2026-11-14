@@ -43,6 +43,12 @@ class DiagramWriter:
     def write(self, diadefs: Iterable[ClassDiagram | PackageDiagram]) -> None:
         """Write files for <project> according to <diadefs>."""
         for diagram in diadefs:
+            if (
+                isinstance(diagram, ClassDiagram)
+                and not isinstance(diagram, PackageDiagram)
+                and not diagram.objects
+            ):
+                continue
             basename = diagram.title.strip().replace("/", "_").replace(" ", "_")
             file_name = f"{basename}.{self.config.output_format}"
             if os.path.exists(self.config.output_directory):
