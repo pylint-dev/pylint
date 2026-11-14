@@ -97,6 +97,17 @@ def report_by_type_stats(
     sect.append(reporter_nodes.Table(children=lines, cols=6, rheaders=1))
 
 
+def _is_call_await_or_yield(node: nodes.NodeNG) -> bool:
+    """Return whether ``node`` is a call, an ``await`` or a ``yield``, or a
+    conditional expression whose branches all are, as in ``f() if test else g()``.
+    """
+    if isinstance(node, nodes.IfExp):
+        return _is_call_await_or_yield(node.body) and _is_call_await_or_yield(
+            node.orelse
+        )
+    return isinstance(node, (nodes.Call, nodes.Await, nodes.Yield))
+
+
 # pylint: disable-next = too-many-public-methods
 class BasicChecker(_BasicChecker):
     """Basic checker.
@@ -510,12 +521,13 @@ class BasicChecker(_BasicChecker):
 
         # Ignore if this is :
         # * the unique child of a try/except body
-        # * a yield statement
+        # * a yield or await statement, or a conditional expression that calls,
+        #   awaits or yields on every branch
         # * an ellipsis (which can be used on Python 3 instead of pass)
         # warn W0106 if we have any underlying function call (we can't predict
         # side effects), else pointless-statement
         if (
-            isinstance(expr, (nodes.Yield, nodes.Await))
+            _is_call_await_or_yield(expr)
             or (
                 isinstance(node.parent, (nodes.Try, nodes.TryStar))
                 and node.parent.body == [node]
