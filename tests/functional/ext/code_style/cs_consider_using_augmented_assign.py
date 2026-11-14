@@ -162,3 +162,8 @@ d2 = {}
 key = str(1)
 previous = str(0)
 d2[key] = d2[previous] + d[key]
+
+# An augmented assignment cannot have more than one target, so a chained
+# assignment cannot be rewritten as one without dropping the other targets.
+x = y = x + 1
+y = x = x + 1

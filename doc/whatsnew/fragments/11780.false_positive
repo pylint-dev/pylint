@@ -1,0 +1,4 @@
+Fix a false positive for ``consider-using-augmented-assign`` on chained assignments
+such as ``x = y = x + 1``, which cannot be rewritten as a single augmented assignment.
+
+Refs #11780
