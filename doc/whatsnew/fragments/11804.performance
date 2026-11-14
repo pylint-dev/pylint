@@ -1,0 +1,6 @@
+Linting is about 3% faster. ``use-list-literal`` and ``no-member`` no longer render
+every call or attribute as source text (``no-member`` still does when ``generated-members``
+is set), ``bidirectional-unicode`` skips ASCII lines in UTF-8 files, and
+``trailing-comma-tuple`` only examines comma tokens.
+
+Refs #11804

@@ -493,6 +493,10 @@ class UnicodeChecker(checkers.BaseRawFileChecker):
         """Look for Bidirectional Unicode, if we use unicode."""
         if not self._is_unicode(codec):
             return
+        # In UTF-8 every non-ASCII character is encoded with bytes >= 0x80, so a
+        # pure ASCII line cannot contain one. (Not true of UTF-16/32.)
+        if codec == "utf-8" and line.isascii():
+            return
         for dangerous in BIDI_UNICODE:
             if _cached_encode_search(dangerous, codec) in line:
                 # Note that we don't add a col_offset on purpose:

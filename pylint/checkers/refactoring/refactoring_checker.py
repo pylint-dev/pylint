@@ -824,9 +824,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # reported by IronPython.
                 self._elifs.extend([token[2], tokens[index + 1][2]])
             elif (
-                trailing_comma_tuple_enabled_for_file
-                or trailing_comma_tuple_enabled_once
-            ) and _is_trailing_comma(tokens, index):
+                (
+                    trailing_comma_tuple_enabled_for_file
+                    or trailing_comma_tuple_enabled_once
+                )
+                # Cheap pre-filter so _is_trailing_comma isn't called for every token
+                and token_string == ","
+                and _is_trailing_comma(tokens, index)
+            ):
                 # If "trailing-comma-tuple" is enabled globally we always check _is_trailing_comma
                 # it might be for nothing if there's a local disable, or if the message control is
                 # not enabling 'trailing-comma-tuple', but the alternative is having to check if
@@ -2218,11 +2223,19 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_use_list_literal(self, node: nodes.Call) -> None:
         """Check if empty list is created by using the literal []."""
-        if node.as_string() == "list()":
+        # Same as ``node.as_string() == "list()"``, without rendering every call.
+        if (
+            isinstance(node.func, nodes.Name)
+            and node.func.name == "list"
+            and not node.args
+            and not node.keywords
+        ):
             inferred = utils.safe_infer(node.func)
-            if isinstance(inferred, nodes.ClassDef) and not node.args:
-                if inferred.qname() == "builtins.list":
-                    self.add_message("use-list-literal", node=node)
+            if (
+                isinstance(inferred, nodes.ClassDef)
+                and inferred.qname() == "builtins.list"
+            ):
+                self.add_message("use-list-literal", node=node)
 
     def _check_use_dict_literal(self, node: nodes.Call) -> None:
         """Check if dict is created by using the literal {}."""
