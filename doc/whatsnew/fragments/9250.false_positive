@@ -1,0 +1,6 @@
+Fixed false positive ``unsubscriptable-object`` on a class attribute set to
+``None`` in the class body and assigned through ``cls = self.__class__``.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #9250

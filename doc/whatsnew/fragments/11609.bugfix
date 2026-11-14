@@ -1,0 +1,6 @@
+Fixed a crash when a class inherits from a slice of a call, like
+``Unpack()[:]``.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #11609

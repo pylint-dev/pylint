@@ -1,0 +1,7 @@
+Fixed false positives ``unsupported-assignment-operation``,
+``unsubscriptable-object`` and ``unsupported-membership-test`` on a class
+attribute set to ``None`` in the class body and to a ``dict`` through ``cls``.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #9809

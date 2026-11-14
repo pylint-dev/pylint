@@ -780,6 +780,15 @@ class NameChecker(_BasicChecker):
                 # or as a type annotation. We only want to check the former.
                 assert node is not None
                 return not isinstance(node.parent, nodes.AnnAssign)
+        elif isinstance(inferred, bases.Instance):
+            # A 'type' statement or a 'TypeAliasType()' call. Used as an
+            # annotation, it is the type of a variable, not a new type alias.
+            if inferred.qname() == "typing.TypeAliasType":
+                assert node is not None
+                return not (
+                    isinstance(node.parent, nodes.AnnAssign)
+                    and node.parent.annotation is node
+                )
         elif isinstance(inferred, nodes.FunctionDef):
             # TODO: when py3.12 is minimum, remove this condition
             # TypeAlias became a class in python 3.12

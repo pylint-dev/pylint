@@ -1,0 +1,6 @@
+Fixed a false positive ``unsupported-membership-test`` on the right of
+``x is None or``, where ``x`` cannot be ``None``.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #7978

@@ -1,0 +1,6 @@
+Fixed a false positive ``not-callable`` on an attribute narrowed by ``is None``
+and ``isinstance`` checks.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #9410

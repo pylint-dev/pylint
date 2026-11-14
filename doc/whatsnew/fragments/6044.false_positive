@@ -1,0 +1,6 @@
+Fixed a false positive ``not-an-iterable`` on a class attribute set to ``None``
+in the class body and to a list through the class in a staticmethod.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #6044
