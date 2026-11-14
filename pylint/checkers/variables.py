@@ -1951,6 +1951,22 @@ class VariablesChecker(BaseChecker):
                 )
             )
         ) and not utils.node_ignores_exception(node, NameError):
+            # A deferred annotation may name the class it belongs to when that
+            # class is local to a function: the annotation closes over the
+            # function scope, so the name is bound by evaluation time. A class
+            # nested in another class binds the name in the class namespace
+            # only, which the annotation cannot see.
+            if (
+                self._postponed_evaluation_enabled
+                and utils.is_node_in_type_annotation_context(node)
+                and any(
+                    isinstance(ancestor, nodes.ClassDef)
+                    and ancestor.name == node.name
+                    and isinstance(ancestor.parent.scope(), nodes.FunctionDef)
+                    for ancestor in node.node_ancestors()
+                )
+            ):
+                return
             self.add_message("undefined-variable", args=node.name, node=node)
 
     def _should_node_be_skipped(

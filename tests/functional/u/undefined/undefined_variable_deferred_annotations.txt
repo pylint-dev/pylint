@@ -1,0 +1,3 @@
+undefined-variable:15:31:15:36:factory.Nested.Inner.clone:Undefined variable 'Inner':UNDEFINED
+undefined-variable:19:27:19:31:factory.Parameter.clone:Undefined variable 'self':UNDEFINED
+undefined-variable:22:25:22:32:factory.annotated:Undefined variable 'Unknown':UNDEFINED
