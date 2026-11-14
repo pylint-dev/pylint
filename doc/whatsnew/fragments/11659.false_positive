@@ -1,0 +1,5 @@
+``return-in-finally`` is no longer emitted for a ``return`` inside a function
+defined in a ``finally`` clause, and is emitted only once for a ``return`` in a
+``finally`` clause nested inside another ``finally`` clause.
+
+Refs #11659

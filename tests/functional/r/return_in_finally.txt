@@ -2,3 +2,6 @@ return-in-finally:8:8:8:24:second_favorite:'return' shadowed by the 'finally' cl
 return-in-finally:18:12:18:18:all_favorites:'return' shadowed by the 'finally' clause.:HIGH
 return-in-finally:29:16:29:40:more_favorites:'return' shadowed by the 'finally' clause.:HIGH
 return-in-finally:41:20:41:56:even_more_favorites:'return' shadowed by the 'finally' clause.:HIGH
+return-in-finally:62:16:62:24:callback_defined_in_finally.callback_with_finally:'return' shadowed by the 'finally' clause.:HIGH
+return-in-finally:74:12:74:20:nested_finally:'return' shadowed by the 'finally' clause.:HIGH
+return-in-finally:82:12:82:20:try_body_inside_finally:'return' shadowed by the 'finally' clause.:HIGH
