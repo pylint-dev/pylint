@@ -1,0 +1,4 @@
+``assigning-non-slot`` is now also emitted for classes decorated with
+``@dataclass(slots=True)``, whose fields become their ``__slots__``.
+
+Closes #7790

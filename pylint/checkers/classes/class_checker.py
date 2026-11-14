@@ -624,6 +624,58 @@ def _assigned_value(node: nodes.AssignAttr) -> nodes.NodeNG | None:
     return parent.value
 
 
+def _get_dataclass_fields_as_slots(node: nodes.ClassDef) -> list[str] | None:
+    """Return the field names of ``node`` if it is decorated with
+    ``@dataclass(slots=True)``, which turns them into ``__slots__``.
+    """
+    if not (node.is_dataclass and node.decorators):
+        return None
+    for decorator in node.decorators.nodes:
+        match decorator:
+            case nodes.Call(
+                func=nodes.Name(name="dataclass")
+                | nodes.Attribute(attrname="dataclass"),
+                keywords=keywords,
+            ) if any(
+                keyword.arg == "slots" and keyword.value.bool_value() is True
+                for keyword in keywords or ()
+            ):
+                return [
+                    child.target.name
+                    for child in node.body
+                    if isinstance(child, nodes.AnnAssign)
+                    and isinstance(child.target, nodes.AssignName)
+                    and not utils.is_assign_name_annotated_with(
+                        child.target, "ClassVar"
+                    )
+                ]
+    return None
+
+
+def _get_dataclass_slots(node: nodes.ClassDef) -> list[str] | None:
+    """Return the slots of a ``@dataclass(slots=True)`` class and its ancestors.
+
+    Return None for any other class, and when an ancestor has no slots, since
+    the instances then have a ``__dict__``.
+    """
+    slots = _get_dataclass_fields_as_slots(node)
+    if slots is None:
+        return None
+    for ancestor in node.ancestors():
+        if ancestor.qname() in {"typing.Generic", "builtins.object"}:
+            continue
+        ancestor_slots = _get_dataclass_fields_as_slots(ancestor)
+        if ancestor_slots is None:
+            if "__slots__" not in ancestor.locals:
+                return None
+            slot_nodes = safe_slots(ancestor)
+            if slot_nodes is None:
+                return None
+            ancestor_slots = [slot.value for slot in slot_nodes]
+        slots.extend(ancestor_slots)
+    return slots
+
+
 MSGS: dict[str, MessageDefinitionTuple] = {
     "F0202": (
         "Unable to check methods signature (%s / %s)",
@@ -2010,8 +2062,11 @@ a metaclass class method.",
         klass = inferred._proxied
         if not has_known_bases(klass):
             return
+        dataclass_slots = None
         if "__slots__" not in klass.locals:
-            return
+            dataclass_slots = _get_dataclass_slots(klass)
+            if dataclass_slots is None:
+                return
         # If `__setattr__` is defined on the class, then we can't reason about
         # what will happen when assigning to an attribute.
         if any(
@@ -2029,21 +2084,26 @@ a metaclass class method.",
                 del cache[klass.slots]
 
         slots = safe_slots(klass)
-        if slots is None:
+        if slots is not None:
+            slot_names = [slot.value for slot in slots]
+        elif dataclass_slots is not None:
+            slot_names = dataclass_slots
+        else:
             return
         # If any ancestor doesn't use slots, the slots
         # defined for this class are superfluous.
         if any(
             "__slots__" not in ancestor.locals
             and ancestor.name not in ("Generic", "object")
+            and _get_dataclass_fields_as_slots(ancestor) is None
             for ancestor in klass.ancestors()
         ):
             return
 
-        if not any(slot.value == node.attrname for slot in slots):
+        if node.attrname not in slot_names:
             # If we have a '__dict__' in slots, then
             # assigning any name is valid.
-            if not any(slot.value == "__dict__" for slot in slots):
+            if "__dict__" not in slot_names:
                 if _is_attribute_property(node.attrname, klass):
                     # Properties circumvent the slots mechanism,
                     # so we should not emit a warning for them.
@@ -2066,9 +2126,10 @@ a metaclass class method.",
                 if node.attrname == "__class__":
                     # Without a single assigned value there is no slots layout
                     # to compare against, e.g. for a for-loop, ``with``, or
-                    # tuple-unpacking target.
+                    # tuple-unpacking target. A slots dataclass has no
+                    # ``__slots__`` in the class body to compare either.
                     assigned_value = _assigned_value(node)
-                    if assigned_value is None:
+                    if assigned_value is None or slots is None:
                         return
                     if _has_same_layout_slots(slots, assigned_value):
                         return
