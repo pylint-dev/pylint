@@ -1,0 +1,5 @@
+Fix a false positive for ``redefined-outer-name`` when another module sets an
+attribute on this module: such an assignment does not define a name in this
+module's scope.
+
+Closes #8880
