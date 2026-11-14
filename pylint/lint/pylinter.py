@@ -1247,7 +1247,7 @@ class PyLinter(
             )
         self.stats.reset_message_count()
 
-    def generate_reports(self, verbose: bool = False) -> int | None:
+    def generate_reports(self, verbose: bool = False) -> float | None:
         """Close the whole package /module, it's time to make reports !
 
         if persistent run, pickle results for later comparison
@@ -1272,11 +1272,11 @@ class PyLinter(
             score_value = None
         return score_value
 
-    def _report_evaluation(self, verbose: bool = False) -> int | None:
+    def _report_evaluation(self, verbose: bool = False) -> float | None:
         """Make the global evaluation report."""
         # check with at least a statement (usually 0 when there is a
         # syntax error preventing pylint from further processing)
-        note = None
+        note: float | None = None
         previous_stats = load_results(self.file_state.base_name)
         if self.stats.statement == 0:
             return note
@@ -1293,17 +1293,23 @@ class PyLinter(
                 "statement": self.stats.statement,
                 "info": self.stats.info,
             }
-            note = eval(evaluation, {}, stats_dict)  # pylint: disable=eval-used
+            evaluated_note: float = eval(  # pylint: disable=eval-used
+                evaluation, {}, stats_dict
+            )
         except Exception as ex:  # pylint: disable=broad-except
             msg = f"An exception occurred while rating: {ex}"
         else:
-            self.stats.global_note = note
-            msg = f"Your code has been rated at {note:.2f}/10"
+            note = evaluated_note
+            self.stats.global_note = evaluated_note
+            msg = f"Your code has been rated at {evaluated_note:.2f}/10"
             if previous_stats:
                 pnote = previous_stats.global_note
                 if pnote is not None:
-                    msg += f" (previous run: {pnote:.2f}/10, {note - pnote:+.2f})"
-            if note < self.config.fail_under:
+                    msg += (
+                        f" (previous run: {pnote:.2f}/10, "
+                        f"{evaluated_note - pnote:+.2f})"
+                    )
+            if evaluated_note < self.config.fail_under:
                 msg += f" -- below fail-under threshold ({self.config.fail_under})"
 
             if verbose:
