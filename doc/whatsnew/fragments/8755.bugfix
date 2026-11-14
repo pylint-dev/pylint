@@ -1,0 +1,6 @@
+Fixed a crash on ``super()`` in a function decorated with ``classmethod`` that is
+defined outside a class.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #8755

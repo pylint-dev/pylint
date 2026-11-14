@@ -1,0 +1,6 @@
+Fixed a false positive ``unsupported-membership-test`` on a class attribute set
+to ``None`` in the class body and to a list in a classmethod.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #3045

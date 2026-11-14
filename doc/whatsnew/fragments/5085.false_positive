@@ -1,0 +1,6 @@
+Fixed a false positive ``invalid-unary-operand-type`` on a property that
+replaces ``None`` with a number before returning it.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #5085
