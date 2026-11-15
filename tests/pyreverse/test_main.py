@@ -194,6 +194,7 @@ def test_verbose(_: mock.MagicMock, capsys: CaptureFixture[str]) -> None:
         ("classes", []),
         ("show_ancestors", None),
         ("all_ancestors", None),
+        ("all_derived", 0),
         ("show_associated", None),
         ("all_associated", None),
         ("show_builtin", 0),

@@ -12,10 +12,11 @@ import re
 from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
 from textwrap import indent
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
-from astroid import InferenceError, extract_node, nodes, parse
+from astroid import InferenceError, MroError, extract_node, nodes, parse
 from astroid.bases import Instance
 from astroid.context import InferenceContext
 from astroid.inference_tip import inference_tip
@@ -731,3 +732,198 @@ def test_get_leaf_nodes(generator_factory: GeneratorFactory) -> None:
 
     generator = generator_factory(args=specified_packeges)
     assert len(corr.difference(generator.get_leaf_nodes())) == 0
+
+
+def test_class_diagram_all_derived_basic(HANDLER: DiadefsHandler) -> None:
+    """Test --all-derived discovers direct, indirect, and sibling subclasses."""
+    code = """
+class Animal:
+    pass
+
+class Dog(Animal):
+    pass
+
+class Puppy(Dog):
+    pass
+
+class Cat(Animal):
+    pass
+
+class Vehicle:
+    pass
+"""
+    module = parse(code, module_name="test_pkg")
+    project = Project("test_pkg")
+    project.add_module(module)
+
+    # 1. Without all-derived (default): only Animal should be present
+    HANDLER.config.classes = ["Animal"]
+    HANDLER.config.module_names = False
+    HANDLER.config.all_derived = False
+    cd_default = ClassDiadefGenerator(Linker(project), HANDLER).class_diagram(
+        project, "Animal"
+    )
+    assert [o.title for o in cd_default.objects] == ["Animal"]
+
+    # 2. With all-derived: Animal, Dog, Puppy, and Cat should be present; Vehicle excluded
+    HANDLER.config.all_derived = True
+    cd_derived = ClassDiadefGenerator(Linker(project), HANDLER).class_diagram(
+        project, "Animal"
+    )
+    cd_derived.extract_relationships()
+    classes = _process_classes(cd_derived.objects)
+    assert classes == [
+        (True, "Animal"),
+        (True, "Cat"),
+        (True, "Dog"),
+        (True, "Puppy"),
+    ]
+    relations = _process_relations(cd_derived.relationships)
+    assert ("specialization", "Cat", "Animal") in relations
+    assert ("specialization", "Dog", "Animal") in relations
+    assert ("specialization", "Puppy", "Dog") in relations
+
+
+def test_class_diagram_all_derived_cross_module(HANDLER: DiadefsHandler) -> None:
+    """Test --all-derived discovers subclasses defined in different modules."""
+    base_mod = parse("class Base: pass", module_name="pkg.base")
+    derived_mod = parse(
+        "from pkg.base import Base\n"
+        "class Intermediate(Base): pass\n"
+        "class Leaf(Intermediate): pass\n"
+        "class Other: pass\n",
+        module_name="pkg.derived",
+    )
+    project = Project("pkg")
+    project.add_module(base_mod)
+    project.add_module(derived_mod)
+
+    HANDLER.config.classes = ["pkg.base.Base"]
+    HANDLER.config.all_derived = True
+    cd = ClassDiadefGenerator(Linker(project), HANDLER).class_diagram(
+        project, "pkg.base.Base"
+    )
+    classes = _process_classes(cd.objects)
+    assert classes == [
+        (True, "pkg.base.Base"),
+        (True, "pkg.derived.Intermediate"),
+        (True, "pkg.derived.Leaf"),
+    ]
+
+
+def test_class_diagram_all_derived_diamond_inheritance(HANDLER: DiadefsHandler) -> None:
+    """Test --all-derived avoids duplicate nodes with multiple/diamond inheritance."""
+    code = """
+class Root:
+    pass
+
+class BranchA(Root):
+    pass
+
+class BranchB(Root):
+    pass
+
+class Diamond(BranchA, BranchB):
+    pass
+"""
+    module = parse(code, module_name="sample")
+    project = Project("sample")
+    project.add_module(module)
+
+    HANDLER.config.classes = ["Root"]
+    HANDLER.config.module_names = False
+    HANDLER.config.all_derived = True
+    cd = ClassDiadefGenerator(Linker(project), HANDLER).class_diagram(project, "Root")
+    cd.extract_relationships()
+    classes = _process_classes(cd.objects)
+    assert classes == [
+        (True, "BranchA"),
+        (True, "BranchB"),
+        (True, "Diamond"),
+        (True, "Root"),
+    ]
+    relations = _process_relations(cd.relationships)
+    assert ("specialization", "BranchA", "Root") in relations
+    assert ("specialization", "BranchB", "Root") in relations
+    assert ("specialization", "Diamond", "BranchA") in relations
+    assert ("specialization", "Diamond", "BranchB") in relations
+
+
+def test_default_diadef_generator_all_derived(HANDLER: DiadefsHandler) -> None:
+    """Test DefaultDiadefGenerator with all_derived option enabled."""
+    code = """
+class Parent:
+    pass
+
+class Child(Parent):
+    pass
+"""
+    module = parse(code, module_name="sample")
+    project = Project("sample")
+    project.add_module(module)
+
+    HANDLER.config.all_derived = True
+    diagrams = DefaultDiadefGenerator(Linker(project), HANDLER).visit(project)
+    assert len(diagrams) == 1
+    classes = _process_classes(diagrams[0].objects)
+    assert classes == [(True, "Child"), (True, "Parent")]
+
+
+def test_all_derived_handles_inference_and_non_class_bases(
+    HANDLER: DiadefsHandler,
+) -> None:
+    """Test that _build_derived_index gracefully handles InferenceError and non-ClassDef bases."""
+    code = """
+class SafeBase:
+    pass
+
+class IgnoredChild:
+    pass
+
+class MroFailChild:
+    pass
+
+class NonClassChild:
+    pass
+
+class SafeChild(SafeBase):
+    pass
+"""
+    module = parse(code, module_name="sample")
+    project = Project("sample")
+    project.add_module(module)
+
+    orig_ancestors = nodes.ClassDef.ancestors
+
+    def mock_ancestors(self: nodes.ClassDef, *args: Any, **kwargs: Any) -> Any:
+        if self.name == "IgnoredChild":
+            raise InferenceError("Cannot infer ancestor")
+        if self.name == "MroFailChild":
+            raise MroError(message="bad mro", mros=[], cls=self)
+        if self.name == "NonClassChild":
+            yield nodes.Const(1)
+            return
+        if self.name == "SafeChild":
+            # Yield SafeBase twice to test (base_key, cls_key) deduplication in seen
+            yield from orig_ancestors(self, *args, **kwargs)
+            yield from orig_ancestors(self, *args, **kwargs)
+            return
+        yield from orig_ancestors(self, *args, **kwargs)
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(nodes.ClassDef, "ancestors", mock_ancestors)
+        HANDLER.config.classes = ["SafeBase"]
+        HANDLER.config.module_names = False
+        HANDLER.config.all_derived = True
+        generator = ClassDiadefGenerator(Linker(project), HANDLER)
+
+        # Test get_derived when _subclasses is None
+        assert not list(generator.get_derived(module.body[0]))
+
+        cd = generator.class_diagram(project, "SafeBase")
+        classes = _process_classes(cd.objects)
+        assert classes == [(True, "SafeBase"), (True, "SafeChild")]
+
+        # Test show_node filtering within get_derived
+        generator.show_node = lambda node: node.name != "SafeChild"  # type: ignore[assignment]
+        assert not list(generator.get_derived(module.body[0]))

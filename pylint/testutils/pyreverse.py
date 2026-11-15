@@ -31,6 +31,7 @@ class PyreverseConfig(
         classes: list[str] | None = None,
         show_ancestors: int | None = None,
         all_ancestors: bool | None = None,
+        all_derived: bool = False,
         show_associated: int | None = None,
         all_associated: bool | None = None,
         no_standalone: bool = False,
@@ -56,6 +57,7 @@ class PyreverseConfig(
             self.classes = []
         self.show_ancestors = show_ancestors
         self.all_ancestors = all_ancestors
+        self.all_derived = all_derived
         self.show_associated = show_associated
         self.all_associated = all_associated
         self.no_standalone = no_standalone

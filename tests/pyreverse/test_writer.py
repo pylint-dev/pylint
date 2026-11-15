@@ -31,6 +31,7 @@ _DEFAULTS = {
     "show_ancestors": None,
     "classes": (),
     "all_associated": None,
+    "all_derived": False,
     "mode": "PUB_ONLY",
     "show_builtin": False,
     "show_stdlib": False,
