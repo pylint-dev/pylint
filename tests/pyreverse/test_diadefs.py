@@ -925,7 +925,7 @@ class SafeChild(SafeBase):
         assert classes == [(True, "SafeBase"), (True, "SafeChild")]
 
         # Test show_node filtering within get_derived
-        generator.show_node = lambda node: node.name != "SafeChild"  # type: ignore[assignment]
+        mp.setattr(generator, "show_node", lambda node: node.name != "SafeChild")
         assert not list(generator.get_derived(module.body[0]))
 
 

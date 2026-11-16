@@ -179,7 +179,9 @@ class DiaDefGenerator:
                 yield node
 
     def _build_derived_index(self, project: Project) -> None:
-        """Build reverse inheritance index mapping base classes to their direct subclasses."""
+        """Build reverse inheritance index mapping base classes to their direct
+        subclasses.
+        """
         self._subclasses = {}
         seen: set[tuple[_ClassDefinitionKey, _ClassDefinitionKey]] = set()
         for module in project.modules:
