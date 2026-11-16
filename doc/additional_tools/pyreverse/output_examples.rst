@@ -42,4 +42,3 @@ will generate the full class and package diagrams for ``pylint``, but will addit
 To include all subclasses (direct and indirect descendants) of the target class in the diagram, use the ``-D`` or ``--all-derived`` option::
 
   pyreverse -c Animal --all-derived my_project
-

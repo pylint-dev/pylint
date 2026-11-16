@@ -206,7 +206,11 @@ class DiaDefGenerator:
                 yield child
 
     def extract_classes(
-        self, klass_node: nodes.ClassDef, anc_level: int, association_level: int
+        self,
+        klass_node: nodes.ClassDef,
+        anc_level: int,
+        association_level: int,
+        traverse_derived: bool = True,
     ) -> None:
         """Extract recursively classes related to klass_node."""
         if self.classdiagram.has_node(klass_node) or not self.show_node(klass_node):
@@ -214,14 +218,20 @@ class DiaDefGenerator:
         self.add_class(klass_node)
 
         for ancestor in self.get_ancestors(klass_node, anc_level):
-            self.extract_classes(ancestor, anc_level - 1, association_level)
+            self.extract_classes(
+                ancestor, anc_level - 1, association_level, traverse_derived=False
+            )
 
         for node in self.get_associated(klass_node, association_level):
-            self.extract_classes(node, anc_level, association_level - 1)
+            self.extract_classes(
+                node, anc_level, association_level - 1, traverse_derived=False
+            )
 
-        if self.all_derived:
+        if self.all_derived and traverse_derived:
             for child in self.get_derived(klass_node):
-                self.extract_classes(child, anc_level, association_level)
+                self.extract_classes(
+                    child, anc_level, association_level, traverse_derived=True
+                )
 
 
 class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):

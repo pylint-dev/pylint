@@ -367,3 +367,104 @@ def test_version_info(
     out, _ = capsys.readouterr()
     assert "pyreverse is included in pylint" in out
     assert test_full_version in out
+
+
+def test_cli_all_derived_flags(tmp_path: Path) -> None:
+    """Integration test verifying -D and --all-derived CLI options and scope."""
+    code = (
+        "class Base:\n"
+        "    pass\n\n"
+        "class Target(Base):\n"
+        "    pass\n\n"
+        "class Sibling(Base):\n"
+        "    pass\n\n"
+        "class Child(Target):\n"
+        "    pass\n\n"
+        "class GrandChild(Child):\n"
+        "    pass\n\n"
+        "class Unrelated:\n"
+        "    pass\n"
+    )
+    mod_path = tmp_path / "example.py"
+    mod_path.write_text(code, encoding="utf-8")
+
+    # 1. Default without -D: Target and Base only
+    exit_code = main.Run(
+        ["--class", "Target", "--output-directory", str(tmp_path), str(mod_path)]
+    ).run()
+    assert exit_code == 0
+    dot_default = (tmp_path / "Target.dot").read_text(encoding="utf-8")
+    assert "example.Target" in dot_default
+    assert "example.Base" in dot_default
+    assert "example.Child" not in dot_default
+    assert "example.GrandChild" not in dot_default
+    assert "example.Sibling" not in dot_default
+    assert "example.Unrelated" not in dot_default
+
+    # 2. With -D: Target, Base, Child, GrandChild; Sibling and Unrelated excluded
+    exit_code = main.Run(
+        ["--class", "Target", "-D", "--output-directory", str(tmp_path), str(mod_path)]
+    ).run()
+    assert exit_code == 0
+    dot_short = (tmp_path / "Target.dot").read_text(encoding="utf-8")
+    assert "example.Target" in dot_short
+    assert "example.Base" in dot_short
+    assert "example.Child" in dot_short
+    assert "example.GrandChild" in dot_short
+    assert "example.Sibling" not in dot_short
+    assert "example.Unrelated" not in dot_short
+
+    # 3. With --all-derived and -a 0: Target, Child, GrandChild; Base excluded
+    exit_code = main.Run(
+        [
+            "--class",
+            "Target",
+            "--all-derived",
+            "-a",
+            "0",
+            "--output-directory",
+            str(tmp_path),
+            str(mod_path),
+        ]
+    ).run()
+    assert exit_code == 0
+    dot_no_anc = (tmp_path / "Target.dot").read_text(encoding="utf-8")
+    assert "example.Target" in dot_no_anc
+    assert "example.Child" in dot_no_anc
+    assert "example.GrandChild" in dot_no_anc
+    assert "example.Base" not in dot_no_anc
+    assert "example.Sibling" not in dot_no_anc
+    assert "example.Unrelated" not in dot_no_anc
+
+
+def test_cli_all_derived_multimodule(tmp_path: Path) -> None:
+    """Integration test verifying --all-derived with multiple modules."""
+    base_file = tmp_path / "base_pkg.py"
+    base_file.write_text("class Base:\n    pass\n", encoding="utf-8")
+
+    derived_file = tmp_path / "derived_pkg.py"
+    derived_file.write_text(
+        "from base_pkg import Base\n\n"
+        "class Target(Base):\n    pass\n\n"
+        "class Child(Target):\n    pass\n\n"
+        "class Sibling(Base):\n    pass\n",
+        encoding="utf-8",
+    )
+
+    exit_code = main.Run(
+        [
+            "--class",
+            "derived_pkg.Target",
+            "--all-derived",
+            "--output-directory",
+            str(tmp_path),
+            str(base_file),
+            str(derived_file),
+        ]
+    ).run()
+    assert exit_code == 0
+    dot_content = (tmp_path / "derived_pkg.Target.dot").read_text(encoding="utf-8")
+    assert "derived_pkg.Target" in dot_content
+    assert "base_pkg.Base" in dot_content
+    assert "derived_pkg.Child" in dot_content
+    assert "derived_pkg.Sibling" not in dot_content

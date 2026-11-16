@@ -927,3 +927,103 @@ class SafeChild(SafeBase):
         # Test show_node filtering within get_derived
         generator.show_node = lambda node: node.name != "SafeChild"  # type: ignore[assignment]
         assert not list(generator.get_derived(module.body[0]))
+
+
+def test_all_derived_does_not_include_siblings_of_target(
+    HANDLER: DiadefsHandler,
+) -> None:
+    """Test --all-derived excludes siblings and only traverses descendants of target."""
+    code = """
+class Base:
+    pass
+
+class Target(Base):
+    pass
+
+class Sibling(Base):
+    pass
+
+class Child(Target):
+    pass
+
+class GrandChild(Child):
+    pass
+
+class Unrelated:
+    pass
+"""
+    module = parse(code, module_name="sample")
+    project = Project("sample")
+    project.add_module(module)
+
+    # 1. With all_derived=True and default ancestors:
+    # Target, Base (ancestor), Child, GrandChild should be present.
+    # Sibling and Unrelated MUST NOT be present.
+    HANDLER.config.classes = ["Target"]
+    HANDLER.config.module_names = False
+    HANDLER.config.all_derived = True
+    cd = ClassDiadefGenerator(Linker(project), HANDLER).class_diagram(project, "Target")
+    cd.extract_relationships()
+    classes = _process_classes(cd.objects)
+    assert classes == [
+        (True, "Base"),
+        (True, "Child"),
+        (True, "GrandChild"),
+        (True, "Target"),
+    ]
+    relations = _process_relations(cd.relationships)
+    assert ("specialization", "Target", "Base") in relations
+    assert ("specialization", "Child", "Target") in relations
+    assert ("specialization", "GrandChild", "Child") in relations
+
+    # 2. With all_derived=True and show_ancestors=0:
+    # Base must be excluded; only Target, Child, GrandChild should be present.
+    HANDLER.config.show_ancestors = 0
+    cd_no_anc = ClassDiadefGenerator(Linker(project), HANDLER).class_diagram(
+        project, "Target"
+    )
+    classes_no_anc = _process_classes(cd_no_anc.objects)
+    assert classes_no_anc == [
+        (True, "Child"),
+        (True, "GrandChild"),
+        (True, "Target"),
+    ]
+    HANDLER.config.show_ancestors = None
+
+
+def test_all_derived_does_not_include_mixin_siblings_or_associated_subclasses(
+    HANDLER: DiadefsHandler,
+) -> None:
+    """Test --all-derived does not explore descendants of mixins or associated classes."""
+    code = """
+class Mixin:
+    pass
+
+class MixinSibling(Mixin):
+    pass
+
+class Engine:
+    pass
+
+class SubEngine(Engine):
+    pass
+
+class Target(Mixin):
+    engine: Engine
+"""
+    module = parse(code, module_name="sample")
+    project = Project("sample")
+    project.add_module(module)
+
+    HANDLER.config.classes = ["Target"]
+    HANDLER.config.module_names = False
+    HANDLER.config.all_derived = True
+    cd = ClassDiadefGenerator(Linker(project), HANDLER).class_diagram(project, "Target")
+    classes = _process_classes(cd.objects)
+    # Target, Mixin (ancestor), Engine (associated) should be present.
+    # MixinSibling (descendant of Mixin) and SubEngine (descendant of Engine) must NOT be present.
+    assert classes == [
+        (True, "Engine"),
+        (True, "Mixin"),
+        (True, "Target"),
+    ]
