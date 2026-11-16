@@ -117,7 +117,7 @@ OPTIONS: Options = (
             "default": False,
             "action": "store_true",
             "group": OPTIONS_GROUPS["FILTERING"],
-            "help": "Show all derived classes of all classes in <projects>.",
+            "help": "Show all derived classes of the selected classes, including indirect descendants.",
         },
     ),
     (

@@ -42,7 +42,7 @@ Filtering and Scope
 
 --all-derived
 -------------
-*Show all derived classes of all classes in <projects>.*
+*Show all derived classes of the selected classes, including indirect descendants.*
 
 **Default:**  ``False``
 
