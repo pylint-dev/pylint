@@ -1,0 +1,5 @@
+``trailing-comma-tuple`` is no longer slow on modules with a long literal that spans
+many lines. Checking each comma used to go through every token before it, so a list
+with 20,000 lines took about 4.5 seconds for this check alone.
+
+Refs #11832
