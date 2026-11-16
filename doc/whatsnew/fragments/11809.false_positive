@@ -2,4 +2,8 @@ Fix false positive ``invalid-name`` for ``TypeAlias``, ``TypeVar``, ``ParamSpec`
 ``TypeVarTuple`` defined in a class body: they are now checked against their own
 naming style instead of ``class-attribute-naming-style``.
 
+With the default configuration this can also add new ``invalid-name`` messages:
+``class-attribute-naming-style`` defaults to ``any``, so class-body names such as
+``t = TypeVar("t")`` or ``alias: TypeAlias = int`` were not checked before.
+
 Closes #11809
