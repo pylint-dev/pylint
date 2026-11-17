@@ -89,3 +89,76 @@ object, by calling the following inside the ``register`` function::
     linter.register_checker(OurChecker(linter))
 
 For more information on writing a checker see :ref:`write_a_checker`.
+
+.. _reporter_plugin_options:
+
+Options for a reporter plugin
+-----------------------------
+
+A plugin can also add a reporter, with ``linter.register_reporter``. A reporter
+can't define options itself. To give it options, register a checker that holds
+the options and checks nothing. The reporter reads them from
+``self.linter.config``:
+
+.. sourcecode:: python
+
+  # Inside severity_plugin.py
+  from typing import TYPE_CHECKING
+
+  from pylint.checkers import BaseChecker
+  from pylint.reporters import BaseReporter
+
+  if TYPE_CHECKING:
+      from pylint.lint import PyLinter
+      from pylint.message import Message
+      from pylint.reporters.ureports.nodes import Section
+
+
+  class SeverityOptions(BaseChecker):
+      """Holds the options of SeverityReporter. It checks nothing."""
+
+      name = "severity-reporter"
+      options = (
+          (
+              "severity",
+              {
+                  "default": "MAJOR",
+                  "type": "string",
+                  "metavar": "<severity>",
+                  "help": "Severity written before every message.",
+              },
+          ),
+      )
+
+
+  class SeverityReporter(BaseReporter):
+      """Writes one line per message, starting with the severity."""
+
+      name = "severity"
+
+      def handle_message(self, msg: "Message") -> None:
+          severity = self.linter.config.severity
+          self.writeln(f"{severity} {msg.path}:{msg.line} {msg.symbol}")
+
+      def _display(self, layout: "Section") -> None:
+          pass
+
+
+  def register(linter: "PyLinter") -> None:
+      linter.register_checker(SeverityOptions(linter))
+      linter.register_reporter(SeverityReporter)
+
+The option then works like any other, on the command line:
+
+.. sourcecode:: bash
+
+  $ pylint --load-plugins=severity_plugin --output-format=severity --severity=MINOR my_module.py
+  MINOR my_module.py:1 missing-module-docstring
+  MINOR my_module.py:1 unused-import
+
+or in a configuration file, in the section named after the checker:
+
+.. sourcecode:: ini
+
+  [SEVERITY-REPORTER]
+  severity=CRITICAL
