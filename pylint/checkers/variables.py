@@ -848,6 +848,9 @@ scope_type : {self.scope_type}
             node, node.frame()
         ) or VariablesChecker._comprehension_between_frame_and_node(node):
             return []
+        # Called for its side effect of setting the flags used to choose the
+        # message and confidence, as in get_next_to_consume().
+        self._uncertain_nodes_if_tests(definitions, node)
         self.consumed_uncertain[node.name] += new_nodes
         return new_nodes
 

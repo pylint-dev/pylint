@@ -111,3 +111,38 @@ def bound_by_sibling_except_as():
         print(msg)
     except TypeError as msg:
         print(msg)
+
+
+def defined_under_if_in_handler(x):
+    """The definition is under an if inside the handler."""
+    try:
+        pass
+    except ValueError:
+        if x:
+            msg = "a"
+            print(msg)
+    print(msg)  # [possibly-used-before-assignment]
+
+
+def try_under_if(x):
+    """The try is nested under an if."""
+    if x:
+        try:
+            pass
+        except ValueError:
+            msg = "a"
+            print(msg)
+    print(msg)  # [possibly-used-before-assignment]
+
+
+def try_under_always_false_test():
+    """The try is in the else branch of an always false test."""
+    if False:  # pylint: disable=using-constant-test
+        pass
+    else:
+        try:
+            pass
+        except ValueError:
+            msg = "a"
+            print(msg)
+    print(msg)  # [used-before-assignment]
