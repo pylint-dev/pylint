@@ -328,6 +328,10 @@ similarities.ignore-comments = true
 similarities.ignore-docstrings = true
 # Imports are removed from the similarity computation
 similarities.ignore-imports = true
+# Function-local names (arguments and assigned variables) are compared up to a
+# consistent renaming, so blocks that differ only in local variable names are
+# reported
+# ignore-local-names =
 # Signatures are removed from the similarity computation
 similarities.ignore-signatures = true
 # Minimum lines number of a similarity. Setting it to 0 will disable the check,

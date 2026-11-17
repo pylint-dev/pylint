@@ -7,7 +7,7 @@ The console script ``symilar`` finds copy pasted block of text in a set of files
 
 It can be invoked with::
 
-  symilar [-d|--duplicates min_duplicated_lines] [-i|--ignore-comments] [--ignore-docstrings] [--ignore-imports] [--ignore-signatures] file1...
+  symilar [-d|--duplicates min_duplicated_lines] [-i|--ignore-comments] [--ignore-docstrings] [--ignore-imports] [--ignore-signatures] [--ignore-local-names] file1...
 
 All files that shall be checked have to be passed in explicitly, e.g.::
 
