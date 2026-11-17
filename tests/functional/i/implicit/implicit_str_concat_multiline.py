@@ -46,3 +46,13 @@ print(
     "magna aliqua. Ut enim ad minim veniam, quis nostrud "
     "exercitation ullamco laboris nisi ut aliquip ex ea ",
 )
+
+# f-strings follow the same rules (#8968):
+print(
+    f"{TEST_TUPLE} one "  # [implicit-str-concat]
+    f"{TEST_TUPLE} two",
+)
+print(
+    f"{TEST_TUPLE} one "
+    f"{TEST_TUPLE} two"
+)
