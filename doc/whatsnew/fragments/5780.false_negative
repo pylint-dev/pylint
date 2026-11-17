@@ -1,0 +1,4 @@
+Fix a false negative for ``used-before-assignment`` when a name defined in an
+except handler was also used inside that handler before being used after the try.
+
+Closes #5780
