@@ -153,3 +153,35 @@ class EnumClass:
         other_set = set(self.ENUM_SET)
         for obj in self.ENUM_SET:
             other_set.remove(obj)
+
+
+class MyClass3:
+    """Regression test for https://github.com/pylint-dev/pylint/issues/7391"""
+
+    def __init__(self) -> None:
+        self.items = [1, 2, 3]
+        self.unique = {1, 2, 3}
+        self.mapping = {"a": 1}
+
+    def modify_list(self):
+        for var in self.items:
+            self.items.append(var)  # [modified-iterating-list]
+
+    def modify_set(self):
+        for var in self.unique:
+            self.unique.add(var + 10)  # [modified-iterating-set]
+
+    def modify_dict(self):
+        for key in self.mapping:
+            self.mapping[key + "_new"] = 1  # [modified-iterating-dict]
+
+    def update_same_key(self):
+        for key in self.mapping:
+            self.mapping[key] = 1
+
+    def modify_other_instance(self):
+        other = MyClass3()
+        for var in self.items:
+            other.items.append(var)
+        for key in self.mapping:
+            other.mapping[key + "_new"] = 1
