@@ -1,0 +1,10 @@
+dangerous-default-value:13:4:13:20:BadDefaults:Dangerous default value [] as argument:INFERENCE
+dangerous-default-value:14:4:14:19:BadDefaults:Dangerous default value {} as argument:INFERENCE
+dangerous-default-value:15:4:15:22:BadDefaults:Dangerous default value set() as argument:INFERENCE
+dangerous-default-value:16:4:16:25:BadDefaults:Dangerous default value list() as argument:INFERENCE
+dangerous-default-value:17:4:17:50:BadDefaults:Dangerous default value deque() as argument:INFERENCE
+dangerous-default-value:18:4:18:34:BadDefaults:Dangerous default value DANGEROUS_GLOBAL (builtins.set) as argument:INFERENCE
+dangerous-default-value:23:4:23:35:BadFieldDefaults:Dangerous default value [] as argument:INFERENCE
+dangerous-default-value:24:4:24:46:BadFieldDefaults:Dangerous default value {} as argument:INFERENCE
+dangerous-default-value:29:4:29:28:BadInitVar:Dangerous default value [] as argument:INFERENCE
+dangerous-default-value:34:4:34:20:BadFrozen:Dangerous default value [] as argument:INFERENCE

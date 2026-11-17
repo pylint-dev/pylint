@@ -13,6 +13,8 @@ from typing import TYPE_CHECKING, Literal, cast
 
 import astroid
 from astroid import bases, nodes, objects, util
+from astroid.brain.brain_dataclasses import DATACLASS_MODULES
+from astroid.brain.helpers import is_class_var
 
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
@@ -447,6 +449,9 @@ class BasicChecker(_BasicChecker):
         increment branch counter.
         """
         self.linter.stats.node_count["klass"] += 1
+        if node.is_dataclass:
+            self._check_dataclass_dangerous_defaults(node)
+            return
         try:
             if not any(
                 ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()
@@ -457,6 +462,35 @@ class BasicChecker(_BasicChecker):
         for child in node.body:
             if isinstance(child, nodes.AnnAssign) and child.value is not None:
                 self._check_dangerous_default(child.value, child)
+
+    def _check_dataclass_dangerous_defaults(self, node: nodes.ClassDef) -> None:
+        """Check dataclass fields for mutable default values."""
+        for child in node.body:
+            if not (isinstance(child, nodes.AnnAssign) and child.value is not None):
+                continue
+            if is_class_var(child.annotation):
+                # ClassVar attributes are intentionally shared
+                continue
+            default: nodes.NodeNG | None = child.value
+            if isinstance(child.value, nodes.Call):
+                func = utils.safe_infer(child.value.func)
+                if (
+                    isinstance(func, nodes.FunctionDef)
+                    and func.name == "field"
+                    and func.root().name in DATACLASS_MODULES
+                ):
+                    default = next(
+                        (
+                            kw.value
+                            for kw in child.value.keywords
+                            if kw.arg == "default"
+                        ),
+                        None,
+                    )
+            if default is None:
+                # e.g. field(default_factory=list), the correct usage
+                continue
+            self._check_dangerous_default(default, child)
 
     @utils.only_required_for_messages(
         "pointless-statement",
