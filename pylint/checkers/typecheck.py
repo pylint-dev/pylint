@@ -418,6 +418,14 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "same name as a positional-only parameter and the function contains a "
         "keyword variadic parameter dict.",
     ),
+    "W1118": (
+        "Star-arg unpacking %s after keyword argument %r",
+        "star-arg-unpacking-after-keyword-arg",
+        "Emitted when an iterable is unpacked with ``*`` after a keyword argument "
+        "in a call. The unpacked values are always passed as positional arguments "
+        "before the keyword arguments, so this order is misleading; put the ``*`` "
+        "unpacking before the keyword arguments.",
+    ),
 }
 
 # builtin sequence types in Python 2 and 3.
@@ -1587,11 +1595,30 @@ accessed. Python regular expressions are accepted.",
                 confidence=INFERENCE,
             )
 
+    def _check_star_arg_after_keyword(self, node: nodes.Call) -> None:
+        """Check for ``*`` unpacking placed after a keyword argument in a call."""
+        if not node.keywords:
+            return
+        first_keyword = node.keywords[0]
+        keyword_position = (first_keyword.lineno, first_keyword.col_offset)
+        for arg in node.args:
+            if (
+                isinstance(arg, nodes.Starred)
+                and (arg.lineno, arg.col_offset) > keyword_position
+            ):
+                self.add_message(
+                    "star-arg-unpacking-after-keyword-arg",
+                    node=arg,
+                    args=(arg.as_string(), first_keyword.arg),
+                    confidence=HIGH,
+                )
+
     # pylint: disable = too-many-branches, too-many-locals, too-many-statements
     def visit_call(self, node: nodes.Call) -> None:
         """Check that called functions/methods are inferred to callable objects,
         and that passed arguments match the parameters in the inferred function.
         """
+        self._check_star_arg_after_keyword(node)
         called = safe_infer(node.func, compare_constructors=True)
 
         self._check_not_callable(node, called)

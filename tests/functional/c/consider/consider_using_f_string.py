@@ -1,6 +1,6 @@
 """Test to see if an f-string would be possible and consider-using-f-string should be raised"""
 # pylint: disable=unused-variable, invalid-name, missing-function-docstring, pointless-statement
-# pylint: disable=expression-not-assigned, repeated-keyword, too-many-locals
+# pylint: disable=expression-not-assigned, repeated-keyword, too-many-locals, star-arg-unpacking-after-keyword-arg
 
 PARAM_1 = PARAM_2 = PARAM_3 = 1
 PARAM_LIST = [PARAM_1, PARAM_2, PARAM_3]
