@@ -472,21 +472,16 @@ class BasicChecker(_BasicChecker):
                 # ClassVar attributes are intentionally shared
                 continue
             default: nodes.NodeNG | None = child.value
-            if isinstance(child.value, nodes.Call):
-                func = utils.safe_infer(child.value.func)
-                if (
-                    isinstance(func, nodes.FunctionDef)
-                    and func.name == "field"
-                    and func.root().name in DATACLASS_MODULES
-                ):
-                    default = next(
-                        (
-                            kw.value
-                            for kw in child.value.keywords
-                            if kw.arg == "default"
-                        ),
-                        None,
-                    )
+            if isinstance(child.value, nodes.Call) and any(
+                isinstance(func, nodes.FunctionDef)
+                and func.name == "field"
+                and func.root().name in DATACLASS_MODULES
+                for func in utils.infer_all(child.value.func)
+            ):
+                default = next(
+                    (kw.value for kw in child.value.keywords if kw.arg == "default"),
+                    None,
+                )
             if default is None:
                 # e.g. field(default_factory=list), the correct usage
                 continue
