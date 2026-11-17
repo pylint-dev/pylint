@@ -92,6 +92,12 @@ def _comma_indexes(tokens: list[tokenize.TokenInfo]) -> list[int]:
         pytest.param("x = 1, 2\n", [False], id="tuple of two"),
         pytest.param("x = [\n    1,\n]\n", [False], id="inside brackets"),
         pytest.param("print(1),\n", [False], id="no assignment"),
+        pytest.param(
+            "x = 1\nprint(1),\n", [False], id="assignment on the previous statement"
+        ),
+        pytest.param("x = 1,  # note\n", [True], id="comment after the comma"),
+        pytest.param("x = 1, \\\n# note\n", [False], id="comment on the next line"),
+        pytest.param("def f():\n    return 1,\n", [True], id="return"),
     ],
 )
 def test_is_trailing_comma(source: str, expected: list[bool]) -> None:

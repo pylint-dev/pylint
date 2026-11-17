@@ -190,37 +190,31 @@ def _is_trailing_comma(tokens: list[tokenize.TokenInfo], index: int) -> bool:
     token = tokens[index]
     if token.exact_type != tokenize.COMMA:
         return False
-    # Must have remaining tokens on the same line such as NEWLINE.
-    # Index the list: `itertools.islice()` or a slice would go through every
-    # token before or after this one, for every comma in the module.
-    line = token.start[0]
-    more_tokens_on_line = False
-    for next_index in range(index + 1, len(tokens)):
-        remaining_token = tokens[next_index]
-        if remaining_token.start[0] != line:
-            # Tokens are in order, so the rest of the module is on later lines.
-            break
-        more_tokens_on_line = True
-        # If one of the remaining same line tokens is not NEWLINE or COMMENT
-        # the comma is not trailing.
-        if remaining_token.type not in (tokenize.NEWLINE, tokenize.COMMENT):
-            return False
-
-    if not more_tokens_on_line:
+    # The comma must end the logical line: it is followed by NEWLINE on the same
+    # line, with at most a comment in between. Inside brackets, a line ends with
+    # NL instead, so commas in a multi-line literal stop here.
+    next_index = index + 1
+    if next_index < len(tokens) and tokens[next_index].type == tokenize.COMMENT:
+        next_index += 1
+    if (
+        next_index == len(tokens)
+        or tokens[next_index].type != tokenize.NEWLINE
+        or tokens[next_index].start[0] != token.start[0]
+    ):
         return False
-
-    # Find the start of the current logical line, walking back from the comma.
-    curline_start = 0
+    # Walk back to the start of the logical line, looking for an assignment,
+    # a return or a yield. Only one comma per logical line gets here.
     for previous_index in range(index - 1, -1, -1):
+        previous_token = tokens[previous_index]
         # See Lib/tokenize.py and Lib/token.py in cpython for more info
-        if tokens[previous_index].type == tokenize.NEWLINE:
-            curline_start = previous_index + 1
-            break
-    expected_tokens = {"return", "yield"}
-    return any(
-        "=" in prevtoken.string or prevtoken.string in expected_tokens
-        for prevtoken in tokens[curline_start:index]
-    )
+        if previous_token.type == tokenize.NEWLINE:
+            return False
+        if "=" in previous_token.string or previous_token.string in {
+            "return",
+            "yield",
+        }:
+            return True
+    return False
 
 
 def _is_inside_context_manager(node: nodes.Call) -> bool:
