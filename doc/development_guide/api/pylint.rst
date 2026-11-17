@@ -43,7 +43,7 @@ reporter initialized with a custom stream:
     Run(["test_file.py"], reporter=reporter, exit=False)
     print(pylint_output.getvalue())  # Retrieve and print the text report
 
-The reporter can accept any stream object as as parameter. In this example,
+The reporter can accept any stream object as parameter. In this example,
 the stream outputs to a file:
 
 .. sourcecode:: python

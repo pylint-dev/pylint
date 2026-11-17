@@ -62,7 +62,7 @@ class TestInvalidEncoding(pylint.testutils.CheckerTestCase):
 
         # Fake node as otherwise we get syntax errors etc...
         # So currently the UTF-16/UTF-32 tests does not work, as UTF-16 / UTF-32
-        # is not really working at all in in Python, but checking it now already
+        # is not really working at all in Python, but checking it now already
         # is future save in case that changes....
 
         module = FakeNode(Path(target).read_bytes())
