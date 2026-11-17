@@ -1,0 +1,4 @@
+Detect ``implicit-str-concat`` on later lines of a multiline string when
+adjacent literals occur on the same line.
+
+Closes #6444
