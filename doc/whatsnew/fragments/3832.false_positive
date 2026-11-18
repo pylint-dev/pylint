@@ -1,0 +1,6 @@
+Fixed a false positive ``unsupported-assignment-operation`` on an Optional
+list reassigned in a loop and checked with ``assert ... is not None``.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #3832

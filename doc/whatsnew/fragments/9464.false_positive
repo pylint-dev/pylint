@@ -1,0 +1,6 @@
+Fixed a false positive ``invalid-unary-operand-type`` on a global Optional
+after an ``if ... is None: return`` guard.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #9464
