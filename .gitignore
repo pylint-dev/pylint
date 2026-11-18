@@ -27,5 +27,5 @@ build-stamp
 .eggs/
 .pytest_cache/
 .mypy_cache/
-.benchmarks/
+.codspeed/
 release_notes.md

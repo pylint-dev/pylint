@@ -1,0 +1,65 @@
+name: CodSpeed
+
+on:
+  push:
+    branches:
+      - main
+      - "maintenance/**"
+  pull_request:
+    paths:
+      - "pylint/**"
+      - "tests/benchmark/**"
+      - "tests/primer/packages_to_prime.json"
+      - "pyproject.toml"
+      - "requirements_test*.txt"
+      - ".github/workflows/codspeed.yaml"
+  # Lets CodSpeed run past commits to build the first baseline.
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  benchmarks:
+    name: ${{ matrix.mode }}
+    runs-on: ubuntu-latest
+    # Simulation mode runs 10 to 50 times slower than normal to record the
+    # call graph, and a regression in a pull request can double that.
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Counts the instructions of the test process: stable on any runner.
+          - mode: simulation
+            markers: not wall_clock
+          # Workers and new interpreters are other processes, that simulation
+          # cannot see.
+          - mode: walltime
+            markers: wall_clock
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # The newest Python, also run by the primer: CodSpeed results then show
+      # the performance of the interpreter most users will move to.
+      - name: Set up Python 3.15
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.15"
+          allow-prereleases: true
+          check-latest: true
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install --requirement requirements_test_min.txt
+      - name: Run benchmarks
+        uses: CodSpeedHQ/action@af75f77f17a054769abefaa42fe8dc2975469b5f # v5.6.3
+        with:
+          mode: ${{ matrix.mode }}
+          run: pytest tests/benchmark --codspeed -m "${{ matrix.markers }}"

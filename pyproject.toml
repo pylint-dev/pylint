@@ -94,8 +94,7 @@ test-min = [
   "dill @ git+https://github.com/uqfoundation/dill@2308ffb0d0c605b9c050fa4c9fd5793d65c67022 ; python_version>='3.15'",
   "py~=1.11.0",
   "pytest>=8.4,<10",
-  # 5.3.1 is the first pytest-benchmark release supporting pytest 9.2
-  "pytest-benchmark>=5.3.1,<6",
+  "pytest-codspeed>=5.0.4,<6",
   "pytest-timeout~=2.4",
   "requests",
   "setuptools; python_version>='3.12'",
@@ -247,7 +246,7 @@ module = [
   "git.*",
   "mccabe",
   "pytest",
-  "pytest_benchmark.*",
+  "pytest_codspeed",
   "pytest_remaster.*",
   "sphinx.*",
 ]
@@ -275,10 +274,10 @@ ini_options.testpaths = [ "tests" ]
 ini_options.python_files = [ "*test_*.py" ]
 ini_options.addopts = "--strict-markers"
 ini_options.markers = [
-  "benchmark: Baseline of pylint performance, if this regress something serious happened",
   "needs_two_cores: Checks that need 2 or more cores to be meaningful",
   "primer_stdlib: Checks for crashes and errors when running pylint on stdlib",
   "timeout: Marks from pytest-timeout.",
+  "wall_clock: Benchmarks with work in other processes, CodSpeed measures their wall time",
 ]
 ini_options.filterwarnings = [
   "error",

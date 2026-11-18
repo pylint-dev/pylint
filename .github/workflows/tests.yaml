@@ -101,13 +101,13 @@ jobs:
           . venv/bin/activate
           pip install . --no-deps
           pip list | grep 'astroid\|pylint'
-          python -m pytest --durations=10 --benchmark-disable --cov --cov-report= tests/
+          python -m pytest --durations=10 --cov --cov-report= tests/
       - name: Run functional tests with minimal messages config
         if: inputs.astroid_sha == ''
         run: |
           . venv/bin/activate
           pip list | grep 'astroid\|pylint'
-          python -m pytest -vv --minimal-messages-config tests/test_functional.py --benchmark-disable
+          python -m pytest -vv --minimal-messages-config tests/test_functional.py
       - name: Upload coverage artifact
         if: runner.os == 'Linux' && inputs.astroid_sha == ''
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -153,44 +153,6 @@ jobs:
           fail_ci_if_error: true
           verbose: true
 
-  benchmark-linux:
-    name: run benchmark / ${{ matrix.python-version }} / Linux
-    runs-on: ubuntu-latest
-    if: inputs.astroid_sha == ''
-    timeout-minutes: 10
-    needs: [tests]
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.14"]
-    steps:
-      - *checkout
-      - *setup-python
-      - *cache-restore-python
-      - name: Run pytest
-        run: |
-          . venv/bin/activate
-          pip install pygal
-          pip install . --no-deps
-          pip list | grep 'astroid\|pylint'
-          pytest --exitfirst \
-            --benchmark-only \
-            --benchmark-autosave \
-            --benchmark-save-data \
-            --benchmark-group-by="group"
-      - name: Create partial artifact name suffix
-        id: artifact-name-suffix
-        run: >-
-          echo "datetime="$(date "+%Y%m%d_%H%M") >> $GITHUB_OUTPUT
-      - name: Upload benchmark artifact
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name:
-            benchmark-${{ runner.os }}-${{ matrix.python-version }}_${{
-            steps.artifact-name-suffix.outputs.datetime }}
-          include-hidden-files: true
-          path: .benchmarks/
-
   tests-windows:
     name: run / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
@@ -235,4 +197,4 @@ jobs:
           . venv\\Scripts\\activate
           pip install . --no-deps
           pip list | grep 'astroid\|pylint'
-          python -m pytest --durations=10 --benchmark-disable tests/
+          python -m pytest --durations=10 tests/

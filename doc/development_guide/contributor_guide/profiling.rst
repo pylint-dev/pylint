@@ -5,6 +5,25 @@
  Profiling and performance analysis
 ===================================
 
+Benchmarks
+----------
+
+`CodSpeed <https://codspeed.io/>`_ runs the benchmarks in ``tests/benchmark`` on every
+pull request that changes ``pylint``, and comments when a benchmark gets slower or
+faster than on ``main``. Most benchmarks count CPU instructions, so their results do
+not depend on the machine, and the CodSpeed dashboard shows which function changed.
+Benchmarks marked ``wall_clock`` measure time instead, because their work happens in
+other processes.
+
+To run the benchmarks on your machine, measuring time:
+
+.. sourcecode:: bash
+
+    pytest tests/benchmark --codspeed
+
+Without ``--codspeed``, each benchmark runs once as a normal test, and the ones linting
+a primer project are skipped.
+
 Performance analysis for Pylint
 -------------------------------
 
