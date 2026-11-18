@@ -92,6 +92,16 @@ MSGS: dict[str, MessageDefinitionTuple] = (
         ),
     }
 )
+# visit_functiondef pushes onto the counter stacks and leave_functiondef pops
+# them, so both must run under the same messages or the stacks get out of step.
+FUNCTION_MESSAGES = (
+    "too-many-return-statements",
+    "too-many-branches",
+    "too-many-arguments",
+    "too-many-locals",
+    "too-many-positional-arguments",
+    "too-many-statements",
+)
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 DATACLASSES_DECORATORS = frozenset({"dataclass", "attrs"})
 DATACLASS_IMPORT = "dataclasses"
@@ -545,14 +555,7 @@ class MisdesignChecker(BaseChecker):
                 args=(all_methods, self.linter.config.min_public_methods),
             )
 
-    @only_required_for_messages(
-        "too-many-return-statements",
-        "too-many-branches",
-        "too-many-arguments",
-        "too-many-locals",
-        "too-many-positional-arguments",
-        "too-many-statements",
-    )
+    @only_required_for_messages(*FUNCTION_MESSAGES)
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Check function name, docstring, arguments, redefinition,
         variable names, max locals.
@@ -615,13 +618,7 @@ class MisdesignChecker(BaseChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    @only_required_for_messages(
-        "too-many-return-statements",
-        "too-many-branches",
-        "too-many-arguments",
-        "too-many-locals",
-        "too-many-statements",
-    )
+    @only_required_for_messages(*FUNCTION_MESSAGES)
     def leave_functiondef(self, node: nodes.FunctionDef) -> None:
         """Most of the work is done here on close:
         checks for max returns, branch, return in __init__.
