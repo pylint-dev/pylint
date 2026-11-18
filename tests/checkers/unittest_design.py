@@ -4,8 +4,11 @@
 
 import astroid
 
+from pylint import checkers
 from pylint.checkers import design_analysis
+from pylint.lint import PyLinter
 from pylint.testutils import CheckerTestCase, set_config
+from pylint.utils import ASTWalker
 
 
 class TestDesignChecker(CheckerTestCase):
@@ -50,3 +53,26 @@ class TestDesignChecker(CheckerTestCase):
         options = self.linter.config.exclude_too_few_public_methods
 
         assert options == []
+
+
+def test_function_counters_are_popped_with_one_message_enabled() -> None:
+    """``leave_functiondef`` must run whenever ``visit_functiondef`` ran.
+
+    Otherwise the counters pushed for each function are never popped, and every
+    statement of the run increments all of them.
+    """
+    linter = PyLinter()
+    checkers.initialize(linter)
+    checker = next(
+        c
+        for c in linter.get_checkers()
+        if isinstance(c, design_analysis.MisdesignChecker)
+    )
+    linter.disable("all")
+    linter.enable("too-many-positional-arguments")
+    walker = ASTWalker(linter)
+    walker.add_checker(checker)
+    checker.open()
+    walker.walk(astroid.parse("def func(arg):\n    return arg\n"))
+    assert not checker._returns
+    assert not checker._stmts
