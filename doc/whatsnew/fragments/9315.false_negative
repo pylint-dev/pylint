@@ -1,0 +1,4 @@
+``modified-iterating-list``, ``modified-iterating-dict``, and ``modified-iterating-set``
+now also check inferred instances of list, dict, or set (such as from ``glob.glob``).
+
+Closes #9315

@@ -153,3 +153,13 @@ class EnumClass:
         other_set = set(self.ENUM_SET)
         for obj in self.ENUM_SET:
             other_set.remove(obj)
+
+
+def test_glob_list():
+    """Regression test for https://github.com/pylint-dev/pylint/issues/9315"""
+    # pylint: disable=import-outside-toplevel
+    import glob
+
+    files = glob.glob("*.py")
+    for _f in files:
+        files.append("whatever")  # [modified-iterating-list]
