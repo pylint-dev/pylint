@@ -10,7 +10,7 @@ the runner, and it records a call graph to show which function got slower.
 
 Simulation cannot see work done in other processes: benchmarks using
 ``--jobs`` or a new interpreter are marked ``wall_clock`` and measured in
-walltime mode instead. Wall time on a shared runner is noisier: raise a
+``walltime`` mode instead. Wall time on a shared runner is noisier: raise a
 benchmark's threshold on the CodSpeed dashboard if it reports false
 regressions.
 """
@@ -58,7 +58,7 @@ def _framework_only_linter(jobs: int) -> PyLinter:
 def _lint(args: list[str]) -> Run:
     """Lint from a cold astroid cache, like a new pylint process would.
 
-    CodSpeed runs a warmup round before measuring: without clearing the cache
+    CodSpeed runs a warm-up round before measuring: without clearing the cache
     the measured round would skip parsing and most of the inference.
     """
     MANAGER.clear_cache()

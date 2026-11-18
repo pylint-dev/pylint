@@ -5,7 +5,7 @@
 """Shared fixtures for the CodSpeed benchmarks.
 
 Without ``--codspeed`` the ``benchmark`` fixture from ``pytest-codspeed`` calls
-the benchmarked function once, so every benchmark also runs as a plain test in
+the measured function once, so every benchmark also runs as a plain test in
 the normal test suite. Benchmarks over a primer project need to clone it, so
 they only run when CodSpeed is measuring.
 """
