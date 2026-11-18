@@ -178,3 +178,18 @@ def main():
     _, _ = fruit(1, 2, 3)  # known false negative, requires better None comprehension in astroid
     _, _, _ = fruit(1, 2)  # known false negative, requires better None comprehension in astroid
     _, _, _ = fruit(1, 2, 3)
+
+
+class ListAttrHolder:
+    """Same false positive as unbalanced-dict-unpacking for #9986, with a list."""
+
+    def __init__(self):
+        self.data = []
+
+    def add(self, value):
+        self.data.append(value)
+
+    def unpack_list_attribute_filled_in_another_method(self):
+        if len(self.data) == 1:
+            (value,) = self.data
+            print(value)
