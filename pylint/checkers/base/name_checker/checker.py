@@ -608,7 +608,17 @@ class NameChecker(_BasicChecker):
         elif isinstance(frame, nodes.ClassDef) and not any(
             frame.local_attr_ancestors(node.name)
         ):
-            if utils.is_assign_name_annotated_with_class_var_typing_name(node, "Final"):
+            if isinstance(assign_type, nodes.AnnAssign) and self._assigns_typealias(
+                assign_type.annotation
+            ):
+                self._check_name("typealias", node.name, node)
+            elif isinstance(node.parent, nodes.Assign) and (
+                typevar_node_type := self._assigns_typevar(assign_type.value)
+            ):
+                self._check_name(typevar_node_type, node.name, node)
+            elif utils.is_assign_name_annotated_with_class_var_typing_name(
+                node, "Final"
+            ):
                 self._check_name("class_const", node.name, node)
             elif utils.is_assign_name_annotated_with(node, "Final"):
                 if frame.is_dataclass:
