@@ -110,7 +110,7 @@ class MagicValueChecker(BaseChecker):
         is_number = regex_match(r"[-+]?\d+(\.0*)?$", parsed_val)
         return float(parsed_val) if is_number else parsed_val
 
-    @utils.only_required_for_messages("magic-comparison")
+    @utils.only_required_for_messages("magic-value-comparison")
     def visit_compare(self, node: nodes.Compare) -> None:
         self._check_constants_comparison(node)
 

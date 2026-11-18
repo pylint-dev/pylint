@@ -67,7 +67,7 @@ SYNC_ONLY = {
     ("ThreadingChecker", "visit_with", "useless-with-lock"): (
         "threading locks are not asynchronous context managers"
     ),
-    ("TypeChecker", "visit_for", "dict-items-missing-iter"): (
+    ("TypeChecker", "visit_for", "dict-iter-missing-items"): (
         "iterates a dict, which is not an async iterable"
     ),
     ("TypeChecker", "visit_with", "not-context-manager"): (
