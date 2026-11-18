@@ -37,3 +37,9 @@ from collections import OrderedDict as version_info_fake
 
 if version_info_fake >= (3, 9):
     from collections import Callable  # [deprecated-class]
+
+# https://github.com/pylint-dev/pylint/issues/10043
+if sys.version_info >= (3, 12):
+    from importlib.resources.abc import TraversableResources
+else:
+    from importlib.abc import TraversableResources
