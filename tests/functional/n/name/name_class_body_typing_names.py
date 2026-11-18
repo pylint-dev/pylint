@@ -20,6 +20,7 @@ class Invalid:
     bad_alias: TypeAlias = int  # [invalid-name]
     bad_typevar = TypeVar("bad_typevar")  # [invalid-name]
     BadClassAttribute = 1  # [invalid-name]
+    CLASS_CONSTANT = 1  # [invalid-name]
     bad_params = ParamSpec("bad_params")  # [invalid-name]
     bad_shape = TypeVarTuple("bad_shape")  # [invalid-name]
     # Unpacking a TypeVar call is not a TypeVar definition.
