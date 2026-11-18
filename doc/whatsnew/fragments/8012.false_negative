@@ -1,0 +1,3 @@
+``too-few-format-args`` is now emitted for ``str.format`` strings that use explicit positions with a gap, such as ``"{1}".format(20)``, because the string needs two positional arguments. ``too-many-format-args`` no longer reports ``"{1}".format(20, 21)`` or ``"{2} {0}".format(1, 2, 3)``, where the arguments cover every position.
+
+Closes #8012

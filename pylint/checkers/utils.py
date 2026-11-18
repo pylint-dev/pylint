@@ -687,23 +687,35 @@ def parse_format_method_string(
     is the number of arguments required by the format string and
     explicit_pos_args is the number of arguments passed with the position.
     """
+    keyword_arguments, implicit_pos_args_cnt, explicit_pos_args = (
+        parse_format_method_string_positions(format_string)
+    )
+    return keyword_arguments, implicit_pos_args_cnt, len(explicit_pos_args)
+
+
+def parse_format_method_string_positions(
+    format_string: str,
+) -> tuple[list[tuple[str, list[tuple[bool, str]]]], int, set[int]]:
+    """Like ``parse_format_method_string`` but return the set of the explicit
+    positions (``{0}``, ``{2.attr}``) instead of how many there are.
+    """
     keyword_arguments = []
     implicit_pos_args_cnt = 0
-    explicit_pos_args = set()
+    explicit_pos_args: set[int] = set()
     for name in collect_string_fields(format_string):
-        if name and str(name).isdigit():
-            explicit_pos_args.add(str(name))
+        if name and str(name).isdecimal():
+            explicit_pos_args.add(int(name))
         elif name:
             keyname, fielditerator = split_format_field_names(name)
             if isinstance(keyname, numbers.Number):
-                explicit_pos_args.add(str(keyname))
+                explicit_pos_args.add(int(keyname))
             try:
                 keyword_arguments.append((keyname, list(fielditerator)))
             except ValueError as e:
                 raise IncompleteFormatString() from e
         else:
             implicit_pos_args_cnt += 1
-    return keyword_arguments, implicit_pos_args_cnt, len(explicit_pos_args)
+    return keyword_arguments, implicit_pos_args_cnt, explicit_pos_args
 
 
 def is_attr_protected(attrname: str) -> bool:

@@ -480,13 +480,15 @@ class StringFormatChecker(BaseChecker):
             return
 
         try:
-            fields, num_args, manual_pos = utils.parse_format_method_string(
+            fields, num_args, explicit_pos = utils.parse_format_method_string_positions(
                 strnode.value
             )
         except utils.IncompleteFormatString:
             self.add_message("bad-format-string", node=node)
             return
 
+        # "{1}" names a single position, but it is only satisfied by two arguments.
+        manual_pos = max(explicit_pos, default=-1) + 1
         positional_arguments = call_site.positional_arguments
         named_arguments = call_site.keyword_arguments
         named_fields = {field[0] for field in fields if isinstance(field[0], str)}
