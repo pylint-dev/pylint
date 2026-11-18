@@ -1,0 +1,5 @@
+Fix a false negative for ``deprecated-class`` where classes deprecated in an older
+Python version were not reported when a newer Python version deprecated more classes
+of the same module, for example ``typing.ByteString`` on Python 3.14.
+
+Closes #11763
