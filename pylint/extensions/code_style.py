@@ -346,6 +346,9 @@ class CodeStyleChecker(BaseChecker):
 
     @only_required_for_messages("consider-using-augmented-assign")
     def visit_assign(self, node: nodes.Assign) -> None:
+        if len(node.targets) > 1:
+            # An augmented assignment can only have a single target
+            return
         is_aug, op = utils.is_augmented_assign(node)
         if is_aug:
             self.add_message(
