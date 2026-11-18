@@ -2398,7 +2398,7 @@ accessed. Python regular expressions are accepted.",
         ):
             self.add_message(msg, args=node.value.as_string(), node=node.value)
 
-    @only_required_for_messages("dict-items-missing-iter")
+    @only_required_for_messages("dict-iter-missing-items")
     def visit_for(self, node: nodes.For) -> None:
         if not (isinstance(node.target, nodes.Tuple) and len(node.target.elts) == 2):
             # target is not a tuple of two elements

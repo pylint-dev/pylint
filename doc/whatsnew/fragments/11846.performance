@@ -1,0 +1,5 @@
+The callbacks behind ``dict-iter-missing-items``, ``magic-value-comparison`` and
+``unbalanced-dict-unpacking`` are now skipped when all the messages they check are
+disabled.
+
+Refs #11846

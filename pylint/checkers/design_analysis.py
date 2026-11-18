@@ -552,7 +552,6 @@ class MisdesignChecker(BaseChecker):
         "too-many-locals",
         "too-many-positional-arguments",
         "too-many-statements",
-        "keyword-arg-before-vararg",
     )
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Check function name, docstring, arguments, redefinition,
