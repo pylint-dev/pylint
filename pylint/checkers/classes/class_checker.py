@@ -26,6 +26,7 @@ from pylint.checkers.utils import (
     decorated_with_property,
     get_outer_class,
     has_known_bases,
+    infer_all,
     is_attr_private,
     is_attr_protected,
     is_builtin_object,
@@ -553,6 +554,24 @@ def _setattr_names_in_defining_methods(
                 if attr is not None:
                     names.add(attr)
     return names
+
+
+def _has_uninferable_base(klass: nodes.ClassDef) -> bool:
+    """Whether a base of *klass*, or of one of its ancestors, cannot be inferred.
+
+    Such a base may define any attribute in its own ``__init__``. This is
+    narrower than ``not has_known_bases(klass)``, which also gives up on a base
+    that infers to more than one value: every ``Enum`` subclass, because the
+    ``enum`` module binds ``Enum`` to ``None`` before defining it.
+    """
+    for cls in chain((klass,), klass.ancestors()):
+        for base in cls.bases:
+            inferred = infer_all(base)
+            if not inferred or any(
+                isinstance(value, util.UninferableBase) for value in inferred
+            ):
+                return True
+    return False
 
 
 def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
@@ -1414,6 +1433,11 @@ a metaclass class method.",
                 for node in filtered_nodes
             ):
                 continue
+
+            # A base we cannot infer may define the attribute in its own
+            # __init__. We cannot tell, so nothing is reported for this class.
+            if _has_uninferable_base(cnode):
+                return
 
             for node in filtered_nodes:
                 self.add_message("attribute-defined-outside-init", args=attr, node=node)
