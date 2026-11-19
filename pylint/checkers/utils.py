@@ -14,6 +14,7 @@ import numbers
 import re
 import string
 import warnings
+from collections import defaultdict
 from collections.abc import Callable, Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
@@ -2029,6 +2030,25 @@ def _is_node_in_same_scope(
     return candidate.scope() is node_scope
 
 
+@lru_cache(maxsize=1024)
+def _assignment_linenos_by_name(
+    scope: nodes.LocalsDictNodeNG,
+) -> dict[str, tuple[int, ...]]:
+    """Map each name assigned, or defined as a class or function, directly in
+    ``scope`` to the line numbers where that happens.
+
+    Cached because the reassignment checks below need this for every name
+    assigned in a scope, and collecting it walks the whole scope.
+    """
+    linenos: defaultdict[str, list[int]] = defaultdict(list)
+    for a in scope.nodes_of_class(
+        (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
+    ):
+        if a.lineno is not None and _is_node_in_same_scope(a, scope):
+            linenos[a.name].append(a.lineno)
+    return {name: tuple(lines) for name, lines in linenos.items()}
+
+
 def _is_reassigned_relative_to_current(
     node: nodes.NodeNG, varname: str, before: bool | None
 ) -> bool:
@@ -2036,7 +2056,7 @@ def _is_reassigned_relative_to_current(
     the current node.
 
     ``before=True`` only considers assignments on earlier lines, ``before=False``
-    only later lines, and ``before=None`` either, in a single walk of the scope.
+    only later lines, and ``before=None`` either.
     """
     node_scope = (
         node.parent.scope()
@@ -2046,22 +2066,12 @@ def _is_reassigned_relative_to_current(
     node_lineno = node.lineno
     if node_lineno is None:
         return False
-    for a in node_scope.nodes_of_class(
-        (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
-    ):
-        if a.name == varname and a.lineno is not None:
-            if before is None:
-                if a.lineno != node_lineno:
-                    if _is_node_in_same_scope(a, node_scope):
-                        return True
-            elif before:
-                if a.lineno < node_lineno:
-                    if _is_node_in_same_scope(a, node_scope):
-                        return True
-            elif a.lineno > node_lineno:
-                if _is_node_in_same_scope(a, node_scope):
-                    return True
-    return False
+    linenos = _assignment_linenos_by_name(node_scope).get(varname, ())
+    if before is None:
+        return any(lineno != node_lineno for lineno in linenos)
+    if before:
+        return any(lineno < node_lineno for lineno in linenos)
+    return any(lineno > node_lineno for lineno in linenos)
 
 
 def is_reassigned_before_current(node: nodes.NodeNG, varname: str) -> bool:
@@ -2083,7 +2093,7 @@ def is_reassigned_before_or_after_current(node: nodes.NodeNG, varname: str) -> b
     after the current node.
 
     Equivalent to ``is_reassigned_before_current(...) or
-    is_reassigned_after_current(...)``, but walks the scope only once.
+    is_reassigned_after_current(...)``.
     """
     return _is_reassigned_relative_to_current(node, varname, before=None)
 
