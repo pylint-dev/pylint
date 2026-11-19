@@ -1178,7 +1178,9 @@ scope_type : {self.scope_type}
                     ):
                         return True
                 case nodes.Try() if (
-                    not stmt.finalbody
+                    # A try/finally without handlers lets any exception from
+                    # its body propagate, so the body either completes or raises.
+                    not (stmt.handlers and stmt.finalbody)
                     and NamesConsumer._defines_name_raises_or_returns_recursive(
                         name, stmt
                     )
