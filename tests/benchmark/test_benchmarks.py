@@ -17,6 +17,7 @@ regressions.
 
 from __future__ import annotations
 
+import importlib
 import subprocess
 import sys
 from typing import TYPE_CHECKING
@@ -28,6 +29,7 @@ from pylint.checkers import BaseRawFileChecker
 from pylint.lint import PyLinter
 from pylint.testutils._primer import PackageToLint
 from pylint.testutils._run import _Run as Run
+from pylint.testutils.lint_module_test import PYLINTRC
 from pylint.testutils.reporter_for_tests import GenericTestReporter
 
 if TYPE_CHECKING:
@@ -111,6 +113,45 @@ def test_bench_default_config_black(
     """Lint black with the default configuration, like most users do."""
     runner = benchmark(_lint, black.paths_to_lint)
     assert runner.linter.stats.statement > 0
+
+
+def _forget(modules: list[str]) -> None:
+    for name in modules:
+        sys.modules.pop(name, None)
+
+
+def _lint_with_new_modules(path: Path, modules: list[str]) -> None:
+    """Import pylint again, then lint one file, like a new ``pylint`` process."""
+    _forget(modules)
+    lint = importlib.import_module("pylint.lint")
+    reporters = importlib.import_module("pylint.reporters")
+    lint.Run(
+        [f"--rcfile={PYLINTRC}", str(path)],
+        reporter=reporters.CollectingReporter(),
+        exit=False,
+    )
+
+
+def test_bench_cold_start_in_process(
+    benchmark: BenchmarkFixture, minimal_file: Path, pylint_modules: list[str]
+) -> None:
+    """Like ``test_bench_cold_start``, measured in simulation mode.
+
+    Imports pylint, its checkers, astroid and its brains again, then lints one
+    small file. Catches a slower import or startup with a call graph.
+    The standard library stays imported, only ``test_bench_cold_start``
+    sees a slow new standard library import.
+    """
+    originals = {
+        name: sys.modules[name] for name in pylint_modules if name in sys.modules
+    }
+    try:
+        benchmark(_lint_with_new_modules, minimal_file, pylint_modules)
+        assert sys.modules["pylint.lint"] is not originals["pylint.lint"]
+    finally:
+        # The rest of the test session keeps using the modules it imported.
+        _forget(pylint_modules)
+        sys.modules.update(originals)
 
 
 @pytest.mark.wall_clock
