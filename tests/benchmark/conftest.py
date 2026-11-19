@@ -14,11 +14,14 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 
 from pylint.testutils._primer import PackageToLint
+from pylint.testutils.lint_module_test import PYLINTRC
 
 HERE = Path(__file__).parent
 PRIMER_PACKAGES = HERE.parent / "primer" / "packages_to_prime.json"
@@ -70,3 +73,37 @@ def many_files(tmp_path_factory: pytest.TempPathFactory) -> list[str]:
         path.write_text(MINIMAL_FILE.read_text(encoding="utf8"), encoding="utf8")
         paths.append(str(path))
     return paths
+
+
+_LIST_PYLINT_MODULES = """
+import sys
+before = set(sys.modules)
+from pylint.lint import Run
+from pylint.reporters import CollectingReporter
+Run(sys.argv[1:], reporter=CollectingReporter(), exit=False)
+for name in sorted(set(sys.modules) - before):
+    top = name.partition(".")[0]
+    if top not in sys.stdlib_module_names and not top.startswith("_"):
+        print(name)
+"""
+
+
+@pytest.fixture(scope="session")
+def pylint_modules() -> list[str]:
+    """The modules outside the standard library loaded to lint a small file.
+
+    Listed in a new interpreter, as this test session already imported them.
+    """
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            _LIST_PYLINT_MODULES,
+            f"--rcfile={PYLINTRC}",
+            str(MINIMAL_FILE),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.split()
