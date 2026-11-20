@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, type_check_only
 import zipfile
 
 from astroid import nodes
-
 from astroid.bases import BoundMethod
 from astroid.nodes import (
     Assign,
@@ -15,6 +14,7 @@ from astroid.nodes import (
     ListComp,
     NodeNG,
 )
+
 from pylint.checkers import BaseChecker, utils
 from pylint.interfaces import CONTROL_FLOW, INFERENCE
 
@@ -70,7 +70,7 @@ class DecompressionBombChecker(BaseChecker):
             if isinstance(inferred, nodes.FunctionDef):
                 if inferred.qname() == "builtins.sum":
                     return "FULL"
-                elif inferred.qname() == "builtins.max":
+                if inferred.qname() == "builtins.max":
                     is_max = True
                 elif inferred.qname() == "builtins.len":
                     is_len = True
@@ -244,6 +244,7 @@ class DecompressionBombChecker(BaseChecker):
                     confidence=CONTROL_FLOW,
                     args=(msg,),
                 )
+
 
 
 def register(linter: PyLinter) -> None:

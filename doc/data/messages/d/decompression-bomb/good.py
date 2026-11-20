@@ -4,7 +4,7 @@ import zipfile
 MAX_FILE_SIZE = 1000000
 MAX_FILES = 1000
 
-with zipfile.ZipFile('untrusted.zip') as archive:
+with zipfile.ZipFile("untrusted.zip") as archive:
     if len(archive.filelist) > MAX_FILES:
         print("Too many files")
     else:
@@ -13,4 +13,3 @@ with zipfile.ZipFile('untrusted.zip') as archive:
                 print("File is too large")
             else:
                 archive.extract(file)
-
