@@ -100,29 +100,52 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     @staticmethod
     def _is_node_expr_that_calls_attribute_name(node: nodes.NodeNG) -> bool:
         match node:
-            case nodes.Expr(value=nodes.Call(func=nodes.Attribute(expr=nodes.Name()))):
+            case nodes.Expr(
+                value=nodes.Call(
+                    func=nodes.Attribute(
+                        expr=nodes.Name() | nodes.Attribute(expr=nodes.Name())
+                    )
+                )
+            ):
                 return True
         return False
 
     @staticmethod
-    def _common_cond_list_set(
-        node: nodes.Expr,
+    def _is_same_object_name(
+        modified: nodes.Name | nodes.Attribute,
         iter_obj: nodes.Name | nodes.Attribute,
-        infer_val: nodes.List | nodes.Set,
     ) -> bool:
+        """Check whether the modified object refers to the iterated object by name."""
+        if isinstance(modified, nodes.Attribute):
+            return modified.as_string() == iter_obj.as_string()  # type: ignore[no-any-return]
         iter_obj_name = (
             iter_obj.attrname
             if isinstance(iter_obj, nodes.Attribute)
             else iter_obj.name
         )
-        return (infer_val == utils.safe_infer(iter_obj)) and (  # type: ignore[no-any-return]
-            node.value.func.expr.name == iter_obj_name
-        )
+        return modified.name == iter_obj_name  # type: ignore[no-any-return]
+
+    def _common_cond_list_set(
+        self,
+        node: nodes.Expr,
+        iter_obj: nodes.Name | nodes.Attribute,
+        infer_val: nodes.List | nodes.Set,
+    ) -> bool:
+        if infer_val != utils.safe_infer(iter_obj):
+            return False
+        return self._is_same_object_name(node.value.func.expr, iter_obj)
 
     @staticmethod
     def _is_node_assigns_subscript_name(node: nodes.NodeNG) -> bool:
         match node:
-            case nodes.Assign(targets=[nodes.Subscript(value=nodes.Name()), *_]):
+            case nodes.Assign(
+                targets=[
+                    nodes.Subscript(
+                        value=nodes.Name() | nodes.Attribute(expr=nodes.Name())
+                    ),
+                    *_,
+                ]
+            ):
                 return True
         return False
 
@@ -146,8 +169,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
             return False
         # Do not emit when merely updating the same key being iterated
         if (
-            isinstance(iter_obj, nodes.Name)
-            and iter_obj.name == node.targets[0].value.name
+            iter_obj.as_string() == node.targets[0].value.as_string()
             and isinstance(iter_obj.parent.target, nodes.AssignName)
             and isinstance(node.targets[0].slice, nodes.Name)
             and iter_obj.parent.target.name == node.targets[0].slice.name
@@ -158,11 +180,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
             return False
         if infer_val != utils.safe_infer(iter_obj):
             return False
-        if isinstance(iter_obj, nodes.Attribute):
-            iter_obj_name = iter_obj.attrname
-        else:
-            iter_obj_name = iter_obj.name
-        return node.targets[0].value.name == iter_obj_name  # type: ignore[no-any-return]
+        return self._is_same_object_name(node.targets[0].value, iter_obj)
 
     def _modified_iterating_set_cond(
         self, node: nodes.NodeNG, iter_obj: nodes.Name | nodes.Attribute

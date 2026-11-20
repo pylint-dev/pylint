@@ -19,3 +19,6 @@ modified-iterating-list:86:16:86:35::Iterated list 'item_list' is being modified
 modified-iterating-dict:112:8:112:28:update_existing_key:Iterated dict 'MY_DICT' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
 modified-iterating-list:124:12:124:19:MyClass.my_method:Iterated list 'attribute' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
 modified-iterating-dict:142:8:142:15:my_call:Iterated dict '' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
+modified-iterating-list:168:12:168:34:MyClass3.modify_list:Iterated list 'items' is being modified inside for loop body, consider iterating through a copy of it instead.:INFERENCE
+modified-iterating-set:172:12:172:37:MyClass3.modify_set:Iterated set 'unique' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
+modified-iterating-dict:176:12:176:42:MyClass3.modify_dict:Iterated dict 'mapping' is being modified inside for loop body, iterate through a copy of it instead.:INFERENCE
