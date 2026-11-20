@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from types import NoneType
-from typing import TYPE_CHECKING, type_check_only
-import zipfile
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 from astroid.bases import BoundMethod
@@ -152,9 +151,7 @@ class DecompressionBombChecker(BaseChecker):
             likelyIdx = -1
             for n in withNodes:
                 for gen, var in n.items:
-                    if (not isinstance(gen, nodes.Call)) or isinstance(
-                        var, NoneType
-                    ):
+                    if (not isinstance(gen, nodes.Call)) or isinstance(var, NoneType):
                         continue
                     infers = utils.infer_all(gen.func)
                     if all(
@@ -191,14 +188,10 @@ class DecompressionBombChecker(BaseChecker):
             coms = [
                 x.parent
                 for x in comps
-                if isinstance(
-                    x.parent, (ListComp, nodes.GeneratorExp, nodes.SetComp)
-                )
+                if isinstance(x.parent, (ListComp, nodes.GeneratorExp, nodes.SetComp))
             ]
             c = [self.eval_comp(x) for x in coms]
-            uses_l = [
-                self.findVarUseList(x.target.as_string(), x.body) for x in loops
-            ]
+            uses_l = [self.findVarUseList(x.target.as_string(), x.body) for x in loops]
             fss_l = [
                 [
                     y.parent
@@ -244,7 +237,6 @@ class DecompressionBombChecker(BaseChecker):
                     confidence=CONTROL_FLOW,
                     args=(msg,),
                 )
-
 
 
 def register(linter: PyLinter) -> None:
