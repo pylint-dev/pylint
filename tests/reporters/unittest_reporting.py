@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import sys
 import warnings
 from contextlib import redirect_stdout
 from io import BytesIO, StringIO, TextIOWrapper
@@ -20,7 +21,11 @@ from pylint.interfaces import HIGH
 from pylint.lint import PyLinter
 from pylint.message.message import Message
 from pylint.reporters import BaseReporter, MultiReporter
-from pylint.reporters.text import ParseableTextReporter, TextReporter
+from pylint.reporters.text import (
+    ColorizedTextReporter,
+    ParseableTextReporter,
+    TextReporter,
+)
 from pylint.typing import FileItem, MessageLocationTuple
 
 if TYPE_CHECKING:
@@ -372,6 +377,21 @@ class TextIOWrapperWithoutEncoding(TextIOWrapper):
     encoding = None  # type: ignore[assignment]
 
 
+class ChunkedWriter:
+    """Write each character separately, like ``colorama.AnsiToWin32``.
+
+    It has no ``encoding`` either, but its ``stream`` exposes the one of the
+    stream it wraps.
+    """
+
+    def __init__(self, stream: TextIOWrapper) -> None:
+        self.stream = stream
+
+    def write(self, text: str) -> None:
+        for character in text:
+            self.stream.write(character)
+
+
 @pytest.mark.parametrize(
     ("wrapper", "expected"),
     [
@@ -397,6 +417,37 @@ def test_writeln_with_output_that_cannot_encode_the_string(
 
     output.flush()
     assert buffer.getvalue() == expected
+
+
+def test_writeln_through_a_chunked_writer_does_not_repeat_the_line() -> None:
+    """Nothing is written twice when the line is written in several chunks.
+
+    Retrying after a ``UnicodeEncodeError`` would write again the chunks that
+    went through before the error.
+    """
+    buffer = BytesIO()
+    output = TextIOWrapper(buffer, encoding="cp1252", newline="\n")
+    reporter = BaseReporter(ChunkedWriter(output))  # type: ignore[arg-type]
+
+    reporter.writeln("apple: \u043f\u0440\u0438\u0432\u0435\u0442")
+
+    output.flush()
+    assert buffer.getvalue() == b"apple: ??????\n"
+
+
+def test_writeln_through_colorama(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The colorized reporter writes through ``colorama`` on Windows (#9277)."""
+    pytest.importorskip("colorama")
+    monkeypatch.setattr(sys, "platform", "win32")
+    monkeypatch.delenv("TERM", raising=False)
+    buffer = BytesIO()
+    output = TextIOWrapper(buffer, encoding="cp1252", newline="\n")
+    reporter = ColorizedTextReporter(output)
+
+    reporter.writeln("\x1b[31mapple\x1b[0m: \u043f\u0440\u0438\u0432\u0435\u0442")
+
+    output.flush()
+    assert buffer.getvalue() == b"apple: ??????\n"
 
 
 def test_reencode_output_after_unicode_error_replaces_surrogates() -> None:
