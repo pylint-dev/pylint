@@ -22,7 +22,8 @@ pylint the ``--output-format=<value>`` option. Possible values are:
 * ``junit``: JUnit XML for CI/CD integration (Jenkins, Azure DevOps, GitLab CI, GitHub Actions)
 
 You can also give the fully qualified name of your own reporter class, for
-example ``--output-format=mypackage.mymodule.MyReporterClass``.
+example ``--output-format=mypackage.mymodule.MyReporterClass``. To give your
+reporter options of its own, see :ref:`reporter_plugin_options`.
 
 Multiple output formats can be used at the same time by passing
 a comma-separated list of formats to ``--output-format``.
