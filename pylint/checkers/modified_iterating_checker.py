@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from astroid import nodes
+from astroid import bases, nodes
+from astroid.typing import InferenceResult
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -17,6 +18,36 @@ if TYPE_CHECKING:
 
 _LIST_MODIFIER_METHODS = {"append", "remove"}
 _SET_MODIFIER_METHODS = {"add", "clear", "discard", "pop", "remove"}
+
+
+def _is_list(node: InferenceResult | None) -> bool:
+    if isinstance(node, nodes.List):
+        return True
+    return (
+        isinstance(node, bases.Instance)
+        and not isinstance(node, nodes.Const)
+        and node.is_subtype_of("builtins.list")
+    )
+
+
+def _is_dict(node: InferenceResult | None) -> bool:
+    if isinstance(node, nodes.Dict):
+        return True
+    return (
+        isinstance(node, bases.Instance)
+        and not isinstance(node, nodes.Const)
+        and node.is_subtype_of("builtins.dict")
+    )
+
+
+def _is_set(node: InferenceResult | None) -> bool:
+    if isinstance(node, nodes.Set):
+        return True
+    return (
+        isinstance(node, bases.Instance)
+        and not isinstance(node, nodes.Const)
+        and node.is_subtype_of("builtins.set")
+    )
 
 
 class ModifiedIterationChecker(checkers.BaseChecker):
@@ -74,13 +105,13 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         if isinstance(node, nodes.Delete) and any(
             self._deleted_iteration_target_cond(t, iter_obj) for t in node.targets
         ):
-            match utils.safe_infer(iter_obj):
-                case nodes.List():
-                    msg_id = "modified-iterating-list"
-                case nodes.Dict():
-                    msg_id = "modified-iterating-dict"
-                case nodes.Set():
-                    msg_id = "modified-iterating-set"
+            inferred = utils.safe_infer(iter_obj)
+            if _is_list(inferred):
+                msg_id = "modified-iterating-list"
+            elif _is_dict(inferred):
+                msg_id = "modified-iterating-dict"
+            elif _is_set(inferred):
+                msg_id = "modified-iterating-set"
         elif not isinstance(iter_obj, (nodes.Name, nodes.Attribute)):
             pass
         elif self._modified_iterating_list_cond(node, iter_obj):
@@ -108,7 +139,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     def _common_cond_list_set(
         node: nodes.Expr,
         iter_obj: nodes.Name | nodes.Attribute,
-        infer_val: nodes.List | nodes.Set,
+        infer_val: InferenceResult,
     ) -> bool:
         iter_obj_name = (
             iter_obj.attrname
@@ -132,8 +163,9 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         if not self._is_node_expr_that_calls_attribute_name(node):
             return False
         infer_val = utils.safe_infer(node.value.func.expr)
-        if not isinstance(infer_val, nodes.List):
+        if not _is_list(infer_val):
             return False
+        assert infer_val is not None
         return (
             self._common_cond_list_set(node, iter_obj, infer_val)
             and node.value.func.attrname in _LIST_MODIFIER_METHODS
@@ -154,7 +186,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         ):
             return False
         infer_val = utils.safe_infer(node.targets[0].value)
-        if not isinstance(infer_val, nodes.Dict):
+        if not _is_dict(infer_val):
             return False
         if infer_val != utils.safe_infer(iter_obj):
             return False
@@ -170,8 +202,9 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         if not self._is_node_expr_that_calls_attribute_name(node):
             return False
         infer_val = utils.safe_infer(node.value.func.expr)
-        if not isinstance(infer_val, nodes.Set):
+        if not _is_set(infer_val):
             return False
+        assert infer_val is not None
         return (
             self._common_cond_list_set(node, iter_obj, infer_val)
             and node.value.func.attrname in _SET_MODIFIER_METHODS
