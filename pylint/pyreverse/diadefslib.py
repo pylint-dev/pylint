@@ -16,7 +16,12 @@ from astroid import nodes
 from astroid.modutils import is_stdlib_module
 
 from pylint.exceptions import InvalidArgsError
-from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
+from pylint.pyreverse.diagrams import (
+    ClassDiagram,
+    PackageDiagram,
+    _class_definition_key,
+    _ClassDefinitionKey,
+)
 from pylint.pyreverse.inspector import Linker, Project
 from pylint.pyreverse.utils import LocalsVisitor
 
@@ -31,6 +36,8 @@ class DiaDefGenerator:
         self.config = handler.config
         self.args = handler.args
         self.module_names: bool = False
+        self._subclasses: dict[_ClassDefinitionKey, list[nodes.ClassDef]] | None = None
+        self.all_derived: bool = False
         self._set_default_options()
         self.linker = linker
         self.classdiagram: ClassDiagram  # defined by subclasses
@@ -87,6 +94,7 @@ class DiaDefGenerator:
         self.module_names = self._set_option(self.config.module_names)
         all_ancestors = self._set_option(self.config.all_ancestors)
         all_associated = self._set_option(self.config.all_associated)
+        self.all_derived = bool(getattr(self.config, "all_derived", False))
         anc_level, association_level = (0, 0)
         if all_ancestors:
             anc_level = -1
@@ -170,8 +178,41 @@ class DiaDefGenerator:
                     continue
                 yield node
 
+    def _build_derived_index(self, project: Project) -> None:
+        """Build reverse inheritance index mapping base classes to their direct
+        subclasses.
+        """
+        self._subclasses = {}
+        seen: set[tuple[_ClassDefinitionKey, _ClassDefinitionKey]] = set()
+        for module in project.modules:
+            for cls in module.nodes_of_class(nodes.ClassDef):
+                cls_key = _class_definition_key(cls)
+                try:
+                    for base in cls.ancestors(recurs=False):
+                        if not isinstance(base, nodes.ClassDef):
+                            continue
+                        base_key = _class_definition_key(base)
+                        if (base_key, cls_key) not in seen:
+                            seen.add((base_key, cls_key))
+                            self._subclasses.setdefault(base_key, []).append(cls)
+                except (astroid.MroError, astroid.InferenceError):
+                    continue
+
+    def get_derived(self, node: nodes.ClassDef) -> Generator[nodes.ClassDef]:
+        """Return derived (subclass) nodes of a class node."""
+        if self._subclasses is None:
+            return
+        node_key = _class_definition_key(node)
+        for child in self._subclasses.get(node_key, []):
+            if self.show_node(child):
+                yield child
+
     def extract_classes(
-        self, klass_node: nodes.ClassDef, anc_level: int, association_level: int
+        self,
+        klass_node: nodes.ClassDef,
+        anc_level: int,
+        association_level: int,
+        traverse_derived: bool = True,
     ) -> None:
         """Extract recursively classes related to klass_node."""
         if self.classdiagram.has_node(klass_node) or not self.show_node(klass_node):
@@ -179,10 +220,20 @@ class DiaDefGenerator:
         self.add_class(klass_node)
 
         for ancestor in self.get_ancestors(klass_node, anc_level):
-            self.extract_classes(ancestor, anc_level - 1, association_level)
+            self.extract_classes(
+                ancestor, anc_level - 1, association_level, traverse_derived=False
+            )
 
         for node in self.get_associated(klass_node, association_level):
-            self.extract_classes(node, anc_level, association_level - 1)
+            self.extract_classes(
+                node, anc_level, association_level - 1, traverse_derived=False
+            )
+
+        if self.all_derived and traverse_derived:
+            for child in self.get_derived(klass_node):
+                self.extract_classes(
+                    child, anc_level, association_level, traverse_derived=True
+                )
 
 
 class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
@@ -201,6 +252,8 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
 
         create a diagram definition for packages
         """
+        if self.all_derived and self._subclasses is None:
+            self._build_derived_index(node)
         mode = self.config.mode
         if len(node.modules) > 1:
             self.pkgdiagram: PackageDiagram | None = PackageDiagram(
@@ -249,6 +302,8 @@ class ClassDiadefGenerator(DiaDefGenerator):
 
     def class_diagram(self, project: Project, klass: str) -> ClassDiagram:
         """Return a class diagram definition for the class and related classes."""
+        if self.all_derived and self._subclasses is None:
+            self._build_derived_index(project)
         klass_name = klass
         self.classdiagram = ClassDiagram(klass, self.config.mode, self.linker)
         if len(project.modules) > 1:
