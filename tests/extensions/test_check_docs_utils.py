@@ -223,4 +223,3 @@ def test_args_with_annotation_positional_only(code: str, expected: set[str]) -> 
     """
     func_node = astroid.extract_node(code)
     assert utils.args_with_annotation(func_node.args) == expected
-
