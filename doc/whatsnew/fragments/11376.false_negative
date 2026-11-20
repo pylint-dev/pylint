@@ -1,0 +1,6 @@
+:ref:`invalid-name` now checks every parameter kind against the argument
+naming style. Positional-only parameters, ``*args``, keyword-only parameters
+and ``**kwargs`` were skipped, so only positional-or-keyword names were ever
+reported.
+
+Refs #11376
