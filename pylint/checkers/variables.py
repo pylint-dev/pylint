@@ -820,6 +820,40 @@ scope_type : {self.scope_type}
 
         return found_nodes
 
+    def get_uncertain_except_definitions(self, node: nodes.Name) -> list[nodes.NodeNG]:
+        """For a name already consumed, return its definitions if they are all
+        in except blocks that may not have executed before `node`.
+
+        The returned nodes are recorded in self.consumed_uncertain, and nodes
+        already recorded there are not returned again.
+        """
+        definitions = [
+            n
+            for n in self.node.locals[node.name]
+            if not isinstance(n.statement(), nodes.ExceptHandler)
+            or n.statement().parent_of(node)
+        ]
+        uncertain_nodes = self._uncertain_nodes_in_except_blocks(
+            definitions, node, node.statement()
+        )
+        if len(uncertain_nodes) < len(definitions):
+            return []
+        # Use .get() so that no empty entry is created, which would lower the
+        # confidence of later messages for this name.
+        already_uncertain = self.consumed_uncertain.get(node.name, [])
+        new_nodes = [n for n in uncertain_nodes if n not in already_uncertain]
+        if not new_nodes:
+            return []
+        if _is_nonlocal_name(
+            node, node.frame()
+        ) or VariablesChecker._comprehension_between_frame_and_node(node):
+            return []
+        # Called for its side effect of setting the flags used to choose the
+        # message and confidence, as in get_next_to_consume().
+        self._uncertain_nodes_if_tests(definitions, node)
+        self.consumed_uncertain[node.name] += new_nodes
+        return new_nodes
+
     def _inferred_to_define_name_raise_or_return(
         self,
         name: str,
@@ -2021,6 +2055,8 @@ class VariablesChecker(BaseChecker):
                 node, nodes.ComprehensionScope
             ):
                 self._check_late_binding_closure(node)
+                if current_consumer.get_uncertain_except_definitions(node):
+                    self._report_unfound_name_definition(node, current_consumer)
                 return (VariableVisitConsumerAction.RETURN, None)
 
         found_nodes = current_consumer.get_next_to_consume(node)
