@@ -73,6 +73,26 @@ def test__is_in_ignore_list_re_match() -> None:
     assert _is_in_ignore_list_re("src/tests/whatever.xml", patterns)
 
 
+@pytest.mark.parametrize("suffix", ["", ".py"])
+def test_explicit_file_inside_namespace(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, suffix: str
+) -> None:
+    """Expand only the requested file, even if its name also resolves to a package."""
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.syspath_prepend(str(tmp_path))
+    package = Path("extensionless_script_8050")
+    package.mkdir()
+    (package / "sibling.py").touch()
+    script = package / (package.name + suffix)
+    script.touch()
+
+    modules, errors = expand_modules([str(script)], [], [], [], [])
+
+    assert not errors
+    assert list(modules) == [str(script)]
+    assert modules[str(script)]["isarg"]
+
+
 @pytest.mark.parametrize("is_package", [False, True])
 @pytest.mark.parametrize("reverse", [False, True])
 def test_package_expansion_order(
