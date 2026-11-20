@@ -1,0 +1,1 @@
+assignment-from-no-return:45:4:45:37:welcome_silently:Assigning result of a function call, but 'greet' returns None:INFERENCE

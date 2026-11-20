@@ -1,0 +1,4 @@
+``assignment-from-no-return`` is no longer emitted for the result of a method of a
+``Protocol`` class, whose body only declares what implementations return.
+
+Closes #9080
