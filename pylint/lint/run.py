@@ -227,7 +227,11 @@ group are mutually exclusive.",
                 file=sys.stderr,
             )
             sys.exit(32)
-        if linter.config.jobs > 1 or linter.config.jobs == 0:
+        if linter.config.jobs == 0:
+            linter.config.jobs = _cpu_count()
+        # Only check that multiprocessing works when it will be used, creating
+        # an executor has a cost.
+        if linter.config.jobs > 1 and not linter.config.from_stdin:
             try:
                 # pylint: disable-next=import-outside-toplevel
                 from concurrent.futures import ProcessPoolExecutor
@@ -243,8 +247,6 @@ group are mutually exclusive.",
                     file=sys.stderr,
                 )
                 linter.set_option("jobs", 1)
-            if linter.config.jobs == 0:
-                linter.config.jobs = _cpu_count()
 
         if self._output:
             try:
