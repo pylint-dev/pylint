@@ -52,10 +52,15 @@ enforce a floor of zero.
 How do I avoid getting unused argument warnings for API I do not control?
 -------------------------------------------------------------------------
 
-Prefix (ui) the callback's name by `cb_` (callback), as in cb_onclick(...). By
-doing so arguments usage won't be checked. Another solution is to
-use one of the names defined in the "dummy-variables" configuration
-variable for unused argument ("_" and "dummy" by default).
+Pylint skips unused argument checks for callbacks whose names match
+:ref:`callbacks-option`, such as ``cb_onclick`` with the default prefixes.
+
+To ignore unused function parameters by name, set
+:ref:`ignored-argument-names-option`. For example, ``--ignored-argument-names='^mock_'``
+ignores unused parameters whose names start with ``mock_``. This setting also affects
+checks such as :ref:`too-many-arguments`.
+
+Use :ref:`dummy-variables-rgx-option` for unused local variables.
 
 
 Why are there a bunch of messages disabled by default?
