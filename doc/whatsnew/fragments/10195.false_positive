@@ -1,0 +1,5 @@
+Emit ``possibly-used-before-assignment`` instead of ``used-before-assignment``
+when a name that may already be bound by a conditional assignment is assigned
+again later in the same scope.
+
+Closes #10195

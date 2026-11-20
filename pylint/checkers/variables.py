@@ -2023,6 +2023,7 @@ class VariablesChecker(BaseChecker):
                 self._check_late_binding_closure(node)
                 return (VariableVisitConsumerAction.RETURN, None)
 
+        uncertain_count = len(current_consumer.consumed_uncertain.get(node.name, ()))
         found_nodes = current_consumer.get_next_to_consume(node)
         if found_nodes is None:
             return (VariableVisitConsumerAction.CONTINUE, None)
@@ -2152,12 +2153,25 @@ class VariablesChecker(BaseChecker):
                     and utils.get_node_first_ancestor_of_type(stmt, nodes.FunctionDef)
                     or isinstance(stmt, nodes.TypeAlias)
                 ):
-                    self.add_message(
-                        "used-before-assignment",
-                        args=node.name,
-                        node=node,
-                        confidence=HIGH,
-                    )
+                    # The definition found comes after the use, but an earlier
+                    # one that may not have executed could still bind the name.
+                    # If that path reports nothing (e.g. for a shadowed builtin,
+                    # which a later assignment makes local), keep the error.
+                    if not (
+                        any(
+                            (n.lineno, n.col_offset) < (node.lineno, node.col_offset)
+                            for n in current_consumer.consumed_uncertain.get(
+                                node.name, []
+                            )[uncertain_count:]
+                        )
+                        and self._report_unfound_name_definition(node, current_consumer)
+                    ):
+                        self.add_message(
+                            "used-before-assignment",
+                            args=node.name,
+                            node=node,
+                            confidence=HIGH,
+                        )
                     return (VariableVisitConsumerAction.RETURN, found_nodes)
 
             elif base_scope_type == "lambda":
