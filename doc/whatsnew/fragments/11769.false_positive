@@ -1,0 +1,5 @@
+Fix a false positive for ``used-before-assignment`` when a direct walrus test
+assigns the name used in a conditional expression nested in dictionary values.
+Unrelated conditional expressions no longer hide genuinely unbound names.
+
+Refs #11769

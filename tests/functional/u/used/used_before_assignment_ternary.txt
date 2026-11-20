@@ -1,3 +1,11 @@
 used-before-assignment:6:14:6:15:invalid:Using variable 'a' before assignment:HIGH
 used-before-assignment:8:14:8:15:invalid:Using variable 'b' before assignment:HIGH
 used-before-assignment:9:10:9:11:invalid:Using variable 'c' before assignment:HIGH
+used-before-assignment:78:23:78:28:nested_dict_unrelated_condition:Using variable 'value' before assignment:HIGH
+used-before-assignment:85:18:85:23:nested_dict_unrelated_walrus:Using variable 'value' before assignment:HIGH
+used-before-assignment:93:23:93:28:nested_dict_deferred_lambda:Using variable 'value' before assignment:HIGH
+used-before-assignment:99:32:99:37:nested_dict_short_circuit:Using variable 'value' before assignment:HIGH
+used-before-assignment:105:47:105:52:nested_dict_read_in_test:Using variable 'value' before assignment:HIGH
+used-before-assignment:125:21:125:26:nested_dict_conditional_binding:Using variable 'value' before assignment:HIGH
+used-before-assignment:136:30:136:35:nested_dict_short_circuit_binding:Using variable 'value' before assignment:HIGH
+used-before-assignment:146:18:146:23:nested_dict_lambda_local_binding:Using variable 'value' before assignment:HIGH

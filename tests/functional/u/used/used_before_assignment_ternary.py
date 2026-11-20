@@ -42,6 +42,25 @@ def dictionary_items_valid():
         z if (z:=input()) else "": 0,
     }
 
+def nested_dict_value_valid():
+    """assignment in an IfExp condition nested in dict values"""
+    var = {
+        "status": {
+            "a": (
+                str(var) if (var := 2) else None
+            ),
+        }
+    }
+
+def nested_container_value_valid():
+    """recursion into nested containers: IfExp behind dict/list/call layers"""
+    var = {
+        "k": [x if (x := 1) else 2],
+    }
+    var = {
+        "k": str(x if (x := 1) else 2),
+    }
+
 def complex_valid():
     """assignment within complex call expression"""
     var = str(bar(bar(a if (a:=1) else 0))).lower().upper()
@@ -52,3 +71,79 @@ def foo(x, y, z):
     return x+y+z
 
 bar = lambda x : x
+
+
+def nested_dict_unrelated_condition(flag):
+    """An unrelated conditional cannot bind the enclosing assignment target."""
+    value = {"before": value, "nested": {"item": 1 if flag else 0}}  # [used-before-assignment]
+    return value
+
+
+def nested_dict_unrelated_walrus():
+    """Assigning another name cannot bind the enclosing assignment target."""
+    value = {
+        "before": value,  # [used-before-assignment]
+        "nested": {"item": other if (other := 2) else 0},
+    }
+    return value
+
+
+def nested_dict_deferred_lambda(flag):
+    """A conditional in a deferred lambda cannot bind the outer target."""
+    value = {"before": value, "deferred": lambda: 1 if flag else 0}  # [used-before-assignment]
+    return value
+
+
+def nested_dict_short_circuit(flag):
+    """A short-circuited walrus need not bind its target before the branch."""
+    value = {"nested": {"item": value if (flag or (value := 2)) else 0}}  # [used-before-assignment]
+    return value
+
+
+def nested_dict_read_in_test():
+    """The assignment's own value is evaluated before its target is bound."""
+    value = {"nested": {"item": 1 if (value := value) else 0}}  # [used-before-assignment]
+    return value
+
+
+def nested_dict_else_valid():
+    """The condition also assigns before a direct read in its else branch."""
+    value = {"nested": {"item": None if (value := None) else value}}
+    return value
+
+
+def nested_dict_else_call_valid():
+    """A call in the else branch can use the condition's assignment."""
+    value = {"nested": {"item": None if (value := None) else str(value)}}
+    return value
+
+
+def nested_dict_conditional_binding(flag):
+    """The inner test may be skipped before a later dictionary value reads it."""
+    value = {
+        "nested": {
+            "item": (value if (value := 2) else None) if flag else None,  # [used-before-assignment]
+        },
+        "after": value,
+    }
+    return value
+
+
+def nested_dict_short_circuit_binding(flag):
+    """A short circuit may skip the inner binding before a later read."""
+    value = {
+        "nested": {
+            "item": flag and (value if (value := 2) else None),  # [used-before-assignment]
+        },
+        "after": value,
+    }
+    return value
+
+
+def nested_dict_lambda_local_binding():
+    """A lambda's same-name local assignment cannot initialize an outer read."""
+    value = {
+        "before": value,  # [used-before-assignment]
+        "nested": lambda: value if (value := 2) else None,
+    }
+    return value
