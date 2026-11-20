@@ -1,0 +1,5 @@
+``dangerous-default-value`` now detects mutable default values in dataclass fields,
+including ``field(default=...)``. ``ClassVar`` attributes and ``default_factory``
+are not flagged.
+
+Refs #5159
