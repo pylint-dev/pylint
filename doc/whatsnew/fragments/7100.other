@@ -1,0 +1,3 @@
+Correct the inputs and expected output in the ``cell-var-from-loop`` examples.
+
+Refs #7100
