@@ -196,3 +196,31 @@ def test_get_setters_property_with_non_function_attr() -> None:
             raise Exception
     """)
     assert utils.get_setters_property(node) is None
+
+
+@pytest.mark.parametrize(
+    "code,expected",
+    [
+        ("def func(param1, /, param2: int): pass", {"param2"}),
+        ("def func(self, param1, /, param2: int): pass", {"param2"}),
+        ("def func(self, /, param1, param2: int): pass", {"param2"}),
+        ("def func(self, param1, param2: int, /): pass", {"param2"}),
+        ("def func(self, /, param1: int, param2: int): pass", {"param1", "param2"}),
+        ("def func(p1: str, /, p2, *args, kw1: int, **kwargs): pass", {"p1", "kw1"}),
+        (
+            """
+            def func(p1, /, p2, *args, kw1, **kwargs):
+                # type: (int, str, float, bool, bytes) -> None
+                pass
+            """,
+            {"p1", "p2", "args", "kw1", "kwargs"},
+        ),
+    ],
+)
+def test_args_with_annotation_positional_only(code: str, expected: set[str]) -> None:
+    """Test args_with_annotation correctly identifies annotated arguments with
+    positional-only parameters (#11843).
+    """
+    func_node = astroid.extract_node(code)
+    assert utils.args_with_annotation(func_node.args) == expected
+
