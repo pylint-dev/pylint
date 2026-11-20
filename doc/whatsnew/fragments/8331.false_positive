@@ -1,0 +1,6 @@
+Fixed a false positive ``invalid-unary-operand-type`` on a value narrowed by
+``if not isinstance(...): raise``.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #8331

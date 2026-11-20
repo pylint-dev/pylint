@@ -1,0 +1,7 @@
+Fixed a false positive ``attribute-defined-outside-init`` when setting an
+attribute of an object narrowed with ``isinstance`` from a union set in two
+branches.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #8900

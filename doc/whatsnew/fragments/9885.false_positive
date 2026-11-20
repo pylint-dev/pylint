@@ -1,0 +1,6 @@
+Fixed a false positive ``no-member`` for ``__value__`` on a ``type`` statement
+aliasing a ``Literal``.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #9885

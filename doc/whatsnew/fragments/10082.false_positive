@@ -1,0 +1,7 @@
+Fixed false positives ``unsupported-assignment-operation`` and
+``unsubscriptable-object`` on a class attribute set to ``None`` in the class body
+and assigned through ``self.__class__``.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #10082
