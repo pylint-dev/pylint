@@ -1,0 +1,6 @@
+assigning-non-slot:14:8:14:14:NoFields.__init__:Assigning to attribute 'x' not defined in class slots:INFERENCE
+assigning-non-slot:25:8:25:14:Point.__post_init__:Assigning to attribute 'z' not defined in class slots:INFERENCE
+assigning-non-slot:29:8:29:18:Point.move:Assigning to attribute 'label' not defined in class slots:INFERENCE
+assigning-non-slot:38:8:38:21:Named.rename:Assigning to attribute 'nickname' not defined in class slots:INFERENCE
+assigning-non-slot:48:8:48:14:Child.update:Assigning to attribute 'w' not defined in class slots:INFERENCE
+assigning-non-slot:103:8:103:18:SlottedBase.update:Assigning to attribute 'extra' not defined in class slots:INFERENCE
