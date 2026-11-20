@@ -34,6 +34,10 @@ class Lines(NamedTuple):
         """Exercise the other generated named tuple members."""
         return self._fields, self._field_defaults, self._asdict(), self._make([])
 
+    def tuple_members(self) -> tuple[int, int]:
+        """Use the methods every tuple has."""
+        return self.count("apple"), self.index("banana")
+
     def missing_member(self) -> None:
         """Keep checking members that are not part of the named tuple API."""
         print(self._missing)  # [no-member]

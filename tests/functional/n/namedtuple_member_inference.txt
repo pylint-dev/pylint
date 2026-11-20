@@ -1,2 +1,2 @@
 no-member:16:10:16:17:test:Class 'Thing' has no 'x' member:INFERENCE
-no-member:39:14:39:27:Lines.missing_member:Instance of 'Lines' has no '_missing' member:INFERENCE
+no-member:43:14:43:27:Lines.missing_member:Instance of 'Lines' has no '_missing' member:INFERENCE
