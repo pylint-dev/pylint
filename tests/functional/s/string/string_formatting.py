@@ -45,7 +45,7 @@ def print_good():
     "{pid}".format(pid=os.getpid())
     str("{}").format(2)
     "{0.missing.length}".format(ReturnYes())
-    "{1.missing.length}".format(ReturnYes())
+    "{1.missing.length}".format(ReturnYes()) # [too-few-format-args]
     "{a.ids[3][1]}".format(a=Test())
     "{a[0][0]}".format(a=[[1]])
     "{[0][0]}".format({0: {0: 1}})
@@ -220,3 +220,15 @@ def invalid_format_index_on_inference_ambiguity():
     else:
         options = [["Barf!"]]
     return 'Why is this bad? {options[0][0]}'.format(options=options)
+
+
+def explicit_positions_with_gaps():
+    """Explicit positions need max(position) + 1 arguments (issue 8012)."""
+    "{1}".format(20) # [too-few-format-args]
+    "{2}".format(20) # [too-few-format-args]
+    "{0} {2}".format(1, 2) # [too-few-format-args]
+    "{1.real}".format(20) # [too-few-format-args]
+    "{1} {a}".format(5, a=2) # [too-few-format-args]
+    "{1}".format(20, 21)
+    "{2} {0}".format(1, 2, 3)
+    "{0} {2}".format(1, 2, 3, 4) # [too-many-format-args]

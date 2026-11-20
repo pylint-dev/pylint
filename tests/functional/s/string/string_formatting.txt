@@ -1,3 +1,4 @@
+too-few-format-args:48:4:48:44:print_good:Not enough arguments for format string:UNDEFINED
 format-string-without-interpolation:68:4:68:20:pprint_bad:Using formatting for a string that does not have any interpolated variables:UNDEFINED
 bad-format-string:69:4:69:19:pprint_bad:Invalid format string:UNDEFINED
 bad-format-string:70:4:70:19:pprint_bad:Invalid format string:UNDEFINED
@@ -45,3 +46,9 @@ too-few-format-args:150:4:150:29:issue322:Not enough arguments for format string
 too-few-format-args:175:4:175:15:issue351:Not enough arguments for format string:UNDEFINED
 too-many-format-args:177:4:177:31:issue351:Too many arguments for format string:UNDEFINED
 bad-format-string:213:11:213:60:avoid_empty_attribute:Invalid format string:UNDEFINED
+too-few-format-args:227:4:227:20:explicit_positions_with_gaps:Not enough arguments for format string:UNDEFINED
+too-few-format-args:228:4:228:20:explicit_positions_with_gaps:Not enough arguments for format string:UNDEFINED
+too-few-format-args:229:4:229:26:explicit_positions_with_gaps:Not enough arguments for format string:UNDEFINED
+too-few-format-args:230:4:230:25:explicit_positions_with_gaps:Not enough arguments for format string:UNDEFINED
+too-few-format-args:231:4:231:28:explicit_positions_with_gaps:Not enough arguments for format string:UNDEFINED
+too-many-format-args:234:4:234:32:explicit_positions_with_gaps:Too many arguments for format string:UNDEFINED

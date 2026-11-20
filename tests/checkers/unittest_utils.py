@@ -157,6 +157,28 @@ def test_parse_format_method_string() -> None:
         assert keyword_args + num_args + pos_args == count
 
 
+@pytest.mark.parametrize(
+    "fmt, implicit, explicit",
+    [
+        ("{}{}", 2, set()),
+        ("{1}", 0, {1}),
+        ("{0}{2}{0}", 0, {0, 2}),
+        ("{3.attr} {0[key]}", 0, {0, 3}),
+        ("{0:>{1}}", 0, {0, 1}),
+        ("{field} {10}", 0, {10}),
+        ("{field}", 0, set()),
+    ],
+)
+def test_parse_format_method_string_positions(
+    fmt: str, implicit: int, explicit: set[int]
+) -> None:
+    _, num_implicit, positions = utils.parse_format_method_string_positions(fmt)
+    assert num_implicit == implicit
+    assert positions == explicit
+    # The counting variant must keep reporting how many positions there are.
+    assert utils.parse_format_method_string(fmt)[2] == len(explicit)
+
+
 def test_inherit_from_std_ex_recursive_definition() -> None:
     node = astroid.extract_node("""
       import datetime
