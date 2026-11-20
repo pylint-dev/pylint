@@ -1,0 +1,5 @@
+Fix a false positive for ``attribute-defined-outside-init`` when a base class cannot
+be inferred, for example because it is imported from a module pylint cannot find.
+That base may define the attribute in its own ``__init__``.
+
+Closes #3502

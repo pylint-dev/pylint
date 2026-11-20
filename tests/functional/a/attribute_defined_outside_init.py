@@ -1,5 +1,10 @@
 # pylint: disable=missing-docstring,too-few-public-methods,invalid-name
 
+from enum import Enum
+
+from not_installed_module import UnknownBase  # pylint: disable=import-error
+
+
 class A:
 
     def __init__(self):
@@ -312,3 +317,33 @@ class NestedAttributeAssignment:
             self.extra = 1  # [attribute-defined-outside-init]
 
         _apply()
+
+
+class ChildOfUnknownBase(UnknownBase):
+    """Regression test for #3502: ``UnknownBase`` cannot be inferred and may
+    define ``loaded`` in its own ``__init__``, so nothing is reported.
+    """
+
+    def load(self, value):
+        self.loaded = value
+
+
+class GrandchildOfUnknownBase(ChildOfUnknownBase):
+    def later(self):
+        self.later_attr = 1
+
+
+class ChildOfUndefinedBase(UndefinedBase):  # pylint: disable=undefined-variable
+    def later(self):
+        self.later_attr = 1
+
+
+class EnumChild(Enum):
+    """``Enum`` infers both to the class and to the ``None`` the enum module
+    binds it to first, but it is not unknown, so the message is still emitted.
+    """
+
+    MEMBER = 1
+
+    def later(self):
+        self.later_attr = 1  # [attribute-defined-outside-init]
