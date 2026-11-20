@@ -42,14 +42,37 @@ class BaseReporter:
 
     def writeln(self, string: str = "") -> None:
         """Write a line in the output buffer."""
+        encoding = self._output_encoding()
+        if encoding:
+            # Replace what the output cannot encode (e.g. non-Latin characters
+            # when stdout is redirected on Windows with a code page such as
+            # cp1252) before writing anything: ``colorama`` writes a line in
+            # several chunks, so a retry after a failure would duplicate the
+            # chunks already written.
+            string = self.reencode_output_after_unicode_error(string, encoding)
         try:
             print(string, file=self.out)
         except UnicodeEncodeError:
-            print(self.reencode_output_after_unicode_error(string), file=self.out)
+            print(
+                self.reencode_output_after_unicode_error(string, "ascii"), file=self.out
+            )
+
+    def _output_encoding(self) -> str | None:
+        """Return the encoding of the output stream, if it has one."""
+        # ``colorama.AnsiToWin32`` (see ColorizedTextReporter) has no
+        # ``encoding``, but its ``stream`` proxies the one of the wrapped stream.
+        return getattr(self.out, "encoding", None) or getattr(
+            getattr(self.out, "stream", None), "encoding", None
+        )
 
     @staticmethod
-    def reencode_output_after_unicode_error(string: str) -> str:
-        return string.encode(encoding="utf-8", errors="replace").decode("utf8")
+    def reencode_output_after_unicode_error(
+        string: str, encoding: str = "utf-8"
+    ) -> str:
+        """Replace the characters that cannot be encoded with ``encoding``."""
+        return string.encode(encoding, errors="replace").decode(
+            encoding, errors="replace"
+        )
 
     def display_reports(self, layout: Section) -> None:
         """Display results encapsulated in the layout tree."""

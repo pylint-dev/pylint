@@ -6,9 +6,10 @@
 
 from __future__ import annotations
 
+import sys
 import warnings
 from contextlib import redirect_stdout
-from io import StringIO
+from io import BytesIO, StringIO, TextIOWrapper
 from json import dumps
 from pathlib import Path
 from typing import TYPE_CHECKING, TextIO
@@ -20,7 +21,11 @@ from pylint.interfaces import HIGH
 from pylint.lint import PyLinter
 from pylint.message.message import Message
 from pylint.reporters import BaseReporter, MultiReporter
-from pylint.reporters.text import ParseableTextReporter, TextReporter
+from pylint.reporters.text import (
+    ColorizedTextReporter,
+    ParseableTextReporter,
+    TextReporter,
+)
 from pylint.typing import FileItem, MessageLocationTuple
 
 if TYPE_CHECKING:
@@ -364,3 +369,87 @@ def test_display_results_is_renamed() -> None:
         # pylint: disable=no-member
         reporter.display_results()  # type: ignore[attr-defined]
     assert "no attribute 'display_results'" in str(exc)
+
+
+class TextIOWrapperWithoutEncoding(TextIOWrapper):
+    """A ``TextIOWrapper`` hiding its ``encoding``, as some stream wrappers do."""
+
+    encoding = None  # type: ignore[assignment]
+
+
+class ChunkedWriter:
+    """Write each character separately, like ``colorama.AnsiToWin32``.
+
+    It has no ``encoding`` either, but its ``stream`` exposes the one of the
+    stream it wraps.
+    """
+
+    def __init__(self, stream: TextIOWrapper) -> None:
+        self.stream = stream
+
+    def write(self, text: str) -> None:
+        for character in text:
+            self.stream.write(character)
+
+
+@pytest.mark.parametrize(
+    ("wrapper", "expected"),
+    [
+        (TextIOWrapper, "d\u00e9j\u00e0: ??????\n".encode("cp1252")),
+        (TextIOWrapperWithoutEncoding, b"d?j?: ??????\n"),
+    ],
+)
+def test_writeln_with_output_that_cannot_encode_the_string(
+    wrapper: type[TextIOWrapper], expected: bytes
+) -> None:
+    """The output is degraded, not crashed, when it cannot be encoded.
+
+    Regression test for https://github.com/pylint-dev/pylint/issues/9277:
+    a comment containing non-Latin characters crashed pylint with a
+    ``UnicodeEncodeError`` when stdout was redirected on Windows and used a
+    code page such as cp1252.
+    """
+    buffer = BytesIO()
+    output = wrapper(buffer, encoding="cp1252", newline="\n")
+    reporter = BaseReporter(output)
+
+    reporter.writeln("d\u00e9j\u00e0: \u043f\u0440\u0438\u0432\u0435\u0442")
+
+    output.flush()
+    assert buffer.getvalue() == expected
+
+
+def test_writeln_through_a_chunked_writer_does_not_repeat_the_line() -> None:
+    """Nothing is written twice when the line is written in several chunks.
+
+    Retrying after a ``UnicodeEncodeError`` would write again the chunks that
+    went through before the error.
+    """
+    buffer = BytesIO()
+    output = TextIOWrapper(buffer, encoding="cp1252", newline="\n")
+    reporter = BaseReporter(ChunkedWriter(output))  # type: ignore[arg-type]
+
+    reporter.writeln("apple: \u043f\u0440\u0438\u0432\u0435\u0442")
+
+    output.flush()
+    assert buffer.getvalue() == b"apple: ??????\n"
+
+
+def test_writeln_through_colorama(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The colorized reporter writes through ``colorama`` on Windows (#9277)."""
+    pytest.importorskip("colorama")
+    monkeypatch.setattr(sys, "platform", "win32")
+    monkeypatch.delenv("TERM", raising=False)
+    buffer = BytesIO()
+    output = TextIOWrapper(buffer, encoding="cp1252", newline="\n")
+    reporter = ColorizedTextReporter(output)
+
+    reporter.writeln("\x1b[31mapple\x1b[0m: \u043f\u0440\u0438\u0432\u0435\u0442")
+
+    output.flush()
+    assert buffer.getvalue() == b"apple: ??????\n"
+
+
+def test_reencode_output_after_unicode_error_replaces_surrogates() -> None:
+    """Lone surrogates cannot be encoded, even in UTF-8 (see issue #8736)."""
+    assert BaseReporter.reencode_output_after_unicode_error("d\ud800\udc00") == "d??"
