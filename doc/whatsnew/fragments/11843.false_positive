@@ -1,0 +1,3 @@
+Fix a bug in ``docparams`` where positional-only parameters misaligned argument annotations, causing false positives and misattributed parameter names in ``missing-type-doc`` (W9016).
+
+Closes #11843
