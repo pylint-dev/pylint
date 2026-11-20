@@ -1,0 +1,5 @@
+missing-type-doc:56:0:56:11:foobar4:"""one"" missing in parameter type documentation":HIGH
+missing-type-doc:69:4:69:15:Foobar.method1:"""one"" missing in parameter type documentation":HIGH
+missing-type-doc:78:4:78:15:Foobar.method2:"""one"" missing in parameter type documentation":HIGH
+missing-type-doc:87:4:87:15:Foobar.method3:"""one"" missing in parameter type documentation":HIGH
+missing-type-doc:106:0:106:11:foobar5:"""two"" missing in parameter type documentation":HIGH
