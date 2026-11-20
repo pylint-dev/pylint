@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Container, Iterable
+from collections.abc import Container, Iterable, Iterator, Mapping
 from itertools import chain
 
 import astroid
@@ -18,6 +18,21 @@ from pylint.checkers.base_checker import BaseChecker
 from pylint.checkers.utils import get_import_name, infer_all, safe_infer
 from pylint.interfaces import INFERENCE
 from pylint.typing import MessageDefinitionTuple
+
+
+def _classes_up_to_definition(
+    klass: nodes.ClassDef, attrname: str
+) -> Iterator[nodes.ClassDef]:
+    """Yield ``klass`` and its ancestors, up to the first one defining ``attrname``.
+
+    A class defining the name in its body overrides the definitions of the
+    ancestors after it, so they are not yielded.
+    """
+    for candidate in chain((klass,), klass.ancestors()):
+        yield candidate
+        if attrname in candidate.locals:
+            return
+
 
 ACCEPTABLE_NODES = (
     astroid.BoundMethod,
@@ -91,6 +106,16 @@ class DeprecatedMixin(BaseChecker):
     @utils.only_required_for_messages("deprecated-attribute")
     def visit_attribute(self, node: nodes.Attribute) -> None:
         """Called when an `Attribute` node is visited."""
+        self.check_deprecated_attribute(node)
+
+    @utils.only_required_for_messages("deprecated-attribute")
+    def visit_assignattr(self, node: nodes.AssignAttr) -> None:
+        """Called when an `AssignAttr` node is visited."""
+        self.check_deprecated_attribute(node)
+
+    @utils.only_required_for_messages("deprecated-attribute")
+    def visit_delattr(self, node: nodes.DelAttr) -> None:
+        """Called when a `DelAttr` node is visited."""
         self.check_deprecated_attribute(node)
 
     @utils.only_required_for_messages(
@@ -222,20 +247,81 @@ class DeprecatedMixin(BaseChecker):
         """Callback returning the deprecated attributes."""
         return ()
 
-    def check_deprecated_attribute(self, node: nodes.Attribute) -> None:
-        """Checks if the attribute is deprecated."""
-        inferred_expr = safe_infer(node.expr)
-        if not isinstance(inferred_expr, (nodes.ClassDef, Instance, nodes.Module)):
-            return
-        attribute_qname = ".".join((inferred_expr.qname(), node.attrname))
-        for deprecated_name in self.deprecated_attributes():
-            if attribute_qname == deprecated_name:
+    def deprecated_attribute_replacements(self) -> Mapping[str, str]:
+        """Callback mapping deprecated attributes to their replacement.
+
+        Setting or deleting a deprecated attribute is not reported when the
+        same function or module sets or deletes its replacement too, because
+        the deprecated attribute is then only kept for compatibility.
+        """
+        return {}
+
+    def check_deprecated_attribute(
+        self, node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr
+    ) -> None:
+        """Checks if the attribute is deprecated.
+
+        On a class or an instance, the attribute is also looked up in the
+        ancestors, so that a subclass using an inherited deprecated attribute
+        is reported, unless the subclass or an ancestor before the deprecated
+        one overrides it.
+        """
+        deprecated_attributes = set(self.deprecated_attributes())
+        for owner in self._attribute_owners(node):
+            attribute_qname = f"{owner.qname()}.{node.attrname}"
+            if attribute_qname in deprecated_attributes:
+                if not isinstance(
+                    node, nodes.Attribute
+                ) and self._replacement_also_handled(node, attribute_qname):
+                    return
                 self.add_message(
                     "deprecated-attribute",
                     node=node,
                     args=(attribute_qname,),
                     confidence=INFERENCE,
                 )
+                return
+
+    @staticmethod
+    def _attribute_owners(
+        node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr,
+    ) -> Iterable[nodes.LocalsDictNodeNG]:
+        """The module, or the classes, where the attribute of ``node`` may be defined.
+
+        On a class or an instance, these are the class and its ancestors, up to
+        the first one defining the attribute in its body.
+        """
+        inferred_expr = safe_infer(node.expr)
+        if isinstance(inferred_expr, nodes.Module):
+            return (inferred_expr,)
+        if isinstance(inferred_expr, nodes.ClassDef):
+            return _classes_up_to_definition(inferred_expr, node.attrname)
+        if isinstance(inferred_expr, Instance):
+            return _classes_up_to_definition(inferred_expr._proxied, node.attrname)
+        return ()
+
+    def _replacement_also_handled(
+        self, node: nodes.AssignAttr | nodes.DelAttr, attribute_qname: str
+    ) -> bool:
+        """Whether the replacement of ``attribute_qname`` is set or deleted too.
+
+        The replacement must be set or deleted like ``node`` is, in the same
+        function or module, nested functions and classes excluded.
+        """
+        replacement = self.deprecated_attribute_replacements().get(attribute_qname)
+        if replacement is None:
+            return False
+        owner_qname, _, attrname = replacement.rpartition(".")
+        for other in node.frame().nodes_of_class(
+            type(node), skip_klass=(nodes.FunctionDef, nodes.ClassDef, nodes.Lambda)
+        ):
+            if other.attrname != attrname:
+                continue
+            if any(
+                owner.qname() == owner_qname for owner in self._attribute_owners(other)
+            ):
+                return True
+        return False
 
     def check_deprecated_module(self, node: nodes.Import, mod_path: str | None) -> None:
         """Checks if the module is deprecated."""

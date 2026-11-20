@@ -1,1 +1,6 @@
-deprecated-attribute:4:6:4:22::Using deprecated attribute 'calendar.January':INFERENCE
+deprecated-attribute:6:6:6:22::Using deprecated attribute 'calendar.January':INFERENCE
+deprecated-attribute:27:8:27:21:without_replacement:Using deprecated attribute 'sys.last_type':INFERENCE
+deprecated-attribute:28:4:28:18:without_replacement:Using deprecated attribute 'sys.last_value':INFERENCE
+deprecated-attribute:29:10:29:28:without_replacement:Using deprecated attribute 'sys.last_traceback':INFERENCE
+deprecated-attribute:35:4:35:18:replacement_deleted_only:Using deprecated attribute 'sys.last_value':INFERENCE
+deprecated-attribute:40:4:40:18:replacement_in_nested_function:Using deprecated attribute 'sys.last_value':INFERENCE

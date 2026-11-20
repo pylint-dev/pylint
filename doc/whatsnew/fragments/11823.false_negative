@@ -1,0 +1,9 @@
+``deprecated-attribute`` is now reported when a subclass reads, sets or deletes
+an attribute deprecated in one of its ancestors, such as ``self.curframe_locals``
+in a subclass of ``pdb.Pdb``, unless the subclass overrides it.
+
+Setting or deleting a deprecated attribute is not reported when the same
+function also sets or deletes its replacement, such as ``sys.last_value``
+kept in sync with ``sys.last_exc`` for compatibility.
+
+Refs #11823
