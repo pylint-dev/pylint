@@ -1,0 +1,6 @@
+Fixed a false positive ``no-member`` on the ``value`` of an enum member
+imported in the enum class body.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #10951
