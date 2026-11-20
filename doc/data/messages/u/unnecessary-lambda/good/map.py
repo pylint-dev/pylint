@@ -1,2 +1,2 @@
-numbers = [1, 2, 3]
-strings = list(map(str, numbers))
+fruits = ["banana", "kiwi", "apple"]
+by_length = sorted(fruits, key=len)

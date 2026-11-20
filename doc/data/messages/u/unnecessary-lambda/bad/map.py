@@ -1,2 +1,2 @@
-numbers = [1, 2, 3]
-strings = list(map(lambda x: str(x), numbers))  # [unnecessary-lambda]
+fruits = ["banana", "kiwi", "apple"]
+by_length = sorted(fruits, key=lambda fruit: len(fruit))  # [unnecessary-lambda]
