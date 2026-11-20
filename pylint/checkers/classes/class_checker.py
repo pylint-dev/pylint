@@ -2666,11 +2666,10 @@ a metaclass class method.",
                             f"'{refmethod_name}' to ({new_kinds}) in"
                         )
                     else:
-                        # Same total and same kinds: keyword-only parameter
-                        # names differ.
-                        first_arg = (
-                            f"Keyword-only parameters differ from '{refmethod_name}' in"
-                        )
+                        # Same total and same kinds: only the names differ.
+                        # It is a keyword-only parameter, or a positional one
+                        # hidden from 'arguments-renamed' by '*args'.
+                        first_arg = f"Parameter names differ from '{refmethod_name}' in"
                     msg_args = (
                         first_arg,
                         class_type,

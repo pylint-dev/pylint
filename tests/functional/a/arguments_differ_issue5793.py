@@ -10,16 +10,28 @@ class Base:
     def fun(self, var):
         print(var)
 
-    def positional_only(self, param1, param2, /):
+    def keyword_to_keyword_only(self, param1, /, param2):
         return param1 + param2
+
+    def keyword_only_renamed(self, param1, *, param2):
+        return param1 + param2
+
+    def renamed_before_variadic(self, param1, *args):
+        return param1, args
 
 
 class Child(Base):
     def fun(self, *, var):  # [arguments-differ]
         print(var)
 
-    def positional_only(self, param1, param2):  # [arguments-differ]
+    def keyword_to_keyword_only(self, param1, /, *, param2):  # [arguments-differ]
         return param1 - param2
+
+    def keyword_only_renamed(self, param1, *, param3):  # [arguments-differ]
+        return param1 - param3
+
+    def renamed_before_variadic(self, param3, *args):  # [arguments-differ]
+        return param3, args
 
 
 class VariadicBase:
