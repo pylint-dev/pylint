@@ -672,6 +672,7 @@ class NamesConsumer:
         self.to_consume = copy.copy(node.locals)
         self.consumed = {}
         self.consumed_uncertain = defaultdict(list)
+        self.consumed_via_else_continue: dict[str, nodes.NodeNG] = {}
 
         self.names_under_always_false_test: set[str] = set()
         self.names_defined_under_one_branch_only: set[str] = set()
@@ -703,6 +704,15 @@ scope_type : {self.scope_type}
             self.to_consume[name] = unconsumed
         else:
             del self.to_consume[name]
+
+    def restore_for_recheck(self, name: str) -> None:
+        """Restore ``name`` so uses outside an exempting scope are rechecked."""
+        self.consumed_via_else_continue.pop(name, None)
+        self.consumed.pop(name, None)
+        self.to_consume[name] = copy.copy(self.node.locals[name])
+        self.consumed_uncertain.pop(name, None)
+        self.names_under_always_false_test.discard(name)
+        self.names_defined_under_one_branch_only.discard(name)
 
     def get_next_to_consume(self, node: nodes.Name) -> list[nodes.NodeNG] | None:
         """Return a list of the nodes that define `node` from this scope.
@@ -1018,8 +1028,8 @@ scope_type : {self.scope_type}
 
         return False
 
-    @staticmethod
     def _uncertain_nodes_in_except_blocks(
+        self,
         found_nodes: list[nodes.NodeNG],
         node: nodes.NodeNG,
         node_statement: _base_nodes.Statement,
@@ -1064,6 +1074,7 @@ scope_type : {self.scope_type}
                 and isinstance(node_statement.parent, (nodes.For, nodes.While))
                 and closest_try_except.parent.parent_of(node_statement)
             ):
+                self.consumed_via_else_continue[node.name] = closest_try_except.parent
                 continue
 
             if try_block_returns or else_block_returns or else_block_exits:
@@ -2012,6 +2023,13 @@ class VariablesChecker(BaseChecker):
         base_scope_type: str,
     ) -> tuple[VariableVisitConsumerAction, list[nodes.NodeNG] | None]:
         """Checks a consumer for conditions that should trigger messages."""
+        if (
+            exempting_scope := current_consumer.consumed_via_else_continue.get(
+                node.name
+            )
+        ) is not None and not exempting_scope.parent_of(node):
+            current_consumer.restore_for_recheck(node.name)
+
         # If the name has already been consumed, only check it's not a loop
         # variable used outside the loop.
         if node.name in current_consumer.consumed:

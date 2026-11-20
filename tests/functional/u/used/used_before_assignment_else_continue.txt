@@ -1,1 +1,6 @@
+used-before-assignment:29:10:29:15:halfway_safe:Using variable 'error' before assignment:CONTROL_FLOW
 used-before-assignment:42:10:42:15:unsafe:Using variable 'error' before assignment:CONTROL_FLOW
+used-before-assignment:56:10:56:16:halfway_safe_while:Using variable 'result' before assignment:CONTROL_FLOW
+used-before-assignment:100:10:100:15:two_uses_after_loop:Using variable 'value' before assignment:CONTROL_FLOW
+used-before-assignment:117:10:117:15:nested_loop_outer_try:Using variable 'error' before assignment:CONTROL_FLOW
+used-before-assignment:132:14:132:19:nested_loop_inner_try:Using variable 'error' before assignment:CONTROL_FLOW
