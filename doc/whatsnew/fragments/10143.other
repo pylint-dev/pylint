@@ -1,0 +1,4 @@
+Document how to run checks that combine information across multiple modules,
+including ``cyclic-import`` and ``duplicate-code``.
+
+Refs #10143
