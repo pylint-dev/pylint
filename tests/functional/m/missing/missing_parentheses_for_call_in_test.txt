@@ -15,3 +15,8 @@ missing-parentheses-for-call-in-test:97:3:97:26::Using a conditional statement w
 missing-parentheses-for-call-in-test:105:3:105:20::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
 missing-parentheses-for-call-in-test:117:3:117:19::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
 missing-parentheses-for-call-in-test:119:5:119:22::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:151:11:151:21:Thing.check:Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:159:3:159:17::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:168:3:168:14::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:171:3:171:21::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
+missing-parentheses-for-call-in-test:174:3:174:24::Using a conditional statement with potentially wrong function or method call due to missing parentheses:INFERENCE
