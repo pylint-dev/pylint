@@ -346,6 +346,18 @@ class ConsiderUsingWithStack:
         self.module_scope.clear()
 
 
+def _is_slots_dataclass(node: nodes.ClassDef) -> bool:
+    """Return True if ``node`` is a dataclass created with ``slots=True``."""
+    return node.is_dataclass and any(
+        isinstance(decorator, nodes.Call)
+        and any(
+            keyword.arg == "slots" and keyword.value.bool_value() is True
+            for keyword in decorator.keywords
+        )
+        for decorator in node.decorators.nodes
+    )
+
+
 class RefactoringChecker(checkers.BaseTokenChecker):
     """Looks for code which can be refactored.
 
@@ -689,6 +701,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._suggest_join_with_non_empty_separator = (
             self.linter.config.suggest_join_with_non_empty_separator
         )
+        self._py314_plus = self.linter.config.py_version >= (3, 14)
 
     @cached_property
     def _dummy_rgx(self) -> Pattern[str]:
@@ -1354,6 +1367,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 pass
             case _:
                 return
+
+        if not self._py314_plus and _is_slots_dataclass(frame_class):
+            # Before Python 3.14, the class that ``@dataclass(slots=True)`` returns
+            # breaks ``super()`` without arguments.
+            return
 
         self.add_message("super-with-arguments", node=node)
 

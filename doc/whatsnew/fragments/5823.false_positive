@@ -1,0 +1,5 @@
+``super-with-arguments`` is no longer emitted in a dataclass created with
+``slots=True`` when ``py-version`` is below 3.14. Before Python 3.14, the class
+that ``@dataclass(slots=True)`` returns breaks ``super()`` without arguments.
+
+Closes #5823

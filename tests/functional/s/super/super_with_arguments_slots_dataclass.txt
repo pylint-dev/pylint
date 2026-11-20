@@ -1,0 +1,3 @@
+super-with-arguments:27:15:27:40:NoSlotsChild.greet:Consider using Python 3 style super() without arguments:UNDEFINED
+super-with-arguments:33:15:33:45:OtherKeywordChild.greet:Consider using Python 3 style super() without arguments:UNDEFINED
+super-with-arguments:39:15:39:38:PlainChild.greet:Consider using Python 3 style super() without arguments:UNDEFINED
