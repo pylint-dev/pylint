@@ -97,6 +97,8 @@ def _get_first_import(
 ) -> tuple[nodes.Import | nodes.ImportFrom | None, str | None]:
     """Return the node where [base.]<name> is imported or None if not found."""
     fullname = f"{base}.{name}" if base else name
+    absolute_base = get_import_name(node, base)
+    absolute_fullname = f"{absolute_base}.{name}" if absolute_base else name
 
     first = None
     found = False
@@ -108,7 +110,7 @@ def _get_first_import(
         if first.scope() is node.scope() and first.fromlineno > node.fromlineno:
             continue
         if isinstance(first, nodes.Import):
-            if any(fullname == iname[0] for iname in first.names):
+            if any(absolute_fullname == iname[0] for iname in first.names):
                 found = True
                 break
             for imported_name, imported_alias in first.names:
