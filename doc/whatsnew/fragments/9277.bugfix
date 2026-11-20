@@ -1,0 +1,5 @@
+Fix a crash on Windows with ``UnicodeEncodeError`` when the output contains characters
+that cannot be encoded with the encoding of the output stream. Such characters are now
+replaced with ``?`` instead.
+
+Closes #9277
