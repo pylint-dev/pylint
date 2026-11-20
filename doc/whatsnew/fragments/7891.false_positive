@@ -1,0 +1,7 @@
+Fixed false positives ``no-member`` and ``unsubscriptable-object`` on ``self``
+in a method of a ``typing.NamedTuple`` subclass, for the namedtuple API
+(``_asdict``, ``_replace``, ``_fields``) and the tuple methods.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #7891
