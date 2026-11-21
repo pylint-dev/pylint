@@ -1,0 +1,9 @@
+Fixed false positives ``undefined-variable``, ``possibly-used-before-assignment`` and
+``used-before-assignment`` for a global assigned under ``if "name" not in globals():``.
+
+A name assigned in only one ``if`` branch is now reported as
+``possibly-used-before-assignment`` when it is used in an augmented assignment
+(``x += 1``) or assigned again later, instead of ``undefined-variable`` or
+``used-before-assignment``.
+
+Closes #9633
