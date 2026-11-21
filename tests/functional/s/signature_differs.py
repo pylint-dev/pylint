@@ -30,3 +30,13 @@ class Ghij(Abcd):
     def abcd(self, *args, **kwargs):
         """Test that a method with variadics does not trigger the warning"""
         return super().abcd(*args, **kwargs)
+
+
+class ParentKwonly:
+    def statement(self, *, future=None):
+        pass
+
+
+class ChildKwonly(ParentKwonly):
+    def statement(self, *, future):  # [signature-differs]
+        pass
