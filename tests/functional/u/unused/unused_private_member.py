@@ -351,3 +351,13 @@ class Item:
     def __init__(self, parent):
         self.__parent: Item = parent
         self.__item = self.__parent.__item  # [unused-private-member]
+
+
+class TypeOfOtherObject:
+    """``type(...)`` of an object that is not this class does not use the method."""
+
+    def __private(self):  # [unused-private-member]
+        pass
+
+    def method(self):
+        return type(1).__private  # pylint: disable=no-member

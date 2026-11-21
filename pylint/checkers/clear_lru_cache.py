@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from pylint.checkers.typecheck import _similar_names
 from pylint.checkers.utils import (
+    _assignment_linenos_by_name,
     class_is_abstract,
     in_for_else_branch,
     infer_all,
@@ -32,6 +33,7 @@ def clear_lru_caches() -> None:
         unimplemented_abstract_methods,
         safe_infer,
         _similar_names,
+        _assignment_linenos_by_name,
     ]
     for lru in caches_holding_node_references:
         lru.cache_clear()

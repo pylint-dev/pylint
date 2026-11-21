@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import functools
 from collections import defaultdict
 from collections.abc import Callable, Mapping, Sequence
 from functools import cached_property
@@ -902,6 +903,58 @@ def _scope_default() -> defaultdict[str, list[_AccessNodes]]:
     return defaultdict(list)
 
 
+class _ClassUsages(NamedTuple):
+    """Where names are used inside a class, collected in one walk of it."""
+
+    names: frozenset[str]
+    """The names of every ``Name`` node in the class."""
+    attributes_by_name: dict[str, list[nodes.Attribute]]
+    """Every ``Attribute`` node in the class, grouped by ``attrname``."""
+    has_attribute_of_non_name: bool
+    """Whether the class has an ``Attribute`` whose ``expr`` is not a ``Name``."""
+
+
+def _collect_class_usages(klass: nodes.ClassDef) -> _ClassUsages:
+    names: set[str] = set()
+    attributes_by_name: defaultdict[str, list[nodes.Attribute]] = defaultdict(list)
+    has_attribute_of_non_name = False
+    for child in klass.nodes_of_class((nodes.Name, nodes.Attribute)):
+        if isinstance(child, nodes.Name):
+            names.add(child.name)
+        else:
+            attributes_by_name[child.attrname].append(child)
+            if not isinstance(child.expr, nodes.Name):
+                has_attribute_of_non_name = True
+    return _ClassUsages(
+        frozenset(names), dict(attributes_by_name), has_attribute_of_non_name
+    )
+
+
+def _is_private_function_used(
+    function_def: nodes.FunctionDef, klass: nodes.ClassDef, usages: _ClassUsages
+) -> bool:
+    # The function is used as a variable instead of as a method call
+    if function_def.name in usages.names:
+        return True
+    for attribute in usages.attributes_by_name.get(function_def.name, ()):
+        # Ignore recursive calls
+        if attribute.scope() == function_def:
+            continue
+        # Check self.__attrname, cls.__attrname, node_name.__attrname
+        if isinstance(attribute.expr, nodes.Name) and attribute.expr.name in {
+            "self",
+            "cls",
+            klass.name,
+        }:
+            return True
+        # Check type(self).__attrname
+        if isinstance(attribute.expr, nodes.Call):
+            inferred = safe_infer(attribute.expr)
+            if isinstance(inferred, nodes.ClassDef) and inferred.name == klass.name:
+                return True
+    return False
+
+
 class ScopeAccessMap:
     """Store the accessed variables per scope."""
 
@@ -1222,12 +1275,18 @@ a metaclass class method.",
         check that instance attributes are defined in __init__ and check
         access to existent members
         """
-        self._check_unused_private_functions(node)
-        self._check_unused_private_variables(node)
-        self._check_unused_private_attributes(node)
+        # Walked at most once, and only if the class has a private member, then
+        # shared by the three checks instead of each private member walking the
+        # class again.
+        usages = functools.cache(functools.partial(_collect_class_usages, node))
+        self._check_unused_private_functions(node, usages)
+        self._check_unused_private_variables(node, usages)
+        self._check_unused_private_attributes(node, usages)
         self._check_attribute_defined_outside_init(node)
 
-    def _check_unused_private_functions(self, node: nodes.ClassDef) -> None:
+    def _check_unused_private_functions(
+        self, node: nodes.ClassDef, usages: Callable[[], _ClassUsages]
+    ) -> None:
         for function_def in node.nodes_of_class(nodes.FunctionDef):
             if not is_attr_private(function_def.name):
                 continue
@@ -1238,36 +1297,7 @@ a metaclass class method.",
                     n.name for n in parent_scope.nodes_of_class(nodes.Name)
                 ):
                     continue
-            for child in node.nodes_of_class((nodes.Name, nodes.Attribute)):
-                # Check for cases where the functions are used as a variable instead of as a
-                # method call
-                if isinstance(child, nodes.Name) and child.name == function_def.name:
-                    break
-                if isinstance(child, nodes.Attribute):
-                    # Ignore recursive calls
-                    if (
-                        child.attrname != function_def.name
-                        or child.scope() == function_def
-                    ):
-                        continue
-
-                    # Check self.__attrname, cls.__attrname, node_name.__attrname
-                    if isinstance(child.expr, nodes.Name) and child.expr.name in {
-                        "self",
-                        "cls",
-                        node.name,
-                    }:
-                        break
-
-                    # Check type(self).__attrname
-                    if isinstance(child.expr, nodes.Call):
-                        inferred = safe_infer(child.expr)
-                        if (
-                            isinstance(inferred, nodes.ClassDef)
-                            and inferred.name == node.name
-                        ):
-                            break
-            else:
+            if not _is_private_function_used(function_def, node, usages()):
                 name_stack = []
                 curr = parent_scope
                 # Generate proper names for nested functions
@@ -1283,30 +1313,36 @@ a metaclass class method.",
                     args=(node.name, function_repr.lstrip(".")),
                 )
 
-    def _check_unused_private_variables(self, node: nodes.ClassDef) -> None:
+    def _check_unused_private_variables(
+        self, node: nodes.ClassDef, usages: Callable[[], _ClassUsages]
+    ) -> None:
         """Check if private variables are never used within a class."""
         for assign_name in node.nodes_of_class(nodes.AssignName):
             if isinstance(assign_name.parent, nodes.Arguments):
                 continue  # Ignore function arguments
             if not is_attr_private(assign_name.name):
                 continue
-            for child in node.nodes_of_class((nodes.Name, nodes.Attribute)):
-                if isinstance(child, nodes.Name) and child.name == assign_name.name:
-                    break
-                if isinstance(child, nodes.Attribute):
-                    if not isinstance(child.expr, nodes.Name):
-                        break
-                    if child.attrname == assign_name.name and child.expr.name in (
-                        "self",
-                        "cls",
-                        node.name,
-                    ):
-                        break
-            else:
-                args = (node.name, assign_name.name)
-                self.add_message("unused-private-member", node=assign_name, args=args)
+            class_usages = usages()
+            if (
+                assign_name.name in class_usages.names
+                # Any attribute access on something other than a plain name
+                # counts as a possible use.
+                or class_usages.has_attribute_of_non_name
+                or any(
+                    isinstance(attribute.expr, nodes.Name)
+                    and attribute.expr.name in {"self", "cls", node.name}
+                    for attribute in class_usages.attributes_by_name.get(
+                        assign_name.name, ()
+                    )
+                )
+            ):
+                continue
+            args = (node.name, assign_name.name)
+            self.add_message("unused-private-member", node=assign_name, args=args)
 
-    def _check_unused_private_attributes(self, node: nodes.ClassDef) -> None:
+    def _check_unused_private_attributes(
+        self, node: nodes.ClassDef, usages: Callable[[], _ClassUsages]
+    ) -> None:
         for assign_attr in node.nodes_of_class(nodes.AssignAttr):
             if not (
                 is_attr_private(assign_attr.attrname)
@@ -1328,10 +1364,7 @@ a metaclass class method.",
                     ]
                 )
 
-            for attribute in node.nodes_of_class(nodes.Attribute):
-                if attribute.attrname != assign_attr.attrname:
-                    continue
-
+            for attribute in usages().attributes_by_name.get(assign_attr.attrname, ()):
                 if not isinstance(attribute.expr, nodes.Name):
                     continue
 

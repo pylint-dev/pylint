@@ -549,8 +549,7 @@ class NameChecker(_BasicChecker):
                     and not isinstance(
                         inferred_assign_type, (nodes.FunctionDef, nodes.Lambda)
                     )
-                    and not utils.is_reassigned_before_current(node, node.name)
-                    and not utils.is_reassigned_after_current(node, node.name)
+                    and not utils.is_reassigned_before_or_after_current(node, node.name)
                     and not utils.get_node_first_ancestor_of_type(
                         node, (nodes.For, nodes.While)
                     )
