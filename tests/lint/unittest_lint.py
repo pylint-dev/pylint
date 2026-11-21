@@ -39,7 +39,7 @@ from pylint.exceptions import InvalidMessageError
 from pylint.lint import PyLinter, expand_modules
 from pylint.message import Message
 from pylint.reporters import text
-from pylint.testutils import create_files
+from pylint.testutils import _tokenize_str, create_files
 from pylint.testutils._run import _Run as Run
 from pylint.typing import MessageLocationTuple
 from pylint.utils import (
@@ -362,6 +362,220 @@ def test_enable_message_block_sibling_scope(initialized_linter: PyLinter) -> Non
     # elif/else blocks: must still be enabled, the disable does not apply here
     assert linter.is_message_enabled("R1708", 15)
     assert linter.is_message_enabled("R1708", 17)
+
+
+@pytest.mark.parametrize(
+    ("default_enabled", "source", "expected"),
+    [
+        (True, "pass\n# comment\n", {2: True}),
+        (False, "pass\n# comment\n", {2: False}),
+        (
+            True,
+            "# pylint: disable=wrong-spelling-in-comment\n# Comment-only module\n",
+            {2: False},
+        ),
+        (
+            True,
+            "pass\n# pylint: disable=wrong-spelling-in-comment\n\n",
+            {3: True},
+        ),
+        (
+            True,
+            "def f():\n"
+            "\t# pylint: disable=wrong-spelling-in-comment\n"
+            "\tpass\n"
+            "\f        # In the function\n"
+            "\f# At module scope\n",
+            {4: False, 5: True},
+        ),
+        (
+            True,
+            "pass  # pylint: disable=wrong-spelling-in-comment\n# comment\n",
+            {1: False, 2: True},
+        ),
+        (
+            True,
+            "value = (\n"
+            "    # pylint: disable=wrong-spelling-in-comment\n"
+            "    1\n"
+            ")\n"
+            "# Trailing comment\n",
+            {5: True},
+        ),
+        (
+            True,
+            "pass\n# pylint: disable=wrong-spelling-in-comment\n# comment\n",
+            {3: False},
+        ),
+        (
+            True,
+            "# pylint: disable=wrong-spelling-in-comment\npass\n# comment\n",
+            {2: False, 3: False},
+        ),
+        (
+            True,
+            "def f():\n"
+            "    # pylint: disable=wrong-spelling-in-comment\n"
+            "    pass\n"
+            "    # In the function\n"
+            "# Outside the function\n",
+            {3: False, 4: False, 5: True},
+        ),
+        (
+            True,
+            "if True:\n"
+            "    # pylint: disable=wrong-spelling-in-comment\n"
+            "    pass\n"
+            "else:\n"
+            "    pass\n"
+            "    # In the sibling suite\n",
+            {3: False, 6: True},
+        ),
+        (
+            True,
+            "# pylint: disable=wrong-spelling-in-comment\n"
+            "def f():\n"
+            "    # pylint: enable=wrong-spelling-in-comment\n"
+            "    pass\n"
+            "# Outside the function\n",
+            {4: True, 5: False},
+        ),
+        (
+            False,
+            "pass\n"
+            "# Comment before the pragmas\n"
+            "# pylint: enable=wrong-spelling-in-comment\n"
+            "# Enabled comment\n"
+            "# pylint: disable=wrong-spelling-in-comment\n"
+            "# Disabled comment\n"
+            "# pylint: enable=wrong-spelling-in-comment\n"
+            "# pylint: disable-next=wrong-spelling-in-comment\n"
+            "# Only this line is disabled\n"
+            "# Enabled again\n",
+            {2: False, 4: True, 6: False, 9: False, 10: True},
+        ),
+    ],
+    ids=[
+        "no-pragma-enabled",
+        "no-pragma-disabled",
+        "comment-only-module",
+        "non-comment-configuration",
+        "tab-and-form-feed-indentation",
+        "inline-disable",
+        "continuation-disable",
+        "disable-after-ast",
+        "disable-before-ast-end",
+        "nested-disable",
+        "sibling-suites",
+        "nested-enable",
+        "transitions-and-disable-next",
+    ],
+)
+def test_trailing_comment_message_state(
+    linter: PyLinter,
+    default_enabled: bool,
+    source: str,
+    expected: dict[int, bool],
+) -> None:
+    message = "wrong-spelling-in-comment"
+    linter.open()
+    linter.set_current_module("trailing_comment")
+    linter.file_state = FileState(
+        "trailing_comment", linter.msgs_store, astroid.parse(source)
+    )
+    if default_enabled:
+        linter.enable(message)
+    else:
+        linter.disable(message)
+    linter.process_tokens(_tokenize_str(source))
+
+    assert {
+        line: linter.is_message_enabled(message, line) for line in expected
+    } == expected
+
+
+@pytest.mark.parametrize(
+    ("source", "message"),
+    [
+        ("# pylint: disable=trailing-newlines\n\n", "trailing-newlines"),
+        ("# pylint: disable=trailing-whitespace\n \n", "trailing-whitespace"),
+        (
+            "# pylint: disable=unknown-option-value\n"
+            "# pylint: disable=does-not-exist\n",
+            "unknown-option-value",
+        ),
+    ],
+    ids=["blank-line", "whitespace-only-line", "pragma-parsing"],
+)
+def test_eof_pragma_preserves_suppression(
+    tmp_path: Path, linter: PyLinter, source: str, message: str
+) -> None:
+    path = tmp_path / "suppression.py"
+    path.write_text(f'"""Example."""\nVALUE = 1\n{source}', encoding="utf-8")
+
+    reporter = testutils.GenericTestReporter()
+    linter.set_reporter(reporter)
+
+    linter.check([str(path)])
+
+    assert [
+        (entry.symbol, entry.line)
+        for entry in reporter.messages
+        if entry.symbol == message
+    ] == []
+
+
+@pytest.mark.parametrize(
+    ("source", "pragma_line"),
+    [
+        ("VALUE = 1  # pylint: disable=trailing-whitespace\n \n", 2),
+        (
+            "def run():\n"
+            '    """Return a value."""\n'
+            "    # pylint: disable=trailing-whitespace\n"
+            "    return 1\n"
+            "# At module scope\n \n",
+            4,
+        ),
+    ],
+    ids=["inline-disable", "expired-function-scope"],
+)
+def test_raw_eof_line_preserves_suppression_reporting(
+    tmp_path: Path, source: str, pragma_line: int
+) -> None:
+    path = tmp_path / "raw_eof.py"
+    path.write_bytes(('"""Example."""\n' + source).encode("utf-8"))
+    reporter = testutils.GenericTestReporter()
+
+    with pytest.raises(SystemExit) as result:
+        Run(
+            [
+                "--persistent=n",
+                "--score=n",
+                "--reports=n",
+                "--enable=suppressed-message,useless-suppression",
+                "--fail-on=suppressed-message",
+                str(path),
+            ],
+            reporter=reporter,
+        )
+
+    assert (
+        result.value.code,
+        [(msg.msg_id, msg.line) for msg in reporter.messages],
+    ) == (
+        0,
+        [("I0021", pragma_line)],
+    )
+
+
+def test_comment_tokens_without_module_ast(linter: PyLinter) -> None:
+    message = "wrong-spelling-in-comment"
+    linter.disable(message)
+
+    linter.process_tokens(_tokenize_str("# comment\n"))
+
+    assert not linter.is_message_enabled(message, 1)
 
 
 def test_enable_by_symbol(initialized_linter: PyLinter) -> None:

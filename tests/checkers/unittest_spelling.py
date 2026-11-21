@@ -4,12 +4,22 @@
 
 """Unittest for the spelling checker."""
 
+from pathlib import Path
+
 import astroid
 import pytest
 
+from pylint import checkers
 from pylint.checkers import spelling
 from pylint.checkers.spelling import _get_enchant_dict_help
-from pylint.testutils import CheckerTestCase, MessageTest, _tokenize_str, set_config
+from pylint.lint import PyLinter
+from pylint.testutils import (
+    CheckerTestCase,
+    GenericTestReporter,
+    MessageTest,
+    _tokenize_str,
+    set_config,
+)
 
 # try to create enchant dictionary
 try:
@@ -24,6 +34,57 @@ if enchant is not None:
         spell_dict = "en_US"
     except enchant.DictNotFoundError:
         pass
+
+
+@pytest.mark.skipif(spell_dict is None, reason="missing en_US spelling dictionary")
+def test_trailing_comment_respects_disable_pragma(tmp_path: Path) -> None:
+    source = tmp_path / "trailing_comment.py"
+    source.write_text(
+        "# bad coment\n"
+        "pass\n"
+        "# pylint: disable=wrong-spelling-in-comment\n"
+        "# bad coment\n",
+        encoding="utf-8",
+    )
+    reporter = GenericTestReporter()
+    linter = PyLinter(reporter=reporter)
+    checkers.initialize(linter)
+    linter.config.spelling_dict = spell_dict
+    linter.disable("all")
+    linter.enable("wrong-spelling-in-comment")
+    linter.enable("suppressed-message")
+    linter.enable("useless-suppression")
+
+    linter.check([str(source)])
+
+    assert [(message.symbol, message.line) for message in reporter.messages] == [
+        ("wrong-spelling-in-comment", 1),
+        ("suppressed-message", 4),
+    ]
+
+
+@pytest.mark.skipif(spell_dict is None, reason="missing en_US spelling dictionary")
+def test_eof_pragma_form_feed_does_not_extend_scope(tmp_path: Path) -> None:
+    source = tmp_path / "form_feed.py"
+    source.write_text(
+        "def run():\n"
+        " # pylint: disable=wrong-spelling-in-comment\n"
+        " pass\n"
+        "\f# bad coment\n",
+        encoding="utf-8",
+    )
+    reporter = GenericTestReporter()
+    linter = PyLinter(reporter=reporter)
+    checkers.initialize(linter)
+    linter.config.spelling_dict = spell_dict
+    linter.disable("all")
+    linter.enable("wrong-spelling-in-comment")
+
+    linter.check([str(source)])
+
+    assert [(message.symbol, message.line) for message in reporter.messages] == [
+        ("wrong-spelling-in-comment", 4)
+    ]
 
 
 class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-methods
