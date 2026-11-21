@@ -1,0 +1,6 @@
+Fix a false positive for :ref:`await-outside-async` when ``await`` is used inside
+a generator expression in a non-async function. Such an expression is an
+asynchronous generator expression, which is valid in any scope. ``await`` in the
+first iterable of the generator expression is still reported.
+
+Refs #10074
