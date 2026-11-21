@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from astroid import nodes
+from astroid import nodes, util
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -71,6 +71,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         self, node: nodes.NodeNG, iter_obj: nodes.NodeNG
     ) -> None:
         msg_id = None
+        confidence = interfaces.INFERENCE
         if isinstance(node, nodes.Delete) and any(
             self._deleted_iteration_target_cond(t, iter_obj) for t in node.targets
         ):
@@ -83,8 +84,9 @@ class ModifiedIterationChecker(checkers.BaseChecker):
                     msg_id = "modified-iterating-set"
         elif not isinstance(iter_obj, (nodes.Name, nodes.Attribute)):
             pass
-        elif self._modified_iterating_list_cond(node, iter_obj):
+        elif list_confidence := self._modified_iterating_list_cond(node, iter_obj):
             msg_id = "modified-iterating-list"
+            confidence = list_confidence
         elif self._modified_iterating_dict_cond(node, iter_obj):
             msg_id = "modified-iterating-dict"
         elif self._modified_iterating_set_cond(node, iter_obj):
@@ -94,7 +96,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
                 msg_id,
                 node=node,
                 args=(iter_obj.repr_name(),),
-                confidence=interfaces.INFERENCE,
+                confidence=confidence,
             )
 
     @staticmethod
@@ -128,16 +130,34 @@ class ModifiedIterationChecker(checkers.BaseChecker):
 
     def _modified_iterating_list_cond(
         self, node: nodes.NodeNG, iter_obj: nodes.Name | nodes.Attribute
-    ) -> bool:
+    ) -> interfaces.Confidence | None:
         if not self._is_node_expr_that_calls_attribute_name(node):
-            return False
-        infer_val = utils.safe_infer(node.value.func.expr)
-        if not isinstance(infer_val, nodes.List):
-            return False
-        return (
-            self._common_cond_list_set(node, iter_obj, infer_val)
-            and node.value.func.attrname in _LIST_MODIFIER_METHODS
-        )
+            return None
+        # That helper only matches a call whose receiver is a ``nodes.Name``.
+        receiver = node.value.func.expr
+        infer_val = utils.safe_infer(receiver)
+        if isinstance(infer_val, nodes.List):
+            if (
+                self._common_cond_list_set(node, iter_obj, infer_val)
+                and node.value.func.attrname in _LIST_MODIFIER_METHODS
+            ):
+                return interfaces.INFERENCE
+            return None
+        if not isinstance(iter_obj, nodes.Name) or not isinstance(receiver, nodes.Name):
+            return None
+        if receiver.name != iter_obj.name:
+            return None
+        # None means ambiguous inference; Uninferable means inference failed.
+        inferred_iter = utils.safe_infer(iter_obj)
+        if inferred_iter is not None and not isinstance(
+            inferred_iter, util.UninferableBase
+        ):
+            return None
+        if iter_obj.lookup(iter_obj.name)[1] != receiver.lookup(receiver.name)[1]:
+            return None
+        if node.value.func.attrname not in _LIST_MODIFIER_METHODS:
+            return None
+        return interfaces.INFERENCE_FAILURE
 
     def _modified_iterating_dict_cond(
         self, node: nodes.NodeNG, iter_obj: nodes.Name | nodes.Attribute
