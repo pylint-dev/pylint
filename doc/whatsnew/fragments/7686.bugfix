@@ -1,0 +1,4 @@
+Pyreverse now shows inheritance links for flat packages that use bare imports,
+without adding duplicate classes or changing package names in the diagram.
+
+Closes #7686
