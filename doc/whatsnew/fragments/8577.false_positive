@@ -1,0 +1,6 @@
+Fixed a false positive for ``unnecessary-comprehension`` when a list or set comprehension
+rebuilds tuples from items that are known not to be tuples, for example
+``[(x, y) for x, y in [[1, 2], [3, 4]]]``: replacing it with ``list(...)`` would change
+the items (or, for a set, fail on unhashable lists).
+
+Closes #8577
