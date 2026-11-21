@@ -1,0 +1,5 @@
+Fix a false negative for ``bad-open-mode`` when the mode contains ``U``, such as
+``open(path, "rU")``, and ``py-version`` is 3.11 or later. Python 3.11 removed
+that mode, so ``open()`` raises ``ValueError`` for it.
+
+Refs #11751

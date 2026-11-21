@@ -1,0 +1,2 @@
+bad-open-mode:8:0:8:34::"""Ua"" is not a valid mode for open.":HIGH
+bad-open-mode:9:0:9:34::"""Uw"" is not a valid mode for open.":HIGH
