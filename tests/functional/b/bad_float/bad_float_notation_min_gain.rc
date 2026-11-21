@@ -1,0 +1,3 @@
+[main]
+enable=bad-float-notation
+float-notation-min-gain=1
