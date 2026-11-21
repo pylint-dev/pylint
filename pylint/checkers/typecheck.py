@@ -70,6 +70,22 @@ CallableObjects: TypeAlias = (
 STR_FORMAT = {"builtins.str.format"}
 ASYNCIO_COROUTINE = "asyncio.coroutines.coroutine"
 BUILTIN_TUPLE = "builtins.tuple"
+# Attributes of ``typing.TypeAliasType`` that ``object`` does not have
+# (``evaluate_value`` and ``__iter__`` were added in Python 3.14).
+TYPE_ALIAS_TYPE_ATTRIBUTES = frozenset(
+    (
+        "__getitem__",
+        "__iter__",
+        "__module__",
+        "__name__",
+        "__or__",
+        "__parameters__",
+        "__ror__",
+        "__type_params__",
+        "__value__",
+        "evaluate_value",
+    )
+)
 TYPE_ANNOTATION_NODES_TYPES = (
     nodes.AnnAssign,
     nodes.Arguments,
@@ -475,9 +491,22 @@ def _emit_no_member(
         * The access node is protected by an except handler, which handles
           AttributeError, Exception or bare except.
         * The node is guarded behind and `IF` or `IFExp` node
+        * The attribute belongs to ``typing.TypeAliasType`` and the owner is
+          accessed through a name bound by a ``type`` statement.
     """
-    # pylint: disable = too-many-return-statements
+    # pylint: disable = too-many-return-statements, too-many-branches
     if node_ignores_exception(node, AttributeError):
+        return False
+    # A ``type`` statement binds a ``typing.TypeAliasType``, but astroid infers
+    # the name to the aliased value.
+    if (
+        node.attrname in TYPE_ALIAS_TYPE_ATTRIBUTES
+        and isinstance(node.expr, nodes.Name)
+        and any(
+            isinstance(assign.parent, nodes.TypeAlias)
+            for assign in node.expr.lookup(node.expr.name)[1]
+        )
+    ):
         return False
     if ignored_none and isinstance(owner, nodes.Const) and owner.value is None:
         return False

@@ -1,0 +1,5 @@
+Fixed a false positive ``no-member`` when accessing an attribute of
+``typing.TypeAliasType`` such as ``__value__`` on a name bound by a ``type``
+statement.
+
+Closes #10091
