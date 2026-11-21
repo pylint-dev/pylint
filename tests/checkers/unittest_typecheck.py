@@ -2,11 +2,15 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
+from pathlib import Path
+
 import astroid
 import pytest
 
 from pylint.checkers import typecheck
 from pylint.interfaces import INFERENCE, UNDEFINED
+from pylint.lint import Run
+from pylint.reporters import CollectingReporter
 from pylint.testutils import CheckerTestCase, MessageTest
 
 try:
@@ -281,3 +285,33 @@ class TestTypeCheckerStringDistance:
 
         seq1, seq2 = seq2, seq1
         assert typecheck._string_distance(seq1, seq2, len(seq1), len(seq2)) == 6
+
+
+PEP604_UNION = "x: int | str\nAlias = int | str\n"
+
+
+@pytest.mark.parametrize(
+    ("suffix", "expected"),
+    [
+        (".pyi", []),
+        (".py", ["unsupported-binary-operation", "unsupported-binary-operation"]),
+    ],
+    ids=["stub", "module"],
+)
+def test_pep604_union_in_a_stub_is_not_an_unsupported_binary_operation(
+    tmp_path: Path, suffix: str, expected: list[str]
+) -> None:
+    """Stubs are not executed, so ``X | Y`` is valid below Python 3.10 (#9624)."""
+    path = tmp_path / f"union{suffix}"
+    path.write_text(PEP604_UNION, encoding="utf-8")
+    run = Run(
+        [
+            "--py-version=3.9",
+            "--disable=all",
+            "--enable=unsupported-binary-operation",
+            str(path),
+        ],
+        reporter=CollectingReporter(),
+        exit=False,
+    )
+    assert [message.symbol for message in run.linter.reporter.messages] == expected
