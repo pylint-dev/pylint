@@ -150,6 +150,13 @@ Display Options
 **Default:**  ``False``
 
 
+--theme
+-------
+*Color theme to use for the generated diagrams.*
+
+**Default:**  ``light``
+
+
 
 
 .. _output-control:

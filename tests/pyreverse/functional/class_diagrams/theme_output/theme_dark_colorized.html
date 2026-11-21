@@ -1,0 +1,27 @@
+<html>
+  <body style="background-color: #1e1e1e">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <div class="mermaid">
+---
+config:
+  theme: dark
+---
+        classDiagram
+          class BreakdownError {
+          }
+          style BreakdownError fill:#77AADD,color:black
+          class Car {
+            engine
+            wheels : int
+            drive()*
+          }
+          style Car fill:#77AADD,color:black
+          class Engine {
+            power : int
+            start()*
+          }
+          style Engine fill:#77AADD,color:black
+          Engine --* Car : engine
+</div>
+  </body>
+</html>

@@ -1,0 +1,29 @@
+@startuml classes
+skinparam backgroundColor #1e1e1e
+skinparam defaultFontColor #e0e0e0
+skinparam package {
+  BackgroundColor #1e1e1e
+  BorderColor #e0e0e0
+  FontColor #e0e0e0
+}
+skinparam class {
+  BackgroundColor #1e1e1e
+  BorderColor #e0e0e0
+  FontColor #e0e0e0
+  AttributeFontColor #e0e0e0
+  ArrowColor #e0e0e0
+}
+set namespaceSeparator none
+class "<color:red>BreakdownError</color>" as theme_dark_colorized.BreakdownError #77AADD;text:black {
+}
+class "Car" as theme_dark_colorized.Car #77AADD;text:black {
+  engine
+  wheels : int
+  {abstract}drive()
+}
+class "Engine" as theme_dark_colorized.Engine #77AADD;text:black {
+  power : int
+  {abstract}start()
+}
+theme_dark_colorized.Engine --* theme_dark_colorized.Car : engine
+@enduml
