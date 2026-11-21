@@ -1,0 +1,5 @@
+Fixed a false positive for ``unused-import`` and ``unused-variable`` when a name
+is only used in the string type argument of ``typing.cast``, such as
+``cast("set[Path]", value)``.
+
+Closes #7548
