@@ -1,3 +1,5 @@
-broad-exception-caught:14:7:14:16::Catching too general exception Exception:INFERENCE
-broad-exception-caught:20:7:20:20::Catching too general exception BaseException:INFERENCE
-broad-exception-caught:32:7:32:27::Catching too general exception CustomBroadException:INFERENCE
+broad-exception-caught:19:7:19:16::Catching too general exception Exception:INFERENCE
+broad-exception-caught:25:7:25:20::Catching too general exception BaseException:INFERENCE
+broad-exception-caught:37:7:37:27::Catching too general exception CustomBroadException:INFERENCE
+broad-exception-caught:47:29:47:38:suppress_broad_exception:Catching too general exception Exception:INFERENCE
+broad-exception-caught:55:18:55:27:suppress_broad_exception_alias:Catching too general exception Exception:INFERENCE
