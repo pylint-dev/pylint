@@ -1,0 +1,5 @@
+Fixed a false positive for ``undefined-variable`` when a class is decorated with a name
+defined in the body of the class that encloses it. Class decorators are now resolved in
+the scope that encloses the decorated class, like the decorators of a function.
+
+Closes #7720
