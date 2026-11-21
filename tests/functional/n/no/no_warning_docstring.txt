@@ -1,0 +1,4 @@
+useless-parent-delegation:22:4:22:16:BBBB.__init__:Useless parent or super() delegation in method '__init__':INFERENCE
+useless-parent-delegation:26:4:26:15:BBBB.method1:Useless parent or super() delegation in method 'method1':INFERENCE
+useless-parent-delegation:32:4:32:16:CCCC.__init__:Useless parent or super() delegation in method '__init__':INFERENCE
+useless-parent-delegation:38:8:38:19:CCCC.method2:Useless parent or super() delegation in method 'method2':INFERENCE
