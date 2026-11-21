@@ -1,5 +1,5 @@
 """Check possible unbalanced dict unpacking """
-# pylint: disable=missing-function-docstring, invalid-name
+# pylint: disable=missing-function-docstring, invalid-name, missing-class-docstring
 # pylint: disable=unused-variable, redefined-outer-name, line-too-long
 
 def dict_vals():
@@ -122,3 +122,57 @@ for value1, value2 in {1: {2: 3, 4: 5}, 6: {7: 8, 9: 10}}.values():
 
 for value1, value2 in {1: [1, 2, 3][0:2]}.values():
     pass
+
+
+class DictAttrHolder:
+    def __init__(self):
+        self.data = {}
+
+    def add(self, name, value):
+        self.data[name] = value
+
+    def dump(self):
+        if len(self.data) == 1:
+            (name, value), = self.data.items()
+            print(name, value)
+
+
+MODULE_LEVEL_DICT = {1: 2}
+
+
+def unpack_module_level_dict_from_function():
+    """The dict is never mutated, so its length is known in every scope."""
+    a, b, c = MODULE_LEVEL_DICT.items()  # [unbalanced-dict-unpacking]
+    return a, b, c
+
+
+def returns_dict():
+    return {1: 2, 3: 4}
+
+
+def unpack_items_of_dict_returned_by_function():
+    a, b, c = returns_dict().items()  # [unbalanced-dict-unpacking]
+    return a, b, c
+
+
+def unpack_dict_returned_by_function():
+    a, b, c = returns_dict()  # [unbalanced-dict-unpacking]
+    return a, b, c
+
+
+def unpack_dict_from_enclosing_function():
+    outer_dict = {1: 2, 3: 4}
+
+    def inner():
+        a, b, c = outer_dict.values()  # [unbalanced-dict-unpacking]
+        return a, b, c
+
+    return inner
+
+
+def unpack_dict_mutated_in_same_scope():
+    """The dict is filled after its creation, so its length is not known."""
+    mutated_dict = {}
+    mutated_dict["key"] = "value"
+    (key, value), = mutated_dict.items()
+    return key, value

@@ -3328,6 +3328,9 @@ class VariablesChecker(BaseChecker):
             # Variable-length argument, we can't determine the length.
             return
 
+        if isinstance(inferred, DICT_TYPES) and inferred.scope() != node.scope():
+            return
+
         # Attempt to check unpacking is properly balanced
         values = self._nodes_to_unpack(inferred)
         details = _get_unpacking_extra_info(node, inferred)
