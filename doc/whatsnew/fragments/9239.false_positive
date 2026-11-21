@@ -1,0 +1,5 @@
+Fix a false positive for ``too-many-function-args`` when a function defined in a
+class body is called with an explicit ``self`` after being looked up in a
+class-level container, such as a dict of handlers.
+
+Closes #9239
