@@ -37,22 +37,22 @@ class _ArgumentsProvider:
 
     def _options_by_section(
         self,
-    ) -> Iterator[
-        tuple[str, list[tuple[str, OptionDict, Any]]]
-        | tuple[None, dict[str, list[tuple[str, OptionDict, Any]]]]
-    ]:
+    ) -> Iterator[tuple[str | None, list[tuple[str, OptionDict, Any]]]]:
         """Return an iterator on options grouped by section.
 
         (section, [list of (optname, optdict, optvalue)])
         """
-        sections: dict[str, list[tuple[str, OptionDict, Any]]] = {}
+        sections: dict[str | None, list[tuple[str, OptionDict, Any]]] = {}
         for optname, optdict in self.options:
-            sections.setdefault(optdict.get("group"), []).append(  # type: ignore[arg-type]
+            group = optdict.get("group")
+            assert group is None or isinstance(group, str)
+            sections.setdefault(group, []).append(
                 (optname, optdict, self._option_value(optname))
             )
         if None in sections:
-            yield None, sections.pop(None)  # type: ignore[call-overload]
+            yield None, sections.pop(None)
         for section, options in sorted(sections.items()):
+            assert section is not None
             yield section.upper(), options
 
     def _options_and_values(
