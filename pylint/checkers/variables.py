@@ -2021,6 +2021,7 @@ class VariablesChecker(BaseChecker):
                 node, nodes.ComprehensionScope
             ):
                 self._check_late_binding_closure(node)
+                self._check_name_deleted_by_except_handler(node, current_consumer)
                 return (VariableVisitConsumerAction.RETURN, None)
 
         found_nodes = current_consumer.get_next_to_consume(node)
@@ -3165,6 +3166,54 @@ class VariablesChecker(BaseChecker):
             and stmt is stmt.parent.name
             and any(n.name == name for n in stmt.parent.nodes_of_class(nodes.Name))
         )
+
+    def _check_name_deleted_by_except_handler(
+        self, node: nodes.Name, current_consumer: NamesConsumer
+    ) -> None:
+        """Check a name used after an ``except ... as name:`` handler.
+
+        Python deletes the name when the handler ends, so it is unbound after
+        the ``try`` statement unless it is assigned again.
+        """
+        if node.scope() is not current_consumer.node:
+            return
+        definitions = current_consumer.node.locals.get(node.name, [])
+        handlers = [
+            d.parent
+            for d in definitions
+            if isinstance(d.parent, nodes.ExceptHandler)
+            and d.parent.name is d
+            and d.parent.tolineno < node.lineno
+        ]
+        if not handlers:
+            return
+        handler = max(handlers, key=lambda h: h.tolineno)
+        if isinstance(
+            handler.body[-1], (nodes.Raise, nodes.Return, nodes.Break, nodes.Continue)
+        ):
+            return
+        # The use must come after the ``try`` statement, in the same block.
+        sibling = handler.parent.next_sibling()
+        while sibling and not (sibling is node.statement() or sibling.parent_of(node)):
+            sibling = sibling.next_sibling()
+        if sibling is None:
+            return
+        other_definitions = [d for d in definitions if not handler.parent_of(d)]
+        if any(d.lineno > handler.tolineno for d in other_definitions):
+            return
+        if any(
+            not isinstance(d.parent, nodes.ExceptHandler) for d in other_definitions
+        ):
+            self.add_message(
+                "possibly-used-before-assignment",
+                args=node.name,
+                node=node,
+                confidence=CONTROL_FLOW,
+            )
+        else:
+            self.add_message(
+                "used-before-assignment", args=node.name, node=node, confidence=HIGH
+            )
 
     def _check_late_binding_closure(self, node: nodes.Name) -> None:
         """Check whether node is a cell var that is assigned within a containing loop.
