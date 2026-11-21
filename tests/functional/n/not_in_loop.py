@@ -53,3 +53,9 @@ for _ in range(1):
     continue
 for _ in range(42):
     break
+
+for _ in range(10):
+    pass
+else:
+    if True:
+        break # [not-in-loop]
