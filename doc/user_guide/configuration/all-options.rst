@@ -100,6 +100,15 @@ Standard Checkers
 **Default:**  ``False``
 
 
+.. _extend-ignore-option:
+
+--extend-ignore
+"""""""""""""""
+*Files or directories to be skipped in addition to the ones in 'ignore'. They should be base names, not paths. This keeps the default of 'ignore' while adding your own entries.*
+
+**Default:**  ``()``
+
+
 .. _extension-pkg-allow-list-option:
 
 --extension-pkg-allow-list
@@ -140,9 +149,9 @@ Standard Checkers
 
 --files
 """""""
-*The files to lint. The flag can also be omitted as pylint will try to lint any file passed as argument. This can be used to set files to a directory in a configuration file and invoke pylint by only typing pylint on the command line. Any file passed as argument will overwrite any file set in the configuration file.*
+*The files to lint. The flag can also be omitted as pylint will try to lint any file passed as argument. This can be used to set files to a directory in a configuration file and invoke pylint by only typing pylint on the command line. Any file passed as argument will overwrite any file set in the configuration file. Defaults to the current working directory, so running pylint without any argument is the same as running 'pylint .'.*
 
-**Default:**  ``[]``
+**Default:**  ``['.']``
 
 
 .. _from-stdin-option:
@@ -206,9 +215,9 @@ Standard Checkers
 
 --ignore
 """"""""
-*Files or directories to be skipped. They should be base names, not paths.*
+*Files or directories to be skipped. They should be base names, not paths. The default skips version control, virtual environment, build and cache directories; setting this option replaces that list, use 'extend-ignore' to add to it.*
 
-**Default:**  ``('CVS',)``
+**Default:**  ``('.bzr', '.direnv', '.eggs', '.git', '.git-rewrite', '.hg', '.mypy_cache', '.nox', '.pants.d', '.pytype', '.ruff_cache', '.svn', '.tox', '.venv', 'CVS', '__pypackages__', '_build', 'buck-out', 'dist', 'node_modules', 'venv')``
 
 
 .. _ignore-paths-option:
@@ -497,6 +506,8 @@ Standard Checkers
 
    exit-zero = false
 
+   extend-ignore = []
+
    extension-pkg-allow-list = []
 
    extension-pkg-whitelist = []
@@ -505,11 +516,11 @@ Standard Checkers
 
    fail-under = 10
 
-   files = []
+   files = ["."]
 
    from-stdin = false
 
-   ignore = ["CVS"]
+   ignore = [".bzr", ".direnv", ".eggs", ".git", ".git-rewrite", ".hg", ".mypy_cache", ".nox", ".pants.d", ".pytype", ".ruff_cache", ".svn", ".tox", ".venv", "CVS", "__pypackages__", "_build", "buck-out", "dist", "node_modules", "venv"]
 
    ignore-paths = []
 
