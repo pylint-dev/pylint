@@ -47,3 +47,43 @@ try:
     value = MY_DICTIONARY["key_one"]
 except KeyError:
     value = 0
+
+# A sole pass is required to keep these suites syntactically valid (#9418).
+try:
+    with open("blah.txt", "a", encoding="ascii"):
+        pass
+except OSError:
+    pass
+
+try:
+    if "key_one" in MY_DICTIONARY:
+        pass
+except KeyError:
+    pass
+
+try:
+    for item in MY_DICTIONARY:
+        pass
+except KeyError:
+    pass
+
+try:
+    while MY_DICTIONARY:
+        pass
+except KeyError:
+    pass
+
+# The with statement itself and subsequent work must still count.
+try:  # [too-many-try-statements]
+    with open("blah.txt", "a", encoding="ascii"):
+        pass
+    value = 1
+except OSError:
+    pass
+
+# A pass alongside another statement is not a required placeholder.
+try:  # [too-many-try-statements]
+    value = 1
+    pass  # [unnecessary-pass]
+except KeyError:
+    pass
