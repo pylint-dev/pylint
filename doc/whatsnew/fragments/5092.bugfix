@@ -1,0 +1,5 @@
+Report a helpful error when ``spelling-dict`` is set but no spelling dictionaries
+are available, suggesting that the pyenchant installation and its system
+dependencies be checked.
+
+Closes #5092

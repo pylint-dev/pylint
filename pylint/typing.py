@@ -20,7 +20,6 @@ from typing import (
 )
 
 if TYPE_CHECKING:
-    from pylint.config.callback_actions import _CallbackAction
     from pylint.pyreverse.diadefslib import DiaDefGenerator
     from pylint.pyreverse.inspector import Project
     from pylint.reporters.ureports.nodes import Section
@@ -97,7 +96,7 @@ OptionDict = dict[
     | int
     | Pattern[str]
     | Iterable[str | int | Pattern[str]]
-    | type["_CallbackAction"]
+    | type[argparse.Action]
     | Callable[[Any], Any]
     | Callable[[Any, Any, Any, Any], Any]
     | None,
