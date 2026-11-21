@@ -1,0 +1,4 @@
+Document the best practices for setting ``sys.path`` / ``PYTHONPATH`` (editable
+install, ``PYTHONPATH``, and ``init-hook``) in the user guide.
+
+Closes #9507
