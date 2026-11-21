@@ -411,6 +411,10 @@ class NameChecker(_BasicChecker):
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         self._check_name("class", node.name, node)
         for attr, anodes in node.instance_attrs.items():
+            # Ignore assignments inferred from other modules.
+            anodes = [anode for anode in anodes if anode.root() is node.root()]
+            if not anodes:
+                continue
             if not any(
                 node.instance_attr_ancestors(attr)
             ) and not utils.is_assign_name_annotated_with(anodes[0], "Final"):
