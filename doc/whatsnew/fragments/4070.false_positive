@@ -1,0 +1,5 @@
+Fix ``no-member`` false positives for the named tuple API (``_replace``,
+``_asdict``, ``_fields``...) and the tuple methods used on ``self`` inside a
+``typing.NamedTuple`` subclass. The fix comes from astroid.
+
+Closes #4070
