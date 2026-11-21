@@ -36,6 +36,9 @@ class TestSuperfluousParentheses(CheckerTestCase):
             "not (foo or bar) and baz",
             "return [x for x in (3 if 1 else [4])]",
             "return (x for x in ((3, 4) if 2 > 1 else (5, 6)))",
+            # The inner pair is a tuple or is needed for operator precedence.
+            "for ((x, y)) in ((1, 2), (3, 4)):",
+            "= (((a & b)) > 0)",
         ]
         with self.assertNoMessages():
             for code in cases:
@@ -73,6 +76,16 @@ class TestSuperfluousParentheses(CheckerTestCase):
             (
                 MessageTest("superfluous-parens", line=1, args="for"),
                 "for (x) in (1, 2, 3):",
+                0,
+            ),
+            (
+                MessageTest("superfluous-parens", line=1, args="for"),
+                "for ((x)) in (1, 2, 3):",
+                0,
+            ),
+            (
+                MessageTest("superfluous-parens", line=1, args="for"),
+                "for (((x))) in (1, 2, 3):",
                 0,
             ),
             (
