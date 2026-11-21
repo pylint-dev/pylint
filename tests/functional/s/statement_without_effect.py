@@ -97,3 +97,22 @@ def unraised_exception():
     ValueError("another-pointless-statement")  # [pointless-exception-statement]
     instance = ClassLevelAttributeTest()
     instance.ClassLevelException(to_be())  # [pointless-exception-statement]
+
+
+def conditional_calls(test):
+    """A conditional expression that calls a function on every branch is
+    used for its effect, like a call (#8129)"""
+    to_be() if test else to_be()
+    to_be() if test else (to_be() if not test else to_be())
+    to_be() if test else None  # [expression-not-assigned]
+    ANSWER if test else to_be()  # [expression-not-assigned]
+
+
+async def conditional_awaits(test):
+    """An ``await`` on every branch is used for its effect too"""
+    await to_be() if test else await to_be()
+
+
+def conditional_yields(test):
+    """So is a ``yield`` on every branch"""
+    (yield 1) if test else (yield 2)
