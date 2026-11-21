@@ -1,0 +1,2 @@
+no-member:46:6:46:28::Instance of 'DEFAULT' has no 'missing' member:INFERENCE
+no-member:47:6:47:37::Instance of 'DEFAULT' has no 'missing' member:INFERENCE
