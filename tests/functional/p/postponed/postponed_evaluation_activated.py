@@ -26,3 +26,11 @@ class Other:
 
 class ExampleSelf:
     next: ExampleSelf
+
+
+def test_func():
+    class NestedClass:
+        val: NestedClass
+
+        def other(self, arg: NestedClass) -> NestedClass:
+            return self

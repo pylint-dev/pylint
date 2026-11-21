@@ -239,3 +239,40 @@ class TestUnusedArgumentInStubFile(CheckerTestCase):
         assert {
             (message.msg_id, message.args) for message in self.linter.release_messages()
         } == {("unused-argument", "path"), ("unused-argument", "value")}
+
+
+class TestNestedClassTypeAnnotation(CheckerTestCase):
+    """Self-referential type annotations in nested classes should not emit
+    undefined-variable when postponed evaluation of annotations is enabled (#11734, #8145).
+    """
+
+    CHECKER_CLASS = variables.VariablesChecker
+
+    def test_nested_class_type_annotation_postponed_evaluation(self) -> None:
+        code = """
+        from __future__ import annotations
+
+        def func():
+            class X:
+                val: X
+
+                def other(self, arg: X) -> X:
+                    return arg
+        """
+        node = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(node)
+
+    @set_config(py_version=(3, 14))
+    def test_nested_class_type_annotation_py314(self) -> None:
+        code = """
+        def func():
+            class X:
+                val: X
+
+                def other(self, arg: X) -> X:
+                    return arg
+        """
+        node = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(node)
