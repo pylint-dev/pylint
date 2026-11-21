@@ -6,26 +6,6 @@
 main pylint class.
 """
 
-from pylint.utils.ast_walker import ASTWalker
-from pylint.utils.docs import print_full_documentation
-from pylint.utils.file_state import FileState
-from pylint.utils.linterstats import LinterStats, ModuleStats, merge_stats
-from pylint.utils.utils import (
-    _check_csv,
-    _check_regexp_csv,
-    _splitstrip,
-    _unquote,
-    decoding_stream,
-    diff_string,
-    format_section,
-    get_module_and_frameid,
-    get_rst_section,
-    get_rst_title,
-    normalize_text,
-    register_plugins,
-    tokenize_module,
-)
-
 __all__ = [
     "ASTWalker",
     "FileState",
@@ -47,3 +27,23 @@ __all__ = [
     "register_plugins",
     "tokenize_module",
 ]
+
+from pylint.utils.ast_walker import ASTWalker
+from pylint.utils.docs import print_full_documentation
+from pylint.utils.file_state import FileState
+from pylint.utils.linterstats import LinterStats, ModuleStats, merge_stats
+from pylint.utils.utils import (
+    _check_csv,
+    _check_regexp_csv,
+    _splitstrip,
+    _unquote,
+    decoding_stream,
+    diff_string,
+    format_section,
+    get_module_and_frameid,
+    get_rst_section,
+    get_rst_title,
+    normalize_text,
+    register_plugins,
+    tokenize_module,
+)

@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods
+# pylint: disable=missing-docstring,too-few-public-methods,misplaced-module-dunder
 from enum import Enum
 from typing import ClassVar
 

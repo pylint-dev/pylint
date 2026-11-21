@@ -1,0 +1,4 @@
+Add ``misplaced-module-dunder`` to warn when an independent module-level dunder
+assignment appears after a regular import.
+
+Refs #5471

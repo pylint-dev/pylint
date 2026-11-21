@@ -1,7 +1,7 @@
 """check reimport
 """
 
-# pylint: disable=using-constant-test,ungrouped-imports,wrong-import-position,import-outside-toplevel
+# pylint: disable=using-constant-test,ungrouped-imports,wrong-import-position,import-outside-toplevel,misplaced-module-dunder
 import os
 from os.path import join, exists
 import os  # [reimported]
