@@ -16,6 +16,7 @@ from pylint.checkers.utils import (
     safe_infer,
     unimplemented_abstract_methods,
 )
+from pylint.checkers.variables import _assigned_names
 
 if TYPE_CHECKING:
     from functools import _lru_cache_wrapper
@@ -32,6 +33,7 @@ def clear_lru_caches() -> None:
         unimplemented_abstract_methods,
         safe_infer,
         _similar_names,
+        _assigned_names,
     ]
     for lru in caches_holding_node_references:
         lru.cache_clear()
