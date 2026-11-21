@@ -424,6 +424,20 @@ Dataclass checker Messages
   assignment within a dataclass, or within the make_dataclass() function.
 
 
+.. _decompression-bomb-checker:
+
+Decompression bomb checker
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Verbatim name of checker is ``decompression-bomb``.
+
+Decompression bomb checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++:decompression-bomb (W5001): *Unsafe decompression from the archive, '%s'*
+  Decompressing files from non trusted sources without setting a limit
+  on the uncompressed data's size can lead to arbitrarily large data sizes.
+
+
 .. _design-checker:
 
 Design checker
