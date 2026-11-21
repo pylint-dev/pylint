@@ -1,5 +1,7 @@
 # pylint: disable=missing-docstring,too-few-public-methods,disallowed-name,invalid-name,unused-argument
 import abc
+import enum
+import types
 
 
 class SuperClass(metaclass=abc.ABCMeta):
@@ -125,3 +127,23 @@ class B(A):
     @multiple_returns
     def bar2(self):  # [invalid-overridden-method]
         return False
+
+
+class DynamicAttributeProperty:
+    @types.DynamicClassAttribute
+    def custom_prop(self):
+        return 1
+
+
+class OverrideDynamicAttribute(DynamicAttributeProperty):
+    @property
+    def custom_prop(self):
+        return 2
+
+
+class EnumValueOverride(enum.Enum):
+    A = enum.auto()
+
+    @property
+    def value(self):
+        return "custom_val"
