@@ -455,7 +455,8 @@ Design checker Messages
 :too-many-arguments (R0913): *Too many arguments (%s/%s)*
   Used when a function or method takes too many arguments.
 :too-many-locals (R0914): *Too many local variables (%s/%s)*
-  Used when a function or method has too many local variables.
+  Used when a function or method has too many local variables, which may make
+  it difficult to follow, maintain or test.
 :too-many-statements (R0915): *Too many statements (%s/%s)*
   Used when a function or method has too many statements. You should then split
   it in smaller functions / methods.
