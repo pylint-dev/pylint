@@ -42,7 +42,9 @@ def test_raise_calls(flag):
         raise only_raises_conditionally(flag)  # [raising-bad-type]
     if flag:
         # pylint: disable-next=unnecessary-direct-lambda-call
-        raise (lambda: None)()  # [raising-bad-type]
+        raise (lambda: None)()  # [raising-bad-type]  # noqa: PLC3002
     if flag:
-        raise 7  # [raising-bad-type]
-    raise None  # [raising-bad-type]
+        bad_value = 7
+        raise bad_value  # [raising-bad-type]
+    none_value = None
+    raise none_value  # [raising-bad-type]
