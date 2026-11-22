@@ -100,6 +100,22 @@ class TestNamePresets(unittest.TestCase):
 
         self._test_should_always_pass(naming_style)
 
+    def test_pascal_case_class_attributes(self) -> None:
+        naming_style = base.PascalCaseStyle
+        for name in ("PascalCase", "_PascalCase", "__PascalCase", "_"):
+            with self.subTest(name=name):
+                self._test_is_correct(naming_style, name, "class_attribute")
+        for name in (
+            "lowerCase",
+            "_lowerCase",
+            "__lowerCase",
+            "__",
+            "___PascalCase",
+            "__PascalCase__",
+        ):
+            with self.subTest(name=name):
+                self._test_is_incorrect(naming_style, name, "class_attribute")
+
     def test_main_module_exception_is_narrow(self) -> None:
         for naming_style in (
             base.CamelCaseStyle,

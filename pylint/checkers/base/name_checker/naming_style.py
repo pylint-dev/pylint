@@ -76,7 +76,7 @@ class PascalCaseStyle(NamingStyle):
     CONST_NAME_RGX = re.compile(r"([^\W\da-z][^\W_]*|__.*__)$")
     COMP_VAR_RGX = CLASS_NAME_RGX
     DEFAULT_NAME_RGX = re.compile(r"([^\W\da-z][^\W_]*|__[^\W\dA-Z_]\w+__)$")
-    CLASS_ATTRIBUTE_RGX = re.compile(r"[^\W\da-z][^\W_]*$")
+    CLASS_ATTRIBUTE_RGX = re.compile(r"(?:_|_{0,2}[^\W\da-z_][^\W_]*)$")
 
 
 class UpperCaseStyle(NamingStyle):

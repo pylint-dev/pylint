@@ -1,0 +1,5 @@
+The PascalCase naming preset for class attributes now checks the name after
+one or two leading underscores. It accepts names such as ``__PascalCase`` and
+reports ``invalid-name`` for names such as ``_lowerCase``.
+
+Fixes part of #6568
