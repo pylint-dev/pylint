@@ -1,0 +1,1 @@
+Do not emit ``raising-bad-type`` for calls to functions or methods that end in an unconditional raise and have no return statement.
