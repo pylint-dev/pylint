@@ -1,0 +1,6 @@
+Check for missing constructor arguments when a raised exception class and its
+constructor can be determined. The implicit constructor check applies to the
+raised operand of a ``raise`` statement. A bare exception class used as its
+``from`` cause is outside this check.
+
+Closes #4033
