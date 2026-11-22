@@ -39,6 +39,7 @@ class PyreverseConfig(
         module_names: bool | None = None,
         only_classnames: bool = False,
         no_signatures: bool = False,
+        no_sort_members: bool = False,
         output_format: str = "dot",
         colorized: bool = False,
         max_color_depth: int = 2,
@@ -64,6 +65,7 @@ class PyreverseConfig(
         self.module_names = module_names
         self.only_classnames = only_classnames
         self.no_signatures = no_signatures
+        self.no_sort_members = no_sort_members
         self.output_format = output_format
         self.colorized = colorized
         self.max_depth = max_depth

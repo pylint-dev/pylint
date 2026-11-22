@@ -204,11 +204,19 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         mode = self.config.mode
         if len(node.modules) > 1:
             self.pkgdiagram: PackageDiagram | None = PackageDiagram(
-                f"packages {node.name}", mode, self.linker
+                f"packages {node.name}",
+                mode,
+                self.linker,
+                sort_members=not self.config.no_sort_members,
             )
         else:
             self.pkgdiagram = None
-        self.classdiagram = ClassDiagram(f"classes {node.name}", mode, self.linker)
+        self.classdiagram = ClassDiagram(
+            f"classes {node.name}",
+            mode,
+            self.linker,
+            sort_members=not self.config.no_sort_members,
+        )
 
     def leave_project(self, _: Project) -> Any:
         """Leave the pyreverse.utils.Project node.
@@ -250,7 +258,12 @@ class ClassDiadefGenerator(DiaDefGenerator):
     def class_diagram(self, project: Project, klass: str) -> ClassDiagram:
         """Return a class diagram definition for the class and related classes."""
         klass_name = klass
-        self.classdiagram = ClassDiagram(klass, self.config.mode, self.linker)
+        self.classdiagram = ClassDiagram(
+            klass,
+            self.config.mode,
+            self.linker,
+            sort_members=not self.config.no_sort_members,
+        )
         if len(project.modules) > 1:
             if "." not in klass:
                 raise InvalidArgsError(

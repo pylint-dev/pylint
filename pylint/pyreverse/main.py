@@ -213,6 +213,18 @@ OPTIONS: Options = (
         },
     ),
     (
+        "no-sort-members",
+        {
+            "action": "store_true",
+            "default": False,
+            "group": OPTIONS_GROUPS["DISPLAY"],
+            "help": (
+                "Show attributes and methods in the order they are defined in, "
+                "instead of sorting them by name."
+            ),
+        },
+    ),
+    (
         "colorized",
         {
             "dest": "colorized",
