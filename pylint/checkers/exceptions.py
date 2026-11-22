@@ -59,6 +59,23 @@ def _is_raising(body: list[nodes.NodeNG]) -> bool:
     return any(isinstance(node, nodes.Raise) for node in body)
 
 
+def _call_ends_in_raise(call: nodes.Call) -> bool:
+    """Recognize a function or method with an unconditional final raise."""
+    function = utils.safe_infer(call.func)
+    while isinstance(function, bases.UnboundMethod):
+        function = function._proxied
+
+    if not isinstance(function, nodes.FunctionDef) or not isinstance(
+        function.body[-1], nodes.Raise
+    ):
+        return False
+
+    # A return inside a nested scope does not let this function return.
+    return not any(
+        function.nodes_of_class(nodes.Return, (nodes.FunctionDef, nodes.ClassDef))
+    )
+
+
 MSGS: dict[str, MessageDefinitionTuple] = {
     "E0701": (
         "Bad except clauses order (%s)",
@@ -241,6 +258,12 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
     """Visitor for handling leaf kinds of a raise value."""
 
     def visit_const(self, node: nodes.Const) -> None:
+        if (
+            node.value is None
+            and isinstance(self._node.exc, nodes.Call)
+            and _call_ends_in_raise(self._node.exc)
+        ):
+            return
         self._checker.add_message(
             "raising-bad-type",
             node=self._node,
