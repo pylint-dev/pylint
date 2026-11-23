@@ -1,5 +1,15 @@
-bad-dunder-name:8:4:8:17:Apples.__hello__:Bad or misspelled dunder method name __hello__.:HIGH
-bad-dunder-name:22:4:22:15:Apples.__init_:Bad or misspelled dunder method name __init_.:HIGH
-bad-dunder-name:26:4:26:14:Apples._init_:Bad or misspelled dunder method name _init_.:HIGH
-bad-dunder-name:30:4:30:16:Apples.___neg__:Bad or misspelled dunder method name ___neg__.:HIGH
-bad-dunder-name:34:4:34:15:Apples.__inv__:Bad or misspelled dunder method name __inv__.:HIGH
+bad-dunder-name:9:4:9:17:Apples.__hello__:Bad or misspelled dunder method name __hello__.:HIGH
+bad-dunder-name:23:4:23:15:Apples.__init_:Bad or misspelled dunder method name __init_.:HIGH
+bad-dunder-name:27:4:27:14:Apples._init_:Bad or misspelled dunder method name _init_.:HIGH
+bad-dunder-name:31:4:31:16:Apples.___neg__:Bad or misspelled dunder method name ___neg__.:HIGH
+bad-dunder-name:35:4:35:15:Apples.__inv__:Bad or misspelled dunder method name __inv__.:HIGH
+bad-dunder-name:99:4:99:25:AsyncMistakes.__aenterr__:Bad or misspelled dunder method name __aenterr__.:HIGH
+bad-dunder-name:102:4:102:23:AsyncMistakes.__enter__:Bad or misspelled dunder method name __enter__ (cannot be async, use __aenter__).:HIGH
+bad-dunder-name:106:4:106:22:AsyncMistakes.__exit__:Bad or misspelled dunder method name __exit__ (cannot be async, use __aexit__).:HIGH
+bad-dunder-name:110:4:110:22:AsyncMistakes.__iter__:Bad or misspelled dunder method name __iter__ (cannot be async, use __aiter__).:HIGH
+bad-dunder-name:113:4:113:22:AsyncMistakes.__next__:Bad or misspelled dunder method name __next__ (cannot be async, use __anext__).:HIGH
+bad-dunder-name:116:4:116:23:AsyncMistakes.__aiter__:Bad or misspelled dunder method name __aiter__ (cannot be async unless it is an async generator).:HIGH
+bad-dunder-name:120:4:120:23:AsyncMistakes.__await__:Bad or misspelled dunder method name __await__ (cannot be async).:HIGH
+bad-dunder-name:124:4:124:22:AsyncMistakes.__init__:Bad or misspelled dunder method name __init__ (cannot be async).:HIGH
+bad-dunder-name:128:4:128:20:AsyncMistakes.__eq__:Bad or misspelled dunder method name __eq__ (cannot be async).:HIGH
+bad-dunder-name:132:4:132:25:AsyncMistakes.__setitem__:Bad or misspelled dunder method name __setitem__ (cannot be async).:HIGH

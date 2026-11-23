@@ -1,6 +1,10 @@
-def compare_numbers(a: int, b: int) -> int:
-    if a == b:
-        return 0
-    if a < b:
-        return -1
-    return 1
+def describe_number(value: int | None) -> str:
+    if value is None:
+        return "missing"
+    if value < 0:
+        description = "negative"
+    elif value == 0:
+        return "zero"
+    else:
+        description = "positive"
+    return description

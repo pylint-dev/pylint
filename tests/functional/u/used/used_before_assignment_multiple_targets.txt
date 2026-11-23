@@ -1,0 +1,8 @@
+used-before-assignment:14:6:14:7::Using variable 'd' before assignment:HIGH
+used-before-assignment:15:5:15:6::Using variable 'e' before assignment:HIGH
+used-before-assignment:45:10:45:15:name_read_before_its_target:Using variable 'first' before assignment:HIGH
+used-before-assignment:50:10:50:15:name_read_by_earlier_target:Using variable 'first' before assignment:HIGH
+used-before-assignment:55:40:55:45:name_bound_in_comprehension:Using variable 'first' before assignment:HIGH
+used-before-assignment:60:33:60:38:name_bound_in_lambda:Using variable 'first' before assignment:HIGH
+used-before-assignment:65:23:65:29:name_read_in_value:Using variable 'second' before assignment:HIGH
+used-before-assignment:71:10:71:15:name_bound_by_later_statement:Using variable 'first' before assignment:HIGH

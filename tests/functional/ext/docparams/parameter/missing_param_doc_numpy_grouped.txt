@@ -1,0 +1,2 @@
+missing-param-doc:43:0:43:24:grouped_with_missing:"""valz"" missing in parameter documentation":HIGH
+missing-type-doc:43:0:43:24:grouped_with_missing:"""valz"" missing in parameter type documentation":HIGH

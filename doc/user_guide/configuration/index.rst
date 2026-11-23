@@ -18,6 +18,22 @@ For example::
 In practice, it is often better to create a minimal configuration file which only contains
 configuration overrides. For all other options, Pylint will use its default values.
 
+.. tip::
+
+    TOML basic strings use backslashes as escape characters, so each literal
+    backslash must be doubled. Pylint's generated TOML configuration does this
+    automatically. When writing regular expression options by hand, single-quoted
+    `literal strings <https://toml.io/en/v1.0.0#string>`_ avoid the extra escaping.
+
+    The ``ignore-paths`` option reserves backslashes as Windows path separators,
+    so they cannot escape regular expression metacharacters. Use a character class
+    instead. For example:
+
+    .. code-block:: toml
+
+       [tool.pylint.main]
+       ignore-paths = ['^.*[.]pyi$']
+
 .. note::
 
     The internals that create the configuration files fall back to the default values if

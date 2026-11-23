@@ -1,0 +1,2 @@
+undefined-variable:84:8:84:22:Holder.method.InMethod:Undefined variable 'ClassLevelMeta':UNDEFINED
+undefined-variable:98:4:98:29:Other.InLambdaInClassBody:Undefined variable 'ClassLevelMeta':UNDEFINED

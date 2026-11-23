@@ -110,6 +110,12 @@ class JSONMessage(TypedDict):
     obj: str
 
 
+class JSONStatistics(TypedDict):
+    messageTypeCount: dict[str, int]
+    modulesLinted: int
+    score: float | str
+
+
 class JSON2Reporter(BaseReporter):
     name = "json2"
     extension = "json2"
@@ -165,7 +171,7 @@ class JSON2Reporter(BaseReporter):
             confidence=CONFIDENCE_MAP[message_as_json["confidence"]],
         )
 
-    def serialize_stats(self) -> dict[str, str | int | dict[str, int]]:
+    def serialize_stats(self) -> JSONStatistics:
         """Serialize the linter stats into something JSON dumpable."""
         stats = self.linter.stats
 
@@ -181,11 +187,11 @@ class JSON2Reporter(BaseReporter):
         # Calculate score based on the evaluation option
         evaluation = self.linter.config.evaluation
         try:
-            note: int = eval(  # pylint: disable=eval-used
+            note: float = eval(  # pylint: disable=eval-used
                 evaluation, {}, {**counts_dict, "statement": stats.statement or 1}
             )
         except Exception as ex:  # pylint: disable=broad-except
-            score: str | int = f"An exception occurred while rating: {ex}"
+            score: float | str = f"An exception occurred while rating: {ex}"
         else:
             score = note
 

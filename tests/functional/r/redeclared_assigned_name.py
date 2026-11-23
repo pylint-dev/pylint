@@ -16,3 +16,8 @@ for DUMMY, DUMMY in enumerate(range(5, 10)):
 
 for _, _ in enumerate(range(5, 10)):
     print(_)
+
+
+async def async_redeclared(items):
+    async for third, third in items:  # [redeclared-assigned-name]
+        print(third)

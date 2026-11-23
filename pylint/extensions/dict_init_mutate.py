@@ -19,6 +19,30 @@ if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
 
+def _references_name(name: str, *exprs: nodes.NodeNG | None) -> bool:
+    """Return whether evaluating any of the expressions reads the given name.
+
+    A lambda's body only runs when the lambda is called, so only its default
+    values count.
+    """
+    for expr in exprs:
+        match expr:
+            case None:
+                continue
+            case nodes.Name():
+                if expr.name == name:
+                    return True
+            case nodes.Lambda():
+                if _references_name(
+                    name, *(expr.args.defaults or []), *(expr.args.kw_defaults or [])
+                ):
+                    return True
+            case _:
+                if _references_name(name, *expr.get_children()):
+                    return True
+    return False
+
+
 class DictInitMutateChecker(BaseChecker):
     name = "dict-init-mutate"
     msgs = {
@@ -48,8 +72,11 @@ class DictInitMutateChecker(BaseChecker):
 
         match node.next_sibling():
             case nodes.Assign(
-                targets=[nodes.Subscript(value=nodes.Name(name=name))]
-            ) if (name == dict_name):
+                targets=[nodes.Subscript(value=nodes.Name(name=name), slice=key_node)],
+                value=val_node,
+            ) if name == dict_name and not _references_name(
+                dict_name, key_node, val_node
+            ):
                 suggestion = self._build_suggestion(
                     dict_name, dict_node, node.next_sibling()
                 )
@@ -85,8 +112,8 @@ class DictInitMutateChecker(BaseChecker):
                             nodes.Subscript(value=nodes.Name(name=name), slice=key_node)
                         ],
                         value=val_node,
-                    ) if (
-                        name == dict_name
+                    ) if name == dict_name and not _references_name(
+                        dict_name, key_node, val_node
                     ):
                         yield f"{key_node.as_string()}: {val_node.as_string()}"
                     case _:

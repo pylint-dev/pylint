@@ -1,0 +1,4 @@
+invalid-repr-returned:95:4:95:16:ReturnsUnrelatedSubclass.__repr__:__repr__ does not return str:UNDEFINED
+invalid-str-returned:98:4:98:15:ReturnsUnrelatedSubclass.__str__:__str__ does not return str:UNDEFINED
+invalid-index-returned:101:4:101:17:ReturnsUnrelatedSubclass.__index__:__index__ does not return int:UNDEFINED
+invalid-bytes-returned:104:4:104:17:ReturnsUnrelatedSubclass.__bytes__:__bytes__ does not return bytes:UNDEFINED

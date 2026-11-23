@@ -168,7 +168,7 @@ class ComparisonChecker(_BasicChecker):
                     ):
                         return node.inferred()[0].pytype() == "builtins.float"  # type: ignore[no-any-return]
                 return False
-            except AttributeError:
+            except (AttributeError, astroid.InferenceError):
                 return False
 
         def _is_decimal_nan(node: nodes.NodeNG) -> bool:

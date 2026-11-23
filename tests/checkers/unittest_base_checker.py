@@ -6,10 +6,11 @@
 
 import pytest
 
+from pylint import checkers, extensions
 from pylint.checkers import BaseChecker
 from pylint.checkers.imports import ImportsChecker
 from pylint.checkers.typecheck import TypeChecker
-from pylint.exceptions import InvalidMessageError
+from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.extensions.broad_try_clause import BroadTryClauseChecker
 from pylint.extensions.while_used import WhileChecker
 from pylint.lint.pylinter import PyLinter
@@ -77,6 +78,8 @@ class MessageWithOptionsChecker(BaseChecker):
 def test_base_checker_doc() -> None:
     basic = OtherBasicChecker()
     expected_beginning = """\
+.. _basic-checker:
+
 Basic checker
 ~~~~~~~~~~~~~
 
@@ -106,6 +109,38 @@ Basic checker Messages
 
     assert str(less_basic) == expected_beginning + expected_middle + expected_end
     assert repr(less_basic) == repr(basic)
+
+
+class BackslashChecker(OtherBasicChecker):
+    msgs = {
+        "W0001": (
+            r'Use "\b" instead.',
+            "basic-checker-example",
+            r"Used when an escape like \u has no effect.",
+        )
+    }
+    options = (
+        (
+            "example-args",
+            {
+                "default": 42,
+                "type": "int",
+                "metavar": "<int>",
+                "help": r'Usually "\t" (1 tab).',
+            },
+        ),
+    )
+
+
+def test_base_checker_doc_escapes_backslashes() -> None:
+    """A lone backslash is an escape in reST, so the documentation doubles it."""
+    checker = BackslashChecker()
+    doc = str(checker)
+    assert r':basic-checker-example (W0001): *Use "\\b" instead.*' in doc
+    assert r"Used when an escape like \\u has no effect." in doc
+    assert r'Usually "\\t" (1 tab).' in doc
+    # The message help printed on the command line is unchanged.
+    assert r'*Use "\b" instead.*' in checker.messages[0].format_help()
 
 
 def test_base_checker_ordering() -> None:
@@ -183,3 +218,26 @@ def test_base_checker_consistent_hash() -> None:
 
     assert hash(checker) == original_hash
     assert checker in some_set
+
+
+def test_only_required_for_messages_names_registered_messages() -> None:
+    """Every name given to ``only_required_for_messages`` must be a message pylint knows.
+
+    The walker treats an unknown name as always enabled, so a typo makes the
+    callback run even when its real messages are disabled.
+    """
+    linter = PyLinter()
+    checkers.initialize(linter)
+    extensions.initialize(linter)
+    unknown = []
+    for checker in linter.get_checkers():
+        for attribute in dir(checker):
+            if not attribute.startswith(("visit_", "leave_")):
+                continue
+            callback = getattr(checker, attribute)
+            for message in getattr(callback, "checks_msgs", ()):
+                try:
+                    linter.msgs_store.get_message_definitions(message)
+                except UnknownMessageError:
+                    unknown.append(f"{type(checker).__name__}.{attribute}: {message}")
+    assert not unknown

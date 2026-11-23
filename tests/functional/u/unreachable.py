@@ -50,6 +50,22 @@ def func8():
     except KeyboardInterrupt:
         pass
 
+
+def func8_compound_lambda():
+    """Terminating call in compound lambda expr shouldn't mark next stmt unreachable (#8567)."""
+    signal.signal(
+        signal.SIGINT,
+        lambda sig, frame: [print("Aborted using CTRL+C"), sys.exit(1)],
+    )
+    print("Signal handler installed.")
+
+
+def func8_default_of_lambda_in_lambda_body():
+    """The inner lambda's default only runs when the outer lambda is called."""
+    signal.signal(signal.SIGINT, lambda sig, frame: (lambda x=sys.exit(1): x))
+    print("Signal handler installed.")
+
+
 class FalseExit:
     def exit(self, number):
         print(f"False positive this is not sys.exit({number})")
@@ -105,3 +121,56 @@ async def func15():
     coro = inner()
     print("reachable")
     await coro
+
+
+def func_quitter_instantiation():
+    """Instantiating ``_sitebuiltins.Quitter`` does not exit, only calling it does."""
+    import _sitebuiltins  # pylint: disable=import-outside-toplevel
+
+    quitter = _sitebuiltins.Quitter("exit", "")
+    print(quitter)
+    quitter()
+    print("unreachable")  # [unreachable]
+
+
+# https://github.com/pylint-dev/pylint/issues/8909
+def raising_generator():
+    """The yield makes the exception occur on iteration, rather than on calling."""
+    raise ValueError("failure")
+    yield
+
+
+async def raising_async_generator():
+    """The same applies to async generators."""
+    raise ValueError("failure")
+    yield
+
+
+def raising_generator_with_value():
+    raise ValueError("failure")
+    yield 1
+
+
+def reraising_generator():
+    try:
+        raise ValueError("failure")
+    except ValueError:  # pylint: disable=try-except-raise
+        raise
+        yield
+
+
+def raising_generator_with_unreachable_statement():
+    raise ValueError("failure")
+    yield
+    print("unreachable")  # [unreachable]
+
+
+def raising_generator_with_yield_from():
+    raise ValueError("failure")
+    yield from ()
+
+
+def exiting_generator():
+    """sys.exit() raises SystemExit, so it only exits on iteration too."""
+    sys.exit(1)
+    yield

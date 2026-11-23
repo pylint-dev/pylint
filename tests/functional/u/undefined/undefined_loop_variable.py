@@ -1,6 +1,6 @@
 # pylint: disable=missing-docstring,redefined-builtin, consider-using-f-string, unnecessary-direct-lambda-call, broad-exception-raised
 
-from typing import NoReturn
+from typing import Never, NoReturn
 
 
 def do_stuff(some_random_list):
@@ -194,3 +194,17 @@ def find_even_number(container):
         if something % 2 == 0:
             break
     return something  # [undefined-loop-variable]
+
+
+def for_else_never(iterable):
+    """Test for-else with Never type."""
+
+    def idontreturn() -> Never:
+        """This function never returns."""
+
+    while True:
+        for thing in iterable:
+            break
+        else:
+            idontreturn()
+        print(thing)

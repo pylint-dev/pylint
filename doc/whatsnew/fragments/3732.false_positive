@@ -1,0 +1,8 @@
+Fixed false positive ``too-few-public-methods`` for classes decorated with
+``attr.s``, ``attr.dataclass``, ``attr.define``, ``attrs.mutable`` and the other
+``attrs`` class decorators when they are used through ``import attr``, through
+an alias, or imported by name. The decorator is now matched by the name it was
+imported from, so a local function that happens to be called ``s`` or
+``mutable`` is still reported.
+
+Closes #3732

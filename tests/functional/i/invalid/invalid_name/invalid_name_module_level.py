@@ -73,3 +73,10 @@ INPUT = Theme()
 input = Theme()  # pylint: disable=redefined-builtin
 OUTPUT = Theme()
 output = Theme()
+
+
+# A module-level alias that preserves an external callable's all-caps name is a
+# constant, even though inference identifies the target as a function.
+from xml.etree import ElementTree
+
+XML = ElementTree.XML

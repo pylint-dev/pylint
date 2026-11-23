@@ -1,5 +1,4 @@
-import logging
+import logging.config
 import os
 import sys
-import logging.config  # [ungrouped-imports]
-from logging.handlers import WatchedFileHandler
+import logging.handlers  # [ungrouped-imports]

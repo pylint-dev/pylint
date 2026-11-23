@@ -11,6 +11,17 @@ Messages overview
 
 Pylint can emit the following messages:
 
+Find a message by ID or symbol:
+
+.. raw:: html
+
+   <form onsubmit="location='./'+encodeURIComponent(this.message.value);return false">
+     <label for="message-search">Message ID or symbol</label>
+     <input id="message-search" name="message" type="search"
+       placeholder="C0114 or missing-module-docstring" pattern="[A-Za-z0-9-]+" required>
+     <button type="submit">Open message</button>
+   </form>
+
 
 .. _fatal-category:
 
@@ -99,6 +110,7 @@ All messages in the error category:
    error/invalid-getnewargs-returned
    error/invalid-hash-returned
    error/invalid-index-returned
+   error/invalid-lazy-import
    error/invalid-length-hint-returned
    error/invalid-length-returned
    error/invalid-match-args-definition
@@ -206,6 +218,8 @@ All permanently deleted messages in the error category:
    error/old-raise-syntax
    error/parameter-unpacking
    error/print-statement
+   error/slots-on-old-class
+   error/super-on-old-class
    error/unpacking-in-except
 
 .. _warning-category:
@@ -289,6 +303,7 @@ All messages in the warning category:
    warning/logging-format-interpolation
    warning/logging-fstring-interpolation
    warning/logging-not-lazy
+   warning/looping-through-iterator
    warning/lost-exception
    warning/method-cache-max-size-none
    warning/misplaced-future
@@ -368,11 +383,13 @@ All messages in the warning category:
    warning/useless-type-doc
    warning/useless-with-lock
    warning/using-assignment-expression-in-unsupported-version
+   warning/using-comprehension-unpacking-in-unsupported-version
    warning/using-constant-test
    warning/using-exception-groups-in-unsupported-version
    warning/using-f-string-in-unsupported-version
    warning/using-final-decorator-in-unsupported-version
    warning/using-generic-type-syntax-in-unsupported-version
+   warning/using-lazy-import-in-unsupported-version
    warning/using-positional-only-args-in-unsupported-version
    warning/while-used
    warning/wildcard-import
@@ -422,6 +439,7 @@ All permanently deleted messages in the warning category:
    warning/comprehension-escape
    warning/delslice-method
    warning/deprecated-itertools-function
+   warning/deprecated-lambda
    warning/deprecated-operator-function
    warning/deprecated-str-translate-call
    warning/deprecated-string-function
@@ -448,6 +466,7 @@ All permanently deleted messages in the warning category:
    warning/intern-builtin
    warning/invalid-str-codec
    warning/long-builtin
+   warning/lowercase-l-suffix
    warning/map-builtin-not-iterating
    warning/metaclass-assignment
    warning/mixed-indentation
@@ -455,6 +474,7 @@ All permanently deleted messages in the warning category:
    warning/next-method-defined
    warning/no-absolute-import
    warning/no-init
+   warning/nonstandard-exception
    warning/nonzero-method
    warning/oct-method
    warning/old-backtick
@@ -463,6 +483,7 @@ All permanently deleted messages in the warning category:
    warning/old-old-raise-syntax
    warning/old-raising-string
    warning/old-unpacking-in-except
+   warning/property-on-old-class
    warning/raising-string
    warning/range-builtin-not-iterating
    warning/raw_input-builtin
@@ -575,6 +596,7 @@ All permanently deleted messages in the convention category:
    convention/no-space-after-comma
    convention/no-space-after-operator
    convention/no-space-before-operator
+   convention/old-style-class
 
 .. _refactor-category:
 
@@ -588,6 +610,7 @@ All messages in the refactor category:
    :titlesonly:
 
    refactor/chained-comparison
+   refactor/chained-comparison-all-equal
    refactor/comparison-of-constants
    refactor/comparison-with-itself
    refactor/condition-evals-to-constant
@@ -618,6 +641,7 @@ All messages in the refactor category:
    refactor/duplicate-code
    refactor/else-if-used
    refactor/empty-comment
+   refactor/impossible-comparison
    refactor/inconsistent-return-statements
    refactor/literal-comparison
    refactor/magic-value-comparison

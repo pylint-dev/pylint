@@ -38,6 +38,13 @@ class PrivateImportChecker(BaseChecker):
         self.populated_annotations = False
 
     @utils.only_required_for_messages("import-private-name")
+    def visit_module(self, _: nodes.Module) -> None:
+        # Type annotations are collected per module, so that one module's
+        # annotations do not decide the result for the next one.
+        self.all_used_type_annotations = {}
+        self.populated_annotations = False
+
+    @utils.only_required_for_messages("import-private-name")
     def visit_import(self, node: nodes.Import) -> None:
         if utils.in_type_checking_block(node):
             return
@@ -238,7 +245,7 @@ class PrivateImportChecker(BaseChecker):
             while isinstance(current_attribute, (nodes.Attribute, nodes.Call)):
                 if isinstance(current_attribute, nodes.Call):
                     current_attribute = current_attribute.func
-                if not isinstance(current_attribute, nodes.Name):
+                elif isinstance(current_attribute, nodes.Attribute):
                     current_attribute = current_attribute.expr
             if (
                 isinstance(current_attribute, nodes.Name)

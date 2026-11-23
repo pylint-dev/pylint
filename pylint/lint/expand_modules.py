@@ -15,13 +15,31 @@ from astroid import modutils
 from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
 
 
+def _is_namespace_package_path(inner_path: str, parts: list[str]) -> bool:
+    """Consider existing directories as namespace packages (PEP 420)."""
+    return os.path.isdir(os.path.join(inner_path, *parts))
+
+
 def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> list[str]:
     def _is_package_cb(inner_path: str, parts: list[str]) -> bool:
         return modutils.check_modpath_has_init(inner_path, parts) or is_namespace
 
-    return modutils.modpath_from_file_with_callback(  # type: ignore[no-any-return]
-        filename, path=path, is_package_cb=_is_package_cb
-    )
+    try:
+        return modutils.modpath_from_file_with_callback(  # type: ignore[no-any-return]
+            filename, path=path, is_package_cb=_is_package_cb
+        )
+    except ImportError:
+        # check_modpath_has_init() consults is_namespace() from astroid, which reports
+        # "not a namespace package" as soon as one portion of the package lives in
+        # site-packages or in the standard library. Retry without requiring
+        # __init__.py files to still resolve such packages.
+        # See https://github.com/pylint-dev/pylint/issues/10278
+        # TODO: Remove this retry once the minimum astroid version has the
+        # path-aware is_namespace() from
+        # https://github.com/pylint-dev/astroid/pull/3445
+        return modutils.modpath_from_file_with_callback(  # type: ignore[no-any-return]
+            filename, path=path, is_package_cb=_is_namespace_package_path
+        )
 
 
 def discover_package_path(modulepath: str, source_roots: Sequence[str]) -> str:
@@ -67,6 +85,54 @@ def _is_ignored_file(
     )
 
 
+def _is_case_insensitive_fs() -> bool:
+    """Return ``True`` only on Windows, where paths are case-insensitive by default.
+
+    Only Windows needs the input paths rewritten to match the disk. The explicit
+    platform check keeps the extra file system calls off every other host.
+    """
+    return os.name == "nt"
+
+
+def _list_directory(directory: str) -> list[str]:
+    """Return the names in ``directory``, or nothing if it cannot be read."""
+    try:
+        return os.listdir(directory or os.curdir)
+    except OSError:
+        return []
+
+
+def _canonical_case_path(path: str) -> str:
+    """Return ``path`` spelled with the capitalization the file system uses.
+
+    Case-insensitive file systems accept ``tests/Sandpit/mod.py`` for
+    ``tests/sandpit/mod.py``. The module name derived from such a path keeps the
+    capitalization of the input, so a single file is seen as two modules: it can
+    trigger messages such as ``invalid-name`` and be linted twice when both
+    spellings are given. Only the capitalization is replaced, so symlinks are
+    left untouched and paths that do not exist are returned unchanged.
+    """
+    if not _is_case_insensitive_fs():
+        return path
+    head, tail = os.path.split(path)
+    if head == path:
+        return path
+    if head:
+        head = _canonical_case_path(head)
+    names = _list_directory(head)
+    if tail in names:
+        return os.path.join(head, tail)
+    expected = tail.casefold()
+    for name in names:
+        if name.casefold() == expected:
+            try:
+                if Path(head, name).samefile(Path(head, tail)):
+                    return os.path.join(head, name)
+            except OSError:
+                pass
+    return os.path.join(head, tail)
+
+
 # pylint: disable = too-many-locals, too-many-statements
 def expand_modules(
     files_or_modules: Sequence[str],
@@ -83,7 +149,6 @@ def expand_modules(
     path = sys.path.copy()
 
     for something in files_or_modules:
-        basename = os.path.basename(something)
         if _is_ignored_file(
             something, ignore_list, ignore_list_re, ignore_list_paths_re
         ):
@@ -96,13 +161,19 @@ def expand_modules(
                 "isignored": True,
             }
             continue
+        # Case-insensitive file systems accept a path spelled differently from the
+        # file system's own capitalization: use the latter so that the derived
+        # module name and path stay the same for differently cased inputs. Ignore
+        # lists above keep matching the path as it was given.
+        something = _canonical_case_path(something)
+        basename = os.path.basename(something)
         module_package_path = discover_package_path(something, source_roots)
         additional_search_path = [".", module_package_path, *path]
         if os.path.exists(something):
             # this is a file or a directory
             try:
                 modname = ".".join(
-                    modutils.modpath_from_file(something, path=additional_search_path)
+                    _modpath_from_file(something, False, path=additional_search_path)
                 )
             except ImportError:
                 modname = os.path.splitext(basename)[0]
@@ -149,8 +220,10 @@ def expand_modules(
             modparts[-1] != "__init__" and os.path.basename(filepath) == "__init__.py"
         )
         if has_init or is_namespace or is_directory:
-            for subfilepath in modutils.get_module_files(
-                os.path.dirname(filepath) or ".", ignore_list, list_all=is_namespace
+            for subfilepath in sorted(
+                modutils.get_module_files(
+                    os.path.dirname(filepath) or ".", ignore_list, list_all=is_namespace
+                )
             ):
                 subfilepath = os.path.normpath(subfilepath)
                 if filepath == subfilepath:

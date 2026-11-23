@@ -95,3 +95,35 @@ def else_if_function():
                             if arg == 7:
                                 return 7
         return None
+
+async def async_function(ait):
+    if 1:  # [too-many-nested-blocks]
+        async for i in ait:
+            if i == 2:
+                while True:
+                    try:
+                        if True:
+                            print(i)
+                    except IOError:
+                        pass
+
+    if 1:
+        async for i in ait:
+            if i == 2:
+                while True:
+                    try:
+                        print(i)
+                    except IOError:
+                        pass
+
+
+async def async_function_single_block(ait):
+    async for i in ait:  # [too-many-nested-blocks]
+        if i == 2:
+            while True:
+                try:
+                    if i:
+                        if i > 1:
+                            print(i)
+                except IOError:
+                    pass

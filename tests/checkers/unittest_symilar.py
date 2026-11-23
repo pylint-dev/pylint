@@ -2,6 +2,7 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
+from collections.abc import Generator
 from contextlib import redirect_stdout
 from io import BytesIO, StringIO
 from pathlib import Path
@@ -574,3 +575,91 @@ def test_hash_bucket_product_limit_fallback(
     assert "15 similar lines in 2 files" in out
     assert f"=={file_a}:[0:15]" in out
     assert f"=={file_b}:[0:15]" in out
+
+
+def test_three_identical_files_are_reported_together(tmp_path: Path) -> None:
+    block = "def f(a):\n    x = a + 1\n    y = x * 2\n    z = y - 3\n    w = z / 4\n    return w\n"
+    paths = []
+    for name in ("a.py", "b.py", "c.py"):
+        path = tmp_path / name
+        path.write_text(block, encoding="utf-8")
+        paths.append(str(path))
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+        symilar.Run(paths)
+    assert ex.value.code == 0
+    out = output.getvalue()
+    assert "6 similar lines in 3 files" in out
+    for path in paths:
+        assert f"=={path}:[0:6]" in out
+    assert "duplicates=12" in out
+
+
+def test_compute_sims_merges_groups_joined_by_a_later_pair(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Pairs (a, b), (c, d) then (b, c) end up as one group of four chunks."""
+    linesets = [LineSet(name, ["x = 1\n"]) for name in "abcd"]
+    a, b, c, d = linesets
+
+    def fake_iter_sims(_: Symilar) -> Generator[symilar.Commonality]:
+        for first, second in ((a, b), (c, d), (b, c)):
+            yield symilar.Commonality(
+                cmn_lines_nb=5,
+                fst_lset=first,
+                fst_file_start=symilar.LineNumber(0),
+                fst_file_end=symilar.LineNumber(5),
+                snd_lset=second,
+                snd_file_start=symilar.LineNumber(0),
+                snd_file_end=symilar.LineNumber(5),
+            )
+
+    monkeypatch.setattr(Symilar, "_iter_sims", fake_iter_sims)
+    sims = Symilar()._compute_sims()
+    assert len(sims) == 1
+    assert sims[0][0] == 5
+    assert {lineset for lineset, _, _ in sims[0][1]} == set(linesets)
+
+
+@pytest.mark.parametrize(
+    "source, expected",
+    [
+        pytest.param(
+            'fill = "#ff0000"  # red\n', 'fill = "#ff0000"', id="string-then-comment"
+        ),
+        pytest.param(
+            "url = base + '#anchor'\n", "url = base + '#anchor'", id="single-quotes"
+        ),
+        pytest.param('label = f"#{index}"\n', 'label = f"#{index}"', id="f-string"),
+        pytest.param("total = 1  # one\n", "total = 1", id="plain-comment"),
+    ],
+)
+def test_ignore_comments_keeps_hash_inside_strings(source: str, expected: str) -> None:
+    lineset = LineSet("a.py", [source], ignore_comments=True)
+    assert [spec.text for spec in lineset.stripped_lines] == [expected]
+
+
+def test_ignore_comments_keeps_hash_in_multiline_string() -> None:
+    lines = ['QUERY = """\n', "SELECT 1 -- #not a comment\n", '"""\n']
+    lineset = LineSet("a.py", lines, ignore_comments=True)
+    assert lineset.stripped_lines[1].text == "SELECT 1 -- #not a comment"
+
+
+def test_ignore_comments_falls_back_on_untokenizable_source() -> None:
+    lineset = LineSet("a.py", ["x = (  # open\n"], ignore_comments=True)
+    assert [spec.text for spec in lineset.stripped_lines] == ["x = ("]
+
+
+def test_ignore_comments_strings_differing_after_hash_do_not_match(
+    tmp_path: Path,
+) -> None:
+    template = "".join(f'COLOR_{i} = "#{{}}{i}"\n' for i in range(6))
+    file_1 = tmp_path / "first.py"
+    file_2 = tmp_path / "second.py"
+    file_1.write_text(template.replace("{}", "ff000"), encoding="utf-8")
+    file_2.write_text(template.replace("{}", "00ff0"), encoding="utf-8")
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+        symilar.Run(["--ignore-comments", str(file_1), str(file_2)])
+    assert ex.value.code == 0
+    assert "similar lines" not in output.getvalue()

@@ -38,6 +38,7 @@ class NoSelfUseChecker(BaseChecker):
         super().__init__(linter)
         self._first_attrs: list[str | None] = []
         self._meth_could_be_func: bool | None = None
+        self._meth_could_be_func_stack: list[bool | None] = []
 
     def visit_name(self, node: nodes.Name) -> None:
         """Check if the name handle an access to a class member
@@ -51,6 +52,7 @@ class NoSelfUseChecker(BaseChecker):
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if not node.is_method():
             return
+        self._meth_could_be_func_stack.append(self._meth_could_be_func)
         self._meth_could_be_func = True
         self._check_first_arg_for_type(node)
 
@@ -79,6 +81,7 @@ class NoSelfUseChecker(BaseChecker):
         if node.is_method():
             first = self._first_attrs.pop()
             if first is None:
+                self._meth_could_be_func = self._meth_could_be_func_stack.pop()
                 return
             class_node = node.parent.frame()
             if (
@@ -95,6 +98,7 @@ class NoSelfUseChecker(BaseChecker):
                 )
             ):
                 self.add_message("no-self-use", node=node, confidence=INFERENCE)
+            self._meth_could_be_func = self._meth_could_be_func_stack.pop()
 
     leave_asyncfunctiondef = leave_functiondef
 

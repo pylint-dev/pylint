@@ -67,3 +67,12 @@ def yield_use_send():
     total = 0
     for item in (1, 2, 3):
         total += yield item
+
+
+def yield_non_assignname_targets(a, i, x):
+    for a[i] in []:
+        yield x
+    for a.b in []:
+        yield x
+    for _, _ in []:
+        yield x

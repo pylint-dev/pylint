@@ -35,6 +35,7 @@ import functools
 import itertools
 import re
 import sys
+import tokenize
 import warnings
 from collections import defaultdict
 from collections.abc import Callable, Generator, Iterable, Sequence
@@ -230,6 +231,11 @@ def hash_lineset(
     return LineSetHashResult(hash_to_index, index_to_lines)
 
 
+def _count_files(couples: set[LinesChunkLimits_T]) -> int:
+    """Count the files in a group, which can hold several chunks of one file."""
+    return len({lineset for lineset, _, _ in couples})
+
+
 def remove_successive(all_couples: CplIndexToCplLines_T) -> None:
     """Removes all successive entries in the dictionary in argument.
 
@@ -267,10 +273,7 @@ def remove_successive(all_couples: CplIndexToCplLines_T) -> None:
             test = test.increment(Index(1))
 
         for target in to_remove:
-            try:
-                all_couples.pop(target)
-            except KeyError:
-                pass
+            all_couples.pop(target, None)
 
 
 def filter_noncode_lines(
@@ -362,6 +365,8 @@ class Symilar:
         except UnicodeDecodeError:
             lines = []
 
+        # Only set when Symilar is used through SimilaritiesChecker
+        linter: PyLinter | None = getattr(self, "linter", None)
         self.linesets.append(
             LineSet(
                 streamid,
@@ -371,9 +376,7 @@ class Symilar:
                 self.namespace.ignore_imports,
                 self.namespace.ignore_signatures,
                 line_enabled_callback=(
-                    self.linter._is_one_message_enabled
-                    if hasattr(self, "linter")
-                    else None
+                    linter._is_one_message_enabled if linter is not None else None
                 ),
                 tree=tree,
             )
@@ -398,22 +401,19 @@ class Symilar:
             start_line_2 = commonality.snd_file_start
             end_line_2 = commonality.snd_file_end
 
-            duplicate = no_duplicates[num]
-            couples: set[LinesChunkLimits_T]
-            for couples in duplicate:
-                if (lineset1, start_line_1, end_line_1) in couples or (
-                    lineset2,
-                    start_line_2,
-                    end_line_2,
-                ) in couples:
-                    break
-            else:
-                duplicate.append(
-                    {
-                        (lineset1, start_line_1, end_line_1),
-                        (lineset2, start_line_2, end_line_2),
-                    }
-                )
+            chunk_1 = (lineset1, start_line_1, end_line_1)
+            chunk_2 = (lineset2, start_line_2, end_line_2)
+            # A pair that shares a chunk with existing groups joins them, so a
+            # block copied into three files is one group of three, not one pair.
+            merged = {chunk_1, chunk_2}
+            kept: list[set[LinesChunkLimits_T]] = []
+            for couples in no_duplicates[num]:
+                if chunk_1 in couples or chunk_2 in couples:
+                    merged |= couples
+                else:
+                    kept.append(couples)
+            kept.append(merged)
+            no_duplicates[num] = kept
         sims: list[tuple[int, set[LinesChunkLimits_T]]] = []
         ensembles: list[set[LinesChunkLimits_T]]
         for num, ensembles in no_duplicates.items():
@@ -436,7 +436,7 @@ class Symilar:
         report: str = ""
         duplicated_line_number: int = 0
         for number, couples in similarities:
-            report += f"\n{number} similar lines in {len(couples)} files\n"
+            report += f"\n{number} similar lines in {_count_files(couples)} files\n"
             couples_l = sorted(couples)
             line_set = start_line = end_line = None
             for line_set, start_line, end_line in couples_l:
@@ -585,6 +585,7 @@ def stripped_lines(
     :param tree: pre-parsed AST; when provided the redundant astroid.parse() call is skipped
     :return: the collection of line/line number/line type tuples
     """
+    lines = list(lines)
     ignore_lines: set[int] = set()
     if ignore_imports or ignore_signatures:
         if tree is None:
@@ -629,6 +630,7 @@ def stripped_lines(
                 )
             )
 
+    comment_starts = _comment_starts(lines) if ignore_comments else None
     strippedlines = []
     docstring = None
     for lineno, line in enumerate(lines, start=1):
@@ -636,6 +638,8 @@ def stripped_lines(
             "R0801", lineno
         ):
             continue
+        if comment_starts is not None and lineno in comment_starts:
+            line = line[: comment_starts[lineno]]
         line = line.strip()
         if ignore_docstrings:
             if not docstring:
@@ -649,7 +653,7 @@ def stripped_lines(
                 if line.endswith(docstring):
                     docstring = None
                 line = ""
-        if ignore_comments:
+        if ignore_comments and comment_starts is None:
             line = line.split("#", 1)[0].strip()
         if lineno in ignore_lines:
             line = ""
@@ -658,6 +662,23 @@ def stripped_lines(
                 LineSpecifs(text=line, line_number=LineNumber(lineno - 1))
             )
     return strippedlines
+
+
+def _comment_starts(lines: list[str]) -> dict[int, int] | None:
+    """Map line numbers to the column where a comment starts.
+
+    Use tokens to distinguish a ``#`` inside a string from a comment.
+    Returns None if reading the tokens fails.
+    """
+    readline = iter(lines).__next__
+    try:
+        return {
+            token.start[0]: token.start[1]
+            for token in tokenize.generate_tokens(readline)
+            if token.type == tokenize.COMMENT
+        }
+    except (tokenize.TokenError, SyntaxError):
+        return None
 
 
 @functools.total_ordering
@@ -752,7 +773,10 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
 
     name = "similarities"
     msgs = MSGS
-    MIN_SIMILARITY_HELP = "Minimum lines number of a similarity."
+    MIN_SIMILARITY_HELP = (
+        "Minimum lines number of a similarity. Setting it to 0 will disable the "
+        "check, but you should use disable=duplicate-code instead."
+    )
     IGNORE_COMMENTS_HELP = "Comments are removed from the similarity computation"
     IGNORE_DOCSTRINGS_HELP = "Docstrings are removed from the similarity computation"
     IGNORE_IMPORTS_HELP = "Imports are removed from the similarity computation"
@@ -830,6 +854,8 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
 
         stream must implement the readlines method
         """
+        if self.namespace.min_similarity_lines == 0:
+            return
         if self.linter.current_name is None:
             # TODO: 4.0 Fix current_name
             warnings.warn(
@@ -861,7 +887,7 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
                 for line in lineset.real_lines[start_line:end_line]:
                     msg.append(line.rstrip())
 
-            self.add_message("R0801", args=(len(couples), "\n".join(msg)))
+            self.add_message("R0801", args=(_count_files(couples), "\n".join(msg)))
             duplicated += num * (len(couples) - 1)
         stats.nb_duplicated_lines += int(duplicated)
         stats.percent_duplicated_lines += float(total and duplicated * 100.0 / total)

@@ -20,6 +20,11 @@ def _(position: tuple) -> str:
     return f"{position[0]},{position[1]}"
 
 
+@singledispatchmethod  # [singledispatchmethod-function]
+async def async_convert_position(position):
+    print(position)
+
+
 class Board1:
     @singledispatchmethod
     def convert_position(self, position):

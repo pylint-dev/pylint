@@ -1,0 +1,4 @@
+Report ``used-before-assignment`` when a bare type annotation masks assignments
+that may not execute in ``try``, ``except``, or ``finally`` control flow.
+
+Closes #10847

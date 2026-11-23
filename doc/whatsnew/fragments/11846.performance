@@ -1,0 +1,9 @@
+The design checker no longer slows down as it goes through a project when the
+``too-many-*`` function messages are disabled but ``too-many-positional-arguments``
+or ``keyword-arg-before-vararg`` is enabled: it kept a counter for every function
+it had seen and updated all of them on each statement. The callbacks behind
+``dict-iter-missing-items``, ``magic-value-comparison`` and
+``unbalanced-dict-unpacking`` are now skipped when all the messages they check are
+disabled.
+
+Refs #11846

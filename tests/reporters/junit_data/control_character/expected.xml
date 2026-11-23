@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites tests="1" errors="0" failures="1" disabled="0" time="0">
+  <testsuite name="junit_control_character" tests="1" errors="0" failures="1" skipped="0" disabled="0" time="0">
+    <testcase name="junit_control_character:3:11" classname="pylint" file="junit_control_character.py" line="3" class="error">
+      <failure type="error" message="invalid-character-esc">E2513:Invalid unescaped character esc, use "/x1B" instead.
+junit_control_character.py:3:11:ESCAPE = "#x1B"</failure>
+      <system-out>junit_control_character.py:3:11:ESCAPE = "#x1B"</system-out>
+      <system-err>E2513:Invalid unescaped character esc, use "/x1B" instead.
+junit_control_character.py:3:11:ESCAPE = "#x1B"</system-err>
+    </testcase>
+  </testsuite>
+</testsuites>

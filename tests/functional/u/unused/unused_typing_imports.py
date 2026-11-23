@@ -13,6 +13,8 @@ from datetime import datetime
 from typing import (
     Any,
     Callable,
+    Dict,
+    FrozenSet,
     Iterable,
     List,
     NamedTuple,
@@ -83,3 +85,10 @@ def unused_reassigned_import(counter):
     # type: (CollectionCounter) -> int
     print(counter)
     return 42
+
+
+async def async_type_comments(items, context_manager):
+    async for item in items:  # type: Dict[str, int]
+        print(item)
+    async with context_manager as value:  # type: FrozenSet[int]
+        print(value)

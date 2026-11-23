@@ -46,3 +46,26 @@ print(Derived.label)
 
 # Regression test for https://github.com/pylint-dev/pylint/issues/5832
 starter_path = Path(__file__).parents[3].resolve()
+
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/9203
+class FactoryBase:
+    def __init__(self):
+        self.name = "base"
+
+    @classmethod
+    def from_dict(cls, values):
+        return cls()
+
+
+class FactoryChild(FactoryBase):
+    def __init__(self):
+        super().__init__()
+        self.extra = "child"
+
+    @classmethod
+    def from_dict(cls, values):
+        return super().from_dict(values)
+
+
+print(FactoryChild.from_dict({}).extra)  # No error here

@@ -12,3 +12,4 @@ unreachable:158:8:158:17:Foo.foo_method:Unreachable code:HIGH
 unreachable:180:8:180:17:Foo.foo_method:Unreachable code:HIGH
 missing-raises-doc:183:4:183:18:Foo.foo_method:"""AttributeError"" not documented as being raised":HIGH
 using-constant-test:190:11:190:15:Foo.foo_method:Using a conditional statement with a constant value:INFERENCE
+raising-bad-type:201:4:201:13:test_google_raises_non_exception:Raising sum while only classes or instances are allowed:INFERENCE

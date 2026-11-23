@@ -1,7 +1,0 @@
-Fix a false positive for ``function-redefined`` (E0102) when reusing names that
-match ``dummy-variables-rgx`` (such as ``_``), which is common for
-``pytest-bdd`` step definitions. This restores the behavior from before pylint
-4.0.0; as a consequence the false negative fixed in #9894 is reintroduced for
-functions whose name matches ``dummy-variables-rgx``.
-
-Closes #10665

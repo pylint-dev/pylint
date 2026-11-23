@@ -1,0 +1,1 @@
+not-callable:13:0:13:19::MyClass.__bases__ is not callable:UNDEFINED

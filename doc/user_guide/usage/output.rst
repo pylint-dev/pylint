@@ -10,23 +10,66 @@ with the ``--output=<filename>`` option.
 The default format for the output is raw text. You can change this by passing
 pylint the ``--output-format=<value>`` option. Possible values are:
 
-* ``text``
+* ``text``: messages are grouped under a ``************* Module <name>`` header
+  for each module
+* ``no-header``: same as ``text``, without the module headers
 * ``parseable``
-* ``colorized``
+* ``colorized``: same as ``text``, with ANSI colors
 * ``json2``: improved json format
 * ``json``: old json format
 * ``msvs``: visual studio
 * ``github``: `GitHub action messages <https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions>`_
+* ``junit``: JUnit XML for CI/CD integration (Jenkins, Azure DevOps, GitLab CI, GitHub Actions)
+
+You can also give the fully qualified name of your own reporter class, for
+example ``--output-format=mypackage.mymodule.MyReporterClass``.
 
 Multiple output formats can be used at the same time by passing
 a comma-separated list of formats to ``--output-format``.
 This output can be redirected to a file by giving a filename after a colon.
+Only one of the formats can write to stdout; the others must be given a file.
 
 For example, to save a json report to ``somefile.json`` and print
 a colorized report to stdout at the same time:
 ::
 
   --output-format=json:somefile.json,colorized
+
+Environment Variables
+''''''''''''''''''''''''''''
+The colorization of the report written to stdout can also be controlled through
+environment variables. Reports written to a file are never changed. The
+precedence for determining the output format is as follows:
+
+1. :envvar:`NO_COLOR`
+2. :envvar:`FORCE_COLOR`
+3. ``--output-format=...``
+
+.. envvar:: NO_COLOR
+
+   When set to any non-empty value, a ``colorized`` report on stdout is
+   replaced by a ``text`` report. This removes every ANSI decoration, not
+   only the colors: bold, underline and inverse text are gone too.
+   See https://no-color.org.
+
+.. envvar:: FORCE_COLOR
+
+   When set to any non-empty value, a ``text`` report on stdout is replaced
+   by a ``colorized`` report, with all its decorations, even when stdout is
+   not a terminal (on Windows too). Other text-based
+   formats such as ``parseable`` or ``msvs`` are kept as they are.
+   It is ignored when :envvar:`NO_COLOR` is also set.
+   See https://force-color.org.
+
+Pylint emits a warning when one of these variables overrides an
+``--output-format`` option given on the command line or in the configuration,
+or when both are set. Colorizing the default output is silent.
+
+For example, to get a plain report even if ``colorized`` is in your
+configuration:
+::
+
+  NO_COLOR=1 pylint --output-format=colorized my_garden.py
 
 
 Custom message formats
@@ -81,7 +124,7 @@ A few other examples:
 
     {path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
 
-The ``--msg-template`` option can only be combined with text-based reporters (``--output-format`` either unspecified or one of: parseable, colorized or msvs).
+The ``--msg-template`` option can only be combined with text-based reporters (``--output-format`` either unspecified or one of: text, no-header, parseable, colorized or msvs).
 If both ``--output-format`` and ``--msg-template`` are specified, the ``--msg-template`` option will take precedence over the default line format defined by the reporter class.
 
 If ``end_line`` or ``end_column`` are ``None``, they will be represented as an empty string

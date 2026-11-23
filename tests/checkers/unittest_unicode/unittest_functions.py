@@ -172,7 +172,6 @@ def test_line_length_utf32(line: str) -> None:
         ("utf8", "utf-8"),
         ("utf 8", "utf-8"),
         ("utf-8", "utf-8"),
-        ("utf-8", "utf-8"),
         ("utf-16", "utf-16"),
         ("utf-32", "utf-32"),
         ("utf 16", "utf-16"),

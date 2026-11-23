@@ -1,0 +1,6 @@
+``no-member`` is now reported inside an ``if`` branch, or an ``if`` expression, whose
+test can be either false or true, like a flag that is assigned ``False`` and then
+``True`` in another branch. Before, only the first inferred value was looked at, so
+the branch was treated as unreachable.
+
+Refs #9405

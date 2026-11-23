@@ -35,7 +35,7 @@ class _Run(LintRun):
         self,
         args: Sequence[str],
         reporter: BaseReporter | None = None,
-        exit: bool = True,  # pylint: disable=redefined-builtin
+        exit: bool = True,
     ) -> None:
         args = _add_rcfile_default_pylintrc(list(args))
         super().__init__(args, reporter, exit)

@@ -1,0 +1,2 @@
+unnecessary-semicolon:18:0:None:None::Unnecessary semicolon:UNDEFINED
+unnecessary-semicolon:20:0:None:None::Unnecessary semicolon:UNDEFINED

@@ -8,7 +8,6 @@ graft examples
 graft script
 graft tests
 prune doc/_build
-prune tests/.benchmarks
 prune tests/.pylint_primer_tests
 global-exclude __pycache__
 global-exclude *.py[co]

@@ -103,8 +103,10 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "short": "f",
                 "group": "Reports",
                 "help": "Set the output format. Available formats are: 'text', "
-                "'parseable', 'colorized', 'json2' (improved json format), 'json' "
-                "(old json format), msvs (visual studio) and 'github' (GitHub actions). "
+                "'no-header' (text without module headers), 'parseable', "
+                "'colorized', 'json2' (improved json format), 'json' "
+                "(old json format), 'msvs' (visual studio), 'github' (GitHub actions) "
+                "and 'junit' (JUnit XML). "
                 "You can also give a reporter class, e.g. mypackage.mymodule."
                 "MyReporterClass.",
                 "kwargs": {"linter": linter},
@@ -567,7 +569,7 @@ def _make_run_options(self: Run) -> Options:
                 "short": "E",
                 "help": "In error mode, messages with a category besides "
                 "ERROR or FATAL are suppressed, and no reports are done by default. "
-                "Error mode is compatible with disabling specific errors. ",
+                "Error mode is compatible with disabling specific errors.",
                 "hide_from_config_file": True,
             },
         ),

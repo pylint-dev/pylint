@@ -76,7 +76,16 @@ class MermaidJSPrinter(Printer):
                     line += f" {escaped_return_type}"
                 body.append(line)
         name = name.split(".")[-1]
-        self.emit(f"{nodetype} {name} {{")
+        header = f"{nodetype} {name}"
+        # The id stays the bare class name; a label carries anything longer,
+        # such as the module-qualified title ``--module-names=y`` asks for.
+        if (
+            type_ is NodeType.CLASS
+            and properties.label is not None
+            and properties.label != name
+        ):
+            header += f'["{properties.label}"]'
+        self.emit(f"{header} {{")
         self._inc_indent()
         for line in body:
             self.emit(line)

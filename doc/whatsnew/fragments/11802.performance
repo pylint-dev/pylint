@@ -1,0 +1,5 @@
+Linting is about 2-3% faster. The checks on the return values of special methods,
+such as ``invalid-length-returned``, no longer infer the return value of every
+method, only of the special methods whose return value they check.
+
+Refs #11802

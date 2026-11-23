@@ -70,3 +70,33 @@ def good():
         pass
     elif 7:
         pass
+
+
+async def async_loops(items):  # [too-many-branches]
+    """async for counts as a branch, like for"""
+    async for _ in items:
+        pass
+    async for _ in items:
+        pass
+    if 1:
+        pass
+    elif 2:
+        pass
+    elif 3:
+        pass
+    elif 4:
+        pass
+    elif 5:
+        pass
+    elif 6:
+        pass
+    elif 7:
+        pass
+    elif 8:
+        pass
+    elif 9:
+        pass
+    elif 10:
+        pass
+    elif 11:
+        pass

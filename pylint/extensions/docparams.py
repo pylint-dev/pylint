@@ -683,10 +683,7 @@ class DocstringParameterChecker(BaseChecker):
         :param node: The node to show the message on.
         """
         if node.is_abstract():
-            try:
-                missing_exceptions.remove("NotImplementedError")
-            except KeyError:
-                pass
+            missing_exceptions.discard("NotImplementedError")
         if missing_exceptions:
             self.add_message(
                 "missing-raises-doc",

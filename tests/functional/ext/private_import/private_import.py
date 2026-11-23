@@ -140,3 +140,9 @@ from ..parent import _private
 
 from _private_module_x import some_name # [import-private-name]
 VAR = some_name
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/11479:
+# an annotated assignment whose value is an attribute access on a call
+# rooted at a non-Name node (e.g. a constant) must not crash the checker.
+from _private_module9 import PrivateClass9
+my_var9: PrivateClass9 = ""().a # [not-callable]

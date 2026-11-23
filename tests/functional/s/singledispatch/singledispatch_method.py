@@ -57,6 +57,12 @@ class Board3:
         return f"{position[0]},{position[1]}"
 
 
+class Board4:
+    @singledispatch  # [singledispatch-method]
+    async def convert_position(self, position):
+        pass
+
+
 # Do not emit `singledispatch-method`:
 @singledispatch
 def convert_position(position):

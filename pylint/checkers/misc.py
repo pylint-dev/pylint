@@ -109,17 +109,17 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
             notes += f"|{self.linter.config.notes_rgx}"
 
         comment_regex = rf"#\s*(?P<msg>({notes})(?=(:|\s|\Z)).*?$)"
-        self._comment_fixme_pattern = re.compile(comment_regex, re.I)
+        self._comment_fixme_pattern = re.compile(comment_regex, re.IGNORECASE)
 
         # single line docstring like '''this''' or """this"""
         docstring_regex = rf"((\"\"\")|(\'\'\'))\s*(?P<msg>({notes})(?=(:|\s|\Z)).*?)((\"\"\")|(\'\'\'))"
-        self._docstring_fixme_pattern = re.compile(docstring_regex, re.I)
+        self._docstring_fixme_pattern = re.compile(docstring_regex, re.IGNORECASE)
 
         # multiline docstrings which will be split into newlines
         # so we do not need to look for quotes/double-quotes
         multiline_docstring_regex = rf"^\s*(?P<msg>({notes})(?=(:|\s|\Z)).*$)"
         self._multiline_docstring_fixme_pattern = re.compile(
-            multiline_docstring_regex, re.I
+            multiline_docstring_regex, re.IGNORECASE
         )
 
     def _check_encoding(

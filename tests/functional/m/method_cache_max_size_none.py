@@ -92,3 +92,9 @@ class Class(Enum):
     @lru_cache(maxsize=None)
     def func(self) -> None:
         pass
+
+
+class MyClassWithAsyncMethods:
+    @lru_cache(maxsize=None)  # [method-cache-max-size-none]
+    async def my_func(self, param):
+        return param + 1

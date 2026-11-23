@@ -1,0 +1,3 @@
+used-before-assignment:79:13:79:20:NameOnlyDefinedByLaterMethod:Using variable 'missing' before assignment:HIGH
+used-before-assignment:101:12:101:25:ModuleNameDefinedAfterClass:Using variable 'defined_later' before assignment:HIGH
+used-before-assignment:124:17:124:20:enclosing_function.Inner:Using variable 'sep' before assignment:HIGH

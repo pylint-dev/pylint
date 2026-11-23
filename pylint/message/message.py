@@ -7,7 +7,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 
 from pylint.constants import MSG_TYPES
-from pylint.interfaces import Confidence
+from pylint.interfaces import Confidence, _confidence_or_undefined
 from pylint.typing import MessageLocationTuple
 
 
@@ -36,14 +36,14 @@ class Message:  # pylint: disable=too-many-instance-attributes
         symbol: str,
         location: MessageLocationTuple,
         msg: str,
-        confidence: Confidence,
+        confidence: Confidence | None,
     ) -> None:
         self.msg_id = msg_id
         self.symbol = symbol
         self.msg = msg
         self.C = msg_id[0]
         self.category = MSG_TYPES[msg_id[0]]
-        self.confidence = confidence
+        self.confidence = _confidence_or_undefined(confidence, stacklevel=2)
         self.abspath = location.abspath
         self.path = location.path
         self.module = location.module

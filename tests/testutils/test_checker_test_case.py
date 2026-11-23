@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import astroid
 import pytest
 
 from pylint.checkers.base_checker import BaseChecker
@@ -33,6 +34,16 @@ class TestCheckerTestCase(CheckerTestCase):
         """Scenario 1: expected raised / actual raised."""
         with self.assertAddsMessages(_MSG_A):
             self.linter.add_message("W9901", line=1)
+
+    def test_assert_adds_messages_confidence_none_is_deprecated(self) -> None:
+        """``confidence=None`` still matches an ``UNDEFINED`` expectation (#11530)."""
+        with pytest.warns(DeprecationWarning, match="confidence=None") as records:
+            with self.assertAddsMessages(_MSG_A):
+                self.checker.add_message("W9901", line=1, confidence=None)
+        assert len(records) == 1
+        with pytest.warns(DeprecationWarning, match="confidence=None"):
+            with self.assertAddsMessages(_MSG_A):
+                self.linter.add_message("W9901", line=1, confidence=None)
 
     def test_assert_adds_messages_failure_not_raised(self) -> None:
         """Scenario 2: expected raised / actual not raised."""
@@ -93,3 +104,11 @@ class TestCheckerTestCase(CheckerTestCase):
         # Messages must have been drained; a subsequent assertNoMessages should pass.
         with self.assertNoMessages():
             pass
+
+    def test_explicit_zero_col_offset_is_kept(self) -> None:
+        """col_offset=0 is the first column, not "not supplied"."""
+        node = astroid.extract_node("if True:\n    x = 1  #@\n")
+        assert node.col_offset != 0
+
+        self.linter.add_message("W9901", line=2, node=node, col_offset=0)
+        assert self.linter.release_messages()[0].col_offset == 0

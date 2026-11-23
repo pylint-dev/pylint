@@ -27,6 +27,38 @@ class TestTypeChecker(CheckerTestCase):
 
     CHECKER_CLASS = typecheck.TypeChecker
 
+    def test_assignment_from_no_return_hint_args(self) -> None:
+        """The no-return message can name attributes, names, and complex calls."""
+        self.linter.config.known_side_effects_only_functions = (
+            "reverse:reversed",
+            "shuffle:sample",
+            "malformed-entry-without-suggestion",
+        )
+        self.checker.open()
+        module = astroid.parse("""
+            items = []
+            result = items.reverse()
+            result = shuffle(items)
+            functions = [shuffle]
+            result = functions[0](items)
+            """)
+        reverse_assign = module.body[1]
+        shuffle_assign = module.body[2]
+        subscript_assign = module.body[4]
+
+        assert self.checker._assignment_from_no_return_args(reverse_assign.value) == (
+            "reverse",
+            ", did you mean to use 'reversed(...)' instead?",
+        )
+        assert self.checker._assignment_from_no_return_args(shuffle_assign.value) == (
+            "shuffle",
+            ", did you mean to use 'sample(...)' instead?",
+        )
+        assert self.checker._assignment_from_no_return_args(subscript_assign.value) == (
+            "functions[0]",
+            "",
+        )
+
     @needs_c_extension
     def test_nomember_on_c_extension_info_msg(self) -> None:
         node = astroid.extract_node("""
@@ -42,6 +74,31 @@ class TestTypeChecker(CheckerTestCase):
             col_offset=0,
             end_line=3,
             end_col_offset=14,
+        )
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
+    def test_enum_init_without_arguments_no_crash(self) -> None:
+        """Regression test for issue 11608: Enum __init__ with no parameters."""
+        self.checker.open()
+        node = astroid.extract_node("""
+        from enum import Enum
+
+        class C(Enum):
+            def __init__():
+                pass
+
+        C.A  #@
+        """)
+        message = MessageTest(
+            "no-member",
+            node=node,
+            args=("Class", "C", "A", ""),
+            confidence=INFERENCE,
+            line=8,
+            col_offset=0,
+            end_line=8,
+            end_col_offset=3,
         )
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)

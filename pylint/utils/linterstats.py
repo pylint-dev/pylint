@@ -135,7 +135,7 @@ class LinterStats:
         self.warning = 0
         self.skipped = 0
 
-        self.global_note = 0
+        self.global_note = 0.0
         self.nb_duplicated_lines = 0
         self.percent_duplicated_lines = 0.0
 

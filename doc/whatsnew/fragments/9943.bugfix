@@ -1,0 +1,4 @@
+Files in package and namespace-directory arguments are expanded in deterministic
+order, independent of filesystem enumeration.
+
+Refs #9943

@@ -17,6 +17,9 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
+_KeyTuple = tuple[type[nodes.NodeNG], str]
+
+
 class CodeStyleChecker(BaseChecker):
     """Checkers that can improve code consistency.
 
@@ -186,10 +189,8 @@ class CodeStyleChecker(BaseChecker):
         if len(node.items) > 1 and all(
             isinstance(dict_value, nodes.Dict) for _, dict_value in node.items
         ):
-            KeyTupleT = tuple[type[nodes.NodeNG], str]
-
             # Makes sure all keys are 'Const' string nodes
-            keys_checked: set[KeyTupleT] = set()
+            keys_checked: set[_KeyTuple] = set()
             for _, dict_value in node.items:
                 dict_value = cast(nodes.Dict, dict_value)
                 for key, _ in dict_value.items:
@@ -205,13 +206,13 @@ class CodeStyleChecker(BaseChecker):
                     keys_checked.add(key_tuple)
 
             # Makes sure all subdicts have at least 1 common key
-            key_tuples: list[tuple[KeyTupleT, ...]] = []
+            key_tuples: list[tuple[_KeyTuple, ...]] = []
             for _, dict_value in node.items:
                 dict_value = cast(nodes.Dict, dict_value)
                 key_tuples.append(
                     tuple((type(key), key.as_string()) for key, _ in dict_value.items)
                 )
-            keys_intersection: set[KeyTupleT] = set(key_tuples[0])
+            keys_intersection: set[_KeyTuple] = set(key_tuples[0])
             for sub_key_tuples in key_tuples[1:]:
                 keys_intersection.intersection_update(sub_key_tuples)
             if not keys_intersection:
@@ -345,6 +346,9 @@ class CodeStyleChecker(BaseChecker):
 
     @only_required_for_messages("consider-using-augmented-assign")
     def visit_assign(self, node: nodes.Assign) -> None:
+        if len(node.targets) > 1:
+            # An augmented assignment can only have a single target
+            return
         is_aug, op = utils.is_augmented_assign(node)
         if is_aug:
             self.add_message(

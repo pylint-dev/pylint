@@ -138,6 +138,10 @@ class ClassWithSlots:
     __slots__ = ['foobar']
 
 
+class ClassWithoutSlots:
+    pass
+
+
 class ClassReassigningDunderClass:
     __slots__ = ['foobar']
 
@@ -239,3 +243,32 @@ class Repro(Base):
 
 repro = Repro()
 repro.attr2 = "anything"
+
+
+# Crash regression: ``x.__class__`` targets outside a plain assignment
+# and unresolvable assigned values used to crash.
+# See https://github.com/pylint-dev/pylint/issues/11267
+class ClassReassigningDunderClassDifferently:
+    __slots__ = ['foobar']
+
+    def release_in_loop(self):
+        for self.__class__ in [ClassWithSlots]:
+            pass
+
+    def release_in_tuple(self):
+        self.__class__, myvar = ClassWithSlots, 'test'
+        print(myvar)
+
+    def release_undefined_name(self):
+        # pylint: disable-next=undefined-variable
+        self.__class__ = UndefinedClass  # [assigning-non-slot]
+
+    def release_to_class_without_slots(self):
+        # A class without ``__slots__`` has a different layout, which CPython
+        # rejects at runtime too.
+        self.__class__ = ClassWithoutSlots  # [assigning-non-slot]
+
+    def release_in_starred_target(self):
+        # +1: [assigning-non-slot,invalid-class-object]
+        *self.__class__, myvar = [1, 2]
+        print(myvar)
