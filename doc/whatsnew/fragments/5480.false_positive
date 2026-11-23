@@ -1,0 +1,4 @@
+Fixed a false positive for ``undefined-loop-variable`` when a name used in the
+annotations or defaults of a function is also a loop variable in its body.
+
+Closes #5480
