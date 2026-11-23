@@ -347,7 +347,7 @@ overgeneral-exceptions=builtins.BaseException,builtins.Exception
 expected-line-ending-format=
 
 # Regexp for a line that is allowed to be longer than the limit.
-ignore-long-lines=^\s*(# )?<?https?://\S+>?$
+ignore-long-lines=^\s*(# )?<?https?://\S+$
 
 # Regexp for a part of a line that will not be counted when calculating the
 # line length.

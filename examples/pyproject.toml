@@ -200,7 +200,7 @@ basic.variable-naming-style = "snake_case"
 # Expected format of line ending, e.g. empty (any line ending), LF or CRLF.
 # expected-line-ending-format =
 # Regexp for a line that is allowed to be longer than the limit.
-format.ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
+format.ignore-long-lines = "^\\s*(# )?<?https?://\\S+$"
 # Regexp for a part of a line that will not be counted when calculating the line
 # length.
 # ignore-pattern-in-long-lines =

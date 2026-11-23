@@ -1,0 +1,3 @@
+Simplify the default ``ignore-long-lines`` pattern without changing which lines it matches.
+
+Fixes part of #8913

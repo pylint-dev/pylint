@@ -201,7 +201,7 @@ redefining-builtins-modules=six.moves,past.builtins,future.builtins,builtins,io
 max-line-length=100
 
 # Regexp for a line that is allowed to be longer than the limit.
-ignore-long-lines=^\s*(# )?<?https?://\S+>?$
+ignore-long-lines=^\s*(# )?<?https?://\S+$
 
 # Allow the body of an if to be on the same line as the test if there is no
 # else.
