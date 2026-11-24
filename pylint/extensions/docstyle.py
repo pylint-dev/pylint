@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-import linecache
+import codecs
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -35,8 +35,17 @@ class DocStringStyleChecker(checkers.BaseChecker):
         ),
     }
 
+    def open(self) -> None:
+        self._source_lines: list[bytes] = []
+
     @only_required_for_messages("docstring-first-line-empty", "bad-docstring-quotes")
     def visit_module(self, node: nodes.Module) -> None:
+        # Keep the checked source, which can differ from the file when linting stdin.
+        with node.stream() as stream:
+            source = stream.read().removeprefix(codecs.BOM_UTF8)
+            # AST line numbers follow universal newlines, not just LF.
+            source = source.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+        self._source_lines = source.split(b"\n")
         self._check_docstring("module", node)
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
@@ -60,19 +69,15 @@ class DocStringStyleChecker(checkers.BaseChecker):
                 confidence=HIGH,
             )
 
-        # Use "linecache", instead of node.as_string(), because the latter
-        # looses the original form of the docstrings.
-
         if docstring:
-            lineno = node.fromlineno + 1
-            line = linecache.getline(node.root().file, lineno).lstrip()
-            if line and line.find('"""') == 0:
+            line = self._source_lines[node.fromlineno].lstrip()
+            if line.startswith(b'"""'):
                 return
-            if line and "'''" in line:
+            if b"'''" in line:
                 quotes = "'''"
-            elif line and line[0] == '"':
+            elif line.startswith(b'"'):
                 quotes = '"'
-            elif line and line[0] == "'":
+            elif line.startswith(b"'"):
                 quotes = "'"
             else:
                 quotes = ""

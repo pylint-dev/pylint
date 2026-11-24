@@ -1,0 +1,4 @@
+The ``docstyle`` checker now checks docstring quotes against the source being linted
+when using ``--from-stdin``, rather than reading a potentially different file from disk.
+
+Refs #9053

@@ -627,6 +627,74 @@ class TestRunTC:
     def test_stdin_missing_modulename(self) -> None:
         self._runtest(["--from-stdin"], code=32)
 
+    @pytest.mark.parametrize("write_to_disk", [False, True])
+    @pytest.mark.parametrize("quotes", ['"""', "'''", '"', "'"])
+    def test_docstyle_stdin(
+        self, tmp_path: Path, write_to_disk: bool, quotes: str
+    ) -> None:
+        """Docstring quotes must come from stdin, not an older file on disk."""
+        target = tmp_path / "docstyle_stdin.py"
+        if write_to_disk:
+            target.write_text("def function():\n    '''On disk.'''\n", encoding="utf-8")
+        source = f"def function():\n    {quotes}From stdin.{quotes}\n"
+        output = StringIO()
+        with mock.patch("pylint.lint.pylinter._read_stdin", return_value=source):
+            self._runtest(
+                [
+                    "--from-stdin",
+                    str(target),
+                    "--load-plugins=pylint.extensions.docstyle",
+                    "--disable=all",
+                    "--enable=bad-docstring-quotes",
+                ],
+                out=output,
+                code=0 if quotes == '"""' else 16,
+            )
+        if quotes == '"""':
+            assert "bad-docstring-quotes" not in output.getvalue()
+        else:
+            assert output.getvalue().count("C0198:") == 1
+            assert f"given {quotes} (bad-docstring-quotes)" in output.getvalue()
+
+    @pytest.mark.parametrize(
+        "source",
+        [
+            b"def function():\n    '''Wrong quotes.'''\n",
+            b"def function():\r\n    '''Wrong quotes.'''\r\n",
+            b"def function():\r    '''Wrong quotes.'''\r",
+            b"def function():\r\n    '''Wrong quotes.'''\r",
+            b"def function():\n\f    '''Wrong quotes.'''\n",
+        ],
+    )
+    def test_docstyle_line_endings(self, tmp_path: Path, source: bytes) -> None:
+        """Use the same physical lines as Python's parser."""
+        target = tmp_path / "docstyle_line_endings.py"
+        target.write_bytes(source)
+        self._runtest(
+            [
+                str(target),
+                "--load-plugins=pylint.extensions.docstyle",
+                "--disable=all",
+                "--enable=bad-docstring-quotes",
+            ],
+            code=16,
+        )
+
+    @pytest.mark.parametrize("quotes", ['"""', "'''", '"', "'"])
+    def test_docstyle_utf8_bom(self, tmp_path: Path, quotes: str) -> None:
+        """A UTF-8 signature is not part of the module docstring's quotes."""
+        target = tmp_path / "docstyle_bom.py"
+        target.write_bytes(b"\xef\xbb\xbf" + f"{quotes}Docstring.{quotes}\n".encode())
+        self._runtest(
+            [
+                str(target),
+                "--load-plugins=pylint.extensions.docstyle",
+                "--disable=all",
+                "--enable=bad-docstring-quotes",
+            ],
+            code=0 if quotes == '"""' else 16,
+        )
+
     @pytest.mark.parametrize("write_bpy_to_disk", [False, True])
     def test_relative_imports(self, write_bpy_to_disk: bool, tmp_path: Path) -> None:
         a = tmp_path / "a"
