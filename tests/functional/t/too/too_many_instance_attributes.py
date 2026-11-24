@@ -4,6 +4,9 @@
 # https://github.com/pylint-dev/pylint/pull/7918#issuecomment-1352737369
 # pylint: disable=multiple-statements
 
+from dataclasses import dataclass
+from typing import NamedTuple
+
 
 class Aaaa: # [too-many-instance-attributes]
 
@@ -29,3 +32,36 @@ class Aaaa: # [too-many-instance-attributes]
         self._iiii = 9
         self._jjjj = 10
         self.tomuch = None
+
+
+@dataclass
+class Foo: # [too-many-instance-attributes]
+    one: int
+    two: int
+    three: int
+    four: int
+    five: int
+    six: int
+    seven: int
+    eight: int
+    nine: int
+
+    def test(self):
+        pass
+
+
+class Bar(NamedTuple): # [too-many-instance-attributes]
+    one: int
+    two: int
+    three: int
+    four: int
+    five: int
+    six: int
+    seven: int
+    eight: int
+    nine: int
+    ten: int
+    eleven: int
+
+    def test(self):
+        pass

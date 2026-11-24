@@ -493,16 +493,40 @@ class MisdesignChecker(BaseChecker):
                 args=(nb_parents, self.linter.config.max_parents),
             )
 
+        is_named_tuple = any(
+            ancestor.qname() == TYPING_NAMEDTUPLE for ancestor in node.ancestors()
+        )
+        has_public_methods = False
+        if node.is_dataclass or is_named_tuple:
+            has_public_methods = (
+                next(
+                    (
+                        method
+                        for method in node.mymethods()
+                        if not method.name.startswith("_")
+                    ),
+                    None,
+                )
+                is not None
+            )
+
+        inferred = node
+        if is_named_tuple:
+            inferred = next(node.infer())
+
         # Something at inference time is modifying instance_attrs to add
         # properties from parent classes. Given how much we cache inference
         # results, mutating instance_attrs can become a real mess. Filter
         # them out here until the root cause is solved.
         # https://github.com/pylint-dev/astroid/issues/2273
-        root = node.root()
+        root = inferred.root()
         filtered_attrs = [
-            k for (k, v) in node.instance_attrs.items() if v[0].root() is root
+            k for (k, v) in inferred.instance_attrs.items() if v[0].root() is root
         ]
         if len(filtered_attrs) > self.linter.config.max_attributes:
+            if (node.is_dataclass or is_named_tuple) and not has_public_methods:
+                return
+
             self.add_message(
                 "too-many-instance-attributes",
                 node=node,
