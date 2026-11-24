@@ -161,7 +161,7 @@ class RecommendationChecker(checkers.BaseChecker):
                     ):
                         return
 
-            if subscript_value in (-1, 0):
+            if subscript_value in {-1, 0}:
                 fn_name = node.func.attrname
                 new_fn = "rsplit" if subscript_value == -1 else "split"
                 new_name = (

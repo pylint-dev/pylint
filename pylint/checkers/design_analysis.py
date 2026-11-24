@@ -214,11 +214,11 @@ def _is_exempt_from_public_methods(node: nodes.ClassDef) -> bool:
     for ancestor in node.ancestors():
         if is_enum(ancestor):
             return True
-        if ancestor.qname() in (
+        if ancestor.qname() in {
             TYPING_NAMEDTUPLE,
             TYPING_TYPEDDICT,
             TYPING_EXTENSIONS_TYPEDDICT,
-        ):
+        }:
             return True
 
     # Or if it's a dataclass

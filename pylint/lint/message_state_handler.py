@@ -361,7 +361,7 @@ class _MessageStateHandler:
                 seen_newline = False
 
             prev_line = start[0]
-            if tok_type in (tokenize.NL, tokenize.NEWLINE):
+            if tok_type in {tokenize.NL, tokenize.NEWLINE}:
                 seen_newline = True
 
             if tok_type != tokenize.COMMENT:
