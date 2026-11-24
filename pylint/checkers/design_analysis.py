@@ -498,6 +498,7 @@ class MisdesignChecker(BaseChecker):
         )
         has_public_methods = False
         if node.is_dataclass or is_named_tuple:
+            # Only the methods defined in the current class count
             has_public_methods = (
                 next(
                     (
