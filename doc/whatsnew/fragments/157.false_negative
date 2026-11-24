@@ -1,0 +1,6 @@
+Fix a false negative for ``used-before-assignment`` and ``possibly-used-before-assignment``
+when a name bound by ``except ... as name:`` is used after the handler, where Python has
+already deleted it. This was missed when the name had been used before, for example inside
+the handler or before the ``try`` statement.
+
+Closes #157
