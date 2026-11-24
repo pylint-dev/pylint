@@ -1,0 +1,5 @@
+Fixed a false positive for ``undefined-variable`` when a method return type annotation
+refers to its own class when that class is defined inside a function scope and
+postponed evaluation of annotations is enabled.
+
+Closes #8145
