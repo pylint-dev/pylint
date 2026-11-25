@@ -398,7 +398,7 @@ Standard Checkers
 
 --py-version
 """"""""""""
-*Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
+*Minimum Python version to use for version dependent checks. Will default to the lower bound of 'requires-python' in the closest pyproject.toml, or to the version used to run pylint when there is no such lower bound to read.*
 
 **Default:**  ``sys.version_info[:2]``
 

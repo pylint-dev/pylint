@@ -1,0 +1,8 @@
+``py-version`` now defaults to the lower bound of ``requires-python`` in the closest
+``pyproject.toml``, instead of to the interpreter running pylint. Projects that support
+an older Python than the one they develop on will see the version dependent checks fire
+where they used to stay silent, for instance ``using-generic-type-syntax-in-unsupported-version``.
+Set ``py-version`` explicitly to keep the old behaviour. Only ``>=`` and ``~=`` lower
+bounds are read; anything else still falls back to the running interpreter.
+
+Closes #11688

@@ -5,12 +5,18 @@
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
 
 from git import GitCommandError
 from git.repo import Repo
+
+from pylint.config.find_default_config_files import (
+    PYPROJECT_NAME,
+    find_default_py_version,
+)
 
 PRIMER_DIRECTORY_PATH = Path("tests") / ".pylint_primer_tests"
 
@@ -84,7 +90,39 @@ class PackageToLint:
         options: list[str] = []
         # There is an error if rcfile is given but does not exist
         options += [f"--rcfile={self.pylintrc}"]
+        if py_version := self.py_version:
+            options.append(f"--py-version={py_version}")
         return self.paths_to_lint + options + self.pylint_additional_args
+
+    @property
+    def py_version(self) -> str | None:
+        """The 'py-version' the package gets when linted from its own directory.
+
+        The primer lints from pylint's directory, where 'py-version' would come
+        from pylint's own 'requires-python' instead. ``None`` when the package
+        sets it in its own configuration, or has no lower bound to read.
+        """
+        if (
+            self.pylintrc
+            and self.pylintrc.is_file()
+            and re.search(
+                r"^\s*py[-_]version\s*[=:]",
+                self.pylintrc.read_text(encoding="utf-8"),
+                re.MULTILINE,
+            )
+        ):
+            return None
+        # I.e. a repository of several packages has a pyproject.toml in each of them
+        directory = self.clone_directory / self.directories[0]
+        while True:
+            if (directory / PYPROJECT_NAME).is_file():
+                py_version = find_default_py_version(directory / PYPROJECT_NAME)
+                return (
+                    ".".join(str(part) for part in py_version) if py_version else None
+                )
+            if directory in {self.clone_directory, directory.parent}:
+                return None
+            directory = directory.parent
 
     def lazy_clone(self) -> str:  # pragma: no cover
         """Concatenates the target directory and clones the file.

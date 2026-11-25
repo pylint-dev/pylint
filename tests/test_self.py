@@ -29,6 +29,7 @@ from unittest.mock import patch
 import pytest
 
 from pylint import extensions, modify_sys_path
+from pylint.config.find_default_config_files import find_default_py_version
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES_STATUS
 from pylint.lint.pylinter import PyLinter
 from pylint.message import Message
@@ -351,8 +352,11 @@ class TestRunTC:
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue().strip())
 
+        # pylint reads its own 'requires-python' when linting its own tree
+        py_version = ".".join(str(part) for part in find_default_py_version() or ())
         expected_output = textwrap.dedent(f"""
         Using config file pylint/testutils/testing_pylintrc
+        Using py-version {py_version} from 'requires-python'
         Get ASTs.
         AST for {module2}
         AST for {module1}
