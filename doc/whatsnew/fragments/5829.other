@@ -1,0 +1,4 @@
+Document how a reporter plugin can have its own options. The plugin registers a
+checker that holds the options and the reporter reads them from the linter config.
+
+Closes #5829
