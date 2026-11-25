@@ -122,21 +122,13 @@ class DocStringChecker(_BasicChecker):
                 return
 
             if isinstance(node.parent.frame(), nodes.ClassDef):
-                overridden = False
                 confidence = (
                     interfaces.INFERENCE
                     if utils.has_known_bases(node.parent.frame())
                     else interfaces.INFERENCE_FAILURE
                 )
                 # check if node is from a method overridden by its ancestor
-                for ancestor in node.parent.frame().ancestors():
-                    if ancestor.qname() == "builtins.object":
-                        continue
-                    if node.name in ancestor and isinstance(
-                        ancestor[node.name], nodes.FunctionDef
-                    ):
-                        overridden = True
-                        break
+                overridden = utils.overrides_a_method(node.parent.frame(), node.name)
                 self._check_docstring(
                     ftype, node, report_missing=not overridden, confidence=confidence  # type: ignore[arg-type]
                 )

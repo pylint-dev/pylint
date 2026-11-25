@@ -1,0 +1,4 @@
+``missing-function-docstring`` is no longer emitted for a method that overrides a method
+of a subscripted base class whose subscription cannot be inferred.
+
+Closes #7934
