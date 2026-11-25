@@ -1496,6 +1496,12 @@ Unsupported Version checker Messages
 :using-lazy-import-in-unsupported-version (W2608): *Lazy imports are not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.15 and pylint
   encounters the ``lazy`` import added by PEP 810.
+:useless-version-check (W2609): *'%s' is always %s for the Python versions supported by py-version (%s)*
+  Emitted when a ``sys.version_info`` comparison can only have one outcome for
+  the interpreters allowed by the py-version setting, so the branch it guards
+  is dead code. Disabled by default: it is meant to be run once when you drop
+  the maintenance of a Python interpreter, and py-version defaults to the
+  interpreter running pylint rather than to the oldest one you support.
 
 
 .. _variables-checker:
