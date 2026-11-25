@@ -542,6 +542,7 @@ All messages in the convention category:
    convention/multiple-statements
    convention/non-ascii-module-import
    convention/non-ascii-name
+   convention/non-standard-exit-argument-names
    convention/single-string-used-for-slots
    convention/singleton-comparison
    convention/superfluous-parens
