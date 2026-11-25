@@ -1,0 +1,5 @@
+``deprecated-method`` now reports ``glob.glob0()`` and ``glob.glob1()``, and
+``deprecated-class`` now reports ``typing._UnionGenericAlias``. The entries were in the
+wrong table or misspelled, so they could never match.
+
+Closes #11765

@@ -6,3 +6,4 @@ deprecated-class:13:0:13:29::Using deprecated class MacOSX of module webbrowser:
 deprecated-class:15:0:15:17::Using deprecated class Hashable of module typing:UNDEFINED
 deprecated-class:16:0:16:26::Using deprecated class SafeChildWatcher of module asyncio:UNDEFINED
 deprecated-class:17:0:17:32::Using deprecated class DefaultEventLoopPolicy of module asyncio:UNDEFINED
+deprecated-class:18:0:18:51::Using deprecated class _UnionGenericAlias of module typing:UNDEFINED

@@ -3,7 +3,7 @@
 The classes deprecated in an older version must still be reported when a newer
 version adds more deprecated classes to the same module.
 """
-# pylint: disable=unused-import,import-error,no-name-in-module,abstract-class-instantiated
+# pylint: disable=unused-import,import-error,no-name-in-module,abstract-class-instantiated,protected-access
 
 import asyncio
 import typing
@@ -15,3 +15,4 @@ from webbrowser import MacOSX  # [deprecated-class]
 typing.Hashable()  # [deprecated-class]
 asyncio.SafeChildWatcher()  # [deprecated-class]
 asyncio.DefaultEventLoopPolicy()  # [deprecated-class]
+typing._UnionGenericAlias(typing.Union, (int, str))  # [deprecated-class]
