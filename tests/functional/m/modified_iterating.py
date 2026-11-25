@@ -1,7 +1,9 @@
 """Tests for iterating-modified messages"""
+
 # pylint: disable=not-callable,unnecessary-comprehension,too-few-public-methods,missing-class-docstring,missing-function-docstring
 
 import copy
+import os
 from enum import Enum
 
 item_list = [1, 2, 3]
@@ -126,6 +128,7 @@ class MyClass:
 
 class MyClass2:
     """Regression test for https://github.com/pylint-dev/pylint/issues/7461"""
+
     def __init__(self) -> None:
         self.attribute = {}
 
@@ -146,6 +149,7 @@ class MyEnum(Enum):
     FOO = 1
     BAR = 2
 
+
 class EnumClass:
     ENUM_SET = {MyEnum.FOO, MyEnum.BAR}
 
@@ -153,3 +157,58 @@ class EnumClass:
         other_set = set(self.ENUM_SET)
         for obj in self.ENUM_SET:
             other_set.remove(obj)
+
+
+def django_models_base(fields):
+    """Regression test for https://github.com/pylint-dev/pylint/issues/9192."""
+    prefetched_objects_cache = {}
+    for field in fields:
+        if field in prefetched_objects_cache:
+            del prefetched_objects_cache[field]
+            fields.remove(field)  # [modified-iterating-list]
+
+
+def is_ignored_path(path):
+    return path.startswith(".")
+
+
+for dirpath, dirnames, _filenames in os.walk(".", topdown=True):
+    for dirname in dirnames:
+        if is_ignored_path(os.path.join(dirpath, dirname)):
+            dirnames.remove(dirname)  # [modified-iterating-list]
+
+
+def modify_different_uninferable(fields, other):
+    """No message when a different uninferable name is modified."""
+    for field in fields:
+        other.remove(field)
+        other.append(field)
+
+
+def non_modifier_on_uninferable(fields):
+    """No message when an uninferable iterated name is not mutated."""
+    for field in fields:
+        fields.index(field)
+
+
+def shadowed_uninferable_binding(fields):
+    """No message when the receiver is a different binding of the same name."""
+    for field in fields:
+
+        def inner(fields):
+            fields.remove(None)
+
+        inner(field)
+
+
+def modify_while_iterating_attribute(container, items):
+    """No message when the iterated object is an attribute rather than a name."""
+    for entry in container.items:
+        items.remove(entry)
+
+
+def ambiguous_iterated_value(cond):
+    """Emit when inference of the iterated name is ambiguous."""
+    values = [1, 2, 3] if cond else {1, 2, 3}
+    for value in values:
+        values.remove(value)  # [modified-iterating-list]
