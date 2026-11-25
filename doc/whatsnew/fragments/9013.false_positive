@@ -1,0 +1,3 @@
+Fix a false positive for ``abstract-class-instantiated`` when an ``attrs`` field implements an abstract property.
+
+Refs #9013
