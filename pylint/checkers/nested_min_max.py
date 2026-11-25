@@ -85,6 +85,12 @@ class NestedMinMaxChecker(BaseChecker):
         inferred = self.maybe_get_inferred_min_max_call(node)
         if inferred is None:
             return
+        # A keyword on the outer call (e.g. ``key=``) would apply to the lifted
+        # arguments too, while the inner call compared them without it, so the
+        # flattened call is not equivalent: ``max(0, max(-5, 1), key=abs)`` is
+        # ``1`` but ``max(0, -5, 1, key=abs)`` is ``-5``.
+        if node.keywords:
+            return
 
         redundant_calls = self.get_redundant_calls(node, inferred)
         if not redundant_calls:
