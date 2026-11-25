@@ -1,0 +1,3 @@
+missing-type-doc:7:0:7:31:unannotated_positional_only:"""param1"" missing in parameter type documentation":HIGH
+missing-type-doc:45:4:45:26:MyClass.unannotated_second:"""param2"" missing in parameter type documentation":HIGH
+missing-type-doc:56:4:56:27:MyClass.all_positional_only:"""param1"" missing in parameter type documentation":HIGH
