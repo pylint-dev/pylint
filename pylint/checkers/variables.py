@@ -2125,7 +2125,10 @@ class VariablesChecker(BaseChecker):
                                 nodes.Arguments,
                             ),
                         )
-                        and node.name in node.root().locals
+                        and (
+                            node.name in node.root().locals
+                            or node.name in current_consumer.node.locals
+                        )
                     ):
                         if defined_by_stmt:
                             return (VariableVisitConsumerAction.CONTINUE, [node])
