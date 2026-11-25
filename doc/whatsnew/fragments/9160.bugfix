@@ -1,0 +1,4 @@
+Fixed a false positive for ``import-private-name`` when importing from a sibling
+module or regular package in the same directory as the file being checked.
+
+Closes #9160
