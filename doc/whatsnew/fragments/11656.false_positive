@@ -1,0 +1,6 @@
+Fix a false positive for ``useless-suppression`` when disabling ``deprecated-module``,
+``deprecated-method``, ``deprecated-argument``, ``deprecated-class`` or
+``deprecated-decorator``. These messages were meant to be exempt, but the exemption
+still used their message ids from before they were renumbered.
+
+Closes #11656
