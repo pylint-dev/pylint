@@ -682,7 +682,7 @@ class TestRunTC:
 
     @pytest.mark.parametrize("quotes", ['"""', "'''", '"', "'"])
     def test_docstyle_utf8_bom(self, tmp_path: Path, quotes: str) -> None:
-        """A UTF-8 signature is not part of the module docstring's quotes."""
+        """A UTF-8 signature is not part of the quotes around a module docstring."""
         target = tmp_path / "docstyle_bom.py"
         target.write_bytes(b"\xef\xbb\xbf" + f"{quotes}Docstring.{quotes}\n".encode())
         self._runtest(

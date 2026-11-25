@@ -43,7 +43,7 @@ class DocStringStyleChecker(checkers.BaseChecker):
         # Keep the checked source, which can differ from the file when linting stdin.
         with node.stream() as stream:
             source = stream.read().removeprefix(codecs.BOM_UTF8)
-            # AST line numbers follow universal newlines, not just LF.
+            # AST line numbers follow universal newlines, including carriage returns.
             source = source.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
         self._source_lines = source.split(b"\n")
         self._check_docstring("module", node)
