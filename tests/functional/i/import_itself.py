@@ -1,5 +1,5 @@
 """test module importing itself"""
-# pylint: disable=using-constant-test
+# pylint: disable=using-constant-test,misplaced-module-dunder
 from . import import_itself  # [import-self]
 
 __revision__ = 0

@@ -42,6 +42,15 @@ messages nor reports. XXX not true, emit a 07 report !
 
 from __future__ import annotations
 
+__all__ = [
+    "BaseChecker",
+    "BaseRawFileChecker",
+    "BaseTokenChecker",
+    "DeprecatedMixin",
+    "initialize",
+    "register_plugins",
+]
+
 from typing import TYPE_CHECKING, Literal
 
 from pylint.checkers.base_checker import (
@@ -128,13 +137,3 @@ def table_lines_from_stats(
 def initialize(linter: PyLinter) -> None:
     """Initialize linter with checkers in this package."""
     register_plugins(linter, __path__[0])
-
-
-__all__ = [
-    "BaseChecker",
-    "BaseRawFileChecker",
-    "BaseTokenChecker",
-    "DeprecatedMixin",
-    "initialize",
-    "register_plugins",
-]
