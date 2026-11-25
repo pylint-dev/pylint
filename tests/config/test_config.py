@@ -113,6 +113,17 @@ def test_several_output_formats_writing_to_stdout(
     assert "only one output format can write to stdout" in output.err
 
 
+def test_unknown_output_format_is_a_usage_error(
+    capsys: CaptureFixture,
+) -> None:
+    """Check that an unknown output format is reported, not raised as a traceback."""
+    with pytest.raises(SystemExit):
+        Run([str(EMPTY_MODULE), "--output-format=bogus"], exit=False)
+    output = capsys.readouterr()
+    assert "usage: pylint" in output.err
+    assert "unknown output format 'bogus'" in output.err
+
+
 def test_one_output_format_writing_to_stdout(tmp_path: Path) -> None:
     """Formats sent to a file can be combined with one format on stdout."""
     json_file = tmp_path / "out.json"
