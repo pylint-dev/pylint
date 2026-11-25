@@ -335,6 +335,17 @@ class TestRunTC:
             actual_output = actual_output[actual_output.find("\n") :]
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
+    def test_redefined_outer_name_from_another_module(self) -> None:
+        """An attribute set on a module by another module is not an outer name."""
+        demo = join(HERE, "regrtest_data", "regression_8880", "demo.py")
+        test_demo = join(HERE, "regrtest_data", "regression_8880", "test_demo.py")
+        out = StringIO()
+        self._run_pylint(
+            [demo, test_demo, "--disable=all", "--enable=redefined-outer-name", "-sn"],
+            out=out,
+        )
+        assert "redefined-outer-name" not in out.getvalue()
+
     def test_progress_reporting(self) -> None:
         module1 = join(HERE, "regrtest_data", "import_something.py")
         module2 = join(HERE, "regrtest_data", "wrong_import_position.py")
