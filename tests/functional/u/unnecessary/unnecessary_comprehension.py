@@ -54,3 +54,15 @@ ITEMS = {k: v for k, v in my_dict.items()} # [unnecessary-comprehension]
 # ``dict(d)``, which would just copy the dict (#8256).
 DICT_WITH_TUPLE_KEYS = {(1, 2): 3}
 {a: b for a, b in DICT_WITH_TUPLE_KEYS}  # [unnecessary-comprehension]
+
+# Rebuilding tuples from inner lists or strings changes the items, so it is not
+# unnecessary (#8577). Iterables whose items cannot be inferred are still reported.
+LIST_OF_LISTS = [[1, 2], [3, 4]]
+[(x, y) for x, y in LIST_OF_LISTS]
+{(x, y) for x, y in LIST_OF_LISTS}
+[(x, y) for x, y in ["ab", "cd"]]
+LIST_OF_TUPLES = [(1, 2), (3, 4)]
+[(x, y) for x, y in LIST_OF_TUPLES]  # [unnecessary-comprehension]
+{(x, y) for x, y in LIST_OF_TUPLES}  # [unnecessary-comprehension]
+[x for x in LIST_OF_LISTS]  # [unnecessary-comprehension]
+{x: y for x, y in LIST_OF_LISTS}  # [unnecessary-comprehension]
