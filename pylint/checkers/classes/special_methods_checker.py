@@ -198,16 +198,17 @@ class SpecialMethodsChecker(BaseChecker):
         if expected_params is None:
             # This can support a variable number of parameters.
             return
-        if not node.args.args and not node.args.vararg:
+        if not node.args.posonlyargs and not node.args.args and not node.args.vararg:
             # Method has no parameter, will be caught
             # by no-method-argument.
             return
 
+        positional = [*node.args.posonlyargs, *node.args.args]
         if decorated_with(node, ["builtins.staticmethod"]):
             # We expect to not take in consideration self.
-            all_args = node.args.args
+            all_args = positional
         else:
-            all_args = node.args.args[1:]
+            all_args = positional[1:]
         mandatory = len(all_args) - len(node.args.defaults)
         optional = len(node.args.defaults)
         current_params = mandatory + optional

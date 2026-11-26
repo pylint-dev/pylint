@@ -1,0 +1,3 @@
+Fixed a false positive for ``unexpected-special-method-signature`` when ``self`` is positional-only, as in ``def __exit__(self, /, exc_type, value, tb)``. Positional-only parameters are now counted with the other positional parameters.
+
+Closes #11878

@@ -137,3 +137,40 @@ class Philosopher:
 
 class AustralianPhilosopher(Philosopher, default_name="Bruce"):
     pass
+
+
+class PositionalOnlySelf:
+    def __enter__(self, /):
+        return self
+
+    def __exit__(self, /, exc_type, value, tb):
+        pass
+
+    def __getitem__(self, /, key):
+        pass
+
+    def __setattr__(self, name, value, /):
+        pass
+
+    def __format__(self, /, format_spec=''):
+        pass
+
+    def __index__(self, n=42, /):
+        pass
+
+
+class PositionalOnlyStatic:
+    @staticmethod
+    def __getitem__(index, /):
+        pass
+
+
+class PositionalOnlyBad:
+    def __enter__(self, other, /):  # [unexpected-special-method-signature]
+        pass
+
+    def __exit__(self, /, exc_type):  # [unexpected-special-method-signature]
+        pass
+
+    def __getitem__(self, /):  # [unexpected-special-method-signature]
+        pass
