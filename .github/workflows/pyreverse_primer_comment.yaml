@@ -38,7 +38,7 @@ jobs:
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: venv
           key: >-
@@ -75,8 +75,15 @@ jobs:
       - name: Unzip outputs
         if: steps.download-outputs.outputs.found == 'true'
         run: |
-          unzip pyreverse_primer_output_main.zip
-          unzip pyreverse_primer_output_pr.zip
+          ARTIFACTS_DIR="$RUNNER_TEMP/primer_artifacts"
+          mkdir -p "$ARTIFACTS_DIR"
+          unzip -o pyreverse_primer_output_main.zip \
+            "pyreverse_output_${DEFAULT_PYTHON}_main.txt" -d "$ARTIFACTS_DIR"
+          unzip -o pyreverse_primer_output_pr.zip \
+            "pyreverse_output_${DEFAULT_PYTHON}_pr.txt" -d "$ARTIFACTS_DIR"
+          if [ -n "$(find "$ARTIFACTS_DIR" -type l)" ]; then
+            echo "Artifacts must not contain symlinks" && exit 1
+          fi
       - name: Check label state
         id: check-label
         if: steps.download-outputs.outputs.found == 'true'
@@ -104,8 +111,8 @@ jobs:
           . venv/bin/activate
           python tests/primer/pyreverse_primer.py compare \
           --commit=${GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA} \
-          --base-file=pyreverse_output_${{ env.DEFAULT_PYTHON }}_main.txt \
-          --new-file=pyreverse_output_${{ env.DEFAULT_PYTHON }}_pr.txt
+          --base-file="$RUNNER_TEMP/primer_artifacts/pyreverse_output_${{ env.DEFAULT_PYTHON }}_main.txt" \
+          --new-file="$RUNNER_TEMP/primer_artifacts/pyreverse_output_${{ env.DEFAULT_PYTHON }}_pr.txt"
         env:
           GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
       - name: Create or update comment

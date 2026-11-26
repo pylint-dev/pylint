@@ -46,7 +46,7 @@ jobs:
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: venv
           key:
@@ -99,23 +99,28 @@ jobs:
               fs.writeFileSync(`${artifact.name}.zip`, Buffer.from(downloaded.data));
             }
 
+      # Artifacts come from an untrusted run: only extract the expected files,
+      # outside of the workspace and the virtual environment.
       - name: Unzip outputs
         run: |
-          unzip primer_output_main_${{ env.DEFAULT_PYTHON }}_batch0.zip
-          unzip primer_output_main_${{ env.DEFAULT_PYTHON }}_batch1.zip
-          unzip primer_output_main_${{ env.DEFAULT_PYTHON }}_batch2.zip
-          unzip primer_output_main_${{ env.DEFAULT_PYTHON }}_batch3.zip
-          unzip primer_output_pr_${{ env.DEFAULT_PYTHON }}_batch0.zip
-          unzip primer_output_pr_${{ env.DEFAULT_PYTHON }}_batch1.zip
-          unzip primer_output_pr_${{ env.DEFAULT_PYTHON }}_batch2.zip
-          unzip primer_output_pr_${{ env.DEFAULT_PYTHON }}_batch3.zip
+          ARTIFACTS_DIR="$RUNNER_TEMP/primer_artifacts"
+          mkdir -p "$ARTIFACTS_DIR"
+          for batch in 0 1 2 3; do
+            for type in main pr; do
+              unzip -o "primer_output_${type}_${DEFAULT_PYTHON}_batch${batch}.zip" \
+                "output_${DEFAULT_PYTHON}_${type}_batch${batch}.txt" -d "$ARTIFACTS_DIR"
+            done
+          done
+          if [ -n "$(find "$ARTIFACTS_DIR" -type l)" ]; then
+            echo "Artifacts must not contain symlinks" && exit 1
+          fi
       - name: Compare outputs
         run: |
           . venv/bin/activate
           python tests/primer/__main__.py compare \
           --commit=${GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA} \
-          --base-file=output_${{ env.DEFAULT_PYTHON }}_main_BATCHIDX.txt \
-          --new-file=output_${{ env.DEFAULT_PYTHON }}_pr_BATCHIDX.txt \
+          --base-file="$RUNNER_TEMP/primer_artifacts/output_${{ env.DEFAULT_PYTHON }}_main_BATCHIDX.txt" \
+          --new-file="$RUNNER_TEMP/primer_artifacts/output_${{ env.DEFAULT_PYTHON }}_pr_BATCHIDX.txt" \
           --batches=4
         env:
           GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
