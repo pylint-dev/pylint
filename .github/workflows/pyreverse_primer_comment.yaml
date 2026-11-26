@@ -83,7 +83,6 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
-            const fs = require('fs');
             const run = context.payload.workflow_run;
             const { data: prs } = await github.rest.pulls.list({
               owner: context.repo.owner,
@@ -96,7 +95,7 @@ jobs:
               core.setFailed(`No PR found for commit ${run.head_sha}.`);
               return;
             }
-            const hasLabel = pr.data.labels.some((label) => label.name === 'pyreverse');
+            const hasLabel = pr.labels.some((label) => label.name === 'pyreverse');
             core.setOutput('has-label', hasLabel ? 'true' : 'false');
             core.setOutput('pr-number', `${pr.number}`);
       - name: Compare outputs
