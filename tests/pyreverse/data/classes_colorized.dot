@@ -10,8 +10,8 @@ charset="utf-8"
 "data.nullable_pattern.NullablePatterns" [color="#77AADD", fontcolor="black", label=<{NullablePatterns|<br ALIGN="LEFT"/>|<I>return_nullable_1</I>(): int \| None<br ALIGN="LEFT"/><I>return_nullable_2</I>(): Optional[int]<br ALIGN="LEFT"/>}>, shape="record", style="filled"];
 "data.property_pattern.PropertyPatterns" [color="#77AADD", fontcolor="black", label=<{PropertyPatterns|prop1<br ALIGN="LEFT"/>prop2<br ALIGN="LEFT"/>|}>, shape="record", style="filled"];
 "data.clientmodule_test.Specialization" [color="#77AADD", fontcolor="black", label=<{Specialization|TYPE : str<br ALIGN="LEFT"/>relation<br ALIGN="LEFT"/>relation2<br ALIGN="LEFT"/>top : str<br ALIGN="LEFT"/>|from_value(value: int)<br ALIGN="LEFT"/>increment_value(): None<br ALIGN="LEFT"/>transform_value(value: int): int<br ALIGN="LEFT"/>}>, shape="record", style="filled"];
-"data.clientmodule_test.Specialization" -> "data.clientmodule_test.Ancestor" [arrowhead="empty", arrowtail="none"];
-"data.suppliermodule_test.DoNothing" -> "data.clientmodule_test.Ancestor" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="cls_member", style="solid"];
-"data.suppliermodule_test.DoNothing" -> "data.clientmodule_test.Specialization" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="relation", style="solid"];
-"data.suppliermodule_test.DoNothing2" -> "data.clientmodule_test.Specialization" [arrowhead="odiamond", arrowtail="none", fontcolor="green", label="relation2", style="solid"];
+"data.clientmodule_test.Specialization" -> "data.clientmodule_test.Ancestor" [arrowhead="empty", arrowtail="none", color="black"];
+"data.suppliermodule_test.DoNothing" -> "data.clientmodule_test.Ancestor" [arrowhead="diamond", arrowtail="none", color="black", fontcolor="green", label="cls_member", style="solid"];
+"data.suppliermodule_test.DoNothing" -> "data.clientmodule_test.Specialization" [arrowhead="diamond", arrowtail="none", color="black", fontcolor="green", label="relation", style="solid"];
+"data.suppliermodule_test.DoNothing2" -> "data.clientmodule_test.Specialization" [arrowhead="odiamond", arrowtail="none", color="black", fontcolor="green", label="relation2", style="solid"];
 }

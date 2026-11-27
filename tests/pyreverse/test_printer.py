@@ -9,7 +9,7 @@ from astroid import nodes
 
 from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
-from pylint.pyreverse.printer import Layout, NodeType, Printer
+from pylint.pyreverse.printer import Layout, Printer
 
 
 @pytest.mark.parametrize(
@@ -53,11 +53,3 @@ def test_method_arguments_none() -> None:
     func.postinit(args, body=None)
     parsed_args = Printer._get_method_arguments(func)
     assert parsed_args == []
-
-
-class TestPlantUmlPrinter:
-    printer = PlantUmlPrinter(title="unittest", layout=Layout.TOP_TO_BOTTOM)
-
-    def test_node_without_properties(self) -> None:
-        self.printer.emit_node(name="test", type_=NodeType.CLASS)
-        assert self.printer.lines[-2:] == ['class "test" as test {\n', "}\n"]

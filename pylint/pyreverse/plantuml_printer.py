@@ -13,7 +13,21 @@ from pylint.pyreverse.utils import get_annotation_label
 class PlantUmlPrinter(Printer):
     """Printer for PlantUML diagrams."""
 
-    DEFAULT_COLOR = "black"
+    THEME_COLORS: dict[str, dict[str, str]] = {
+        "light": {
+            "color": "black",
+            "fontcolor": "black",
+            "filled_fontcolor": "black",
+            "bgcolor": "white",
+        },
+        "dark": {
+            "color": "#e0e0e0",
+            "fontcolor": "#e0e0e0",
+            # The fill colors are pale, whatever the theme
+            "filled_fontcolor": "black",
+            "bgcolor": "#1e1e1e",
+        },
+    }
 
     NODES: dict[NodeType, str] = {
         NodeType.CLASS: "class",
@@ -31,6 +45,28 @@ class PlantUmlPrinter(Printer):
     def _open_graph(self) -> None:
         """Emit the header lines."""
         self.emit("@startuml " + self.title)
+        if self.theme == "dark":
+            theme_colors = self.THEME_COLORS["dark"]
+            self.emit(f'skinparam backgroundColor {theme_colors["bgcolor"]}')
+            # Covers the text that is neither in a class nor in a package,
+            # such as the label of an edge.
+            self.emit(f'skinparam defaultFontColor {theme_colors["fontcolor"]}')
+            self.emit("skinparam package {")
+            self._inc_indent()
+            self.emit(f'BackgroundColor {theme_colors["bgcolor"]}')
+            self.emit(f'BorderColor {theme_colors["color"]}')
+            self.emit(f'FontColor {theme_colors["fontcolor"]}')
+            self._dec_indent()
+            self.emit("}")
+            self.emit("skinparam class {")
+            self._inc_indent()
+            self.emit(f'BackgroundColor {theme_colors["bgcolor"]}')
+            self.emit(f'BorderColor {theme_colors["color"]}')
+            self.emit(f'FontColor {theme_colors["fontcolor"]}')
+            self.emit(f'AttributeFontColor {theme_colors["fontcolor"]}')
+            self.emit(f'ArrowColor {theme_colors["color"]}')
+            self._dec_indent()
+            self.emit("}")
         if not self.use_automatic_namespace:
             self.emit("set namespaceSeparator none")
         if self.layout:
@@ -56,9 +92,17 @@ class PlantUmlPrinter(Printer):
         """
         if properties is None:
             properties = NodeProperties(label=name)
+        theme_colors = self.THEME_COLORS.get(self.theme, self.THEME_COLORS["light"])
+        default_color = theme_colors["color"]
         nodetype = self.NODES[type_]
-        if properties.color and properties.color != self.DEFAULT_COLOR:
-            color = f" #{properties.color.lstrip('#')}"
+        node_color = properties.color if properties.color is not None else default_color
+        if node_color != default_color:
+            color = f" #{node_color.lstrip('#')}"
+            filled_fontcolor = theme_colors["filled_fontcolor"]
+            if filled_fontcolor != theme_colors["fontcolor"]:
+                # Unlike a color tag on the label, this also applies to the
+                # attributes and the methods.
+                color += f";text:{filled_fontcolor}"
         else:
             color = ""
         body = []
@@ -76,8 +120,14 @@ class PlantUmlPrinter(Printer):
                     line += f"{func.name}()"
                 body.append(line)
         label = properties.label if properties.label is not None else name
-        if properties.fontcolor and properties.fontcolor != self.DEFAULT_COLOR:
-            label = f"<color:{properties.fontcolor}>{label}</color>"
+        default_fontcolor = theme_colors["fontcolor"]
+        fontcolor = (
+            properties.fontcolor
+            if properties.fontcolor is not None
+            else default_fontcolor
+        )
+        if fontcolor != default_fontcolor:
+            label = f"<color:{fontcolor}>{label}</color>"
         self.emit(f'{nodetype} "{label}" as {name}{color} {{')
         self._inc_indent()
         for line in body:
