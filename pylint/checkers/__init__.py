@@ -50,6 +50,10 @@ from pylint.checkers.base_checker import (
     BaseTokenChecker,
 )
 from pylint.checkers.deprecated import DeprecatedMixin
+from pylint.checkers.nonsensical_args import (
+    NonsensicalArgument,
+    NonsensicalArgumentsMixin,
+)
 from pylint.utils import LinterStats, diff_string, register_plugins
 
 if TYPE_CHECKING:
@@ -135,6 +139,8 @@ __all__ = [
     "BaseRawFileChecker",
     "BaseTokenChecker",
     "DeprecatedMixin",
+    "NonsensicalArgument",
+    "NonsensicalArgumentsMixin",
     "initialize",
     "register_plugins",
 ]
