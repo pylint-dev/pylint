@@ -1,0 +1,4 @@
+Fix a false negative for ``missing-parentheses-for-call-in-test`` when the test is a
+method accessed through an instance or a class, such as ``if self.is_on:``.
+
+Closes #8680

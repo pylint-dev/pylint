@@ -128,3 +128,48 @@ def _cpu_count() -> int:
         print(sched_getaffinity)
     elif multiprocessing:
         multiprocessing.cpu_count()
+
+
+class Thing:
+    """Regression test for https://github.com/pylint-dev/pylint/issues/8680"""
+
+    def __init__(self):
+        self.status = "off"
+
+    def is_on(self):
+        return self.status == "on"
+
+    @classmethod
+    def is_supported(cls):
+        return True
+
+    @property
+    def is_off(self):
+        return self.status == "off"
+
+    def check(self):
+        if self.is_on:  # [missing-parentheses-for-call-in-test]
+            pass
+        if self.is_off:
+            pass
+
+
+my_thing = Thing()
+
+if my_thing.is_on:  # [missing-parentheses-for-call-in-test]
+    pass
+
+if not my_thing.is_on():
+    pass
+
+if my_thing.is_off:
+    pass
+
+if Thing.is_on:  # [missing-parentheses-for-call-in-test]
+    pass
+
+if Thing.is_supported:  # [missing-parentheses-for-call-in-test]
+    pass
+
+if my_thing.is_supported:  # [missing-parentheses-for-call-in-test]
+    pass
