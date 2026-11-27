@@ -195,6 +195,31 @@ class TestRunTC:
     def test_no_ext_file(self) -> None:
         self._runtest([join(HERE, "input", "noext")], code=0)
 
+    @staticmethod
+    def test_no_ext_file_named_after_its_directory(tmp_path: Path) -> None:
+        package = tmp_path / "test_script_8050"
+        package.mkdir()
+        script = package / package.name
+        script.write_text("print(undefined_name)\n", encoding="utf-8")
+
+        args = _add_rcfile_default_pylintrc(
+            [
+                "--persistent=no",
+                "--disable=all",
+                "--enable=undefined-variable",
+                str(script.relative_to(tmp_path)),
+            ]
+        )
+        result = subprocess.run(
+            [sys.executable, "-m", "pylint", *args],
+            cwd=tmp_path,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert result.returncode == 2, result.stderr
+        assert "E0602: Undefined variable 'undefined_name'" in result.stdout
+
     def test_w0704_ignored(self) -> None:
         self._runtest([join(HERE, "input", "ignore_except_pass_by_default.py")], code=0)
 

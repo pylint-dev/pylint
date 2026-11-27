@@ -1,0 +1,4 @@
+Pylint now checks explicitly supplied extensionless scripts whose names match their
+parent directories.
+
+Closes #8050

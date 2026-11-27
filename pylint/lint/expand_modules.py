@@ -195,17 +195,22 @@ def expand_modules(
                 continue
         filepath = os.path.normpath(filepath)
         modparts = (modname or something).split(".")
-        try:
-            spec = modutils.file_info_from_modpath(
-                modparts, path=additional_search_path
-            )
-        except ImportError:
-            # Might not be acceptable, don't crash.
-            is_namespace = not os.path.exists(filepath)
-            is_directory = os.path.isdir(something)
+        if os.path.isfile(something):
+            # A module lookup can resolve the name of an explicit file to a
+            # different target, such as the parent directory of an extensionless script.
+            is_namespace = is_directory = False
         else:
-            is_namespace = modutils.is_namespace(spec)
-            is_directory = modutils.is_directory(spec)
+            try:
+                spec = modutils.file_info_from_modpath(
+                    modparts, path=additional_search_path
+                )
+            except ImportError:
+                # Might not be acceptable, don't crash.
+                is_namespace = not os.path.exists(filepath)
+                is_directory = os.path.isdir(something)
+            else:
+                is_namespace = modutils.is_namespace(spec)
+                is_directory = modutils.is_directory(spec)
         if not is_namespace:
             default: ModuleDescriptionDict = {
                 "path": filepath,
