@@ -1,0 +1,1 @@
+Extend `broad-exception-caught` to detect broad exceptions suppressed by `contextlib.suppress`.
