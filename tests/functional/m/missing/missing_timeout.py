@@ -83,3 +83,60 @@ request("call", "http://localhost", timeout=10)
 
 KWARGS_TIMEOUT = {'timeout': 10}
 post("http://localhost", **KWARGS_TIMEOUT)
+
+# requests.Session methods without timeout
+requests.Session().get("http://localhost")  # [missing-timeout]
+
+session = requests.Session()
+session.delete("http://localhost")  # [missing-timeout]
+session.get("http://localhost")  # [missing-timeout]
+session.head("http://localhost")  # [missing-timeout]
+session.options("http://localhost")  # [missing-timeout]
+session.patch("http://localhost")  # [missing-timeout]
+session.post("http://localhost")  # [missing-timeout]
+session.put("http://localhost")  # [missing-timeout]
+session.request("call", "http://localhost")  # [missing-timeout]
+session.post("http://localhost", **KWARGS_WO_TIMEOUT)  # [missing-timeout]
+
+requests.Session.get(session, "http://localhost")  # [missing-timeout]
+
+with requests.Session() as managed_session:
+    managed_session.get("http://localhost")  # [missing-timeout]
+
+
+# pylint: disable=missing-class-docstring,missing-function-docstring,too-few-public-methods
+
+
+class Client:
+    def __init__(self):
+        self.session = requests.Session()
+
+    def fetch(self):
+        return self.session.get("http://localhost")  # [missing-timeout]
+
+
+class CustomSession(requests.Session):
+    pass
+
+
+CustomSession().get("http://localhost")  # [missing-timeout]
+
+# requests.Session valid cases
+requests.Session().get("http://localhost", timeout=10)
+
+session.delete("http://localhost", timeout=10)
+session.get("http://localhost", timeout=10)
+session.head("http://localhost", timeout=10)
+session.options("http://localhost", timeout=10)
+session.patch("http://localhost", timeout=10)
+session.post("http://localhost", timeout=10)
+session.put("http://localhost", timeout=10)
+session.request("call", "http://localhost", timeout=10)
+session.post("http://localhost", **KWARGS_TIMEOUT)
+
+requests.Session.get(session, "http://localhost", timeout=10)
+
+with requests.Session() as managed_session:
+    managed_session.get("http://localhost", timeout=10)
+
+CustomSession().get("http://localhost", timeout=10)
