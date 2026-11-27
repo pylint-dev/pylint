@@ -40,6 +40,13 @@ Filtering and Scope
 **Default:**  ``None``
 
 
+--all-derived
+-------------
+*Show all derived classes of the selected classes, including indirect descendants.*
+
+**Default:**  ``False``
+
+
 --class
 -------
 *Create a class diagram with all classes related to <class>; this uses by default the options -ASmy*

@@ -111,6 +111,16 @@ OPTIONS: Options = (
         },
     ),
     (
+        "all-derived",
+        {
+            "short": "D",
+            "default": False,
+            "action": "store_true",
+            "group": OPTIONS_GROUPS["FILTERING"],
+            "help": "Show all derived classes of the selected classes, including indirect descendants.",
+        },
+    ),
+    (
         "show-associated",
         {
             "short": "s",
