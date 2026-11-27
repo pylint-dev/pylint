@@ -517,6 +517,25 @@ def overrides_a_method(class_node: nodes.ClassDef, name: str) -> bool:
             continue
         if name in ancestor and isinstance(ancestor[name], nodes.FunctionDef):
             return True
+    # A subscripted base (e.g. ``Base[arg]``) may fail to infer, for instance
+    # when ``arg`` is an instance without ``__index__``. Fall back on the
+    # subscripted value, which is the class being specialized.
+    for base in class_node.bases:
+        if not isinstance(base, nodes.Subscript) or isinstance(
+            safe_infer(base), nodes.ClassDef
+        ):
+            continue
+        value = base.value
+        while isinstance(value, nodes.Subscript):
+            value = value.value
+        base_class = safe_infer(value)
+        if not isinstance(base_class, nodes.ClassDef):
+            continue
+        for ancestor in (base_class, *base_class.ancestors()):
+            if ancestor.name == "object":
+                continue
+            if name in ancestor and isinstance(ancestor[name], nodes.FunctionDef):
+                return True
     return False
 
 
