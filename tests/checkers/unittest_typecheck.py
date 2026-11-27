@@ -281,3 +281,143 @@ class TestTypeCheckerStringDistance:
 
         seq1, seq2 = seq2, seq1
         assert typecheck._string_distance(seq1, seq2, len(seq1), len(seq2)) == 6
+
+
+class TestDataclassFieldAliases(CheckerTestCase):
+    """Tests for dataclass field alias support (issue #9090)."""
+
+    CHECKER_CLASS = typecheck.TypeChecker
+
+    def test_dataclass_field_alias_accepted(self) -> None:
+        module = astroid.parse("""
+        from pydantic import Field
+        from pydantic.dataclasses import dataclass
+
+        @dataclass
+        class Example:
+            number: int = Field(alias='n')
+
+        example = Example(n=5)
+        """)
+        call_node = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_call(call_node)
+
+    def test_dataclass_field_name_accepted(self) -> None:
+        module = astroid.parse("""
+        from pydantic import Field
+        from pydantic.dataclasses import dataclass
+
+        @dataclass
+        class Example:
+            number: int = Field(alias='n')
+
+        example = Example(number=5)
+        """)
+        call_node = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_call(call_node)
+
+    def test_dataclass_both_alias_and_field_name_redundant(self) -> None:
+        module = astroid.parse("""
+        from pydantic import Field
+        from pydantic.dataclasses import dataclass
+
+        @dataclass
+        class Example:
+            number: int = Field(alias='n')
+
+        example = Example(number=5, n=5)
+        """)
+        call_node = module.body[-1].value
+        with self.assertAddsMessages(
+            MessageTest(
+                "redundant-keyword-arg",
+                node=call_node,
+                args=("n", "constructor"),
+            ),
+            ignore_position=True,
+        ):
+            self.checker.visit_call(call_node)
+
+    def test_dataclass_positional_and_alias_redundant(self) -> None:
+        module = astroid.parse("""
+        from pydantic import Field
+        from pydantic.dataclasses import dataclass
+
+        @dataclass
+        class Example:
+            number: int = Field(alias='n')
+
+        example = Example(5, n=5)
+        """)
+        call_node = module.body[-1].value
+        with self.assertAddsMessages(
+            MessageTest(
+                "redundant-keyword-arg",
+                node=call_node,
+                args=("n", "constructor"),
+            ),
+            ignore_position=True,
+        ):
+            self.checker.visit_call(call_node)
+
+    def test_dataclass_unexpected_keyword_still_emitted(self) -> None:
+        module = astroid.parse("""
+        from pydantic import Field
+        from pydantic.dataclasses import dataclass
+
+        @dataclass
+        class Example:
+            number: int = Field(alias='n')
+
+        example = Example(unknown=5)
+        """)
+        call_node = module.body[-1].value
+        with self.assertAddsMessages(
+            MessageTest(
+                "unexpected-keyword-arg",
+                node=call_node,
+                args=("unknown", "constructor"),
+            ),
+            ignore_position=True,
+        ):
+            self.checker.visit_call(call_node)
+
+    def test_dataclass_alias_choices_accepted(self) -> None:
+        module = astroid.parse("""
+        from pydantic import Field, AliasChoices
+        from pydantic.dataclasses import dataclass
+
+        @dataclass
+        class ChoicesExample:
+            f: str = Field(validation_alias=AliasChoices('f_alias', 'f_alt'))
+
+        c1 = ChoicesExample(f_alias='val')
+        c2 = ChoicesExample(f_alt='val')
+        """)
+        call1 = module.body[-2].value
+        call2 = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_call(call1)
+        with self.assertNoMessages():
+            self.checker.visit_call(call2)
+
+    def test_dataclass_inheritance_aliases_accepted(self) -> None:
+        module = astroid.parse("""
+        from pydantic import Field
+        from pydantic.dataclasses import dataclass
+
+        @dataclass
+        class Base:
+            base_field: str = Field(alias='bf')
+
+        @dataclass
+        class Derived(Base):
+            derived_field: int = Field(alias='df')
+
+        d = Derived(bf='hello', df=10)
+        """)
+        call_node = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_call(call_node)
