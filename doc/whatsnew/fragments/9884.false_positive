@@ -1,0 +1,8 @@
+Fix a false positive for ``redefined-outer-name`` when a PEP 695 type
+parameter shadows a module-level name (e.g. ``def func[T: Y](x: T)`` with a
+module-level ``T``). Type parameters now live in their own scope in astroid,
+so they no longer count as a redefinition of the outer name.
+
+Requires astroid >= 4.2 (pylint-dev/astroid#3119).
+
+Closes #9884
