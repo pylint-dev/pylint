@@ -1,0 +1,6 @@
+Add ``star-arg-unpacking-after-keyword-arg`` (W1118), emitted when a call
+unpacks an iterable with ``*`` after a keyword argument, as in
+``f(y=2, *args)``. The unpacked values are always bound positionally before the
+keyword arguments, so this order is misleading; write ``f(*args, y=2)`` instead.
+
+Closes #4586

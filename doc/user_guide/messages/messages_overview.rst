@@ -353,6 +353,7 @@ All messages in the warning category:
    warning/shadowed-import
    warning/shallow-copy-environ
    warning/signature-differs
+   warning/star-arg-unpacking-after-keyword-arg
    warning/subclassed-final-class
    warning/subprocess-popen-preexec-fn
    warning/subprocess-run-check

@@ -1,0 +1,5 @@
+star-arg-unpacking-after-keyword-arg:13:10:13:15::Star-arg unpacking *ARGS after keyword argument 'y':HIGH
+star-arg-unpacking-after-keyword-arg:14:13:14:18::Star-arg unpacking *ARGS after keyword argument 'y':HIGH
+star-arg-unpacking-after-keyword-arg:15:17:15:23::Star-arg unpacking *OTHER after keyword argument 'y':HIGH
+star-arg-unpacking-after-keyword-arg:18:4:18:9::Star-arg unpacking *ARGS after keyword argument 'y':HIGH
+star-arg-unpacking-after-keyword-arg:21:10:21:15::Star-arg unpacking *ARGS after keyword argument 'y':HIGH

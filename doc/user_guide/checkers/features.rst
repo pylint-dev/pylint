@@ -1384,6 +1384,11 @@ Typecheck checker Messages
   Emitted when a function is called with a keyword argument that has the same
   name as a positional-only parameter and the function contains a keyword
   variadic parameter dict.
+:star-arg-unpacking-after-keyword-arg (W1118): *Star-arg unpacking %s after keyword argument %r*
+  Emitted when an iterable is unpacked with ``*`` after a keyword argument in a
+  call. The unpacked values are always passed as positional arguments before
+  the keyword arguments, so this order is misleading; put the ``*`` unpacking
+  before the keyword arguments.
 :c-extension-no-member (I1101): *%s %r has no %r member%s, but source is unavailable. Consider adding this module to extension-pkg-allow-list if you want to perform analysis based on run-time introspection of living objects.*
   Used when a variable is accessed for non-existent member of C extension. Due
   to unavailability of source static analysis is impossible, but it may be
