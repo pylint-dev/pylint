@@ -1,0 +1,5 @@
+Fix false negatives for ``modified-iterating-list``, ``modified-iterating-set``
+and ``modified-iterating-dict`` when the iterated object is an attribute such as
+``self.items`` and that same attribute is modified in the loop body.
+
+Closes #7391
