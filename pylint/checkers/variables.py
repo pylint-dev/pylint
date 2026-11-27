@@ -81,6 +81,37 @@ class VariableVisitConsumerAction(Enum):
     RETURN = 1
 
 
+def _is_generator_consumed_immediately(generator: nodes.GeneratorExp) -> bool:
+    """Check for a single loop that only calls the generated callbacks."""
+    scope = generator.parent.scope()
+    loop = generator.parent
+    if isinstance(loop, nodes.Assign):
+        if len(loop.targets) != 1 or not isinstance(loop.targets[0], nodes.AssignName):
+            return False
+        target = loop.targets[0]
+        if scope.locals.get(target.name) != [target]:
+            return False
+        references = [
+            name
+            for name in scope.nodes_of_class(nodes.Name)
+            if name.name == target.name and name.lookup(name.name)[0] is scope
+        ]
+        if len(references) != 1:
+            return False
+        loop = references[0].parent
+    if not isinstance(loop, nodes.For) or not isinstance(loop.target, nodes.AssignName):
+        return False
+    if scope.locals.get(loop.target.name) != [loop.target]:
+        return False
+    return all(
+        utils.is_being_called(name)
+        and name.scope() is scope
+        and any(statement.parent_of(name) for statement in loop.body)
+        for name in scope.nodes_of_class(nodes.Name)
+        if name.name == loop.target.name and name.lookup(name.name)[0] is scope
+    )
+
+
 def _is_from_future_import(stmt: nodes.ImportFrom, name: str) -> bool | None:
     """Check if the name is a future import from another module."""
     try:
@@ -3195,6 +3226,14 @@ class VariablesChecker(BaseChecker):
             return
 
         if utils.is_comprehension(assign_scope):
+            if (
+                isinstance(assign_scope, nodes.GeneratorExp)
+                and node_scope is assign_scope.elt
+                and node.scope() is node_scope
+                and not any(node_scope.nodes_of_class((nodes.Yield, nodes.YieldFrom)))
+                and _is_generator_consumed_immediately(assign_scope)
+            ):
+                return
             self.add_message("cell-var-from-loop", node=node, args=node.name)
         else:
             # Look for an enclosing For loop.
