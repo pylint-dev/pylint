@@ -663,3 +663,23 @@ def test_ignore_comments_strings_differing_after_hash_do_not_match(
         symilar.Run(["--ignore-comments", str(file_1), str(file_2)])
     assert ex.value.code == 0
     assert "similar lines" not in output.getvalue()
+
+
+def test_close_updates_duplicated_lines_stats(tmp_path: Path) -> None:
+    """The 'Duplication' report table reads ``stats.duplicated_lines``, so the
+    checker must record the duplicated lines found there.
+    """
+    block = "def f(a):\n    x = a + 1\n    y = x * 2\n    z = y - 3\n    w = z / 4\n    return w\n"
+    paths = []
+    for name in ("a.py", "b.py"):
+        path = tmp_path / name
+        path.write_text(block, encoding="utf-8")
+        paths.append(str(path))
+    linter = PyLinter(reporter=Reporter())
+    linter.register_checker(symilar.SimilaritiesChecker(linter))
+    linter.check(paths)
+    # The function signature is ignored by default: 5 of 12 lines are duplicated.
+    assert linter.stats.duplicated_lines["nb_duplicated_lines"] == 5
+    assert linter.stats.duplicated_lines["percent_duplicated_lines"] == pytest.approx(
+        5 * 100 / 12
+    )

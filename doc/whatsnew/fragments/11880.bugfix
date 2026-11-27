@@ -1,0 +1,5 @@
+The "Duplication" report table now shows the number and percentage of
+duplicated lines found by the ``duplicate-code`` checker, instead of always
+showing zero.
+
+Closes #0000
