@@ -736,11 +736,11 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                     self.process_string_token(token, start[0], start[1])
                     # We figure the next token, ignoring comments & newlines:
                     j = i + 1
-                    while j < len(tokens) and tokens[j].type in (
+                    while j < len(tokens) and tokens[j].type in {
                         tokenize.NEWLINE,
                         tokenize.NL,
                         tokenize.COMMENT,
-                    ):
+                    }:
                         j += 1
                     next_token = tokens[j] if j < len(tokens) else None
                     if encoding != "ascii":

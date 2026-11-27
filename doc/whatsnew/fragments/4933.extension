@@ -1,0 +1,5 @@
+Extend ``use-set-for-membership`` to also check provably hashable objects such as
+classes, hashable instances, tuples of hashable elements, functions, and modules,
+rather than only constants.
+
+Closes #4933

@@ -526,7 +526,7 @@ class NameChecker(_BasicChecker):
                         )
                         return
 
-                elif inferred_assign_type in (None, util.Uninferable):
+                elif inferred_assign_type in {None, util.Uninferable}:
                     return
 
                 # Check classes (TypeVar's are classes so they need to be excluded first)
