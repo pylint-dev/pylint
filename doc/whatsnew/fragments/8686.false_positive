@@ -1,0 +1,5 @@
+Fixed a false positive for ``used-before-assignment`` when a name is defined in a
+``try``/``finally`` block nested in an ``except`` handler of a ``try`` block that
+returns.
+
+Closes #8686

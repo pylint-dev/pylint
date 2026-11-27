@@ -109,6 +109,18 @@ def func_ok8(var):
     print(msg)
 
 
+def func_ok9(var):
+    """Define 'msg' in one handler nested under try/finally."""
+    try:
+        return 1 / var.some_other_func()
+    except ZeroDivisionError:
+        try:
+            msg = "Division by 0"
+        finally:
+            print("Done")
+    print(msg)
+
+
 def func_invalid1(var):
     """'msg' is not defined in one handler."""
     try:
@@ -184,4 +196,18 @@ def func_invalid6(var):
     except ZeroDivisionError:
         msg, msg2 = ["Division by 0"] * 2
         print(msg2)
+    print(msg)  # [used-before-assignment]
+
+
+def func_invalid7(var):
+    """'msg' is not defined if the nested handler swallows the exception."""
+    try:
+        return 1 / var.some_other_func()
+    except ZeroDivisionError:
+        try:
+            msg = var.some_other_func()
+        except AttributeError:
+            pass
+        finally:
+            print("Done")
     print(msg)  # [used-before-assignment]
