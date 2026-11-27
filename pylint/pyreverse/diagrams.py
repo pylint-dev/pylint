@@ -32,6 +32,14 @@ def _class_definition_key(node: nodes.ClassDef) -> _ClassDefinitionKey:
     return (node.root().file, node.qname(), node.lineno, node.col_offset)
 
 
+def _definition_line(node: nodes.ClassDef, name: str) -> int:
+    """Return the first line on which ``name`` is defined in the class or assigned
+    to its instances.
+    """
+    definitions = node.locals.get(name, []) + node.instance_attrs.get(name, [])
+    return min(definition.lineno or 0 for definition in definitions)
+
+
 class Figure:
     """Base class for counter handling."""
 
@@ -98,11 +106,14 @@ class ClassDiagram(Figure, FilterMixIn):
 
     TYPE = "class"
 
-    def __init__(self, title: str, mode: str, linker: Linker) -> None:
+    def __init__(
+        self, title: str, mode: str, linker: Linker, sort_members: bool = True
+    ) -> None:
         FilterMixIn.__init__(self, mode)
         Figure.__init__(self)
         self.title = title
         self.linker = linker
+        self.sort_members = sort_members
         # TODO: Specify 'Any' after refactor of `DiagramEntity`
         self.objects: list[Any] = []
         self.relationships: dict[str, list[Relationship]] = {}
@@ -156,7 +167,11 @@ class ClassDiagram(Figure, FilterMixIn):
             if attr_name not in properties:
                 properties[attr_name] = attr_type
 
-        for node_name, associated_nodes in properties.items():
+        members = list(properties.items())
+        if not self.sort_members:
+            members.sort(key=lambda member: _definition_line(node, member[0]))
+
+        for node_name, associated_nodes in members:
             if not self.show_attr(node_name):
                 continue
 
@@ -175,7 +190,7 @@ class ClassDiagram(Figure, FilterMixIn):
                     node_name = f"{node_name} : {', '.join(names)}"
 
             attrs.append(node_name)
-        return sorted(attrs)
+        return sorted(attrs) if self.sort_members else attrs
 
     def get_methods(self, node: nodes.ClassDef) -> list[nodes.FunctionDef]:
         """Return visible methods."""
@@ -187,7 +202,9 @@ class ClassDiagram(Figure, FilterMixIn):
             and not decorated_with_property(m)
             and self.show_attr(m.name)
         ]
-        return sorted(methods, key=lambda n: n.name)
+        if self.sort_members:
+            return sorted(methods, key=lambda n: n.name)
+        return methods
 
     def add_object(self, title: str, node: nodes.ClassDef) -> None:
         """Create a diagram object."""

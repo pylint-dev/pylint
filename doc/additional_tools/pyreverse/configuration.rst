@@ -136,6 +136,13 @@ Display Options
 **Default:**  ``False``
 
 
+--no-sort-members
+-----------------
+*Show attributes and methods in the order they are defined in, instead of sorting them by name.*
+
+**Default:**  ``False``
+
+
 --no-standalone
 ---------------
 *Only show nodes with connections.*

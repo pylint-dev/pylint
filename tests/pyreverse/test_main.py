@@ -200,6 +200,7 @@ def test_verbose(_: mock.MagicMock, capsys: CaptureFixture[str]) -> None:
         ("show_stdlib", 0),
         ("module_names", None),
         ("no_signatures", 0),
+        ("no_sort_members", 0),
         ("output_format", "dot"),
         ("colorized", 0),
         ("max_color_depth", 2),
