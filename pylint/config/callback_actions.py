@@ -443,7 +443,13 @@ class _OutputFormatAction(_AccessLinterObjectAction):
                 "(for example 'json2:report.json').",
             )
 
-        self.linter._load_reporters(reporter_names)
+        try:
+            self.linter._load_reporters(reporter_names)
+        except exceptions.InvalidReporterError as e:
+            raise argparse.ArgumentError(
+                self,
+                f"unknown reporter '{e}'. Run 'pylint --help' to see the available ones.",
+            ) from e
 
 
 class _AccessParserAction(_CallbackAction):
