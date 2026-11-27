@@ -1,0 +1,4 @@
+Emit ``repeated-keyword`` for calls to built-in functions, such as
+``print(end="!", **{"end": "?"})``.
+
+Closes #6856
