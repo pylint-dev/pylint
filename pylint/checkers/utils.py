@@ -496,6 +496,15 @@ def is_ancestor_name(frame: nodes.ClassDef, node: nodes.NodeNG) -> bool:
     return any(node in base.nodes_of_class(nodes.Name) for base in frame.bases)
 
 
+def is_class_decorator_name(frame: nodes.ClassDef, node: nodes.NodeNG) -> bool:
+    """Return whether `frame` is an nodes.Class node with `node` in the
+    subtree of one of its decorators.
+    """
+    if not isinstance(frame, nodes.ClassDef) or frame.decorators is None:
+        return False
+    return bool(frame.decorators.parent_of(node))
+
+
 def is_being_called(node: nodes.NodeNG) -> bool:
     """Return True if node is the function being called in a Call node."""
     return isinstance(node.parent, nodes.Call) and node.parent.func is node
