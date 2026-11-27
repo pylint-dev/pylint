@@ -4,6 +4,9 @@ Pylint features
 .. This file is auto-generated. Make any changes to the associated
 .. docs extension in 'doc/exts/pylint_features.py'.
 
+See :ref:`checks-across-modules` for checks that combine information from
+multiple modules in the same Pylint run.
+
 Pylint checkers' options and switches
 -------------------------------------
 
