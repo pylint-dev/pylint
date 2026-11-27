@@ -1,0 +1,6 @@
+used-before-assignment:48:28:48:33:read_in_test_before_walrus:Using variable 'first' before assignment:HIGH
+used-before-assignment:52:18:52:23:walrus_in_other_if_exp:Using variable 'first' before assignment:HIGH
+used-before-assignment:64:18:64:23:walrus_after_short_circuit:Using variable 'first' before assignment:HIGH
+used-before-assignment:68:33:68:38:if_exp_in_later_comparison:Using variable 'first' before assignment:HIGH
+used-before-assignment:73:18:73:23:walrus_in_conditional_test:Using variable 'first' before assignment:HIGH
+used-before-assignment:77:29:77:34:if_exp_after_short_circuit:Using variable 'first' before assignment:HIGH
