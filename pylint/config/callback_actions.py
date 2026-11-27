@@ -443,7 +443,12 @@ class _OutputFormatAction(_AccessLinterObjectAction):
                 "(for example 'json2:report.json').",
             )
 
-        self.linter._load_reporters(reporter_names)
+        try:
+            self.linter._load_reporters(reporter_names)
+        except exceptions.InvalidReporterError as exc:
+            raise argparse.ArgumentError(
+                self, f"unknown output format {values[0]!r}"
+            ) from exc
 
 
 class _AccessParserAction(_CallbackAction):
