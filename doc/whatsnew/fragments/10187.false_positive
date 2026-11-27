@@ -1,0 +1,3 @@
+Fixed ``wrong-spelling-in-docstring`` reporting the name, type and argument of a reST field (``:arg str name:``, ``:rtype:``, ``:raises ValueError:``) at the start of a docstring line. The field's description is still checked.
+
+Closes #10187
