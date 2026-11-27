@@ -1664,6 +1664,21 @@ def is_node_in_type_annotation_context(node: nodes.NodeNG) -> bool:
             return False
 
 
+def is_node_in_explicit_type_alias_value(node: nodes.NodeNG) -> bool:
+    """Check if node is part of the value of ``name: TypeAlias = value``."""
+    current_node, parent_node = node, node.parent
+    while parent_node is not None and not isinstance(parent_node, Statement):
+        current_node, parent_node = parent_node, parent_node.parent
+    match parent_node:
+        case nodes.AnnAssign(annotation=annotation, value=value) if (
+            value is current_node
+        ):
+            return is_module_member(
+                annotation, "typing.TypeAlias", "typing_extensions.TypeAlias"
+            )
+    return False
+
+
 def is_node_in_pep695_type_context(node: nodes.NodeNG) -> nodes.NodeNG | None:
     """Check if node is used in a TypeAlias or as part of a type param."""
     return get_node_first_ancestor_of_type(
