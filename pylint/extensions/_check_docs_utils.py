@@ -344,7 +344,9 @@ class SphinxDocstring(Docstring):
 
     re_simple_container_type = rf"""
         {re_type}                     # a container type
-        [\(\[] [^\n\s]+ [\)\]]        # with the contents of the container
+        [\(\[]                        # with the contents of the container,
+        (?:[^\n\s,]|,[ ]*)+           # where a comma may be followed by spaces
+        [\)\]]
     """
 
     re_multiple_simple_type = rf"""
