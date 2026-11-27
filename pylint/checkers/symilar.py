@@ -889,8 +889,12 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
 
             self.add_message("R0801", args=(_count_files(couples), "\n".join(msg)))
             duplicated += num * (len(couples) - 1)
-        stats.nb_duplicated_lines += int(duplicated)
-        stats.percent_duplicated_lines += float(total and duplicated * 100.0 / total)
+        nb_duplicated_lines = int(duplicated)
+        percent_duplicated_lines = float(total and duplicated * 100.0 / total)
+        stats.nb_duplicated_lines += nb_duplicated_lines
+        stats.percent_duplicated_lines += percent_duplicated_lines
+        stats.duplicated_lines["nb_duplicated_lines"] += nb_duplicated_lines
+        stats.duplicated_lines["percent_duplicated_lines"] += percent_duplicated_lines
 
     def get_map_data(self) -> list[LineSet]:
         """Passthru override."""
