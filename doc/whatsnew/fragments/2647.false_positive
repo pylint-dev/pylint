@@ -1,0 +1,7 @@
+Fixed a false positive for ``no-member`` when accessing an attribute on the
+result of a call to a ``functools.singledispatch``-decorated function. Pylint
+was inferring the return type from the generic function's own body, ignoring
+that the actual implementation used at runtime is chosen from the registered
+overloads based on the argument's type.
+
+Closes #2647
