@@ -88,7 +88,6 @@ jobs:
             const artifacts = artifacts_workflow.data.artifacts.filter((artifact) =>
               artifact.name.startsWith(`primer_output_main_${process.env.DEFAULT_PYTHON}`)
               || artifact.name.startsWith(`primer_output_pr_${process.env.DEFAULT_PYTHON}`)
-              || artifact.name === 'pr_number'
             );
             for (const artifact of artifacts) {
               const downloaded = await github.rest.actions.downloadArtifact({
@@ -110,7 +109,6 @@ jobs:
           unzip primer_output_pr_${{ env.DEFAULT_PYTHON }}_batch1.zip
           unzip primer_output_pr_${{ env.DEFAULT_PYTHON }}_batch2.zip
           unzip primer_output_pr_${{ env.DEFAULT_PYTHON }}_batch3.zip
-          unzip pr_number.zip
       - name: Compare outputs
         run: |
           . venv/bin/activate
@@ -126,18 +124,31 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
-            const fs = require('fs')
-            const comment = fs.readFileSync('tests/.pylint_primer_tests/comment.txt', { encoding: 'utf8' })
-            console.log("Comment to post:")
-            console.log(comment)
-            const prNumber = parseInt(fs.readFileSync("pr_number.txt", { encoding: "utf8" }))
+            const fs = require('fs');
+            const comment = fs.readFileSync('tests/.pylint_primer_tests/comment.txt', { encoding: 'utf8' });
+            console.log("Comment to post:");
+            console.log(comment);
+
+            const run = context.payload.workflow_run;
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              head: `${run.head_repository.owner.login}:${run.head_branch}`,
+            });
+            const pr = prs[0];
+            if (!pr) {
+              core.setFailed(`No PR found for commit ${run.head_sha}.`);
+              return;
+            }
+
             await github.rest.issues.createComment({
-              issue_number: prNumber,
+              issue_number: pr.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: comment
-            })
-            return prNumber
+            });
+            return pr.number;
       - name: Hide old comments
         # Taken from mypy primer
         uses: kanga333/comment-hider@c12bb20b48aeb8fc098e35967de8d4f8018fffdf # v0.4.0

@@ -60,7 +60,6 @@ jobs:
             const wantedNames = new Set([
               'pyreverse_primer_output_main',
               'pyreverse_primer_output_pr',
-              'pr_number',
             ]);
             const wanted = artifacts.data.artifacts.filter((artifact) => wantedNames.has(artifact.name));
             core.setOutput('found', wanted.length === wantedNames.size ? 'true' : 'false');
@@ -78,23 +77,27 @@ jobs:
         run: |
           unzip pyreverse_primer_output_main.zip
           unzip pyreverse_primer_output_pr.zip
-          unzip pr_number.zip
       - name: Check label state
         id: check-label
         if: steps.download-outputs.outputs.found == 'true'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
-            const fs = require('fs');
-            const prNumber = parseInt(fs.readFileSync('pr_number.txt', { encoding: 'utf8' }));
-            const pr = await github.rest.pulls.get({
+            const run = context.payload.workflow_run;
+            const { data: prs } = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: prNumber,
+              state: "open",
+              head: `${run.head_repository.owner.login}:${run.head_branch}`,
             });
-            const hasLabel = pr.data.labels.some((label) => label.name === 'pyreverse');
+            const pr = prs[0];
+            if (!pr) {
+              core.setFailed(`No PR found for commit ${run.head_sha}.`);
+              return;
+            }
+            const hasLabel = pr.labels.some((label) => label.name === 'pyreverse');
             core.setOutput('has-label', hasLabel ? 'true' : 'false');
-            core.setOutput('pr-number', `${prNumber}`);
+            core.setOutput('pr-number', `${pr.number}`);
       - name: Compare outputs
         if: steps.check-label.outputs.has-label == 'true'
         run: |
@@ -108,15 +111,16 @@ jobs:
       - name: Create or update comment
         if: steps.check-label.outputs.has-label == 'true'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          PR_NUMBER: ${{ steps.check-label.outputs.pr-number }}
         with:
           script: |
             const fs = require('fs');
             const comment = fs.readFileSync('tests/.pyreverse_primer_tests/comment.txt', { encoding: 'utf8' });
-            const prNumber = parseInt(fs.readFileSync('pr_number.txt', { encoding: 'utf8' }));
             const comments = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: prNumber,
+              issue_number: Number(process.env.PR_NUMBER),
               per_page: 100,
             });
             const existing = comments.data.find((candidate) =>
@@ -132,7 +136,7 @@ jobs:
               return existing.id;
             }
             const created = await github.rest.issues.createComment({
-              issue_number: prNumber,
+              issue_number: Number(process.env.PR_NUMBER),
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: comment,
