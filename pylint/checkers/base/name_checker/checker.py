@@ -555,15 +555,21 @@ class NameChecker(_BasicChecker):
                         node, (nodes.For, nodes.While)
                     )
                 ):
-                    if not self._meets_exception_for_non_consts(
+                    meets_exception = self._meets_exception_for_non_consts(
                         inferred_assign_type, node.name
-                    ):
-                        node_type = (
-                            self._name_type_in_main_block(node)
-                            if _in_dunder_main_block(node)
-                            else "const"
-                        )
-                        self._check_name(node_type, node.name, node)
+                    )
+                    node_type = (
+                        self._name_type_in_main_block(node)
+                        if _in_dunder_main_block(node)
+                        else "const"
+                    )
+                    self._check_name(
+                        node_type,
+                        node.name,
+                        node,
+                        disallowed_check_only=meets_exception,
+                        skip_name_group_census=meets_exception,
+                    )
                 else:
                     node_type = "variable"
                     iattrs = tuple(node.frame().igetattr(node.name))
@@ -580,17 +586,18 @@ class NameChecker(_BasicChecker):
                         for combo in itertools.combinations(attrs, 2)
                     ):
                         node_type = "const"
-                    if not self._meets_exception_for_non_consts(
+                    meets_exception = self._meets_exception_for_non_consts(
                         inferred_assign_type, node.name
-                    ):
-                        if node_type == "const" and _in_dunder_main_block(node):
-                            node_type = self._name_type_in_main_block(node)
-                        self._check_name(
-                            node_type,
-                            node.name,
-                            node,
-                            disallowed_check_only=redefines_import,
-                        )
+                    )
+                    if node_type == "const" and _in_dunder_main_block(node):
+                        node_type = self._name_type_in_main_block(node)
+                    self._check_name(
+                        node_type,
+                        node.name,
+                        node,
+                        disallowed_check_only=redefines_import or meets_exception,
+                        skip_name_group_census=meets_exception,
+                    )
 
         # Check names defined in function scopes
         elif isinstance(frame, nodes.FunctionDef):
@@ -726,8 +733,17 @@ class NameChecker(_BasicChecker):
         node: nodes.NodeNG,
         confidence: interfaces.Confidence = interfaces.HIGH,
         disallowed_check_only: bool = False,
+        skip_name_group_census: bool = False,
     ) -> None:
-        """Check for a name using the type's regexp."""
+        """Check for a name using the type's regexp.
+
+        ``disallowed_check_only`` suppresses ``invalid-name`` for this node, but
+        the name still counts towards its ``name-group``, so it can still make
+        another name in that group be reported as the minority style.
+        ``skip_name_group_census`` takes the name out of that group as well: use
+        it when the name is exempt from the naming style itself, not merely from
+        the message.
+        """
 
         def _should_exempt_from_invalid_name(node: nodes.NodeNG) -> bool:
             if node_type == "variable":
@@ -747,7 +763,9 @@ class NameChecker(_BasicChecker):
         regexp = self._name_regexps[node_type]
         match = regexp.match(name)
 
-        if _is_multi_naming_match(match, node_type, confidence):
+        if not skip_name_group_census and _is_multi_naming_match(
+            match, node_type, confidence
+        ):
             name_group = self._find_name_group(node_type)
             bad_name_group = self._bad_names.setdefault(name_group, {})
             # Ignored because this is checked by the if statement

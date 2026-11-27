@@ -1,0 +1,5 @@
+``foo = {}.keys()`` at module level is now reported as ``disallowed-name`` when
+``foo`` is listed in ``bad-names``. Module-level names whose value cannot be
+inferred are still not reported.
+
+Closes #10679

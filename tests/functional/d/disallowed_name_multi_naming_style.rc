@@ -1,0 +1,4 @@
+[BASIC]
+const-rgx=(?:(?P<snake>[a-z_]+)|(?P<camel>[a-z]+(?:[A-Z][a-z]*)+))$
+variable-rgx=(?:(?P<snake>[a-z_]+)|(?P<camel>[a-z]+(?:[A-Z][a-z]*)+))$
+name-group=const:variable
