@@ -1,0 +1,11 @@
+unused-import:36:0:36:16::Unused import pkg_d.sub:UNDEFINED
+unused-import:42:0:42:21::Unused import pkg_e.sub.leaf:UNDEFINED
+unused-import:48:0:48:16::Unused import pkg_g.sub:UNDEFINED
+unused-import:54:0:54:16::Unused import pkg_h.sub:UNDEFINED
+unused-import:60:0:60:23::Unused import pkg_j.pkg_i.leaf:UNDEFINED
+unused-import:65:0:65:12::Unused import pkg_o:UNDEFINED
+unused-import:69:0:69:16::Unused import pkg_k.sub:UNDEFINED
+unused-import:83:4:83:20:submodule_not_reached_inside_function:Unused import pkg_m.sub:UNDEFINED
+unused-import:90:4:90:20:alias_shadowed_inside_function:Unused import pkg_n.sub:UNDEFINED
+unused-import:98:4:98:27:several_names_in_one_import_inside_function:Unused import pkg_p:UNDEFINED
+unused-import:98:4:98:27:several_names_in_one_import_inside_function:Unused import pkg_q:UNDEFINED

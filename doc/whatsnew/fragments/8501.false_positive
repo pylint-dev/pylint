@@ -1,0 +1,5 @@
+Fix a false positive for ``unused-import`` when a submodule imported with
+``import pkg.sub`` is only used through another name bound to its package,
+such as ``import pkg as alias`` followed by ``alias.sub``.
+
+Closes #8501
