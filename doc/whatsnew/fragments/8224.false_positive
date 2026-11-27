@@ -1,0 +1,4 @@
+Fix a false positive for ``consider-using-f-string`` when passing a string's
+``format`` method as a positional argument, such as ``map("{:,d}".format, values)``.
+
+Closes #8224
