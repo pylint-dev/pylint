@@ -1,0 +1,5 @@
+Fix a false positive for ``looping-through-iterator`` when a nested loop goes over a
+function parameter that has the same name as an iterator of an enclosing scope, such
+as a module-level iterator.
+
+Refs #11733
