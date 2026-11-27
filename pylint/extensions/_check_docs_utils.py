@@ -189,7 +189,12 @@ def _annotations_list(args_node: nodes.Arguments) -> list[nodes.NodeNG]:
     :param args_node: The node to get the annotations for.
     :returns: The annotations.
     """
-    plain_annotations = args_node.annotations or ()
+    # The comment annotations start with the positional-only arguments, so the real
+    # annotations of those come first too, for the two lists to line up.
+    plain_annotations = [
+        *(args_node.posonlyargs_annotations or ()),
+        *(args_node.annotations or ()),
+    ]
     func_comment_annotations = args_node.parent.type_comment_args or ()
     comment_annotations = args_node.type_comment_posonlyargs
     comment_annotations += args_node.type_comment_args or []
@@ -208,17 +213,15 @@ def args_with_annotation(args_node: nodes.Arguments) -> set[str]:
     annotation_offset = 0
 
     if args_node.posonlyargs:
-        posonlyargs_annotations = args_node.posonlyargs_annotations
-        if not any(args_node.posonlyargs_annotations):
-            num_args = len(args_node.posonlyargs)
-            posonlyargs_annotations = annotations[
-                annotation_offset : annotation_offset + num_args
-            ]
-            annotation_offset += num_args
-
-        for arg, annotation in zip(args_node.posonlyargs, posonlyargs_annotations):
+        num_args = len(args_node.posonlyargs)
+        for arg, annotation in zip(
+            args_node.posonlyargs,
+            annotations[annotation_offset : annotation_offset + num_args],
+        ):
             if annotation:
                 result.add(arg.name)
+
+        annotation_offset += num_args
 
     if args_node.args:
         num_args = len(args_node.args)

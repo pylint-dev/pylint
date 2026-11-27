@@ -1,0 +1,5 @@
+``missing-type-doc`` no longer reports an annotated parameter that follows
+positional-only parameters, and now reports the unannotated positional-only one
+instead.
+
+Closes #11843
