@@ -1,0 +1,7 @@
+used-before-assignment:11:10:11:13:used_in_handler_then_after_try:Using variable 'msg' before assignment:CONTROL_FLOW
+used-before-assignment:24:10:24:13:defined_in_two_handlers:Using variable 'msg' before assignment:CONTROL_FLOW
+used-before-assignment:35:14:35:17:used_in_sibling_handler:Using variable 'msg' before assignment:CONTROL_FLOW
+used-before-assignment:80:10:80:13:used_in_comprehension:Using variable 'msg' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:124:10:124:13:defined_under_if_in_handler:Possibly using variable 'msg' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:135:10:135:13:try_under_if:Possibly using variable 'msg' before assignment:CONTROL_FLOW
+used-before-assignment:148:10:148:13:try_under_always_false_test:Using variable 'msg' before assignment:INFERENCE
