@@ -4,3 +4,12 @@ invalid-overridden-method:45:4:45:16:InvalidDerived.method_a:Method 'method_a' w
 invalid-overridden-method:48:4:48:22:InvalidDerived.method_b:Method 'method_b' was expected to be 'non-async', found it instead as 'async':UNDEFINED
 invalid-overridden-method:122:4:122:11:B.bar:Method 'bar' was expected to be 'property', found it instead as 'method':UNDEFINED
 invalid-overridden-method:126:4:126:12:B.bar2:Method 'bar2' was expected to be 'property', found it instead as 'method':UNDEFINED
+invalid-overridden-method:176:4:176:20:CallableImpl.not_callable:Method 'not_callable' was expected to be 'property', found it instead as 'method':UNDEFINED
+arguments-differ:177:4:177:25:CallableImpl.list_of_callables:Number of parameters was 1 in 'CallableProto.list_of_callables' and is now 2 in overriding 'CallableImpl.list_of_callables' method:UNDEFINED
+invalid-overridden-method:177:4:177:25:CallableImpl.list_of_callables:Method 'list_of_callables' was expected to be 'property', found it instead as 'method':UNDEFINED
+arguments-differ:178:4:178:19:CallableImpl.unannotated:Number of parameters was 1 in 'CallableProto.unannotated' and is now 2 in overriding 'CallableImpl.unannotated' method:UNDEFINED
+invalid-overridden-method:178:4:178:19:CallableImpl.unannotated:Method 'unannotated' was expected to be 'property', found it instead as 'method':UNDEFINED
+overridden-final-method:181:4:181:17:CallableImpl.fun_final:Method 'fun_final' overrides a method decorated with typing.final which is defined in class 'CallableProto':UNDEFINED
+invalid-overridden-method:182:4:182:23:CallableImpl.fun_async:Method 'fun_async' was expected to be 'non-async', found it instead as 'async':UNDEFINED
+arguments-differ:191:4:191:11:CallableBaseImpl.fun:Number of parameters was 1 in 'CallableBase.fun' and is now 2 in overriding 'CallableBaseImpl.fun' method:UNDEFINED
+invalid-overridden-method:191:4:191:11:CallableBaseImpl.fun:Method 'fun' was expected to be 'property', found it instead as 'method':UNDEFINED

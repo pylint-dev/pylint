@@ -459,6 +459,40 @@ def _has_data_descriptor(cls: nodes.ClassDef, attr: str) -> bool:
     return False
 
 
+def _is_callable_annotation(node: nodes.NodeNG | None) -> bool:
+    """Check if a type annotation is a ``Callable``, possibly in a union."""
+    match node:
+        case nodes.Name(name="Callable") | nodes.Attribute(attrname="Callable"):
+            return True
+        case nodes.Subscript(
+            value=nodes.Name(name="Optional" | "Union")
+            | nodes.Attribute(attrname="Optional" | "Union")
+        ):
+            return _is_callable_annotation(node.slice)
+        case nodes.Subscript():
+            return _is_callable_annotation(node.value)
+        case nodes.Tuple():
+            return any(_is_callable_annotation(elt) for elt in node.elts)
+        case nodes.BinOp(op="|"):
+            return _is_callable_annotation(node.left) or _is_callable_annotation(
+                node.right
+            )
+    return False
+
+
+def _is_callable_protocol_property(function: nodes.FunctionDef) -> bool:
+    """Check if ``function`` is a protocol property annotated to return a ``Callable``.
+
+    A method is a valid implementation of such a property, since accessing it on
+    an instance yields a bound method.
+    """
+    return (
+        _is_callable_annotation(function.returns)
+        and decorated_with_property(function)
+        and utils.is_protocol_class(function.parent.frame())
+    )
+
+
 def _is_classic_property_setter(func: nodes.FunctionDef) -> bool:
     """Check if *func* is used as the ``fset`` argument of an old-style,
     non-decorator ``property(fget, fset)`` call in its enclosing class body.
@@ -1527,7 +1561,10 @@ a metaclass class method.",
                 ]
                 if implementations:
                     parent_function = implementations[-1]
-            self._check_signature(node, parent_function, klass)
+            if decorated_with_property(node) or not _is_callable_protocol_property(
+                parent_function
+            ):
+                self._check_signature(node, parent_function, klass)
             self._check_invalid_overridden_method(node, parent_function)
             break
 
@@ -1721,7 +1758,11 @@ a metaclass class method.",
         current_is_property = decorated_with_property(
             function_node
         ) or is_property_setter_or_deleter(function_node)
-        if parent_is_property and not current_is_property:
+        if (
+            parent_is_property
+            and not current_is_property
+            and not _is_callable_protocol_property(parent_function_node)
+        ):
             self.add_message(
                 "invalid-overridden-method",
                 args=(function_node.name, "property", function_node.type),

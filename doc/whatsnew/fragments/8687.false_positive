@@ -1,0 +1,5 @@
+Fix ``arguments-differ`` and ``invalid-overridden-method`` false positives when a
+method implements a ``Protocol`` property whose return type is annotated as a
+``Callable``, possibly in a union with other types.
+
+Closes #8687
