@@ -2841,13 +2841,18 @@ class VariablesChecker(BaseChecker):
 
     # pylint: disable-next=too-many-branches,too-many-statements
     def _loopvar_name(self, node: nodes.Name) -> None:
+        scope = node.scope()
+        # Annotations and defaults in the signature of a function are evaluated
+        # when the function is defined, so they cannot use a loop variable of
+        # its body.
+        if self._defined_in_function_definition(node, scope):
+            return
         # filter variables according to node's scope
         astmts = [s for s in node.lookup(node.name)[1] if hasattr(s, "assign_type")]
         # If this variable usage exists inside a function definition
         # that exists in the same loop,
         # the usage is safe because the function will not be defined either if
         # the variable is not defined.
-        scope = node.scope()
         if isinstance(scope, (nodes.Lambda, nodes.FunctionDef)) and any(
             asmt.scope().parent_of(scope) for asmt in astmts
         ):
