@@ -189,11 +189,14 @@ def _annotations_list(args_node: nodes.Arguments) -> list[nodes.NodeNG]:
     :param args_node: The node to get the annotations for.
     :returns: The annotations.
     """
-    plain_annotations = args_node.annotations or ()
+    plain_annotations: list[nodes.NodeNG | None] = []
+    if args_node.posonlyargs:
+        plain_annotations.extend(args_node.posonlyargs_annotations or ())
+    plain_annotations.extend(args_node.annotations or ())
     func_comment_annotations = args_node.parent.type_comment_args or ()
-    comment_annotations = args_node.type_comment_posonlyargs
-    comment_annotations += args_node.type_comment_args or []
-    comment_annotations += args_node.type_comment_kwonlyargs
+    comment_annotations = list(args_node.type_comment_posonlyargs or [])
+    comment_annotations.extend(args_node.type_comment_args or [])
+    comment_annotations.extend(args_node.type_comment_kwonlyargs or [])
     return list(
         _merge_annotations(
             plain_annotations,
@@ -204,59 +207,89 @@ def _annotations_list(args_node: nodes.Arguments) -> list[nodes.NodeNG]:
 
 def args_with_annotation(args_node: nodes.Arguments) -> set[str]:
     result = set()
-    annotations = _annotations_list(args_node)
+    func_comment_annotations = args_node.parent.type_comment_args or ()
     annotation_offset = 0
 
     if args_node.posonlyargs:
-        posonlyargs_annotations = args_node.posonlyargs_annotations
-        if not any(args_node.posonlyargs_annotations):
-            num_args = len(args_node.posonlyargs)
-            posonlyargs_annotations = annotations[
-                annotation_offset : annotation_offset + num_args
-            ]
-            annotation_offset += num_args
-
-        for arg, annotation in zip(args_node.posonlyargs, posonlyargs_annotations):
-            if annotation:
+        posonly_annotations = args_node.posonlyargs_annotations or ()
+        type_comment_posonly = args_node.type_comment_posonlyargs or ()
+        for arg, ann, comment_ann in itertools.zip_longest(
+            args_node.posonlyargs, posonly_annotations, type_comment_posonly
+        ):
+            func_ann = (
+                func_comment_annotations[annotation_offset]
+                if annotation_offset < len(func_comment_annotations)
+                else None
+            )
+            annotation_offset += 1
+            if (
+                (ann and not _is_ellipsis(ann))
+                or (comment_ann and not _is_ellipsis(comment_ann))
+                or (func_ann and not _is_ellipsis(func_ann))
+            ):
                 result.add(arg.name)
 
     if args_node.args:
-        num_args = len(args_node.args)
-        for arg, annotation in zip(
-            args_node.args,
-            annotations[annotation_offset : annotation_offset + num_args],
+        plain_annotations = args_node.annotations or ()
+        type_comment_args = args_node.type_comment_args or ()
+        for arg, ann, comment_ann in itertools.zip_longest(
+            args_node.args, plain_annotations, type_comment_args
         ):
-            if annotation:
+            func_ann = (
+                func_comment_annotations[annotation_offset]
+                if annotation_offset < len(func_comment_annotations)
+                else None
+            )
+            annotation_offset += 1
+            if (
+                (ann and not _is_ellipsis(ann))
+                or (comment_ann and not _is_ellipsis(comment_ann))
+                or (func_ann and not _is_ellipsis(func_ann))
+            ):
                 result.add(arg.name)
 
-        annotation_offset += num_args
-
     if args_node.vararg:
-        if args_node.varargannotation:
+        func_ann = (
+            func_comment_annotations[annotation_offset]
+            if annotation_offset < len(func_comment_annotations)
+            else None
+        )
+        annotation_offset += 1
+        if (
+            args_node.varargannotation and not _is_ellipsis(args_node.varargannotation)
+        ) or (func_ann and not _is_ellipsis(func_ann)):
             result.add(args_node.vararg)
-        elif len(annotations) > annotation_offset and annotations[annotation_offset]:
-            result.add(args_node.vararg)
-            annotation_offset += 1
 
     if args_node.kwonlyargs:
-        kwonlyargs_annotations = args_node.kwonlyargs_annotations
-        if not any(args_node.kwonlyargs_annotations):
-            num_args = len(args_node.kwonlyargs)
-            kwonlyargs_annotations = annotations[
-                annotation_offset : annotation_offset + num_args
-            ]
-            annotation_offset += num_args
-
-        for arg, annotation in zip(args_node.kwonlyargs, kwonlyargs_annotations):
-            if annotation:
+        kwonly_annotations = args_node.kwonlyargs_annotations or ()
+        type_comment_kwonly = args_node.type_comment_kwonlyargs or ()
+        for arg, ann, comment_ann in itertools.zip_longest(
+            args_node.kwonlyargs, kwonly_annotations, type_comment_kwonly
+        ):
+            func_ann = (
+                func_comment_annotations[annotation_offset]
+                if annotation_offset < len(func_comment_annotations)
+                else None
+            )
+            annotation_offset += 1
+            if (
+                (ann and not _is_ellipsis(ann))
+                or (comment_ann and not _is_ellipsis(comment_ann))
+                or (func_ann and not _is_ellipsis(func_ann))
+            ):
                 result.add(arg.name)
 
     if args_node.kwarg:
-        if args_node.kwargannotation:
+        func_ann = (
+            func_comment_annotations[annotation_offset]
+            if annotation_offset < len(func_comment_annotations)
+            else None
+        )
+        annotation_offset += 1
+        if (
+            args_node.kwargannotation and not _is_ellipsis(args_node.kwargannotation)
+        ) or (func_ann and not _is_ellipsis(func_ann)):
             result.add(args_node.kwarg)
-        elif len(annotations) > annotation_offset and annotations[annotation_offset]:
-            result.add(args_node.kwarg)
-            annotation_offset += 1
 
     return result
 
