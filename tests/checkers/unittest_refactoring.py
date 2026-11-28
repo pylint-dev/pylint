@@ -4,11 +4,13 @@
 
 import itertools
 import os
-from io import StringIO
+import tokenize
+from io import BytesIO, StringIO
 from pathlib import Path
 
 import pytest
 
+from pylint.checkers.refactoring.refactoring_checker import _is_trailing_comma
 from pylint.reporters.text import TextReporter
 from pylint.testutils._run import _Run as Run
 
@@ -72,3 +74,53 @@ def test_long_comparison_chain_does_not_crash(tmp_path: Path) -> None:
             reporter=TextReporter(output),
         )
     assert "Fatal error" not in output.getvalue()
+
+
+def _tokens(source: str) -> list[tokenize.TokenInfo]:
+    return list(tokenize.tokenize(BytesIO(source.encode()).readline))
+
+
+def _comma_indexes(tokens: list[tokenize.TokenInfo]) -> list[int]:
+    return [index for index, token in enumerate(tokens) if token.string == ","]
+
+
+@pytest.mark.parametrize(
+    "source,expected",
+    [
+        pytest.param("x = 1,\n", [True], id="first statement"),
+        pytest.param("x = 1\ny = 2,\n", [True], id="second statement"),
+        pytest.param("x = 1, 2\n", [False], id="tuple of two"),
+        pytest.param("x = [\n    1,\n]\n", [False], id="inside brackets"),
+        pytest.param("print(1),\n", [False], id="no assignment"),
+        pytest.param(
+            "x = 1\nprint(1),\n", [False], id="assignment on the previous statement"
+        ),
+        pytest.param("x = 1,  # note\n", [True], id="comment after the comma"),
+        pytest.param("x = 1, \\\n# note\n", [False], id="comment on the next line"),
+        pytest.param("def f():\n    return 1,\n", [True], id="return"),
+    ],
+)
+def test_is_trailing_comma(source: str, expected: list[bool]) -> None:
+    tokens = _tokens(source)
+    assert [
+        _is_trailing_comma(tokens, index) for index in _comma_indexes(tokens)
+    ] == expected
+
+
+def test_is_trailing_comma_last_token() -> None:
+    """A comma with nothing after it on its line is not trailing."""
+    tokens = _tokens("x = 1,\n")
+    (index,) = _comma_indexes(tokens)
+    assert not _is_trailing_comma(tokens[: index + 1], index)
+
+
+@pytest.mark.timeout(8)
+def test_is_trailing_comma_long_literal() -> None:
+    """Each comma only looks at its own line, not at the whole module.
+
+    This used to take about a minute: `islice()` went through every token before
+    each comma.
+    """
+    lines = "".join(f"    {number},\n" for number in range(50_000))
+    tokens = _tokens(f"DATA = [\n{lines}]\n")
+    assert not any(_is_trailing_comma(tokens, index) for index in range(len(tokens)))
