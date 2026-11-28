@@ -1,0 +1,4 @@
+Suppress ``nested-min-max`` when a single-argument inner call uses an iterable
+that cannot be safely expanded in the suggested call.
+
+Closes #9923

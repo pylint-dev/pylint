@@ -105,6 +105,11 @@ class NestedMinMaxChecker(BaseChecker):
 
                 if arg in redundant_calls:
                     if len(arg.args) == 1:
+                        # A single argument is an iterable, not a value to compare.
+                        # Without a safe splat, flattening would compare the
+                        # iterable itself with the other arguments.
+                        if not self._is_splattable_expression(arg.args[0]):
+                            return
                         splattable_args.add(id(arg.args[0]))
                     fixed_node.args = (
                         fixed_node.args[:i] + arg.args + fixed_node.args[i + 1 :]
