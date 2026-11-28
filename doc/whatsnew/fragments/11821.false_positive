@@ -1,0 +1,5 @@
+Fixed a false positive for ``unreachable`` after a generator expression that
+calls a terminating function such as ``sys.exit()`` in its element or its
+conditions, which only run when the generator is iterated.
+
+Refs #11821
