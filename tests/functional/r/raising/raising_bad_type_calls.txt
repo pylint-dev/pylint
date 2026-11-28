@@ -1,0 +1,5 @@
+raising-bad-type:40:8:40:30:test_raise_calls:Raising NoneType while only classes or instances are allowed:INFERENCE
+raising-bad-type:42:8:42:45:test_raise_calls:Raising NoneType while only classes or instances are allowed:INFERENCE
+raising-bad-type:45:8:45:30:test_raise_calls:Raising NoneType while only classes or instances are allowed:INFERENCE
+raising-bad-type:48:8:48:23:test_raise_calls:Raising int while only classes or instances are allowed:INFERENCE
+raising-bad-type:50:4:50:20:test_raise_calls:Raising NoneType while only classes or instances are allowed:INFERENCE
