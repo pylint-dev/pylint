@@ -89,6 +89,9 @@ class AwaitedResults:
     async def __add__(self, other):
         return other
 
+    async def __reversed__(self):
+        return self
+
 
 class AsyncGeneratorApples:
     async def __aiter__(self):
@@ -132,6 +135,30 @@ class AsyncMistakes:
     async def __setitem__(self, key, value):  # [bad-dunder-name]
         # the coroutine is discarded and never awaited
         pass
+
+
+class AsyncCopyMistakes:
+    async def __getstate__(self):  # [bad-dunder-name]
+        # pickle cannot serialize the coroutine
+        return {}
+
+    async def __setstate__(self, state):  # [bad-dunder-name]
+        # copy and pickle discard the coroutine and never await it
+        pass
+
+    async def __reduce_ex__(self, protocol):  # [bad-dunder-name]
+        return (AsyncCopyMistakes, ())
+
+    async def __getnewargs__(self):  # [bad-dunder-name]
+        return ()
+
+    async def __getnewargs_ex__(self):  # [bad-dunder-name]
+        return ((), {})
+
+    @classmethod
+    async def __subclasshook__(cls, subclass):  # [bad-dunder-name]
+        # issubclass() asserts True, False or NotImplemented
+        return subclass is int
 
 
 class MyError(Exception):
