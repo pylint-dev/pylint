@@ -72,7 +72,7 @@ def bad_char_file_generator(tmp_path: Path) -> Callable[[str, bool, str], Path]:
                     byte_line.decode(codec, "strict")
                 except UnicodeDecodeError as e:
                     raise ValueError(
-                        f"Line {lineno} did raise unexpected error: {byte_line!r}\n{e}"
+                        f"Line {lineno} did raise unexpected error: {byte_line!r}"
                     ) from e
             else:
                 try:
