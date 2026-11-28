@@ -1275,7 +1275,7 @@ Standard Checkers
 """""""""""""""""""
 *Regexp for a line that is allowed to be longer than the limit.*
 
-**Default:**  ``^\s*(# )?<?https?://\S+>?$``
+**Default:**  ``^\s*(# )?<?https?://\S+$``
 
 
 .. _ignore-pattern-in-long-lines-option:
@@ -1355,7 +1355,7 @@ Standard Checkers
    # Possible choices: ['', 'LF', 'CRLF']
    expected-line-ending-format = ""
 
-   ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
+   ignore-long-lines = "^\\s*(# )?<?https?://\\S+$"
 
    # ignore-pattern-in-long-lines =
 
