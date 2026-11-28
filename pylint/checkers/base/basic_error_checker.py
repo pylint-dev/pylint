@@ -338,8 +338,19 @@ class BasicErrorChecker(_BasicChecker):
         "used-prior-global-declaration",
     )
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        self._check_nonlocal_and_global(node)
-        self._check_name_used_prior_global(node)
+        # Collect the function's own global and nonlocal statements in one walk,
+        # shared by both checks below.
+        scope_globals: list[nodes.Global] = []
+        scope_nonlocals: list[nodes.Nonlocal] = []
+        for child in node.nodes_of_class((nodes.Global, nodes.Nonlocal)):
+            if child.scope() is not node:
+                continue
+            if isinstance(child, nodes.Global):
+                scope_globals.append(child)
+            else:
+                scope_nonlocals.append(child)
+        self._check_nonlocal_and_global(node, scope_globals, scope_nonlocals)
+        self._check_name_used_prior_global(node, scope_globals)
         if not redefined_by_decorator(
             node
         ) and not utils.is_registered_in_singledispatch_function(node):
@@ -373,13 +384,14 @@ class BasicErrorChecker(_BasicChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def _check_name_used_prior_global(self, node: nodes.FunctionDef) -> None:
-        scope_globals = {
-            name: child
-            for child in node.nodes_of_class(nodes.Global)
-            for name in child.names
-            if child.scope() is node
-        }
+    def _check_name_used_prior_global(
+        self, node: nodes.FunctionDef, global_stmts: list[nodes.Global]
+    ) -> None:
+        """Check for names used before their global statement.
+
+        ``global_stmts`` are the global statements whose scope is ``node``.
+        """
+        scope_globals = {name: child for child in global_stmts for name in child.names}
 
         if not scope_globals:
             return
@@ -399,31 +411,24 @@ class BasicErrorChecker(_BasicChecker):
                     "used-prior-global-declaration", node=node_name, args=(name,)
                 )
 
-    def _check_nonlocal_and_global(self, node: nodes.FunctionDef) -> None:
-        """Check that a name is both nonlocal and global."""
+    def _check_nonlocal_and_global(
+        self,
+        node: nodes.FunctionDef,
+        global_stmts: list[nodes.Global],
+        nonlocal_stmts: list[nodes.Nonlocal],
+    ) -> None:
+        """Check that a name is both nonlocal and global.
 
-        def same_scope(current: nodes.Global | nodes.Nonlocal) -> bool:
-            return current.scope() is node
-
+        ``global_stmts`` and ``nonlocal_stmts`` are the statements whose scope is
+        ``node``.
+        """
         from_iter = itertools.chain.from_iterable
-        nonlocals = set(
-            from_iter(
-                child.names
-                for child in node.nodes_of_class(nodes.Nonlocal)
-                if same_scope(child)
-            )
-        )
+        nonlocals = set(from_iter(child.names for child in nonlocal_stmts))
 
         if not nonlocals:
             return
 
-        global_vars = set(
-            from_iter(
-                child.names
-                for child in node.nodes_of_class(nodes.Global)
-                if same_scope(child)
-            )
-        )
+        global_vars = set(from_iter(child.names for child in global_stmts))
         for name in nonlocals.intersection(global_vars):
             self.add_message("nonlocal-and-global", args=(name,), node=node)
 

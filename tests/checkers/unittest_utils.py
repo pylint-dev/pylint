@@ -910,6 +910,31 @@ def test_is_reassigned_after_current_with_assignname() -> None:
     assert utils.is_reassigned_after_current(third_assign_name, "x") is False
 
 
+def test_is_reassigned_before_or_after_current() -> None:
+    tree = astroid.parse("""
+    x = 1
+    x = 2
+    y = 3
+    def func():
+        y = 4
+    """)
+    first_x, second_x, only_y = (assign.targets[0] for assign in tree.body[:3])
+    assert isinstance(first_x, nodes.AssignName)
+    assert isinstance(second_x, nodes.AssignName)
+    assert isinstance(only_y, nodes.AssignName)
+
+    # Reassigned after, and reassigned before
+    assert utils.is_reassigned_before_or_after_current(first_x, "x") is True
+    assert utils.is_reassigned_before_or_after_current(second_x, "x") is True
+    # The other ``y`` is in a different scope, and a node never counts itself
+    assert utils.is_reassigned_before_or_after_current(only_y, "y") is False
+    for target in (first_x, second_x, only_y):
+        assert utils.is_reassigned_before_or_after_current(target, target.name) is (
+            utils.is_reassigned_before_current(target, target.name)
+            or utils.is_reassigned_after_current(target, target.name)
+        )
+
+
 def test_is_reassigned_with_node_no_lineno() -> None:
     tree = astroid.parse("""
     x = 1
