@@ -1,0 +1,5 @@
+Fixed a false positive for ``missing-type-doc`` when a function has positional-only
+parameters (``/``). The type annotations of the parameters after ``/`` were matched
+to the wrong parameters.
+
+Closes #11843
