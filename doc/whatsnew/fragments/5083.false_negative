@@ -1,0 +1,4 @@
+``useless-parent-delegation`` now detects redundant overrides that call the
+parent class by name instead of using ``super()``.
+
+Closes #5083
