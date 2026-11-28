@@ -113,5 +113,5 @@ an example, any code transformation can be done by plugins.
 
 See `astroid/brain`_ for real life examples of transform plugins.
 
-.. _`warnings.py`: https://hg.python.org/cpython/file/2.7/Lib/warnings.py
+.. _`warnings.py`: https://github.com/python/cpython/blob/2.7/Lib/warnings.py
 .. _`astroid/brain`: https://github.com/pylint-dev/astroid/tree/main/astroid/brain
