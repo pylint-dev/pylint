@@ -17,6 +17,7 @@ import pytest
 from _pytest.capture import CaptureFixture
 from _pytest.fixtures import SubRequest
 
+from pylint import constants
 from pylint.lint import augmented_sys_path, discover_package_path
 from pylint.pyreverse import main
 
@@ -203,7 +204,7 @@ def test_verbose(_: mock.MagicMock, capsys: CaptureFixture[str]) -> None:
         ("output_format", "dot"),
         ("colorized", 0),
         ("max_color_depth", 2),
-        ("ignore_list", ("CVS",)),
+        ("ignore_list", constants.DEFAULT_IGNORE_LIST),
         ("project", ""),
         ("output_directory", ""),
     ],

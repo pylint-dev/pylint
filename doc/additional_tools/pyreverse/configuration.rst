@@ -184,7 +184,7 @@ Project Configuration
 --------
 *Files or directories to be skipped. They should be base names, not paths.*
 
-**Default:**  ``('CVS',)``
+**Default:**  ``('.bzr', '.direnv', '.eggs', '.git', '.git-rewrite', '.hg', '.mypy_cache', '.nox', '.pants.d', '.pytype', '.ruff_cache', '.svn', '.tox', '.venv', 'CVS', '__pypackages__', '_build', 'buck-out', 'dist', 'node_modules', 'venv')``
 
 
 --project
