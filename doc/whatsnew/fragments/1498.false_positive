@@ -1,0 +1,6 @@
+Fixed a false positive ``unsubscriptable-object`` on the right of
+``x is None or x[...]``.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #1498

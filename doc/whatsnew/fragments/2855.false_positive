@@ -1,0 +1,6 @@
+Fixed a false positive ``unpacking-non-sequence`` when unpacking the result of a
+classmethod that replaces a class attribute set to ``None`` by a tuple.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #2855

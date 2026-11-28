@@ -1,0 +1,6 @@
+Fixed a false positive ``attribute-defined-outside-init`` when setting an
+attribute of a subclass instance narrowed with ``isinstance``.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #9157

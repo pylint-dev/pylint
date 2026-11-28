@@ -1,0 +1,6 @@
+Fixed a false positive ``no-value-for-parameter`` when calling ``__new__`` with
+the class as its only argument.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #8325

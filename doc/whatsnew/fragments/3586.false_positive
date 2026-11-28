@@ -1,0 +1,6 @@
+Fixed a false positive ``assignment-from-no-return`` on a function decorated
+outside a class with a decorator named like a property, such as ``lazy``.
+
+Fixed by upgrading astroid to 4.4.0.
+
+Closes #3586
