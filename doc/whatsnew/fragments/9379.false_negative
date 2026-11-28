@@ -1,0 +1,5 @@
+``used-before-assignment`` is now correctly emitted for uses of a name outside
+a loop when the name was only assigned in an ``except`` block paired with
+``else: continue`` inside that loop.
+
+Closes #9379
