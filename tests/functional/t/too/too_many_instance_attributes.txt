@@ -1,1 +1,3 @@
-too-many-instance-attributes:8:0:8:10:Aaaa:Too many instance attributes (21/7):UNDEFINED
+too-many-instance-attributes:11:0:11:10:Aaaa:Too many instance attributes (21/7):UNDEFINED
+too-many-instance-attributes:38:0:38:9:Foo:Too many instance attributes (9/7):UNDEFINED
+too-many-instance-attributes:53:0:53:9:Bar:Too many instance attributes (11/7):UNDEFINED

@@ -1,3 +1,5 @@
+Inherited public methods are not counted.
+
 Having too many public methods is an indication that you might not be respecting
 the Single-responsibility principle (S of SOLID).
 
