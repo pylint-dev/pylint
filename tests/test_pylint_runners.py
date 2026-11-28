@@ -133,6 +133,60 @@ def test_pylint_run_dont_crash_with_cgroupv2(
 
 
 @pytest.mark.parametrize(
+    "error",
+    [
+        pytest.param(PermissionError(1, "Operation not permitted"), id="sandbox"),
+        pytest.param(NotImplementedError("too few semaphores"), id="semaphores"),
+    ],
+)
+def test_pylint_run_fallback_to_single_process(
+    tmp_path: pathlib.Path,
+    capsys: pytest.CaptureFixture[str],
+    error: Exception,
+) -> None:
+    """Check that the pylint runner falls back to a single process if a
+    ``ProcessPoolExecutor`` cannot be created.
+    """
+    filepath = os.path.abspath(__file__)
+    testargs = [filepath, "--jobs=2"]
+
+    with _test_cwd(tmp_path):
+        with pytest.raises(SystemExit) as err:
+            with patch(
+                "concurrent.futures.ProcessPoolExecutor", side_effect=error
+            ) as executor:
+                Run(testargs, reporter=Reporter())
+        assert err.value.code == 0
+    executor.assert_called_once_with(max_workers=1)
+    assert "fallback to single process" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        pytest.param(["--jobs=0"], id="one-cpu"),
+        pytest.param(["--jobs=2", "--from-stdin"], id="from-stdin"),
+    ],
+)
+def test_pylint_run_no_executor_when_single_process(
+    tmp_path: pathlib.Path, args: list[str]
+) -> None:
+    """Check that the pylint runner does not create a ``ProcessPoolExecutor``
+    to check that multiprocessing works when it will lint in a single process.
+    """
+    testargs = [os.path.abspath(__file__), *args]
+
+    with _test_cwd(tmp_path):
+        with pytest.raises(SystemExit) as err:
+            with patch("pylint.lint.run._cpu_count", return_value=1):
+                with patch("pylint.lint.pylinter._read_stdin", return_value=""):
+                    with patch("concurrent.futures.ProcessPoolExecutor") as executor:
+                        Run(testargs, reporter=Reporter())
+        assert err.value.code == 0
+    executor.assert_not_called()
+
+
+@pytest.mark.parametrize(
     "contents,expected",
     [
         ("50000 100000", 1),
