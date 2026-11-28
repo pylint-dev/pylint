@@ -1,2 +1,6 @@
 missing-return-doc:6:0:6:22:warns_no_docstring:Missing return documentation:HIGH
 missing-return-type-doc:6:0:6:22:warns_no_docstring:Missing return type documentation:HIGH
+missing-return-doc:17:0:17:35:warns_once_with_several_returns:Missing return documentation:HIGH
+missing-return-type-doc:17:0:17:35:warns_once_with_several_returns:Missing return type documentation:HIGH
+missing-return-doc:23:4:23:13:warns_once_with_several_returns.inner:Missing return documentation:HIGH
+missing-return-type-doc:23:4:23:13:warns_once_with_several_returns.inner:Missing return type documentation:HIGH

@@ -356,6 +356,17 @@ class DocstringParameterChecker(BaseChecker):
 
         func_node: nodes.FunctionDef = node.frame()
 
+        # Report once per function, on its first return that returns something
+        first_return = next(
+            return_node
+            for return_node in func_node.nodes_of_class(
+                nodes.Return, skip_klass=nodes.FunctionDef
+            )
+            if utils.returns_something(return_node)
+        )
+        if node is not first_return:
+            return
+
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
         if no_docstring_rgx and re.match(no_docstring_rgx, func_node.name):
@@ -385,6 +396,15 @@ class DocstringParameterChecker(BaseChecker):
             return
 
         func_node: nodes.FunctionDef = node.frame()
+
+        # Report once per function, on its first yield
+        first_yield = next(
+            func_node.nodes_of_class(
+                nodes.Yield, skip_klass=(nodes.FunctionDef, nodes.Lambda)
+            )
+        )
+        if node is not first_yield:
+            return
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
