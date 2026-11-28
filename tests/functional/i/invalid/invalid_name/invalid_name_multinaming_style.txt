@@ -1,1 +1,4 @@
 invalid-name:4:0:4:9:UPPER:"Function name ""UPPER"" doesn't conform to the `down` group in the '^(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern":HIGH
+invalid-name:22:8:22:21:Record.__init__:"Attribute name ""fullName"" doesn't conform to the `snake` group in the '^(?:(?P<snake>[a-z_]+)|(?P<camel>[a-z]+[A-Z][a-z]+))$' pattern":HIGH
+invalid-name:26:8:26:21:Record.update:"Attribute name ""fullName"" doesn't conform to the `snake` group in the '^(?:(?P<snake>[a-z_]+)|(?P<camel>[a-z]+[A-Z][a-z]+))$' pattern":HIGH
+invalid-name:30:8:30:21:Record.reset:"Attribute name ""fullName"" doesn't conform to the `snake` group in the '^(?:(?P<snake>[a-z_]+)|(?P<camel>[a-z]+[A-Z][a-z]+))$' pattern":HIGH

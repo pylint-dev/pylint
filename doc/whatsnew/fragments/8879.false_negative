@@ -1,0 +1,4 @@
+Report ``invalid-name`` on each assignment to a misnamed instance attribute
+within the class that defines it.
+
+Closes #8879
