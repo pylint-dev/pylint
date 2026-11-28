@@ -174,6 +174,7 @@ class DiaDefGenerator:
         self, klass_node: nodes.ClassDef, anc_level: int, association_level: int
     ) -> None:
         """Extract recursively classes related to klass_node."""
+        klass_node = self.classdiagram.source_node(klass_node)
         if self.classdiagram.has_node(klass_node) or not self.show_node(klass_node):
             return
         self.add_class(klass_node)

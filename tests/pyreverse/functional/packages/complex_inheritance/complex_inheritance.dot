@@ -1,0 +1,7 @@
+digraph "classes" {
+rankdir=BT
+charset="utf-8"
+"complex_inheritance.child.Child" [color="black", fontcolor="black", label=<{complex_inheritance.child.Child|<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"complex_inheritance.parent.AbstractParent" [color="black", fontcolor="black", label=<{complex_inheritance.parent.AbstractParent|<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"complex_inheritance.child.Child" -> "complex_inheritance.parent.AbstractParent" [arrowhead="empty", arrowtail="none"];
+}

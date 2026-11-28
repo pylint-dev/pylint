@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from collections.abc import Sequence
 
@@ -361,6 +362,10 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
             {discover_package_path(arg, self.config.source_roots) for arg in self.args}
         )
         with augmented_sys_path(extra_packages_paths):
+            # Make bare imports from input directories available as a fallback.
+            sys.path.extend(
+                os.path.realpath(arg) for arg in self.args if os.path.isdir(arg)
+            )
             project = project_from_files(
                 self.args,
                 project_name=self.config.project,

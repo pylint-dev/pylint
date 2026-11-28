@@ -109,6 +109,21 @@ class ClassDiagram(Figure, FilterMixIn):
         self._nodes: dict[nodes.NodeNG, DiagramEntity] = {}
         self._class_definitions: dict[_ClassDefinitionKey, DiagramEntity] = {}
 
+    def source_node(self, node: nodes.ClassDef) -> nodes.ClassDef:
+        """Use the project definition when a class is imported under another name."""
+        project = self.linker.project
+        module = node.root()
+        if project.locals.get(module.name) is module or module.file in {None, "<?>"}:
+            return node
+        for source_module in project.modules:
+            if source_module.file == module.file:
+                definitions = {
+                    (source.name, source.lineno, source.col_offset): source
+                    for source in source_module.nodes_of_class(nodes.ClassDef)
+                }
+                return definitions.get((node.name, node.lineno, node.col_offset), node)
+        return node
+
     def get_relationships(self, role: str) -> Iterable[Relationship]:
         # sorted to get predictable (hence testable) results
         return sorted(
@@ -236,7 +251,7 @@ class ClassDiagram(Figure, FilterMixIn):
         """
         if node in self._nodes or not isinstance(node, nodes.ClassDef):
             return self._nodes[node]
-        return self._class_definitions[_class_definition_key(node)]
+        return self._class_definitions[_class_definition_key(self.source_node(node))]
 
     def classes(self) -> list[ClassEntity]:
         """Return all class nodes in the diagram."""

@@ -1,0 +1,10 @@
+digraph "classes" {
+rankdir=BT
+charset="utf-8"
+"namespace_inheritance.parents.parent.AbstractParent" [color="black", fontcolor="black", label=<{AbstractParent|<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"namespace_inheritance.child.Child" [color="black", fontcolor="black", label=<{Child|<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"namespace_inheritance.child.ConcreteChild" [color="black", fontcolor="black", label=<{ConcreteChild|<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"namespace_inheritance.parents.parent.GenericParent" [color="black", fontcolor="black", label=<{GenericParent|<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"namespace_inheritance.child.Child" -> "namespace_inheritance.parents.parent.AbstractParent" [arrowhead="empty", arrowtail="none"];
+"namespace_inheritance.child.ConcreteChild" -> "namespace_inheritance.parents.parent.GenericParent" [arrowhead="empty", arrowtail="none"];
+}
