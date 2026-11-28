@@ -447,8 +447,8 @@ class MisdesignChecker(BaseChecker):
                 "default": [],
                 "type": "regexp_csv",
                 "metavar": "<pattern>[,<pattern>...]",
-                "help": "List of regular expressions of class ancestor names "
-                "to ignore when counting public methods (see R0903)",
+                "help": "Skip too-few-public-methods (R0903) for a class if any "
+                "ancestor's fully qualified name matches one of these regular expressions.",
             },
         ),
     )
