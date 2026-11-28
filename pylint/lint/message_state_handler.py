@@ -270,6 +270,8 @@ class _MessageStateHandler:
             confidence = interfaces.UNDEFINED
         if confidence.name not in self.linter.config.confidence:
             return MessageDisableReason.CONFIDENCE
+        if (msgid, line) in self.linter.file_state._suppression_mapping:
+            return MessageDisableReason.MODULE
         try:
             if line in self.linter.file_state._module_msgs_state[msgid]:
                 return MessageDisableReason.MODULE
@@ -288,29 +290,11 @@ class _MessageStateHandler:
         try:
             return self.linter.file_state._module_msgs_state[msgid][line]
         except KeyError:
-            # Check if the message's line is after the maximum line existing in ast tree.
-            # This line won't appear in the ast tree and won't be referred in
-            # self.file_state._module_msgs_state
-            # This happens for example with a commented line at the end of a module.
             max_line_number = self.linter.file_state.get_effective_max_line_number()
-            if max_line_number and line > max_line_number:
-                fallback = True
-                lines = self.linter.file_state._raw_module_msgs_state.get(msgid, {})
-
-                # Doesn't consider scopes, as a 'disable' can be in a
-                # different scope than that of the current line.
-                closest_lines = reversed(
-                    [
-                        (message_line, enable)
-                        for message_line, enable in lines.items()
-                        if message_line <= line
-                    ]
+            if max_line_number is not None and line > max_line_number:
+                return self.linter.file_state.get_trailing_message_state(
+                    msgid, line, self._msgs_state.get(msgid)
                 )
-                _, fallback_iter = next(closest_lines, (None, None))
-                if fallback_iter is not None:
-                    fallback = fallback_iter
-
-                return self._msgs_state.get(msgid, fallback)
             return self._msgs_state.get(msgid, True)
 
     def is_message_enabled(
@@ -352,6 +336,7 @@ class _MessageStateHandler:
         See func_block_disable_msg.py test case for expected behaviour.
         """
         self._pragma_lineno = {}
+        self.linter.file_state.prepare_trailing_comments(tokens)
         prev_line = None
         saw_newline = True
         seen_newline = True
@@ -437,9 +422,7 @@ class _MessageStateHandler:
                 self.linter.add_message(
                     "unrecognized-inline-option", args=err.token, line=start[0]
                 )
-                continue
             except InvalidPragmaError as err:
                 self.linter.add_message(
                     "bad-inline-option", args=err.token, line=start[0]
                 )
-                continue

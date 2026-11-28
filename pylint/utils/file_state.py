@@ -5,8 +5,10 @@
 from __future__ import annotations
 
 import collections
+import tokenize
 from collections import defaultdict
 from collections.abc import Iterator
+from itertools import takewhile
 from typing import TYPE_CHECKING, Literal
 
 from astroid import nodes
@@ -24,6 +26,46 @@ if TYPE_CHECKING:
 MessageStateDict = dict[str, dict[int, bool]]
 
 
+def _indentation_width(whitespace: str) -> int:
+    """Compute the indentation column using Python's form feed and tab rules."""
+    return len(whitespace.rpartition("\f")[2].expandtabs(8))
+
+
+def _standalone_comment_scopes(
+    tokens: list[tokenize.TokenInfo],
+) -> dict[int, tuple[int, ...]]:
+    """Map standalone comments to their enclosing suite, including after the AST."""
+    scopes: dict[int, tuple[int, ...]] = {}
+    blocks: list[tuple[int, int]] = []
+    pending: list[tuple[int, int]] = []
+    in_statement = False
+
+    for token in tokens:
+        if token.type == tokenize.COMMENT:
+            if not in_statement:
+                indent = _indentation_width(token.line[: token.start[1]])
+                pending.append((token.start[0], indent))
+            continue
+        if token.type in (tokenize.ENCODING, tokenize.NL, tokenize.NEWLINE):
+            if token.type == tokenize.NEWLINE:
+                in_statement = False
+            continue
+
+        # A comment before a suite's first statement precedes its INDENT token.
+        if token.type == tokenize.INDENT:
+            blocks.append((_indentation_width(token.string), token.start[0]))
+        for line, indent in pending:
+            scopes[line] = tuple(start for width, start in blocks if width <= indent)
+        pending.clear()
+        # A dedented comment can precede the DEDENT token. Its column has
+        # already excluded the suite it is outside of.
+        if token.type == tokenize.DEDENT:
+            blocks.pop()
+        in_statement = True
+
+    return scopes
+
+
 class FileState:
     """Hold internal state specific to the currently analyzed file."""
 
@@ -38,6 +80,8 @@ class FileState:
         self.base_name = modname
         self._module_msgs_state: MessageStateDict = {}
         self._raw_module_msgs_state: MessageStateDict = {}
+        self._block_msg_pragmas: MessageStateDict = {}
+        self._comment_scopes: dict[int, tuple[int, ...]] = {}
         self._ignored_msgs: defaultdict[tuple[str, int], set[int]] = (
             collections.defaultdict(set)
         )
@@ -197,6 +241,7 @@ class FileState:
             self._set_state_on_block_lines(
                 self._msgs_store, self._module, msg, {line: status}
             )
+            self._block_msg_pragmas.setdefault(msg.msgid, {})[line] = status
         else:
             self._set_message_state_on_line(msg, line, status, line)
 
@@ -205,6 +250,44 @@ class FileState:
             self._raw_module_msgs_state[msg.msgid][line] = status
         except KeyError:
             self._raw_module_msgs_state[msg.msgid] = {line: status}
+
+    def prepare_trailing_comments(self, tokens: list[tokenize.TokenInfo]) -> None:
+        """Compute EOF comment scopes before message controls are processed."""
+        max_line = self.get_effective_max_line_number()
+        if max_line is None:
+            return
+        trailing_tokens = takewhile(
+            lambda token: token.start[0] > max_line, reversed(tokens)
+        )
+        if any(token.type == tokenize.COMMENT for token in trailing_tokens):
+            self._comment_scopes = _standalone_comment_scopes(tokens)
+
+    def get_trailing_message_state(
+        self, msgid: str, line: int, configured: bool | None
+    ) -> bool:
+        """Resolve message state for a line beyond the AST."""
+        comment_scope = self._comment_scopes.get(line)
+        # Keep configuration precedence for lines the comment scope map cannot place.
+        if comment_scope is None and configured is not None:
+            return configured
+
+        pragmas = self._block_msg_pragmas.get(msgid, {})
+        for pragma_line, enabled in reversed(pragmas.items()):
+            if pragma_line > line:
+                continue
+            if comment_scope is not None:
+                pragma_scope = self._comment_scopes.get(pragma_line)
+                if (
+                    pragma_scope is None
+                    or comment_scope[: len(pragma_scope)] != pragma_scope
+                ):
+                    continue
+            # Subsequent pragmas can still be parsed, even on this line.
+            # Record the suppression origin without caching the enabled state.
+            if comment_scope is not None and not enabled:
+                self._suppression_mapping[msgid, line] = pragma_line
+            return enabled
+        return configured if configured is not None else True
 
     def handle_ignored_message(
         self,

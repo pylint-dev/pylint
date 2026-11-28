@@ -1,0 +1,4 @@
+Honor inline message controls for trailing comments, including when a diagnostic
+is explicitly enabled in the configuration.
+
+Closes #945
