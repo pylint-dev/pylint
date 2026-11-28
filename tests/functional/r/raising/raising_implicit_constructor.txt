@@ -1,0 +1,12 @@
+no-value-for-parameter:41:4:41:23:implicit:No value for argument 'reason' in constructor call:UNDEFINED
+no-value-for-parameter:45:10:45:25:explicit:No value for argument 'reason' in constructor call:UNDEFINED
+no-value-for-parameter:65:4:65:24:inherited_constructor:No value for argument 'reason' in constructor call:UNDEFINED
+missing-kwoa:69:4:69:26:keyword_only_constructor:Missing mandatory keyword argument 'reason' in constructor call:INFERENCE
+missing-kwoa:73:10:73:28:explicit_keyword_only_constructor:Missing mandatory keyword argument 'reason' in constructor call:INFERENCE
+no-value-for-parameter:77:4:77:18:custom_new:No value for argument 'reason' in constructor call:UNDEFINED
+raising-non-exception:106:4:106:24:non_exception_class:Raising a class which doesn't inherit from BaseException:INFERENCE
+no-value-for-parameter:114:4:114:23:raise_alias:No value for argument 'reason' in constructor call:UNDEFINED
+no-value-for-parameter:131:4:131:24:required_metaclass_argument:No value for argument 'reason' in class call:UNDEFINED
+no-value-for-parameter:231:10:231:19:invalid_factory_call:No value for argument '_reason' in function call:UNDEFINED
+no-value-for-parameter:235:10:235:19:invalid_factory_branch:No value for argument '_reason' in function call:UNDEFINED
+no-value-for-parameter:311:4:311:55:same_class_twice:No value for argument 'reason' in constructor call:UNDEFINED

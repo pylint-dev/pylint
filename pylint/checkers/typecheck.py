@@ -634,13 +634,28 @@ def _enum_has_attribute(
     return node.attrname in enum_attributes
 
 
-def _get_local_callable(
-    node: nodes.NodeNG, attr: str
-) -> tuple[CallableObjects | None, bool, bool]:
+def _get_local_definition(
+    node: nodes.ClassDef, attr: str, *, require_unconditional: bool
+) -> nodes.NodeNG | None:
     try:
-        c = node.local_attr(attr)[-1]
+        definitions = node.local_attr(attr)
     except astroid.NotFoundError:
-        c = None
+        return None
+
+    definition = definitions[-1]
+    # local_attr() follows the MRO but also returns definitions in conditional
+    # blocks, even if the block never runs.
+    if require_unconditional and (
+        len(definitions) != 1 or not isinstance(definition.parent, nodes.ClassDef)
+    ):
+        raise ValueError
+    return definition
+
+
+def _get_local_callable(
+    node: nodes.ClassDef, attr: str, *, require_unconditional: bool
+) -> tuple[CallableObjects | None, bool, bool]:
+    c = _get_local_definition(node, attr, require_unconditional=require_unconditional)
     is_from_object = bool(c and c.parent.scope().name == "object")
     is_from_builtins = bool(c and c.root().name in sys.builtin_module_names)
     return c, is_from_object, is_from_builtins
@@ -652,7 +667,7 @@ def _check_is_function_def(obj: Any) -> None:
 
 
 def _determine_callable(
-    callable_obj: nodes.NodeNG,
+    callable_obj: nodes.NodeNG, *, require_unconditional: bool = False
 ) -> tuple[CallableObjects, int, str]:
     # TODO: The typing of the second return variable is actually Literal[0,1]
     # We need typing on nodes.NodeNG.implicit_parameters for this
@@ -685,21 +700,23 @@ def _determine_callable(
             # Try to use the metaclass' __call__ if any.
             meta = callable_obj.metaclass()
             if isinstance(meta, nodes.ClassDef):
-                meta_call, _, from_builtins = _get_local_callable(meta, "__call__")
+                meta_call, _, from_builtins = _get_local_callable(
+                    meta, "__call__", require_unconditional=require_unconditional
+                )
                 if meta_call and not from_builtins:
                     _check_is_function_def(meta_call)
                     return meta_call, parameters, "class"
 
             # Use the last definition of __new__.
             new, from_object, from_builtins = _get_local_callable(
-                callable_obj, "__new__"
+                callable_obj, "__new__", require_unconditional=require_unconditional
             )
             if not new or from_object or from_builtins:
-                try:
-                    # Use the last definition of __init__.
-                    callable_obj = callable_obj.local_attr("__init__")[-1]
-                except astroid.NotFoundError as e:
-                    raise ValueError from e
+                callable_obj = _get_local_definition(
+                    callable_obj,
+                    "__init__",
+                    require_unconditional=require_unconditional,
+                )
             else:
                 callable_obj = new
 
@@ -707,6 +724,54 @@ def _determine_callable(
             return callable_obj, parameters, "constructor"
 
     raise ValueError
+
+
+def _infer_single_class(node: nodes.NodeNG) -> nodes.ClassDef | None:
+    # Inference may return the result of a call even if its arguments are invalid.
+    if next(node.nodes_of_class(nodes.Call), None) is not None:
+        return None
+    # Different inference paths can return the same class node.
+    match list(dict.fromkeys(utils.infer_all(node))):
+        case [nodes.ClassDef() as klass]:
+            return klass
+    return None
+
+
+def _known_class_mro(klass: nodes.ClassDef) -> list[nodes.ClassDef]:
+    mro = utils.safe_mro(klass)
+    # Astroid may construct an MRO using only the bases it can infer.
+    if any(
+        _infer_single_class(base) not in mro
+        for ancestor in mro
+        for base in ancestor.bases
+    ):
+        return []
+    return mro
+
+
+def _has_known_class_construction(klass: nodes.ClassDef) -> bool:
+    mro = _known_class_mro(klass)
+    if not mro:
+        return False
+
+    metaclasses: set[nodes.ClassDef] = set()
+    for ancestor in mro:
+        # Unpacked class keywords can supply a metaclass.
+        if any(keyword.arg is None for keyword in ancestor.keywords):
+            return False
+        # Astroid stores the metaclass expression separately from the class keywords.
+        declared = ancestor._metaclass
+        if declared is None:
+            continue
+        metaclass = _infer_single_class(declared)
+        if metaclass is None or not any(
+            base.qname() == "builtins.type" for base in _known_class_mro(metaclass)
+        ):
+            return False
+        metaclasses.add(metaclass)
+
+    # Astroid can select the first inherited metaclass rather than the most derived.
+    return len(metaclasses) <= 1
 
 
 def _has_parent_of_type(
@@ -1590,7 +1655,22 @@ accessed. Python regular expressions are accepted.",
                 confidence=INFERENCE,
             )
 
-    # pylint: disable = too-many-branches, too-many-locals, too-many-statements
+    @only_required_for_messages(
+        "no-value-for-parameter", "missing-kwoa", "too-many-function-args"
+    )
+    def visit_raise(self, node: nodes.Raise) -> None:
+        """Check the zero-argument construction of a raised exception class."""
+        if node.exc is None:
+            return
+
+        exception = _infer_single_class(node.exc)
+        if (
+            exception is not None
+            and utils.inherit_from_std_ex(exception)
+            and _has_known_class_construction(exception)
+        ):
+            self._check_call_arguments(node, exception)
+
     def visit_call(self, node: nodes.Call) -> None:
         """Check that called functions/methods are inferred to callable objects,
         and that passed arguments match the parameters in the inferred function.
@@ -1598,18 +1678,29 @@ accessed. Python regular expressions are accepted.",
         called = safe_infer(node.func, compare_constructors=True)
 
         self._check_not_callable(node, called)
+        self._check_call_arguments(node, called)
 
+    # pylint: disable = too-many-branches, too-many-locals, too-many-statements
+    def _check_call_arguments(
+        self, node: nodes.Call | nodes.Raise, called: InferenceResult | None
+    ) -> None:
+        call = node if isinstance(node, nodes.Call) else None
         try:
-            called, implicit_args, callable_name = _determine_callable(called)
+            called, implicit_args, callable_name = _determine_callable(
+                called, require_unconditional=call is None
+            )
         except ValueError:
             # Any error occurred during determining the function type, most of
             # those errors are handled by different warnings.
             return
 
+        if call is None and called.type == "staticmethod":
+            # The ordinary class-call path assumes an implicit receiver.
+            return
         if called.args.args is None:
-            if called.name == "isinstance":
+            if call is not None and called.name == "isinstance":
                 # Verify whether second argument of isinstance is a valid type
-                self._check_isinstance_args(node, callable_name)
+                self._check_isinstance_args(call, callable_name)
             # Built-in functions have no argument information.
             return
 
@@ -1620,7 +1711,11 @@ accessed. Python regular expressions are accepted.",
 
         # Build the set of keyword arguments, checking for duplicate keywords,
         # and count the positional arguments.
-        call_site = arguments.CallSite.from_call(node)
+        call_site = (
+            arguments.CallSite.from_call(call)
+            if call is not None
+            else arguments.CallSite(astroid.context.CallContext([]))
+        )
 
         # Warn about duplicated keyword arguments, such as `f=24, **{'f': 24}`
         for keyword in call_site.duplicated_keywords:
@@ -1642,12 +1737,14 @@ accessed. Python regular expressions are accepted.",
 
         # Determine if we don't have a context for our call and we use variadics.
         node_scope = node.scope()
-        if isinstance(node_scope, (nodes.Lambda, nodes.FunctionDef)):
+        if call is not None and isinstance(
+            node_scope, (nodes.Lambda, nodes.FunctionDef)
+        ):
             has_no_context_positional_variadic = _no_context_variadic_positional(
-                node, node_scope
+                call, node_scope
             )
             has_no_context_keywords_variadic = _no_context_variadic_keywords(
-                node, node_scope
+                call, node_scope
             )
         else:
             has_no_context_positional_variadic = has_no_context_keywords_variadic = (
@@ -1665,10 +1762,11 @@ accessed. Python regular expressions are accepted.",
         # inside the class where the function is defined.
         # This avoids emitting `too-many-function-args` since `num_positional_args`
         # includes an implicit `self` argument which is not present in `called.args`.
+        call_frame = call.frame() if call is not None else None
         if (
-            isinstance(node.frame(), nodes.ClassDef)
+            isinstance(call_frame, nodes.ClassDef)
             and isinstance(called, nodes.FunctionDef)
-            and called in node.frame().body
+            and called in call_frame.body
             and num_positional_args > 0
             and "builtins.staticmethod" not in called.decoratornames()
         ):
@@ -1697,9 +1795,10 @@ accessed. Python regular expressions are accepted.",
                 name = arg.name
             kwparams[name] = [called.args.kw_defaults[i], False]
 
-        self._check_argument_order(
-            node, call_site, called, [p[0][0] for p in parameters]
-        )
+        if call is not None:
+            self._check_argument_order(
+                call, call_site, called, [p[0][0] for p in parameters]
+            )
 
         # 1. Match the positional arguments.
         for i in range(num_positional_args):
@@ -1784,11 +1883,13 @@ accessed. Python regular expressions are accepted.",
         # filled after its creation (``d["y"] = ...``, see #10029). A literal
         # ``f(**{"y": ...})`` keeps the gate closed and lets
         # ``no-value-for-parameter`` and ``missing-kwoa`` fire (see #8785).
-        kwargs_might_supply_more = any(
-            not isinstance(kw.value, nodes.Dict) for kw in node.kwargs
-        )
-        if node.kwargs and (
-            has_no_context_keywords_variadic or kwargs_might_supply_more
+        if (
+            call is not None
+            and call.kwargs
+            and (
+                has_no_context_keywords_variadic
+                or any(not isinstance(kw.value, nodes.Dict) for kw in call.kwargs)
+            )
         ):
             for i, [(name, _defval), _assigned] in enumerate(parameters):
                 if name is not None:
