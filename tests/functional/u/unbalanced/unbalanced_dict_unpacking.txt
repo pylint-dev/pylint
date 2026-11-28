@@ -18,3 +18,7 @@ unbalanced-dict-unpacking:98:0:99:8::"Possible unbalanced dict unpacking with {1
 unbalanced-dict-unpacking:101:0:102:8::"Possible unbalanced dict unpacking with {1: 2, 3: (4, 5)}.values(): left side has 2 labels, right side has 1 value":INFERENCE
 unbalanced-dict-unpacking:104:0:105:8::"Possible unbalanced dict unpacking with {1: (2, 3, 4), 5: (6, 7)}.values(): left side has 2 labels, right side has 3 values":INFERENCE
 unbalanced-dict-unpacking:107:0:108:8::"Possible unbalanced dict unpacking with {1: (2, 3, 4), 5: (6, 7)}.values(): left side has 3 labels, right side has 2 values":INFERENCE
+unbalanced-dict-unpacking:145:4:145:39:unpack_module_level_dict_from_function:"Possible unbalanced dict unpacking with MODULE_LEVEL_DICT.items(): left side has 3 labels, right side has 1 value":INFERENCE
+unbalanced-dict-unpacking:154:4:154:36:unpack_items_of_dict_returned_by_function:"Possible unbalanced dict unpacking with returns_dict().items(): left side has 3 labels, right side has 2 values":INFERENCE
+unbalanced-dict-unpacking:159:4:159:28:unpack_dict_returned_by_function:"Possible unbalanced dict unpacking with returns_dict(): left side has 3 labels, right side has 2 values":INFERENCE
+unbalanced-dict-unpacking:167:8:167:37:unpack_dict_from_enclosing_function.inner:"Possible unbalanced dict unpacking with outer_dict.values(): left side has 3 labels, right side has 2 values":INFERENCE
