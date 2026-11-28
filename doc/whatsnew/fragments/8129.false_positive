@@ -1,0 +1,5 @@
+``expression-not-assigned`` and ``pointless-statement`` are no longer emitted for a
+conditional expression that calls a function, awaits or yields on every branch, as in
+``f() if test else g()``. Like a call on its own, it is used for its effect.
+
+Closes #8129
