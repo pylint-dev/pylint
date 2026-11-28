@@ -261,7 +261,9 @@ class SpellingChecker(BaseTokenChecker):
                 "type": "path",
                 "metavar": "<path to file>",
                 "help": "A path to a file that contains the private "
-                "dictionary; one word per line.",
+                "dictionary; one word per line. Relative paths in configuration "
+                "files are resolved relative to the configuration file; paths "
+                "on the command line are relative to the working directory.",
             },
         ),
         (

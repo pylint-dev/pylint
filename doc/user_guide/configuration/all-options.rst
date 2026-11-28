@@ -1831,7 +1831,7 @@ Standard Checkers
 
 --spelling-private-dict-file
 """"""""""""""""""""""""""""
-*A path to a file that contains the private dictionary; one word per line.*
+*A path to a file that contains the private dictionary; one word per line. Relative paths in configuration files are resolved relative to the configuration file; paths on the command line are relative to the working directory.*
 
 **Default:** ``""``
 
