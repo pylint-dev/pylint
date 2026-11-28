@@ -2141,12 +2141,17 @@ class VariablesChecker(BaseChecker):
                     self._postponed_evaluation_enabled  # noqa: RUF021
                     and (
                         isinstance(stmt, nodes.AnnAssign)
-                        or isinstance(stmt, nodes.FunctionDef)  # noqa: RUF021
-                        and node
-                        not in {
-                            *(stmt.args.defaults or ()),
-                            *(stmt.args.kw_defaults or ()),
-                        }
+                        or (
+                            isinstance(stmt, nodes.FunctionDef)
+                            and node
+                            not in {
+                                *(stmt.args.defaults or ()),
+                                *(stmt.args.kw_defaults or ()),
+                            }
+                            and not (
+                                stmt.decorators and stmt.decorators.parent_of(node)
+                            )
+                        )
                     )
                     or isinstance(stmt, nodes.AnnAssign)  # noqa: RUF021
                     and utils.get_node_first_ancestor_of_type(stmt, nodes.FunctionDef)
