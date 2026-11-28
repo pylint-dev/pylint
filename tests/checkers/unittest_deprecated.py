@@ -55,6 +55,11 @@ class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
     def deprecated_attributes(self) -> set[str]:
         return {".DeprecatedClass.deprecated_attribute"}
 
+    def deprecated_attribute_replacements(self) -> dict[str, str]:
+        return {
+            ".DeprecatedClass.deprecated_attribute": ".DeprecatedClass.new_attribute"
+        }
+
 
 # pylint: disable-next = too-many-public-methods
 class TestDeprecatedChecker(CheckerTestCase):
@@ -81,6 +86,160 @@ class TestDeprecatedChecker(CheckerTestCase):
                 end_col_offset=24,
             )
         ):
+            self.checker.visit_attribute(node)
+
+    def test_deprecated_attribute_inherited(self) -> None:
+        # An inherited deprecated attribute is reported, on the instance and
+        # on the class, with the name of the class defining it
+        first, second = astroid.extract_node("""
+        class DeprecatedClass:
+            deprecated_attribute = 42
+
+        class Child(DeprecatedClass):
+            pass
+
+        class GrandChild(Child):
+            def read(self):
+                return self.deprecated_attribute  #@
+
+        GrandChild.deprecated_attribute  #@
+        """)
+        for node in (first.value, second):
+            with self.assertAddsMessages(
+                MessageTest(
+                    msg_id="deprecated-attribute",
+                    args=(".DeprecatedClass.deprecated_attribute",),
+                    node=node,
+                    confidence=INFERENCE,
+                ),
+                ignore_position=True,
+            ):
+                self.checker.visit_attribute(node)
+
+    def test_deprecated_attribute_overridden(self) -> None:
+        # A subclass defining the name overrides the deprecated attribute
+        node = astroid.extract_node("""
+        class DeprecatedClass:
+            deprecated_attribute = 42
+
+        class Child(DeprecatedClass):
+            @property
+            def deprecated_attribute(self):
+                return 0
+
+        class GrandChild(Child):
+            pass
+
+        GrandChild().deprecated_attribute  #@
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_attribute(node)
+
+    def test_deprecated_attribute_assigned_and_deleted(self) -> None:
+        # Setting or deleting a deprecated attribute is reported too
+        assign, delete = astroid.extract_node("""
+        class DeprecatedClass:
+            deprecated_attribute = 42
+
+        class Child(DeprecatedClass):
+            def __init__(self):
+                self.deprecated_attribute = 0  #@
+
+            def reset(self):
+                del self.deprecated_attribute  #@
+        """)
+        assign_node = assign.targets[0]
+        delete_node = delete.targets[0]
+        with self.assertAddsMessages(
+            MessageTest(
+                msg_id="deprecated-attribute",
+                args=(".DeprecatedClass.deprecated_attribute",),
+                node=assign_node,
+                confidence=INFERENCE,
+            ),
+            ignore_position=True,
+        ):
+            self.checker.visit_assignattr(assign_node)
+        with self.assertAddsMessages(
+            MessageTest(
+                msg_id="deprecated-attribute",
+                args=(".DeprecatedClass.deprecated_attribute",),
+                node=delete_node,
+                confidence=INFERENCE,
+            ),
+            ignore_position=True,
+        ):
+            self.checker.visit_delattr(delete_node)
+
+    def test_deprecated_attribute_kept_in_sync(self) -> None:
+        # Setting or deleting a deprecated attribute is not reported when its
+        # replacement is set or deleted too, in the same function
+        assign, delete = astroid.extract_node("""
+        class DeprecatedClass:
+            deprecated_attribute = 42
+            new_attribute = 42
+
+        class Child(DeprecatedClass):
+            def __init__(self, other):
+                self.deprecated_attribute = 0  #@
+                self.new_attribute = 0
+                other.new_attribute = 0
+
+            def reset(self):
+                del self.deprecated_attribute  #@
+                del unknown().new_attribute
+                del self.new_attribute
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_assignattr(assign.targets[0])
+            self.checker.visit_delattr(delete.targets[0])
+
+    def test_deprecated_attribute_replacement_elsewhere(self) -> None:
+        # The replacement handled in another way, or in another function,
+        # does not excuse setting or deleting the deprecated attribute
+        assign, delete = astroid.extract_node("""
+        class DeprecatedClass:
+            deprecated_attribute = 42
+            new_attribute = 42
+
+        class Child(DeprecatedClass):
+            def __init__(self):
+                self.deprecated_attribute = 0  #@
+                del self.new_attribute
+
+            def reset(self):
+                del self.deprecated_attribute  #@
+
+                def nested():
+                    del self.new_attribute
+
+                return nested
+        """)
+        for node, visit in (
+            (assign.targets[0], self.checker.visit_assignattr),
+            (delete.targets[0], self.checker.visit_delattr),
+        ):
+            with self.assertAddsMessages(
+                MessageTest(
+                    msg_id="deprecated-attribute",
+                    args=(".DeprecatedClass.deprecated_attribute",),
+                    node=node,
+                    confidence=INFERENCE,
+                ),
+                ignore_position=True,
+            ):
+                visit(node)
+
+    def test_deprecated_attribute_uninferable(self) -> None:
+        # Nothing is reported when the object cannot be inferred to a module,
+        # a class or an instance
+        node = astroid.extract_node("""
+        def unknown():
+            return undefined_name
+
+        unknown().deprecated_attribute  #@
+        """)
+        with self.assertNoMessages():
             self.checker.visit_attribute(node)
 
     def test_deprecated_function(self) -> None:
