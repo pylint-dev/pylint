@@ -35,7 +35,9 @@ from pylint.typing import Options
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
-_BadNamesTuple = tuple[nodes.NodeNG, str, str, interfaces.Confidence]
+_BadNamesTuple = tuple[
+    nodes.NodeNG, str, str, interfaces.Confidence, tuple[nodes.NodeNG, ...]
+]
 
 # Default patterns for name types that do not have styles
 DEFAULT_PATTERNS = {
@@ -414,7 +416,17 @@ class NameChecker(_BasicChecker):
             if not any(
                 node.instance_attr_ancestors(attr)
             ) and not utils.is_assign_name_annotated_with(anodes[0], "Final"):
-                self._check_name("attr", attr, anodes[0])
+                self._check_name(
+                    "attr",
+                    attr,
+                    anodes[0],
+                    other_assignments=(
+                        assignment
+                        for assignment in anodes[1:]
+                        if node.parent_of(assignment)
+                        and not utils.is_assign_name_annotated_with(assignment, "Final")
+                    ),
+                )
 
     @utils.only_required_for_messages("disallowed-name", "invalid-name")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
@@ -689,6 +701,7 @@ class NameChecker(_BasicChecker):
         node_type: str,
         name: str,
         confidence: interfaces.Confidence,
+        other_assignments: Iterable[nodes.NodeNG],
         warning: str = "invalid-name",
     ) -> None:
         type_label = constants.HUMAN_READABLE_TYPES[node_type]
@@ -706,8 +719,9 @@ class NameChecker(_BasicChecker):
             else (type_label.capitalize(), name)
         )
 
-        self.add_message(warning, node=node, args=args, confidence=confidence)
-        self.linter.stats.increase_bad_name(node_type, 1)
+        for location in itertools.chain((node,), other_assignments):
+            self.add_message(warning, node=location, args=args, confidence=confidence)
+            self.linter.stats.increase_bad_name(node_type, 1)
 
     def _name_allowed_by_regex(self, name: str) -> bool:
         return name in self.linter.config.good_names or any(
@@ -726,6 +740,8 @@ class NameChecker(_BasicChecker):
         node: nodes.NodeNG,
         confidence: interfaces.Confidence = interfaces.HIGH,
         disallowed_check_only: bool = False,
+        *,
+        other_assignments: Iterable[nodes.NodeNG] = (),
     ) -> None:
         """Check for a name using the type's regexp."""
 
@@ -752,14 +768,19 @@ class NameChecker(_BasicChecker):
             bad_name_group = self._bad_names.setdefault(name_group, {})
             # Ignored because this is checked by the if statement
             warnings = bad_name_group.setdefault(match.lastgroup, [])  # type: ignore[union-attr, arg-type]
-            warnings.append((node, node_type, name, confidence))
+            # Each name votes once for the style, regardless of assignment count.
+            warnings.append(
+                (node, node_type, name, confidence, tuple(other_assignments))
+            )
 
         if (
             match is None
             and not disallowed_check_only
             and not _should_exempt_from_invalid_name(node)
         ):
-            self._raise_name_warning(None, node, node_type, name, confidence)
+            self._raise_name_warning(
+                None, node, node_type, name, confidence, other_assignments
+            )
 
         # Check TypeVar names for variance suffixes
         if node_type == "typevar":

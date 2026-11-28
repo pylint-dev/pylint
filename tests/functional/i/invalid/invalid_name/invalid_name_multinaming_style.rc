@@ -1,2 +1,3 @@
 [BASIC]
 function-rgx=^(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$
+attr-rgx=^(?:(?P<snake>[a-z_]+)|(?P<camel>[a-z]+[A-Z][a-z]+))$
